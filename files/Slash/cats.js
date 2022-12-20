@@ -1,0 +1,20 @@
+const request = require('request'); 
+const { MessageEmbed } = require("discord.js")
+
+    module.exports = {
+        name: 'cats',
+        description: 'cute cats',
+        run: async (client, interaction) => {
+      
+            request('http://edgecats.net/random', function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                        let emb = new MessageEmbed()
+                        .setImage(body)
+                        .setTitle('Miauw :cat:')
+                        .setTimestamp()
+                                  
+                       interaction.reply({embeds: [emb]})  
+                }
+            });      
+          const filter = (interaction) => interaction.user.id === interaction.member.id;
+          }}

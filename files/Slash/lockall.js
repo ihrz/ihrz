@@ -1,0 +1,30 @@
+const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+
+module.exports = {
+  name: 'lockall',
+  description: 'Remove ability to speak of all users in all of text channel on the guild',
+  run: async (client, interaction) => {
+
+    const permission = interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR);
+    if (!permission) return interaction.reply({content: "❌ | You don't have permission to lockall channels."});
+      interaction.guild.channels.cache.forEach(c => {
+        c.permissionOverwrites.create(interaction.guild.id, { SEND_MESSAGES: false })
+          })
+          const Lockembed = new MessageEmbed()
+        .setColor("#5b3475")
+        .setTimestamp()
+        .setDescription(`All channels have been locked by <@${interaction.user.id}>.`);
+        try{
+          let ban_embed = new MessageEmbed()
+                  .setColor("PURPLE")
+                  .setTitle("Lockall Logs")
+                  .setDescription(`<@${interaction.user.id}> lock all channels !`)
+          let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+          logchannel.send({embeds: [ban_embed]})
+          }catch(e){
+              return
+          }  
+        return interaction.reply({embeds: [Lockembed]})
+    const filter = (interaction) => interaction.user.id === interaction.member.id;
+    }}
+
