@@ -42,7 +42,7 @@ module.exports = {
               interaction.guild.members.unban(bannedMember)
               db.delete(`blacklist_${member.id}`);
 
-              console.log(`<@${bannedMember.id}> **is unbanned from this server!**`)
+              console.log(`<@${bannedMember.id}> **is unblacklisted from this server!**`)
               return interaction.reply(`<@${member.id}> is not longer blacklisted'`)
 
           }catch(e){

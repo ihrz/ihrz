@@ -83,10 +83,9 @@ module.exports = {
         member = await interaction.guild.members.fetch(member)
 
   function getSubscriptions(response) {
-          if(!response.available){ return console.log("ya pas mdr")}
+          if(!response.available){ return }
           //si il n'est pas enregistré dans la db
           if(response.available == "no"){ 
-          console.log("not find")
           description = `${getBadges(member.user.flags)}\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\`\n[My nitro is not showed](${api_login})`;
           sendMessage(description)
         };
@@ -97,25 +96,21 @@ module.exports = {
     switch (data.premium_type) {
       case 0:
         /*Don't have nitro*/
-        console.log(0);
         descriptionTwo = `${getBadges(member.user.flags)}\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
         sendMessage(descriptionTwo)
         break;
       case 1:
         /* Discord Nitro Classic*/
-        console.log(1);
         descriptionTwo = `${getBadges(member.user.flags)}<:NITRO:1047317443770581062>\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
         sendMessage(descriptionTwo)
         break;
       case 2:
         /* Discord Nitro Boost*/
-        console.log(2);
         descriptionTwo = `${getBadges(member.user.flags)}<:NITRO:1047317443770581062><:BOOST:1047322188493099038>\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
         sendMessage(descriptionTwo)
         break;
       case 3:
         /* Discord Nitro Basic*/
-        console.log(3);
         descriptionTwo = `${getBadges(member.user.flags)}<:NITRO:1047317443770581062>\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
         sendMessage(descriptionTwo)
         break;
