@@ -48,17 +48,16 @@ module.exports = {
         
         if(query === "true"){
             if(!roleid) return interaction.reply(help_embed);
-            try{
-                let ban_embed = new MessageEmbed()
-                        .setColor("PURPLE")
-                        .setTitle("SetJoinRoles Logs")
-                        .setDescription(`<@${interaction.user.id}> set the join roles !`)
-                let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-                logchannel.send({embeds: [ban_embed]})
-                }catch(e){
-                    
-                }  
-        
+try{
+                    logEmbed = new MessageEmbed()
+                    .setColor("PURPLE")
+                    .setTitle("SetJoinRoles Logs")
+                    .setDescription(`<@${interaction.user.id}> set the join roles !`)
+
+                            let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                            if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                            }catch(e) { console.error(e) };
+
             try{
                 let already = db.fetch(`joinroles-${interaction.guild.id}`);
                 if(already === roleid) return interaction.reply("The join roles is already config with this role !")

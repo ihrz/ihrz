@@ -6,29 +6,34 @@ module.exports = {
     description: 'Set message channel earned by xp level',
     options: [
         {
-            name: 'value',
-            type: 'BOOLEAN',
-            description: '<True= in custom channel/False=in the original message channel>',
-            required: true
+            name: 'action',
+            type: "STRING",
+            description: 'What you want to do?',
+            required: true,
+            choices: [
+        {
+            name: "Remove the module (send xp message on the user's message channel)",
+            value: "off"
         },
+        {
+            name: 'Power on the module (send xp message on a specific channel)',
+            value: "on"
+        }
+    ],
+},
         {
             name: 'channel',
             type: 'CHANNEL',
-            description: '<channels id if the first args is "True">',
+            description: 'The specific channel for xp message !',
             required: false
         }
-    ],
+],
     run: async (client, interaction) => {
-    let type = interaction.options.getBoolean("value")
+    let type = interaction.options.getString("action")
     let argsid = interaction.options.getChannel("channel").id
       //const initialMessage = await interaction.reply({ embeds: [embed] });
   
       if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply(":x: | You must be an administrator of this server to request this commands!");
-
- let help_embed = new MessageEmbed()
- .setColor("BLUE")
- .setTitle("/setxpchannels Help !")
- .setDescription('/setxpchannels <True= in custom channel/False=in the original message channel> <channels id if the first args is "True">')
 
  if (type === true) {
     try{

@@ -58,15 +58,16 @@ let help_embed = new MessageEmbed()
       .replace("{guild}", "{guild}")
       .replace("{membercount}", "{membercount}")
       db.set(`leavemessage_${interaction.guild.id}`, joinmsgreplace)
-  
+
   try{
-    let ban_embed = new MessageEmbed()
+    logEmbed = new MessageEmbed()
     .setColor("PURPLE")
     .setTitle("SetJoinMessage Logs")
     .setDescription(`<@${interaction.user.id}> set the leave message !`)
-  let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-  logchannel.send({embeds: [ban_embed]})
-  }catch(e){console.error(e)}
+
+            let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+            if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+            }catch(e) { console.error(e) };
   
       return interaction.reply(`✅ | Succefully set custom leave message.`)
     }

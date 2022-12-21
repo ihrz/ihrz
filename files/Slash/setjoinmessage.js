@@ -63,28 +63,31 @@ let help_embed = new MessageEmbed()
       .replace("{membercount}", "{membercount}")
       db.set(`joinmessage_${interaction.guild.id}`, joinmsgreplace)
   try{
-    let ban_embed = new MessageEmbed()
+    logEmbed = new MessageEmbed()
     .setColor("PURPLE")
     .setTitle("SetJoinMessage Logs")
     .setDescription(`<@${interaction.user.id}> set the join message !`)
-  let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-  logchannel.send({embeds: [ban_embed]})
-  }catch(e){console.error(e)}
+
+            let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+            if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+            }catch(e) { console.error(e) };
+
       return interaction.reply(`✅ | Succefully set custom join message.`)
 
     }
   }else{
     if(type == "off"){
       db.delete(`joinmessage_${interaction.guild.id}`);
-
       try{
-        let ban_embed = new MessageEmbed()
+        logEmbed = new MessageEmbed()
         .setColor("PURPLE")
         .setTitle("SetJoinMessage Logs")
         .setDescription(`<@${interaction.user.id}> deleted the join message !`)
-      let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-      logchannel.send({embeds: [ban_embed]})
-      }catch(e){console.error(e)}
+
+                let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                }catch(e) { console.error(e) };
+
 
       return interaction.reply(`✅ | Succefully deleted custom join message.`)
     }

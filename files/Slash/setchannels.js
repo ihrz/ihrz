@@ -50,18 +50,16 @@ module.exports = {
        
        
         if (type === "join") {
-            if(!argsid) return interaction.reply(help_embed)
-           try{
-               if(!argsid) return interaction.reply({content: "You must specify a valid channels id for you channels."})
-               let ban_embed = new MessageEmbed()
-                       .setColor("PURPLE")
-                       .setTitle("SetChannels Logs")
-                       .setDescription(`<@${interaction.user.id}> set the join channels to: <#${argsid.id}>`)
-               let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-               logchannel.send({embeds: [ban_embed]})
-               }catch(e){
-               
-               }  
+            if(!argsid) return interaction.reply({content: "You must specify a valid channels id for you channels."})
+               try{
+                logEmbed = new MessageEmbed()
+                .setColor("PURPLE")
+                .setTitle("SetChannels Logs")
+                .setDescription(`<@${interaction.user.id}> set the join channels to: <#${argsid.id}>`)
+
+                        let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                        if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                        }catch(e) { console.error(e) };
         try{
            let already = db.fetch(`join-${interaction.guild.id}`)
                if(already === argsid.id) return interaction.reply({content: 'The join channels is already config with this channels id!'})
@@ -94,15 +92,16 @@ module.exports = {
               interaction.reply({content: "Error: missing permissions or channel doesn't exist"});
            }
            try{
-               let ban_embed = new MessageEmbed()
-                       .setColor("PURPLE")
-                       .setTitle("SetChannels Logs")
-                       .setDescription(`<@${interaction.user.id}> set the leaves channels to: <#${argsid.id}>`)
-               let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-               logchannel.send({embeds: [ban_embed]})
-               }catch(e){
-                   
-               }  
+            logEmbed = new MessageEmbed()
+            .setColor("PURPLE")
+            .setTitle("SetChannels Logs")
+            .setDescription(`<@${interaction.user.id}> set the leaves channels to: <#${argsid.id}>`)
+            
+                    let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                    if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                    }catch(e) { console.error(e) };
+
+               
           }
         if (type === "off") {
               try{
@@ -117,6 +116,16 @@ module.exports = {
               }catch{
        
               }
+
+              try{
+                logEmbed = new MessageEmbed()
+                .setColor("PURPLE")
+                .setTitle("SetChannels Logs")
+                .setDescription(`<@${interaction.user.id}> delete all join/leave message channels configurations !`)
+                
+                        let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                        if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                        }catch(e) { console.error(e) };
           }else{
             return interaction.reply({embeds: [help_embed]});
           }
