@@ -24,16 +24,15 @@ module.exports = {
             member.kick({ reason: 'kicked by '+interaction.user.username})
             .then((member) => {
                         interaction.reply(`${member.user} kicked by ${interaction.user}`);
-                        try{
-                            let ban_embed = new MessageEmbed()
-                                    .setColor("PURPLE")
-                                    .setTitle("Kick Logs")
-                                    .setDescription(`${member.user} kick by <@${interaction.user.id}>`)
-                            let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-                            logchannel.send({embeds: [ban_embed]})
-                            }catch(e){
-                                return
-                            }  
+                            try{
+                                logEmbed = new MessageEmbed()
+                                .setColor("PURPLE")
+                                .setTitle("Kick Logs")
+                                .setDescription(`${member.user} kick by <@${interaction.user.id}>`);
+                                
+                                        let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                                        if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                                        }catch(e) { console.error(e) };
                     })
 
                 })

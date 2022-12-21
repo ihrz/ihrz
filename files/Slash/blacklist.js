@@ -39,7 +39,7 @@ module.exports = {
                         .setColor('#2E2EFE')
                         .setAuthor('Blacklist')
                         .setDescription(text)
-                        .setFooter('1/1 iHORIZON')
+                        .setFooter('1/1 iHorizon')
                         const member = interaction.options.getMember('member')
                         if (!member) return interaction.reply({embeds: [embed]});
             

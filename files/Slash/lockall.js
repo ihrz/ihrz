@@ -14,16 +14,15 @@ module.exports = {
         .setColor("#5b3475")
         .setTimestamp()
         .setDescription(`All channels have been locked by <@${interaction.user.id}>.`);
-        try{
-          let ban_embed = new MessageEmbed()
-                  .setColor("PURPLE")
-                  .setTitle("Lockall Logs")
-                  .setDescription(`<@${interaction.user.id}> lock all channels !`)
-          let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-          logchannel.send({embeds: [ban_embed]})
-          }catch(e){
-              return
-          }  
+try{
+            logEmbed = new MessageEmbed()
+            .setColor("PURPLE")
+            .setTitle("Lockall Logs")
+            .setDescription(`<@${interaction.user.id}> lock all channels !`)
+
+                    let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                    if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                    }catch(e) { console.error(e) };
         return interaction.reply({embeds: [Lockembed]})
     const filter = (interaction) => interaction.user.id === interaction.member.id;
     }}

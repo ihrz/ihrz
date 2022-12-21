@@ -15,16 +15,14 @@ module.exports = {
     if (!permission) return interaction.reply({content: "❌ | You don't have permission to lock channels."});
 
     interaction.channel.permissionOverwrites.create(interaction.guild.id, { SEND_MESSAGES: false }).then(() => {interaction.reply({embeds: [Lockembed]})})
+      try{
+        logEmbed = new MessageEmbed()
+        .setColor("PURPLE")
+        .setTitle("Lock Logs")
+        .setDescription(`<@${interaction.user.id}> lock <#${interaction.channel.id}>`)
 
-    try{
-      let ban_embed = new MessageEmbed()
-              .setColor("PURPLE")
-              .setTitle("Lock Logs")
-              .setDescription(`<@${interaction.user.id}> lock <#${interaction.channel.id}>`)
-      let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-      logchannel.send({embeds: [ban_embed]})
-      }catch(e){
-          return
-      }
+                let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                }catch(e) { console.error(e) };
     const filter = (interaction) => interaction.user.id === interaction.member.id;
     }}

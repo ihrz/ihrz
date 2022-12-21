@@ -28,7 +28,7 @@ const { Client, Intents, Collection, MessageEmbed, Permissions } = require('disc
 										languageId: 'text',
 									},
 								], {
-									title: `Ticket transcript by iHORIZON`,
+									title: `Ticket transcript by iHorizon`,
 									description: ' ',
 								});
 							}
@@ -39,7 +39,7 @@ const { Client, Intents, Collection, MessageEmbed, Permissions } = require('disc
 			const embed = new MessageEmbed()
 			.setDescription(`[\`View This\`](${response.url})`)
 			.setColor('BLUE');
-			interaction.reply({content: 'You have closed your ticket. iHORIZON sent you the transcript', embeds: [embed]})
+			interaction.reply({content: 'You have closed your ticket. iHorizon sent you the transcript', embeds: [embed]})
 		}catch(e){
 			console.error(e)
 		

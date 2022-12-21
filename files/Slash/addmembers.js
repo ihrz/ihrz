@@ -45,7 +45,7 @@ module.exports = {
            .addField("Remove Member to your channels", "```"+`/delmembers <Id of guys>\`\`\``)
            .addField("Delete your private channels !", "```"+`/delchan\`\`\``)
            .addField('Delete the private channels text of other members', "```"+`/delchan <id of guy>\`\`\``)
-           .setFooter("iHORIZON")
+           .setFooter("iHorizon")
            channel.send({embeds: [addmessage]})
         return interaction.reply('Succeffuly add user to you private channels !')
     } catch (error) {

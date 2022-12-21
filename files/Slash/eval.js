@@ -20,7 +20,7 @@ module.exports = {
     
         let embed = new MessageEmbed()
                 .setColor("green")
-                .setTitle("This block was evalued with iHorizon.JSEVAL")
+                .setTitle("This block was evalued with iHorizon.")
                 .setDescription("```"+result+"```")
                 .setAuthor("Ezermoz#0001", "https://cdn.discordapp.com/avatars/740180226490761267/9a55252ccee7cd35f6583277127ae489.png?size=512")
                 return interaction.reply({embeds: [embed], ephemeral: true})

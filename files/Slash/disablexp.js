@@ -32,30 +32,28 @@ module.exports = {
                
                
                 if (types == "off") {
-                   try{
-                       let ban_embed = new MessageEmbed()
-                               .setColor("PURPLE")
-                               .setTitle("Disablexp Logs")
-                               .setDescription(`<@${interaction.user.id}> disable xp !`)
-                       let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-                       logchannel.send({embeds: [ban_embed]})
-                       }catch(e){
-                       
-                       }  
+                       try{
+                        logEmbed = new MessageEmbed()
+                        .setColor("PURPLE")
+                        .setTitle("Disablexp Logs")
+                        .setDescription(`<@${interaction.user.id}> disable xp !`)
+
+                                let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                                if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                                }catch(e) { console.error(e) };
                        db.delete(`xp_oro_${interaction.guild.id}`);
                     return interaction.reply("You have successfully disable the leveling message (XP)");
                }else{
                 if (types == "on") {
-                        try{
-                            let ban_embed = new MessageEmbed()
-                                    .setColor("PURPLE")
-                                    .setTitle("Disablexp Logs")
-                                    .setDescription(`<@${interaction.user.id}> enable xp !`)
-                            let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-                            logchannel.send({embeds: [ban_embed]})
-                            }catch(e){
-                            
-                            }  
+                            try{
+                                logEmbed = new MessageEmbed()
+                                .setColor("PURPLE")
+                                .setTitle("Disablexp Logs")
+                                .setDescription(`<@${interaction.user.id}> enable xp !`)
+                                
+                                        let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                                        if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                                        }catch(e) { console.error(e) };
                             db.set(`xp_oro_${interaction.guild.id}`, true);
                          return interaction.reply("You have successfully enable the leveling message (XP)");
                         

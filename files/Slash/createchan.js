@@ -24,7 +24,7 @@ const db = require("quick.db")
                 .addField("Remove Member to your channels", "```"+`/delmembers <Id of guy>\`\`\``)
                 .addField("Delete your private channels", "```"+`/delchan\`\`\``)
                 .addField('Delete the private channels text of other members', "```"+`/delchan <id of guy>\`\`\``)
-                .setFooter("iHORIZON")
+                .setFooter("iHorizon")
                     
             let alr_hchannel = db.fetch(`customchanstatus_${interaction.guild.id}_${interaction.user.id}`)
             if(alr_hchannel === 1){ return interaction.reply("You have already channels...")}

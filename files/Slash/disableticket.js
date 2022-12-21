@@ -36,30 +36,28 @@ module.exports = {
                 if(!type) return interaction.reply({embeds: [help_embed]})
                
                 if (type === "off") {
-                   try{
-                       let ban_embed = new MessageEmbed()
-                               .setColor("PURPLE")
-                               .setTitle("DisableTicket Logs")
-                               .setDescription(`<@${interaction.user.id}> disable ticket commands !`)
-                       let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-                       logchannel.send({embeds: [ban_embed]})
-                       }catch(e){
-                       
-                       }  
+                       try{
+                        logEmbed = new MessageEmbed()
+                        .setColor("PURPLE")
+                        .setTitle("DisableTicket Logs")
+                        .setDescription(`<@${interaction.user.id}> disable ticket commands !`);
+                        
+                                let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                                if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                                }catch(e) { console.error(e) };
                         db.set(`ticket_oro_${interaction.guild.id}`, true);
                     return interaction.reply("You have successfully disable the ticket commands !");
                }
                 if (type === "on") {
-                   try{
-                       let ban_embed = new MessageEmbed()
-                               .setColor("PURPLE")
-                               .setTitle("Disablexp Logs")
-                               .setDescription(`<@${interaction.user.id}> enable ticket commands !`)
-                       let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-                       logchannel.send({embeds: [ban_embed]})
-                       }catch(e){
-                       
-                       }  
+                       try{
+                        logEmbed = new MessageEmbed()
+                        .setColor("PURPLE")
+                        .setTitle("Disablexp Logs")
+                        .setDescription(`<@${interaction.user.id}> enable ticket commands !`)
+
+                                let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                                if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                                }catch(e) { console.error(e) };                       
                         db.delete(`ticket_oro_${interaction.guild.id}`);
                     return interaction.reply("You have successfully enable the ticket commands !");
                    
