@@ -5,7 +5,7 @@ const DiscordOauth2 = require("discord-oauth2");
 const oauth = new DiscordOauth2();
 const superagent = require('superagent');
 const api_login = config.loginURL
-const api_url = "http://192.168.0.89:1337/api/check"
+const api_url = config.loginURL+`/api/check`
 const badges = {
   Discord_Employee: {
       Value: 1,
