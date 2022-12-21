@@ -58,15 +58,15 @@ module.exports = {
       interaction.channel.send(`<@${tomute.id}> has been unmuted!`);
     }, ms(mutetime));
   
-    try{
-      let ban_embed = new MessageEmbed()
-              .setColor("PURPLE")
-              .setTitle("Tempmute Logs")
-              .setDescription(`<@${interaction.user.id}> mute <@${tomute.id}> for ${ms(ms(mutetime))}`)
-      let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-      logchannel.send({embeds: [ban_embed]})
-      }catch(e){
-          
-      }  
+      try{
+        logEmbed = new MessageEmbed()
+        .setColor("PURPLE")
+        .setTitle("Tempmute Logs")
+        .setDescription(`<@${interaction.user.id}> mute <@${tomute.id}> for ${ms(ms(mutetime))}`)
+
+                let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                }catch(e) { console.error(e) };
+      
     const filter = (interaction) => interaction.user.id === interaction.member.id;
     }}

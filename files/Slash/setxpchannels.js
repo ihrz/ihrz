@@ -33,45 +33,44 @@ module.exports = {
     let argsid = interaction.options.getChannel("channel").id
       //const initialMessage = await interaction.reply({ embeds: [embed] });
   
-      if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply(":x: | You must be an administrator of this server to request this commands!");
+      if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply({content: ":x: | You must be an administrator of this server to request this commands!"});
 
- if (type === true) {
-    try{
-        if(!argsid) return interaction.reply("You must specify a valid channel for you configurations.")
-        let ban_embed = new MessageEmbed()
-                .setColor("PURPLE")
-                .setTitle("SetXpChannels Logs")
-                .setDescription(`<@${interaction.user.id}> set the custom xp channels to: <#${argsid}>`)
-        let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-        logchannel.send({embeds: [ban_embed]})
-        }catch(e){
-        
-        }  
+ if (type === "on") {
+        if(!argsid) return interaction.reply({content: "You must specify a valid channel for you configurations."})
+
+        try{
+            logEmbed = new MessageEmbed()
+            .setColor("PURPLE")
+            .setTitle("SetXpChannels Logs")
+            .setDescription(`<@${interaction.user.id}> set the custom xp channels to: <#${argsid}>`)
+
+                    let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                    if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                    }catch(e) { console.error(e) };
  try{
     let already = db.fetch(`xpchannels-${interaction.guild.id}`)
-        if(already === argsid) return interaction.reply('The custom xp channels is already config with this channels id!')
-	 client.channels.cache.get(argsid).send("**Custom XP channel set here!**")
+        if(already === argsid) return interaction.reply({content: 'The custom xp channels is already config with this channels id!'})
+	 client.channels.cache.get(argsid).send({content: "**Custom XP channel set here!**"})
 	 db.set(`xpchannels-${interaction.guild.id}`, argsid);
  
-     return interaction.reply("You have successfully set the custom xp channel to <#"+argsid+">");
+     return interaction.reply({content: "You have successfully set the custom xp channel to <#"+argsid+">"});
 
  }catch(e){
-	 interaction.reply("Error: missing permissions or channel doesn't exist");
+	 interaction.reply({content: "Error: missing permissions or channel doesn't exist"});
  }
  
  
 }
- if (type == false) {
-    try{
-        let ban_embed = new MessageEmbed()
-                .setColor("PURPLE")
-                .setTitle("SetXpChannels Logs")
-                .setDescription(`<@${interaction.user.id}> disable the custom xp channels. I put the default settings...`)
-        let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-        logchannel.send({embeds: [ban_embed]})
-        }catch(e){
-        
-        }  
+ if (type == "off") {
+try{
+            logEmbed = new MessageEmbed()
+            .setColor("PURPLE")
+            .setTitle("SetXpChannels Logs")
+            .setDescription(`<@${interaction.user.id}> disable the custom xp channels. I put the default settings...`)
+
+                    let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                    if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                    }catch(e) { console.error(e) };
        try{
         let already2 = db.fetch(`xpchannels-${interaction.guild.id}`)
         if(already2 === "off") return interaction.reply('The custom xp channels is already disable !')

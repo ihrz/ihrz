@@ -31,17 +31,14 @@ module.exports = {
   
       tomute.roles.remove(muterole.id);
       interaction.reply(`<@${tomute.id}> has been unmuted!`);
-     
-      try{
-        let ban_embed = new MessageEmbed()
-                .setColor("PURPLE")
-                .setTitle("Unmute Logs")
-                .setDescription(`<@${interaction.user.id}> unmute <@${tomute.id}>`)
-        let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-        logchannel.send({embeds: [ban_embed]})
-        }catch(e){
-            
-        }  
+ try{
+          logEmbed = new MessageEmbed()
+          .setColor("PURPLE")
+          .setTitle("Unmute Logs")
+          .setDescription(`<@${interaction.user.id}> unmute <@${tomute.id}>`)
 
+                  let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                  if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                  }catch(e) { console.error(e) };
     const filter = (interaction) => interaction.user.id === interaction.member.id;
     }}

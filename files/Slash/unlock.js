@@ -13,13 +13,17 @@ module.exports = {
     .setDescription(`The channel has been successfully unlocked!`);
     interaction.channel.permissionOverwrites.create(interaction.guild.id, { SEND_MESSAGES: true });
         
-    try{
-          ban_embed = new MessageEmbed()
-                  .setColor("PURPLE")
-                  .setTitle("Unlock Logs")
-                  .setDescription(`<@${interaction.user.id}> unlock <#${interaction.channel.id}>`)
-          let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-          logchannel.send({embeds: [ban_embed]})}catch(e){ return};  
+
+          try{
+            logEmbed = new MessageEmbed()
+            .setColor("PURPLE")
+            .setTitle("Unlock Logs")
+            .setDescription(`<@${interaction.user.id}> unlock <#${interaction.channel.id}>`)
+
+                    let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                    if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                    }catch(e) { console.error(e) };
+                    
       return interaction.reply({embeds: [embed]});  
 
     const filter = (interaction) => interaction.user.id === interaction.member.id;

@@ -39,7 +39,7 @@ const { Client, Intents, Collection, MessageEmbed, Permissions } = require('disc
 							const embed = new MessageEmbed()
 								.setDescription(`[\`View this\`](${response.url})`)
 								.setColor('BLUE');
-							interaction.reply({embeds: [embed], content: 'You have closed your ticket. iHORIZON sent you the transcript'});
+							interaction.reply({embeds: [embed], content: 'You have closed your ticket. iHorizon sent you the transcript'});
 						});
 					}
 				}

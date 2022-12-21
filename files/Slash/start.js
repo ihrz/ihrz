@@ -67,13 +67,15 @@ module.exports = {
                         messages
         });
         interaction.reply({content: `Giveaway started in ${giveawayChannel}!`});
-        try{
-            let ban_embed = new MessageEmbed()
-                    .setColor("PURPLE")
-                    .setTitle("Giveaways Logs")
-                    .setDescription(`<@${interaction.user.id}> started a giveways in: ${giveawayChannel}`)
-            let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-            logchannel.send({embeds: [ban_embed]})
-            }catch(e){return}  
+
+            try{
+                logEmbed = new MessageEmbed()
+                .setColor("PURPLE")
+                .setTitle("Giveaways Logs")
+                .setDescription(`<@${interaction.user.id}> started a giveways in: ${giveawayChannel}`)
+                        let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                        if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                        }catch(e) { console.error(e) };
+                        
       const filter = (interaction) => interaction.user.id === interaction.member.id;
       }}
