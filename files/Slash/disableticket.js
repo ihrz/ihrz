@@ -28,12 +28,9 @@ module.exports = {
                 if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply(":x: | You must be an administrator of this server to request this commands!");
     
                 let type = interaction.options.getString('action')
-                let help_embed = new MessageEmbed()
-                .setColor("BLUE")
-                .setTitle(".disableticket Help !")
-                .setDescription('.disableticket <on/off>')
+      
                
-                if(!type) return interaction.reply({embeds: [help_embed]})
+                if(!type) return interaction.reply({content: "mmmh wtf?"})
                
                 if (type === "off") {
                        try{
