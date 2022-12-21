@@ -18,8 +18,8 @@ module.exports = async (client, message) => {
                 var newLevel = db.add(`level_${message.author.id}`, 1) 
                 db.subtract(`xp_${message.author.id}`, xpNeeded)
                 let xp_turn = db.fetch(`xp_oro_${message.guild.id}`)
-                if(xp_turn === true) {return}
-                        if (!message.channel.permissionsFor(client.user).has('SEND_MESSAGES')) { return; }
+                if(xp_turn === "off") { return };
+                        if (!message.channel.permissionsFor(client.user).has(Permissions.FLAGS.SEND_MESSAGES)) { return; }
                         let xpChan = db.fetch(`xpchannels-${message.guild.id}`)
                         if(!xpChan) return message.channel.send({content: `**GG**, <@`+message.author.id+`> you are +1, for xp level (Level : **${newLevel}**)`}).then(msg => {});
                         if(xpChan === "off") return message.channel.send({content: `**GG**, <@`+message.author.id+`> you are +1, for xp level (Level : **${newLevel}**)}`}).then(msg => {});

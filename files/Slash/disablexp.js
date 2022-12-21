@@ -25,12 +25,7 @@ module.exports = {
         run: async (client, interaction) => {
                 if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply(":x: | You must be an administrator of this server to request this commands!");
                 let types = interaction.options.get("action").value
-                let help_embed = new MessageEmbed()
-                .setColor("BLUE")
-                .setTitle("/disablexp Help !")
-                .setDescription('/disablexp <True=off/False=on>')
-               
-               
+                           
                 if (types == "off") {
                        try{
                         logEmbed = new MessageEmbed()
@@ -41,7 +36,7 @@ module.exports = {
                                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                                 if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
                                 }catch(e) { console.error(e) };
-                       db.delete(`xp_oro_${interaction.guild.id}`);
+                       db.set(`xp_oro_${interaction.guild.id}`, "off");
                     return interaction.reply("You have successfully disable the leveling message (XP)");
                }else{
                 if (types == "on") {
@@ -54,7 +49,7 @@ module.exports = {
                                         let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                                         if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
                                         }catch(e) { console.error(e) };
-                            db.set(`xp_oro_${interaction.guild.id}`, true);
+                            db.set(`xp_oro_${interaction.guild.id}`, "on");
                          return interaction.reply("You have successfully enable the leveling message (XP)");
                         
                             }

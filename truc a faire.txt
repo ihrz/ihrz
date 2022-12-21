@@ -1,0 +1,106 @@
+https://discord.com/developers/docs/interactions/application-commands
+https://discord.js.org/#/docs/main/stable/class/CommandInteractionOptionResolver?scrollTo=get
+const { MessageEmbed, MessageActionRow, MessageSelectMenu } = require("discord.js")
+module.exports = {
+  name: '',
+  description: '',
+  run: async (client, interaction) => {
+
+    //const initialMessage = await interaction.reply({ embeds: [embed] });
+
+    const filter = (interaction) => interaction.user.id === interaction.member.id;
+    }}
+
+ARGS:
+  options: [
+    {
+        name: '',
+        type: '',
+        description: '',
+        required: true
+    }
+],
+
+PRINT ARGS:
+const query = interaction.options._hoistedOptions[0].value
+interaction.options._hoistedOptions[0]
+
+interaction.options.getString('name'))
+
+WORK V2:
+interaction.options.get("amount") (-> { name: 'amount', type: 'NUMBER', value: 500 })
+interaction.options.getMember("member") (-> GuildMember{})
+
+
+FETCH USERS,CHANNELS,... :
+interaction.guild.channels.cache.get(interaction.channelId)
+interaction.guild.members.cache.get(interaction.options._hoistedOptions[0].value)
+
+TAG:
+`${interaction.member.user.username}#${interaction.member.user.discriminator}\`
+
+PP:
+ `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`
+
+PERM CHECK:
+interaction.member.permissions.....
+25.11.22:
+Changer le system d'event pour les interactions au slash
+commande slash fonctionnante
+/help, /ban /{economy}
+
+
+27.11.22:
+handlers 100% fonctionnelle
+index.js minimisé (tout dans des fichier séparé)
+meuilleurs interface
+/guildprofil, /blockspam
+tout les modules (blacklist, join(dm, message, roles) etc décalé du index)
+
+28.11.22:
+/setchannels, /setjoindm
+module antipub termminer
+modules qui avait été déclalé ont reçue des fixe
+/setup
+
+29.11.22
+/setleavemessage, /setjoinmessage, /setjoinroles, toute catégorie xp
+30.11.22
+/userinfo ULTRA COMPLET avec api pour les badge nitro et badge normal en flags !!
+/serverinfo
+05.12.22
+all catégorie OWNER
+11.12.22
+all catégorie MUSIC,
+/backup en cours
+supprésion de la catégorie nsfw
+
+
+
+TOUT FINNIS MDRR
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        try{
+          logEmbed = new MessageEmbed()
+          
+                  let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                  if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                  }catch(e) { console.error(e) };
