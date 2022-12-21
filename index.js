@@ -23,6 +23,7 @@ fs.readdir("./files/Events", (_err, files) => { files.forEach(file => { if (!fil
     default: { botsCanWin: false, exemptPermissions: [ "MANAGE_MESSAGES", "ADMINISTRATOR" ]}
 }), client.login(config.token).catch(error => console.error(error.red)),
 process.on('uncaughtException', function(err) {
+console.log(err.stack || err.message)
 console.log("[  💥  ] >> Crash detected\n".red+
             "[  📜  ] >> Save in the logs\n".gray+
             "[  💖  ] >> Don't need to restart".green);

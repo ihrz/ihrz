@@ -25,16 +25,15 @@ module.exports = {
                 member.ban({ reason: 'banned by '+interaction.user.username})
                     .then((member) => {
                         interaction.reply(`<@${member.user.id}> banned by <@${interaction.member.id}>`);
-                        try{
-                            let ban_embed = new MessageEmbed()
+
+                            try{
+                                logEmbed = new MessageEmbed()
                                     .setColor("PURPLE")
                                     .setTitle("Ban Logs")
                                     .setDescription(`<@${member.user.id}> banned by <@${interaction.member.id}>`)
-                            let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-                            logchannel.send({embeds: [ban_embed]})
-                            }catch{
-                                return
-                            }
+                                        let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                                        if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                                        }catch(e) { console.error(e) };
                     })
             })
     const filter = (interaction) => interaction.user.id === interaction.member.id;

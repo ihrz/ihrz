@@ -48,16 +48,14 @@ module.exports = {
         
                     interaction.channel.send(":white_check_mark: Backup successfully created.");
                     interaction.editReply({content: "The backup has been created! ID: `"+backupData.id+"`!"});
-                    try{
-                        let ban_embed = new MessageEmbed()
-                                .setColor("PURPLE")
-                                .setTitle("Backup Logs")
-                                .setDescription(`<@${interaction.user.id}> Create Backup !`)
-                        let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-                        logchannel.send({embeds: [ban_embed]})
-                        }catch{
-                            return
-                        }
+                        try{
+                            logEmbed = new MessageEmbed()
+                            .setColor("PURPLE")
+                            .setTitle("Backup Logs")
+                            .setDescription(`<@${interaction.user.id}> Create Backup !`)
+                                    let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                                    if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                                    }catch(e) { console.error(e) };
                 });
             }
         

@@ -9,39 +9,35 @@ module.exports = {
         type: 'STRING',
         description: 'The id of the user you wan\'t to unban !',
         required: true
-    }
+    },
+    {
+      name: 'reason',
+      type: 'STRING',
+      description: 'The reason for unbanning this user.',
+      required: false
+  }
 ],
   run: async (client, interaction) => {
-typed = interaction.options.getString("userid")
-    try{
-      let bannedMember = await client.users.fetch(typed) //fetch
-      if(!bannedMember){ return interaction.reply(`I couldn't find this user`)} //l'id invalid A
-      if (!interaction.member.permissions.has(Permissions.FLAGS.BAN_MEMBERS)) return interaction.reply({content: "❌ | You don't have permission to unban members."});//pas les perm mdrr B
-      if (!interaction.guild.me.permissions.has([Permissions.FLAGS.ADMINISTRATOR])) {return interaction.reply({content: `I don't have permission.`})}//pas les perms pour horizon C
-      try{
-        let ban_embed = new MessageEmbed()
-                .setColor("PURPLE")
-                .setTitle("Unban Logs")
-                .setDescription(`<@${interaction.user.id}> unban user with this id: ${bannedMember.id}`)
-        let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-        logchannel.send({embeds: [ban_embed]})
-        }catch(e){
-            console.error(e)
-        }  
-        interaction.reply({content: "⌛"})
-      interaction.guild.members.unban(bannedMember)
-      .then(interaction.editReply({content: `⌛`}))
-      .catch(err => { interaction.editReply(":mag_right: This user is not in the ban list of this guild !")
-      return console.error(err)})//pas dans les bannis 2
-      interaction.channel.send(`<@${bannedMember.id}> **is unbanned from this server!**`)
-    }catch(e){
-      const permission = interaction.member.permissions.has(Permissions.FLAGS.BAN_MEMBERS)
-      if (!permission) return interaction.channel.send({content: "❌ | You don't have permission to unban members."})
-        return interaction.channel.send('🔎 User not found !')
-    }
-    }}
+    if (!interaction.member.permissions.has(Permissions.FLAGS.BAN_MEMBERS)) return interaction.reply({content: "❌ | You don't have permission to unban members."});
+    if (!interaction.guild.me.permissions.has([Permissions.FLAGS.BAN_MEMBERS])) {return interaction.reply({content: `❌ | I don't have permission.`})}//pas les perms pour horizon C
+    const userID = interaction.options.getString('userid');
+    let reason = interaction.options.getString('reason');
+    if(!reason) reason = "No reason was provided."
 
+    await interaction.guild.bans.fetch()
+        .then(async bans => {
+            if (bans.size == 0) return await interaction.reply({content: "❌ | **There is nobody banned from this server !**"});
+            let bannedID = bans.find(ban => ban.user.id == userID);
+            if(!bannedID) return await interaction.reply({content: `❌ | **The ID stated is not banned from this server** !`});
+            await interaction.guild.bans.remove(userID, reason).catch(err => console.error(err));
+            await interaction.reply({content: `<@${userID}> is now unbanned from this server !`})
+        })
+        .catch(err => console.error(err));
 
-
-
-
+        try{
+          logEmbed = new MessageEmbed().setColor("PURPLE").setTitle("Test Logs")
+                          .setDescription(`<@${interaction.user.id}> test des truc mdrr`)
+                  let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                  if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
+                  }catch(e) { console.error(e) };
+}}
