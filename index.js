@@ -1,6 +1,6 @@
 /*Made by Ezermoz*/
 const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js'),
-    client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_BANS ] }),
+    client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_BANS ], ws: { properties: { browser: 'Discord iOS' } }, }),
     config = require('./files/config.json'), { api } = require("./api/oauth.js"), { GiveawaysManager } = require('discord-giveaways'),
     c = require("colors"), { Player } = require("discord-player"), fs = require('fs'), date = require('date-and-time'),
     { registerPlayerEvents } = require('./files/events.js'), process = require("process")
