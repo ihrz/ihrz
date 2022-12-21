@@ -10,6 +10,7 @@ module.exports = {
 
     const queue = client.player.getQueue(interaction.guild)
     if (!queue || !queue.playing) return interaction.reply({ content: '❌  - No music currently playing !' });
+    queue.clear()
     queue.destroy()
   return interaction.reply({ content: `✅ - Music **stopped** into this server !` });
 }}

@@ -15,10 +15,9 @@ module.exports = {
     run: async (client, interaction) => {
   
         const filter = (interaction) => interaction.user.id === interaction.member.id;
-        //console.log(interaction.channelId)
          const guild = client.guilds.cache.get(interaction.member.guild.id);
          const channel = guild.channels.cache.get(interaction.channelId);
-         const query = interaction.options.getString("title")//interaction.options._hoistedOptions[0].value
+         const query = interaction.options.getString("title")
          const searchResult = await client.player
              .search(query, {
                  requestedBy: interaction.member,
