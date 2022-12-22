@@ -7,7 +7,7 @@ module.exports = {
     run: async (client, interaction) => {
     if (!interaction.member.voice.channel) return interaction.reply(`⚠️ - You're not in a voice channel !`);
     if (interaction.guild.me.voice.channel && interaction.member.voice.channel.id !== interaction.guild.me.voice.channel.id) return interaction.reply(`⚠️ - You are not in the same voice channel !`);
-
+    if (queue.destroyed) return interaction.reply(`⚠️ - Cannot go further because the queue is destroyed" !`);
     const queue = client.player.getQueue(interaction.guild)
     if (!queue || !queue.playing) return interaction.reply({ content: '❌  - No music currently playing !' });
     queue.clear()
