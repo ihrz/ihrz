@@ -26,7 +26,7 @@ module.exports = {
             channel.delete() 
             here.send(`${interaction.user} channel re-created !`)
         } catch (error) {
-            return console.error(error)
+            return interaction.reply({content: ":x: **Can't** `don\'t have permission !` lmao"})
         }
         const filter = (interaction) => interaction.user.id === interaction.member.id;
 }}
