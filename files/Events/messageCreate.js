@@ -5,6 +5,7 @@ const db = require("quick.db");
 const { stringify } = require('querystring');
 
 module.exports = async (client, message) => {
+
     async function xpFetcher () {
       if (!message.channel.type === "GUILD_TEXT") { return; }
             if(message.author.bot) return
@@ -28,15 +29,17 @@ module.exports = async (client, message) => {
                       }catch(e){ return}
     }}
     async function EconomyDebug() {
-      if (message.author.bot || !message.channel.type === "GUILD_TEXT") { return; }
+      if (!message.channel.type === "GUILD_TEXT") { return; }
+      if(message.author.bot) return
       if(message.author.id == client.user.id) return
       d= db.fetch(`money_${message.guild.id}_${message.author.id}`)
       if(!d){return db.set(`money_${message.guild.id}_${message.author.id}`, 1) }
     }
 
     async function logsMessage() {
-      if (message.author.bot || !message.channel.type === "GUILD_TEXT") { return; }
-      if (message.author.bot || message.channel.type === 'dm') { return; }
+      if (!message.channel.type === "GUILD_TEXT") { return; }
+      if(message.author.bot) return
+      if(message.author.id == client.user.id) return
       const now = new Date();
       const CreateFiles = fs.createWriteStream('./files/logs/message/'+message.guild.id+".txt", {
         flags: 'a'  
@@ -46,7 +49,9 @@ module.exports = async (client, message) => {
     }
 
     async function blockSpam() {
-      if (message.author.bot || !message.channel.type === "GUILD_TEXT") { return; }
+      if (!message.channel.type === "GUILD_TEXT") { return; }
+      if(message.author.bot) return
+      if(message.author.id == client.user.id) return
       let type = db.fetch(`antipub_${message.guild.id}`)
       if(type === "off"){ return}
       if(message.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return;
