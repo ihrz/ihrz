@@ -7,6 +7,7 @@ const { stringify } = require('querystring');
 module.exports = async (client, message) => {
 
     async function xpFetcher () {
+        if(!message.guild) return;
       if (!message.channel.type === "GUILD_TEXT") { return; }
             if(message.author.bot) return
             const randomNumber = Math.floor(Math.random() * 100) + 150;
@@ -29,6 +30,7 @@ module.exports = async (client, message) => {
                       }catch(e){ return}
     }}
     async function EconomyDebug() {
+        if(!message.guild) return;
       if (!message.channel.type === "GUILD_TEXT") { return; }
       if(message.author.bot) return
       if(message.author.id == client.user.id) return
@@ -37,6 +39,7 @@ module.exports = async (client, message) => {
     }
 
     async function logsMessage() {
+        if(!message.guild) return;
       if (!message.channel.type === "GUILD_TEXT") { return; }
       if(message.author.bot) return
       if(message.author.id == client.user.id) return
@@ -49,6 +52,7 @@ module.exports = async (client, message) => {
     }
 
     async function blockSpam() {
+        if(!message.guild) return;
       if (!message.channel.type === "GUILD_TEXT") { return; }
       if(message.author.bot) return
       if(message.author.id == client.user.id) return
