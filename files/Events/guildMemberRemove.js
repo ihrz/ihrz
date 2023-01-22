@@ -2,15 +2,16 @@
 const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
 const config = require('../config.json');
 const fs = require("fs")
-const db = require("quick.db")
+const { QuickDB } = require("quick.db");
+const db = new QuickDB();
 
 module.exports = async (client, member) => {
     try{
-      let wChan = db.fetch(`leave-${member.guild.id}`)
+      let wChan = await db.get(`${member.guild.id}.GUILD.GUILD.CONFIG.leave`)
       if(wChan == null) return;
       if(!wChan) return;
-      if(wChan === "off") return
-    let messssssage = db.fetch(`leavemessage_${member.guild.id}`)
+
+    let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD.CONFIG.leavemessage`)
     if(!messssssage){
                 let embed = new MessageEmbed()
                       .setColor("RED")

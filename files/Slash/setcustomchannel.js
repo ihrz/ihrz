@@ -32,7 +32,8 @@ module.exports = {
             return interaction.reply("You cannot run this command because you do not have the necessary permissions `ADMINISTRATOR`")
         }
         
-        const db = require('quick.db')
+        const { QuickDB } = require("quick.db");
+        const db = new QuickDB();
         let type = interaction.options.getString("action")
         let channel1 = interaction.options.getChannel("channel")
         let help2_embed = new MessageEmbed()

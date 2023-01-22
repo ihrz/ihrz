@@ -1,16 +1,15 @@
 const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
 const config = require('../config.json');
 const fs = require("fs")
-const db = require("quick.db")
+const { QuickDB } = require("quick.db");
+const db = new QuickDB();
 
 module.exports = async (client, member, members) => {
     async function joinMessage() {
         try {
-            let wChan = db.fetch(`join-${member.guild.id}`)
-            if(wChan == null) return;
+            let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`)
             if(!wChan) return;
-            if(wChan === "off") return
-            let messssssage = db.fetch(`joinmessage_${member.guild.id}`)
+            let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`)
             if(!messssssage){
               let embed = new MessageEmbed()
               .setColor("GREEN")
@@ -37,7 +36,7 @@ module.exports = async (client, member, members) => {
 
     async function joinRoles() {
         try {
-            let roleid = db.fetch(`joinroles-${member.guild.id}`)
+            let roleid = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`)
             if(roleid == null) return;
             if(!roleid) return;
             member.roles.add(roleid);
@@ -46,7 +45,7 @@ module.exports = async (client, member, members) => {
 
     async function joinDm() {
         try{
-                let msg_dm = db.fetch(`joindm-${member.guild.id}`)
+                let msg_dm = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`)
                 if(msg_dm == null) return;
                 if(!msg_dm) return;
                 if(msg_dm === "off") return
@@ -56,10 +55,11 @@ module.exports = async (client, member, members) => {
 
     async function blacklistFetch() {
             try{
-            d= db.fetch(`money_${members.guild.id}_${members.user.id}`)
-            if(!d){db.set(`money_${members.guild.id}_${members.user.id}`, 1) }
-            var potential_blacklisted = db.fetch(`blacklist_${members.user.id}`)
-            if(potential_blacklisted === true) { members.send({content: "You'r are been ban, because you are blacklisted"}).catch(members.ban({reason: 'blacklisted!'}))
+            d= await db.get(`${members.guild.id}.USER.${members.user.id}.ECONOMY.money`)
+            if(!d){await db.set(`${members.guild.id}.USER.${members.user.id}.ECONOMY.money`, 1) }
+
+            var potential_blacklisted = db.get(`GLOBAL.BLACKLIST.${members.user.id}.blacklisted`)
+            if(potential_blacklisted === "yes") { members.send({content: "You'r are been ban, because you are blacklisted"}).catch(members.ban({reason: 'blacklisted!'}))
             members.ban({reason: 'blacklisted!'})
             }else{ return};
           }catch{return}

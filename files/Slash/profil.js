@@ -13,7 +13,8 @@ module.exports = {
     
     run: async (client, interaction) => {
   
-        const db = require('quick.db')
+        const { QuickDB } = require("quick.db");
+        const db = new QuickDB();
         const member = interaction.options.getUser('user') || interaction.user
     
         var description = db.fetch(`pc_${member.id}_desc`)

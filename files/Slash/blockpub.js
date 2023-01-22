@@ -1,5 +1,6 @@
 const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
-const db = require("quick.db")
+const { QuickDB } = require("quick.db");
+const db = new QuickDB();
 const config = require("../config.json")
 
 module.exports = {

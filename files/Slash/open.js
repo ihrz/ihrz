@@ -3,7 +3,8 @@
 		description: 're-open a closed tickets',
 		run: async (client, interaction) => {
 	  
-			const db = require("quick.db")
+			const { QuickDB } = require("quick.db");
+			const db = new QuickDB();
 			let blockQ = db.fetch(`ticket_oro_${interaction.guild.id}`)
 						if(blockQ === true) {
 								return interaction.reply("You can't use this commands because an Administrator disable the ticket commands !")

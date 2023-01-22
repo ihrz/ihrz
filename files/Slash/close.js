@@ -6,7 +6,8 @@ const { Client, Intents, Collection, MessageEmbed, Permissions } = require('disc
 		description: 'Close your ticket',
 		run: async (client, interaction) => {
 	  
-			const db = require("quick.db")
+			const { QuickDB } = require("quick.db");
+			const db = new QuickDB();
 			let blockQ = db.fetch(`ticket_oro_${interaction.guild.id}`)
 						if(blockQ === true) {
 							

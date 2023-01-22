@@ -3,7 +3,8 @@ module.exports = {
 		description: 'Open a ticket if the ticket module is enable on the guild',
 		run: async (client, interaction) => {
 	  
-			const db = require("quick.db")
+			const { QuickDB } = require("quick.db");
+			const db = new QuickDB();
 			let blockQ = db.fetch(`ticket_oro_${interaction.guild.id}`)
 						if(blockQ === true) {
 						

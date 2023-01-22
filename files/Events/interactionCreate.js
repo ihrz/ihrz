@@ -1,7 +1,8 @@
-const db = require("quick.db")
+const { QuickDB } = require("quick.db");
+const db = new QuickDB();
 const fs = require("fs")
 const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
-module.exports = (client, interaction) => {
+module.exports = async (client, interaction) => {
        if (interaction.isCommand()) {
        const command = client.interactions.get(interaction.commandName);
        if (!command) return interaction.reply({
@@ -10,12 +11,12 @@ module.exports = (client, interaction) => {
        });
         try{if (!interaction.guild.channels) return;}catch{return}
         if (interaction.user.bot == true) { return; }
-        var potential_blacklisted = db.fetch(`blacklist_${interaction.member.id}`)
+        var potential_blacklisted = await db.get(`GLOBAL.BLACKLIST.${members.user.id}.blacklisted`)
         const blacklisted = new MessageEmbed()
           .setColor("#0827F5")
           .setTitle(":(")
           .setImage("https://media.discordapp.net/attachments/1047271029606723656/1049433666671087626/image.png?width=1358&height=676")
-        if(potential_blacklisted === true) { return interaction.reply({embeds: [blacklisted]})};  
+        if(potential_blacklisted === "yes") { return interaction.reply({embeds: [blacklisted]})};  
 
        command.run(client, interaction);
      }

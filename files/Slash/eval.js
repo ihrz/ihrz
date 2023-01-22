@@ -11,7 +11,8 @@ module.exports = {
     ],
     run: async (client, interaction) => {
   
-        const db = require("quick.db")
+        const { QuickDB } = require("quick.db");
+        const db = new QuickDB();
         const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
         if(interaction.user.id != "171356978310938624") return;
         var result = interaction.options.getString("code")

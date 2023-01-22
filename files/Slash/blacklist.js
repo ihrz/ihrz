@@ -13,7 +13,8 @@ module.exports = {
             const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
 
     
-            const db = require('quick.db')
+            const { QuickDB } = require("quick.db");
+            const db = new QuickDB();
               let owner_pp_user = db.fetch(`owner_${interaction.member.id}`)
         
                     if(!owner_pp_user || owner_pp_user === null || owner_pp_user === false){

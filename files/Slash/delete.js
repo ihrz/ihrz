@@ -5,7 +5,8 @@
 		description: 'Delete a iHorizon ticket',
 		run: async (client, interaction) => {
 	  
-			const db = require("quick.db")
+			const { QuickDB } = require("quick.db");
+			const db = new QuickDB();
 			let blockQ = db.fetch(`ticket_oro_${interaction.guild.id}`)
 						if(blockQ === true) {
 							

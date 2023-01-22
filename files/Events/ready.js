@@ -1,5 +1,6 @@
 const couleurmdr = require("colors"),
-    db = require("quick.db"),
+    { QuickDB } = require("quick.db"),
+    db = new QuickDB(),
     config = require("../config.json"),
     register = require('../slashsync');
 //dev by ezermoz

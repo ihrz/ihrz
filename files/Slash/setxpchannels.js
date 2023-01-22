@@ -1,5 +1,6 @@
 const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
-const db = require("quick.db")
+const { QuickDB } = require("quick.db");
+const db = new QuickDB();
 
 module.exports = {
     name: 'setxpchannels',
@@ -76,7 +77,7 @@ try{
         if(already2 === "off") return interaction.reply('The custom xp channels is already disable !')
 
 
-        db.set(`xpchannels-${interaction.guild.id}`, "off");
+        db.delete(`xpchannels-${interaction.guild.id}`);
         return interaction.reply("You have successfully disable the custom xp channel !");
    
        }catch(e){

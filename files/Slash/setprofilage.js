@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
-const db = require("quick.db")
+const { QuickDB } = require("quick.db");
+const db = new QuickDB();
 
 module.exports = {
     name: 'setprofilage',

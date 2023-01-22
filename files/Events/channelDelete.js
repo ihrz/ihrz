@@ -1,25 +1,30 @@
 const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
 const config = require('../config.json');
 const fs = require("fs")
-const db = require("quick.db")
+const { QuickDB } = require("quick.db");
+const db = new QuickDB();
 
 module.exports = async (client, channel) => {
     if (!channel.guild) return;
-    let idu = db.fetch(`channel_log_custom${channel.guild.id}_${channel.id}`)
+    base = await db.get(`${channel.guild.id}.GUILD.CUSTOM_CHANNEL.${channel.id}`)
+    main = await db.get(`${channel.guild.id}.GUILD.CUSTOM_CHANNEL`)
+    let idu = base.channel_log_custom
     if(idu === undefined || idu === null) return
-    let ida = db.fetch(`customchanID_${channel.guild.id}_${idu}`)
+    
+    secondBase = await db.get(`${channel.guild.id}.USER.${idu}.CUSTOM_CHANNEL`)
+    let ida = secondBase.customchanID
     if(channel.id != ida) return
+
     try{
       let deleteSuccesThree = new MessageEmbed()
       .setAuthor('Custom channels has ben deleted by force /!\\')
       .setColor("GREEN")
       .setDescription(`<@${idu}>, your custom channel has been forcibly deleted. \ni have delete this to my databse correctly !`)
 
-      db.delete(`customchanstatus_${channel.guild.id}_${idu}`)
-      db.delete(`customchanID_${channel.guild.id}_${idu}`)
-      db.delete(`channel_log_custom${channel.guild.id}_${channelsID.id}`)
-      db.delete(`customchanName_${channel.guild.id}_${idu}`)
-      let h4 = db.fetch(`Here4CreateChannels_${channel.guild.id}`)
+      await db.delete(`${channel.guild.id}.GUILD.CUSTOM_CHANNEL.${channel.id}`)
+      await db.delete(`${channel.guild.id}.USER.${idu}.CUSTOM_CHANNEL`)
+      
+      let h4 = main.Here4CreateChannels
      return client.channels.cache.get(h4).send({embeds: [deleteSuccesThree]})
   }catch{
     let deleteSuccesTwo = new MessageEmbed()
@@ -27,20 +32,16 @@ module.exports = async (client, channel) => {
       .setColor("RED")
       .setDescription(`<@${idu}>, your custom channel has been forcibly deleted. \ni try to delete the channel to my database...`)
 
-    let h4 = db.fetch(`Here4CreateChannels_${channel.guild.id}`)
+      let h4 = main.Here4CreateChannels
     client.channels.cache.get(h4).send({embeds: [deleteSuccesTwo]})
-      .catch(err => {
-    db.delete(`customchanstatus_${channel.guild.id}_${idu}`)
-    db.delete(`customchanID_${channel.guild.id}_${idu}`)
-    db.delete(`channel_log_custom${channel.guild.id}_${channel.id}`)
-    return db.delete(`customchanName_${channel.guild.id}_${idu}`)
-      })
-    
+      .catch(async (err) => {
+        await db.delete(`${channel.guild.id}.GUILD.CUSTOM_CHANNEL.${channel.id}`)
+        await db.delete(`${channel.guild.id}.USER.${idu}.CUSTOM_CHANNEL`)
+        return
+      });
 
-    db.delete(`customchanstatus_${channel.guild.id}_${idu}`)
-    db.delete(`customchanID_${channel.guild.id}_${idu}`)
-    db.delete(`channel_log_custom${channel.guild.id}_${channel.id}`)
-    db.delete(`customchanName_${channel.guild.id}_${idu}`)
+      await db.delete(`${channel.guild.id}.GUILD.CUSTOM_CHANNEL.${channel.id}`)
+      await db.delete(`${channel.guild.id}.USER.${idu}.CUSTOM_CHANNEL`)
 
     let deleteSuccesThree = new MessageEmbed()
     .setAuthor('Custom channels has ben deleted by force /!\\')
@@ -48,11 +49,9 @@ module.exports = async (client, channel) => {
     .setDescription(`<@${idu}>, your custom channel has been forcibly deleted. \ni have delete this to my databse corectly !`)
 
     client.channels.cache.get(h4).send({embeds: [deleteSuccesThree]})
-    .catch(err => {
-      db.delete(`customchanstatus_${channel.guild.id}_${idu}`)
-      db.delete(`customchanID_${channel.guild.id}_${idu}`)
-      db.delete(`channel_log_custom${channel.guild.id}_${channel.id}`)
-      return db.delete(`customchanName_${channel.guild.id}_${idu}`)
+    .catch(async (err) => {
+      await db.delete(`${channel.guild.id}.GUILD.CUSTOM_CHANNEL.${channel.id}`)
+      await db.delete(`${channel.guild.id}.USER.${idu}.CUSTOM_CHANNEL`);
         })
 return};
 }

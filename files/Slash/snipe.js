@@ -4,7 +4,8 @@ module.exports = {
     run: async (client, interaction) => {
 
         const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
-        const db = require("quick.db")
+        const { QuickDB } = require("quick.db");
+        const db = new QuickDB();
             var old_message = db.fetch(`snipe_${interaction.guild.id}_${interaction.channel}`)
             var infoTag = db.fetch(`snipeUserInfoTag_${interaction.guild.id}_${interaction.channel}`)
             var infoPp = db.fetch(`snipeUserInfoPp_${interaction.guild.id}_${interaction.channel}`)

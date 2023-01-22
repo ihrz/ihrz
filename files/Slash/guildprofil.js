@@ -5,7 +5,8 @@ module.exports = {
   
         const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
         if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply({content: ":x: | You must be an administrator of this server! "});
-        const db = require("quick.db")
+        const { QuickDB } = require("quick.db");
+        const db = new QuickDB();
     
         let setchannelsjoin = db.fetch(`join-${interaction.guild.id}`)
         let setchannelsleave = db.fetch(`leave-${interaction.guild.id}`)
