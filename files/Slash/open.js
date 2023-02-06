@@ -5,7 +5,8 @@
 	  
 			const { QuickDB } = require("quick.db");
 			const db = new QuickDB();
-			let blockQ = await db.get(`ticket_oro_${interaction.guild.id}`)
+			let blockQ = await db.get(`${interaction.user.id}.GUILD.TICKET.on_or_off`)
+
 						if(blockQ === true) {
 								return interaction.reply("You can't use this commands because an Administrator disable the ticket commands !")
 							}
