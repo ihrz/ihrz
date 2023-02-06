@@ -70,7 +70,7 @@ xp_${user.id} = xp amount/0/undefined
 xp_oro_${interaction.guild.id} = off/on/undefined
 level_${member.id} = XP MESSAGE LEVEL/undefined
 xpchannels-${interaction.guild.id} = CHANNLES_ID / undefined
-xptotal_${message.author.id} = ?
+xptotal_${interaction.user.id} = ?
 
 GLOBAL.USER.USER_PROFIL:
 pc_${member.id}_desc = profil description / undefined
@@ -85,28 +85,28 @@ snipe_${interaction.guild.id}_${interaction.channel}
 
 
 client.on('messageCreate', async message => {
-  //await db.set(`${message.guild.id}`, {})
-  await db.set(`${message.guild.id}.GUILD.XP_LEVELING`, {on_or_off: "true", xpchannels: "id"})
-  await db.set(`${message.guild.id}.GUILD.TICKET`, {on_or_off: "true"})
-  await db.set(`${message.guild.id}.GUILD.CUSTOM_CHANNEL`, {Here4CreateChannels: "id"})
-  await db.set(`${message.guild.id}.GUILD.CUSTOM_CHANNEL.${message.channel.id}`, {channel_log_custom: "owner_id"})
-  await db.set(`${message.guild.id}.GUILD.GUILD_CONFIG`, {antipub: "on", join: "id", leave: "id", joinroles: "id", joindm: "dm", joinmessage: "msg", leavemessage: "msg"})
-  await db.set(`${message.guild.id}.GUILD.SNIPE.${message.channel.id}`, {snipeTimestamp: "time",snipeUserInfoPp: "link", snipeUserInfoTag: "tag#0001", snipe: "msg"})
+  //await db.set(`${interaction.guild.id}`, {})
+  await db.set(`${interaction.guild.id}.GUILD.XP_LEVELING`, {on_or_off: "true", xpchannels: "id"})
+  await db.set(`${interaction.guild.id}.GUILD.TICKET`, {on_or_off: "true"})
+  await db.set(`${interaction.guild.id}.GUILD.CUSTOM_CHANNEL`, {Here4CreateChannels: "id"})
+  await db.set(`${interaction.guild.id}.GUILD.CUSTOM_CHANNEL.${message.channel.id}`, {channel_log_custom: "owner_id"})
+  await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG`, {antipub: "on", join: "id", leave: "id", joinroles: "id", joindm: "dm", joinmessage: "msg", leavemessage: "msg"})
+  await db.set(`${interaction.guild.id}.GUILD.SNIPE.${message.channel.id}`, {snipeTimestamp: "time",snipeUserInfoPp: "link", snipeUserInfoTag: "tag#0001", snipe: "msg"})
 
-  await db.set(`${message.guild.id}.USER.${message.author.id}.ECONOMY`, {money: "50", daily: "50", monthly: "50", weekly: "50"})
-  await db.set(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING`, {xp: "760", level: "15", xptotal: "760"})
-  await db.set(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, "81503036")
-  await db.set(`${message.guild.id}.USER.${message.author.id}.CUSTOM_CHANNEL`, {customchanstatus: "id", customchanID: "id", channel_log_custom: "id", customchanName: "id"})
+  await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY`, {money: "50", daily: "50", monthly: "50", weekly: "50"})
+  await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.XP_LEVELING`, {xp: "760", level: "15", xptotal: "760"})
+  await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.XP_LEVELING.xp`, "81503036")
+  await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.CUSTOM_CHANNEL`, {customchanstatus: "1", customchanID: "id", channel_log_custom: "id", customchanName: "id"})
 
-  s = await db.get(message.guild.id)
+  s = await db.get(interaction.guild.id)
 
   console.log(s.GUILD)
   console.log(s.USER)
 
   // GLOBAL
-  await db.set("GLOBAL.OWNER", [config.ownerid, config.ownerid1, config.ownerid2])
-  await db.set(`GLOBAL.USER_PROFIL.${message.author.id}`, {desc: "msg", age: 16})
-  await db.set(`GLOBAL.BLACKLIST.${message.author.id}`, {blacklisted: "yes"})
+  await db.set("GLOBAL.OWNER.${interaction.user.id}", {owner: true/false})
+  await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}`, {desc: "msg", age: 16})
+  await db.set(`GLOBAL.BLACKLIST.${interaction.user.id}`, {blacklisted: "yes"})
 
   g = await db.get("GLOBAL")
   console.log(g.CONFIG)

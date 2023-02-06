@@ -20,5 +20,5 @@ async function term() {
     "/_/_/ /_/\\____/_/  /_/ /___/\\____/_/ /_/\n".cyan), console.log("[".yellow," 💾 ".green,"] >> ".yellow,"Dev by Ezermoz".blue)
   }
   term(), client.user.setPresence({ activities: [{ name: 'Powered by the iHorizon Project' }] }),
-  db.set(`owner_${config.ownerid1}`, true), db.set(`owner_${config.ownerid2}`, true);
+  await db.set(`GLOBAL.OWNER.${config.ownerid1}`, {owner: true})
 }

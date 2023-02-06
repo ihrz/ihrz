@@ -97,14 +97,15 @@ client.on('messageCreate', async message => {
 */
   s = await db.get(message.guild.id)
 
-  console.log(s)
+  //console.log(s)
 
   // GLOBAL
   /*
-  await db.set("GLOBAL.OWNER", [config.ownerid, config.ownerid1, config.ownerid2])
+  await db.set("GLOBAL.OWNER1", {userid: config.ownerid1})
+  await db.set("GLOBAL.OWNER2", {userid: config.ownerid2})
   await db.set(`GLOBAL.USER_PROFIL.${message.author.id}`, {desc: "msg", age: 16})
   await db.set(`GLOBAL.BLACKLIST.${message.author.id}`, {blacklisted: "yes"})*/
 
   g = await db.get("GLOBAL")
-  console.log(g)
+  //console.log(g)
 })

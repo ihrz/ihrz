@@ -11,7 +11,7 @@ module.exports = async (client, interaction) => {
        });
         try{if (!interaction.guild.channels) return;}catch{return}
         if (interaction.user.bot == true) { return; }
-        var potential_blacklisted = await db.get(`GLOBAL.BLACKLIST.${members.user.id}.blacklisted`)
+        var potential_blacklisted = await db.get(`GLOBAL.BLACKLIST.${interaction.user.id}.blacklisted`)
         const blacklisted = new MessageEmbed()
           .setColor("#0827F5")
           .setTitle(":(")
