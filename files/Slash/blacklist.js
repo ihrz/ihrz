@@ -32,8 +32,8 @@ module.exports = {
                 
                   
                     var text = ""
-                    for (var i in await db.all().filter(x => x.ID.startsWith(`GLOBAL.BLACKLIST`))){
-                        text += `<@${db.all().filter(x => x.ID.startsWith(`GLOBAL.BLACKLIST`))[i].ID.split(".")[1]}>\n`
+                    for (var i in await db.all(x => x.ID.startsWith(`GLOBAL.BLACKLIST.`))){
+                        text += `<@${db.all(x => x.ID.startsWith(`GLOBAL.BLACKLIST.`))[i].ID.split(".")[1]}>\n`
                         }
 
                         let embed = new MessageEmbed()

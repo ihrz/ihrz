@@ -28,12 +28,12 @@ module.exports = {
         let turn = interaction.options.getString("action")
         if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply({content: ":x: | You must be an administrator of this server! "});
     
-        if(turn === true){
+        if(turn === "on"){
             await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "on")
             return interaction.reply({content: "📌 | The antipub is now functional (It works for everyone except admin)"})
         }
     
-        if(turn === false){
+        if(turn === "off"){
             await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "off")
             return interaction.reply({content: "📌 | The antipub is now deactivated!"})
         }
