@@ -37,7 +37,7 @@ module.exports = {
                                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                                 if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
                                 }catch(e) { console.error(e) };
-                       db.set(`xp_oro_${interaction.guild.id}`, "off");
+                                await db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.on_or_off`, "off");
                     return interaction.reply("You have successfully disable the leveling message (XP)");
                }else{
                 if (types == "on") {
@@ -50,7 +50,7 @@ module.exports = {
                                         let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                                         if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
                                         }catch(e) { console.error(e) };
-                            db.set(`xp_oro_${interaction.guild.id}`, "on");
+                            await db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.on_or_off`, "on");
                          return interaction.reply("You have successfully enable the leveling message (XP)");
                         
                             }

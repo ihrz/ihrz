@@ -8,6 +8,7 @@ module.exports = async (client, channel) => {
     if (!channel.guild) return;
     base = await db.get(`${channel.guild.id}.GUILD.CUSTOM_CHANNEL.${channel.id}`)
     main = await db.get(`${channel.guild.id}.GUILD.CUSTOM_CHANNEL`)
+    if(base === undefined || base === null) return
     let idu = base.channel_log_custom
     if(idu === undefined || idu === null) return
     

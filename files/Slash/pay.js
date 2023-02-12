@@ -23,7 +23,7 @@ module.exports = {
   
         let user = interaction.options.getMember("member")
         let amount = interaction.options.getNumber("amount")
-        let member = await db.get(`money_${interaction.guildId}_${interaction.member.id}`)
+        let member = await db.get(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`)
         if (amount.toString().includes('-')) {
             return interaction.reply({content: 'Negative money can not be paid.'})
         }
@@ -31,8 +31,8 @@ module.exports = {
             return interaction.reply({content: `That's more money than you've got in your balance. try again.`})
         }
         interaction.reply(`${interaction.user.username}#${interaction.user.discriminator}, You successfully paid to ${user.user.username} \`${amount}\`$.`)
-        db.add(`money_${interaction.guildId}_${user.id}`, amount)
-        db.subtract(`money_${interaction.guildId}_${interaction.member.id}`, amount)
+        await db.add(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, amount)
+        await db.sub(`${interaction.guild.id}.USER.${interaction.member.id}.ECONOMY.money`, amount)
     
       const filter = (interaction) => interaction.user.id === interaction.member.id;
       }}

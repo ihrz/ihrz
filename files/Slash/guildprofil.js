@@ -8,13 +8,13 @@ module.exports = {
         const { QuickDB } = require("quick.db");
         const db = new QuickDB();
     
-        let setchannelsjoin = await db.get(`join-${interaction.guild.id}`)
-        let setchannelsleave = await db.get(`leave-${interaction.guild.id}`)
-        let joinroles = await db.get(`joinroles-${interaction.guild.id}`);
-        let joinDmMessage = await db.get(`joindm-${interaction.guild.id}`)
-        let blockpub = await db.get(`antipub_${interaction.guild.id}`)
-        let joinmessage = await db.get(`joinmessage_${interaction.guild.id}`)
-        let leavemessage = await db.get(`leavemessage_${interaction.guild.id}`)
+        let setchannelsjoin = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`)
+        let setchannelsleave = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`)
+        let joinroles = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
+        let joinDmMessage = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`)
+        let blockpub = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`)
+        let joinmessage = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`)
+        let leavemessage = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`)
 
     if(!setchannelsjoin || setchannelsjoin === null){ 
         setchannelsjoin = "No set !"
