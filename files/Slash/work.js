@@ -22,7 +22,7 @@ module.exports = {
     
 
     interaction.reply({embeds: [embed]})
-    db.add(`money_${interaction.guildId}_${interaction.user.id}`, amount)
+    await db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount)
 
     talkedRecentlyforw.add(interaction.user.id);
     setTimeout(() => {

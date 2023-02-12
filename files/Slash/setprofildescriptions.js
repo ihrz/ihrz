@@ -19,7 +19,7 @@ module.exports = {
         if (!desc) return interaction.reply(":x: | **Please give a correct description.**")
        
     
-            await db.set(`pc_${interaction.user.id}_desc`, desc)
+            await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.desc`, desc)
     interaction.reply("**Your description has been updated successfully.**")  
       const filter = (interaction) => interaction.user.id === interaction.member.id;
       }}

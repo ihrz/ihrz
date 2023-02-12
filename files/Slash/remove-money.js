@@ -31,8 +31,8 @@ module.exports = {
 
         var amount = interaction.options.getNumber("amount")
         let user = interaction.options.get("member")
-    db.subtract(`money_${interaction.guild.id}_${user.user.id}`, amount)
-    let bal = await db.get(`money_${interaction.guild.id}_${user.user.id}`)
+    await db.sub(`${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, amount)
+    let bal = await db.get(`${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`)
 
     let embed = new MessageEmbed()
     .setAuthor(`Removed Money!`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)

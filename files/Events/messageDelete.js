@@ -8,10 +8,10 @@ module.exports = async (client, message) => {
     async function snipeModules() {
         await db.set(`${message.guild.id}.GUILD.SNIPE.${message.channel.id}`, 
         {
-        snipe: `${message.content}`, 
-        snipeUserInfoTag: `${message.author.username} (${message.author.id})`, 
-        snipeUserInfoPp: `${message.author.displayAvatarURL()}`, 
-        snipeTimestamp: Date.now()
+            snipe: `${message.content}`, 
+            snipeUserInfoTag: `${message.author.username} (${message.author.id} )`, 
+            snipeUserInfoPp: `${message.author.displayAvatarURL()}`, 
+            snipeTimestamp: Date.now()
         });
     };
     return snipeModules();

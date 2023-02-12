@@ -62,10 +62,10 @@ module.exports = {
                         if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
                         }catch(e) { console.error(e) };
         try{
-           let already = await db.get(`join-${interaction.guild.id}`)
+           let already = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`)
                if(already === argsid.id) return interaction.reply({content: 'The join channels is already config with this channels id!'})
             client.channels.cache.get(argsid.id).send({content: "**Join channel set here!** :tada:"})
-            db.set(`join-${interaction.guild.id}`, argsid.id);
+            await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`, argsid.id);
         
             return interaction.reply({content: "You have successfully set the join channel to <#"+argsid.id+">"});
        
@@ -82,10 +82,10 @@ module.exports = {
            try{
        
                if(!argsid) return interaction.reply({content: "You must specify a valid channels id for you channels."})
-               let already = await db.get(`leave-${interaction.guild.id}`)
+               let already = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`)
                if(already === argsid.id) return interaction.reply({content: 'The leave channels is already config with this channels id!'})
                client.channels.cache.get(argsid.id).send({content: "**Leaves channel set here!** :tada:"})
-               db.set(`leave-${interaction.guild.id}`, argsid.id);
+               await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`, argsid.id);
            
                return interaction.reply({content: "You have successfully set the leaves channel to <#"+argsid.id+">"});
           
@@ -106,12 +106,12 @@ module.exports = {
           }
         if (type === "off") {
               try{
-               let leavec = await db.get(`join-${interaction.guild.id}`)
-               let joinc = await db.get(`leave-${interaction.guild.id}`)
+               let leavec = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`)
+               let joinc = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`)
                if(joinc === "off" & leavec === "off") return interaction.reply({content: 'The join & leave channels is already disable'})
        
-               db.delete(`join-${interaction.guild.id}`);
-               db.delete(`leave-${interaction.guild.id}`);
+               await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`);
+               await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`);
                return interaction.reply({content: "You have successfully disable the leaves & join channel !"});
           
               }catch{

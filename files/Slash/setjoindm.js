@@ -55,7 +55,7 @@ if (type === "on") {
 if(!dm_msg) return interaction.reply({embeds: [help_embed]})
 try{
    if(!dm_msg) return interaction.reply({content: "You must specify a valid message for you join dm."})
-    db.set(`joindm-${interaction.guild.id}`, dm_msg);
+    await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`, dm_msg);
     return interaction.reply({content: "You have successfully set the join dm to :```"+dm_msg+"``` And enable it "});
 
 }catch(e){
@@ -76,7 +76,7 @@ if (type === "off") {
    try{
        let already_off = await db.get(`joindm-${interaction.guild.id}`)
        if(already_off === "off") return interaction.reply("The join dm message is already disable !")
-       db.set(`joindm-${interaction.guild.id}`, "off");
+       await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`);
        return interaction.reply({content: "You have successfully disable the join dm !"});
   
    }catch(e){
@@ -95,7 +95,7 @@ if (type === "off") {
        }  
 }
 if (type === "ls") {
-   let already_off = await db.get(`joindm-${interaction.guild.id}`)
+   let already_off = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`)
    if (already_off === null) {
        return interaction.reply({content: "They are no join dm setup here !"})
    }

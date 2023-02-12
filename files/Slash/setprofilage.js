@@ -19,7 +19,7 @@ module.exports = {
         if (!age) return interaction.reply(":x: | **Please give a correct syntax.**")
        
     
-            await db.set(`pc_${interaction.user.id}_age`, age)
+            await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.age`, age)
     interaction.reply("**Your profil age has been updated successfully.**")
       const filter = (interaction) => interaction.user.id === interaction.member.id;
       }}

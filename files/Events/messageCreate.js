@@ -16,10 +16,10 @@ module.exports = async (client, message) => {
 
             var level = await db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`) || 1
             var xp = await db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`)
-            var xpNeeded = level * 5000;
+            var xpNeeded = level * 500;
             if(xpNeeded < xp){
-                await db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`.red, 1)
-                var newLevel = await db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`.red, 1)
+                await db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`, 1)
+                var newLevel = await db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`, 1)
                 await db.sub(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, xpNeeded)
                 let xp_turn = await db.get(`${message.guild.id}.GUILD.XP_LEVELING.on_or_off`)
                 if(xp_turn === "off") { return };

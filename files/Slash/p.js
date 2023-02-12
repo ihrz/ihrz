@@ -49,31 +49,4 @@ module.exports = {
          searchResult.playlist ? queue.addTracks(searchResult.tracks) : queue.addTrack(searchResult.tracks[0]);
          if (!queue.playing) await queue.play();
             
-                }}
-    /*
-    if(!message.member?.voice.channel) {
-        message.channel.send({ content: `${message.member}, join to the voice channel!` });
-        return;
-    }
-
-    if(!args.join(" ")) {
-        message.channel.send({ content: `${message.member}, enter your search query!` });
-        return;
-    }
-     const queue = client.player.createQueue(message.guild, {
-        metadata: message.channel
-     });
-     const song = await client.player.search(args.join(" "), {
-       requestedBy: message.author
-    });
-     
-     try {
-       await queue.connect(message.member.voice.channel);
-     } catch {
-       message.reply("Could not join your voice channel");
-     }
-    
-     queue.addTrack(song.tracks[0]);
-     queue.play();
-*/
-    
+}}

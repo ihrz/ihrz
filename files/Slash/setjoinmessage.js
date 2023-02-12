@@ -62,7 +62,7 @@ let help_embed = new MessageEmbed()
       .replace("{guild}", "{guild}")
       .replace("{createdat}", "{createdat}")
       .replace("{membercount}", "{membercount}")
-      db.set(`joinmessage_${interaction.guild.id}`, joinmsgreplace)
+      await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`, joinmsgreplace)
   try{
     logEmbed = new MessageEmbed()
     .setColor("PURPLE")
@@ -78,7 +78,7 @@ let help_embed = new MessageEmbed()
     }
   }else{
     if(type == "off"){
-      db.delete(`joinmessage_${interaction.guild.id}`);
+      await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
       try{
         logEmbed = new MessageEmbed()
         .setColor("PURPLE")
@@ -94,7 +94,7 @@ let help_embed = new MessageEmbed()
     }
   }
   if(type == "ls"){
-    var ls = await db.get(`joinmessage_${interaction.guild.id}`);
+    var ls = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
     return interaction.reply("The join message is: \n```"+ls+"```")
   }
   if(!type){

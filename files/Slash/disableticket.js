@@ -43,7 +43,7 @@ module.exports = {
                                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                                 if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
                                 }catch(e) { console.error(e) };
-                        db.set(`${interaction.guild.id}.GUILD.TICKET.on_or_off`, "off");
+                        await db.set(`${interaction.guild.id}.GUILD.TICKET.on_or_off`, "off");
                     return interaction.reply("You have successfully disable the ticket commands !");
                }
                 if (type === "on") {
@@ -56,7 +56,7 @@ module.exports = {
                                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                                 if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
                                 }catch(e) { console.error(e) };                       
-                        db.delete(`${interaction.guild.id}.GUILD.TICKET.on_or_off`);
+                        await db.delete(`${interaction.guild.id}.GUILD.TICKET.on_or_off`);
                     return interaction.reply("You have successfully enable the ticket commands !");
                    
                        }      

@@ -18,8 +18,8 @@ module.exports = {
     let sus = interaction.options.getMember("user")
     if(!sus){ 
       var user = interaction.user
-      var level = await db.get(`level_${user.id}`) || 0;
-      var currentxp = await db.get(`xp_${user.id}`) || 0;
+      var level = await db.get(`${interaction.guild.id}.USER.${user.id}.XP_LEVELING.level`) || 0;
+      var currentxp = await db.get(`${interaction.guild.id}.USER.${user.id}.XP_LEVELING.xp`) || 0;
       var xpNeeded = level * 500 + 500 
       var expNeededForLevelUp = xpNeeded - currentxp
       let nivEmbed = new MessageEmbed()
@@ -30,12 +30,12 @@ module.exports = {
     .setDescription(`\`${expNeededForLevelUp}\` **experience points needed for the next level!**`)
     .setTimestamp()
     .setThumbnail("https://cdn.discordapp.com/attachments/847484098070970388/850684283655946240/discord-icon-new-2021-logo-09772BF096-seeklogo.com.png")
-    .setFooter("iHORIZON")
+    .setFooter("iHorizon Project")
     
       interaction.reply({embeds: [nivEmbed]})
     }else{
-      var level = await db.get(`level_${sus.user.id}`) || 0;
-      var currentxp = await db.get(`xp_${sus.user.id}`) || 0;
+      var level = await db.get(`${interaction.guild.id}.USER.${sus.user.id}.XP_LEVELING.level`) || 0;
+      var currentxp = await db.get(`${interaction.guild.id}.USER.${sus.user.id}.XP_LEVELING.xp`) || 0;
       var xpNeeded = level * 500 + 500 
       var expNeededForLevelUp = xpNeeded - currentxp
       let nivEmbed = new MessageEmbed()
