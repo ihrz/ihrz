@@ -13,7 +13,7 @@ module.exports = {
         const { QuickDB } = require("quick.db");
         const db = new QuickDB();
         const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
-        let owner_pp_user = await db.get(`owner_${interaction.user.id}`)
+        let owner_pp_user = await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`)
     
         if(!owner_pp_user || owner_pp_user === null || owner_pp_user === false){
     
@@ -29,7 +29,7 @@ module.exports = {
     
         const member = interaction.options.getUser('member')
                if (!member) return interaction.reply({content: "type a user you want to unblacklist"})
-               let fetched = await db.get(`blacklist_${member.id}`)
+               let fetched = await db.get(`GLOBAL.BLACKLIST.${member.id}`)
     
     
           if(!fetched) {
@@ -41,13 +41,13 @@ module.exports = {
             let bannedMember = await client.users.fetch(member.user.id)
             if(!bannedMember){ return interaction.reply(`I couldn't find the user`)}
               interaction.guild.members.unban(bannedMember)
-              db.delete(`blacklist_${member.id}`);
+              db.delete(`GLOBAL.BLACKLIST.${member.id}`);
 
               console.log(`<@${bannedMember.id}> **is unblacklisted from this server!**`)
               return interaction.reply(`<@${member.id}> is not longer blacklisted'`)
 
           }catch(e){
-                  db.delete(`blacklist_${member.id}`);
+                  db.delete(`GLOBAL.BLACKLIST.${member.id}`);
                   return interaction.reply("❌ Is now unlacklisted, Can't unban this member here, missing permission or already unban?")
           }
         

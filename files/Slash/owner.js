@@ -18,9 +18,10 @@ module.exports = {
     
     run: async (client, interaction) => {
         var text = ""
-    for (var i in db.all().filter(x => x.ID.startsWith(`owner_`))){
-        text += `<@${db.all().filter(x => x.ID.startsWith(`owner_`))[i].ID.split("_")[1]}>\n`
-        }
+        const ownerList = await db.all()
+        for (var i in ownerList[0].value.OWNER){
+            text += `<@${i}>\n`
+            }
 
     let embed = new MessageEmbed()
                 .setColor('#2E2EFE')
@@ -29,12 +30,12 @@ module.exports = {
                 .setFooter('1/1 iHorizon')
     let member = interaction.options.getMember('member')
     if (!member) return interaction.reply({embeds: [embed]});
-    if(await db.get(`owner_${interaction.member.id}`) !== true) return interaction.reply("You are not operator !")
-    let checkAx = await db.get(`owner_${member.id}`)
+    if(await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) return interaction.reply("You are not operator !")
+    let checkAx = await db.get(`GLOBAL.OWNER.${member.id}.owner`)
     if(!checkAx!= true){
         return interaction.reply("This user is already owner !")
     }
-    db.set(`owner_${member.user.id}`, true)
+    db.set(`GLOBAL.OWNER.${member.user.id}.owner`, true)
     interaction.reply(`${member.user.username} is now owner of the iHorizon Projects`)
 
       const filter = (interaction) => interaction.user.id === interaction.member.id;

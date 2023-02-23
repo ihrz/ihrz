@@ -6,6 +6,7 @@ const db = new QuickDB();
 
 module.exports = async (client, message) => {
   if(!message.guild) return;
+  if(message.author.bot) return;
     async function xpFetcher () {
         if(!message.guild) return;
       if (!message.channel.type === "GUILD_TEXT") { return; }
@@ -25,8 +26,14 @@ module.exports = async (client, message) => {
                 if(xp_turn === "off") { return };
                         if (!message.channel.permissionsFor(client.user).has(Permissions.FLAGS.SEND_MESSAGES)) { return; }
                         let xpChan = await db.get(`${message.guild.id}.GUILD.XP_LEVELING.xpchannels`)
-                        if(!xpChan) return message.channel.send({content: `**GG**, <@`+message.author.id+`> you are +1, for xp level (Level : **${newLevel}**)`}).then(msg => {});
-                        if(xpChan === "off") return message.channel.send({content: `**GG**, <@`+message.author.id+`> you are +1, for xp level (Level : **${newLevel}**)}`}).then(msg => {});
+                        if(!xpChan) return message.channel.send({content: `**GG**, <@`+message.author.id+`> you are +1, for xp level (Level : **${newLevel}**)`}).then((sent) => {
+                          setTimeout(() => {
+                   sent.delete();
+               }, 3500);})
+                        if(xpChan === "off") return message.channel.send({content: `**GG**, <@`+message.author.id+`> you are +1, for xp level (Level : **${newLevel}**)}`}).then((sent) => {
+                          setTimeout(() => {
+                   sent.delete();
+               }, 3500);})
                       try{
                         client.channels.cache.get(xpChan).send({content: `**GG**, <@`+message.author.id+`> you are +1, for xp level (Level : **${newLevel}**)`}).then(msg => {});
                       }catch(e){ return}

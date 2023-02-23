@@ -20,7 +20,7 @@ module.exports = {
     .addField("Economy", "`/add-money`, `/balance`, `/daily`, `/monthly`, `/pay`, `/remove-money`, `/rob`, `/weekly`, `/work`", true)
     .addField("Ticket", "`/add`, `/close`, `/delete`, `/new`, `/open`, `/remove`, `/transript`, `/disableticket`", true)
     .addField("Owner", "`/owner`, `unowner`, `/blacklist`, `/unblacklist`", true)
-    .addField("Text CustomChannels", "Like VoiceMaster bot but for a text channels. \n`/setcustomchannel`, `/createchan`, `/addmembers`, `/delmembers`, `/delchan`", true)
+    .addField("Role Reactions [NEW]",  "`/reactionroles`", true)
     .addField("Links", `[Support Discord](https://discord.gg/GMVmM3Gjfz) | [Add bot to your server](https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=8&scope=bot%20applications.commands)`, false)
     .setFooter({ text: 'iHorizon', iconURL: client.user.avatarURL({ format: 'png', dynamic: true, size: 512 })})
     .setThumbnail(client.user.avatarURL({ format: 'png', dynamic: true, size: 512 }))

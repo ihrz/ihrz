@@ -58,7 +58,7 @@ let help_embed = new MessageEmbed()
       .replace("{user}", "{user}")
       .replace("{guild}", "{guild}")
       .replace("{membercount}", "{membercount}")
-      db.set(`leavemessage_${interaction.guild.id}`, joinmsgreplace)
+      await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`, joinmsgreplace)
 
   try{
     logEmbed = new MessageEmbed()
@@ -75,7 +75,7 @@ let help_embed = new MessageEmbed()
 
   }else{
     if(type == "off"){
-      db.delete(`leavemessage_${interaction.guild.id}`);
+      await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`);
       try{
         let ban_embed = new MessageEmbed()
         .setColor("PURPLE")
@@ -88,7 +88,7 @@ let help_embed = new MessageEmbed()
     }
   }
   if(type == "ls"){
-    var ls = await db.get(`leavemessage_${interaction.guild.id}`);
+    var ls = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`);
     return interaction.reply("The leave message is: \n```"+ls+"```")
   }
   if(!type){

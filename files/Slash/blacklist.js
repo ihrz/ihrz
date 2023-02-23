@@ -32,8 +32,9 @@ module.exports = {
                 
                   
                     var text = ""
-                    for (var i in await db.all(x => x.ID.startsWith(`GLOBAL.BLACKLIST.`))){
-                        text += `<@${db.all(x => x.ID.startsWith(`GLOBAL.BLACKLIST.`))[i].ID.split(".")[1]}>\n`
+                    const ownerList = await db.all()
+                    for (var i in ownerList[0].value.BLACKLIST){
+                        text += `<@${i}>\n`
                         }
 
                         let embed = new MessageEmbed()
@@ -50,7 +51,7 @@ module.exports = {
                    let fetched = await db.get(`GLOBAL.BLACKLIST.${member.user.id}`)
         
                  if (!fetched) {
-                       await db.set(`GLOBAL.BLACKLIST.${member.user.id}`, {blacklisted: "yes"})
+                       await db.set(`GLOBAL.BLACKLIST.${member.user.id}`, {blacklisted: true})
                        if(member.bannable){
                         member.ban({ reason: "blacklisted !"})
                         return interaction.reply(`${member.user.username} is now blacklisted`);

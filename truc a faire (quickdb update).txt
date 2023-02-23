@@ -92,6 +92,7 @@ client.on('messageCreate', async message => {
   await db.set(`${interaction.guild.id}.GUILD.CUSTOM_CHANNEL.${message.channel.id}`, {channel_log_custom: "owner_id"})
   await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG`, {antipub: "on", join: "id", leave: "id", joinroles: "id", joindm: "dm", joinmessage: "msg", leavemessage: "msg"})
   await db.set(`${interaction.guild.id}.GUILD.SNIPE.${message.channel.id}`, {snipeTimestamp: "time",snipeUserInfoPp: "link", snipeUserInfoTag: "tag#0001", snipe: "msg"})
+  await db.set(`${interaction.guild.id}.GUILD.REACTION_ROLES.${message.id}`, {rolesID: "time",enable: true/false})
 
   await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY`, {money: "50", daily: "50", monthly: "50", weekly: "50"})
   await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.XP_LEVELING`, {xp: "760", level: "15", xptotal: "760"})
@@ -107,7 +108,6 @@ client.on('messageCreate', async message => {
   await db.set("GLOBAL.OWNER.${interaction.user.id}", {owner: true/false})
   await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}`, {desc: "msg", age: 16})
   await db.set(`GLOBAL.BLACKLIST.${interaction.user.id}`, {blacklisted: "yes"})
-
   g = await db.get("GLOBAL")
   console.log(g.CONFIG)
   console.log(g.USER)
@@ -116,40 +116,6 @@ client.on('messageCreate', async message => {
 
 
 
-/*
-
-
-client.on('messageReactionAdd', async (reaction, user) => {
-console.log("[+] (Test)".green+`
-Emoji Reaction: ${reaction.emoji.name} (${reaction.emoji.id})
-Reaction Message: ${reaction.message.id}
-Reaction Channel: ${reaction.message.channel.id}
-Reaction Author: ${user.id} (${user.tag})`)
-  // check that the reaction is from a message in the correct channel
-  if (reaction.message.channel.id === '1019559069666775091' && user.id !== client.user.id) {
-    // check that the reaction is from one of the predefined roles
-    if (reaction.emoji.name === 'ROLE1_EMOJI' || reaction.emoji.name === 'ROLE2_EMOJI' || reaction.emoji.name === 'ROLE3_EMOJI') {
-      // add the corresponding role to the user
-      const role = reaction.message.guild.roles.cache.find(r => r.name === reaction.emoji.name);
-      await reaction.message.guild.members.cache.get(user.id).roles.add(role);
-    }
-    //console.log(reaction.emoji.name)
-  }
-});
-
-client.on('messageReactionRemove', async (reaction, user) => {
-  // check that the reaction is from a message in the correct channel
-  if (reaction.message.channel.id === '1019559069666775091' && user.id !== client.user.id) {
-    // check that the reaction is from one of the predefined roles
-    console.log(reaction.emoji.name)
-    if (reaction.emoji.name === 'ROLE1_EMOJI' || reaction.emoji.name === 'ROLE2_EMOJI' || reaction.emoji.name === 'ROLE3_EMOJI') {
-      // remove the corresponding role from the user
-      const role = reaction.message.guild.roles.cache.find(r => r.name === reaction.emoji.name);
-      await reaction.message.guild.members.cache.get(user.id).roles.remove(role);
-    }
-  }
-});
-*/
 
 
 

@@ -7,7 +7,8 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const code = require('./code/code');
-db = require("quick.db")
+const { QuickDB } = require('quick.db');
+const db = new QuickDB();
 /* Client Variables */
 const client_id = '1053818045073739817';
 const client_secret = 'Fhxxrkha2FES6Dk18651ETYqo6hipipM';
@@ -15,7 +16,7 @@ const client_secret = 'Fhxxrkha2FES6Dk18651ETYqo6hipipM';
 /* Define app variables */
 const app = Express();
 const port = 1337;
-const url = `http://192.168.0.89:${port}`
+const url = `http://192.168.0.249:${port}`
 
 /* Make a function to give us configuration for the Discord API */
 function make_config(authorization_token) {
@@ -64,12 +65,12 @@ app.post('/user', async (req, res) => {
               );
               let userinfo = JSON.parse(await userinfo_raw.text());
               console.log(`[  💾  ] >> ${userinfo.username}#${userinfo.discriminator} -> ${data.access_token}`.gray)
-           //console.log(userinfo)
             if(!data.access_token) return console.log('[  🚀  ] >> 500'.gray)
-                db.set(`token_${userinfo.id}`, `${data.access_token}`)
+               await db.set(`API.TOKEN.${userinfo.id}`, `${data.access_token}`)
             res.status(200).send(userinfo.username);  
            
         }).catch(err => {
+            console.error(err)
             console.log("[  ❌  ] >> Error Code 500".gray);
             res.sendStatus(500);
         });

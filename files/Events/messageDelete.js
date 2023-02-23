@@ -5,6 +5,7 @@ const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 module.exports = async (client, message) => {
     if(!message.guild) return;
+    if(!message.author) return;
     async function snipeModules() {
         await db.set(`${message.guild.id}.GUILD.SNIPE.${message.channel.id}`, 
         {
@@ -14,5 +15,6 @@ module.exports = async (client, message) => {
             snipeTimestamp: Date.now()
         });
     };
-    return snipeModules();
+    return snipeModules()
+
 };

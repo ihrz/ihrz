@@ -17,13 +17,13 @@ module.exports = {
         const db = new QuickDB();
         const member = interaction.options.getUser('user') || interaction.user
     
-        var description = db.fetch(`GLOBAL.USER_PROFIL.${member.id}.desc`)
+        var description = await db.get(`GLOBAL.USER_PROFIL.${member.id}.desc`)
         if(!description) var description = "Not descriptions definded !"
-        var level = await db.fetch(`${interaction.guild.id}.USER.${member.id}.XP_LEVELING.level`)
+        var level = await db.get(`${interaction.guild.id}.USER.${member.id}.XP_LEVELING.level`)
         if(!level) var level = 0
-        var balance = await db.fetch(`${interaction.guild.id}.USER.${member.id}.ECONOMY.money`)
+        var balance = await db.get(`${interaction.guild.id}.USER.${member.id}.ECONOMY.money`)
         if(!balance) var balance = 0
-        var age = await db.fetch(`GLOBAL.USER_PROFIL.${member.id}.age`)
+        var age = await db.get(`GLOBAL.USER_PROFIL.${member.id}.age`)
             if(!age) var age = "Unknown"
             
             let profil = new MessageEmbed()

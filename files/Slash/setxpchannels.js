@@ -49,10 +49,10 @@ module.exports = {
                     if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
                     }catch(e) { console.error(e) };
  try{
-    let already = await db.get(`xpchannels-${interaction.guild.id}`)
+    let already = await db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`)
         if(already === argsid) return interaction.reply({content: 'The custom xp channels is already config with this channels id!'})
 	 client.channels.cache.get(argsid).send({content: "**Custom XP channel set here!**"})
-	 db.set(`xpchannels-${interaction.guild.id}`, argsid);
+	 await db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`, argsid);
  
      return interaction.reply({content: "You have successfully set the custom xp channel to <#"+argsid+">"});
 
@@ -73,11 +73,11 @@ try{
                     if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
                     }catch(e) { console.error(e) };
        try{
-        let already2 = await db.get(`xpchannels-${interaction.guild.id}`)
+        let already2 = await db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`)
         if(already2 === "off") return interaction.reply('The custom xp channels is already disable !')
 
 
-        db.delete(`xpchannels-${interaction.guild.id}`);
+        await db.delete(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`);
         return interaction.reply("You have successfully disable the custom xp channel !");
    
        }catch(e){

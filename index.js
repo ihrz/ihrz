@@ -38,7 +38,91 @@ console.log("[  💥  ] >> Crash detected\n".red+
             "[  📜  ] >> Save in the logs\n".gray+
             "[  💖  ] >> Don't need to restart".green);
     const now = new Date(), CreateFiles = fs.createWriteStream('./files/logs/crash/'+date.format(now, 'DD.MM.YYYY HH;mm;ss')+".txt", {flags: 'a'});
-    let i =
-    `${config.asciicrash}\n${err.stack || err.message}`
+    let i=`${config.asciicrash}\n${err.stack || err.message}`
     CreateFiles.write(i.toString()+'\r\n');
 });
+
+
+
+
+const { QuickDB } = require("quick.db");
+const db = new QuickDB();
+
+
+client.on('messageReactionAdd', async (reaction, user) => {
+  // Vérifie que la réaction est ajoutée à un message et non à un autre type de message (par exemple une émoticône personnalisée).
+  if (!reaction.message.guild) return;
+
+  //Récupère les donner de la bdd
+  const fetched = await db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`)
+
+  if (fetched) {
+  // Récupère le rôle que vous souhaitez ajouter à l'utilisateur.
+  const role = reaction.message.guild.roles.cache.get(fetched.rolesID);
+
+  // Vérifie que le rôle existe dans le serveur.
+  if (!role) return;
+
+  // Récupère le membre (l'utilisateur) qui a ajouté la réaction.
+  const member = reaction.message.guild.members.cache.get(user.id);
+
+  // Ajoute le rôle au membre.
+  return await member.roles.add(role);
+  };
+
+  const fetchedForNitro = await db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`)
+
+  if (fetchedForNitro) {
+    // Récupère le rôle que vous souhaitez ajouter à l'utilisateur.
+    const role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);
+  
+    // Vérifie que le rôle existe dans le serveur.
+    if (!role) return;
+  
+    // Récupère le membre (l'utilisateur) qui a ajouté la réaction.
+    const member = reaction.message.guild.members.cache.get(user.id);
+  
+    // Ajoute le rôle au membre.
+    return await member.roles.add(role);
+    };
+});
+
+
+client.on('messageReactionRemove', async (reaction, user) => {
+  // Vérifie que la réaction est ajoutée à un message et non à un autre type de message (par exemple une émoticône personnalisée).
+  if (!reaction.message.guild) return;
+
+  //Récupère les donner de la bdd
+  const fetched = await db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`)
+
+  if (fetched) {
+  // Récupère le rôle que vous souhaitez ajouter à l'utilisateur.
+  const role = reaction.message.guild.roles.cache.get(fetched.rolesID);
+
+  // Vérifie que le rôle existe dans le serveur.
+  if (!role) return;
+
+  // Récupère le membre (l'utilisateur) qui a ajouté la réaction.
+  const member = reaction.message.guild.members.cache.get(user.id);
+
+  // Ajoute le rôle au membre.
+  return await member.roles.remove(role);
+  };
+
+  const fetchedForNitro = await db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`)
+
+  if (fetchedForNitro) {
+    // Récupère le rôle que vous souhaitez ajouter à l'utilisateur.
+    const role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);
+  
+    // Vérifie que le rôle existe dans le serveur.
+    if (!role) return;
+  
+    // Récupère le membre (l'utilisateur) qui a ajouté la réaction.
+    const member = reaction.message.guild.members.cache.get(user.id);
+  
+    // Ajoute le rôle au membre.
+    return await member.roles.remove(role);
+    };
+});
+

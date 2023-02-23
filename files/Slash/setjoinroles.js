@@ -60,9 +60,9 @@ try{
                             }catch(e) { console.error(e) };
 
             try{
-                let already = await db.get(`joinroles-${interaction.guild.id}`);
+                let already = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
                 if(already === roleid) return interaction.reply("The join roles is already config with this role !")
-                db.set(`joinroles-${interaction.guild.id}`, roleid);
+                await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`, roleid);
         
                 return interaction.reply("You have successfully set the join roles to <@&"+roleid+"> !");
            
@@ -84,7 +84,7 @@ try{
                     }  
             
                 try{
-                    let already = db.delete(`joinroles-${interaction.guild.id}`);
+                    let already = await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
                     if(!already) return interaction.reply("You don't have a join roles configured, is useless !")
             
                     return interaction.reply("You have successfully delete the join roles !");
@@ -95,7 +95,7 @@ try{
                 }
             }else{
                 if(query === "ls"){
-                    let roles = await db.get(`joinroles-${interaction.guild.id}`)
+                    let roles = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`)
                     if(!roles) return interaction.reply("This guild don't have a join roles set.")
                     return interaction.reply(`The join roles set is <@&${roles}>`)
                  }else{
