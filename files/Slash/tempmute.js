@@ -40,7 +40,7 @@ module.exports = {
         });
         });
       }catch(e){
-        console.log(e.stack);
+       //console.log(e.stack);
       }
     }
   

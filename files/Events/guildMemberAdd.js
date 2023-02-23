@@ -50,7 +50,7 @@ module.exports = async (client, member, members) => {
                 if(!msg_dm) return;
                 if(msg_dm === "off") return
                 member.send({content: "This is a Join DM from "+member.guild.id+" ! \n \n"+msg_dm});
-                  }catch(e){return console.log("Missing Permissions venant du JoinDM")}
+                  }catch(e){return}
     }
 
     async function blacklistFetch() {

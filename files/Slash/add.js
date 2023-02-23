@@ -31,7 +31,6 @@ module.exports = {
 					});
 				}
 				catch(e) {
-					console.log(e)
 					return interaction.reply('error occurred, pls try again');
 				}
 			}  

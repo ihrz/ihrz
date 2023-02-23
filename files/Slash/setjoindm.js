@@ -80,7 +80,7 @@ if (type === "off") {
        return interaction.reply({content: "You have successfully disable the join dm !"});
   
    }catch(e){
-       console.log(e)
+      //console.log(e)
       interaction.reply({content: "Error: missing permissions or channel doesn't exist"});
    }
    try{
