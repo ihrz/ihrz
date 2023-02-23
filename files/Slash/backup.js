@@ -53,7 +53,7 @@ module.exports = {
                             .setColor("PURPLE")
                             .setTitle("Backup Logs")
                             .setDescription(`<@${interaction.user.id}> Create Backup !`)
-                                    let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                                    let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'iHorizon-logs');
                                     if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
                                     }catch(e) { console.error(e) };
                 });
