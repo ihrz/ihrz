@@ -53,7 +53,9 @@ let help_embed = new MessageEmbed()
   {user} = Username of Member
   {membercount} = guild's member count
   {createdat} = member account creation date
-  {guild} = The name of the guild`)
+  {guild} = The name of the guild
+  {inviter} = The inviter username & discriminator
+  {invites} = The invites count of him`)
   
   if(type == "on"){
     if(messagei){

@@ -45,16 +45,12 @@ console.log("[  💥  ] >> Crash detected\n".red+
 
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-
 const invites = new Collection();
 client.invites = new Map();
-
-// A pretty useful method to create a delay without blocking the whole script.
 const wait = require("timers/promises").setTimeout;
 
 client.on("ready", async () => {
   await wait(1000);
-
   client.guilds.cache.forEach(async (guild) => {
     const firstInvites = await guild.invites.fetch();
     invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
@@ -103,44 +99,70 @@ client.on("guildDelete", async (guild) => {
 });
 
 client.on("guildMemberAdd", async (member) => {
-  const newInvites = await member.guild.invites.fetch()
-  const oldInvites = invites.get(member.guild.id);
-  const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
-  const inviter = await client.users.fetch(invite.inviter.id);
-  const logChannel = member.guild.channels.cache.find(channel => channel.name === "join-logs");
-  inviter
-    ? console.log(`${member.user.tag} joined using invite code ${invite.code} from ${inviter.tag}. Invite was used ${invite.uses} times since its creation.`)
-    : console.log(`${member.user.tag} joined but I couldn't find through which invite.`);
+  try {
+    const newInvites = await member.guild.invites.fetch()
+    const oldInvites = invites.get(member.guild.id);
+    const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
+    const inviter = await client.users.fetch(invite.inviter.id);
+      checked = db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`)
+  
+      if(checked) {
+        await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.regular`, 1);
+        await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`, 1);
+      }
+      let fetched = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`);
 
-    /*await db.get(`${invite.guild.id}.GUILD.INVITES.${invite.codes}`)
-    await db.get(`${invite.guild.id}.USER.${invite.inviter.id}.INVITES.${invite.codes}`)*/
+    let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`)
+    if(!wChan) return;
+    let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`)
+    if(!messssssage){ return client.channels.cache.get(wChan).send({content: `➕・<@${member.id}> join the guild. Invited by **${inviter.tag}** (**${fetched}** invites). Account created at: **${member.user.createdAt.toLocaleDateString()}**. Happy to see you on **${member.guild.name}**`})}
 
-    checked = db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`)
+  var messssssage4 = messssssage
+  .replace("{user}", member.user.tag)
+  .replace("{guild}", member.guild.name)
+  .replace("{createdat}", member.user.createdAt.toLocaleDateString()) 
+  .replace("{membercount}", member.guild.memberCount)
+  .replace("{inviter}", inviter.tag)
+  .replace("{invites}", fetched)
 
-    if(checked) {
-      await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.regular`, 1);
-      await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`, 1);
-
-    //{ leaves bonus invites regular}
+  client.channels.cache.get(wChan).send({content: `${messssssage4}`})
+    }catch(e){ 
+      return console.error(e)  
     }
 });
+
 
 client.on("guildMemberRemove", async (member) => {
   const newInvites = await member.guild.invites.fetch()
   const oldInvites = invites.get(member.guild.id);
   const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
-  const inviter = await client.users.fetch(invite.inviter.id);
-  const logChannel = member.guild.channels.cache.find(channel => channel.name === "join-logs");
-  inviter
-    ? console.log(`${member.user.tag} leaved using invite code ${invite.code} from ${inviter.tag}. (${inviter.id}) Invite was used ${invite.uses} times since its creation on ${invite.guild.name} (${invite.guild.id})`)
-    : console.log(`${member.user.tag} leaved but I couldn't find through which invite.`);
+  const inviter = await client.users.fetch(invite.inviter.id).catch(err => console.log(err))
 
     checked = db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`)
 
     if(checked) {
       await db.sub(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`, 1);
       await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.leaves`, 1);
+    }
+    let fetched = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`);
 
-    //{  bonus: 0,,invites: 0}
+    try{
+      let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`)
+      if(wChan == null) return;
+      if(!wChan) return;
+
+    let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leavemessage`)
+    if(!messssssage){ return client.channels.cache.get(wChan).send({content: `➖・<@${member.id}> just left the guild. Was Invited by **${inviter.tag}** (**${fetched}** invites). Goodbye, from **${member.guild.name}**.`})}
+
+    var messssssage4 = messssssage
+    .replace("{user}", member.user.tag)
+    .replace("{guild}", member.guild.name)
+    .replace("{membercount}", member.guild.memberCount)
+    .replace("{inviter}", inviter.tag)
+    .replace("{invites}", fetched)
+
+    client.channels.cache.get(wChan).send({content: `${messssssage4}`})
+    }catch(e){
+      return console.error(e)
     }
 });

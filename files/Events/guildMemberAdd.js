@@ -5,34 +5,6 @@ const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
 module.exports = async (client, member, members) => {
-    async function joinMessage() {
-        try {
-            let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`)
-            if(!wChan) return;
-            let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`)
-            if(!messssssage){
-              let embed = new MessageEmbed()
-              .setColor("GREEN")
-              .setTitle("Join [+]")
-              .setDescription(`Welcome ${member.user.tag} to **${member.guild.name}** :tada: \n We are now ${member.guild.memberCount} !`)
-              .setTimestamp()
-                    return client.channels.cache.get(wChan).send({embeds: [embed]})
-            }
-        
-          var messssssage4 = messssssage
-          .replace("{user}", member.user.tag)
-          .replace("{guild}", member.guild.name)
-          .replace("{createdat}", member.user.createdAt.toLocaleDateString()) 
-          .replace("{membercount}", member.guild.memberCount)
-              let embed = new MessageEmbed()
-                    .setColor("GREEN")
-                    .setDescription(messssssage4)
-                    .setTimestamp()
-          client.channels.cache.get(wChan).send({embeds: [embed]})
-            }catch(e){ return console.error(e)
-                
-            }
-    }
 
     async function joinRoles() {
         try {
@@ -64,21 +36,6 @@ module.exports = async (client, member, members) => {
             }else{ return};
           }catch{return}
     }
-    async function inviteManager() {
-      const cachedInvites = client.invites.get(member.guild.id); // Si vous avez une Map pour stocker les invitations
 
-  const fetchedInvites = await member.guild.invites.fetch(); // Récupère toutes les invitations du serveur
-
-  // Trouve l'invitation qui a été utilisée par le nouveau membre
-  const usedInvite = fetchedInvites.find(inv => cachedInvites.get(inv.code)?.uses < inv.uses) || null;
-
-  // Met à jour la Map avec les dernières invitations
-  client.invites.set(member.guild.id, fetchedInvites);
-
-  // Utilisez l'objet 'usedInvite' pour accéder aux propriétés de l'invitation utilisée par le nouveau membre
-  console.log(`${member.user.tag} a utilisé l'invitation ${usedInvite?.code}`);
-
-    }
-
-    await joinMessage(), joinRoles(), joinDm(), blacklistFetch()//, inviteManager();
+    await joinRoles(), joinDm(), blacklistFetch()//, inviteManager();
     }
