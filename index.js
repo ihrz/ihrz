@@ -5,7 +5,8 @@ const { Client, Intents, Collection, MessageEmbed, Permissions } = require('disc
         Intents.FLAGS.GUILD_MESSAGES, 
         Intents.FLAGS.GUILD_VOICE_STATES, 
         Intents.FLAGS.GUILD_MESSAGE_REACTIONS, 
-        Intents.FLAGS.DIRECT_MESSAGES, 
+        Intents.FLAGS.DIRECT_MESSAGES,
+        Intents.FLAGS.GUILD_INVITES,
         Intents.FLAGS.GUILD_MEMBERS, 
         Intents.FLAGS.GUILD_BANS ], 
         partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
@@ -42,87 +43,104 @@ console.log("[  💥  ] >> Crash detected\n".red+
     CreateFiles.write(i.toString()+'\r\n');
 });
 
-
-
-
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const invites = new Collection();
+client.invites = new Map();
 
-client.on('messageReactionAdd', async (reaction, user) => {
-  // Vérifie que la réaction est ajoutée à un message et non à un autre type de message (par exemple une émoticône personnalisée).
-  if (!reaction.message.guild) return;
+// A pretty useful method to create a delay without blocking the whole script.
+const wait = require("timers/promises").setTimeout;
 
-  //Récupère les donner de la bdd
-  const fetched = await db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`)
+client.on("ready", async () => {
+  await wait(1000);
 
-  if (fetched) {
-  // Récupère le rôle que vous souhaitez ajouter à l'utilisateur.
-  const role = reaction.message.guild.roles.cache.get(fetched.rolesID);
-
-  // Vérifie que le rôle existe dans le serveur.
-  if (!role) return;
-
-  // Récupère le membre (l'utilisateur) qui a ajouté la réaction.
-  const member = reaction.message.guild.members.cache.get(user.id);
-
-  // Ajoute le rôle au membre.
-  return await member.roles.add(role);
-  };
-
-  const fetchedForNitro = await db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`)
-
-  if (fetchedForNitro) {
-    // Récupère le rôle que vous souhaitez ajouter à l'utilisateur.
-    const role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);
-  
-    // Vérifie que le rôle existe dans le serveur.
-    if (!role) return;
-  
-    // Récupère le membre (l'utilisateur) qui a ajouté la réaction.
-    const member = reaction.message.guild.members.cache.get(user.id);
-  
-    // Ajoute le rôle au membre.
-    return await member.roles.add(role);
-    };
+  client.guilds.cache.forEach(async (guild) => {
+    const firstInvites = await guild.invites.fetch();
+    invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
+  });
 });
 
-
-client.on('messageReactionRemove', async (reaction, user) => {
-  // Vérifie que la réaction est ajoutée à un message et non à un autre type de message (par exemple une émoticône personnalisée).
-  if (!reaction.message.guild) return;
-
-  //Récupère les donner de la bdd
-  const fetched = await db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`)
-
-  if (fetched) {
-  // Récupère le rôle que vous souhaitez ajouter à l'utilisateur.
-  const role = reaction.message.guild.roles.cache.get(fetched.rolesID);
-
-  // Vérifie que le rôle existe dans le serveur.
-  if (!role) return;
-
-  // Récupère le membre (l'utilisateur) qui a ajouté la réaction.
-  const member = reaction.message.guild.members.cache.get(user.id);
-
-  // Ajoute le rôle au membre.
-  return await member.roles.remove(role);
-  };
-
-  const fetchedForNitro = await db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`)
-
-  if (fetchedForNitro) {
-    // Récupère le rôle que vous souhaitez ajouter à l'utilisateur.
-    const role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);
-  
-    // Vérifie que le rôle existe dans le serveur.
-    if (!role) return;
-  
-    // Récupère le membre (l'utilisateur) qui a ajouté la réaction.
-    const member = reaction.message.guild.members.cache.get(user.id);
-  
-    // Ajoute le rôle au membre.
-    return await member.roles.remove(role);
-    };
+client.on("inviteDelete", (invite) => {
+  invites.get(invite.guild.id).delete(invite.code);
 });
 
+client.on("inviteCreate", async (invite) => {
+  invites.get(invite.guild.id).set(invite.code, invite.uses);
+  await db.set(`${invite.guild.id}.GUILD.INVITES.${invite.code}`, {
+    creatorUser: `${invite.inviter.id}`,
+  });
+  
+  await db.set(`${invite.guild.id}.USER.${invite.inviter.id}.INVITES.${invite.code}`, {
+    creatorUser: `${invite.inviter.id}`,
+    inviteCode: `${invite.code}`,
+    guildID: `${invite.guild.id}`,
+    invitesAmount: 0
+  });
+  
+  checked = db.get(`${invite.guild.id}.USER.${invite.inviter.id}.INVITES.DATA`)
+  if(!checked) {
+    await db.set(`${invite.guild.id}.USER.${invite.inviter.id}.INVITES.DATA`, {
+      regular: 0,
+      bonus: 0,
+      leaves: 0,
+      invites: 0
+    });
+  }
+});
+
+client.on("guildCreate", (guild) => {
+  guild.invites.fetch().then(guildInvites => {
+    invites.set(guild.id, new Map(guildInvites.map((invite) => [invite.code, invite.uses])));
+  })
+});
+
+client.on("guildDelete", async (guild) => {
+  invites.delete(guild.id);
+
+  await db.delete(`${invite.guild.id}.GUILD.INVITES.${invite.codes}`)
+  await db.delete(`${invite.guild.id}.USER.${invite.inviter.id}.INVITES.${invite.codes}`)
+});
+
+client.on("guildMemberAdd", async (member) => {
+  const newInvites = await member.guild.invites.fetch()
+  const oldInvites = invites.get(member.guild.id);
+  const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
+  const inviter = await client.users.fetch(invite.inviter.id);
+  const logChannel = member.guild.channels.cache.find(channel => channel.name === "join-logs");
+  inviter
+    ? console.log(`${member.user.tag} joined using invite code ${invite.code} from ${inviter.tag}. Invite was used ${invite.uses} times since its creation.`)
+    : console.log(`${member.user.tag} joined but I couldn't find through which invite.`);
+
+    /*await db.get(`${invite.guild.id}.GUILD.INVITES.${invite.codes}`)
+    await db.get(`${invite.guild.id}.USER.${invite.inviter.id}.INVITES.${invite.codes}`)*/
+
+    checked = db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`)
+
+    if(checked) {
+      await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.regular`, 1);
+      await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`, 1);
+
+    //{ leaves bonus invites regular}
+    }
+});
+
+client.on("guildMemberRemove", async (member) => {
+  const newInvites = await member.guild.invites.fetch()
+  const oldInvites = invites.get(member.guild.id);
+  const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
+  const inviter = await client.users.fetch(invite.inviter.id);
+  const logChannel = member.guild.channels.cache.find(channel => channel.name === "join-logs");
+  inviter
+    ? console.log(`${member.user.tag} leaved using invite code ${invite.code} from ${inviter.tag}. (${inviter.id}) Invite was used ${invite.uses} times since its creation on ${invite.guild.name} (${invite.guild.id})`)
+    : console.log(`${member.user.tag} leaved but I couldn't find through which invite.`);
+
+    checked = db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`)
+
+    if(checked) {
+      await db.sub(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`, 1);
+      await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.leaves`, 1);
+
+    //{  bonus: 0,,invites: 0}
+    }
+});

@@ -67,6 +67,8 @@ interaction.channel.messages.fetch(messagei).then(message => { message.react(rea
   .catch(error => { return interaction.reply({content: `${error}`})});
 
 if(!role){interaction.reply({embeds: [help_embed]})}
+if(!reaction) { return interaction.reply({content: `Missing argument: Reaction's Emoji`})}
+
 let check = reaction.toString()
 if(check.includes("<") || check.includes(">") || check.includes(":")) { return interaction.reply({content: `❌ You can't sent to me a \`CUSTOM_EMOJI\` in format \`<::xxx>\` ! I need only them ID !`})}
 await db.set(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`, {rolesID: role.id, reactionNAME: reaction, enable: true})
@@ -101,7 +103,6 @@ const reactionVar = message.reactions.cache.get(fetched.reactionNAME);
 if(!reactionVar) {return interaction.reply({content: `Can't fetch targeted reaction on this message !`})}
 await reactionVar.users.remove(client.user.id).catch(err => {console.error(err)});
 
-await interaction.reply({content: `${reaction} has been deleted to the ${messagei}'s message`, ephemeral: true})
 
 await db.delete(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`)
    
@@ -113,6 +114,8 @@ await db.delete(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reac
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
             if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
             }catch(e) { console.error(e) };
+            await interaction.reply({content: `${reaction} has been deleted to the ${messagei}'s message`, ephemeral: true})
+
 /*End of Remove roles to users pleasssssssse horisus*/
     }
   }

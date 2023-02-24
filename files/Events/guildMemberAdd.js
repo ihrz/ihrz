@@ -64,6 +64,21 @@ module.exports = async (client, member, members) => {
             }else{ return};
           }catch{return}
     }
+    async function inviteManager() {
+      const cachedInvites = client.invites.get(member.guild.id); // Si vous avez une Map pour stocker les invitations
 
-    await joinMessage(), joinRoles(), joinDm(), blacklistFetch();
+  const fetchedInvites = await member.guild.invites.fetch(); // Récupère toutes les invitations du serveur
+
+  // Trouve l'invitation qui a été utilisée par le nouveau membre
+  const usedInvite = fetchedInvites.find(inv => cachedInvites.get(inv.code)?.uses < inv.uses) || null;
+
+  // Met à jour la Map avec les dernières invitations
+  client.invites.set(member.guild.id, fetchedInvites);
+
+  // Utilisez l'objet 'usedInvite' pour accéder aux propriétés de l'invitation utilisée par le nouveau membre
+  console.log(`${member.user.tag} a utilisé l'invitation ${usedInvite?.code}`);
+
+    }
+
+    await joinMessage(), joinRoles(), joinDm(), blacklistFetch()//, inviteManager();
     }

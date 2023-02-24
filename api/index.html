@@ -61,38 +61,39 @@
     </style>
 </head>
 
+
 <body>
+    <br>
     <p id='top_bar'></p>
     <br>
     <br>
     <br>
-    <a id='login-link' href="https://discord.com/api/oauth2/authorize?client_id=1053818045073739817&redirect_uri=http%3A%2F%2F192.168.0.249%3A1337%2F&response_type=code&scope=identify%20email">Login with Discord</a><br><br>
+    <a id='login-link' href='https://discord.com/api/oauth2/authorize?client_id=1053818045073739817&redirect_uri=http%3A%2F%2Flocalhost%3A25593&response_type=code&scope=identify'>Login with Discord</a><br><br>
     <p id='welcome_txt'></p>
     <p id='credit_txt'></p>
-    
     <script>
-        const url = `http://192.168.0.249:1337/user`
         window.onload = function () {
             document.getElementById("top_bar").innerText = `iHorizon | Login Portal`
-            if (location.href.indexOf("code") !== -1) {
-                const code = location.href.substring(location.href.indexOf("code") + 5, location.href.length);
-                const req = new XMLHttpRequest();
-                req.open("POST", url);
-                req.send(code);
+            if (location.href.indexOf("code") !== -1) { // Detect if you logged in or not
+                const code = location.href.substring(location.href.indexOf("code") + 5, location.href.length); // Get the code OAUTH gives you
+                const req = new XMLHttpRequest(); // Create a new XMLHttpRequest
                 document.getElementById('credit_txt').innerText = `📳・[Portal]\n\n🤖・iHORIZON - Created by Ezermoz`;
-                req.onload = () => {
-                    if (req.status === 500) {
-                        document.getElementById('welcome_txt').innerText = `❌・There was an error with that. Please try logging in again. Error Code: ${req.status}`;
-                    } else if (req.status === 200) {
-                        document.getElementById("welcome_txt").innerText = `👋・Welcome, ${req.responseText}`
-                    } else {
-                        document.getElementById('welcome_txt').innerText = `❌・An error occured. Please try logging in again. Error Code: ${req.status}`;
+                req.open("POST", "http://localhost:25593/user"); // Open the XMLHttpRequest; CHANGE THE PORT TO THE PORT YOU HAVE AS YOUR VARIABLE IN OAUTH.js.
+                req.send(code); // Send the code in the request
+                req.onload = () => { // Will run when the request is loaded
+                    if (req.status === 500) { // Error
+                        document.getElementById('welcome_txt').innerText = `There was an error with that. Please try logging in again. Error Code: ${req.status}`;
+                    } else if (req.status === 200) { // Successful
+                        document.getElementById("welcome_txt").innerText = `Welcome, ${req.responseText}!`
+                    } else { // Other
+                        document.getElementById('welcome_txt').innerText = `An error occured. Please try logging in again. Error Code: ${req.status}`;
                     }
 
                 }
             }
         }
     </script>
+</body>
 
 <ol>
     <p>-> Is it safe?</p>

@@ -21,6 +21,7 @@ module.exports = {
     .addField("Ticket", "`/add`, `/close`, `/delete`, `/new`, `/open`, `/remove`, `/transript`, `/disableticket`", true)
     .addField("Owner", "`/owner`, `unowner`, `/blacklist`, `/unblacklist`", true)
     .addField("Role Reactions [NEW]",  "`/reactionroles`", true)
+    .addField("Invite Manager [BACK]",  "`/removeinvites`, `/invites`,`/addinvites`, `/leaderboard (soon)`", true)
     .addField("Links", `[Support Discord](https://discord.gg/GMVmM3Gjfz) | [Add bot to your server](https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=8&scope=bot%20applications.commands)`, false)
     .setFooter({ text: 'iHorizon', iconURL: client.user.avatarURL({ format: 'png', dynamic: true, size: 512 })})
     .setThumbnail(client.user.avatarURL({ format: 'png', dynamic: true, size: 512 }))

