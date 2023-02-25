@@ -22,11 +22,14 @@ const member = interaction.options.getMember("member")
     let Regular = await db.get(`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.regular`);
     let bonus = await db.get(`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.bonus`);
     
-    const embeds = new MessageEmbed()
-      .setDescription(`You Have **${inv || 0}** Invites (**${Regular || 0}** Regular **${bonus || 0}** Bonus **${leaves || 0} **Leaves )`)
-      .setFooter(interaction.user.username, interaction.user.avatarURL({ dynamic: true }));
     
-      interaction.reply({embeds: [embeds]})
+      let embed = new MessageEmbed()
+.setColor("PURPLE")
+.setTitle("Inviter Stats")
+.setTimestamp()
+.setThumbnail(member.user.avatarURL({ dynamic: true }))
+.setDescription(`<@${member.user.id}> have \`${inv || 0}\` Invites (\`${Regular || 0}\` Regular, \`${bonus || 0}\` Bonus, \`${leaves || 0}\` Leaves).`);
+      interaction.reply({embeds: [embed]})
 
     const filter = (interaction) => interaction.user.id === interaction.member.id;
 }}
