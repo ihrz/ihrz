@@ -1,11 +1,11 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { Client, Intents, Collection, MessageEmbed, Permissions, ApplicationCommandType, ApplicationCommandOptionType } = require('discord.js');
 module.exports = {
     name: 'kick',
     description: 'kick a member in guild',
     options: [
       {
           name: 'member',
-          type: 'USER',
+          type: ApplicationCommandOptionType.User,
           description: 'the member you want to kick',
           required: true
       }

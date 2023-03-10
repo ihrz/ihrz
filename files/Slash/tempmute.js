@@ -1,4 +1,4 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { Client, Intents, Collection, EmbedBuilder, ApplicationCommandType, ApplicationCommandOptionType, Permissions, Embed } = require('discord.js');
 const ms = require("ms");
 
 module.exports = {
@@ -7,13 +7,13 @@ module.exports = {
   options: [
     {
       name: 'user',
-      type: 'USER',
+      type: ApplicationCommandOptionType.User,
       description: 'The user you want to unmuted',
       required: true
   },
   {
     name: 'time',
-    type: 'STRING',
+    type: ApplicationCommandOptionType.String,
     description: 'the duration of the user\'s tempmute',
     required: true
 }
@@ -59,7 +59,7 @@ module.exports = {
     }, ms(mutetime));
   
       try{
-        logEmbed = new MessageEmbed()
+        logEmbed = new EmbedBuilder()
         .setColor("PURPLE")
         .setTitle("Tempmute Logs")
         .setDescription(`<@${interaction.user.id}> mute <@${tomute.id}> for ${ms(ms(mutetime))}`)

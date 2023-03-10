@@ -1,4 +1,4 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { Client, Intents, Collection, MessageEmbed, Permissions, ApplicationCommandType, ApplicationCommandOptionType } = require('discord.js');
 
 module.exports = {
   name: 'ban',
@@ -6,7 +6,7 @@ module.exports = {
   options: [
     {
         name: 'member',
-        type: 'USER',
+        type: ApplicationCommandOptionType.User,
         description: 'the member you want to ban',
         required: true
     }

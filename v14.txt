@@ -1,0 +1,9 @@
+Base bot fonctionnant en v14
+Support event, support index (appart giveaways)
+added help
+
+
+note :
+check perm admin -> PermissionsBitField.Flags.Administrator
+embed : EmbedBuilder
+STRING: ApplicationCommandOptionType.String

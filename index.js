@@ -1,27 +1,17 @@
 /*Made by Ezermoz*/
 const { Client, Collection, GatewayIntentBits, Partials } = require('discord.js'),
-   /* client = new Client({ intents: [
-      GatewayIntentBits.Guild, 
-      GatewayIntentBits.Guild_pl, 
-      GatewayIntentBits.GUILD_VOICE_STATES, 
-      GatewayIntentBits.GUILD_MESSAGE_REACTIONS, 
-      GatewayIntentBits.DIRECT_MESSAGES,
-      GatewayIntentBits.GUILD_INVITES,
-      GatewayIntentBits.GUILD_MEMBERS, 
-      GatewayIntentBits.GUILD_BANS ], 
-        partials: ['MESSAGE', Partials.Channel, Partials.Reaction, Partials.Reaction],
- }),*/
   client = new Client({ intents: 
     [GatewayIntentBits.Guilds, 
     GatewayIntentBits.GuildWebhooks, 
     GatewayIntentBits.GuildVoiceStates,
-  GatewayIntentBits.GuildMessageReactions,
-GatewayIntentBits.GuildIntegrations,
-GatewayIntentBits.DirectMessages,
-GatewayIntentBits.GuildInvites,
-GatewayIntentBits.GuildMembers,
-GatewayIntentBits.GuildBans,
-GatewayIntentBits.GuildVoiceStates], 
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildIntegrations,
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildInvites,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildBans,
+    GatewayIntentBits.GuildVoiceStates], 
     partials: [Partials.Channel, Partials.Reaction, ] , ws: { properties: { browser: 'Discord iOS'}}
     });
     config = require('./files/config.json'), { api } = require("./api/oauth.js"), { GiveawaysManager } = require('discord-giveaways'),

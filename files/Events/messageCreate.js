@@ -1,4 +1,4 @@
-const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
+const { Client, Intents, Collection, EmbedBuilder, PermissionsBitField  } = require('discord.js');
 const config = require('../config.json');
 const fs = require("fs")
 const { QuickDB } = require("quick.db");
@@ -24,7 +24,7 @@ module.exports = async (client, message) => {
                 await db.sub(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, xpNeeded)
                 let xp_turn = await db.get(`${message.guild.id}.GUILD.XP_LEVELING.on_or_off`)
                 if(xp_turn === "off") { return };
-                        if (!message.channel.permissionsFor(client.user).has(Permissions.FLAGS.SEND_MESSAGES)) { return; }
+                        if (!message.channel.permissionsFor(client.user).has(PermissionsBitField.Flags.SendMessages)) { return; }
                         let xpChan = await db.get(`${message.guild.id}.GUILD.XP_LEVELING.xpchannels`)
                         if(!xpChan) return message.channel.send({content: `**GG**, <@`+message.author.id+`> you are +1, for xp level (Level : **${newLevel}**)`}).then((sent) => {
                           setTimeout(() => {
@@ -67,7 +67,7 @@ module.exports = async (client, message) => {
       if(message.author.id == client.user.id) return
       let type = await db.get(`${message.guild.id}.GUILD.GUILD_CONFIG.antipub`)
       if(type === "off"){ return}
-      if(message.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return;
+      if(message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
       if(type == "on") {
         try{
 const blacklist = ["https://","http://", "://", ".com", ".xyz", ".fr", "www.", ".gg", "g/", ".gg/", "youtube.be", "/?"];

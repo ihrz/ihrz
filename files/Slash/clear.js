@@ -1,4 +1,4 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions} = require('discord.js');
+const { Client, Intents, Collection, MessageEmbed, Permissions, ApplicationCommandType, ApplicationCommandOptionType} = require('discord.js');
 
 module.exports = {
     name: 'clear',
@@ -6,7 +6,7 @@ module.exports = {
     options: [
         {
             name: 'number',
-            type: 'NUMBER',
+            type: ApplicationCommandOptionType.Number,
             description: 'The number of message you want to delete !',
             required: true
         }

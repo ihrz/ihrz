@@ -1,4 +1,4 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { Client, Intents, Collection, MessageEmbed, Permissions, ApplicationCommandType, ApplicationCommandOptionType } = require('discord.js');
 const ms = require("ms");
 
 module.exports = {
@@ -7,7 +7,7 @@ module.exports = {
   options: [
     {
         name: 'user',
-        type: 'USER',
+        type: ApplicationCommandOptionType.User,
         description: 'The user you want to unmuted',
         required: true
     }

@@ -1,11 +1,11 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { Client, Intents, Collection, EmbedBuilder, ApplicationCommandType, ApplicationCommandOptionType } = require('discord.js');
 module.exports = {
     name: 'avatar',
     description: 'See the user avatar !',
     options: [
         {
             name: 'user',
-            type: 'USER',
+            type: ApplicationCommandOptionType.User,
             description: 'The user',
             required: false
         }
@@ -16,7 +16,7 @@ module.exports = {
 
         let mentionedUser = interaction.options.getUser("user") || interaction.user;
     
-            let embed = new MessageEmbed()
+            let embed = new EmbedBuilder()
     
             .setImage(mentionedUser.avatarURL({ format: 'png', dynamic: true, size: 512 }))
             .setColor("#add5ff")

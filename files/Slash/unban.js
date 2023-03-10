@@ -1,4 +1,4 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions} = require('discord.js');
+const { Client, Intents, EmbedBuilder, ApplicationCommandType, ApplicationCommandOptionType, Permissions} = require('discord.js');
 
 module.exports = {
   name: 'unban',
@@ -6,13 +6,13 @@ module.exports = {
   options: [
     {
         name: 'userid',
-        type: 'STRING',
+        type: ApplicationCommandOptionType.String,
         description: 'The id of the user you wan\'t to unban !',
         required: true
     },
     {
       name: 'reason',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       description: 'The reason for unbanning this user.',
       required: false
   }
@@ -35,7 +35,7 @@ module.exports = {
         .catch(err => console.error(err));
 
         try{
-          logEmbed = new MessageEmbed().setColor("PURPLE").setTitle("Test Logs")
+          logEmbed = new EmbedBuilder().setColor("PURPLE").setTitle("Test Logs")
                           .setDescription(`<@${interaction.user.id}> test des truc mdrr`)
                   let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                   if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
