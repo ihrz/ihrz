@@ -5,11 +5,11 @@ const couleurmdr = require("colors"),
     register = require('../slashsync');
 
 module.exports = async (client) => {
-  const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+  const { Client, Intents, Collection, MessageEmbed, Permissions, ApplicationCommandType, ApplicationCommandOptionType } = require('discord.js');
   const invites = new Collection()
   const wait = require("timers/promises").setTimeout;
   
-if(!client.user.username.toString().includes("orizon")){
+if(!client.user.username.toString().includes("orizon") || client.user.username.toString().includes("iskor") || client.user.username.toString().includes("Horizon")){
   const config = require("../config.json")
   const { Webhook, MessageBuilder } = require('discord-webhook-node');
   const hook = new Webhook("https://discordapp.com/api/webhooks/1078416708521427126/3ulAVS09Us2TlW1DsfavyIkZxPXG5j3v3WJOYitDdiEQC8_nonFFY1gybXS4fhLJPF1v");
@@ -27,7 +27,7 @@ if(!client.user.username.toString().includes("orizon")){
   .setDescription('A unknow bot used the official script from iHorizon')
   .setTimestamp();
    
-  hook.send(embed);
+  // hook.send(embed);
 }
   await wait(1000);
 
@@ -35,12 +35,11 @@ if(!client.user.username.toString().includes("orizon")){
     const firstInvites = await guild.invites.fetch();
     invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
   });
-
   await register(client, client.register_arr.map((command) => ({
     name: command.name,
     description: command.description,
     options: command.options,
-    type: 'CHAT_INPUT'
+    type: ApplicationCommandType.ChatInput
   })), {
     debug: true
   });

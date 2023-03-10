@@ -1,7 +1,7 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const config = require("../config.json")
+const { ApplicationCommandType, ApplicationCommandOptionType, Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
 
 module.exports = {
     name: 'blockpub',
@@ -9,7 +9,7 @@ module.exports = {
     options: [
         {
             name: 'action',
-            type: "STRING",
+            type: ApplicationCommandOptionType.String,
             description: 'What you want to do?',
             required: true,
             choices: [

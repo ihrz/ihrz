@@ -1,4 +1,4 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
 const config = require('../config.json');
 const fs = require("fs")
 const { QuickDB } = require("quick.db");
@@ -17,7 +17,7 @@ module.exports = async (client, channel) => {
     if(channel.id != ida) return
 
     try{
-      let deleteSuccesThree = new MessageEmbed()
+      let deleteSuccesThree = new EmbedBuilder()
       .setAuthor('Custom channels has ben deleted by force /!\\')
       .setColor("GREEN")
       .setDescription(`<@${idu}>, your custom channel has been forcibly deleted. \ni have delete this to my databse correctly !`)
@@ -28,7 +28,7 @@ module.exports = async (client, channel) => {
       let h4 = main.Here4CreateChannels
      return client.channels.cache.get(h4).send({embeds: [deleteSuccesThree]})
   }catch{
-    let deleteSuccesTwo = new MessageEmbed()
+    let deleteSuccesTwo = new EmbedBuilder()
       .setAuthor('Custom channels has ben deleted by force /!\\')
       .setColor("RED")
       .setDescription(`<@${idu}>, your custom channel has been forcibly deleted. \ni try to delete the channel to my database...`)
@@ -44,7 +44,7 @@ module.exports = async (client, channel) => {
       await db.delete(`${channel.guild.id}.GUILD.CUSTOM_CHANNEL.${channel.id}`)
       await db.delete(`${channel.guild.id}.USER.${idu}.CUSTOM_CHANNEL`)
 
-    let deleteSuccesThree = new MessageEmbed()
+    let deleteSuccesThree = new EmbedBuilder()
     .setAuthor('Custom channels has ben deleted by force /!\\')
     .setColor("GREEN")
     .setDescription(`<@${idu}>, your custom channel has been forcibly deleted. \ni have delete this to my databse corectly !`)
