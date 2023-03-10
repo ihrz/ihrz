@@ -1,4 +1,4 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions, ApplicationCommandType, ApplicationCommandOptionType } = require('discord.js');
+const { Client, Intents, Collection, MessageEmbed, Permissions, PermissionsBitField, ApplicationCommandType, ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 
 module.exports = {
   name: 'ban',
@@ -13,7 +13,7 @@ module.exports = {
 ],
   run: async (client, interaction) => {
     const member = interaction.guild.members.cache.get(interaction.options.get("member").user.id)
-    const permission = interaction.member.permissions.has(Permissions.FLAGS.BAN_MEMBERS)
+    const permission = interaction.member.permissions.has(PermissionsBitField.Flags.BanMembers)
     if (!permission) return interaction.reply({content: "❌ | You don't have permission to ban members."});
     if (!member) return interaction.reply({content: `🔍 | Cannot find this member`});
     if (!interaction.channel.permissionsFor(client.user).has('BAN_MEMBERS')) { return interaction.reply("I don't have permission to ban members!")}
@@ -27,8 +27,8 @@ module.exports = {
                         interaction.reply(`<@${member.user.id}> banned by <@${interaction.member.id}>`);
 
                             try{
-                                logEmbed = new MessageEmbed()
-                                    .setColor("PURPLE")
+                                logEmbed = new EmbedBuilder()
+                                    .setColor("#bf0bb9")
                                     .setTitle("Ban Logs")
                                     .setDescription(`<@${member.user.id}> banned by <@${interaction.member.id}>`)
                                         let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');

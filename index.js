@@ -139,7 +139,7 @@ client.on("guildMemberRemove", async (member) => {
   const newInvites = await member.guild.invites.fetch()
   const oldInvites = invites.get(member.guild.id);
   const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
-  const inviter = await client.users.fetch(invite.inviter.id).catch(err => console.log(err))
+  const inviter = await client.users.fetch(invite.inviter.id).catch(err => {})
 
     checked = db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`)
 

@@ -1,4 +1,4 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions, ApplicationCommandType, ApplicationCommandOptionType } = require('discord.js');
+const { Client, Intents, Collection, MessageEmbed, Permissions, ApplicationCommandType, PermissionsBitField, ApplicationCommandOptionType } = require('discord.js');
 const ms = require("ms");
 
 module.exports = {
@@ -18,7 +18,7 @@ module.exports = {
     if(!tomute) return interaction.reply("Please tag user to mute!");
     const permission = interaction.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)
     if (!permission) return interaction.reply({content: "❌ | You don't have permission to tempmute members."});
-    if (!interaction.guild.me.permissions.has([Permissions.FLAGS.MANAGE_ROLES])) {return interaction.reply({content: `I don't have permission.`})}
+    if (interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.ManageRoles])) {return interaction.reply({content: `I don't have permission.`})}
     if (tomute.id === interaction.user.id) return interaction.reply("You cannot mute yourself!");
     let muterole = interaction.guild.roles.cache.find(role => role.name === 'muted');
     

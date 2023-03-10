@@ -7,3 +7,6 @@ note :
 check perm admin -> PermissionsBitField.Flags.Administrator
 embed : EmbedBuilder
 STRING: ApplicationCommandOptionType.String
+
+
+guild.me -> guild.members.me

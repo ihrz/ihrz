@@ -1,4 +1,4 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions, ApplicationCommandType, ApplicationCommandOptionType} = require('discord.js');
+const { Client, Intents, Collection, EmbedBuilder, Permissions, PermissionsBitField, ApplicationCommandType, ApplicationCommandOptionType} = require('discord.js');
 
 module.exports = {
     name: 'clear',
@@ -13,7 +13,7 @@ module.exports = {
     ],
     run: async (client, interaction) => {
   
-        const permission = interaction.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)
+        const permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)
         var numberx = interaction.options.getNumber("number") + 1
         if (!permission) return interaction.reply({content: "❌ | You don't have permission `MANAGE_MESSAGES`."});
         if (!numberx) { return message.channel.send(`You must specify a number of messages to delete!`); }
@@ -31,8 +31,8 @@ module.exports = {
                         }) 
 
                     try{
-                        logEmbed = new MessageEmbed()
-                        .setColor("PURPLE")
+                        logEmbed = new EmbedBuilder()
+                        .setColor("#bf0bb9")
                         .setTitle("Clear Message Logs")
                         .setDescription(`<@${interaction.user.id}> clear ${messages.size} messages in <#${interaction.channel.id}>`)
 

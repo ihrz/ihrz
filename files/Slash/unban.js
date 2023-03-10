@@ -1,4 +1,11 @@
-const { Client, Intents, EmbedBuilder, ApplicationCommandType, ApplicationCommandOptionType, Permissions} = require('discord.js');
+const { Client, 
+  Intents, 
+  EmbedBuilder, 
+  ApplicationCommandType, 
+  ApplicationCommandOptionType,
+  Permissions,
+  PermissionsBitField
+} = require('discord.js');
 
 module.exports = {
   name: 'unban',
@@ -18,8 +25,8 @@ module.exports = {
   }
 ],
   run: async (client, interaction) => {
-    if (!interaction.member.permissions.has(Permissions.FLAGS.BAN_MEMBERS)) return interaction.reply({content: "❌ | You don't have permission to unban members."});
-    if (!interaction.guild.me.permissions.has([Permissions.FLAGS.BAN_MEMBERS])) {return interaction.reply({content: `❌ | I don't have permission.`})}//pas les perms pour horizon C
+    if (!interaction.member.permissions.has(PermissionsBitField.Flags.BanMembers)) return interaction.reply({content: "❌ | You don't have permission to unban members."});
+    if (!interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.BanMembers])) {return interaction.reply({content: `❌ | I don't have permission.`})}//pas les perms pour horizon C
     const userID = interaction.options.getString('userid');
     let reason = interaction.options.getString('reason');
     if(!reason) reason = "No reason was provided."
@@ -35,8 +42,8 @@ module.exports = {
         .catch(err => console.error(err));
 
         try{
-          logEmbed = new EmbedBuilder().setColor("PURPLE").setTitle("Test Logs")
-                          .setDescription(`<@${interaction.user.id}> test des truc mdrr`)
+          logEmbed = new EmbedBuilder().setColor("#bf0bb9").setTitle("Unban Logs")
+                          .setDescription(`<@${userID}> Is now unbanned from the server by ${interaction.user.id}!`)
                   let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                   if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
                   }catch(e) { console.error(e) };
