@@ -1,4 +1,13 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions, ApplicationCommandType, PermissionsBitField, ApplicationCommandOptionType } = require('discord.js');
+const { 
+  Client, 
+  Intents, 
+  Collection, 
+  EmbedBuilder,
+  Permissions, 
+  ApplicationCommandType, 
+  PermissionsBitField, 
+  ApplicationCommandOptionType 
+} = require('discord.js');
 const ms = require("ms");
 
 module.exports = {
@@ -16,9 +25,9 @@ module.exports = {
 
     let tomute = interaction.options.getMember("user")
     if(!tomute) return interaction.reply("Please tag user to mute!");
-    const permission = interaction.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)
+    const permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages);
     if (!permission) return interaction.reply({content: "❌ | You don't have permission to tempmute members."});
-    if (interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.ManageRoles])) {return interaction.reply({content: `I don't have permission.`})}
+    if (!interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.ManageRoles])) {return interaction.reply({content: `I don't have permission.`})}
     if (tomute.id === interaction.user.id) return interaction.reply("You cannot mute yourself!");
     let muterole = interaction.guild.roles.cache.find(role => role.name === 'muted');
     
@@ -32,8 +41,8 @@ module.exports = {
       tomute.roles.remove(muterole.id);
       interaction.reply(`<@${tomute.id}> has been unmuted!`);
  try{
-          logEmbed = new MessageEmbed()
-          .setColor("PURPLE")
+          logEmbed = new EmbedBuilder()
+          .setColor("#bf0bb9")
           .setTitle("Unmute Logs")
           .setDescription(`<@${interaction.user.id}> unmute <@${tomute.id}>`)
 

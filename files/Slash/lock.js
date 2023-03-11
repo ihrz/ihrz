@@ -1,4 +1,13 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+  Client, 
+  Intents, 
+  Collection, 
+  EmbedBuilder,
+  Permissions, 
+  ApplicationCommandType, 
+  PermissionsBitField, 
+  ApplicationCommandOptionType 
+} = require('discord.js');
 
 module.exports = {
   name: 'lock',
@@ -6,7 +15,7 @@ module.exports = {
   run: async (client, interaction) => {
 
 
-    const Lockembed = new MessageEmbed()
+    const Lockembed = new EmbedBuilder()
     .setColor("#5b3475")
     .setTimestamp()
     .setDescription(`The channel has been locked by <@${interaction.user.id}>.`);
@@ -16,8 +25,8 @@ module.exports = {
 
     interaction.channel.permissionOverwrites.create(interaction.guild.id, { SEND_MESSAGES: false }).then(() => {interaction.reply({embeds: [Lockembed]})})
       try{
-        logEmbed = new MessageEmbed()
-        .setColor("PURPLE")
+        logEmbed = new EmbedBuilder()
+        .setColor("#bf0bb9")
         .setTitle("Lock Logs")
         .setDescription(`<@${interaction.user.id}> lock <#${interaction.channel.id}>`)
 

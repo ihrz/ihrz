@@ -1,4 +1,4 @@
-const { Client, Intents, Collection, EmbedBuilder, ApplicationCommandType, ApplicationCommandOptionType, Permissions, Embed } = require('discord.js');
+const { Client, Intents, Collection, EmbedBuilder, ApplicationCommandType,PermissionsBitField,ApplicationCommandOptionType, Permissions, Embed } = require('discord.js');
 const ms = require("ms");
 
 module.exports = {
@@ -22,9 +22,9 @@ module.exports = {
     let mutetime = interaction.options.getString("time")
     let tomute = interaction.options.getMember("user")
     if(!tomute) return interaction.reply("Please tag user to mute!");
-    const permission = interaction.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)
+    const permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)
     if (!permission) return interaction.reply({content: "❌ | You don't have permission to tempmute members."});
-    if (!interaction.guild.me.permissions.has([Permissions.FLAGS.MANAGE_ROLES])) {return interaction.reply({content: `I don't have permission.`})}
+    if (!interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.ManageMessages])) {return interaction.reply({content: `I don't have permission.`})}
     if (tomute.id === interaction.user.id) return interaction.reply("You cannot mute yourself!");
     let muterole = interaction.guild.roles.cache.find(role => role.name === 'muted');
   
@@ -60,7 +60,7 @@ module.exports = {
   
       try{
         logEmbed = new EmbedBuilder()
-        .setColor("PURPLE")
+        .setColor("#bf0bb9")
         .setTitle("Tempmute Logs")
         .setDescription(`<@${interaction.user.id}> mute <@${tomute.id}> for ${ms(ms(mutetime))}`)
 

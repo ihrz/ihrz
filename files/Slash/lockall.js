@@ -1,4 +1,13 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+  Client, 
+  Intents, 
+  Collection, 
+  EmbedBuilder,
+  Permissions, 
+  ApplicationCommandType, 
+  PermissionsBitField, 
+  ApplicationCommandOptionType 
+} = require('discord.js');
 
 module.exports = {
   name: 'lockall',
@@ -10,13 +19,13 @@ module.exports = {
       interaction.guild.channels.cache.forEach(c => {
         c.permissionOverwrites.create(interaction.guild.id, { SEND_MESSAGES: false })
           })
-          const Lockembed = new MessageEmbed()
+          const Lockembed = new EmbedBuilder()
         .setColor("#5b3475")
         .setTimestamp()
         .setDescription(`All channels have been locked by <@${interaction.user.id}>.`);
 try{
-            logEmbed = new MessageEmbed()
-            .setColor("PURPLE")
+            logEmbed = new EmbedBuilder()
+            .setColor("#bf0bb9")
             .setTitle("Lockall Logs")
             .setDescription(`<@${interaction.user.id}> lock all channels !`)
 
