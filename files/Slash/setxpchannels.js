@@ -1,4 +1,13 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
@@ -8,7 +17,7 @@ module.exports = {
     options: [
         {
             name: 'action',
-            type: "STRING",
+            type: ApplicationCommandOptionType.String,
             description: 'What you want to do?',
             required: true,
             choices: [
@@ -24,7 +33,7 @@ module.exports = {
 },
         {
             name: 'channel',
-            type: 'CHANNEL',
+            type: ApplicationCommandOptionType.Channel,
             description: 'The specific channel for xp message !',
             required: false
         }
@@ -32,16 +41,15 @@ module.exports = {
     run: async (client, interaction) => {
     let type = interaction.options.getString("action")
     let argsid = interaction.options.getChannel("channel").id
-      //const initialMessage = await interaction.reply({ embeds: [embed] });
   
-      if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply({content: ":x: | You must be an administrator of this server to request this commands!"});
+      if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({content: ":x: | You must be an administrator of this server to request this commands!"});
 
  if (type === "on") {
         if(!argsid) return interaction.reply({content: "You must specify a valid channel for you configurations."})
 
         try{
-            logEmbed = new MessageEmbed()
-            .setColor("PURPLE")
+            logEmbed = new EmbedBuilder()
+            .setColor("#bf0bb9")
             .setTitle("SetXpChannels Logs")
             .setDescription(`<@${interaction.user.id}> set the custom xp channels to: <#${argsid}>`)
 
@@ -64,8 +72,8 @@ module.exports = {
 }
  if (type == "off") {
 try{
-            logEmbed = new MessageEmbed()
-            .setColor("PURPLE")
+            logEmbed = new EmbedBuilder()
+            .setColor("#bf0bb9")
             .setTitle("SetXpChannels Logs")
             .setDescription(`<@${interaction.user.id}> disable the custom xp channels. I put the default settings...`)
 

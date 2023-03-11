@@ -2,6 +2,16 @@ Base bot fonctionnant en v14
 Support event, support index (appart giveaways)
 added help
 
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 
 note :
 check perm admin -> PermissionsBitField.Flags.Administrator
@@ -10,3 +20,7 @@ STRING: ApplicationCommandOptionType.String
 
 
 guild.me -> guild.members.me
+{ SendMessages: true} for permissionOverwrites
+
+.setColor("#bf0bb9") 
+for logs embed 

@@ -18,7 +18,7 @@ module.exports = {
     .setDescription("Thanks you to use iHorizon !\nContact creator: `Kisakay#6051`.\nThis is a list of commands you can use.")
     .addFields(
       {name: "✅ Moderation", value: "`/ban`, `/kick`, `/clear`, `/lock`, `/unlock`, `/avatar`, `/lockall`,\n `/unban`, `/tempmute`, `/unmute`", inline: true},
-      {name: "❌ Ranks", value: "`xp`, `setxpchannels`, `disablexp`", inline: true},
+      {name: "✅ Ranks", value: "`xp`, `setxpchannels`, `disablexp`", inline: true},
       {name: "❌ Fun", value: "`/caracteres`, `/cats`, `/hack`, `/hug`, `/kiss`, `/morse`, `/poll`, `/question`, `/slap`", inline: true},
       {name: "❌ Utils", value: "`/serverinfo`, `/userinfo`, `/snipe`, `/renew`", inline: true},
       {name: "❌ Giveaway", value: "`/start`, `/end`, `/reroll`", inline: true},

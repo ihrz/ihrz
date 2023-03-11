@@ -1,4 +1,14 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+  
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
@@ -8,7 +18,7 @@ module.exports = {
         options: [
                 {
                     name: 'action',
-                    type: "STRING",
+                    type: ApplicationCommandOptionType.String,
                     description: 'What you want to do?',
                     required: true,
                     choices: [
@@ -26,7 +36,7 @@ module.exports = {
         run: async (client, interaction) => {
       
 
-                if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply(":x: | You must be an administrator of this server to request this commands!");
+                if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply(":x: | You must be an administrator of this server to request this commands!");
     
                 let type = interaction.options.getString('action')
       
@@ -35,8 +45,8 @@ module.exports = {
                
                 if (type === "off") {
                        try{
-                        logEmbed = new MessageEmbed()
-                        .setColor("PURPLE")
+                        logEmbed = new EmbedBuilder()
+                        .setColor("#bf0bb9")
                         .setTitle("DisableTicket Logs")
                         .setDescription(`<@${interaction.user.id}> disable ticket commands !`);
                         
@@ -48,8 +58,8 @@ module.exports = {
                }
                 if (type === "on") {
                        try{
-                        logEmbed = new MessageEmbed()
-                        .setColor("PURPLE")
+                        logEmbed = new EmbedBuilder()
+                        .setColor("#bf0bb9")
                         .setTitle("Disablexp Logs")
                         .setDescription(`<@${interaction.user.id}> enable ticket commands !`)
 
