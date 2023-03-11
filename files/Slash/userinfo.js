@@ -129,9 +129,9 @@ module.exports = {
     };
     async function sendMessage(description) {
       embed = new EmbedBuilder()
-      .setAuthor(`${member.user.tag}`, member.user.displayAvatarURL({ dynamic : true }))
+      .setAuthor({ name: `${member.user.tag}`, iconURL: member.user.displayAvatarURL({ dynamic : true })})
       .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
-      .setFooter(`ID: ${member.id}`)
+      .setFooter({text: `ID: ${member.id}`})
       .setTimestamp()
       .setColor("BLURPLE")
       .setDescription(`${description}`)
@@ -142,9 +142,9 @@ module.exports = {
           if(err){
             console.error(err)
             embed = new EmbedBuilder()
-            .setAuthor(`${member.user.tag}`, member.user.displayAvatarURL({ dynamic : true }))
+            .setAuthor({ name: `${member.user.tag}`, iconURL: member.user.displayAvatarURL({ dynamic : true })})
             .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
-            .setFooter(`ID: ${member.id}`)
+            .setFooter({text: `ID: ${member.id}`})
             .setTimestamp()
             .setColor("BLURPLE")
             .setDescription(`${getBadges(member.user.flags)}\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\`\n[🔴 API DOWN](${api_login})`)
