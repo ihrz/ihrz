@@ -1,11 +1,21 @@
-const { MessageEmbed } = require("discord.js")
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+
 module.exports = {
    name: 'question',
    description: 'give a question to the bot',
    options: [
       {
           name: 'question',
-          type: 'STRING',
+          type: ApplicationCommandOptionType.String,
           description: 'The question you want to give for the bot',
           required: true
       }
@@ -17,12 +27,12 @@ module.exports = {
       let reponse = ["Yes.", "No.", "I don't know.", "I am not sure !", "You'r crazy!", "No thanks.", "No.", "Yes.", ];
       let result = Math.floor((Math.random() * reponse.length));
    
-      const embed = new MessageEmbed()
+      const embed = new EmbedBuilder()
       
       .setTitle("__**Question**__: \`"+ interaction.user.username+ "\`")
       .setColor("#ddd98b")
-      .addField(":question:__**Question**__", question)
-      .addField(":grey_exclamation:__**Response:**__", reponse[result])
+      .addFields({name: ":question:__**Question**__", value: question, inline: true}, 
+      {name: ":grey_exclamation:__**Answer:**__", value: reponse[result]})
       .setTimestamp()
    
       interaction.reply({embeds: [embed]})

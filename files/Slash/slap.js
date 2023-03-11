@@ -1,4 +1,13 @@
-const { MessageEmbed } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 
 module.exports = {
     name: 'slap',
@@ -6,7 +15,7 @@ module.exports = {
     options: [
         {
             name: "user",
-            type: "USER",
+            type: ApplicationCommandOptionType.User,
             description: "The user you want to slap",
             required: true
         }
@@ -23,7 +32,7 @@ module.exports = {
         const kiss2 = interaction.options.getUser("user")
         if(!kiss2) return message.reply(`I couldn't find a user.`);
     
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor("#42ff08")
             .setDescription("<@"+interaction.user.id+ `> slap <@${kiss2.id}> !`)
             .setImage(slap[Math.floor(Math.random()*slap.length)])

@@ -1,4 +1,13 @@
-const { MessageEmbed } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 
 module.exports = {
     name: 'hack',
@@ -6,7 +15,7 @@ module.exports = {
     options: [
         {
             name: "user",
-            type: "USER",
+            type: ApplicationCommandOptionType.User,
             description: "The user you want to hack",
             required: true
         }
@@ -39,12 +48,12 @@ module.exports = {
         '123'
     ];
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
         .setColor("#800000")
         .setDescription(`<@${kiss.id}>`+` hacked by <@${interaction.user.id}> !`)
-        .addField("IP:", `\`${ip[Math.floor(Math.random()*ip.length)]}.${ip[Math.floor(Math.random()*ip.length)]}.${ip[Math.floor(Math.random()*ip.length)]}.${ip[Math.floor(Math.random()*ip.length)]}\``)
-        .addField("Mail:", `\`${Email[Math.floor(Math.random()*Email.length)]}\``)       
-        .addField("Password:", `\`${mdp[Math.floor(Math.random()*mdp.length)]}\``) 
+        .addFields({name: "IP", value: `\`${ip[Math.floor(Math.random()*ip.length)]}.${ip[Math.floor(Math.random()*ip.length)]}.${ip[Math.floor(Math.random()*ip.length)]}.${ip[Math.floor(Math.random()*ip.length)]}\``},
+        {name: "Email", value: `\`${Email[Math.floor(Math.random()*Email.length)]}\``},
+        {name: "Password", value: `\`${mdp[Math.floor(Math.random()*mdp.length)]}\``})
         .setTimestamp()
 
     return interaction.reply({embeds: [embed]});    

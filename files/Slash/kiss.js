@@ -1,4 +1,14 @@
-const { MessageEmbed } = require("discord.js")
+
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 
 module.exports = {
     name: 'kiss',
@@ -6,7 +16,7 @@ module.exports = {
     options: [
         {
             name: 'user',
-            type: 'USER',
+            type: ApplicationCommandOptionType.User,
             description: 'The user you want to kiss',
             required: true
         }
@@ -25,7 +35,7 @@ module.exports = {
     
         ];
     
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor("#ff0884")
             .setDescription("<@"+interaction.user.id+ `> kiss <@${kiss2.id}> !`)
             .setImage(kiss[Math.floor(Math.random()*kiss.length)])

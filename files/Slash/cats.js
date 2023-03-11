@@ -1,5 +1,14 @@
 const request = require('request'); 
-const { MessageEmbed } = require("discord.js")
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 
     module.exports = {
         name: 'cats',
@@ -8,7 +17,7 @@ const { MessageEmbed } = require("discord.js")
       
             request('http://edgecats.net/random', function (error, response, body) {
                 if (!error && response.statusCode == 200) {
-                        let emb = new MessageEmbed()
+                        let emb = new EmbedBuilder()
                         .setImage(body)
                         .setTitle('Miauw :cat:')
                         .setTimestamp()

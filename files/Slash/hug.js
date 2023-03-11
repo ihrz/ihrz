@@ -1,11 +1,21 @@
-const {MessageEmbed, } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+  
 module.exports = {
     name: 'hug',
     description: 'hug someone !',
     options: [
         {
             name: "user",
-            type: "USER",
+            type: ApplicationCommandOptionType.User,
             description: "The user you want to hug",
             required: true
         }
@@ -24,7 +34,7 @@ module.exports = {
         "https://cdn.discordapp.com/attachments/975288553787494450/1053838034375815339/hug5.jpg"
     ];
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
         .setColor("#FFB6C1")
         .setImage(hug[Math.floor(Math.random()*hug.length)])
         .setTimestamp()

@@ -1,10 +1,21 @@
+const { 
+  Client, 
+  Intents, 
+  Collection, 
+  EmbedBuilder,
+  Permissions, 
+  ApplicationCommandType, 
+  PermissionsBitField, 
+  ApplicationCommandOptionType 
+} = require('discord.js');
+
 module.exports = {
   name: 'caracteres',
   description: 'XxXDarkProxXX',
   options: [
     {
         name: 'nickname',
-        type: 'STRING',
+        type: ApplicationCommandOptionType.String,
         description: 'your cool nickname to transform !',
         required: true
     }

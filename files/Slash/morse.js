@@ -1,10 +1,21 @@
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+
 module.exports = {
 	name: 'morse',
 	description: 'Encrypt/decrypt morse',
 	options: [
 		{
 			name: 'input',
-			type: 'STRING',
+			type: ApplicationCommandOptionType.String,
 			description: 'Enter your input to encrypt/decrypt in morse',
 			required: true
 		}
@@ -33,5 +44,4 @@ module.exports = {
 		text = text.join(" ");
 	}
 		return interaction.reply({content: "```"+text+"```"});
-	  const filter = (interaction) => interaction.user.id === interaction.member.id;
-}}
+}};
