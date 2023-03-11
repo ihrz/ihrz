@@ -1,14 +1,22 @@
-const Discord = require('discord.js')
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 
 module.exports = {
     name: 'renew',
     description: 'Re-created a channels (cloning permission and all configurations). nuke equivalent',
     run: async (client, interaction) => {
      
-    if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply({content: "you don't have admin permission !"})
+    if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({content: "you don't have admin permission !"})
         let channel = interaction.channel
         try {
             let here = await channel.clone({

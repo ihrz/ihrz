@@ -1,4 +1,14 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+  Client, 
+  Intents, 
+  Collection, 
+  EmbedBuilder,
+  Permissions, 
+  ApplicationCommandType, 
+  PermissionsBitField, 
+  ApplicationCommandOptionType 
+} = require('discord.js');
+
 const config = require("../config.json")
 const moment = require('moment');
 const DiscordOauth2 = require("discord-oauth2");
@@ -73,7 +83,7 @@ module.exports = {
   options: [
     {
         name: 'user',
-        type: 'USER',
+        type: ApplicationCommandOptionType.User,
         description: 'user you want to lookup',
         required: true
     }
@@ -118,7 +128,7 @@ module.exports = {
     }
     };
     async function sendMessage(description) {
-      embed = new MessageEmbed()
+      embed = new EmbedBuilder()
       .setAuthor(`${member.user.tag}`, member.user.displayAvatarURL({ dynamic : true }))
       .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
       .setFooter(`ID: ${member.id}`)
@@ -131,7 +141,7 @@ module.exports = {
         superagent.post(`${api_url}`).send({tokent: "want", adminKey: config.apiToken, userid: member.id, tor: 'CHECK_IN_SYSTEM'}).end(async (err, response) => {
           if(err){
             console.error(err)
-            embed = new MessageEmbed()
+            embed = new EmbedBuilder()
             .setAuthor(`${member.user.tag}`, member.user.displayAvatarURL({ dynamic : true }))
             .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
             .setFooter(`ID: ${member.id}`)
