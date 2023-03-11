@@ -22,7 +22,7 @@ module.exports = {
       {name: "✅ Fun", value: "`/caracteres`, `/cats`, `/hack`, `/hug`, `/kiss`, `/morse`, `/poll`, `/question`, `/slap`", inline: true},
       {name: "✅ Utils", value: "`/serverinfo`, `/userinfo`, `/snipe`, `/renew`", inline: true},
       {name: "❌ Giveaway", value: "`/start`, `/end`, `/reroll`", inline: true},
-      {name: "❌ Bot", value: "`/status`, `/ping`, `/botinfo`, `/invite`", inline: true},
+      {name: "✅ Bot", value: "`/status`, `/ping`, `/botinfo`, `/invite`", inline: true},
       {name: "❌ Music", value: "`/p`, `/loop`, `/nowplaying`, `/pause`, `/queue`, `/resume`, `/skip`, `/stop`", inline: true},
       {name: "❌ Backups", value: "`backup`", inline: true},
       {name: '❌ Guilds Config', value: '`/setchannels`, `/setjoinmessage`, `/setleavemessage`, `/setjoinroles`, `/setjoindm`, `/setup`, `/blockpub`, `/setprefix`, `/guildprofil`', inline: true},

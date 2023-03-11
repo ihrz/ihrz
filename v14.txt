@@ -24,3 +24,6 @@ guild.me -> guild.members.me
 
 .setColor("#bf0bb9") 
 for logs embed 
+
+#016c9a
+for music embed

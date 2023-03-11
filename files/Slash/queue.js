@@ -1,4 +1,13 @@
-const { MessageEmbed } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 const { QueryType } = require('discord-player');
 
 module.exports = {
@@ -7,7 +16,7 @@ module.exports = {
     options: [
         {
             name: 'page',
-            type: 'NUMBER',
+            type: ApplicationCommandOptionType.Number,
             description: '(music) go to this page of the list',
             required: false
         }
@@ -24,7 +33,7 @@ module.exports = {
         return `${i + pageStart + 1}. **${m.title}** ([link](${m.url}))`;
     });
         
-    embeds = new MessageEmbed()
+    embeds = new EmbedBuilder()
     .setDescription( `${tracks.join('\n')}${
         queue.tracks.length > pageEnd
             ? `\n...${queue.tracks.length - pageEnd} more track(s)`

@@ -1,10 +1,19 @@
-const { MessageEmbed, MessageActionRow, MessageSelectMenu } = require("discord.js")
+const { 
+  Client, 
+  Intents, 
+  Collection, 
+  EmbedBuilder,
+  Permissions, 
+  ApplicationCommandType, 
+  PermissionsBitField, 
+  ApplicationCommandOptionType 
+} = require('discord.js');
 
 module.exports = {
   name: 'resume',
   description: 'Resume the song if them is in pauses!',
   run: async (client, interaction, guild) => {
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setTitle(`🎵 - The current song has been **resumed** !`)
       .setColor("BLUE")
     const filter = (interaction) => interaction.user.id === interaction.member.id;

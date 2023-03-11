@@ -1,4 +1,13 @@
-const { MessageEmbed } = require('discord.js');
+const { 
+  Client, 
+  Intents, 
+  Collection, 
+  EmbedBuilder,
+  Permissions, 
+  ApplicationCommandType, 
+  PermissionsBitField, 
+  ApplicationCommandOptionType 
+} = require('discord.js');
 const { QueryType } = require('discord-player');
 
 module.exports = {
