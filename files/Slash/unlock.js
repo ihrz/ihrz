@@ -1,22 +1,29 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { Client, 
+  Intents, 
+  EmbedBuilder, 
+  ApplicationCommandType, 
+  ApplicationCommandOptionType,
+  Permissions,
+  PermissionsBitField
+} = require('discord.js');
 
 module.exports = {
   name: 'unlock',
   description: 'Give ability to speak of all users in this text',
   run: async (client, interaction) => {
 
-    const permission = interaction.member.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS)
+    const permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageChannels);
     if (!permission) return interaction.reply({content: "❌ | You don't have permission to unlock channel."});
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
     .setColor("#5b3475")
     .setTimestamp()
     .setDescription(`The channel has been successfully unlocked!`);
-    interaction.channel.permissionOverwrites.create(interaction.guild.id, { SEND_MESSAGES: true });
+    interaction.channel.permissionOverwrites.create(interaction.guild.id, { SendMessages: true });
         
 
           try{
-            logEmbed = new MessageEmbed()
-            .setColor("PURPLE")
+            logEmbed = new EmbedBuilder()
+            .setColor("#bf0bb9")
             .setTitle("Unlock Logs")
             .setDescription(`<@${interaction.user.id}> unlock <#${interaction.channel.id}>`)
 

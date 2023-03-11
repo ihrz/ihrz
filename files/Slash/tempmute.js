@@ -1,4 +1,13 @@
-const { Client, Intents, Collection, EmbedBuilder, ApplicationCommandType,PermissionsBitField,ApplicationCommandOptionType, Permissions, Embed } = require('discord.js');
+const { 
+  Client, 
+  Intents, 
+  Collection, 
+  EmbedBuilder,
+  Permissions, 
+  ApplicationCommandType, 
+  PermissionsBitField, 
+  ApplicationCommandOptionType 
+} = require('discord.js');
 const ms = require("ms");
 
 module.exports = {

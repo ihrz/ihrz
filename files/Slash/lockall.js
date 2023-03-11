@@ -14,10 +14,10 @@ module.exports = {
   description: 'Remove ability to speak of all users in all of text channel on the guild',
   run: async (client, interaction) => {
 
-    const permission = interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR);
+    const permission = interaction.member.permissions.has(PermissionsBitField.Flags.Administrator);
     if (!permission) return interaction.reply({content: "❌ | You don't have permission to lockall channels."});
       interaction.guild.channels.cache.forEach(c => {
-        c.permissionOverwrites.create(interaction.guild.id, { SEND_MESSAGES: false })
+        c.permissionOverwrites.create(interaction.guild.id, { SendMessages: false })
           })
           const Lockembed = new EmbedBuilder()
         .setColor("#5b3475")

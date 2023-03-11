@@ -1,4 +1,14 @@
-const { Client, Intents, Collection, EmbedBuilder, ApplicationCommandType, ApplicationCommandOptionType } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+  
 module.exports = {
     name: 'avatar',
     description: 'See the user avatar !',

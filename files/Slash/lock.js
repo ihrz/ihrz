@@ -20,10 +20,12 @@ module.exports = {
     .setTimestamp()
     .setDescription(`The channel has been locked by <@${interaction.user.id}>.`);
 
-    const permission = interaction.member.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS)
+    const permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages);
     if (!permission) return interaction.reply({content: "❌ | You don't have permission to lock channels."});
 
-    interaction.channel.permissionOverwrites.create(interaction.guild.id, { SEND_MESSAGES: false }).then(() => {interaction.reply({embeds: [Lockembed]})})
+    interaction.channel.permissionOverwrites.create(interaction.guild.id, { SendMessages: false }).then(() => {
+      interaction.reply({embeds: [Lockembed]})
+    }).catch(e => { return })
       try{
         logEmbed = new EmbedBuilder()
         .setColor("#bf0bb9")
@@ -32,6 +34,6 @@ module.exports = {
 
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
-                }catch(e) { console.error(e) };
+                }catch(e) { return };
     const filter = (interaction) => interaction.user.id === interaction.member.id;
     }}

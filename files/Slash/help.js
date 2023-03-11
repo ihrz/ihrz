@@ -1,5 +1,13 @@
-const { EmbedBuilder, MessageActionRow, MessageSelectMenu } = require("discord.js")
-
+const { 
+  Client, 
+  Intents, 
+  Collection, 
+  EmbedBuilder,
+  Permissions, 
+  ApplicationCommandType, 
+  PermissionsBitField, 
+  ApplicationCommandOptionType 
+} = require('discord.js');
 module.exports = {
   name: 'help',
   description: 'show help panel',
@@ -9,7 +17,7 @@ module.exports = {
     .setColor('#e1a95f')
     .setDescription("Thanks you to use iHorizon !\nContact creator: `Kisakay#6051`.\nThis is a list of commands you can use.")
     .addFields(
-      {name: "❌ Moderation", value: "`/ban`, `/kick`, `/clear`, `/lock`, `/unlock`, `/avatar`, `/lockall`,\n `/unban`, `/tempmute`, `/unmute`", inline: true},
+      {name: "✅ Moderation", value: "`/ban`, `/kick`, `/clear`, `/lock`, `/unlock`, `/avatar`, `/lockall`,\n `/unban`, `/tempmute`, `/unmute`", inline: true},
       {name: "❌ Ranks", value: "`xp`, `setxpchannels`, `disablexp`", inline: true},
       {name: "❌ Fun", value: "`/caracteres`, `/cats`, `/hack`, `/hug`, `/kiss`, `/morse`, `/poll`, `/question`, `/slap`", inline: true},
       {name: "❌ Utils", value: "`/serverinfo`, `/userinfo`, `/snipe`, `/renew`", inline: true},

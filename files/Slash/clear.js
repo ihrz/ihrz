@@ -1,5 +1,14 @@
-const { Client, Intents, Collection, EmbedBuilder, Permissions, PermissionsBitField, ApplicationCommandType, ApplicationCommandOptionType} = require('discord.js');
-
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+  
 module.exports = {
     name: 'clear',
     description: 'Clear x number of message in a channels !',
