@@ -1,4 +1,14 @@
-const Discord = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+  
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
@@ -8,7 +18,7 @@ module.exports = {
     options: [
         {
             name: 'descriptions',
-            type: 'STRING',
+            type: ApplicationCommandOptionType.String,
             description: 'you descriptions on the iHorizon profil',
             required: true
         }

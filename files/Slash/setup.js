@@ -22,7 +22,8 @@ module.exports = {
     if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply(":x: | You must be an administrator of this server !");
     let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
     if(!logchannel) {
-      interaction.guild.channels.create("ihorizon-logs", {
+      interaction.guild.channels.create({
+          name: 'ihorizon-logs',
           type: ChannelType.GuildText,
           permissionOverwrites: [
              {

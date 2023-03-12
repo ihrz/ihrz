@@ -1,11 +1,22 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+  
+  
 module.exports = {
     name: 'profil',
     description: 'See the iHorizon profils of discord user!',
     options: [
         {
             name: 'user',
-            type: 'USER',
+            type: ApplicationCommandOptionType.User,
             description: 'The user you wan\'t to lookup',
             required: false
         }
@@ -26,14 +37,15 @@ module.exports = {
         var age = await db.get(`GLOBAL.USER_PROFIL.${member.id}.age`)
             if(!age) var age = "Unknown"
             
-            let profil = new MessageEmbed()
+            let profil = new EmbedBuilder()
                  .setTitle("📌 __Profile of " +member.tag+"__")
                  .setDescription(`\`${description}\``)
-                 .addField("📝 ・ __Nickname__", member.tag, false)
-                 .addField("🪙 ・ __Money__", balance + " coins", false)
-                 .addField("💳 ・ __XP Levels__", level + " XP Levels", false)
-                 .addField("🎂 ・ __Age__", age + " years olds", false)
-                 .setColor("DARK_ORANGE")
+                 .addFields(
+                {name: "📝 ・ __Nickname__", value: member.tag, inline: false},
+                {name: "🪙 ・ __Money__", value: balance + " coins", inline: false},
+                {name: "💳 ・ __XP Levels__", value: level + " XP Levels", inline: false},
+                {name: "🎂 ・ __Age__", value: age+" years olds", inline: false})
+                 .setColor("#ffa550")
             interaction.reply({embeds: [profil]})  
       const filter = (interaction) => interaction.user.id === interaction.member.id;
       }}
