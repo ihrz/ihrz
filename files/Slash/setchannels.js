@@ -1,4 +1,14 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+  
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
@@ -8,7 +18,7 @@ module.exports = {
     options: [
         {
             name: 'type',
-            type: 'STRING',
+            type: ApplicationCommandOptionType.String,
             description: '<On join/On leave/Delete all settings>',
             required: true,
             choices: [
@@ -32,18 +42,18 @@ module.exports = {
         },
         {
             name: 'channel',
-            type: 'CHANNEL',
+            type: ApplicationCommandOptionType.Channel,
             description: '<channels id if the first args is "join" or "leave">',
             required: false
         }
     ],
     run: async (client, interaction) => {
-        if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply({content: ":x: | You must be an administrator of this server to request a welcome channels commands!"});
+        if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({content: ":x: | You must be an administrator of this server to request a welcome channels commands!"});
     
         let type = interaction.options.getString("type")
         let argsid = interaction.options.getChannel("channel")
-        let help_embed = new MessageEmbed()
-        .setColor("BLUE")
+        let help_embed = new EmbedBuilder()
+        .setColor("#016c9a")
         .setTitle("/setchannels Help !")
         .setDescription('/setchannels <On join/On leave/Delete all settings> <channels id if the first args is "join" or "leave">')
        
@@ -53,8 +63,8 @@ module.exports = {
         if (type === "join") {
             if(!argsid) return interaction.reply({content: "You must specify a valid channels id for you channels."})
                try{
-                logEmbed = new MessageEmbed()
-                .setColor("PURPLE")
+                logEmbed = new EmbedBuilder()
+                .setColor("#bf0bb9") 
                 .setTitle("SetChannels Logs")
                 .setDescription(`<@${interaction.user.id}> set the join channels to: <#${argsid.id}>`)
 
@@ -93,8 +103,8 @@ module.exports = {
               interaction.reply({content: "Error: missing permissions or channel doesn't exist"});
            }
            try{
-            logEmbed = new MessageEmbed()
-            .setColor("PURPLE")
+            logEmbed = new EmbedBuilder()
+            .setColor("#bf0bb9") 
             .setTitle("SetChannels Logs")
             .setDescription(`<@${interaction.user.id}> set the leaves channels to: <#${argsid.id}>`)
             
@@ -119,8 +129,8 @@ module.exports = {
               }
 
               try{
-                logEmbed = new MessageEmbed()
-                .setColor("PURPLE")
+                logEmbed = new EmbedBuilder()
+                .setColor("#bf0bb9") 
                 .setTitle("SetChannels Logs")
                 .setDescription(`<@${interaction.user.id}> delete all join/leave message channels configurations !`)
                 

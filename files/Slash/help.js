@@ -25,7 +25,7 @@ module.exports = {
       {name: "✅ Bot", value: "`/status`, `/ping`, `/botinfo`, `/invite`", inline: true},
       {name: "✅ Music", value: "`/p`, `/loop`, `/nowplaying`, `/pause`, `/resume`, `/skip`, `/stop`", inline: true},
       {name: "❌ Backups", value: "`backup`", inline: true},
-      {name: '❌ Guilds Config', value: '`/setchannels`, `/setjoinmessage`, `/setleavemessage`, `/setjoinroles`, `/setjoindm`, `/setup`, `/blockpub`, `/setprefix`, `/guildprofil`', inline: true},
+      {name: '❌ Guilds Config', value: '`/setchannels`, `/setjoinmessage`, `/setleavemessage`, `/setjoinroles`, `/setjoindm`, `/setup`, `/blockpub`, `/guildprofil`', inline: true},
       {name: "❌ Profils Customizations", value: "`/setprofildescriptions`, `/profil`, `/setprofilage`", inline: true},
       {name: "❌ Economy", value: "`/add-money`, `/balance`, `/daily`, `/monthly`, `/pay`, `/remove-money`, `/rob`, `/weekly`, `/work`", inline: true},
       {name: "❌ Ticket", value: "`/add`, `/close`, `/delete`, `/new`, `/open`, `/remove`, `/transript`, `/disableticket`", inline: true},

@@ -1,14 +1,23 @@
 const Discord = require('discord.js')
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+  Client, 
+  Intents, 
+  Collection, 
+  EmbedBuilder,
+  Permissions, 
+  ApplicationCommandType, 
+  PermissionsBitField, 
+  ApplicationCommandOptionType 
+} = require('discord.js');
 
 module.exports = {
   name: 'setup',
   description: 'Setup the bot, create a bot\'s logs channels',
   run: async (client, interaction) => {
 
-    if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply(":x: | You must be an administrator of this server !");
+    if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply(":x: | You must be an administrator of this server !");
     let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
     if(!logchannel) {
       interaction.guild.channels.create("ihorizon-logs", {

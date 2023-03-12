@@ -1,4 +1,14 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');;
+const { 
+  Client, 
+  Intents, 
+  Collection, 
+  EmbedBuilder,
+  Permissions, 
+  ApplicationCommandType, 
+  PermissionsBitField, 
+  ApplicationCommandOptionType 
+} = require('discord.js');
+
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
@@ -9,7 +19,7 @@ module.exports = {
     {
       name: "value",
       description: "<Power on /Power off/Show the message set>",
-      type: "STRING",
+      type: ApplicationCommandOptionType.String,
       required: true,
       choices: [
           {
@@ -32,7 +42,7 @@ module.exports = {
   },
     {
       name: 'message',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       description: `{user}:username| {membercount}:guild member count| {createdat}:user create date| {guild}:Guild name`
   },
   
@@ -40,11 +50,11 @@ module.exports = {
   run: async (client, interaction) => {
 
     
-if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply(":x: | You must be an administrator of this server to request a welcome channels commands!");
+if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply(":x: | You must be an administrator of this server to request a welcome channels commands!");
 let type = interaction.options.getString("value")
 let messagei = interaction.options.getString("message")
 
-let help_embed = new MessageEmbed()
+let help_embed = new EmbedBuilder()
 .setColor("BLUE")
 .setTitle("setjoinmessage Help !")
 .setDescription('/setjoinmessage <Power on /Power off/Show the message set> <join message>')
@@ -66,8 +76,8 @@ let help_embed = new MessageEmbed()
       .replace("{membercount}", "{membercount}")
       await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`, joinmsgreplace)
   try{
-    logEmbed = new MessageEmbed()
-    .setColor("PURPLE")
+    logEmbed = new EmbedBuilder()
+    .setColor("#bf0bb9") 
     .setTitle("SetJoinMessage Logs")
     .setDescription(`<@${interaction.user.id}> set the join message !`)
 
@@ -82,8 +92,8 @@ let help_embed = new MessageEmbed()
     if(type == "off"){
       await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
       try{
-        logEmbed = new MessageEmbed()
-        .setColor("PURPLE")
+        logEmbed = new EmbedBuilder()
+        .setColor("#bf0bb9") 
         .setTitle("SetJoinMessage Logs")
         .setDescription(`<@${interaction.user.id}> deleted the join message !`)
 

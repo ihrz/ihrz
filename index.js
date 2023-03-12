@@ -117,7 +117,8 @@ client.on("guildMemberAdd", async (member) => {
     const newInvites = await member.guild.invites.fetch()
     const oldInvites = invites.get(member.guild.id);
     const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
-    const inviter = await client.users.fetch(invite.inviter.id);
+    const inviter = await client.users.fetch(invite.inviter.id)
+
       checked = db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`)
   
       if(checked) {
@@ -141,6 +142,11 @@ client.on("guildMemberAdd", async (member) => {
 
   client.channels.cache.get(wChan).send({content: `${messssssage4}`})
     }catch(e){ 
+      let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`)
+      if(!wChan) return;
+      let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`)
+      client.channels.cache.get(wChan).send({content: `➕・<@${member.id}> join the guild. Account created at: **${member.user.createdAt.toLocaleDateString()}**. Happy to see you on **${member.guild.name}**`})
+  
       return console.error(e)  
     }
 });
@@ -150,7 +156,7 @@ client.on("guildMemberRemove", async (member) => {
   const newInvites = await member.guild.invites.fetch()
   const oldInvites = invites.get(member.guild.id);
   const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
-  const inviter = await client.users.fetch(invite.inviter.id).catch(err => {})
+  const inviter = await client.users.fetch(invite.inviter.id)
 
     checked = db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`)
 
@@ -177,6 +183,13 @@ client.on("guildMemberRemove", async (member) => {
 
     client.channels.cache.get(wChan).send({content: `${messssssage4}`})
     }catch(e){
+      let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`)
+      if(wChan == null) return;
+      if(!wChan) return;
+
+    client.channels.cache.get(wChan).send({content: `➖・<@${member.id}> just left the guild. Goodbye, from **${member.guild.name}**.`})
+
       return console.error(e)
     }
+  
 });

@@ -1,4 +1,13 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');;
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
@@ -9,7 +18,7 @@ module.exports = {
         {
             name: "value",
             description: "<Power on /Power off/Show the message set>",
-            type: "STRING",
+            type: ApplicationCommandOptionType.String,
             required: true,
             choices: [
                 {
@@ -32,7 +41,7 @@ module.exports = {
         },
         {
             name: 'message',
-            type: 'STRING',
+            type: ApplicationCommandOptionType.String,
             description: '<Message if the first args is on>',
             required: false
         }
@@ -40,13 +49,13 @@ module.exports = {
     run: async (client, interaction) => {
   
       
-if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply({content: ":x: | You must be an administrator of this server to request a welcome channels commands!"});
+if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({content: ":x: | You must be an administrator of this server to request a welcome channels commands!"});
     
 let type = interaction.options.getString("value")
 
 let dm_msg = interaction.options.getString("message")
 
-let help_embed = new MessageEmbed()
+let help_embed = new EmbedBuilder()
 .setColor("BLUE")
 .setTitle("/setjoindm Help !")
 .setDescription('/setjoindm <on/off/ls> <Message if the first args is on>')
@@ -62,8 +71,8 @@ try{
    interaction.reply({content: "Error: missing permissions or channel doesn't exist"});
 }
    try{
-    logEmbed = new MessageEmbed()
-    .setColor("PURPLE")
+    logEmbed = new EmbedBuilder()
+    .setColor("#bf0bb9") 
     .setTitle("SetJoinDm Logs")
     .setDescription(`<@${interaction.user.id}> set the join dm message !`)
 
@@ -84,9 +93,9 @@ if (type === "off") {
       interaction.reply({content: "Error: missing permissions or channel doesn't exist"});
    }
    try{
-       let ban_embed = new MessageEmbed()
-               .setColor("PURPLE")
-               .setTitle("SetJoinDm Logs")
+       let ban_embed = new EmbedBuilder()
+                .setColor("#bf0bb9") 
+                .setTitle("SetJoinDm Logs")
                .setDescription(`<@${message.author.id}> disable the join dm message !`)
        let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
        logchannel.send({embeds: [ban_embed]})

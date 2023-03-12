@@ -1,4 +1,14 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');;
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
@@ -9,7 +19,7 @@ module.exports = {
         {
             name: "value",
             description: "<Power on /Power off/Show the message set>",
-            type: "STRING",
+            type: ApplicationCommandOptionType.String,
             required: true,
             choices: [
                 {
@@ -32,18 +42,18 @@ module.exports = {
         },
         {
             name: 'roles',
-            type: 'ROLE',
+            type: ApplicationCommandOptionType.Role,
             description: '<roles id>',
             required: false
         }
     ],
     run: async (client, interaction) => {
-        if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply(":x: | You must be an administrator of this server to request a welcome channels commands!");
+        if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply(":x: | You must be an administrator of this server to request a welcome channels commands!");
     
         let query = interaction.options.getString("value")
         var roleid = interaction.options.get("roles").value
         let help_embed = new MessageEmbed()
-        .setColor("BLUE")
+        .setColor("#016c9a")
         .setTitle("/setjoinroles Help !")
         .setDescription('/setjoinroles <Power on /Power off/Show the message set> <role id>')
         
@@ -51,7 +61,7 @@ module.exports = {
             if(!roleid) return interaction.reply(help_embed);
 try{
                     logEmbed = new MessageEmbed()
-                    .setColor("PURPLE")
+                    .setColor("#bf0bb9") 
                     .setTitle("SetJoinRoles Logs")
                     .setDescription(`<@${interaction.user.id}> set the join roles !`)
 
@@ -74,9 +84,9 @@ try{
             if(query === "false"){
                 try{
                     let ban_embed = new MessageEmbed()
-                            .setColor("PURPLE")
-                            .setTitle("SetJoinRoles Logs")
-                            .setDescription(`<@${interaction.user.id}> delete the join roles !`)
+                    .setColor("#bf0bb9") 
+                    .setTitle("SetJoinRoles Logs")
+                    .setDescription(`<@${interaction.user.id}> delete the join roles !`)
                     let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                     logchannel.send({embeds: [ban_embed]})
                     }catch(e){

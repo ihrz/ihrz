@@ -1,7 +1,16 @@
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const config = require("../config.json")
-const { ApplicationCommandType, ApplicationCommandOptionType, Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 
 module.exports = {
     name: 'blockpub',
@@ -26,7 +35,7 @@ module.exports = {
 ],
     run: async (client, interaction) => {
         let turn = interaction.options.getString("action")
-        if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply({content: ":x: | You must be an administrator of this server! "});
+        if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({content: ":x: | You must be an administrator of this server! "});
     
         if(turn === "on"){
             await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "on")

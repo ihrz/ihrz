@@ -3,8 +3,18 @@ module.exports = {
     description: 'Show the guild\'s config',
     run: async (client, interaction) => {
   
-        const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
-        if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply({content: ":x: | You must be an administrator of this server! "});
+        const { 
+            Client, 
+            Intents, 
+            Collection, 
+            EmbedBuilder,
+            Permissions, 
+            ApplicationCommandType, 
+            PermissionsBitField, 
+            ApplicationCommandOptionType 
+          } = require('discord.js');
+          
+        if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({content: ":x: | You must be an administrator of this server! "});
         const { QuickDB } = require("quick.db");
         const db = new QuickDB();
     
@@ -43,16 +53,14 @@ module.exports = {
         blockpub = "off"
     }
 
-    let guildp = new MessageEmbed()
-                .setColor("BLUE")
+    let guildp = new EmbedBuilder()
+                .setColor("#016c9a")
                 .setDescription("`Guild Profil:` "+interaction.guild.name+" !")
-                .addField("Join/Leave Message", `**JoinMessage**: ${joinmessage}\n**LeaveMessage**: ${leavemessage}\n`)
-                .addField("Channels Join/Leave", "**JoinMessageChannel:** "+setchannelsjoin+" \n**LeaveMessageChannel:** "+setchannelsleave+"", true)
-                .addField("Join Roles", "**JoinRole:** "+joinroles, true)
-                .addField("JoinDM", `**JoinDmMessage:** ${joinDmMessage}`, true)
-                .addField("BlockPub", `**AntiPub:** ${blockpub}`, true)
-                interaction.reply({embeds: [guildp]})
-  
-       const filter = (interaction) => interaction.user.id === interaction.member.id;
-       return;
-      }}
+                .addFields(
+                {name: "Join/Leave Message", value: `**JoinMessage**: ${joinmessage}\n**LeaveMessage**: ${leavemessage}\n`, inline: true},
+                {name: "Channels Join/Leave", value:  "**JoinMessageChannel:** "+setchannelsjoin+" \n**LeaveMessageChannel:** "+setchannelsleave+"", inline: true},
+                {name: "Join Roles", value: "**JoinRole:** "+joinroles, inline: true},
+                {name: "JoinDM", value: `**JoinDmMessage:** ${joinDmMessage}`, inline: true},
+                {name: "BlockPub", value: `**AntiPub:** ${blockpub}`, inline: true})
+                return interaction.reply({embeds: [guildp]});
+}}
