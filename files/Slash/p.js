@@ -47,7 +47,7 @@ module.exports = {
         }
 
         await interaction.deferReply()
-        await interaction.editReply({ content: `Loading a: ${result.playlist ? 'playlist' : 'track' }`})
+        await interaction.editReply({ content: `⏲️ Loading an : ${result.playlist ? 'playlist' : 'track' }`})
 
         const yes = await interaction.client.player.play(interaction.member.voice.channel?.id, result, {
             nodeOptions: {
@@ -77,9 +77,9 @@ module.exports = {
         embed
             .setDescription(`${yes.track.playlist ? `**multiple tracks** from: **${yes.track.playlist.title}**` : `**${yes.track.title}**`}`)
             .setThumbnail(`${yes.track.playlist ? `${yes.track.playlist.thumbnail.url}` : `${yes.track.thumbnail}`}`)
-            .setColor(`#00ff08`)
+            .setColor(`#d0ff00`)
             .setTimestamp()
-            .setFooter({ text: `Duration: ${yes.track.playlist ? `${yess()}` : `${yes.track.duration}`} | Event Loop Lag ${interaction.client.player.eventLoopLag.toFixed(0)}` })
+            .setFooter({ text: `Duration: ${yes.track.playlist ? `${yess()}` : `${yes.track.duration}`}` })
             return interaction.editReply({ embeds: [embed ]})
         }catch (error) {
             console.log(error)

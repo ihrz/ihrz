@@ -7,8 +7,10 @@ const {
   Collection, 
   EmbedBuilder,
   Permissions, 
+  ChannelType,
   ApplicationCommandType, 
   PermissionsBitField, 
+  PermissionFlagsBits,
   ApplicationCommandOptionType 
 } = require('discord.js');
 
@@ -21,11 +23,11 @@ module.exports = {
     let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
     if(!logchannel) {
       interaction.guild.channels.create("ihorizon-logs", {
-          type: "text",
+          type: ChannelType.GuildText,
           permissionOverwrites: [
              {
                id: interaction.guild.roles.everyone,
-               deny: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY'] 
+               deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] 
          }
           ],
         })
