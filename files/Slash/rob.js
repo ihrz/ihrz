@@ -1,6 +1,16 @@
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+  Client, 
+  Intents, 
+  Collection, 
+  EmbedBuilder,
+  Permissions, 
+  ApplicationCommandType, 
+  PermissionsBitField, 
+  ApplicationCommandOptionType 
+} = require('discord.js');
+
 
 module.exports = {
     name: 'rob',
@@ -8,7 +18,7 @@ module.exports = {
     options: [
         {
             name: 'member',
-            type: 'USER',
+            type: ApplicationCommandOptionType.User,
             description: 'the member you want to rob a money',
             required: true
           }
@@ -32,9 +42,9 @@ module.exports = {
         }
         let random = Math.floor(Math.random() * 200) + 1;
     
-        let embed = new MessageEmbed()
+        let embed = new EmbedBuilder()
         .setDescription(`<@${interaction.user.id}> you robbed <@${user.id}> and got away with ${random}!`)
-        .setColor("GREEN")
+        .setColor("#a4cb80")
         .setTimestamp()
         interaction.reply({embeds: [embed]})
     

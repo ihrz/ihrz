@@ -1,6 +1,15 @@
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 
 
 module.exports = {
@@ -9,13 +18,13 @@ module.exports = {
     options: [
         {
             name: 'amount',
-            type: 'NUMBER',
+            type: ApplicationCommandOptionType.Number,
             description: 'amount of $ you want add',
             required: true
         },
         {
           name: 'member',
-          type: 'USER',
+          type: ApplicationCommandOptionType.User,
           description: 'the member you want to add the money',
           required: true
         }
@@ -25,20 +34,19 @@ module.exports = {
         const filter = (interaction) => interaction.user.id === interaction.member.id;
   
 
-        if (!interaction.member.permissions.has('ADMINISTRATOR')) {
-            return interaction.reply("You cannot run this command because you do not have the necessary permissions `ADMINISTRATOR`")
-        }
+        if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply("You cannot run this command because you do not have the necessary permissions `ADMINISTRATOR`")
+        
 
         var amount = interaction.options.getNumber("amount")
         let user = interaction.options.get("member")
     await db.sub(`${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, amount)
     let bal = await db.get(`${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`)
 
-    let embed = new MessageEmbed()
-    .setAuthor(`Removed Money!`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
+    let embed = new EmbedBuilder()
+    .setAuthor({ name: `Removed Money!`, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
     .addField(`Amount`, `${amount}$`)
-    .addField(`Balance Updated`, `${bal}$`)
-    .setColor("RED") 
+    .addFields({name: "Balance Updated", value: `${bal}$`})
+    .setColor("#bc0116") 
     .setTimestamp()
 
     return interaction.reply({embeds: [embed]})

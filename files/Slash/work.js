@@ -1,6 +1,16 @@
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+  Client, 
+  Intents, 
+  Collection, 
+  EmbedBuilder,
+  Permissions, 
+  ApplicationCommandType, 
+  PermissionsBitField, 
+  ApplicationCommandOptionType 
+} = require('discord.js');
+
 
 module.exports = {
   name: 'work',
@@ -15,10 +25,10 @@ module.exports = {
 
     let amount = Math.floor(Math.random() * 200) + 1;
 
-    let embed = new MessageEmbed()
-    .setAuthor(`${interaction.user.username}#${interaction.user.discriminator}, it payed off!`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`) 
+    let embed = new EmbedBuilder()
+    .setAuthor({ name: `${interaction.user.username}#${interaction.user.discriminator}, it payed off!`, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
     .setDescription(`${interaction.user.username}#${interaction.user.discriminator}, you've worked and earned ${amount}$ !`)
-    .setColor("ORANGE")
+    .setColor("#f1d488")
     
 
     interaction.reply({embeds: [embed]})

@@ -1,4 +1,14 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+  
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
@@ -8,7 +18,7 @@ module.exports = {
     options: [
         {
             name: 'user',
-            type: 'USER',
+            type: ApplicationCommandOptionType.User,
             description: 'Target a user for see their current balance bank or keep blank for yourself',
             required: false
         }

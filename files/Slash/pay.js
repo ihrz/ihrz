@@ -1,6 +1,16 @@
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const { MessageEmbed, MessageActionRow, MessageSelectMenu } = require("discord.js")
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+
 
 module.exports = {
     name: 'pay',
@@ -8,13 +18,13 @@ module.exports = {
     options: [
         {
             name: 'amount',
-            type: 'NUMBER',
+            type: ApplicationCommandOptionType.Number,
             description: 'amount of $ you want add',
             required: true
         },
         {
           name: 'member',
-          type: 'USER',
+          type: ApplicationCommandOptionType.User,
           description: 'the member you want to add the money',
           required: true
         }

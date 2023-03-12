@@ -1,7 +1,16 @@
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const ms = require('ms')
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 
 module.exports = {
     name: 'daily',
@@ -16,12 +25,12 @@ module.exports = {
     
             interaction.reply({content: `Sorry you must wait **${time}** before running this command!`})
         } else {
-        let embed = new MessageEmbed()
-        .setAuthor(`Daily`, `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`)
-        .setColor("GREEN")
+        let embed = new EmbedBuilder()
+        .setAuthor({ name: `Daily`, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
+        .setColor("#a4cb80")
         .setDescription(`**Daily Reward**`)
-        .addField(`Collected`, `${amount}🪙`)
-    
+        .addFields({name: `Collected`, value: `${amount}🪙`})
+
         interaction.reply({embeds: [embed]})
         db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount)
         db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.daily`, Date.now())
