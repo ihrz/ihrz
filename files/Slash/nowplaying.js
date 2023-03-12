@@ -21,19 +21,28 @@ const {
         description: '(music) see the current music played',
         run: async (client, interaction) => {
       
-            const queue = client.player.getQueue(interaction.member.guild);
-           // if (!queue || !queue.playing) return await interaction.reply({ content: '❌ | No music is playing at the moment!'});
-            const progress = queue.createProgressBar();
-            const perc = queue.getPlayerTimestamp();
-                let embed = new EmbedBuilder()
-                .setColor("#016c9a")
-                .setDescription(`🎵 | **${queue.current.title}**! (\`${perc.progress == 'Infinity' ? 'DIRECT' : perc.progress + '%'}\`)`)
-                .addFields(
-                    {
-                        name: 'Song Duration',
-                        value: progress.replace(/ 0:00/g, ' ◉ LIVE')
-                    })      
-          const filter = (interaction) => interaction.user.id === interaction.member.id;
-          return await interaction.reply({ embeds: [embed] });
+            try {
+
+                const queue = interaction.client.player.nodes.get(interaction.guild)
+        
+                if (!queue || !queue.isPlaying()) {
+                    return interaction.reply({ content: "There is not playing anything", ephemeral: true })
+                }
+        
+                const progress = queue.node.createProgressBar()
+                const ts = queue.node.getTimestamp();
+        
+                const embed = new EmbedBuilder()
+                    .setTitle("Now playing")
+                    .setDescription(`[${queue.currentTrack.title}](${queue.currentTrack.url})`)
+                    .setThumbnail(`${queue.currentTrack.thumbnail}`)
+                    .addFields(
+                        { name: '\200', value: progress.replace(/ 0:00/g, 'LIVE') }
+                    )
+        
+                await interaction.reply({ embeds: [embed] })
+            }catch (error) {
+                console.log(error)
+            }
         }}
       
