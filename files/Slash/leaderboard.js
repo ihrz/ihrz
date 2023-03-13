@@ -1,8 +1,17 @@
 const fs = require("fs");
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection,
+    ChannelType,
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const config = require('../config.json')
 
 module.exports = {
     name: 'leaderboard',
@@ -19,7 +28,7 @@ module.exports = {
             text += `<@${i}> Have **${a.invites || 0}** Invites (**${a.regular || 0}** Regular ** ${a.bonus || 0}** Bonus **${a.leaves || 0}** Leaves)\n` };
     };
 
-    const embed = new MessageEmbed().setColor("#FFB6C1").setDescription(`${text}`).setTimestamp()
+    const embed = new EmbedBuilder().setColor("#FFB6C1").setDescription(`${text}`).setTimestamp()
     
     return interaction.reply({embeds: [embed]});
 }};

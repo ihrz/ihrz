@@ -1,4 +1,14 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection,
+    ChannelType,
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
@@ -8,7 +18,7 @@ module.exports = {
     options: [
         {
             name: 'member',
-            type: 'USER',
+            type: ApplicationCommandOptionType.User,
             description: 'the member you want to show them invites',
             required: true
         }
@@ -23,8 +33,8 @@ const member = interaction.options.getMember("member")
     let bonus = await db.get(`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.bonus`);
     
     
-      let embed = new MessageEmbed()
-.setColor("PURPLE")
+      let embed = new EmbedBuilder()
+.setColor("#92A8D1")
 .setTitle("Inviter Stats")
 .setTimestamp()
 .setThumbnail(member.user.avatarURL({ dynamic: true }))
