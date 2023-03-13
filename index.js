@@ -108,8 +108,8 @@ client.on("guildCreate", (guild) => {
 client.on("guildDelete", async (guild) => {
   invites.delete(guild.id);
 
-  await db.delete(`${invite.guild.id}.GUILD.INVITES.${invite.codes}`)
-  await db.delete(`${invite.guild.id}.USER.${invite.inviter.id}.INVITES.${invite.codes}`)
+  await db.delete(`${invites.guild.id}`)
+  await db.delete(`${invites.guild.id}`)
 });
 
 client.on("guildMemberAdd", async (member) => {
