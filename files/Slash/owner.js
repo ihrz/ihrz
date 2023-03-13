@@ -1,5 +1,15 @@
 const fs = require("fs");
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection,
+    ChannelType,
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const config = require('../config.json')
@@ -10,7 +20,7 @@ module.exports = {
     options: [
         {
             name: 'member',
-            type: 'USER',
+            type: ApplicationCommandOptionType.User,
             description: 'The member you want to made operator',
             required: false
         }
@@ -23,11 +33,12 @@ module.exports = {
             text += `<@${i}>\n`
             }
 
-    let embed = new MessageEmbed()
+    let embed = new EmbedBuilder()
                 .setColor('#2E2EFE')
-                .setAuthor('Owners')
+                .setAuthor({name: "Owners"})
                 .setDescription(`${text}`)
-                .setFooter('1/1 iHorizon')
+                .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 })})
+
     let member = interaction.options.getMember('member')
     if (!member) return interaction.reply({embeds: [embed]});
     if(await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) return interaction.reply("You are not operator !")

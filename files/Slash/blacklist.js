@@ -1,18 +1,27 @@
+const { 
+    Client, 
+    Intents, 
+    Collection,
+    ChannelType,
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+
 module.exports = {
         name: 'blacklist',
         description: 'Blacklist a user on the bot (must be owner of the bot)',
         options: [
             {
                 name: 'member',
-                type: 'USER',
+                type: ApplicationCommandOptionType.User,
                 description: 'The user you want to blacklist...',
                 required: false
             }
         ],
         run: async (client, interaction) => {
-            const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
-
-    
             const { QuickDB } = require("quick.db");
             const db = new QuickDB();
               let owner_pp_user = await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`)
@@ -20,12 +29,12 @@ module.exports = {
                     if(!owner_pp_user || owner_pp_user === null || owner_pp_user === false){
         
                 
-                        const block_antiowner = new MessageEmbed()
+                        const block_antiowner = new EmbedBuilder()
                         .setTitle(":no_entry: Your are not owner !")
                         .setDescription("**"+interaction.user.username+"** you cannot use this command with your current privilege !")
                         .setTimestamp()
                         .setColor("#2f3136")
-                        .setFooter(`${interaction.user.username}`)
+                        .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 })})
                         return interaction.reply({embeds: [block_antiowner]})
                     }
         
@@ -37,11 +46,11 @@ module.exports = {
                         text += `<@${i}>\n`
                         }
 
-                        let embed = new MessageEmbed()
+                        let embed = new EmbedBuilder()
                         .setColor('#2E2EFE')
-                        .setAuthor('Blacklist')
-                        .setDescription(text)
-                        .setFooter('1/1 iHorizon')
+                        .setAuthor({ name: 'Blacklist'})
+                        .setDescription(text || "No blacklist")
+                        .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 })})
                         const member = interaction.options.getMember('member')
                         if (!member) return interaction.reply({embeds: [embed]});
             

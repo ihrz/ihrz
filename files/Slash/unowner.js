@@ -1,5 +1,15 @@
 const fs = require("fs");
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection,
+    ChannelType,
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const config = require('../config.json')
@@ -10,7 +20,7 @@ module.exports = {
     options: [
         {
             name: 'member',
-            type: 'USER',
+            type: ApplicationCommandOptionType.User,
             description: 'The member who wants to delete of the owner list',
             required: false
         }
