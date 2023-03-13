@@ -1,13 +1,23 @@
 const ms = require('ms');
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
-
+const { 
+    Client, 
+    Intents, 
+    Collection,
+    ChannelType,
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+  
 module.exports = {
     name: 'end',
     description: 'force end a giveaways',
     options: [
         {
             name: 'giveaway-id',
-            type: 'STRING',
+            type: ApplicationCommandOptionType.String,
             description: 'The giveaway id (is the message id of the embed\'s giveaways)',
             required: true
         }
@@ -15,7 +25,7 @@ module.exports = {
     run: async (client, interaction) => {
   
         const fuckingLifeOfTrees = interaction.options.getString("giveaway-id")
-        if(!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)){ return interaction.reply({content: 'You must have permissions to manage messages to end this giveaway.'});}
+        if(!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)){ return interaction.reply({content: 'You must have permissions to manage messages to end this giveaway.'});}
         if(!fuckingLifeOfTrees){ return interaction.reply({content: 'You must specify a valid message ID!'});}
     
         const giveaway =
@@ -28,9 +38,9 @@ module.exports = {
                 .then(() => {
                     interaction.reply({content: `The giveaway will end in less than (${client.giveawaysManager.options.updateCountdownEvery/1000}) secondes...`});
                         try{
-                            logEmbed = new MessageEmbed()
-                            .setColor("PURPLE")
-                            .setTitle("Giveawyas Logs")
+                            logEmbed = new EmbedBuilder()
+                            .setColor("#bf0bb9")
+                            .setTitle("Giveaway Logs")
                             .setDescription(`<@${interaction.user.id}> ended giveaways with this id: ${giveaway.messageID}`)
 
                                     let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');

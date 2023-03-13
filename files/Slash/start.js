@@ -1,5 +1,16 @@
 const ms = require('ms');
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection,
+    ChannelType,
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+
 const config = require('../config.json');
 const messages = require("../messages.js");
 
@@ -9,25 +20,25 @@ module.exports = {
     options: [
         {
             name: 'channel',
-            type: 'CHANNEL',
+            type: ApplicationCommandOptionType.Channel,
             description: 'The channels where the giveaways is sent',
             required: true
         },
         {
             name: 'winner',
-            type: 'NUMBER',
+            type: ApplicationCommandOptionType.Number,
             description: 'Number of winner for the giveaways',
             required: true
         },
         {
             name: 'time',
-            type: 'STRING',
+            type: ApplicationCommandOptionType.String,
             description: 'The time duration of the giveaways',
             required: true
         },
         {
             name: 'prize',
-            type: 'STRING',
+            type: ApplicationCommandOptionType.String,
             description: 'The giveaway\'s prize',
             required: true
         }
@@ -36,7 +47,7 @@ module.exports = {
     run: async (client, interaction) => {
   
 
-        if(!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)){
+        if(!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)){
             return interaction.reply({content: `You must have permissions to manage messages to start the giveaways.`});
         }
     
@@ -69,9 +80,9 @@ module.exports = {
         interaction.reply({content: `Giveaway started in ${giveawayChannel}!`});
 
             try{
-                logEmbed = new MessageEmbed()
-                .setColor("PURPLE")
-                .setTitle("Giveaways Logs")
+                logEmbed = new EmbedBuilder()
+                .setColor("#bf0bb9")
+                .setTitle("Giveaway Logs")
                 .setDescription(`<@${interaction.user.id}> started a giveways in: ${giveawayChannel}`)
                         let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                         if(logchannel) { logchannel.send({embeds: [logEmbed]}) }

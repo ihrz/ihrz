@@ -1,4 +1,15 @@
-const { MessageEmbed } = require("discord.js")
+const { 
+  Client, 
+  Intents, 
+  Collection,
+  ChannelType,
+  EmbedBuilder,
+  Permissions, 
+  ApplicationCommandType, 
+  PermissionsBitField, 
+  ApplicationCommandOptionType 
+} = require('discord.js');
+
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
@@ -8,7 +19,7 @@ module.exports = {
   options: [
     {
         name: 'message-to-dev',
-        type: 'STRING',
+        type: ApplicationCommandOptionType.String,
         description: 'What is the problem? Please make a good sentences',
         required: true
     }
@@ -24,14 +35,13 @@ module.exports = {
         if (!sentences) return interaction.reply("Please specify the bug. Example: \ n`! Bugreport! Cats does not work.`");
         if (sentences === "bug") return interaction.reply("Please specify the bug,Please make a good sentences ! ");
         interaction.reply("**Thanks for submitting a bug!**");
-        var embed = new MessageEmbed()
-                    .setColor("RED")
+        var embed = new EmbedBuilder()
+                    .setColor("#ff0000")
                     .setDescription(`**${interaction.user.username}#${interaction.user.discriminator}** (<@${interaction.user.id}>) reported:\n~~--------------------------------~~\n${sentences}\n~~--------------------------------~~\nServer ID: **${interaction.guild.id}**`)
         client.channels.cache.get("975288553787494450").send({embeds: [embed]})
 
         talkedRecently.add(interaction.user.id);
         setTimeout(() => {
-          // Removes the user from the set after a minute
           talkedRecently.delete(interaction.user.id);
         }, 3600000);
     }

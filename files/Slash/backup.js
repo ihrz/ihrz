@@ -1,6 +1,16 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
-backup = require("discord-backup")
-prefix = require('../config.json')
+const { 
+    Client, 
+    Intents, 
+    Collection,
+    ChannelType,
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+
+const backup = require("discord-backup")
 
 module.exports = {
     name: 'backup',
@@ -8,7 +18,7 @@ module.exports = {
     options: [
         {
             name: 'action',
-            type: "STRING",
+            type: ApplicationCommandOptionType.String,
             description: 'What you want to do?',
             required: true,
             choices: [
@@ -25,7 +35,7 @@ module.exports = {
 },
 {
     name: 'backup-id',
-    type: "STRING",
+    type: ApplicationCommandOptionType.String,
     description: 'Whats is the backup id?',
     required: false
 }
@@ -33,13 +43,13 @@ module.exports = {
     run: async (client, interaction) => {
   
 
-        if (!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return
         let backup_options = interaction.options.getString('action')
         await interaction.reply({content: "⏲ Wait please..."})
         
             if(backup_options === "create"){
-                if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)){
-                    if(!interaction.guild.me.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply("I don't have  permission `ADMINISTRATOR`")
+                if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)){
+                    if(!interaction.guild.me.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply("I don't have  permission `ADMINISTRATOR`")
                     return interaction.editReply({content: ":x: | You must be an administrator of this server to request a backup!"});
                 }
                 backup.create(interaction.guild, {
@@ -49,8 +59,8 @@ module.exports = {
                     interaction.channel.send(":white_check_mark: Backup successfully created.");
                     interaction.editReply({content: "The backup has been created! ID: `"+backupData.id+"`!"});
                         try{
-                            logEmbed = new MessageEmbed()
-                            .setColor("PURPLE")
+                            logEmbed = new EmbedBuilder()
+                            .setColor("#bf0bb9")
                             .setTitle("Backup Logs")
                             .setDescription(`<@${interaction.user.id}> Create Backup !`)
                                     let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'iHorizon-logs');
@@ -60,8 +70,8 @@ module.exports = {
             }
         
             if(backup_options === "load"){
-                if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)){
-                    if(!interaction.guild.me.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply("I don't have  permission `ADMINISTRATOR`")
+                if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)){
+                    if(!interaction.guild.me.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply("I don't have  permission `ADMINISTRATOR`")
                     return interaction.editReply({content: ":x: | You must be an administrator of this server to load a backup!"});
                 }
                 let backupID = interaction.options.getString('backup-id')

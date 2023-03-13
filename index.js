@@ -42,10 +42,10 @@ fs.readdir("./files/Events", (_err, files) => { files.forEach(file => { if (!fil
     let commandName = file.split(".")[0];
     client.interactions.set(commandName, { name: commandName,...props}),
     client.register_arr.push(props)});}),
-//     client.giveawaysManager = new GiveawaysManager(client, { storage: "./files/giveaways.json",
-//     updateCountdownEvery: 5000, embedColor: "#FF0000", reaction: "🎉",
-//     default: { botsCanWin: false, exemptPermissions: [ "MANAGE_MESSAGES", "ADMINISTRATOR" ]}
-// }), 
+    client.giveawaysManager = new GiveawaysManager(client, { storage: "./files/giveaways.json",
+    updateCountdownEvery: 5000, embedColor: "#FF0000", reaction: "🎉",
+    default: { botsCanWin: false, exemptPermissions: [ "MANAGE_MESSAGES", "ADMINISTRATOR" ]}
+}), 
 client.login(config.token).catch(error => console.error(error.red)),
 process.on('uncaughtException', function(err) {
 console.log(err.stack || err.message)
