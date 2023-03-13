@@ -23,7 +23,7 @@ const { Client, Collection, GatewayIntentBits, Partials } = require('discord.js'
       GatewayIntentBits.Guilds,
       GatewayIntentBits.MessageContent
       ],
-    partials: [Partials.Channel, Partials.Reaction, ] , ws: { properties: { browser: 'Discord iOS'}}
+    partials: [Partials.Channel, Partials.Reaction,Partials.Message ] , ws: { properties: { browser: 'Discord iOS'}}
     });
     config = require('./files/config.json'), { api } = require("./api/oauth.js"), { GiveawaysManager } = require('discord-giveaways'),
     c = require("colors"), { Player } = require("discord-player"), fs = require('fs'), date = require('date-and-time'),

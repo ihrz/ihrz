@@ -5,7 +5,7 @@ const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
-module.exports = async (reaction, user) => {
+module.exports = async (client, reaction, user) => {
 try{
   // Vérifie que la réaction est ajoutée à un message et non à un autre type de message (par exemple une émoticône personnalisée).
   if (!reaction.message.guild) return;
@@ -42,5 +42,5 @@ try{
     // Ajoute le rôle au membre.
     return await member.roles.add(role);
     };
-  }catch{ return };
+  }catch(e){ console.log(e)};
 }

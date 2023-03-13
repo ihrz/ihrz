@@ -1,4 +1,14 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');;
+const { 
+  Client, 
+  Intents, 
+  Collection,
+  ChannelType,
+  EmbedBuilder,
+  Permissions, 
+  ApplicationCommandType, 
+  PermissionsBitField, 
+  ApplicationCommandOptionType 
+} = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
@@ -9,7 +19,7 @@ module.exports = {
     {
       name: "value",
       description: "Please make your choice.",
-      type: "STRING",
+      type: ApplicationCommandOptionType.String,
       required: true,
       choices: [
           {
@@ -28,32 +38,32 @@ module.exports = {
   },
     {
       name: 'messageid',
-      type: 'STRING',
+      type: ApplicationCommandOptionType.String,
       description: `Please copy the identifiant of the message you want to configure`,
       required: true
   },
   {
     name: 'reaction',
-    type: 'STRING',
+    type: ApplicationCommandOptionType.String,
     description: `The emoji you want`,
     required: false
 },
 {
     name: 'role',
-    type: 'ROLE',
+    type: ApplicationCommandOptionType.Role,
     description: `The role you want to configure`,
     required: false
 }
 ],
   run: async (client, interaction) => {
-    if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply(":x: | You must be an administrator of this server to request a welcome channels commands!");
+    if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply(":x: | You must be an administrator of this server to request a welcome channels commands!");
 let type = interaction.options.getString("value")
 let messagei = interaction.options.getString("messageid")
 let reaction = interaction.options.getString("reaction")
 let role = interaction.options.getRole("role")
 
-let help_embed = new MessageEmbed()
-.setColor("BLUE")
+let help_embed = new EmbedBuilder()
+.setColor("#0000FF")
 .setTitle("/reactionroles Help !")
 .setDescription(`__how to use ?__
 /rolesreaction add \`<message id>\` \`<reaction>\` \`<rolesid>\`
@@ -74,8 +84,8 @@ if(check.includes("<") || check.includes(">") || check.includes(":")) { return i
 await db.set(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`, {rolesID: role.id, reactionNAME: reaction, enable: true})
    
   try{
-    logEmbed = new MessageEmbed()
-    .setColor("PURPLE")
+    logEmbed = new EmbedBuilder()
+    .setColor("#bf0bb9")
     .setTitle("ReactionRoles Logs")
     .setDescription(`<@${interaction.user.id}> set a reaction roles: Message: \`${messagei}\` | Reaction: \`${reaction}\` | Role: ${role}`)
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
@@ -107,8 +117,8 @@ await reactionVar.users.remove(client.user.id).catch(err => {console.error(err)}
 await db.delete(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`)
    
   try{
-    logEmbed = new MessageEmbed()
-    .setColor("PURPLE")
+    logEmbed = new EmbedBuilder()
+    .setColor("#bf0bb9")
     .setTitle("ReactionRoles Logs")
     .setDescription(`<@${interaction.user.id}> delete a reaction roles: Message: \`${messagei}\` | Reaction: \`${reaction}\``)
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
@@ -139,7 +149,7 @@ await interaction.reply({content: `${reaction} has been deleted to the ${message
 await db.delete(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`)
    
   try{
-    logEmbed = new MessageEmbed()
+    logEmbed = new EmbedBuilder()
     .setColor("PURPLE")
     .setTitle("ReactionRoles Logs")
     .setDescription(`<@${interaction.user.id}> delete a reaction roles: Message: \`${messagei}\` | Reaction: \`${reaction}\``)
