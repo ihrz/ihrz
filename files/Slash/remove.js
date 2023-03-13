@@ -1,10 +1,22 @@
-	module.exports = {
+
+const { 
+    Client, 
+    Intents, 
+    Collection, 
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+
+module.exports = {
 		name: 'remove',
 		description: 'Remove a member into your ticket',
 		options: [
 			{
 				name: 'user',
-				type: 'USER',
+				type: ApplicationCommandOptionType.User,
 				description: 'The user you want to remove into your ticket',
 				required: true
 			}
@@ -23,13 +35,8 @@
 						return interaction.reply(`Incorrect Syntax ! **Correct Usage:** \`/remove <member>\``);
 					}
 					try{
-						interaction.channel.permissionOverwrites.edit(member, {
-							VIEW_CHANNEL: false,
-							SEND_MESSAGES: false,
-							ATTACH_FILES: false,
-							READ_MESSAGE_HISTORY: false}).then(() => {
-							interaction.reply(`Successfully removed ${member} to ${interaction.channel}`);
-						});
+						interaction.channel.permissionOverwrites.create(member, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
+						interaction.reply({content: `Successfully removed ${member.tag} to your ticket!`});
 					}
 					catch(e) {
 						//console.log(e)

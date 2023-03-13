@@ -1,5 +1,15 @@
 const sourcebin = require('sourcebin_js');
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { 
+    Client, 
+    Intents, 
+    Collection,
+    ChannelType,
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
 
 	module.exports = {
 		name: 'close',
@@ -16,7 +26,7 @@ const { Client, Intents, Collection, MessageEmbed, Permissions } = require('disc
 						
 				if(interaction.channel.name.includes('ticket-')) {
 					const member = interaction.guild.members.cache.get(interaction.channel.name.split('ticket-').join(''));
-					if(interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) || interaction.channel.name === `ticket-${interaction.user.id}`) {
+					if(interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.channel.name === `ticket-${interaction.user.id}`) {
 						interaction.channel.messages.fetch().then(async (messages) => {
 							const output = messages.reverse().map(m => `${new Date(m.createdAt).toLocaleString('en-US')} - ${m.author.tag}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`).join('\n');
 		
@@ -37,7 +47,7 @@ const { Client, Intents, Collection, MessageEmbed, Permissions } = require('disc
 								return interaction.reply('Error occurred, pls try again!');
 							}
 		try{
-			const embed = new MessageEmbed()
+			const embed = new EmbedBuilder()
 			.setDescription(`[\`View This\`](${response.url})`)
 			.setColor('BLUE');
 			interaction.reply({content: 'You have closed your ticket. iHorizon sent you the transcript', embeds: [embed]})
@@ -47,14 +57,8 @@ const { Client, Intents, Collection, MessageEmbed, Permissions } = require('disc
 		}
 						
 							try {
-								interaction.channel.permissionOverwrites.edit(member.user, {
-									VIEW_CHANNEL: false,
-									SEND_MESSAGES: false,
-									ATTACH_FILES: false,
-									READ_MESSAGE_HISTORY: false,
-								}).then(() => {
-									interaction.channel.send(`The ticket was succefully closed !`);
-								});
+								interaction.channel.permissionOverwrites.create(member.user, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
+								interaction.channel.send({content: `The ticket was succefully closed !`});
 							}
 							catch(e) {
 								return interaction.channel.send('Error occurred, please try again!');

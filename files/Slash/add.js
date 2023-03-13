@@ -1,10 +1,22 @@
+const { 
+    Client, 
+    Intents, 
+    Collection,
+    ChannelType,
+    EmbedBuilder,
+    Permissions, 
+    ApplicationCommandType, 
+    PermissionsBitField, 
+    ApplicationCommandOptionType 
+  } = require('discord.js');
+
 module.exports = {
 	name: 'add',
 	description: 'Add a member into your ticket',
 	options: [
 		{
 			name: 'user',
-			type: 'USER',
+			type: ApplicationCommandOptionType.User,
 			description: 'The user you want to add into your ticket',
 			required: true
 		}
@@ -22,13 +34,8 @@ module.exports = {
 					return interaction.reply(`Incorrect Syntax ! **Correct Usage:** \`.add <member>\``);
 				}
 				try{
-					interaction.channel.permissionOverwrites.edit(member, {
-						VIEW_CHANNEL: true,
-						SEND_MESSAGES: true,
-						ATTACH_FILES: true,
-						READ_MESSAGE_HISTORY: true}).then(() => {
-						interaction.reply(`Successfully added ${member} to ${interaction.channel}`);
-					});
+interaction.channel.permissionOverwrites.create(member, { ViewChannel: true, SendMessages: true, ReadMessageHistory: true });
+interaction.reply({content: `Successfully added ${member.tag} to your ticket!`});
 				}
 				catch(e) {
 					return interaction.reply('error occurred, pls try again');

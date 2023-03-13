@@ -30,8 +30,8 @@ module.exports = {
       {name: "✅ Economy", value: "`/add-money`, `/balance`, `/daily`, `/monthly`, `/pay`, `/remove-money`, `/rob`, `/weekly`, `/work`", inline: true},
       {name: "❌ Ticket", value: "`/add`, `/close`, `/delete`, `/new`, `/open`, `/remove`, `/transript`, `/disableticket`", inline: true},
       {name: "❌ Owner", value: "`/owner`, `unowner`, `/blacklist`, `/unblacklist`", inline: true},
-      {name: "❌ Role Reactions [NEW]", value: "`/reactionroles`", inline: true},
-      {name: "❌ Invite Manager [BACK]", value: "`/removeinvites`, `/invites`,`/addinvites`, `/leaderboard (soon)`", inline: true})
+      {name: "❌ Role Reactions", value: "`/reactionroles`", inline: true},
+      {name: "❌ Invite Manager", value: "`/removeinvites`, `/invites`,`/addinvites`, `/leaderboard (soon)`", inline: true})
       .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 })})
       .setThumbnail(client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 }))
       .setTimestamp();
