@@ -1,5 +1,5 @@
 /*Made by Ezermoz*/
-const { Client, Collection, GatewayIntentBits, Partials } = require('discord.js'),
+const { Client, Collection,ChannelType,PermissionFlagsBits, PermissionsBitField, GatewayIntentBits, Partials, EmbedBuilder } = require('discord.js'),
   client = new Client({ intents: 
     [
       GatewayIntentBits.AutoModerationConfiguration,
@@ -26,11 +26,16 @@ const { Client, Collection, GatewayIntentBits, Partials } = require('discord.js'
     partials: [Partials.Channel, Partials.Reaction,Partials.Message ] , ws: { properties: { browser: 'Discord iOS'}}
     });
     config = require('./files/config.json'), { api } = require("./api/oauth.js"), { GiveawaysManager } = require('discord-giveaways'),
-    c = require("colors"), { Player } = require("discord-player"), fs = require('fs'), date = require('date-and-time'),
-    { registerPlayerEvents } = require('./files/events.js'), process = require("process")
+    c = require("colors"), { Player } = require("discord-player"), fs = require('fs'), date = require('date-and-time'), process = require("process")
 client.commands = new Collection(), client.voiceManager = new Collection(),
 client.interactions = new Collection(), client.register_arr = [], 
-client.player = new Player(client), registerPlayerEvents(client.player),
+client.player = new Player(client, {
+  ytdlOptions: {
+    quality: 'highestaudio',
+    smoothVolume: true,
+    highWaterMark: 1 << 25,
+  },
+}),
 fs.readdir("./files/Events", (_err, files) => { files.forEach(file => { if (!file.endsWith(".js")) return;
     const event = require(`./files/Events/${file}`);
     let eventName = file.split(".")[0];
@@ -129,7 +134,9 @@ client.on("guildMemberAdd", async (member) => {
 
     let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`)
     if(!wChan) return;
-    let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`)
+    let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG
+    
+    .joinmessage`)
     if(!messssssage){ return client.channels.cache.get(wChan).send({content: `➕・<@${member.id}> join the guild. Invited by **${inviter.tag}** (**${fetched}** invites). Account created at: **${member.user.createdAt.toLocaleDateString()}**. Happy to see you on **${member.guild.name}**`})}
 
   var messssssage4 = messssssage
@@ -151,7 +158,41 @@ client.on("guildMemberAdd", async (member) => {
     }
 });
 
+client.on("messageReactionAdd", async (reaction, user) => {
+  if(user.bot) return;
+  let result = await db.get(`${reaction.message.guildId}.GUILD.TICKET.${reaction.message.id}`)
+  if(!result) return;
+  if(result.channel !== reaction.message.channelId) return;
+  if(result.messageID !== reaction.message.id) return;
 
+				if(reaction.message.guild.channels.cache.find(channel => channel.name === `ticket-${user.id}`)) {
+					return reaction.users.remove(user);
+				}
+        reaction.message.guild.channels.create({
+					name: `ticket-${user.id}`,
+					type: ChannelType.GuildText,
+					permissionOverwrites: [
+					   {
+						 id: reaction.message.guild.roles.everyone,
+						 deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] 
+				   },
+				   {
+						id: user.id,
+						allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionsBitField.Flags.ReadMessageHistory]
+					}
+					],
+				  }).then(async channel => {
+          reaction.users.remove(user);
+          let welcome = new EmbedBuilder()
+          .setTitle(`${result.panelName}`)
+          .setColor("#3b8f41")
+          .setDescription(`Hi ${user.username}, welcome to your ticket! Please be patient, we will be with you shortly. If you would like to close this ticket please run \`/close\``)
+          .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 })})
+
+        return channel.send({embeds: [welcome]});
+				});
+
+})
 client.on("guildMemberRemove", async (member) => {
   const newInvites = await member.guild.invites.fetch()
   const oldInvites = invites.get(member.guild.id);
@@ -192,4 +233,34 @@ client.on("guildMemberRemove", async (member) => {
       return console.error(e)
     }
   
+});
+
+
+client.player.events.on("error", (queue, error) => {
+  console.log(`[${queue.guild.name}] Error emitted from the queue`);
+});
+
+
+client.player.events.on("connectionError", (queue, error) => {
+  console.log(`[${queue.guild.name}] Error emitted from the connection`);
+});
+
+client.player.events.on("trackStart", (queue, track) => {
+  queue.metadata.send(`🎵 - Now playing \`${track.title}\` into **${queue.connection.channel.name}** ...`);
+});
+
+client.player.events.on("trackAdd", (queue, track) => {
+  queue.metadata.send(`:musical_note: - ${track.title} has been added to the queue !`);
+});
+
+client.player.events.on("botDisconnect", (queue) => {
+  queue.metadata.send("❌ | I was manually disconnected from the voice channel, clearing queue!");
+});
+
+client.player.events.on("channelEmpty", (queue) => {
+  queue.metadata.send("❌ | Nobody is in the voice channel, leaving...");
+});
+
+client.player.events.on("queueEnd", (queue) => {
+  queue.metadata.send(`⚠️ - Music stopped as there is no more music in the queue !`);
 });

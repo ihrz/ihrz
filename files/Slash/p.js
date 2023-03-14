@@ -82,6 +82,6 @@ module.exports = {
             .setFooter({ text: `Duration: ${yes.track.playlist ? `${yess()}` : `${yes.track.duration}`}` })
             return interaction.editReply({ embeds: [embed ]})
         }catch (error) {
-            console.log(error)
+            //console.log(error)
         }
 }}
