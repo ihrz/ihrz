@@ -1,4 +1,5 @@
 /*Made by Ezermoz*/
+
 const { Client, Collection,ChannelType,PermissionFlagsBits, PermissionsBitField, GatewayIntentBits, Partials, EmbedBuilder } = require('discord.js'),
   client = new Client({ intents: 
     [
@@ -113,8 +114,8 @@ client.on("guildCreate", (guild) => {
 client.on("guildDelete", async (guild) => {
   invites.delete(guild.id);
 
-  await db.delete(`${invites.guild.id}`)
-  await db.delete(`${invites.guild.id}`)
+  await db.delete(`${guild.id}`)
+  await db.delete(`${guild.id}`)
 });
 
 client.on("guildMemberAdd", async (member) => {
@@ -134,9 +135,7 @@ client.on("guildMemberAdd", async (member) => {
 
     let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`)
     if(!wChan) return;
-    let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG
-    
-    .joinmessage`)
+    let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`)
     if(!messssssage){ return client.channels.cache.get(wChan).send({content: `➕・<@${member.id}> join the guild. Invited by **${inviter.tag}** (**${fetched}** invites). Account created at: **${member.user.createdAt.toLocaleDateString()}**. Happy to see you on **${member.guild.name}**`})}
 
   var messssssage4 = messssssage
@@ -194,10 +193,11 @@ client.on("messageReactionAdd", async (reaction, user) => {
 
 })
 client.on("guildMemberRemove", async (member) => {
+  try{
   const newInvites = await member.guild.invites.fetch()
   const oldInvites = invites.get(member.guild.id);
   const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
-  const inviter = await client.users.fetch(invite.inviter.id)
+  const inviter = await client.users.fetch(invite.inviter.id).catch(e => {});
 
     checked = db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`)
 
@@ -207,7 +207,7 @@ client.on("guildMemberRemove", async (member) => {
     }
     let fetched = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`);
 
-    try{
+    
       let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`)
       if(wChan == null) return;
       if(!wChan) return;
@@ -230,10 +230,104 @@ client.on("guildMemberRemove", async (member) => {
 
     client.channels.cache.get(wChan).send({content: `➖・<@${member.id}> just left the guild. Goodbye, from **${member.guild.name}**.`})
 
-      return console.error(e)
+      return //console.error(e)
     }
   
 });
+
+client.on('guildMemberAdd', async (member, members) => {
+try{
+  const ownerList = await db.all();
+  const foundArray = ownerList.findIndex(ownerList => ownerList.id === member.guild.id);
+  const char = ownerList[foundArray].value.GUILD.MCOUNT;
+
+  const botMembers = member.guild.members.cache.filter(member => member.user.bot);
+  const rolesCollection = member.guild.roles.cache;
+  const rolesCount = rolesCollection.size;
+
+  let bot = await db.get(`${member.guild.id}.GUILD.MCOUNT.bot`)
+  let member_2 = await db.get(`${member.guild.id}.GUILD.MCOUNT.member`)
+  let roles = await db.get(`${member.guild.id}.GUILD.MCOUNT.roles`)
+
+  if(bot){
+    let joinmsgreplace = bot.name
+    .replace("{rolescount}", rolesCount)
+    .replace("{membercount}", member.guild.memberCount)
+    .replace("{botcount}", botMembers.size)
+
+    const fetched = member.guild.channels.cache.get(bot.channel);
+    await fetched.edit({ name: joinmsgreplace})
+  }
+
+  if(member_2){
+    let joinmsgreplace = member_2.name
+    .replace("{rolescount}", rolesCount)
+    .replace("{membercount}", member.guild.memberCount)
+    .replace("{botcount}", botMembers.size)
+
+    const fetched = member.guild.channels.cache.get(member_2.channel);
+    await fetched.edit({ name: joinmsgreplace })
+  }
+
+  if(roles){
+    let joinmsgreplace = roles.name
+    .replace("{rolescount}", rolesCount)
+    .replace("{membercount}", member.guild.memberCount)
+    .replace("{botcount}", botMembers.size)
+
+    const fetched = member.guild.channels.cache.get(roles.channel);
+    await fetched.edit({ name: joinmsgreplace })
+  }
+  }catch(e){return }
+})
+
+client.on('guildMemberRemove', async (member, members) => {
+try{
+  const ownerList = await db.all();
+  const foundArray = ownerList.findIndex(ownerList => ownerList.id === member.guild.id);
+  const char = ownerList[foundArray].value.GUILD.MCOUNT;
+
+  const botMembers = member.guild.members.cache.filter(member => member.user.bot);
+  const rolesCollection = member.guild.roles.cache;
+  const rolesCount = rolesCollection.size;
+
+  let bot = await db.get(`${member.guild.id}.GUILD.MCOUNT.bot`)
+  let member_2 = await db.get(`${member.guild.id}.GUILD.MCOUNT.member`)
+  let roles = await db.get(`${member.guild.id}.GUILD.MCOUNT.roles`)
+
+  if(bot){
+    let joinmsgreplace = bot.name
+    .replace("{rolescount}", rolesCount)
+    .replace("{membercount}", member.guild.memberCount)
+    .replace("{botcount}", botMembers.size)
+
+    const fetched = member.guild.channels.cache.get(bot.channel);
+    await fetched.edit({ name: joinmsgreplace }).then(response => {console.log(response)})
+  }
+
+  if(member_2){
+    let joinmsgreplace = member_2.name
+    .replace("{rolescount}", rolesCount)
+    .replace("{membercount}", member.guild.memberCount)
+    .replace("{botcount}", botMembers.size)
+
+    console.log(member_2)
+    const fetched = member.guild.channels.cache.get(member_2.channel);
+    await fetched.edit({ name: joinmsgreplace })
+  }
+
+  if(roles){
+    let joinmsgreplace = roles.name
+    .replace("{rolescount}", rolesCount)
+    .replace("{membercount}", member.guild.memberCount)
+    .replace("{botcount}", botMembers.size)
+
+    const fetched = member.guild.channels.cache.get(roles.channel);
+    await fetched.edit({ name: joinmsgreplace })
+  }
+}catch(e){
+  return
+}})
 
 
 client.player.events.on("error", (queue, error) => {

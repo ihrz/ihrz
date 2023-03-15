@@ -18,7 +18,7 @@ module.exports = {
     .setDescription("Thanks you to use iHorizon !\nContact creator: `PeacefulTrees`.\nThis is a list of commands you can use.")
     .addFields(
       {name: "Moderation", value: "`/ban`, `/kick`, `/clear`, `/lock`, `/unlock`, `/avatar`, `/lockall`,\n `/unban`, `/tempmute`, `/unmute`", inline: true},
-      {name: "Ranks", value: "`xp`, `setxpchannels`, `disablexp`", inline: true},
+      {name: "Ranks", value: "`/xp`, `/setxpchannels`, `/disablexp`", inline: true},
       {name: "Fun", value: "`/caracteres`, `/cats`, `/hack`, `/hug`, `/kiss`, `/morse`, `/poll`, `/question`, `/slap`", inline: true},
       {name: "Utils", value: "`/serverinfo`, `/userinfo`, `/snipe`, `/renew`", inline: true},
       {name: "Giveaway", value: "`/start`, `/end`, `/reroll`", inline: true},
@@ -28,10 +28,12 @@ module.exports = {
       {name: 'Guilds Config', value: '`/setchannels`, `/setjoinmessage`, `/setleavemessage`, `/setjoinroles`, `/setjoindm`, `/setup`, `/blockpub`, `/guildprofil`', inline: true},
       {name: "Profils Customizations", value: "`/setprofildescriptions`, `/profil`, `/setprofilage`", inline: true},
       {name: "Economy", value: "`/add-money`, `/balance`, `/daily`, `/monthly`, `/pay`, `/remove-money`, `/rob`, `/weekly`, `/work`", inline: true},
-      {name: "Ticket", value: "`/add`, `/close`, `/delete`, `/new`, `/open`, `/remove`, `/transript`, `/disableticket`", inline: true},
       {name: "Owner", value: "`/owner`, `/unowner`, `/blacklist`, `/unblacklist`", inline: true},
       {name: "Role Reactions", value: "`/reactionroles`", inline: true},
-      {name: "Invite Manager", value: "`/removeinvites`, `/invites`,`/addinvites`, `/leaderboard (soon)`", inline: true})
+      {name: "Invite Manager", value: "`/removeinvites`, `/invites`,`/addinvites`, `/leaderboard (soon)`", inline: true},
+      {name: "Ticket [RENEW]", value: "`/add`, `/close`, `/delete`, `/sethereticket`, `/open`, `/remove`, `/transript`, `/disableticket`", inline: true},
+      {name: "MemberCount [NEW]", value: "`/setmembercount`", inline: true},
+      )
       .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 })})
       .setThumbnail(client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 }))
       .setTimestamp();

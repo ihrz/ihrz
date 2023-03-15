@@ -36,6 +36,5 @@ module.exports = async (client, member, members) => {
             }else{ return};
           }catch{return}
     }
-
-    await joinRoles(), joinDm(), blacklistFetch()//, inviteManager();
+    await joinRoles(), joinDm(), blacklistFetch();
     }

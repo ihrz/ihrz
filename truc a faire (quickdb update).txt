@@ -129,6 +129,7 @@ client.on('messageCreate', async message => {
   await db.set(`${message.guild.id}.GUILD.CUSTOM_CHANNEL.${message.channel.id}`, {channel_log_custom: "owner_id"})
   await db.set(`${message.guild.id}.GUILD.GUILD_CONFIG`, {antipub: "on", join: "id", leave: "id", joinroles: "id", joindm: "dm", joinmessage: "msg", leavemessage: "msg"})
   await db.set(`${message.guild.id}.GUILD.SNIPE.${message.channel.id}`, {snipeTimestamp: "time",snipeUserInfoPp: "link", snipeUserInfoTag: "tag#0001", snipe: "msg"})
+  await db.set(`${message.guild.id}.GUILD.MCOUNT.${message.channel.id}`, {name: "Member: {number}", enable: true})
 
   await db.set(`${message.guild.id}.USER.${message.author.id}.ECONOMY`, {money: "50", daily: "50", monthly: "50", weekly: "50"})
   await db.set(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING`, {xp: "760", level: "15", xptotal: "760"})
