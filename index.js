@@ -330,31 +330,39 @@ try{
 }})
 
 
-client.player.events.on("error", (queue, error) => {
-  console.log(`[${queue.guild.name}] Error emitted from the queue`);
-});
 
 
-client.player.events.on("connectionError", (queue, error) => {
-  console.log(`[${queue.guild.name}] Error emitted from the connection`);
+client.player.events.on('playerStart', (queue, track) => {
+  queue.metadata.channel.send(`🎵 - Now playing \`${track.title}\` into **${queue.channel.name}** ...`);
 });
 
-client.player.events.on("trackStart", (queue, track) => {
-  queue.metadata.send(`🎵 - Now playing \`${track.title}\` into **${queue.connection.channel.name}** ...`);
+client.player.events.on('audioTrackAdd', (queue, track) => {
+  queue.metadata.channel.send(`:musical_note: - ${track.title} has been added to the queue !`);
 });
 
-client.player.events.on("trackAdd", (queue, track) => {
-  queue.metadata.send(`:musical_note: - ${track.title} has been added to the queue !`);
+client.player.events.on('playerError', (queue, error) => {
+  console.log(`I'm having trouble connecting => ${error.message}`);
 });
 
-client.player.events.on("botDisconnect", (queue) => {
-  queue.metadata.send("❌ | I was manually disconnected from the voice channel, clearing queue!");
+client.player.events.on('error', (queue, error) => {
+  console.log(`There was a problem with the song queue => ${error.message}`);
 });
 
-client.player.events.on("channelEmpty", (queue) => {
-  queue.metadata.send("❌ | Nobody is in the voice channel, leaving...");
+client.player.events.on('emptyChannel', (queue) => {
+  client.emit('trackEnd', queue.metadata.channel.guild.id)
+  queue.metadata.channel.send("❌ | Nobody is in the voice channel, leaving...")
 });
 
-client.player.events.on("queueEnd", (queue) => {
-  queue.metadata.send(`⚠️ - Music stopped as there is no more music in the queue !`);
+client.player.events.on('playerSkip', (queue, track) => {
+  queue.metadata.channel.send(`:musical_note: - Skipping **${track.title}** !`);
 });
+
+client.player.events.on('disconnect', (queue) => {
+  client.emit('trackEnd', queue.metadata.channel.guild.id)
+  queue.metadata.channel.send('❌ | I was manually disconnected from the voice channel, clearing queue !')
+})
+
+client.player.events.on('emptyQueue', (queue) => {
+  client.emit('trackEnd', queue.metadata.channel.guild.id)
+  queue.metadata.channel.send('⚠️ - Music stopped as there is no more music in the queue !')
+})

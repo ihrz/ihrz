@@ -46,8 +46,8 @@ module.exports = {
             return interaction.reply({embeds: [results]})
         }
 
-        await interaction.deferReply()
-        await interaction.editReply({ content: `⏲️ Loading an : ${result.playlist ? 'playlist' : 'track' }`})
+       // await interaction.deferReply()
+        await interaction.reply({ content: `⏲️ Loading a : **${result.playlist ? 'playlist' : 'track' }** !`})
 
         const yes = await interaction.client.player.play(interaction.member.voice.channel?.id, result, {
             nodeOptions: {
@@ -56,7 +56,7 @@ module.exports = {
                     client: interaction.guild?.members.me,
                     requestedBy: interaction.user.username
                 },
-                volume: 20,
+                volume: 60,
                 bufferingTimeout: 3000,
                 leaveOnEnd: true
               },
@@ -80,7 +80,7 @@ module.exports = {
             .setColor(`#d0ff00`)
             .setTimestamp()
             .setFooter({ text: `Duration: ${yes.track.playlist ? `${yess()}` : `${yes.track.duration}`}` })
-            return interaction.editReply({ embeds: [embed ]})
+            return interaction.editReply({ content: "", embeds: [embed ]})
         }catch (error) {
             //console.log(error)
         }
