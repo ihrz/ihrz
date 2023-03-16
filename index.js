@@ -153,7 +153,7 @@ client.on("guildMemberAdd", async (member) => {
       let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`)
       client.channels.cache.get(wChan).send({content: `➕・<@${member.id}> join the guild. Account created at: **${member.user.createdAt.toLocaleDateString()}**. Happy to see you on **${member.guild.name}**`})
   
-      return console.error(e)  
+      return //console.error(e)  
     }
 });
 
@@ -302,7 +302,7 @@ try{
     .replace("{botcount}", botMembers.size)
 
     const fetched = member.guild.channels.cache.get(bot.channel);
-    await fetched.edit({ name: joinmsgreplace }).then(response => {console.log(response)})
+    await fetched.edit({ name: joinmsgreplace }).then(response => {})
   }
 
   if(member_2){
@@ -311,7 +311,6 @@ try{
     .replace("{membercount}", member.guild.memberCount)
     .replace("{botcount}", botMembers.size)
 
-    console.log(member_2)
     const fetched = member.guild.channels.cache.get(member_2.channel);
     await fetched.edit({ name: joinmsgreplace })
   }
@@ -341,11 +340,13 @@ client.player.events.on('audioTrackAdd', (queue, track) => {
 });
 
 client.player.events.on('playerError', (queue, error) => {
-  console.log(`I'm having trouble connecting => ${error.message}`);
+  return;
+  //console.log(`I'm having trouble connecting => ${error.message}`);
 });
 
 client.player.events.on('error', (queue, error) => {
-  console.log(`There was a problem with the song queue => ${error.message}`);
+  return;
+  //console.log(`There was a problem with the song queue => ${error.message}`);
 });
 
 client.player.events.on('emptyChannel', (queue) => {
