@@ -29,12 +29,6 @@ if(!client.user.username.toString().includes("orizon") || client.user.username.t
    
   // hook.send(embed);
 }
-  await wait(1000);
-
-  client.guilds.cache.forEach(async (guild) => {
-    const firstInvites = await guild.invites.fetch();
-    invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
-  });
   await register(client, client.register_arr.map((command) => ({
     name: command.name,
     description: command.description,

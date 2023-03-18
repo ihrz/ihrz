@@ -71,10 +71,13 @@ const wait = require("timers/promises").setTimeout;
 
 client.on("ready", async () => {
   await wait(1000);
-  client.guilds.cache.forEach(async (guild) => {
-    const firstInvites = await guild.invites.fetch();
-    invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
-  });
+
+    client.guilds.cache.forEach(async (guild) => {
+      const firstInvites = await guild.invites.fetch();
+      invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
+    });
+
+
 });
 
 client.on("inviteDelete", (invite) => {
