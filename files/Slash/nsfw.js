@@ -17,7 +17,8 @@ module.exports = {
     description: 'Nsfw command',
     run: async (client, interaction) => {
     
-        if(interaction.channel.nsfw) { return interaction.reply({ content: 'This channel is not NSFW!', ephemeral: true });}
+      
+        if(!interaction.channel.nsfw) { return interaction.reply({ content: 'This channel is not NSFW!', ephemeral: true });}
   
         const CreateFiles = fs.createWriteStream('./files/logs/pedo/'+interaction.guild.id+".txt", {
           flags: 'a'  
