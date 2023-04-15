@@ -1,5 +1,5 @@
 const sourcebin = require('sourcebin_js');
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
 
 	module.exports = {
 		name: 'transript',
@@ -38,7 +38,7 @@ const { Client, Intents, Collection, MessageEmbed, Permissions } = require('disc
 								return interaction.reply('Error occurred, please try again!');
 							}
 		
-							const embed = new MessageEmbed()
+							const embed = new EmbedBuilder()
 								.setDescription(`[\`View this\`](${response.url})`)
 								.setColor('BLUE');
 							interaction.reply({embeds: [embed], content: 'You have closed your ticket. iHorizon sent you the transcript'});

@@ -52,7 +52,7 @@ module.exports = {
     
         let query = interaction.options.getString("value")
         var roleid = interaction.options.get("roles").value
-        let help_embed = new MessageEmbed()
+        let help_embed = new EmbedBuilder()
         .setColor("#016c9a")
         .setTitle("/setjoinroles Help !")
         .setDescription('/setjoinroles <Power on /Power off/Show the message set> <role id>')
@@ -60,7 +60,7 @@ module.exports = {
         if(query === "true"){
             if(!roleid) return interaction.reply(help_embed);
 try{
-                    logEmbed = new MessageEmbed()
+                    logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9") 
                     .setTitle("SetJoinRoles Logs")
                     .setDescription(`<@${interaction.user.id}> set the join roles !`)
@@ -83,7 +83,7 @@ try{
         }else{
             if(query === "false"){
                 try{
-                    let ban_embed = new MessageEmbed()
+                    let ban_embed = new EmbedBuilder()
                     .setColor("#bf0bb9") 
                     .setTitle("SetJoinRoles Logs")
                     .setDescription(`<@${interaction.user.id}> delete the join roles !`)

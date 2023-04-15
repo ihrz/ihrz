@@ -1,4 +1,4 @@
-const { Client, Intents, Collection, MessageEmbed, Permissions } = require('discord.js');
+const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
 
     module.exports = {
         name: 'pause',
