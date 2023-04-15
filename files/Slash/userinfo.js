@@ -94,7 +94,6 @@ module.exports = {
 
     function getSubscriptions(response) {
       if (!response.available) { return }
-
       //si il n'est pas enregistré dans la db
       if (response.available == "no") {
         description = `${getBadges(member.user.flags)}\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\`\n[My nitro is not showed](${api_login})`;
