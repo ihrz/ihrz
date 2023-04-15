@@ -135,10 +135,13 @@ module.exports = {
         .setFooter({ text: `ID: ${member.id}` })
         .setTimestamp()
         .setColor("#0014a8")
-        .setDescription(`${description}`)
+        .setDescription(description);
+
       return interaction.editReply({ embeds: [embed], content: "✅ Fetched !" });
     }
+
     await interaction.reply({ content: "⏲ Wait please..." })
+    
     superagent.post(`${api_url}`).send({ tokent: "want", adminKey: config.apiToken, userid: member.id, tor: 'CHECK_IN_SYSTEM' }).end(async (err, response) => {
       if (err) {
         console.error(err)
