@@ -1,6 +1,6 @@
 /*Made by Ezermoz*/
 
-const { Client, Collection,ChannelType,PermissionFlagsBits, PermissionsBitField, GatewayIntentBits, Partials, EmbedBuilder } = require('discord.js'),
+const { Client, Collection,ChannelType,PermissionFlagsBits,PermissionsBitField, GatewayIntentBits, Partials, EmbedBuilder } = require('discord.js'),
   client = new Client({ intents: 
     [
       GatewayIntentBits.AutoModerationConfiguration,
@@ -76,8 +76,6 @@ client.on("ready", async () => {
       const firstInvites = await guild.invites.fetch();
       invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
     });
-
-
 });
 
 client.on("inviteDelete", (invite) => {

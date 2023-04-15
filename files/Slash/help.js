@@ -15,7 +15,7 @@ module.exports = {
 
     const embed = new EmbedBuilder()
     .setColor('#e1a95f')
-    .setDescription("Thanks you to use iHorizon !\nContact creator: `PeacefulTrees`.\nThis is a list of commands you can use.")
+    .setDescription("Thanks you to use iHorizon !\nContact creator: `Kisakay#3889`.\nThis is a list of commands you can use.")
     .addFields(
       {name: "Moderation", value: "`/ban`, `/kick`, `/clear`, `/lock`, `/unlock`, `/avatar`, `/lockall`,\n `/unban`, `/tempmute`, `/unmute`", inline: true},
       {name: "Ranks", value: "`/xp`, `/setxpchannels`, `/disablexp`", inline: true},
@@ -31,10 +31,8 @@ module.exports = {
       {name: "Owner", value: "`/owner`, `/unowner`, `/blacklist`, `/unblacklist`", inline: true},
       {name: "Role Reactions", value: "`/reactionroles`", inline: true},
       {name: "Invite Manager", value: "`/removeinvites`, `/invites`,`/addinvites`, `/leaderboard`", inline: true},
-      {name: "Ticket [RENEW]", value: "`/add`, `/close`, `/delete`, `/sethereticket`, `/open`, `/remove`, `/transript`, `/disableticket`", inline: true},
-      {name: "MemberCount [NEW]", value: "`/setmembercount`", inline: true},
-      {name: "🔞 || Nsfw || 🔞", value: "||/nsfw||, ||nothing to see here||", inline: true},
-      )
+      {name: "Ticket", value: "`/add`, `/close`, `/delete`, `/sethereticket`, `/open`, `/remove`, `/transript`, `/disableticket`", inline: true},
+      {name: "MemberCount", value: "`/setmembercount`", inline: true})
       .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 })})
       .setThumbnail(client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 }))
       .setTimestamp();
