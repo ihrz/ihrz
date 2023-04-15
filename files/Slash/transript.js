@@ -40,7 +40,7 @@ const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('disc
 		
 							const embed = new EmbedBuilder()
 								.setDescription(`[\`View this\`](${response.url})`)
-								.setColor('BLUE');
+								.setColor('#0014a8');
 							interaction.reply({embeds: [embed], content: 'You have closed your ticket. iHorizon sent you the transcript'});
 						});
 					}

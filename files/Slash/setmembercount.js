@@ -54,7 +54,7 @@ const {
   let channel = interaction.options.getChannel("channel")
 
   let help_embed = new EmbedBuilder()
-  .setColor("BLUE")
+  .setColor("#0014a8")
   .setTitle("setmembercount Help !")
   .setDescription('/setmembercount <Power on /Power off> <Name of the channel>')
   .addFields({name:'how to use ?', value:

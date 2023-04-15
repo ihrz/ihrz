@@ -55,7 +55,7 @@ let type = interaction.options.getString("value")
 let messagei = interaction.options.getString("message")
 
 let help_embed = new EmbedBuilder()
-.setColor("BLUE")
+.setColor("#0014a8")
 .setTitle("setjoinmessage Help !")
 .setDescription('/setjoinmessage <Power on /Power off/Show the message set> <join message>')
 .addField('how to use ?',

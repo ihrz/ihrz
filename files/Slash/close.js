@@ -49,7 +49,7 @@ const {
 		try{
 			const embed = new EmbedBuilder()
 			.setDescription(`[\`View This\`](${response.url})`)
-			.setColor('BLUE');
+			.setColor('#5b92e5');
 			interaction.reply({content: 'You have closed your ticket. iHorizon sent you the transcript', embeds: [embed]})
 		}catch(e){
 			console.error(e)

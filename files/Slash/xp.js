@@ -34,7 +34,7 @@ module.exports = {
       var expNeededForLevelUp = xpNeeded - currentxp
       let nivEmbed = new EmbedBuilder()
     .setTitle("__**XP Level**__: \`"+ user.username+ "\`")
-    .setColor('BLUE')
+    .setColor('#0014a8')
     .addFields({ name: ":arrow_up:・__Levels:__", value: "`"+`${currentxp}/${xpNeeded}`+ "\`", inline: true },
     { name: ":money_with_wings:・__Experience:__", value: "`"+level+ "\`", inline: true })
     .setDescription(`\`${expNeededForLevelUp}\` **experience points needed for the next level!**`)
@@ -50,7 +50,7 @@ module.exports = {
       var expNeededForLevelUp = xpNeeded - currentxp
       let nivEmbed = new EmbedBuilder()
     .setTitle("__**XP Level**__: \`"+ sus.user.username+ "\`")
-    .setColor('BLUE')
+    .setColor('#0014a8')
     .addFields({ name: ":arrow_up:・__Levels:__", value: "`"+`${currentxp}/${xpNeeded}`+ "\`", inline: true },
     { name: ":money_with_wings:・__Experience:__", value: "`"+level+ "\`", inline: true })
     .setDescription(`\`${expNeededForLevelUp}\` **experience points needed for the next level!**`)

@@ -34,7 +34,7 @@ module.exports = {
     while (tracks.length > 0) {
       const chunk = tracks.slice(0, chunkSize)
       const embed = new EmbedBuilder()
-        .setColor('Red')
+        .setColor('#ff0000')
         .setTitle('Tracks Queue')
         .setDescription(chunk.join('\n') || '**No more queued songs**')
         .setFooter({

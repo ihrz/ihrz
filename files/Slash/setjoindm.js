@@ -56,7 +56,7 @@ let type = interaction.options.getString("value")
 let dm_msg = interaction.options.getString("message")
 
 let help_embed = new EmbedBuilder()
-.setColor("BLUE")
+.setColor("#0014a8")
 .setTitle("/setjoindm Help !")
 .setDescription('/setjoindm <on/off/ls> <Message if the first args is on>')
 
