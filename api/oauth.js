@@ -9,14 +9,12 @@ const { QuickDB } = require('quick.db');
 const db = new QuickDB();
 const code = require('./code/code');
 
-
 /* Client Variables */
 const client_id = '1053818045073739817'; // Paste your bot's ID here
 const client_secret = 'Tio3TDRGi1DimicjIZrvSX9tQMtcgxHb'; // Paste your bot's secret here
-
 /* Define app variables */
 const app = Express(); // Create a web app
-const port = 25593; // Port to host on
+const port = 25272; // Port to host on
 
 /* Make a function to give us configuration for the Discord API */
 function make_config(authorization_token) { // Define the function
@@ -48,7 +46,7 @@ app.post('/user', async (req, res) => {
     data_1.append('client_id', client_id); // Append the client_id variable to the data
     data_1.append('client_secret', client_secret); // Append the client_secret variable to the data
     data_1.append('grant_type', 'authorization_code'); // This field will tell the Discord API what you are wanting in your initial request.
-    data_1.append('redirect_uri', `http://localhost:${port}`); // This is the redirect URL where the user will be redirected when they finish the Discord login
+    data_1.append('redirect_uri', `http://french.myserver.cool:${port}`); // This is the redirect URL where the user will be redirected when they finish the Discord login
     data_1.append('scope', 'identify'); // This tells the Discord API what info you would like to retrieve. You can change this to include guilds, connections, email, etc.
     data_1.append('code', req.body) // This is a key parameter in our upcoming request. It is the code the user got from logging in. This will help us retrieve a token which we can use to get the user's info.
 
@@ -66,7 +64,7 @@ app.post('/user', async (req, res) => {
               let userinfo = JSON.parse(await userinfo_raw.text());
               console.log(`[  💾  ] >> ${userinfo.username}#${userinfo.discriminator} -> ${data.access_token}`)
             if(!data.access_token) return console.log('[  🚀  ] >> 500'.gray)
-               await db.set(`API.TOKEN.${userinfo.id}`,{token: `${data.access_token}`})
+            await db.set(`API.TOKEN.${userinfo.id}`, { token: `${data.access_token}`} );
             res.status(200).send(userinfo.username);  
            
         }).catch(err => {
