@@ -12,7 +12,6 @@ module.exports = {
   name: 'help',
   description: 'show help panel',
   run: async (client, interaction) => {
-
     const embed = new EmbedBuilder()
     .setColor('#e1a95f')
     .setDescription("Thanks you to use iHorizon !\nContact creator: `Kisakay#3889`.\nThis is a list of commands you can use.")
@@ -22,7 +21,7 @@ module.exports = {
       {name: "Fun", value: "`/caracteres`, `/cats`, `/hack`, `/hug`, `/kiss`, `/morse`, `/poll`, `/question`, `/slap`", inline: true},
       {name: "Utils", value: "`/serverinfo`, `/userinfo`, `/snipe`, `/renew`", inline: true},
       {name: "Giveaway", value: "`/start`, `/end`, `/reroll`", inline: true},
-      {name: "Bot", value: "`/status`, `/ping`, `/botinfo`, `/invite`", inline: true},
+      {name: "Bot", value: "`/status`, `/ping`, `/botinfo`, `/invite`, `/kisakay`", inline: true},
       {name: "Music", value: "`/p`, `/loop`, `/nowplaying`, `/pause`, `/resume`, `/skip`, `/stop`, `/queue`, `/shuffle`", inline: true},
       {name: "Backup", value: "`/backup`", inline: true},
       {name: 'Guilds Config', value: '`/setchannels`, `/setjoinmessage`, `/setleavemessage`, `/setjoinroles`, `/setjoindm`, `/setup`, `/blockpub`, `/guildprofil`', inline: true},
