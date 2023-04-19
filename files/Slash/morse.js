@@ -1,13 +1,13 @@
-const { 
-    Client, 
-    Intents, 
-    Collection, 
-    EmbedBuilder,
-    Permissions, 
-    ApplicationCommandType, 
-    PermissionsBitField, 
-    ApplicationCommandOptionType 
-  } = require('discord.js');
+const {
+	Client,
+	Intents,
+	Collection,
+	EmbedBuilder,
+	Permissions,
+	ApplicationCommandType,
+	PermissionsBitField,
+	ApplicationCommandOptionType
+} = require('discord.js');
 
 module.exports = {
 	name: 'morse',
@@ -21,27 +21,28 @@ module.exports = {
 		}
 	],
 	run: async (client, interaction) => {
-		if(!interaction.options.getString("input")){ return interaction.reply({content: "You have not enter a input to decrypt/encrypt"})}
+		if (!interaction.options.getString("input")) { return interaction.reply({ content: "You have not enter a input to decrypt/encrypt" }) }
 		let alpha = " ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split(""),
-		morse = "/,.-,-...,-.-.,-..,.,..-.,--.,....,..,.---,-.-,.-..,--,-.,---,.--.,--.-,.-.,...,-,..-,...-,.--,-..-,-.--,--..,.----,..---,...--,....-,.....,-....,--...,---..,----.,-----".split(","),
-		text = interaction.options.getString("input").toUpperCase();
-	while (text.includes("Ä") || text.includes("Ö") || text.includes("Ü")) {
-		text = text.replace("Ä","AE").replace("Ö","OE").replace("Ü","UE");
-	}
-	if (text.startsWith(".") || text.startsWith("-")) {
-		text = text.split(" ");
-		let length = text.length;
-		for (i = 0; i < length; i++) {
-			text[i] = alpha[morse.indexOf(text[i])];
+			morse = "/,.-,-...,-.-.,-..,.,..-.,--.,....,..,.---,-.-,.-..,--,-.,---,.--.,--.-,.-.,...,-,..-,...-,.--,-..-,-.--,--..,.----,..---,...--,....-,.....,-....,--...,---..,----.,-----".split(","),
+			text = interaction.options.getString("input").toUpperCase();
+		while (text.includes("Ä") || text.includes("Ö") || text.includes("Ü")) {
+			text = text.replace("Ä", "AE").replace("Ö", "OE").replace("Ü", "UE");
 		}
-		text = text.join("");
-	} else {
-		text = text.split("");
-		let length = text.length;
-		for (i = 0; i < length; i++) {
-			text [i] = morse[alpha.indexOf(text[i])];
+		if (text.startsWith(".") || text.startsWith("-")) {
+			text = text.split(" ");
+			let length = text.length;
+			for (i = 0; i < length; i++) {
+				text[i] = alpha[morse.indexOf(text[i])];
+			}
+			text = text.join("");
+		} else {
+			text = text.split("");
+			let length = text.length;
+			for (i = 0; i < length; i++) {
+				text[i] = morse[alpha.indexOf(text[i])];
+			}
+			text = text.join(" ");
 		}
-		text = text.join(" ");
+		return interaction.reply({ content: "```" + text + "```" });
 	}
-		return interaction.reply({content: "```"+text+"```"});
-}};
+};

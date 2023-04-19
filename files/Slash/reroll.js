@@ -1,15 +1,15 @@
 const ms = require('ms');
-const { 
-    Client, 
-    Intents, 
+const {
+    Client,
+    Intents,
     Collection,
     ChannelType,
     EmbedBuilder,
-    Permissions, 
-    ApplicationCommandType, 
-    PermissionsBitField, 
-    ApplicationCommandOptionType 
-  } = require('discord.js');
+    Permissions,
+    ApplicationCommandType,
+    PermissionsBitField,
+    ApplicationCommandOptionType
+} = require('discord.js');
 
 module.exports = {
     name: 'reroll',
@@ -24,32 +24,33 @@ module.exports = {
     ],
     run: async (client, interaction) => {
         const fuckingLifeOfTrees = interaction.options.getString("giveaway-id")
-    if(!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)){ return interaction.reply({content: 'You must have permissions to manage messages to end this giveaway.'});}
-    if(!fuckingLifeOfTrees){ return interaction.reply({content: 'You must specify a valid message ID!'});}
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) { return interaction.reply({ content: 'You must have permissions to manage messages to end this giveaway.' }); }
+        if (!fuckingLifeOfTrees) { return interaction.reply({ content: 'You must specify a valid message ID!' }); }
 
-    const giveaway =
-    client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.prize === fuckingLifeOfTrees) ||
-    client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.messageId === fuckingLifeOfTrees);
-    if(!giveaway){return interaction.reply({content: `Could not find a giveaway for\`${args.join(' ')}\`.`});}
+        const giveaway =
+            client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.prize === fuckingLifeOfTrees) ||
+            client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.messageId === fuckingLifeOfTrees);
+        if (!giveaway) { return interaction.reply({ content: `Could not find a giveaway for\`${args.join(' ')}\`.` }); }
 
-    client.giveawaysManager
+        client.giveawaysManager
             .reroll(giveaway.messageId)
             .then(() => {
                 interaction.reply('Giveaway relaunched!');
- 
-                    try{
-                        logEmbed = new EmbedBuilder()
+
+                try {
+                    logEmbed = new EmbedBuilder()
                         .setColor("#bf0bb9")
                         .setTitle("Giveaways Logs")
                         .setDescription(`<@${interaction.user.id}> reroll giveaways with this id: ${giveaway.messageID}`)
 
-                                let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-                                if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
-                                }catch(e) { console.error(e) };
+                    let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                    if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+                } catch (e) { console.error(e) };
             })
             .catch((error) => {
                 console.error(error)
-                if(error.startsWith(`Giveaway with message Id ${giveaway.messageId} is not ended.`)){interaction.reply({content: `This giveaway is not over!`});}
-                else {interaction.reply({content: `Error`});}
+                if (error.startsWith(`Giveaway with message Id ${giveaway.messageId} is not ended.`)) { interaction.reply({ content: `This giveaway is not over!` }); }
+                else { interaction.reply({ content: `Error` }); }
             });
-        }};
+    }
+};

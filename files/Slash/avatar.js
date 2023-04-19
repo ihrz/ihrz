@@ -1,14 +1,14 @@
-const { 
-    Client, 
-    Intents, 
-    Collection, 
+const {
+    Client,
+    Intents,
+    Collection,
     EmbedBuilder,
-    Permissions, 
-    ApplicationCommandType, 
-    PermissionsBitField, 
-    ApplicationCommandOptionType 
-  } = require('discord.js');
-  
+    Permissions,
+    ApplicationCommandType,
+    PermissionsBitField,
+    ApplicationCommandOptionType
+} = require('discord.js');
+
 module.exports = {
     name: 'avatar',
     description: 'See the user avatar !',
@@ -21,21 +21,22 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-  
+
         let msg = await interaction.channel.send(`Loading...`);
 
         let mentionedUser = interaction.options.getUser("user") || interaction.user;
-    
-            let embed = new EmbedBuilder()
-    
+
+        let embed = new EmbedBuilder()
+
             .setImage(mentionedUser.avatarURL({ format: 'png', dynamic: true, size: 512 }))
             .setColor("#add5ff")
-            .setTitle("__**Avatar**__: \`"+ mentionedUser.username+ "\`")
+            .setTitle("__**Avatar**__: \`" + mentionedUser.username + "\`")
             .setDescription("Look this avatar :D")
             .setTimestamp()
-    
-        msg.delete()
-        return interaction.reply({embeds: [embed]})
 
-      const filter = (interaction) => interaction.user.id === interaction.member.id;
-      }}
+        msg.delete()
+        return interaction.reply({ embeds: [embed] })
+
+        const filter = (interaction) => interaction.user.id === interaction.member.id;
+    }
+}

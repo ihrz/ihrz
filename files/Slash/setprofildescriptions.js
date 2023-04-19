@@ -1,14 +1,14 @@
-const { 
-    Client, 
-    Intents, 
-    Collection, 
+const {
+    Client,
+    Intents,
+    Collection,
     EmbedBuilder,
-    Permissions, 
-    ApplicationCommandType, 
-    PermissionsBitField, 
-    ApplicationCommandOptionType 
-  } = require('discord.js');
-  
+    Permissions,
+    ApplicationCommandType,
+    PermissionsBitField,
+    ApplicationCommandOptionType
+} = require('discord.js');
+
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
@@ -24,12 +24,13 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-  
+
         var desc = interaction.options.getString("descriptions")
         if (!desc) return interaction.reply(":x: | **Please give a correct description.**")
-       
-    
-            await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.desc`, desc)
-    interaction.reply("**Your description has been updated successfully.**")  
-      const filter = (interaction) => interaction.user.id === interaction.member.id;
-      }}
+
+
+        await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.desc`, desc)
+        interaction.reply("**Your description has been updated successfully.**")
+        const filter = (interaction) => interaction.user.id === interaction.member.id;
+    }
+}

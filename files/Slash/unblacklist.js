@@ -1,14 +1,14 @@
-const { 
-    Client, 
-    Intents, 
+const {
+    Client,
+    Intents,
     Collection,
     ChannelType,
     EmbedBuilder,
-    Permissions, 
-    ApplicationCommandType, 
-    PermissionsBitField, 
-    ApplicationCommandOptionType 
-  } = require('discord.js');
+    Permissions,
+    ApplicationCommandType,
+    PermissionsBitField,
+    ApplicationCommandOptionType
+} = require('discord.js');
 
 
 module.exports = {
@@ -26,45 +26,45 @@ module.exports = {
         const { QuickDB } = require("quick.db");
         const db = new QuickDB();
         let owner_pp_user = await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`)
-    
-        if(!owner_pp_user || owner_pp_user === null || owner_pp_user === false){
-    
-    
+
+        if (!owner_pp_user || owner_pp_user === null || owner_pp_user === false) {
+
+
             const block_antiowner = new EmbedBuilder()
-            .setTitle(":no_entry: Your are not owner !")
-            .setDescription("**"+interaction.user.username+"** you cannot use this command with your current privilege !")
-            .setTimestamp()
-            .setColor("#2f3136")
-            .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 })})
-            return interaction.reply({embeds: [block_antiowner]})
+                .setTitle(":no_entry: Your are not owner !")
+                .setDescription("**" + interaction.user.username + "** you cannot use this command with your current privilege !")
+                .setTimestamp()
+                .setColor("#2f3136")
+                .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
+            return interaction.reply({ embeds: [block_antiowner] })
         }
-    
+
         const member = interaction.options.getUser('member')
-               if (!member) return interaction.reply({content: "type a user you want to unblacklist"})
-               let fetched = await db.get(`GLOBAL.BLACKLIST.${member.id}`)
-    
-    
-          if(!fetched) {
-             return interaction.reply(`<@${member.id}> was not blacklisted`)
-         }
+        if (!member) return interaction.reply({ content: "type a user you want to unblacklist" })
+        let fetched = await db.get(`GLOBAL.BLACKLIST.${member.id}`)
 
 
-        try{
+        if (!fetched) {
+            return interaction.reply(`<@${member.id}> was not blacklisted`)
+        }
+
+
+        try {
             let bannedMember = await client.users.fetch(member.user.id)
-            if(!bannedMember){ return interaction.reply(`I couldn't find the user`)}
-              interaction.guild.members.unban(bannedMember)
-              db.delete(`GLOBAL.BLACKLIST.${member.id}`);
+            if (!bannedMember) { return interaction.reply(`I couldn't find the user`) }
+            interaction.guild.members.unban(bannedMember)
+            db.delete(`GLOBAL.BLACKLIST.${member.id}`);
 
-              //console.log(`<@${bannedMember.id}> **is unblacklisted from this server!**`)
-              return interaction.reply(`<@${member.id}> is not longer blacklisted'`)
+            //console.log(`<@${bannedMember.id}> **is unblacklisted from this server!**`)
+            return interaction.reply(`<@${member.id}> is not longer blacklisted'`)
 
-          }catch(e){
-                  db.delete(`GLOBAL.BLACKLIST.${member.id}`);
-                  return interaction.reply("❌ Is now unlacklisted, Can't unban this member here, missing permission or already unban?")
-          }
-        
+        } catch (e) {
+            db.delete(`GLOBAL.BLACKLIST.${member.id}`);
+            return interaction.reply("❌ Is now unlacklisted, Can't unban this member here, missing permission or already unban?")
+        }
 
-      const filter = (interaction) => interaction.user.id === interaction.member.id;
-      }}
 
-  
+        const filter = (interaction) => interaction.user.id === interaction.member.id;
+    }
+}
+

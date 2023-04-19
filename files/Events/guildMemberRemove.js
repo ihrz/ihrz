@@ -6,5 +6,5 @@ const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
 module.exports = async (client, member) => {
-//do nothing #horizon
+    //do nothing #horizon
 }

@@ -1,16 +1,16 @@
 const ms = require('ms');
-const { 
-    Client, 
-    Intents, 
+const {
+    Client,
+    Intents,
     Collection,
     ChannelType,
     EmbedBuilder,
-    Permissions, 
-    ApplicationCommandType, 
-    PermissionsBitField, 
-    ApplicationCommandOptionType 
-  } = require('discord.js');
-  
+    Permissions,
+    ApplicationCommandType,
+    PermissionsBitField,
+    ApplicationCommandOptionType
+} = require('discord.js');
+
 module.exports = {
     name: 'end',
     description: 'force end a giveaways',
@@ -23,33 +23,35 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-  
-        const fuckingLifeOfTrees = interaction.options.getString("giveaway-id")
-        if(!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)){ return interaction.reply({content: 'You must have permissions to manage messages to end this giveaway.'});}
-        if(!fuckingLifeOfTrees){ return interaction.reply({content: 'You must specify a valid message ID!'});}
-    
-        const giveaway =
-        client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.prize === fuckingLifeOfTrees) ||
-        client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.messageId === fuckingLifeOfTrees);
-        if(!giveaway){return interaction.reply({content: `Could not find a giveaway for\`${fuckingLifeOfTrees}\`.`});}
-    
-        client.giveawaysManager
-                .end(giveaway.messageId)
-                .then(() => {
-                    interaction.reply({content: `The giveaway will end in less than (${client.giveawaysManager.options.updateCountdownEvery/1000}) secondes...`});
-                        try{
-                            logEmbed = new EmbedBuilder()
-                            .setColor("#bf0bb9")
-                            .setTitle("Giveaway Logs")
-                            .setDescription(`<@${interaction.user.id}> ended giveaways with this id: ${giveaway.messageID}`)
 
-                                    let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-                                    if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
-                                    }catch(e) { console.error(e) };
-                })
-                .catch((error) => {
-                    if(error.startsWith(`Giveaway with message ID ${giveaway.messageId} has already been completed.`)){ return interaction.reply({content: 'This giveaway is already finished!'});
-                }else{ return interaction.reply({content: `This giveaway is already finished!`});}
-                });  
-      const filter = (interaction) => interaction.user.id === interaction.member.id;
-      }}
+        const fuckingLifeOfTrees = interaction.options.getString("giveaway-id")
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) { return interaction.reply({ content: 'You must have permissions to manage messages to end this giveaway.' }); }
+        if (!fuckingLifeOfTrees) { return interaction.reply({ content: 'You must specify a valid message ID!' }); }
+
+        const giveaway =
+            client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.prize === fuckingLifeOfTrees) ||
+            client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.messageId === fuckingLifeOfTrees);
+        if (!giveaway) { return interaction.reply({ content: `Could not find a giveaway for\`${fuckingLifeOfTrees}\`.` }); }
+
+        client.giveawaysManager
+            .end(giveaway.messageId)
+            .then(() => {
+                interaction.reply({ content: `The giveaway will end in less than (${client.giveawaysManager.options.updateCountdownEvery / 1000}) secondes...` });
+                try {
+                    logEmbed = new EmbedBuilder()
+                        .setColor("#bf0bb9")
+                        .setTitle("Giveaway Logs")
+                        .setDescription(`<@${interaction.user.id}> ended giveaways with this id: ${giveaway.messageID}`)
+
+                    let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                    if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+                } catch (e) { console.error(e) };
+            })
+            .catch((error) => {
+                if (error.startsWith(`Giveaway with message ID ${giveaway.messageId} has already been completed.`)) {
+                    return interaction.reply({ content: 'This giveaway is already finished!' });
+                } else { return interaction.reply({ content: `This giveaway is already finished!` }); }
+            });
+        const filter = (interaction) => interaction.user.id === interaction.member.id;
+    }
+}

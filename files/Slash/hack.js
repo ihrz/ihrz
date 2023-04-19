@@ -1,13 +1,13 @@
-const { 
-    Client, 
-    Intents, 
-    Collection, 
+const {
+    Client,
+    Intents,
+    Collection,
     EmbedBuilder,
-    Permissions, 
-    ApplicationCommandType, 
-    PermissionsBitField, 
-    ApplicationCommandOptionType 
-  } = require('discord.js');
+    Permissions,
+    ApplicationCommandType,
+    PermissionsBitField,
+    ApplicationCommandOptionType
+} = require('discord.js');
 
 module.exports = {
     name: 'hack',
@@ -21,40 +21,41 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-    
-    const kiss = interaction.options.getUser("user")
-    if(!kiss) return interaction.send(`I don't find user !`);
-    var ip = [
-        '1',
-        '100',
-        '168',
-        '254',
-        '345'
 
-    ];
-    var Email = [
-        'iloveloli@gmail.com',
-        'p0rnisth3b3st@gmail.com',
-        'zckz0ck@gmail.com',
-        'bruhmoment@gmail.com',
-        'elhaxor1337@anonymail.ru'
-    ];
-    var mdp = [
-        'sxmfg22',
-        'pifpaf44',
-        'ursoxko332',
-        'password223',
-        'roblox556',
-        '123'
-    ];
+        const kiss = interaction.options.getUser("user")
+        if (!kiss) return interaction.send(`I don't find user !`);
+        var ip = [
+            '1',
+            '100',
+            '168',
+            '254',
+            '345'
 
-    const embed = new EmbedBuilder()
-        .setColor("#800000")
-        .setDescription(`<@${kiss.id}>`+` hacked by <@${interaction.user.id}> !`)
-        .addFields({name: "IP", value: `\`${ip[Math.floor(Math.random()*ip.length)]}.${ip[Math.floor(Math.random()*ip.length)]}.${ip[Math.floor(Math.random()*ip.length)]}.${ip[Math.floor(Math.random()*ip.length)]}\``},
-        {name: "Email", value: `\`${Email[Math.floor(Math.random()*Email.length)]}\``},
-        {name: "Password", value: `\`${mdp[Math.floor(Math.random()*mdp.length)]}\``})
-        .setTimestamp()
+        ];
+        var Email = [
+            'iloveloli@gmail.com',
+            'p0rnisth3b3st@gmail.com',
+            'zckz0ck@gmail.com',
+            'bruhmoment@gmail.com',
+            'elhaxor1337@anonymail.ru'
+        ];
+        var mdp = [
+            'sxmfg22',
+            'pifpaf44',
+            'ursoxko332',
+            'password223',
+            'roblox556',
+            '123'
+        ];
 
-    return interaction.reply({embeds: [embed]});    
-}};
+        const embed = new EmbedBuilder()
+            .setColor("#800000")
+            .setDescription(`<@${kiss.id}>` + ` hacked by <@${interaction.user.id}> !`)
+            .addFields({ name: "IP", value: `\`${ip[Math.floor(Math.random() * ip.length)]}.${ip[Math.floor(Math.random() * ip.length)]}.${ip[Math.floor(Math.random() * ip.length)]}.${ip[Math.floor(Math.random() * ip.length)]}\`` },
+                { name: "Email", value: `\`${Email[Math.floor(Math.random() * Email.length)]}\`` },
+                { name: "Password", value: `\`${mdp[Math.floor(Math.random() * mdp.length)]}\`` })
+            .setTimestamp()
+
+        return interaction.reply({ embeds: [embed] });
+    }
+};

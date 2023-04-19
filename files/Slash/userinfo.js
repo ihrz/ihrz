@@ -141,7 +141,7 @@ module.exports = {
     }
 
     await interaction.reply({ content: "⏲ Wait please..." })
-    
+
     superagent.post(`${api_url}`).send({ tokent: "want", adminKey: config.apiToken, userid: member.id, tor: 'CHECK_IN_SYSTEM' }).end(async (err, response) => {
       if (err) {
         console.error(err)

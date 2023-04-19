@@ -1,16 +1,16 @@
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const config = require("../config.json")
-const { 
-    Client, 
-    Intents, 
-    Collection, 
+const {
+    Client,
+    Intents,
+    Collection,
     EmbedBuilder,
-    Permissions, 
-    ApplicationCommandType, 
-    PermissionsBitField, 
-    ApplicationCommandOptionType 
-  } = require('discord.js');
+    Permissions,
+    ApplicationCommandType,
+    PermissionsBitField,
+    ApplicationCommandOptionType
+} = require('discord.js');
 
 module.exports = {
     name: 'blockpub',
@@ -22,30 +22,31 @@ module.exports = {
             description: 'What you want to do?',
             required: true,
             choices: [
-        {
-            name: "Disable the spam protection",
-            value: "off"
-        },
-        {
-            name: 'Enable the spam protection',
-            value: "on"
+                {
+                    name: "Disable the spam protection",
+                    value: "off"
+                },
+                {
+                    name: 'Enable the spam protection',
+                    value: "on"
+                },
+            ],
         },
     ],
-},
-],
     run: async (client, interaction) => {
         let turn = interaction.options.getString("action")
-        if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({content: ":x: | You must be an administrator of this server! "});
-    
-        if(turn === "on"){
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: ":x: | You must be an administrator of this server! " });
+
+        if (turn === "on") {
             await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "on")
-            return interaction.reply({content: "📌 | The antipub is now functional (It works for everyone except admin)"})
+            return interaction.reply({ content: "📌 | The antipub is now functional (It works for everyone except admin)" })
         }
-    
-        if(turn === "off"){
+
+        if (turn === "off") {
             await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "off")
-            return interaction.reply({content: "📌 | The antipub is now deactivated!"})
+            return interaction.reply({ content: "📌 | The antipub is now deactivated!" })
         }
-  
-      const filter = (interaction) => interaction.user.id === interaction.member.id;
-      }}
+
+        const filter = (interaction) => interaction.user.id === interaction.member.id;
+    }
+}

@@ -1,14 +1,14 @@
-const { 
-    Client, 
-    Intents, 
+const {
+    Client,
+    Intents,
     Collection,
     ChannelType,
     EmbedBuilder,
-    Permissions, 
-    ApplicationCommandType, 
-    PermissionsBitField, 
-    ApplicationCommandOptionType 
-  } = require('discord.js');
+    Permissions,
+    ApplicationCommandType,
+    PermissionsBitField,
+    ApplicationCommandOptionType
+} = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
@@ -30,22 +30,23 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-const user = interaction.options.getMember("member")
-const amount = interaction.options.getNumber("amount")
+        const user = interaction.options.getMember("member")
+        const amount = interaction.options.getNumber("amount")
 
-       let a = new EmbedBuilder().setColor("#FF0000").setDescription(`You need admin to use this!`)
+        let a = new EmbedBuilder().setColor("#FF0000").setDescription(`You need admin to use this!`)
 
-       if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) { 
-            return interaction.reply({embeds: [a]})}
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return interaction.reply({ embeds: [a] })
+        }
 
-      await db.add(`${interaction.guild.id}.USER.${user.id}.INVITES.DATA.invites`, amount);
+        await db.add(`${interaction.guild.id}.USER.${user.id}.INVITES.DATA.invites`, amount);
 
-      const finalEmbed = new EmbedBuilder()
-        .setDescription(`Added ${amount} invites for ${user}`)
-        .setColor(`#92A8D1`)
-        .setFooter({ text: interaction.guild.name, iconURL: interaction.guild.iconURL({ dynamic: true }) });
+        const finalEmbed = new EmbedBuilder()
+            .setDescription(`Added ${amount} invites for ${user}`)
+            .setColor(`#92A8D1`)
+            .setFooter({ text: interaction.guild.name, iconURL: interaction.guild.iconURL({ dynamic: true }) });
         await db.add(`${interaction.guild.id}.USER.${user.id}.INVITES.DATA.bonus`, amount);
-        interaction.reply({embeds: [finalEmbed]});
+        interaction.reply({ embeds: [finalEmbed] });
 
     }
-  }
+}

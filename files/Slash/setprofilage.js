@@ -1,14 +1,14 @@
-const { 
-    Client, 
-    Intents, 
-    Collection, 
+const {
+    Client,
+    Intents,
+    Collection,
     EmbedBuilder,
-    Permissions, 
-    ApplicationCommandType, 
-    PermissionsBitField, 
-    ApplicationCommandOptionType 
-  } = require('discord.js');
-  
+    Permissions,
+    ApplicationCommandType,
+    PermissionsBitField,
+    ApplicationCommandOptionType
+} = require('discord.js');
+
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
@@ -27,9 +27,10 @@ module.exports = {
 
         var age = interaction.options.getNumber("age")
         if (!age) return interaction.reply(":x: | **Please give a correct syntax.**")
-       
-    
-            await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.age`, age)
-    interaction.reply("**Your profil age has been updated successfully.**")
-      const filter = (interaction) => interaction.user.id === interaction.member.id;
-      }}
+
+
+        await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.age`, age)
+        interaction.reply("**Your profil age has been updated successfully.**")
+        const filter = (interaction) => interaction.user.id === interaction.member.id;
+    }
+}

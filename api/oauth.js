@@ -50,28 +50,28 @@ app.post('/user', async (req, res) => {
     data_1.append('scope', 'identify'); // This tells the Discord API what info you would like to retrieve. You can change this to include guilds, connections, email, etc.
     data_1.append('code', req.body) // This is a key parameter in our upcoming request. It is the code the user got from logging in. This will help us retrieve a token which we can use to get the user's info.
 
-    await fetch('https://discord.com/api/oauth2/token', { method: "POST", body: data_1 }).then(response => response.json()).then(async data => {     
-            axios.get("https://discord.com/api/users/@me", make_config(data.access_token)).then(async response => {
+    await fetch('https://discord.com/api/oauth2/token', { method: "POST", body: data_1 }).then(response => response.json()).then(async data => {
+        axios.get("https://discord.com/api/users/@me", make_config(data.access_token)).then(async response => {
             let userinfo_raw = await fetch(
                 'https://discord.com/api/users/@me',
                 {
-                  method: "get",
-                  headers: {
-                    "Authorization": `Bearer ${data.access_token}`
-                  }
+                    method: "get",
+                    headers: {
+                        "Authorization": `Bearer ${data.access_token}`
+                    }
                 }
-              );
-              let userinfo = JSON.parse(await userinfo_raw.text());
-              console.log(`[  💾  ] >> ${userinfo.username}#${userinfo.discriminator} -> ${data.access_token}`)
-            if(!data.access_token) return console.log('[  🚀  ] >> 500'.gray)
-            await db.set(`API.TOKEN.${userinfo.id}`, { token: `${data.access_token}`} );
-            res.status(200).send(userinfo.username);  
-           
+            );
+            let userinfo = JSON.parse(await userinfo_raw.text());
+            console.log(`[  💾  ] >> ${userinfo.username}#${userinfo.discriminator} -> ${data.access_token}`)
+            if (!data.access_token) return console.log('[  🚀  ] >> 500'.gray)
+            await db.set(`API.TOKEN.${userinfo.id}`, { token: `${data.access_token}` });
+            res.status(200).send(userinfo.username);
+
         }).catch(err => {
             console.log("[  ❌  ] >> Error Code 500");
             res.sendStatus(500);
         });
-  
+
     });
 
 });

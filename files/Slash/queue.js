@@ -1,20 +1,20 @@
 const { useQueue } = require('discord-player')
 
-const { 
-    Client, 
-    Intents, 
-    Collection, 
-    EmbedBuilder,
-    Permissions, 
-    ApplicationCommandType, 
-    PermissionsBitField, 
-    ApplicationCommandOptionType 
-  } = require('discord.js');
+const {
+  Client,
+  Intents,
+  Collection,
+  EmbedBuilder,
+  Permissions,
+  ApplicationCommandType,
+  PermissionsBitField,
+  ApplicationCommandOptionType
+} = require('discord.js');
 
 module.exports = {
-   name: 'queue',
-   description: 'Get the music queue',
-   run: async (client, interaction) => {
+  name: 'queue',
+  description: 'Get the music queue',
+  run: async (client, interaction) => {
     const queue = useQueue(interaction.guildId)
 
     if (!queue)
@@ -28,9 +28,9 @@ module.exports = {
       .toArray()
       .map((track, idx) => `**${++idx})** [${track.title}](${track.url})`)
 
-      if (tracks.length === 0) {
-        return interaction.reply('There are no more tracks in the queue', { ephemeral: false })
-      }    
+    if (tracks.length === 0) {
+      return interaction.reply('There are no more tracks in the queue', { ephemeral: false })
+    }
 
     const embeds = []
     const chunkSize = 10
@@ -82,13 +82,13 @@ module.exports = {
           break
       }
 
-      reaction.users.remove(user.id).catch(() => {})
+      reaction.users.remove(user.id).catch(() => { })
 
       message.edit({ embeds: [embeds[currentIndex]] })
     })
 
     collector.on('end', () => {
-      message.reactions.removeAll().catch(() => {})
+      message.reactions.removeAll().catch(() => { })
     })
   },
 }
