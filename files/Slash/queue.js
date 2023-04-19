@@ -28,6 +28,10 @@ module.exports = {
       .toArray()
       .map((track, idx) => `**${++idx})** [${track.title}](${track.url})`)
 
+      if (tracks.length === 0) {
+        return interaction.reply('There are no more tracks in the queue', { ephemeral: false })
+      }    
+
     const embeds = []
     const chunkSize = 10
     let index = 0
