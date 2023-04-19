@@ -82,8 +82,13 @@ client.on("ready", async () => {
   await wait(1000);
 
   client.guilds.cache.forEach(async (guild) => {
-    const firstInvites = await guild.invites.fetch();
-    invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
+    try {
+      if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+      const firstInvites = await guild.invites.fetch()
+      invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
+    } catch (error) {
+      console.error(`Error fetching invites for guild ${guild.id}: ${error}`);
+    }
   });
 });
 
@@ -115,10 +120,14 @@ client.on("inviteCreate", async (invite) => {
   }
 });
 
-client.on("guildCreate", (guild) => {
-  guild.invites.fetch().then(guildInvites => {
-    invites.set(guild.id, new Map(guildInvites.map((invite) => [invite.code, invite.uses])));
-  })
+client.on("guildCreate", async (guild) => {
+  if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+
+  try {
+    guild.invites.fetch().then(guildInvites => {
+      invites.set(guild.id, new Map(guildInvites.map((invite) => [invite.code, invite.uses])));
+    })
+  } catch (error) { }
 });
 
 client.on("guildDelete", async (guild) => {
