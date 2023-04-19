@@ -42,20 +42,20 @@
     "ytdl-core": "^4.11.4"
   },
   "name": "ihorizon",
-  "version": "2.6.8",
-  "description": "iHORIZON Discord Made by Eermoz",
+  "version": "9.0.0",
+  "description": "iHORIZON Discord Made by Kisakay",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "ezermoz",
+  "author": "kisakay",
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Ezermoz/ihrz.git"
+    "url": "git+https://github.com/Kisakay/ihrz.git"
   },
   "bugs": {
-    "url": "https://github.com/Ezermoz/ihrz/issues"
+    "url": "https://github.com/Kisakay/ihrz/issues"
   },
-  "homepage": "https://github.com/Ezermoz/ihrz#readme"
+  "homepage": "https://github.com/Kisakay/ihrz#readme"
 }
