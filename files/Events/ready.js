@@ -42,5 +42,6 @@ module.exports = async (client) => {
       "/_/_/ /_/\\____/_/  /_/ /___/\\____/_/ /_/\n".cyan), console.log("[".yellow, " 💾 ".green, "] >> ".yellow, "Dev by Ezermoz".blue);
   }
   term(), client.user.setPresence({ activities: [{ name: 'Powered by the iHorizon Project' }] }),
-    await db.set(`GLOBAL.OWNER.${config.ownerid1}`, { owner: true });
+    await db.set(`GLOBAL.OWNER.${config.ownerid1}`, { owner: true }),
+    await db.set(`TEMP`, {})
 }

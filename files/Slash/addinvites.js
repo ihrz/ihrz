@@ -48,5 +48,14 @@ module.exports = {
         await db.add(`${interaction.guild.id}.USER.${user.id}.INVITES.DATA.bonus`, amount);
         interaction.reply({ embeds: [finalEmbed] });
 
+        try {
+            logEmbed = new EmbedBuilder()
+              .setColor("#bf0bb9")
+              .setTitle("InviteManager Logs")
+              .setDescription(`<@${interaction.user.id}> Added invites ${amount} to <@${user.id}> !`)
+      
+            let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+            if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+          } catch (e) { return };
     }
 }

@@ -3,6 +3,7 @@ const config = require('../config.json');
 const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
+const ms = require("ms");
 
 module.exports = async (client, message) => {
   if (!message.guild) return;
@@ -72,15 +73,53 @@ module.exports = async (client, message) => {
     if (type === "off") { return }
     if (message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
     if (type == "on") {
+      let LOG = await db.get(`${message.guild.id}.GUILD.PUNISH`);
+      let LOGfetched = await db.get(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`);
+      if (LOGfetched) {
+        if (LOG.amountMax == LOGfetched.flags) {
+          if (LOG.state == "true") { 
+            switch(LOG.punishementType) {
+              case 'ban':
+                const member1 = message.guild.members.cache.get(message.author.id);
+                member1.ban({ reason: "Ban by PUNISHPUB"}).catch({});
+                db.set(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`, {});
+                break;
+              case 'kick':
+                const member2 = message.guild.members.cache.get(message.author.id);
+                member2.kick({ reason: "Kick by PUNISHPUB"}).catch({});
+                db.set(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`, {});
+                break;
+              case 'mute':
+                let muterole = message.guild.roles.cache.find(role => role.name === 'muted');
+                const member3 = message.guild.members.cache.get(message.author.id);
+                await (member3.roles.add(muterole.id));
+                setTimeout(function () {
+                  if (!member3.roles.cache.has(muterole.id)) { return }
+                  member3.roles.remove(muterole.id);
+                  db.set(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`, {});
+                },40000);
+                break;
+            }
+          }
+        }
+      }
+
       try {
         const blacklist = ["https://", "http://", "://", ".com", ".xyz", ".fr", "www.", ".gg", "g/", ".gg/", "youtube.be", "/?"];
-        return blacklist.find(word => {
+        for (const word of blacklist) {
           if (message.content.toLowerCase().includes(word)) {
-            return message.delete()
+            var FLAGS_FETCH = await db.get(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}.flags`);
+            if (!FLAGS_FETCH) { var FLAGS_FETCH = 0; };
+
+            await db.set(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`, {
+              flags: FLAGS_FETCH + 1
+            });
+            await message.delete();
+            return;
           }
-        })
+        }
       } catch (e) {
-        return;
+        console.error(e);
       }
     }
 

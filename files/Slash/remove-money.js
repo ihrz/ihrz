@@ -49,6 +49,17 @@ module.exports = {
             .setColor("#bc0116")
             .setTimestamp()
 
+            try {
+                logEmbed = new EmbedBuilder()
+                  .setColor("#bf0bb9")
+                  .setTitle("Economy Logs")
+                  .setDescription(`<@${interaction.user.id}> remove ${amount} coin of ${user.user.id} !`)
+          
+                let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+              } catch (e) { return };
+
+
         return interaction.reply({ embeds: [embed] })
     }
 }

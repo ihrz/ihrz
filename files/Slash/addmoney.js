@@ -37,6 +37,15 @@ module.exports = {
     interaction.reply({ content: `Successfully added \`${amount.value}\`$ to <@${user.user.id}>` })
     await db.add(`${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, amount.value)
     const filter = (interaction) => interaction.user.id === interaction.member.id;
-    return
+
+    try {
+      logEmbed = new EmbedBuilder()
+        .setColor("#bf0bb9")
+        .setTitle("Economy Logs")
+        .setDescription(`<@${interaction.user.id}> Added ${amount.value} coin to <@${user.user.id}> !`)
+
+      let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+      if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+    } catch (e) { return };
   }
 }
