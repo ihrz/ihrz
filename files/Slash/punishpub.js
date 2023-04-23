@@ -80,7 +80,7 @@ module.exports = {
                     state: action
                 });
 
-            interaction.reply({ content: "In dev but i think is good !" })
+            interaction.reply({ content: `You have successfully **enabled** PunishPub with a maximum flag count of **${amount}** and a punishment of **${punishement}** !` })
 
             try {
                 logEmbed = new EmbedBuilder()
@@ -102,9 +102,9 @@ module.exports = {
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
               } catch (e) { return console.error(e)};
-              
+
             await db.delete(`${interaction.guild.id}.GUILD.PUNISH`);
-            interaction.reply({ content: "(2) In dev but i think is good !" })
+            interaction.reply({ content: `You have succefully setup the PunishPub to off` })
         };
     }
 }

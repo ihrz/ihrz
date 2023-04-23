@@ -48,17 +48,12 @@ module.exports = {
 
         const { QuickDB } = require("quick.db");
         const db = new QuickDB();
-///support <ON/OFF> <INVITE_LINK> <ROLE_ID> 
 
         let action = interaction.options.getString("action");
         let input = interaction.options.getString("input");
         let roles = interaction.options.getRole("roles")
 
         if (action == "true") {
-            // if (amount > 20) { return interaction.reply({ content: "You amount is too high ! Is not recommended !" }) };
-            // if (amount < 0) { return interaction.reply({ content: "You can't type negative number !" }) };
-            // if (amount == 0) { return interaction.reply({ content: "The number 0 is not possible !" }) };
-
             await db.set(`${interaction.guild.id}.GUILD.SUPPORT`,
                 {
                     input: input,
@@ -66,11 +61,11 @@ module.exports = {
                     state: action
                 });
             
-            interaction.reply({content: "In dev but i think is good !"})
+            interaction.reply({content: `You have setup the support module for **${interaction.guild.name}**.\nWhen user have on this bio:\n**${input}**.\nI should give the <@&${roles.id}> role to them!`})
 
         } else {
             await db.delete(`${interaction.guild.id}.GUILD.SUPPORT`);
-            interaction.reply({content: "(2) In dev but i think is good !"})
+            interaction.reply({content: `You have setup the support module for **${interaction.guild.name}**.\nNobody can have role now!`})
         };
     }
 }
