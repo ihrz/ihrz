@@ -46,15 +46,15 @@ module.exports = {
 
         interaction.guild.channels.cache.forEach(async (channel, id) => {
           await channel.permissionOverwrites.create(muterole, {
-            SEND_MESSAGES: false,
-            ADD_REACTIONS: false
+            SendMessages: false,
+            AddReactions: false,
+            SendMessagesInThreads: false
           });
         });
       } catch (e) {
         //console.log(e.stack);
       }
     }
-
     if (tomute.roles.cache.has(muterole.id)) {
       return interaction.reply("This user is already muted !")
     }

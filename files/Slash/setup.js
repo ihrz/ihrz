@@ -28,7 +28,7 @@ module.exports = {
         permissionOverwrites: [
           {
             id: interaction.guild.roles.everyone,
-            deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionsBitField.Flags.ReadMessageHistory]
+            deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
           }
         ],
       })
