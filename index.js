@@ -1,4 +1,4 @@
-/*Made by Ezermoz*/
+/*Made by Kisakay*/
 
 const { Client, Collection, ChannelType, PermissionFlagsBits, PermissionsBitField, GatewayIntentBits, Partials, EmbedBuilder } = require('discord.js'),
   client = new Client({
@@ -378,7 +378,9 @@ client.player.events.on('emptyQueue', async (queue) => {
 })
 
 client.on('presenceUpdate', async (oldPresence, newPresence) => {
+  if (!oldPresence) return;
   if (!oldPresence.guild) return;
+
   const guildId = oldPresence.guild.id;
   const someinfo = await db.get(`${guildId}.GUILD.SUPPORT`);
   const bio = newPresence.activities[0] || 'null';
@@ -390,7 +392,7 @@ client.on('presenceUpdate', async (oldPresence, newPresence) => {
 
   if (!bio.state) { return fetchedUser.roles.remove(someinfo.rolesId) };
 
-  if (bio.state.includes(someinfo.input) || bio.state.includes(vanity)) { return fetchedUser.roles.add(someinfo.rolesId) };
+  if (bio.state.toString().toLowerCase().includes(someinfo.input.toString().toLowerCase()) || bio.state.toString().toLowerCase().includes(vanity.toString().toLowerCase())) { return fetchedUser.roles.add(someinfo.rolesId) };
 
   if (fetchedUser.roles.cache.has(someinfo.rolesId)) { fetchedUser.roles.remove(someinfo.rolesId) };
 });

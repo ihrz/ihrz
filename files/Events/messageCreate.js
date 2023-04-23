@@ -76,29 +76,31 @@ module.exports = async (client, message) => {
       let LOG = await db.get(`${message.guild.id}.GUILD.PUNISH`);
       let LOGfetched = await db.get(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`);
       if (LOGfetched) {
-        if (LOG.amountMax == LOGfetched.flags) {
-          if (LOG.state == "true") { 
-            switch(LOG.punishementType) {
-              case 'ban':
-                const member1 = message.guild.members.cache.get(message.author.id);
-                member1.ban({ reason: "Ban by PUNISHPUB"}).catch({});
-                db.set(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`, {});
-                break;
-              case 'kick':
-                const member2 = message.guild.members.cache.get(message.author.id);
-                member2.kick({ reason: "Kick by PUNISHPUB"}).catch({});
-                db.set(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`, {});
-                break;
-              case 'mute':
-                let muterole = message.guild.roles.cache.find(role => role.name === 'muted');
-                const member3 = message.guild.members.cache.get(message.author.id);
-                await (member3.roles.add(muterole.id));
-                setTimeout(function () {
-                  if (!member3.roles.cache.has(muterole.id)) { return }
-                  member3.roles.remove(muterole.id);
+        if (LOG) {
+          if (LOG.amountMax == LOGfetched.flags) {
+            if (LOG.state == "true") {
+              switch (LOG.punishementType) {
+                case 'ban':
+                  const member1 = message.guild.members.cache.get(message.author.id);
+                  member1.ban({ reason: "Ban by PUNISHPUB" }).catch({});
                   db.set(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`, {});
-                },40000);
-                break;
+                  break;
+                case 'kick':
+                  const member2 = message.guild.members.cache.get(message.author.id);
+                  member2.kick({ reason: "Kick by PUNISHPUB" }).catch({});
+                  db.set(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`, {});
+                  break;
+                case 'mute':
+                  let muterole = message.guild.roles.cache.find(role => role.name === 'muted');
+                  const member3 = message.guild.members.cache.get(message.author.id);
+                  await (member3.roles.add(muterole.id));
+                  setTimeout(function () {
+                    if (!member3.roles.cache.has(muterole.id)) { return }
+                    member3.roles.remove(muterole.id);
+                    db.set(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`, {});
+                  }, 40000);
+                  break;
+              }
             }
           }
         }
