@@ -13,11 +13,15 @@ const {
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const yaml = require('js-yaml');
 module.exports = {
   name: 'leaderboard',
   description: 'Show the guild invites\'s leaderboard',
   run: async (client, interaction) => {
-    var text = "**__Leaderboard :__**\n";
+    let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8'); //
+    let data = yaml.load(fileContents)
+
+    var text = data.leaderboard_default_text;
     const ownerList = await db.all();
     const foundArray = ownerList.findIndex(ownerList => ownerList.id === interaction.guild.id)
     const char = ownerList[foundArray].value.USER;
@@ -25,7 +29,12 @@ module.exports = {
     for (var i in char) {
       var a = await db.get(`${interaction.guild.id}.USER.${i}.INVITES.DATA`)
       if (a) {
-        text += `<@${i}> Have **${a.invites || 0}** Invites (**${a.regular || 0}** Regular ** ${a.bonus || 0}** Bonus **${a.leaves || 0}** Leaves)\n`
+        text += data.leaderboard_text_inline
+        .replace(/\${i}/g, i)
+        .replace(/\${a\.invites\s*\|\|\s*0}/g, a.invites||0)
+        .replace(/\${a\.regular\s*\|\|\s*0}/g, a.regular||0)
+        .replace(/\${a\.bonus\s*\|\|\s*0}/g, a.bonus||0)
+        .replace(/\${a\.leaves\s*\|\|\s*0}/g, a.leaves||0)
       };
     };
 

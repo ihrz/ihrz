@@ -10,6 +10,7 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
     name: 'kiss',
     description: 'kiss a user !',
@@ -23,11 +24,12 @@ module.exports = {
     ],
 
     run: async (client, interaction) => {
+        let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8'); //
+        let data = yaml.load(fileContents)
 
-        const kiss2 = interaction.options.getUser("user")
-        if (!kiss2) return interaction.reply({ content: `I couldn't find a user.` });
+        const kiss = interaction.options.getUser("user")
 
-        var kiss = [
+        var kissGif = [
             'https://cdn.discordapp.com/attachments/600751265781252149/613486150002278630/tenor-4.gif',
             'https://cdn.discordapp.com/attachments/600751265781252149/613486548561952788/tenor-5.gif',
             'https://cdn.discordapp.com/attachments/717813904046293063/717818490601603072/kiss1.gif',
@@ -37,8 +39,11 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setColor("#ff0884")
-            .setDescription("<@" + interaction.user.id + `> kiss <@${kiss2.id}> !`)
-            .setImage(kiss[Math.floor(Math.random() * kiss.length)])
+            .setDescription(data.kiss_embed_description
+                .replace(/\${kiss\.id}/g, kiss.id)
+                .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+            )
+            .setImage(kissGif[Math.floor(Math.random() * kissGif.length)])
             .setTimestamp()
 
         return interaction.reply({ embeds: [embed] });

@@ -75,7 +75,6 @@ module.exports = {
                 await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`, roleid);
 
                 return interaction.reply("You have successfully set the join roles to <@&" + roleid + "> !");
-
             } catch (e) {
                 console.log(e)
                 return interaction.reply("Error: missing permissions or role doesn't exist");

@@ -9,19 +9,24 @@ const {
   ApplicationCommandOptionType
 } = require('discord.js');
 
+const yaml = require('js-yaml');
+const fs = require('fs');
+const ping = require("ping");
+
+const host = "discord.com";
+
 module.exports = {
   name: 'ping',
   description: 'Pong in ms xd',
   run: async (client, interaction) => {
+    let debut = Date.now();
+    let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8'); //
+    let data = yaml.load(fileContents)
 
-    const oki = ":ballot_box_with_check:"
-    const nope = ":regional_indicator_x:";
-    let début = Date.now();
-
-    interaction.reply(':ping_pong:')
-      .then((m) => interaction.editReply(`【${oki}】__**Pong**__ : \ ${Date.now() - 199 - début}ms`));
-
-
-    const filter = (interaction) => interaction.user.id === interaction.member.id;
+    await interaction.reply(':ping_pong:')
+    
+    await ping.promise.probe(host)
+    .then((result) => { interaction.editReply(data.pong_message+`\ ${result.time}ms`);})
+    .catch((error) => {});
   }
 }

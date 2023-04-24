@@ -10,14 +10,18 @@ const {
 } = require('discord.js');
 
 var os = require('os-utils');
+const yaml = require('js-yaml');
+const fs = require('fs');
 
 module.exports = {
     name: 'status',
     description: 'Only for developers !',
     run: async (client, interaction) => {
-
+        let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8'); //
+        let data = yaml.load(fileContents)
+        
         const config = require("../config.json")
-        if (interaction.user.id != config.ownerid) return interaction.reply(":x: | **You have to be the bot developer to do this!**")
+        if (interaction.user.id != config.ownerid) return interaction.reply({ content: data.status_be_bot_dev })
         os.cpuUsage(function (c) {
 
             const embed = new EmbedBuilder()

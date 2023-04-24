@@ -12,6 +12,8 @@ const {
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const yaml = require('js-yaml'), fs = require('fs');
+
 module.exports = {
     name: 'invites',
     description: 'I love you, show me your love for me back ! Invite me !',
@@ -24,6 +26,9 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
+
         const member = interaction.options.getMember("member")
 
 
@@ -35,12 +40,17 @@ module.exports = {
 
         let embed = new EmbedBuilder()
             .setColor("#92A8D1")
-            .setTitle("Inviter Stats")
+            .setTitle(data.invites_confirmation_embed_title)
             .setTimestamp()
             .setThumbnail(member.user.avatarURL({ dynamic: true }))
-            .setDescription(`<@${member.user.id}> have \`${inv || 0}\` Invites (\`${Regular || 0}\` Regular, \`${bonus || 0}\` Bonus, \`${leaves || 0}\` Leaves).`);
+            .setDescription(
+            data.invites_confirmation_embed_description
+            .replace(/\${member\.user\.id}/g, member.user.id)
+            .replace(/\${bonus\s*\|\|\s*0}/g, bonus || 0)
+            .replace(/\${leaves\s*\|\|\s*0}/g, leaves || 0)
+            .replace(/\${Regular\s*\|\|\s*0}/g, Regular || 0)
+            .replace(/\${inv\s*\|\|\s*0}/g, inv || 0)
+            );
         interaction.reply({ embeds: [embed] })
-
-        const filter = (interaction) => interaction.user.id === interaction.member.id;
     }
 }

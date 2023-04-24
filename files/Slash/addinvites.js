@@ -11,6 +11,7 @@ const {
 } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
+const yaml = require('js-yaml'), fs = require('fs');
 
 module.exports = {
     name: 'addinvites',
@@ -30,10 +31,13 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        const user = interaction.options.getMember("member")
-        const amount = interaction.options.getNumber("amount")
+        let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
 
-        let a = new EmbedBuilder().setColor("#FF0000").setDescription(`You need admin to use this!`)
+        const user = interaction.options.getMember("member");
+        const amount = interaction.options.getNumber("amount");
+
+        let a = new EmbedBuilder().setColor("#FF0000").setDescription(data.addinvites_not_admin_embed_description)
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.reply({ embeds: [a] })
@@ -42,7 +46,10 @@ module.exports = {
         await db.add(`${interaction.guild.id}.USER.${user.id}.INVITES.DATA.invites`, amount);
 
         const finalEmbed = new EmbedBuilder()
-            .setDescription(`Added ${amount} invites for ${user}`)
+            .setDescription(data.addinvites_confirmation_embed_description
+                .replace(/\${amount}/g, amount)
+                .replace(/\${user}/g, user)
+                )
             .setColor(`#92A8D1`)
             .setFooter({ text: interaction.guild.name, iconURL: interaction.guild.iconURL({ dynamic: true }) });
         await db.add(`${interaction.guild.id}.USER.${user.id}.INVITES.DATA.bonus`, amount);
@@ -51,8 +58,12 @@ module.exports = {
         try {
             logEmbed = new EmbedBuilder()
               .setColor("#bf0bb9")
-              .setTitle("InviteManager Logs")
-              .setDescription(`<@${interaction.user.id}> Added invites ${amount} to <@${user.id}> !`)
+              .setTitle(data.addinvites_logs_embed_title)
+              .setDescription(data.addinvites_logs_embed_description
+                .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                .replace(/\${amount}/g, amount)
+                .replace(/\${user\.id}/g, user.id)
+                )
       
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }

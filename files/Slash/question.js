@@ -9,6 +9,7 @@ const {
   ApplicationCommandOptionType
 } = require('discord.js');
 
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
   name: 'question',
   description: 'give a question to the bot',
@@ -21,22 +22,27 @@ module.exports = {
     }
   ],
   run: async (client, interaction, message) => {
+    let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+    let data = yaml.load(fileContents)
+
     let question = interaction.options.getString("question")
+
     let text = question.split(" ");
-    if (!text[2]) return interaction.reply({ content: `Enter a full question with 3 or more words!` });
-    let reponse = ["Yes.", "No.", "I don't know.", "I am not sure !", "You'r crazy!", "No thanks.", "No.", "Yes.",];
+
+    if (!text[2]) return interaction.reply({ content: data.question_not_full });
+
+    let reponse = data.question_s
     let result = Math.floor((Math.random() * reponse.length));
 
     const embed = new EmbedBuilder()
-
-      .setTitle("__**Question**__: \`" + interaction.user.username + "\`")
+      .setTitle(data.question_embed_title
+        .replace(/\${interaction\.user\.username}/g, interaction.user.username)
+      )
       .setColor("#ddd98b")
-      .addFields({ name: ":question:__**Question**__", value: question, inline: true },
-        { name: ":grey_exclamation:__**Answer:**__", value: reponse[result] })
+      .addFields({ name: data.question_fields_input_embed, value: question, inline: true },
+        { name: data.question_fields_output_embed, value: reponse[result] })
       .setTimestamp()
 
-    interaction.reply({ embeds: [embed] })
-
-    const filter = (interaction) => interaction.user.id === interaction.member.id;
+    await interaction.reply({ embeds: [embed] })
   }
 }

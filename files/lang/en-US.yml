@@ -127,3 +127,95 @@ unblacklist_command_work: "<@${member.id}> is not longer blacklisted"
 unblacklist_not_blacklisted: "<@${member.id}> was not blacklisted"
 unblacklist_unblacklisted_but_can_unban_him: "❌ Is now unlacklisted, Can't unban this member here, missing permission or already unban?"
 unblacklist_user_is_not_exist: "I couldn't find the user"
+
+
+# Invite Manager commands
+# /addinvites, /invites, /leaderboard, /removeinvites
+
+# /addinvites
+addinvites_not_admin_embed_description: "You need admin to use this!"
+addinvites_confirmation_embed_description: "Added ${amount} invites for ${user}"
+addinvites_logs_embed_title: "Invite Manager Logs"
+addinvites_logs_embed_description: "<@${interaction.user.id}> Added ${amount} invites to <@${user.id}> !"
+
+# /invites
+invites_confirmation_embed_description: "<@${member.user.id}> have `${inv || 0}` Invites (`${Regular || 0}` Regular, `${bonus || 0}` Bonus, `${leaves || 0}` Leaves)."
+invites_confirmation_embed_title: "Inviter Stats"
+
+# /leaderboard
+leaderboard_text_inline: "<@${i}> Have **${a.invites || 0}** Invites (**${a.regular || 0}** Regular ** ${a.bonus || 0}** Bonus **${a.leaves || 0}** Leaves)\n"
+leaderboard_default_text: "**__Leaderboard :__**\n"
+
+# /removeinvites
+removeinvites_not_admin_embed_description: "You need admin to use this!"
+removeinvites_confirmation_embed_description: "Remove ${amount} invites for ${user}"
+removeinvites_logs_embed_title: "Invite Manager Logs"
+removeinvites_logs_embed_description: "<@${interaction.user.id}> removed ${amount} invites to <@${user.id}> !"
+
+
+# Bot commands
+# /botinfo, /invite, /kisakay, /ping, /status
+
+# /botinfo
+botinfo_embed_fields_myname: "My Name:"
+botinfo_embed_fields_mychannels: "My Channels:"
+botinfo_embed_fields_myservers: "My Servers:"
+botinfo_embed_fields_members: "Members:"
+botinfo_embed_fields_libraires: "Librairies:"
+botinfo_embed_fields_created_at: "Create at:"
+botinfo_embed_fields_created_by: "Create by:"
+
+# /invite
+invite_embed_title: "Thank to adding iHorizon !"
+invite_embed_description: "I love you, show me your love for me back! Invite me!"
+
+# /kisakay
+kisakay_message: "***yes Kisakay its my owner and good developer. <3***"
+
+# /ping
+pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
+
+# /status
+status_be_bot_dev: ":x: | **You have to be the bot developer to do this!**"
+
+
+# Fun commands
+# /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
+
+# /cats
+cats_embed_title: "Miauw :cat:"
+
+# /hack
+hack_embed_description: "<@${victim.id}> hacked by <@${interaction.user.id}> !"
+hack_embed_fields_ip: "IP"
+hack_embed_fields_email: "Email"
+hack_embed_fields_password: "Password"
+
+# /hug
+hug_embed_title: "<@${interaction.user.id}> give hug to <@${hug.id}> ❤️"
+
+# /kiss
+kiss_embed_description: "<@${interaction.user.id}> make a kiss to <@${kiss.id}> 💏"
+
+# /poll
+poll_not_admin: "You don't have the permissions to do this!"
+poll_embed_title: "__**Poll**__: `${interaction.user.username}`"
+poll_embed_fields_reaction: "Tap the reactions below.⬇"
+poll_embed_fields_choice: ":white_check_mark: **Yes**\n :x: **No** "
+
+# /question
+question_not_full: "Enter a full question with 3 or more words!"
+question_s: ["Yes.","No.","I don't know.","I am not sure !","You'r crazy!", "No thanks.", "No.", "Yes."]
+question_fields_input_embed: ":question:__**Question**__"
+question_fields_output_embed: ":grey_exclamation:__**Answer:**__"
+question_embed_title: "__**Question**__: `${interaction.user.username}`"
+
+# /slap
+slap_embed_description: "<@${interaction.user.id}> slap <@${slap.id}> 😓"
+
+
+# Economy commands
+# /add-money, /balance, /daily, /monthly, /pay, /remove-money, /rob, /weekly, /work
+
+# /add-money
+addmoney_not_admin: ""

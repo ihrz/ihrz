@@ -8,6 +8,8 @@ const {
     PermissionsBitField,
     ApplicationCommandOptionType
 } = require('discord.js');
+
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
     name: 'poll',
     description: 'Send a poll to all of the guild !',
@@ -20,15 +22,21 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
+
         let pollMessage = interaction.options.getString("message")
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) { return interaction.reply({ content: "You don't have the permissions to do this!" }); }
-        if (!pollMessage) return interaction.reply({ content: "Please indicate your question ..." });
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return interaction.reply({ content: data.poll_not_admin });
+        }
 
         const pollEmbed = new EmbedBuilder()
-            .setTitle("__**Sondage**__: \`" + interaction.user.username + "\`")
+            .setTitle(data.poll_embed_title
+                .replace(/\${interaction\.user\.username}/g, interaction.user.username)
+                )
             .setColor("#ddd98b")
             .setDescription(pollMessage)
-            .addFields({ name: 'Tap the reactions below.⬇', value: ":white_check_mark:: **Yes**\n :x:: **No** " })
+            .addFields({ name: data.poll_embed_fields_reaction, value: data.poll_embed_fields_choice})
             .setImage("https://cdn.discordapp.com/attachments/610152915063013376/610947097969164310/loading-animation.gif")
             .setTimestamp()
 

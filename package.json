@@ -31,6 +31,7 @@
     "node-fetch": "^2.6.1",
     "opusscript": "^0.0.8",
     "os-utils": "^0.0.14",
+    "ping": "^0.4.4",
     "play-dl": "^1.9.6",
     "process": "^0.11.10",
     "promise-mysql": "^5.2.0",

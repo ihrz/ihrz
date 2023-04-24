@@ -9,6 +9,9 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
+const yaml = require('js-yaml');
+const fs = require('fs');
+
 module.exports = {
     name: 'hug',
     description: 'hug someone !',
@@ -22,11 +25,12 @@ module.exports = {
     ],
 
     run: async (client, interaction) => {
-        const kiss = interaction.options.getUser("user");
-        if (!kiss) return interaction.reply(`I couldn't find a user.`);
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8'); //
+        let data = yaml.load(fileContents)
 
+        const hug = interaction.options.getUser("user");
 
-        var hug = [
+        var hugGif = [
             'https://cdn.discordapp.com/attachments/975288553787494450/1053838033373368350/hug.gif',
             'https://cdn.discordapp.com/attachments/975288553787494450/1053838033675366461/hug2.gif',
             'https://cdn.discordapp.com/attachments/975288553787494450/1053838033994129448/hug3.jpg',
@@ -36,7 +40,11 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setColor("#FFB6C1")
-            .setImage(hug[Math.floor(Math.random() * hug.length)])
+            .setDescription(data.hug_embed_title
+                .replace(/\${hug\.id}/g, hug.id)
+                .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+            )
+            .setImage(hugGif[Math.floor(Math.random() * hugGif.length)])
             .setTimestamp()
         return interaction.reply({ embeds: [embed] });
 
