@@ -27,4 +27,4 @@ guild.me -> guild.members.me
 for logs embed 
 
 #016c9a
-for music embeds
+for music embed
