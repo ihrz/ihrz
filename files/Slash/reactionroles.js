@@ -71,7 +71,7 @@ module.exports = {
 /rolesreaction list \`<message id>\``)
 
     if (type == "add") {
-      /* Add roles to users pleasssssssse horisus*/
+      /* Add roles to users pleasssssssse ihorisus*/
 
       interaction.channel.messages.fetch(messagei).then(message => { message.react(reaction) })
         .catch(error => { return interaction.reply({ content: `${error}` }) });

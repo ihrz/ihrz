@@ -73,7 +73,7 @@ module.exports = async (client, message) => {
     if (type === "off") { return }
     if (message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
     if (type == "on") {
-      let LOG = await db.get(`${message.guild.id}.GUILD.PUNISH`);
+      let LOG = await db.get(`${message.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
       let LOGfetched = await db.get(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`);
       if (LOGfetched) {
         if (LOG) {

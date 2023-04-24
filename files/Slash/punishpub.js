@@ -73,7 +73,7 @@ module.exports = {
             if (amount < 0) { return interaction.reply({ content: "You can't type negative number !" }) };
             if (amount == 0) { return interaction.reply({ content: "The number 0 is not possible !" }) };
 
-            await db.set(`${interaction.guild.id}.GUILD.PUNISH`,
+            await db.set(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`,
                 {
                     amountMax: amount,
                     punishementType: punishement,
@@ -103,7 +103,7 @@ module.exports = {
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
               } catch (e) { return console.error(e)};
 
-            await db.delete(`${interaction.guild.id}.GUILD.PUNISH`);
+            await db.delete(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
             interaction.reply({ content: `You have succefully setup the PunishPub to off` })
         };
     }
