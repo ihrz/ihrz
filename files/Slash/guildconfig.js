@@ -27,38 +27,50 @@ module.exports = {
         let leavemessage = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`)
         let punishPub = await db.get(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`)
         let supportConfig = await db.get(`${interaction.guild.id}.GUILD.SUPPORT`)
+        let reactionrole;
 
-        var text = '';
-        var text2 = '';
-        const dbAll = await db.all();
-        const foundArray = dbAll.findIndex(ticketList => ticketList.id === interaction.guild.id)
 
-        const charForTicket = dbAll[foundArray].value.GUILD.TICKET;
-        const charForRr = dbAll[foundArray].value.GUILD.REACTION_ROLES;
 
-        for (var i in charForTicket) {
-            var a = await db.get(`${interaction.guild.id}.GUILD.TICKET.${i}`)
-            if (a) {
-                text += `**${a.panelName}**: <#${a.channel}>\n`
+        try{
+            var text = '';
+            var text2 = '';
+            const dbAll = await db.all();
+            const foundArray = dbAll.findIndex(ticketList => ticketList.id === interaction.guild.id)
+
+            const charForTicket = dbAll[foundArray].value.GUILD.TICKET;
+            const charForRr = dbAll[foundArray].value.GUILD.REACTION_ROLES;
+    
+            for (var i in charForTicket) {
+                var a = await db.get(`${interaction.guild.id}.GUILD.TICKET.${i}`)
+                if (a) {
+                    text += `**${a.panelName}**: <#${a.channel}>\n`
+                };
             };
-        };
-
-        for (var i in charForRr) {
-            var a = await db.get(`${interaction.guild.id}.GUILD.REACTION_ROLES.${i}`)
-            if (a) {
-                const stringContent = Object.keys(a).map((key) => {
-                    const rolesID = a[key].rolesID;
-                    var emoji = interaction.guild.emojis.cache.find(emoji => emoji.id === key);
-
-                    return `**MessageID**: \`${i}\` -> ${emoji || key} give <@&${rolesID}> role\n`;
-                }).join('\n');
-                text2 = stringContent
+    
+            for (var i in charForRr) {
+                var a = await db.get(`${interaction.guild.id}.GUILD.REACTION_ROLES.${i}`)
+                if (a) {
+                    const stringContent = Object.keys(a).map((key) => {
+                        const rolesID = a[key].rolesID;
+                        var emoji = interaction.guild.emojis.cache.find(emoji => emoji.id === key);
+    
+                        return `**MessageID**: \`${i}\` -> ${emoji || key} give <@&${rolesID}> role\n`;
+                    }).join('\n');
+                    text2 = stringContent
+                };
             };
-        };
+        }catch {
+            
+        }
+
+
+        if (!text2 || text2 == '') {
+            reactionrole = "No set!"
+        } else { reactionrole = text2 };
 
         if (!text || text == '') {
             ticketFetched = "No set!"
-        } else { ticketFetched = text2 };
+        } else { ticketFetched = text };
 
         if (!punishPub || punishPub === null) {
             punishPub = "No set !"
@@ -108,8 +120,8 @@ module.exports = {
                 { name: "BlockPub", value: blockpub, inline: true },
                 { name: "PunishPub", value: punishPub, inline: true },
                 { name: "Support", value: supportConfig, inline: true },
-                { name: "Tickets", value: text, inline: true },
-                { name: "Reaction Role", value: text2, inline: true })
+                { name: "Tickets", value: ticketFetched, inline: true },
+                { name: "Reaction Role", value: reactionrole, inline: true })
             .setThumbnail(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`)
         return interaction.reply({ embeds: [guildc] });
     }
