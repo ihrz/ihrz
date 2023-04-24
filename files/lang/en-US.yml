@@ -1,0 +1,129 @@
+# Basic language file for iHorizon
+# en-US: English
+# For replace ${member.tag}  -> .replace(/\${member\.tag}/g, member.tag)
+
+#const yaml = require('js-yaml'), fs = require('fs');
+#let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
+#let data = yaml.load(fileContents)
+
+# Ticket commands
+# /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
+
+# /add
+add_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
+add_incorect_syntax: "Incorrect Syntax ! **Correct Usage:** `.add <member>`"
+add_command_work: "Successfully added ${member.tag} to your ticket!"
+add_command_error: "error occurred, pls try again"
+
+# /close
+close_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
+close_title_sourcebin: "Ticket transcript by iHorizon"
+close_description_sourcebin: " "
+close_error_command: "Error occurred, pls try again!"
+close_command_work_channel: "You have closed your ticket. iHorizon sent you the transcript"
+close_command_work_notify_channel: "The ticket was succefully closed !"
+close_command_error: "Error occurred, please try again!"
+close_not_in_ticket: "You cannot use this command outside of a ticket channel !"
+
+# /delete
+delete_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
+delete_not_in_ticket: "You cannot use this command outside of a ticket channel !"
+
+# /sethereticket
+sethereticket_disabled_command: "You can't use this commands because an another Administrator disable the ticket commands !"
+sethereticket_not_admin: ":x: | You must be an administrator of this server to request a this commands!"
+sethereticket_description_embed: "To create a new ticket, please react with 📩"
+sethereticket_command_work: "Ticket panel has been set successfully!"
+
+# /open
+open_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
+open_command_work: "Successfully re-opened ${interaction.channel}"
+open_command_error: "Error occurred, please try again!"
+open_not_in_ticket: "You cannot use this command outside of a ticket channel!"
+
+# /remove
+remove_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
+remove_not_in_ticket: "You cannot use this command outside of a ticket channel !"
+remove_command_error: "Error occurred, pls try again"
+remove_command_work: "Successfully removed ${member.tag} to your ticket!"
+
+# /transript
+transript_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
+transript_name_sourcebin: " "
+transript_title_sourcebin: "Ticket Chat transcript for ${channel.name}"
+transript_command_error: "Error occurred, please try again!"
+transript_command_work: "You have closed your ticket. iHorizon sent you the transcript"
+transript_not_in_ticket: "You cannot use this command outside of a ticket channel !"
+
+# /disableticket
+disableticket_not_admin: ":x: | You must be an administrator of this server to request this commands!"
+# when action is on "disable"
+disableticket_logs_embed_title_disable: "DisableTicket Logs"
+disableticket_logs_embed_description_disable: "<@${interaction.user.id}> disable ticket commands !"
+disableticket_command_work_disable: "You have successfully disable the ticket commands !"
+# when action is on "enable"
+disableticket_logs_embed_title_enable: "EnableTicket Logs"
+disableticket_logs_embed_description_enable: "<@${interaction.user.id}> enable ticket commands !"
+disableticket_command_work_enable: "You have successfully enable the ticket commands !"
+
+
+# Ranks commands
+# /xp, /setxpchannels, /disablexp
+
+# /disablexp
+disablexp_not_admin: ":x: | You must be an administrator of this server to request this commands!"
+# when action is on "disable"
+disablexp_logs_embed_title_disable: "Disable XP Logs"
+disablexp_logs_embed_description_disable: "<@${interaction.user.id}> disable xp !"
+disablexp_command_work_disable: "You have successfully disable the leveling message (XP)"
+# when action is on "enable"
+disablexp_logs_embed_title_enable: "Disable XP Logs"
+disablexp_logs_embed_description_enable: "<@${interaction.user.id}> enable xp !"
+disablexp_command_work_enable: "You have successfully enable the leveling message (XP)"
+
+# /setxpchannels
+setxpchannels_not_admin: ":x: | You must be an administrator of this server to request this commands!"
+# when action is on "disable"
+setxpchannels_logs_embed_title_disable: "SetXpChannels Logs"
+setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> disable the custom xp channels. I put the default settings..."
+setxpchannels_already_disabled_disable: "The custom xp channels is already disable !"
+setxpchannels_command_work_disable: "You have successfully disable the custom xp channel !"
+setxpchannels_command_error_disable: "Error: missing permissions or channel doesn't exist"
+# when action is on "enable"
+setxpchannels_logs_embed_title_enable: "SetXpChannels Logs"
+setxpchannels_logs_embed_description_enable: "<@${interaction.user.id}> set the custom xp channels to: <#${argsid}>"
+setxpchannels_valid_channel_message: "You must specify a valid channel for you configurations."
+setxpchannels_already_with_this_config: "The custom xp channels is already config with this channels id!"
+setxpchannels_confirmation_message: "**Custom XP channel set here!**"
+setxpchannels_command_work_enable: "You have successfully set the custom xp channel to <#${argsid}>"
+setxpchannels_command_error_enable: "Error: missing permissions or channel doesn't exist"
+
+# /xp
+#nfn
+
+# Owner commands
+# /owner, /unowner, /blacklist, /unblacklist
+
+# /owner
+owner_not_owner: "You are not owner of the iHorizon Projects. You can't use this command."
+owner_already_owner: "This user is already owner !"
+owner_is_now_owner: "${member.user.username} is now owner of the iHorizon Projects"
+
+# /unowner
+unowner_not_owner: "You are not owner of the iHorizon Projects. You can't use this command."
+unowner_cant_unowner_creator: "Is not possible to remove him, is the iHorizon Projects Creator."
+unowner_command_work: "${member.username} no longer owner"
+
+# /blacklist
+blacklist_not_owner: "You are not owner of the iHorizon Projects. You can't use this command."
+blacklist_bot_lol: "Can't blacklist myself x)"
+blacklist_command_work: "${member.user.username} is now blacklisted"
+blacklist_blacklisted_but_can_ban_him: "❌ Is now blacklisted, Can't ban this member here, missing permission?"
+blacklist_already_blacklisted: "${member.user.username} is already blacklisted !"
+
+# /unblacklist
+unblacklist_not_owner: "You are not owner of the iHorizon Projects. You can't use this command."
+unblacklist_command_work: "<@${member.id}> is not longer blacklisted"
+unblacklist_not_blacklisted: "<@${member.id}> was not blacklisted"
+unblacklist_unblacklisted_but_can_unban_him: "❌ Is now unlacklisted, Can't unban this member here, missing permission or already unban?"
+unblacklist_user_is_not_exist: "I couldn't find the user"

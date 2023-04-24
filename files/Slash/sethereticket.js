@@ -11,6 +11,7 @@ const {
 	ApplicationCommandOptionType
 } = require('discord.js');
 
+const yaml = require('js-yaml'), fs = require('fs');
 
 module.exports = {
 	name: 'sethereticket',
@@ -30,22 +31,24 @@ module.exports = {
 		// }
 	],
 	run: async (client, interaction) => {
+		let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+		let data = yaml.load(fileContents)
 		let panelName = interaction.options.getString("name")
 
 		const { QuickDB } = require("quick.db");
 		const db = new QuickDB();
 		let blockQ = await db.get(`${interaction.user.id}.GUILD.TICKET.on_or_off`)
 		if (blockQ === true) {
-			return interaction.reply("You can't use this commands because an another Administrator disable the ticket commands !")
+			return interaction.reply(data.sethereticket_disabled_command);
 		}
 
 		if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator))
-			return interaction.reply(":x: | You must be an administrator of this server to request a this commands!");
+			return interaction.reply(data.sethereticket_not_admin);
 
 		let panel = new EmbedBuilder()
 			.setTitle(`${panelName}`)
 			.setColor("#3b8f41")
-			.setDescription("To create a new ticket, please react with 📩")
+			.setDescription(data.sethereticket_description_embed)
 			.setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
 
 		interaction.channel.send({ embeds: [panel] }).then(async message => {
@@ -60,7 +63,7 @@ module.exports = {
 				})
 		})
 
-		interaction.reply({ content: "Ticket panel has been set successfully!", ephemeral: true })
+		interaction.reply({ content: data.sethereticket_command_work, ephemeral: true })
 
 		const filter = (interaction) => interaction.user.id === interaction.member.id;
 	}

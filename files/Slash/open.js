@@ -1,14 +1,17 @@
+const yaml = require('js-yaml'), fs = require('fs');
+
 module.exports = {
 	name: 'open',
 	description: 're-open a closed tickets',
 	run: async (client, interaction) => {
-
+		let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
+		let data = yaml.load(fileContents)
 		const { QuickDB } = require("quick.db");
 		const db = new QuickDB();
 		let blockQ = await db.get(`${interaction.user.id}.GUILD.TICKET.on_or_off`)
 
 		if (blockQ === true) {
-			return interaction.reply("You can't use this commands because an Administrator disable the ticket commands !")
+			return interaction.reply(data.open_disabled_command)
 		}
 		if (interaction.channel.name.includes('ticket-')) {
 			const member = interaction.guild.members.cache.get(interaction.channel.name.split('ticket-').join(''));
@@ -20,15 +23,15 @@ module.exports = {
 					READ_MESSAGE_HISTORY: true,
 				})
 					.then(() => {
-						return interaction.reply(`Successfully re-opened ${interaction.channel}`);
+						return interaction.reply(data.open_command_work.replace(/\${interaction\.channel}/g, interaction.channel));
 					});
 			}
 			catch (e) {
-				return interaction.reply('Error occurred, please try again!');
+				return interaction.reply(data.open_command_error);
 			}
 		}
 		else {
-			return interaction.reply('You cannot use this command outside of a ticket channel !');
+			return interaction.reply(data.open_not_in_ticket);
 		}
 		const filter = (interaction) => interaction.user.id === interaction.member.id;
 	}

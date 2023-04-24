@@ -10,6 +10,7 @@ const {
 } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
+const yaml = require('js-yaml'), fs = require('fs');
 
 module.exports = {
     name: 'setxpchannels',
@@ -39,33 +40,37 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
+
         let type = interaction.options.getString("action")
         let argsid = interaction.options.getChannel("channel").id
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: ":x: | You must be an administrator of this server to request this commands!" });
-
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return interaction.reply({ content: data.setxpchannels_not_admin });
+        }
         if (type === "on") {
-            if (!argsid) return interaction.reply({ content: "You must specify a valid channel for you configurations." })
+            if (!argsid) return interaction.reply({ content: data.setxpchannels_valid_channel_message })
 
             try {
                 logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
-                    .setTitle("SetXpChannels Logs")
-                    .setDescription(`<@${interaction.user.id}> set the custom xp channels to: <#${argsid}>`)
+                    .setTitle(data.setxpchannels_logs_embed_title_enable)
+                    .setDescription(data.setxpchannels_logs_embed_description_enable.replace(/\${interaction\.user.id}/g, interaction.user.id))
 
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
             } catch (e) { console.error(e) };
             try {
                 let already = await db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`)
-                if (already === argsid) return interaction.reply({ content: 'The custom xp channels is already config with this channels id!' })
-                client.channels.cache.get(argsid).send({ content: "**Custom XP channel set here!**" })
+                if (already === argsid) return interaction.reply({ content: data.setxpchannels_already_with_this_config })
+                client.channels.cache.get(argsid).send({ content: data.setxpchannels_confirmation_message })
                 await db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`, argsid);
 
-                return interaction.reply({ content: "You have successfully set the custom xp channel to <#" + argsid + ">" });
+                return interaction.reply({ content: data.setxpchannels_command_work_enable.replace(/\${argsid}/g, argsid) });
 
             } catch (e) {
-                interaction.reply({ content: "Error: missing permissions or channel doesn't exist" });
+                interaction.reply({ content: data.setxpchannels_command_error_enable });
             }
 
 
@@ -74,22 +79,21 @@ module.exports = {
             try {
                 logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
-                    .setTitle("SetXpChannels Logs")
-                    .setDescription(`<@${interaction.user.id}> disable the custom xp channels. I put the default settings...`)
+                    .setTitle(config.setxpchannels_logs_embed_title_disable)
+                    .setDescription(config.setxpchannels_logs_embed_description_disable.replace(/\${interaction\.user.id}/g, interaction.user.id))
 
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
             } catch (e) { console.error(e) };
             try {
                 let already2 = await db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`)
-                if (already2 === "off") return interaction.reply('The custom xp channels is already disable !')
-
+                if (already2 === "off") return interaction.reply(data.setxpchannels_already_disabled_disable)
 
                 await db.delete(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`);
-                return interaction.reply("You have successfully disable the custom xp channel !");
+                return interaction.reply({content: data.setxpchannels_command_work_disable});
 
             } catch (e) {
-                interaction.reply("Error: missing permissions or channel doesn't exist");
+                interaction.reply(data.setxpchannels_command_error_disable);
             }
         }
         const filter = (interaction) => interaction.user.id === interaction.member.id;

@@ -10,6 +10,7 @@ const {
 	ApplicationCommandOptionType
 } = require('discord.js');
 
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
 	name: 'remove',
 	description: 'Remove a member into your ticket',
@@ -23,25 +24,25 @@ module.exports = {
 	],
 
 	run: async (client, interaction) => {
-
+		let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
+		let data = yaml.load(fileContents)
 		const { QuickDB } = require("quick.db");
 		const db = new QuickDB();
 		let blockQ = await db.get(`${interaction.user.id}.GUILD.TICKET.on_or_off`)
 
-		if (blockQ === true) { return interaction.reply("You can't use this commands because an Administrator disable the ticket commands !") }
+		if (blockQ === true) { return interaction.reply({content: data.remove_disabled_command}) }
 		if (interaction.channel.name.includes('ticket-')) {
 			const member = interaction.options.getUser("user")
-			if (!member) {
-				return interaction.reply(`Incorrect Syntax ! **Correct Usage:** \`/remove <member>\``);
-			}
+
 			try {
 				interaction.channel.permissionOverwrites.create(member, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
-				interaction.reply({ content: `Successfully removed ${member.tag} to your ticket!` });
+				interaction.reply({ content: data.remove_command_work.replace(/\${member\.tag}/g, member.tag) });
 			}
 			catch (e) {
-				//console.log(e)
-				return interaction.reply('error occurred, pls try again');
+				return interaction.reply(data.remove_command_error);
 			}
+		}else{
+			return interaction.reply({content: data.remove_not_in_ticket})
 		}
 		const filter = (interaction) => interaction.user.id === interaction.member.id;
 	}

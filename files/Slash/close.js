@@ -11,17 +11,20 @@ const {
 	ApplicationCommandOptionType
 } = require('discord.js');
 
+const yaml = require('js-yaml'), fs = require('fs');
+
 module.exports = {
 	name: 'close',
 	description: 'Close your ticket',
 	run: async (client, interaction) => {
+		let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+		let data = yaml.load(fileContents)
 
 		const { QuickDB } = require("quick.db");
 		const db = new QuickDB();
 		let blockQ = await db.get(`${interaction.user.id}.GUILD.TICKET.on_or_off`)
 		if (blockQ === true) {
-
-			return interaction.reply("You can't use this commands because an Administrator disable the ticket commands !")
+			return interaction.reply(data.close_disabled_command)
 		}
 
 		if (interaction.channel.name.includes('ticket-')) {
@@ -39,18 +42,18 @@ module.exports = {
 								languageId: 'text',
 							},
 						], {
-							title: `Ticket transcript by iHorizon`,
-							description: ' ',
+							title: data.close_title_sourcebin,
+							description: data.close_description_sourcebin,
 						});
 					}
 					catch (e) {
-						return interaction.reply('Error occurred, pls try again!');
+						return interaction.reply(data.close_error_command);
 					}
 					try {
 						const embed = new EmbedBuilder()
 							.setDescription(`[\`View This\`](${response.url})`)
 							.setColor('#5b92e5');
-						interaction.reply({ content: 'You have closed your ticket. iHorizon sent you the transcript', embeds: [embed] })
+						interaction.reply({ content: data.close_command_work_channel, embeds: [embed] })
 					} catch (e) {
 						console.error(e)
 
@@ -58,16 +61,16 @@ module.exports = {
 
 					try {
 						interaction.channel.permissionOverwrites.create(member.user, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
-						interaction.channel.send({ content: `The ticket was succefully closed !` });
+						interaction.channel.send({ content: data.close_command_work_notify_channel });
 					}
 					catch (e) {
-						return interaction.channel.send('Error occurred, please try again!');
+						return interaction.channel.send(data.close_command_error);
 					}
 				});
 			}
 		}
 		else {
-			return interaction.reply('You cannot use this command outside of a ticket channel !');
+			return interaction.reply(data.close_not_in_ticket);
 		} const filter = (interaction) => interaction.user.id === interaction.member.id;
 	}
 }

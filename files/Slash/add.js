@@ -10,6 +10,8 @@ const {
 	ApplicationCommandOptionType
 } = require('discord.js');
 
+const yaml = require('js-yaml'), fs = require('fs');
+
 module.exports = {
 	name: 'add',
 	description: 'Add a member into your ticket',
@@ -26,19 +28,22 @@ module.exports = {
 
 		const { QuickDB } = require("quick.db");
 		const db = new QuickDB();
+		let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
+		let data = yaml.load(fileContents)
+
 		let blockQ = await db.get(`${interaction.user.id}.GUILD.TICKET.on_or_off`)
-		if (blockQ === true) { return interaction.reply("You can't use this commands because an Administrator disable the ticket commands !") }
+		if (blockQ === true) { return interaction.reply(data.add_disabled_command) }
 		if (interaction.channel.name.includes('ticket-')) {
 			const member = interaction.options.getUser("user")
 			if (!member) {
-				return interaction.reply(`Incorrect Syntax ! **Correct Usage:** \`.add <member>\``);
+				return interaction.reply(data.add_incorect_syntax);
 			}
 			try {
 				interaction.channel.permissionOverwrites.create(member, { ViewChannel: true, SendMessages: true, ReadMessageHistory: true });
-				interaction.reply({ content: `Successfully added ${member.tag} to your ticket!` });
+				interaction.reply({ content: data.add_command_work.replace(/\${member\.tag}/g, member.tag)});
 			}
 			catch (e) {
-				return interaction.reply('error occurred, pls try again');
+				return interaction.reply(data.add_command_error);
 			}
 		}
 		const filter = (interaction) => interaction.user.id === interaction.member.id;

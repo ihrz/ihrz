@@ -36,7 +36,6 @@ module.exports = {
     let user = interaction.options.get("member")
     interaction.reply({ content: `Successfully added \`${amount.value}\`$ to <@${user.user.id}>` })
     await db.add(`${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, amount.value)
-    const filter = (interaction) => interaction.user.id === interaction.member.id;
 
     try {
       logEmbed = new EmbedBuilder()

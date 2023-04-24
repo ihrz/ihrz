@@ -1,10 +1,13 @@
 const sourcebin = require('sourcebin_js');
 const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
 
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
 	name: 'transript',
 	description: 'transript ticket\'s message',
 	run: async (client, interaction) => {
+		let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
+		let data = yaml.load(fileContents)
 
 		const { QuickDB } = require("quick.db");
 		const db = new QuickDB();
@@ -12,7 +15,7 @@ module.exports = {
 
 		if (blockQ === true) {
 
-			return interaction.reply("You can't use this commands because an Administrator disable the ticket commands !")
+			return interaction.reply({content: data.transript_disabled_command})
 
 		}
 		const channel = interaction.channel;
@@ -25,30 +28,28 @@ module.exports = {
 					try {
 						response = await sourcebin.create([
 							{
-								name: ' ',
+								name: data.transript_name_sourcebin,
 								content: output,
 								languageId: 'text',
 							},
 						], {
-							title: `Ticket Chat transcript for ${channel.name}`,
+							title: data.transript_title_sourcebin.replace(/\${channel\.name}/g, channel.name),
 							description: ' ',
 						});
 					}
 					catch (e) {
-						return interaction.reply('Error occurred, please try again!');
+						return interaction.reply(data.transript_command_error);
 					}
 
 					const embed = new EmbedBuilder()
 						.setDescription(`[\`View this\`](${response.url})`)
 						.setColor('#0014a8');
-					interaction.reply({ embeds: [embed], content: 'You have closed your ticket. iHorizon sent you the transcript' });
+					interaction.reply({ embeds: [embed], content: data.transript_command_work });
 				});
 			}
 		}
 		else {
-			return interaction.reply(
-				'You cannot use this command outside of a ticket channel !',
-			);
+			return interaction.reply(data.transript_not_in_ticket);
 		}
 		const filter = (interaction) => interaction.user.id === interaction.member.id;
 	}

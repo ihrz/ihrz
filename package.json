@@ -25,6 +25,7 @@
     "fs": "^0.0.1-security",
     "guilded-webhook-node": "^1.1.2",
     "ipify": "^5.0.0",
+    "js-yaml": "^4.1.0",
     "moment": "^2.29.4",
     "ms": "^2.1.3",
     "node-fetch": "^2.6.1",

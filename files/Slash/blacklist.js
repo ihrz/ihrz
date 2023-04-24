@@ -10,6 +10,8 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
+const yaml = require('js-yaml'), fs = require('fs');
+
 module.exports = {
     name: 'blacklist',
     description: 'Blacklist a user on the bot (must be owner of the bot)',
@@ -22,23 +24,14 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
         const { QuickDB } = require("quick.db");
         const db = new QuickDB();
-        let owner_pp_user = await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`)
 
-        if (!owner_pp_user || owner_pp_user === null || owner_pp_user === false) {
-
-
-            const block_antiowner = new EmbedBuilder()
-                .setTitle(":no_entry: Your are not owner !")
-                .setDescription("**" + interaction.user.username + "** you cannot use this command with your current privilege !")
-                .setTimestamp()
-                .setColor("#2f3136")
-                .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
-            return interaction.reply({ embeds: [block_antiowner] })
+        if (await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
+            return interaction.reply({ content: data.blacklist_not_owner });
         }
-
-
 
         var text = ""
         const ownerList = await db.all()
@@ -54,8 +47,7 @@ module.exports = {
         const member = interaction.options.getMember('member')
         if (!member) return interaction.reply({ embeds: [embed] });
 
-        if (member.user.id === client.user.id) return interaction.reply({ content: "can't blacklist myself x)" })
-
+        if (member.user.id === client.user.id) return interaction.reply({ content: data.blacklist_bot_lol })
 
         let fetched = await db.get(`GLOBAL.BLACKLIST.${member.user.id}`)
 
@@ -63,13 +55,13 @@ module.exports = {
             await db.set(`GLOBAL.BLACKLIST.${member.user.id}`, { blacklisted: true })
             if (member.bannable) {
                 member.ban({ reason: "blacklisted !" })
-                return interaction.reply(`${member.user.username} is now blacklisted`);
-
+                return interaction.reply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, member.user.username) });
             } else {
-                return interaction.reply("❌ Is now blacklisted, Can't ban this member here, missing permission?")
+                await db.set(`GLOBAL.BLACKLIST.${member.user.id}`, { blacklisted: true })
+                return interaction.reply({ content: data.blacklist_blacklisted_but_can_ban_him })
             }
-
+        } else {
+            return interaction.reply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, member.user.username) });
         }
-        const filter = (interaction) => interaction.user.id === interaction.member.id;
     }
 }

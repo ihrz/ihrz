@@ -1,0 +1,3 @@
+test: "Je suis ici pour faire des test"
+hello: "World \\n \r \\"
+foo: "bar"
