@@ -10,7 +10,8 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const yaml = require('js-yaml'), fs = require('fs');
+const yaml = require('js-yaml')
+const fs = require('fs');
 module.exports = {
     name: 'unblacklist',
     description: 'Unblacklist a typed member',

@@ -1,20 +1,26 @@
+const {
+    Client,
+    Intents,
+    Collection,
+    EmbedBuilder,
+    Permissions,
+    ApplicationCommandType,
+    PermissionsBitField,
+    ApplicationCommandOptionType
+} = require('discord.js');
+
+const yaml = require('js-yaml');
+const fs = require('fs');
 module.exports = {
     name: 'guildconfig',
-    description: 'Show the guild\'s config',
+    description: "Show the guild\'s config",
     run: async (client, interaction) => {
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
 
-        const {
-            Client,
-            Intents,
-            Collection,
-            EmbedBuilder,
-            Permissions,
-            ApplicationCommandType,
-            PermissionsBitField,
-            ApplicationCommandOptionType
-        } = require('discord.js');
-
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: ":x: | You must be an administrator of this server! " });
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return interaction.reply({ content: data.guildprofil_not_admin });
+        }
         const { QuickDB } = require("quick.db");
         const db = new QuickDB();
 
@@ -29,9 +35,7 @@ module.exports = {
         let supportConfig = await db.get(`${interaction.guild.id}.GUILD.SUPPORT`)
         let reactionrole;
 
-
-
-        try{
+        try {
             var text = '';
             var text2 = '';
             const dbAll = await db.all();
@@ -39,89 +43,103 @@ module.exports = {
 
             const charForTicket = dbAll[foundArray].value.GUILD.TICKET;
             const charForRr = dbAll[foundArray].value.GUILD.REACTION_ROLES;
-    
+
             for (var i in charForTicket) {
                 var a = await db.get(`${interaction.guild.id}.GUILD.TICKET.${i}`)
                 if (a) {
                     text += `**${a.panelName}**: <#${a.channel}>\n`
                 };
             };
-    
+
             for (var i in charForRr) {
                 var a = await db.get(`${interaction.guild.id}.GUILD.REACTION_ROLES.${i}`)
                 if (a) {
                     const stringContent = Object.keys(a).map((key) => {
                         const rolesID = a[key].rolesID;
                         var emoji = interaction.guild.emojis.cache.find(emoji => emoji.id === key);
-    
-                        return `**MessageID**: \`${i}\` -> ${emoji || key} give <@&${rolesID}> role\n`;
+
+                        return data.guildprofil_set_reactionrole
+                            .replace(/\${rolesID}/g, rolesID)
+                            .replace(/\${emoji\s*\|\|\s*key}/g, emoji || key)
+                            .replace(/\${i}/g, i)
+                            ;
                     }).join('\n');
                     text2 = stringContent
                 };
             };
-        }catch {
-            
+        } catch {
+
         }
 
 
         if (!text2 || text2 == '') {
-            reactionrole = "No set!"
+            reactionrole = data.guildprofil_not_set_reactionrole
         } else { reactionrole = text2 };
 
         if (!text || text == '') {
-            ticketFetched = "No set!"
+            ticketFetched = data.guildprofil_not_set_ticketFetched
         } else { ticketFetched = text };
 
         if (!punishPub || punishPub === null) {
-            punishPub = "No set !"
-        } else { punishPub = `\`${punishPub.punishementType}\`: max: \`${punishPub.amountMax}\` flags.` }
+            punishPub = data.guildprofil_not_set_punishPub
+        } else {
+            punishPub = data.guildprofil_set_punishPub
+                .replace(/\${punishPub\.punishementType}/g, punishPub.punishementType)
+                .replace(/\${punishPub\.amountMax}/g, punishPub.amountMax)
+        }
 
         if (!supportConfig || supportConfig === null) {
-            supportConfig = "No set !"
-        } else { supportConfig = `\`${supportConfig.input}\` in bio give <@&${supportConfig.rolesId}> role.` }
+            supportConfig = data.guildprofil_not_set_supportConfig
+        } else {
+            supportConfig = data.guildprofil_set_supportConfig
+                .replace(/\${supportConfig\.input}/g, supportConfig.input)
+                .replace(/\${supportConfig\.rolesId}/g, supportConfig.rolesId)
+        }
 
         if (!setchannelsjoin || setchannelsjoin === null) {
-            setchannelsjoin = "No set !"
+            setchannelsjoin = data.guildprofil_not_set_setchannelsjoin
         } else { setchannelsjoin = `<#${setchannelsjoin}>` }
 
         if (!setchannelsleave || setchannelsleave === null) {
-            setchannelsleave = "No set !"
+            setchannelsleave = data.guildprofil_not_set_setchannelsleave
         } else { setchannelsleave = `<#${setchannelsleave}>` }
 
         if (!joinmessage || joinmessage == null) {
-            joinmessage = "No set !"
+            joinmessage = data.guildprofil_not_set_joinmessage
         }
         if (!leavemessage || leavemessage == null) {
-            leavemessage = "No set !"
+            leavemessage = data.guildprofil_not_set_leavemessage
         }
 
         if (!joinroles || joinroles === null) {
-            joinroles = "No set !"
+            joinroles = data.guildprofil_not_set_joinroles
         } else { joinroles = `<@&${joinroles}>` }
 
         if (!joinDmMessage || joinDmMessage === null) {
-            joinDmMessage = "No set !"
+            joinDmMessage = data.guildprofil_not_set_joinDmMessage
         }
 
         if (blockpub != "on") {
-            blockpub = "Power off"
-        } else { blockpub = "Power on" }
+            blockpub = data.guildprofil_not_set_blockpub
+        } else { blockpub = data.guildprofil_set_blockpub }
 
         let guildc = new EmbedBuilder()
             .setColor("#016c9a")
-            .setDescription("`Guild Config:` " + interaction.guild.name + " !")
+            .setDescription(data.guildprofil_embed_description
+                .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
+            )
             .addFields(
-                { name: "Join Message", value: joinmessage, inline: true },
-                { name: "Leave Message", value: leavemessage, inline: true },
-                { name: "Channel Join", value: setchannelsjoin, inline: true },
-                { name: "Channel Leave", value: setchannelsleave, inline: true },
-                { name: "Join Role", value: joinroles, inline: true },
-                { name: "JoinDM", value: joinDmMessage, inline: true },
-                { name: "BlockPub", value: blockpub, inline: true },
-                { name: "PunishPub", value: punishPub, inline: true },
-                { name: "Support", value: supportConfig, inline: true },
-                { name: "Tickets", value: ticketFetched, inline: true },
-                { name: "Reaction Role", value: reactionrole, inline: true })
+                { name: data.guildprofil_embed_fields_joinmessage, value: joinmessage, inline: true },
+                { name: data.guildprofil_embed_fields_leavemessage, value: leavemessage, inline: true },
+                { name: data.guildprofil_embed_fields_setchannelsjoin, value: setchannelsjoin, inline: true },
+                { name: data.guildprofil_embed_fields_setchannelsleave, value: setchannelsleave, inline: true },
+                { name: data.guildprofil_embed_fields_joinroles, value: joinroles, inline: true },
+                { name: data.guildprofil_embed_fields_joinDmMessage, value: joinDmMessage, inline: true },
+                { name: data.guildprofil_embed_fields_blockpub, value: blockpub, inline: true },
+                { name: data.guildprofil_embed_fields_punishPub, value: punishPub, inline: true },
+                { name: data.guildprofil_embed_fields_supportConfig, value: supportConfig, inline: true },
+                { name: data.guildprofil_embed_fields_ticketFetched, value: ticketFetched, inline: true },
+                { name: data.guildprofil_embed_fields_reactionrole, value: reactionrole, inline: true })
             .setThumbnail(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`)
         return interaction.reply({ embeds: [guildc] });
     }

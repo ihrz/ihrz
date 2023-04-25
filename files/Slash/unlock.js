@@ -7,11 +7,14 @@ const { Client,
   PermissionsBitField
 } = require('discord.js');
 
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
   name: 'unlock',
   description: 'Give ability to speak of all users in this text',
   run: async (client, interaction) => {
-
+    let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
+    let data = yaml.load(fileContents)
+    
     const permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageChannels);
     if (!permission) return interaction.reply({ content: "❌ | You don't have permission to unlock channel." });
     const embed = new EmbedBuilder()

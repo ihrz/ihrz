@@ -13,6 +13,8 @@ const {
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const yaml = require('js-yaml')
+const fs = require('fs');
 module.exports = {
   name: 'report',
   description: 'report a bug or spelling mistake...',
@@ -25,6 +27,9 @@ module.exports = {
     }
   ],
   run: async (client, interaction) => {
+    let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+    let data = yaml.load(fileContents)
+    
     sentences = interaction.options.getString("message-to-dev")
     const talkedRecently = new Set();
 

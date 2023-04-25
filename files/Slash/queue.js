@@ -11,25 +11,28 @@ const {
   ApplicationCommandOptionType
 } = require('discord.js');
 
+const yaml = require('js-yaml'), fs = require('fs');
+
 module.exports = {
   name: 'queue',
   description: 'Get the music queue',
   run: async (client, interaction) => {
+    let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+    let data = yaml.load(fileContents)
+
     const queue = useQueue(interaction.guildId)
 
-    if (!queue)
-      return interaction.reply('I am not in a voice channel', {
-        ephemeral: false,
-      })
-    if (!queue.tracks || !queue.currentTrack)
-      return interaction.reply('There is no queue', { ephemeral: false })
+    if (!queue) return interaction.reply({ content: data.queue_iam_not_voicec })
+    if (!queue.tracks || !queue.currentTrack) {
+      return interaction.reply({ content: data.queue_no_queue })
+    }
 
     const tracks = queue.tracks
       .toArray()
       .map((track, idx) => `**${++idx})** [${track.title}](${track.url})`)
 
     if (tracks.length === 0) {
-      return interaction.reply('There are no more tracks in the queue', { ephemeral: false })
+      return interaction.reply({ content: data.queue_empty_queue })
     }
 
     const embeds = []
@@ -39,10 +42,11 @@ module.exports = {
       const chunk = tracks.slice(0, chunkSize)
       const embed = new EmbedBuilder()
         .setColor('#ff0000')
-        .setTitle('Tracks Queue')
-        .setDescription(chunk.join('\n') || '**No more queued songs**')
-        .setFooter({
-          text: `Page ${index + 1} | Total ${queue.tracks.size} tracks`,
+        .setTitle(data.queue_embed_title)
+        .setDescription(chunk.join('\n') || data.queue_embed_description_empty)
+        .setFooter({ text: data.queue_embed_footer_text
+          .replace("{index}", index + 1)
+          .replace("{track}", queue.tracks.size)
         })
 
       embeds.push(embed)

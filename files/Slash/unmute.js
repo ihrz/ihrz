@@ -49,6 +49,5 @@ module.exports = {
       let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
       if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
     } catch (e) { console.error(e) };
-    const filter = (interaction) => interaction.user.id === interaction.member.id;
   }
 }

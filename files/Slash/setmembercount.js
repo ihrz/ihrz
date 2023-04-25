@@ -12,6 +12,7 @@ const {
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
   name: 'setmembercount',
   description: 'Set a member count channel',
@@ -46,24 +47,21 @@ module.exports = {
     },
   ],
   run: async (client, interaction) => {
+    let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+    let data = yaml.load(fileContents)
 
-
-    if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply(":x: | You must be an administrator of this server to request a welcome channels commands!");
+    if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+      return interaction.reply({ content: setmembercount_not_admin });
+    }
     let type = interaction.options.getString("action")
     let messagei = interaction.options.getString("name")
     let channel = interaction.options.getChannel("channel")
 
     let help_embed = new EmbedBuilder()
       .setColor("#0014a8")
-      .setTitle("setmembercount Help !")
-      .setDescription('/setmembercount <Power on /Power off> <Name of the channel>')
-      .addFields({
-        name: 'how to use ?', value:
-          `Use \`\`\`/setjoinmessage <Power on /Power off/Show the message set> <message>\`\`\`
-    {membercount} = guild's member count
-    {rolescount} = amount of roles
-    {botcount} = guild's bot count
-`})
+      .setTitle(data.setmembercount_helpembed_title)
+      .setDescription(data.setmembercount_helpembed_description)
+      .addFields({ name: data.setmembercount_helpembed_fields_name, value: data.setmembercount_helpembed_fields_value })
 
     if (type == "on") {
       const botMembers = interaction.guild.members.cache.filter(member => member.user.bot);
@@ -83,41 +81,39 @@ module.exports = {
         } else if (messagei.includes("bot")) {
           await db.set(`${interaction.guild.id}.GUILD.MCOUNT.bot`, { name: messagei, enable: true, event: "bot", channel: channel.id })
         }
-        //------------------------------
         try {
           logEmbed = new EmbedBuilder()
             .setColor("#bf0bb9")
-            .setTitle("SetMemberCount Logs")
-            .setDescription(`<@${interaction.user.id}> set the MemberCount of <#${channel.id}> to \`${messagei}\`!`)
-
+            .setTitle(data.setmembercount_logs_embed_title_on_enable)
+            .setDescription(data.setmembercount_logs_embed_description_on_enable
+              .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+              .replace(/\${channel\.id}/g, channel.id)
+              .replace(/\${messagei}/g, messagei)
+            )
           let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
           if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
         } catch (e) { console.error(e) };
-        //------------------------------
         const fetched = interaction.guild.channels.cache.get(channel.id);
 
         fetched.edit({ name: `${joinmsgreplace}` });
-        return interaction.reply(`✅ | Succefully set MemberCount.`)
-
+        return interaction.reply({ content: data.setmembercount_command_work_on_enable })
       }
     } else {
       if (type == "off") {
         await db.delete(`${interaction.guild.id}.GUILD.MCOUNT.member`)
         await db.delete(`${interaction.guild.id}.GUILD.MCOUNT.roles`)
         await db.delete(`${interaction.guild.id}.GUILD.MCOUNT.bot`)
-        //------------------------------
         try {
           logEmbed = new EmbedBuilder()
             .setColor("#bf0bb9")
-            .setTitle("SetMemberCount Logs")
-            .setDescription(`<@${interaction.user.id}> remove the MemberCount of this guild !`)
-
+            .setTitle(data.setmembercount_logs_embed_title_on_disable)
+            .setDescription(data.setmembercount_logs_embed_description_on_disable
+              .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+            )
           let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
           if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
         } catch (e) { console.error(e) };
-        //------------------------------
-        return interaction.reply(`✅ | Succefully removed MemberCount.`)
-
+        return interaction.reply({ content: data.setmembercount_command_work_on_disable })
       }
     }
     if (!type) {
@@ -126,10 +122,5 @@ module.exports = {
     if (!messagei) {
       return interaction.reply({ embeds: [help_embed] })
     }
-
-    if (!type == "ls" || "on" || "off") {
-      return interaction.reply({ embeds: [help_embed] })
-    }
-    const filter = (interaction) => interaction.user.id === interaction.member.id;
   }
 }

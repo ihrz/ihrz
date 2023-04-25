@@ -11,6 +11,7 @@ const {
 
 const { QueryType, Player } = require('discord-player');
 
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
     name: 'p',
     description: '(music) play a music',
@@ -23,10 +24,12 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
         const voiceChannel = interaction.member.voice.channel;
 
         if (!voiceChannel) {
-            return interaction.reply({ content: "You must be connected to a voice channel to use this command!" });
+            return interaction.reply({ content: data.p_not_in_voice_channel });
         }
         try {
             const check = interaction.options.getString("title")
@@ -38,7 +41,7 @@ module.exports = {
 
 
             const results = new EmbedBuilder()
-                .setTitle(`No results`)
+                .setTitle(data.p_embed_title)
                 .setColor(`#ff0000`)
                 .setTimestamp()
 
@@ -46,7 +49,8 @@ module.exports = {
                 return interaction.reply({ embeds: [results] })
             }
 
-            await interaction.reply({ content: `⏲️ Loading a : **${result.playlist ? 'playlist' : 'track'}** !` })
+            await interaction.reply({ content: data.p_loading_message
+            .replace("{result}", result.playlist ? 'playlist' : 'track')})
 
             const yes = await interaction.client.player.play(interaction.member.voice.channel?.id, result, {
                 nodeOptions: {
@@ -78,10 +82,9 @@ module.exports = {
                 .setThumbnail(`${yes.track.playlist ? `${yes.track.playlist.thumbnail.url}` : `${yes.track.thumbnail}`}`)
                 .setColor(`#d0ff00`)
                 .setTimestamp()
-                .setFooter({ text: `Duration: ${yes.track.playlist ? `${yess()}` : `${yes.track.duration}`}` })
+                .setFooter({ text: data.p_duration+`${yes.track.playlist ? `${yess()}` : `${yes.track.duration}`}` })
             return interaction.editReply({ content: "", embeds: [embed] })
         } catch (error) {
-            //console.log(error)
         }
     }
 }

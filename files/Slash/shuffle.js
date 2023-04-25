@@ -10,20 +10,21 @@ const {
 } = require('discord.js');
 const { QueryType, useQueue } = require('discord-player');
 
+const yaml = require('js-yaml'), fs = require('fs');
+
 module.exports = {
   name: 'shuffle',
   description: 'Shuffle all the music queue.',
   run: async (client, interaction) => {
+    let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+    let data = yaml.load(fileContents);
+
     const queue = useQueue(interaction.guild.id)
-    if (!queue) return interaction.reply(`I am not in a voice channel`)
+    if (!queue) return interaction.reply({ content: data.shuffle_no_queue })
 
-    if (queue.tracks.size < 2)
-      return interaction.reply(
-        `There aren't **enough tracks** in queue to **shuffle**`
-      )
-
+    if (queue.tracks.size < 2) return interaction.reply({ content: data.shuffle_no_enought });
     queue.tracks.shuffle()
 
-    return interaction.reply(`I have **shuffled** the queue`)
+    return interaction.reply({ content: data.shuffle_command_work })
   }
 }

@@ -1,27 +1,15 @@
 Moderation
-/ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
+/kick, /clear, /lock, /unlock, /avatar, /lockall,
 /unban, /tempmute, /unmute
-
-Utils
-/serverinfo, /userinfo, /snipe, /renew
-
-Giveaway
-/start, /end, /reroll
-
-Music
-/p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
 Backup
 /backup
 
 Guilds Config
-/setchannels, /setjoinmessage, /setleavemessage, /setjoinroles, /setjoindm, /setup, /blockpub, /guildprofil
+/setjoinmessage, /setleavemessage, /setjoinroles
 
 Role Reactions
 /reactionroles
-
-MemberCount
-/setmembercount
 
 New feature
 /support, /punishpub

@@ -12,6 +12,8 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
+const yaml = require('js-yaml');
+const fs = require('fs');
 module.exports = {
     name: 'blockpub',
     description: 'Disable the member\'s spam with this command',
@@ -34,19 +36,21 @@ module.exports = {
         },
     ],
     run: async (client, interaction) => {
-        let turn = interaction.options.getString("action")
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: ":x: | You must be an administrator of this server! " });
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents);
 
+        let turn = interaction.options.getString("action")
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return interaction.reply({ content: data.blockpub_not_admin });
+        }
         if (turn === "on") {
             await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "on")
-            return interaction.reply({ content: "📌 | The antipub is now functional (It works for everyone except admin)" })
+            return interaction.reply({ content: data.blockpub_now_enable })
         }
 
         if (turn === "off") {
             await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "off")
-            return interaction.reply({ content: "📌 | The antipub is now deactivated!" })
+            return interaction.reply({ content: data.blockpub_now_disable })
         }
-
-        const filter = (interaction) => interaction.user.id === interaction.member.id;
     }
 }

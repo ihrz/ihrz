@@ -323,4 +323,211 @@ userinfo_wait_please: "⏲ Wait please..."
 
 # /renew
 renew_channel_send_success: "${interaction.user} channel re-created !"
-renew_dont_have_permission: ":x: **Can't** `Don\'t have permission !`"
+renew_dont_have_permission: ":x: **Can't** `Don't have permission !`"
+
+# Guild Config commands
+# /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
+
+# /blockpub
+blockpub_not_admin: ":x: | You must be an administrator of this server! "
+blockpub_now_enable: "📌 | The antipub is now functional (It works for everyone except admin)"
+blockpub_now_disable: "📌 | The antipub is now deactivated!"
+
+# /guildprofil
+guildprofil_not_admin: ":x: | You must be an administrator of this server! "
+guildprofil_not_set_reactionrole: "No set!"
+guildprofil_set_reactionrole: "**MessageID**: `${i}` -> ${emoji || key} give <@&${rolesID}> role\n"
+guildprofil_not_set_ticketFetched: "No set!"
+guildprofil_set_ticketFetched: ""
+guildprofil_not_set_punishPub: "No set!"
+guildprofil_set_punishPub: "`${punishPub.punishementType}`: max: `${punishPub.amountMax}` flags."
+guildprofil_not_set_supportConfig: "No set!"
+guildprofil_set_supportConfig: "`${supportConfig.input}` in bio give <@&${supportConfig.rolesId}> role."
+guildprofil_not_set_setchannelsjoin: "No set!"
+guildprofil_set_setchannelsjoin: ""
+guildprofil_not_set_setchannelsleave: "No set!"
+guildprofil_set_setchannelsleave: ""
+guildprofil_not_set_joinmessage: "No set!"
+guildprofil_set_joinmessage: ""
+guildprofil_not_set_leavemessage: "No set!"
+guildprofil_set_leavemessage: ""
+guildprofil_not_set_joinroles: "No set!"
+guildprofil_set_joinroles: ""
+guildprofil_not_set_joinDmMessage: "No set!"
+guildprofil_set_joinDmMessage: ""
+guildprofil_not_set_blockpub: "Power off"
+guildprofil_set_blockpub: "Power on"
+guildprofil_embed_description: "`Guild Config:` ${interaction.guild.name} !"
+guildprofil_embed_fields_joinmessage: "Join Message"
+guildprofil_embed_fields_leavemessage: "Leave Message"
+guildprofil_embed_fields_setchannelsjoin: "Channel Join"
+guildprofil_embed_fields_setchannelsleave: "Channel Leave"
+guildprofil_embed_fields_joinroles: "Join Role"
+guildprofil_embed_fields_joinDmMessage: "Join DM"
+guildprofil_embed_fields_blockpub: "Block Pub"
+guildprofil_embed_fields_punishPub: "Punish Pub"
+guildprofil_embed_fields_supportConfig: "Support"
+guildprofil_embed_fields_ticketFetched: "Tickets"
+guildprofil_embed_fields_reactionrole: "Reaction Role"
+
+# /setchannels
+setchannels_not_admin: ":x: | You must be an administrator of this server to request a this commands!"
+setchannels_not_specified_args: "You must specify a valid channels for you module."
+setchannels_already_this_channel_on_join: "The module is already config with this channels !"
+setchannels_confirmation_message_on_join: "**Join channel set here!** :tada:"
+setchannels_command_error_on_join: "Error: missing permissions or channel doesn't exist"
+setchannels_command_work_on_join: "You have successfully set the join channel module to <#${argsid.id}>"
+setchannels_logs_embed_title_on_join: "Set Channel Logs"
+setchannels_logs_embed_description_on_join: "<@${interaction.user.id}> set the join channel module to: <#${argsid.id}>"
+setchannels_already_this_channel_on_leave: "The module is already config with this channels !"
+setchannels_confirmation_message_on_leave: "**Leave channel set here!** :tada:"
+setchannels_command_error_on_leave: "Error: missing permissions or channel doesn't exist"
+setchannels_command_work_on_leave: "You have successfully set the leave channel module to <#${argsid.id}>"
+setchannels_logs_embed_title_on_leave: "Set Channel Logs"
+setchannels_logs_embed_description_on_leave: "<@${interaction.user.id}> set the leave channel to: <#${argsid.id}>"
+setchannels_already_on_off: "The join & leave channels is already disable"
+setchannels_command_work_on_off: "You have successfully disable the leaves & join channel !"
+setchannels_logs_embed_title_on_off: "Set Channel Logs"
+setchannels_logs_embed_description_on_off: "<@${interaction.user.id}> delete all join/leave channel configuration !"
+
+# /setjoindm
+setjoindm_not_admin: ":x: | You must be an administrator of this server to request this commands!"
+setjoindm_logs_embed_title_on_enable: "Set JoinDm Logs"
+setjoindm_logs_embed_description_on_enable: "<@${interaction.user.id}> set the join dm message !"
+setjoindm_not_specified_args_on_enable: "You must specify a valid message for you join dm."
+setjoindm_confirmation_message_on_enable: "You have successfully set the join dm to :```${dm_msg}``` And enable it "
+setjoindm_command_error_on_enable: "Error: missing permissions or channel doesn't exist"
+setjoindm_logs_embed_title_on_disable: "Set JoinDm Logs"
+setjoindm_logs_embed_description_on_disable: "<@${interaction.user.id}> disable the join dm message !"
+setjoindm_confirmation_message_on_disable: "You have successfully disable the join dm !"
+setjoindm_command_error_on_disable: "Error: missing permissions or channel doesn't exist"
+setjoindm_already_disable: "The join dm message is already disable !"
+setjoindm_not_setup_ls: "They are no join dm setup here !"
+setjoindm_command_work_ls: "The join dm message is: \n```${already_off}```"
+
+# /setjoinmessage
+
+# /setjoinroles
+
+# /setleavemessage
+
+# /setup
+setup_not_admin: ":x: | You must be an administrator of this server !"
+setup_command_work: "✅ | Channel Setup"
+setup_command_error: "The bot has already setup the logs channels ! Or the bot doesn't have permission..."
+
+
+
+# Member Count commands
+# /setmembercount
+
+# /setmembercount
+setmembercount_not_admin: ":x: | You must be an administrator of this server to request a welcome channels commands!"
+setmembercount_helpembed_title: "Set MemberCount Help !"
+setmembercount_helpembed_description: "/setmembercount <Power on /Power off> <Name of the channel>"
+setmembercount_helpembed_fields_name: "how to use ?"
+setmembercount_helpembed_fields_value: "Use ```/setjoinmessage <Power on /Power off/Show the message set> <message>```\n{membercount} = guild's member count\n{rolescount} = amount of roles\n{botcount} = guild's bot count"
+setmembercount_logs_embed_title_on_enable: "Set MemberCount Logs"
+setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> set the MemberCount of <#${channel.id}> to `${messagei}`!"
+setmembercount_command_work_on_enable: "✅ | Succefully set MemberCount."
+setmembercount_command_work_on_disable: "✅ | Succefully removed MemberCount."
+setmembercount_logs_embed_title_on_disable: "Set MemberCount Logs"
+setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> remove the MemberCount of this guild !"
+
+
+# Music commands
+# /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
+
+# /p
+p_not_in_voice_channel: "You must be connected to a voice channel to use this command!"
+p_embed_title: "No results"
+p_loading_message:  "⏲️ Loading a : **{result}** !"
+p_duration: "Duration: "
+
+# /loop
+loop_no_queue: "There is no queue!"
+loop_command_work: "{mode} | Updated loop mode"
+
+# /nowplaying
+nowplaying_no_queue: "There is not playing anything"
+nowplaying_message_embed_title: "Now playing"
+
+# /pause
+pause_no_queue: "⚠️ - You're not in a voice channel !"
+pause_nothing_playing: "There is nothing playing"
+
+# /resume
+resume_nothing_playing: "There is nothing playing"
+resume_command_work: "resumed successfully"
+
+# /skip
+skip_not_in_voice_channel: "⚠️ - You're not in a voice channel !"
+skip_nothing_playing: "There is nothing playing"
+skip_command_work: "Skipped {queue}"
+
+# /stop
+stop_nothing_playing: "nothing playing"
+stop_command_work: "Queue stopped"
+
+# /queue
+queue_iam_not_voicec: "I am not in a voice channel"
+queue_no_queue: "There is no queue"
+queue_empty_queue: "There are no more tracks in the queue"
+queue_embed_title: "Tracks Queue"
+queue_embed_description_empty: "**No more queued songs**"
+queue_embed_footer_text: "Page {index} | Total {track} tracks"
+
+# /shuffle
+shuffle_no_queue: "I am not in a voice channel"
+shuffle_no_enought: "There aren't **enough tracks** in queue to **shuffle**"
+shuffle_command_work: "I have **shuffled** the queue"
+
+
+# Giveaway commands
+# /end, /start, /reroll
+
+# /end
+end_not_admin: "You must have permissions to manage messages to end this giveaway."
+end_not_find_giveaway: "Could not find a giveaway for `${gw}`."
+end_confirmation_message: "The giveaway will end in less than (${timeEstimate}) secondes..."
+end_logs_embed_title: "Giveaway Logs"
+end_logs_embed_description: "<@${interaction.user.id}> ended giveaways with this id: ${giveaway.messageID}"
+end_command_error: "This giveaway is already finished!"
+
+# /start
+start_not_perm: "You must have permissions to manage messages to start the giveaways."
+start_is_not_valid: "You must specify a valid number of winners!"
+start_confirmation_command: "Giveaway started in ${giveawayChannel}!"
+start_logs_embed_title: "Giveaway Logs"
+start_logs_embed_description: "<@${interaction.user.id}> started a giveways in: ${giveawayChannel}"
+
+# /reroll
+reroll_not_perm: "You must have permissions to manage messages to end this giveaway."
+reroll_dont_find_giveaway: "Could not find a giveaway for `{args}` ."
+reroll_command_work: "Giveaway relaunched!"
+reroll_logs_embed_title: "Giveaways Logs"
+reroll_logs_embed_description: "<@${interaction.user.id}> reroll giveaways with this id: ${giveaway.messageID}"
+reroll_command_error: "Error !"
+
+
+# Moderation commands
+# /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
+# /unban, /tempmute, /unmute
+
+# /ban
+ban_not_permission: "❌ | You don't have permission to ban members."
+ban_dont_found_member: "🔍 | Cannot find this member"
+ban_dont_have_perm_myself: "❌ | I don't have permission to ban members!"
+ban_try_to_ban_yourself: "❌ | You cannot ban yourself!"
+ban_attempt_ban_higter_member: "🛑 You cannot ban user who have higher role than you..."
+ban_cant_ban_member: "❌ | I cannot ban that member"
+ban_message_to_the_banned_member: "You are banned from this server: **${interaction.guild.name}** by `${interaction.member.user.username}#${interaction.member.user.discriminator}`"
+ban_command_work: "<@${member.user.id}> banned by <@${interaction.member.id}>"
+ban_logs_embed_title: "Ban Logs"
+ban_logs_embed_description: "<@${member.user.id}> banned by <@${interaction.member.id}>"
+
+# /kick
+kick_
+kick_
+kick_
+kick_

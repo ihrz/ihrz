@@ -8,6 +8,9 @@ const {
     PermissionsBitField,
     ApplicationCommandOptionType
 } = require('discord.js');
+
+const yaml = require('js-yaml'), fs = require('fs');
+
 module.exports = {
     name: 'kick',
     description: 'kick a member in guild',
@@ -20,6 +23,9 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents);
+
         const member = interaction.options.getMember("member")
         const permission = interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers)
         if (!permission) return interaction.reply({ content: "❌ | You don't have permission to kick members." });

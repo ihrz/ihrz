@@ -14,6 +14,7 @@ const {
 const config = require('../config.json');
 const messages = require("../messages.js");
 
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
     name: 'start',
     description: 'Start a giveaways',
@@ -45,31 +46,25 @@ module.exports = {
     ],
 
     run: async (client, interaction) => {
-
+        let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-            return interaction.reply({ content: `You must have permissions to manage messages to start the giveaways.` });
+            return interaction.reply({ content: data.start_not_perm });
         }
 
         let giveawayChannel = interaction.options.getChannel("channel");
-        if (!giveawayChannel) {
-            return interaction.reply({ content: `You must mention a valid channel!` });
-        }
 
         let giveawayDuration = interaction.options.getString("time");
-        if (!giveawayDuration || isNaN(ms(giveawayDuration))) {
-            returninteraction.reply({ content: `You must specify a valid duration!` });
-        }
 
         let giveawayNumberWinners = interaction.options.getNumber("winner");
+
         if (isNaN(giveawayNumberWinners) || (parseInt(giveawayNumberWinners) <= 0)) {
-            return interaction.reply({ content: `You must specify a valid number of winners!` });
+            return interaction.reply({ content: data.start_is_not_valid });
         }
 
         let giveawayPrize = interaction.options.getString("prize");
-        if (!giveawayPrize) {
-            return interaction.reply({ content: `You must have a valid price!` });
-        }
+
         client.giveawaysManager.start(giveawayChannel, {
             duration: ms(giveawayDuration),
             prize: giveawayPrize,
@@ -77,17 +72,21 @@ module.exports = {
             hostedBy: config.hostedBy ? `<@${interaction.user.id}>` : null,
             messages
         });
-        interaction.reply({ content: `Giveaway started in ${giveawayChannel}!` });
+        interaction.reply({ content: data.start_confirmation_command
+            .replace(/\${giveawayChannel}/g, giveawayChannel)
+        });
 
         try {
             logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
-                .setTitle("Giveaway Logs")
-                .setDescription(`<@${interaction.user.id}> started a giveways in: ${giveawayChannel}`)
+                .setTitle(data.reroll_logs_embed_title)
+                .setDescription(data.start_logs_embed_description
+                    .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                    .replace(/\${giveawayChannel}/g, giveawayChannel) 
+                )
+
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
         } catch (e) { console.error(e) };
-
-        const filter = (interaction) => interaction.user.id === interaction.member.id;
     }
 }

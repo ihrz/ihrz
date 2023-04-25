@@ -1,5 +1,6 @@
 const { Client, Intents, Collection, Permissions, PermissionsBitField, ApplicationCommandType, ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
     name: 'ban',
     description: 'ban a member in guild',
@@ -12,30 +13,51 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents);
+
         const member = interaction.guild.members.cache.get(interaction.options.get("member").user.id)
         const permission = interaction.member.permissions.has(PermissionsBitField.Flags.BanMembers)
-        if (!permission) return interaction.reply({ content: "❌ | You don't have permission to ban members." });
-        if (!member) return interaction.reply({ content: `🔍 | Cannot find this member` });
-        if (!interaction.channel.permissionsFor(client.user).has('BAN_MEMBERS')) { return interaction.reply("I don't have permission to ban members!") }
-        if (member.user.id === interaction.member.id) { return interaction.reply("❌ | You cannot ban yourself!") };
-        if (interaction.member.roles.highest.position < member.roles.highest.position) return interaction.reply("🛑 You cannot ban user who have higher role than you...");
-        if (!member.bannable) return interaction.reply(`❌ | I cannot ban that member`);
-        member.send(`You are banned from this server: **${interaction.guild.name}** by \`${interaction.member.user.username}#${interaction.member.user.discriminator}\``)
+        if (!permission) return interaction.reply({ content: data.ban_not_permission });
+        if (!member) return interaction.reply({ content: data.ban_dont_found_member });
+
+        if (!interaction.channel.permissionsFor(client.user).has('BAN_MEMBERS')) {
+            return interaction.reply({ content: data.ban_dont_have_perm_myself })
+        }
+
+        if (member.user.id === interaction.member.id) { return interaction.reply({ content: data.ban_try_to_ban_yourself }) };
+        if (interaction.member.roles.highest.position < member.roles.highest.position) {
+            return interaction.reply({ content: data.ban_attempt_ban_higter_member });
+        }
+
+        if (!member.bannable) {
+            return interaction.reply({ content: data.ban_cant_ban_member });
+        }
+        member.send({ content: data.ban_message_to_the_banned_member
+            .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
+            .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.username)
+            .replace(/\${interaction\.member\.user\.discriminator}/g, interaction.member.user.discriminator)
+        })
             .then(() => {
                 member.ban({ reason: 'banned by ' + interaction.user.username })
                     .then((member) => {
-                        interaction.reply(`<@${member.user.id}> banned by <@${interaction.member.id}>`);
+                        interaction.reply({ content: data.ban_command_work
+                            .replace(/\${member\.user\.id}/g, member.user.id)
+                            .replace(/\${interaction\.member\.id}/g, interaction.member.id)
+                        });
 
                         try {
                             logEmbed = new EmbedBuilder()
                                 .setColor("#bf0bb9")
-                                .setTitle("Ban Logs")
-                                .setDescription(`<@${member.user.id}> banned by <@${interaction.member.id}>`)
+                                .setTitle(data.ban_logs_embed_title)
+                                .setDescription(data.ban_logs_embed_description
+                                    .replace(/\${member\.user\.id}/g, member.user.id)
+                                    .replace(/\${interaction\.member\.id}/g, interaction.member.id)
+                                )
                             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
                         } catch (e) { console.error(e) };
                     })
             })
-        const filter = (interaction) => interaction.user.id === interaction.member.id;
     }
 }

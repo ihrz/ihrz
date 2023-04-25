@@ -9,6 +9,8 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
+const yaml = require('js-yaml'), fs = require('fs');
+
 module.exports = {
     name: 'punishpub',
     description: 'Punish user when them advertise on your server!',
@@ -59,8 +61,6 @@ module.exports = {
 
     run: async (client, interaction) => {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply(":x: | You must be an administrator of this server to request this commands!");
-
-
         const { QuickDB } = require("quick.db");
         const db = new QuickDB();
 
