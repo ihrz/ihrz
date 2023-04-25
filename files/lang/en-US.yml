@@ -215,7 +215,112 @@ slap_embed_description: "<@${interaction.user.id}> slap <@${slap.id}> 😓"
 
 
 # Economy commands
-# /add-money, /balance, /daily, /monthly, /pay, /remove-money, /rob, /weekly, /work
+# /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
-# /add-money
-addmoney_not_admin: ""
+# /addmoney
+addmoney_not_admin: "You cannot run this command because you do not have the necessary permissions `ADMINISTRATOR`"
+addmoney_logs_embed_title: "Economy Logs"
+addmoney_logs_embed_description: "<@${interaction.user.id}> Added ${amount.value} coin to <@${user.user.id}> !"
+
+# /balance
+balance_dont_have_wallet: "👛 You dont't have wallet... !"
+balance_he_dont_have_wallet: "👛 He dont't have wallet... !"
+balance_have_wallet: "👛 You have ${bal} coin(s) !"
+balance_he_have_wallet: "👛 He have ${bal} coin(s) !"
+
+# /daily
+daily_cooldown_error: "Sorry you must wait **${time}** before running this command!"
+daily_embed_title: "Daily"
+daily_embed_description: "**Daily Reward**"
+daily_embed_fields: "Collected"
+
+# /monthly
+monthly_cooldown_error: "Sorry you must wait **${time}** before running this command!"
+monthly_embed_title: "Monthly"
+monthly_embed_description: "**Monthly Reward**"
+monthly_embed_fields: "Collected"
+
+# /pay
+pay_negative_number_error: "Negative money can not be paid."
+pay_dont_have_enought_to_give: "That's more money than you've got in your balance. try again."
+pay_command_work: "${interaction.user.username}#${interaction.user.discriminator}, You successfully paid to ${user.user.username} `${amount}`$."
+
+# /removemoney
+removemoney_not_admin: "You cannot run this command because you do not have the necessary permissions `ADMINISTRATOR`"
+removemoney_embed_title: "Removed Money!"
+removemoney_embed_fields: "Amount"
+removemoney_embed_second_fields: "Balance Updated"
+removemoney_logs_embed_description: "<@${interaction.user.id}> remove ${amount} coin of <@${user.user.id}> !"
+removemoney_logs_embed_title: "Economy Logs"
+
+# /rob
+rob_cooldown_error: "**Wait 50minutes before rob user again !**"
+rob_dont_enought_error: ":x: You need atleast 250$ to rob somebody."
+rob_him_dont_enought_error: ":x: ${user.user.username} does not have enought to rob."
+rob_embed_description: "<@${interaction.user.id}> you robbed <@${user.id}> and got away with ${random}!"
+
+# /weekly
+weekly_cooldown_error: "Sorry you must wait **${time}** before running this command!"
+weekly_embed_title: "Daily"
+weekly_embed_description: "**Weekly Reward**"
+weekly_embed_fields: "Collected"
+
+# /work
+work_cooldown_error: "**Wait 50minutes before rob user again !** ${interaction.user.username}#${interaction.user.discriminator}"
+work_embed_author: "${interaction.user.username}#${interaction.user.discriminator}, it payed off!"
+work_embed_description: "${interaction.user.username}#${interaction.user.discriminator}, you've worked and earned ${amount}$ !"
+
+
+# Profil Customisation commands
+# /setprofilage, /setprofildescriptions, /profil
+
+# /setprofilage
+setprofilage_command_work: "**Your profil age has been updated successfully.**"
+
+# /setprofildescriptions
+setprofildescriptions_command_work: "**Your description has been updated successfully.**"
+
+# /profil
+profil_not_description_set: "Not descriptions set !"
+profil_unknown: "Unknown"
+profil_embed_title: "📌 __Profile of ${member.tag}__"
+profil_embed_fields_nickname: "📝 ・ __Nickname__"
+profil_embed_fields_money: "🪙 ・ __Money__"
+profil_embed_fields_money_value: " coins"
+profil_embed_fields_xplevels: "💳 ・ __XP Levels__"
+profil_embed_fields_xplevels_value: " XP Levels"
+profil_embed_fields_age: "🎂 ・ __Age__"
+profil_embed_fields_age_value: " years olds"
+
+
+# Utils commands
+# /serverinfo, /snipe, /userinfo, /renew
+
+# /serverinfo
+serverinfo_verlvl_NONE: "NONE"
+serverinfo_verlvl_LOW: "LOW"
+serverinfo_verlvl_MEDIUM: "MEDIUM"
+serverinfo_verlvl_HIGHT: "(╯°□°）╯︵ ┻━┻"
+serverinfo_verlvl_VERY_HIGHT: "(ノಠ益ಠ)ノ彡┻━┻ "
+serverinfo_embed_author: "🚩 -> ${interaction.guild.name}"
+serverinfo_embed_description: "**Descriptions**: ${interaction.guild.description}"
+serverinfo_embed_fields_name: "🏷・**Name:**"
+serverinfo_embed_fields_members: "🧔・**Members:**"
+serverinfo_embed_fields_id: "🆔・**ID:**"
+serverinfo_embed_fields_owner: "👑・**Owner:**"
+serverinfo_embed_fields_verlvl: "🎚 ・**Verification Level:**"
+serverinfo_embed_fields_region: "🌍・**Region:**"
+serverinfo_embed_fields_roles: "📇・**Role(s) number:**"
+serverinfo_embed_fields_channels: "✍・**Channel(s) number:**"
+serverinfo_embed_fields_joinat: "🚲・**Join at:**"
+serverinfo_embed_fields_createat: "⚓・**Create at:**"
+
+# /snipe
+snipe_no_previous_message_deleted: "No message deleted in this channel !"
+
+# /userinfo
+userinfo_wait_please: "⏲ Wait please..."
+
+# /renew
+renew_channel_send_success: "${interaction.user} channel re-created !"
+renew_dont_have_permission: ":x: **Can't** `Don\'t have permission !`"

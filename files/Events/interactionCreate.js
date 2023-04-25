@@ -16,8 +16,7 @@ module.exports = async (client, interaction) => {
       .setColor("#0827F5")
       .setTitle(":(")
       .setImage("https://media.discordapp.net/attachments/1047271029606723656/1049433666671087626/image.png?width=1358&height=676")
-    if (potential_blacklisted === "yes") { return interaction.reply({ embeds: [blacklisted] }) };
-
+    if (potential_blacklisted) { return interaction.reply({ embeds: [blacklisted] }) };
     command.run(client, interaction);
   }
   async function logsCommands() {
@@ -34,5 +33,4 @@ module.exports = async (client, interaction) => {
     }
   }
   logsCommands()
-
 }

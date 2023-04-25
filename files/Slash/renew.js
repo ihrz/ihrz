@@ -11,10 +11,14 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
+const yaml = require('js-yaml'), fs = require('fs');
+
 module.exports = {
     name: 'renew',
     description: 'Re-created a channels (cloning permission and all configurations). nuke equivalent',
     run: async (client, interaction) => {
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: "you don't have admin permission !" })
         let channel = interaction.channel
@@ -32,10 +36,11 @@ module.exports = {
                 position: channel.rawPosition,
                 reason: `Channel re-create by ${interaction.user} (${interaction.user.id})`
             })
+
             channel.delete()
-            here.send(`${interaction.user} channel re-created !`)
+            here.send({ content: data.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.user) })
         } catch (error) {
-            return interaction.reply({ content: ":x: **Can't** `don\'t have permission !` lmao" })
+            return interaction.reply({ content: data.renew_dont_have_permission })
         }
         const filter = (interaction) => interaction.user.id === interaction.member.id;
     }

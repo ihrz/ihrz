@@ -11,7 +11,7 @@ const {
   ApplicationCommandOptionType
 } = require('discord.js');
 
-
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
   name: 'rob',
   description: 'rob user money',
@@ -24,26 +24,35 @@ module.exports = {
     }
   ],
   run: async (client, interaction) => {
-
+    let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+    let data = yaml.load(fileContents)
     const talkedRecentlyforr = new Set();
 
     if (talkedRecentlyforr.has(interaction.user.id)) {
-      return interaction.reply({ content: `**Wait 50minutes before rob user again !** ${interaction.member.user.username}#${interaction.member.user.discriminator}` });
+      return interaction.reply({ content: data.rob_cooldown_error });
     }
-    let user = interaction.options.getMember("member")
+
+    let user = interaction.options.getMember("member");
     let targetuser = await db.get(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`)
     let author = await db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`)
     if (author < 250) {
-      return interaction.reply({ content: ':x: You need atleast 250$ to rob somebody.' })
+      return interaction.reply({ content: data.rob_dont_enought_error })
     }
 
     if (targetuser < 250) {
-      return interaction.reply({ content: `:x: ${user.user.username} does not have enought to rob.` })
+      return interaction.reply({
+        content: data.rob_him_dont_enought_error
+          .replace(/\${user\.user\.username}/g, user.user.username)
+      })
     }
     let random = Math.floor(Math.random() * 200) + 1;
 
     let embed = new EmbedBuilder()
-      .setDescription(`<@${interaction.user.id}> you robbed <@${user.id}> and got away with ${random}!`)
+      .setDescription(data.rob_embed_description
+        .replace(/\${interaction\.user\.id}/g, interaction.user.id)   
+        .replace(/\${user\.id}/g, user.id)   
+        .replace(/\${random}/g, random)   
+        )
       .setColor("#a4cb80")
       .setTimestamp()
     interaction.reply({ embeds: [embed] })
@@ -55,7 +64,5 @@ module.exports = {
     setTimeout(() => {
       talkedRecentlyforr.delete(interaction.user.id);
     }, 3000000);
-
-    const filter = (interaction) => interaction.user.id === interaction.member.id;
   }
 }

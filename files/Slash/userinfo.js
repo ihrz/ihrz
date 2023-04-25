@@ -77,6 +77,10 @@ function getBadges(flags) {
   if (b == '') b = 'None'
   return b;
 }
+
+
+const yaml = require('js-yaml'), fs = require('fs');
+
 module.exports = {
   name: 'userinfo',
   description: 'lookup a user',
@@ -89,6 +93,8 @@ module.exports = {
     }
   ],
   run: async (client, interaction) => {
+    let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+    let data = yaml.load(fileContents)
     let member = interaction.options.get("user") || interaction.member;
     member = await interaction.guild.members.fetch(member)
 
@@ -140,7 +146,7 @@ module.exports = {
       return interaction.editReply({ embeds: [embed], content: "✅ Fetched !" });
     }
 
-    await interaction.reply({ content: "⏲ Wait please..." })
+    await interaction.reply({ content: data.userinfo_wait_please })
 
     superagent.post(`${api_url}`).send({ tokent: "want", adminKey: config.apiToken, userid: member.id, tor: 'CHECK_IN_SYSTEM' }).end(async (err, response) => {
       if (err) {

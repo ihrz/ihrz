@@ -12,10 +12,13 @@ const {
   ApplicationCommandOptionType
 } = require('discord.js');
 
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
   name: 'monthly',
   description: 'Earn your monthly gain from you work',
   run: async (client, interaction) => {
+    let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+    let data = yaml.load(fileContents)
     let timeout = 2592000000
     let amount = 5000
     let monthly = await await db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly`);
@@ -23,17 +26,16 @@ module.exports = {
     if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
       let time = ms(timeout - (Date.now() - monthly));
 
-      interaction.reply({ content: `Sorry you must wait **${time}** before running this command!` })
+      interaction.reply({ content: data.monthly_cooldown_error.replace(/\${time}/g, time) })
     } else {
       let embed = new EmbedBuilder()
-        .setAuthor({ name: `Monthly`, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
+        .setAuthor({ name: data.monthly_embed_title, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
         .setColor("#a4cb80")
-        .setDescription(`**monthly Reward**`)
-        .addFields({ name: "Collected", value: `${amount}🪙` })
+        .setDescription(data.monthly_embed_description)
+        .addFields({ name: data.monthly_embed_fields, value: `${amount}🪙` })
       interaction.reply({ embeds: [embed] });
       db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount),
         db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly`, Date.now());
     }
-    const filter = (interaction) => interaction.user.id === interaction.member.id;
   }
 }

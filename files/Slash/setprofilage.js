@@ -12,6 +12,7 @@ const {
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
     name: 'setprofilage',
     description: 'Set your age on the iHorizon Profil !',
@@ -24,13 +25,11 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
         var age = interaction.options.getNumber("age")
-        if (!age) return interaction.reply(":x: | **Please give a correct syntax.**")
-
 
         await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.age`, age)
-        interaction.reply("**Your profil age has been updated successfully.**")
-        const filter = (interaction) => interaction.user.id === interaction.member.id;
+        interaction.reply({ content: data.setprofilage_command_work })
     }
 }

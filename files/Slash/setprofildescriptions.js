@@ -12,6 +12,8 @@ const {
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const yaml = require('js-yaml'), fs = require('fs');
+
 module.exports = {
     name: 'setprofildescriptions',
     description: 'Set your descriptions on the iHorizon Profil !',
@@ -24,13 +26,12 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
 
         var desc = interaction.options.getString("descriptions")
-        if (!desc) return interaction.reply(":x: | **Please give a correct description.**")
-
 
         await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.desc`, desc)
-        interaction.reply("**Your description has been updated successfully.**")
-        const filter = (interaction) => interaction.user.id === interaction.member.id;
+        interaction.reply({ content: data.setprofildescriptions_command_work })
     }
 }

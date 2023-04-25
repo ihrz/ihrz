@@ -11,7 +11,7 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
     name: 'pay',
     description: 'Give money to typed user',
@@ -30,20 +30,26 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
 
         let user = interaction.options.getMember("member")
         let amount = interaction.options.getNumber("amount")
         let member = await db.get(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`)
         if (amount.toString().includes('-')) {
-            return interaction.reply({ content: 'Negative money can not be paid.' })
+            return interaction.reply({ content: data.pay_negative_number_error })
         }
         if (member < amount.value) {
-            return interaction.reply({ content: `That's more money than you've got in your balance. try again.` })
+            return interaction.reply({ content: data.pay_dont_have_enought_to_give })
         }
-        interaction.reply(`${interaction.user.username}#${interaction.user.discriminator}, You successfully paid to ${user.user.username} \`${amount}\`$.`)
+
+        interaction.reply({content: data.pay_command_work
+            .replace(/\${interaction\.user\.username}/g, interaction.user.username)  
+            .replace(/\${interaction\.user\.discriminator}/g, interaction.user.discriminator)  
+            .replace(/\${user\.user\.username}/g, user.user.username)  
+            .replace(/\${amount}/g, amount)  
+        })
         await db.add(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, amount)
         await db.sub(`${interaction.guild.id}.USER.${interaction.member.id}.ECONOMY.money`, amount)
-
-        const filter = (interaction) => interaction.user.id === interaction.member.id;
     }
 }

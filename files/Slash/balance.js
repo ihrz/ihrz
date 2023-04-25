@@ -12,6 +12,7 @@ const {
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
     name: 'balance',
     description: 'show how much dollars you have in your bank',
@@ -24,20 +25,34 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        const member = interaction.options.get('user')
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
+        const member = interaction.options.get('user');
+
         if (!member) {
             var bal = await db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`)
-            if (!bal) { return await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, 1), interaction.reply({ content: `👛 You dont't have wallet... !` }) }
-            interaction.reply({ content: `👛 You have ${bal} coin(s) !` })
+            if (!bal) {
+                return await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, 1),
+                    interaction.reply({ content: data.balance_dont_have_wallet })
+            }
+            interaction.reply({
+                content: data.balance_have_wallet
+                    .replace(/\${bal}/g, bal)
+            })
         } else {
             if (member) {
                 var bal = await db.get(`${interaction.guild.id}.USER.${member.value}.ECONOMY.money`)
-                if (!bal) { return db.set(`${interaction.guild.id}.USER.${member.value}.ECONOMY.money`, 1), interaction.reply({ content: `👛 he dont't have wallet... !` }) }
-                interaction.reply({ content: `👛 He have ${bal} coin(s) !` })
+                if (!bal) {
+                    return db.set(`${interaction.guild.id}.USER.${member.value}.ECONOMY.money`, 1),
+                        interaction.reply({
+                            content: data.balance_he_dont_have_wallet
+                        })
+
+                }
+                interaction.reply({
+                    content: data.balance_he_have_wallet.replace(/\${bal}/g, bal)
+                })
             }
         }
-
-
-        const filter = (interaction) => interaction.user.id === interaction.member.id;
     }
 }

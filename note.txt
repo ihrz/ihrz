@@ -17,12 +17,6 @@ Backup
 Guilds Config
 /setchannels, /setjoinmessage, /setleavemessage, /setjoinroles, /setjoindm, /setup, /blockpub, /guildprofil
 
-Profils Customizations
-/setprofildescriptions, /profil, /setprofilage
-
-Economy
-/add-money, /balance, /daily, /monthly, /pay, /remove-money, /rob, /weekly, /work
-
 Role Reactions
 /reactionroles
 

@@ -12,6 +12,8 @@ const {
 
 const backup = require("discord-backup")
 
+const yaml = require('js-yaml'), fs = require('fs');
+
 module.exports = {
     name: 'backup',
     description: 'Manage, create and delete a guild backups !',
@@ -41,7 +43,8 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-
+        let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return
         let backup_options = interaction.options.getString('action')

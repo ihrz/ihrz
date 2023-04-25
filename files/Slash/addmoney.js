@@ -11,6 +11,9 @@ const {
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const yaml = require('js-yaml');
+const fs = require('fs');
+
 module.exports = {
   name: 'addmoney',
   description: 'add money to the bank of the typed user',
@@ -29,9 +32,12 @@ module.exports = {
     }
   ],
   run: async (client, interaction) => {
+    let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+    let data = yaml.load(fileContents)
 
-    if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply("You cannot run this command because you do not have the necessary permissions `ADMINISTRATOR`")
-
+    if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+      return interaction.reply(data.addmoney_not_admin)
+    }
     var amount = interaction.options.get("amount")
     let user = interaction.options.get("member")
     interaction.reply({ content: `Successfully added \`${amount.value}\`$ to <@${user.user.id}>` })
@@ -40,8 +46,12 @@ module.exports = {
     try {
       logEmbed = new EmbedBuilder()
         .setColor("#bf0bb9")
-        .setTitle("Economy Logs")
-        .setDescription(`<@${interaction.user.id}> Added ${amount.value} coin to <@${user.user.id}> !`)
+        .setTitle(data.addmoney_logs_embed_title)
+        .setDescription(data.addmoney_logs_embed_description
+          .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+          .replace(/\${amount\.value\.id}/g, amount.value)
+          .replace(/\${user\.user\.id}/g, user.user.id)
+          )
 
       let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
       if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
