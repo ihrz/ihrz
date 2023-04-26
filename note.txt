@@ -1,15 +1,2 @@
-Moderation
-/kick, /clear, /lock, /unlock, /avatar, /lockall,
-/unban, /tempmute, /unmute
-
-Backup
-/backup
-
 Guilds Config
-/setjoinmessage, /setleavemessage, /setjoinroles
-
-Role Reactions
-/reactionroles
-
-New feature
-/support, /punishpub
+/setleavemessage, /setjoinroles

@@ -11,6 +11,8 @@ const {
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const yaml = require('js-yaml');
+const fs = require('fs');
 module.exports = {
   name: 'setleavemessage',
   description: 'Set a leave message when user leave the server',
@@ -47,19 +49,24 @@ module.exports = {
     },
   ],
   run: async (client, interaction) => {
-    if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply(":x: | You must be an administrator of this server to request a welcome channels commands!");
+    let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+    let data = yaml.load(fileContents)
+
+    if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+      return interaction.reply({ content: data.setleavemessage_not_admin });
+    }
+
     let type = interaction.options.getString("value")
     let messagei = interaction.options.getString("message")
 
     let help_embed = new EmbedBuilder()
       .setColor("#016c9a")
-      .setTitle("/setleavemessage Help !")
-      .setDescription('/setleavemessage <Power on /Power off/Show the message set> <leave message>')
-      .addField('how to use ?',
-        `Use \`\`\`/setleavemessage <Power on /Power off/Show the message set> <message>\`\`\`
-  {user} = Username of Member
-  {membercount} = guild's member count
-  {guild} = The name of the guild`)
+      .setTitle(data.setleavemessage_help_embed_title)
+      .setDescription(data.setleavemessage_help_embed_description)
+      .addFields({
+        name: data.setleavemessage_help_embed_fields_name,
+        value: data.setleavemessage_help_embed_fields_value
+      })
 
     if (type == "on") {
       if (messagei) {
@@ -72,14 +79,16 @@ module.exports = {
         try {
           logEmbed = new EmbedBuilder()
             .setColor("#bf0bb9")
-            .setTitle("SetJoinMessage Logs")
-            .setDescription(`<@${interaction.user.id}> set the leave message !`)
+            .setTitle(data.setleavemessage_logs_embed_title_on_enable)
+            .setDescription(data.setleavemessage_logs_embed_description_on_enable
+              .replace("${interaction.user.id}", interaction.user.id)
+            )
 
           let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
           if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
         } catch (e) { console.error(e) };
 
-        return interaction.reply(`✅ | Succefully set custom leave message.`)
+        return interaction.reply({ content: data.setleavemessage_command_work_on_enable })
       }
 
     } else {
@@ -88,25 +97,22 @@ module.exports = {
         try {
           let ban_embed = new EmbedBuilder()
             .setColor("#bf0bb9")
-            .setTitle("SetJoinMessage Logs")
-            .setDescription(`<@${interaction.user.id}> deleted the leave message !`)
+            .setTitle(data.setleavemessage_logs_embed_title_on_disable)
+            .setDescription(data.setleavemessage_logs_embed_description_on_disable
+              .replace("${interaction.user.id}", interaction.user.id)
+            )
           let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
           logchannel.send({ embeds: [ban_embed] })
         } catch (e) { console.error(e) }
-        return interaction.reply(`✅ | Succefully deleted custom leave message.`)
+        return interaction.reply({ content: data.setleavemessage_command_work_on_disable })
       }
     }
     if (type == "ls") {
       var ls = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`);
-      return interaction.reply("The leave message is: \n```" + ls + "```")
-    }
-    if (!type) {
-      return interaction.reply({ embeds: [help_embed] })
+      return interaction.reply({ content: data.setleavemessage_command_work_ls })
     }
     if (!messagei) {
       return interaction.reply({ embeds: [help_embed] })
     }
-
-    const filter = (interaction) => interaction.user.id === interaction.member.id;
   }
 }

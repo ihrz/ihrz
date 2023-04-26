@@ -12,6 +12,7 @@ const {
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
   name: 'reactionroles',
   description: 'Set a roles when user react to a message with specific emoji',
@@ -29,10 +30,6 @@ module.exports = {
         {
           name: "Remove one",
           value: "remove"
-        },
-        {
-          name: "Show all from message",
-          value: "list"
         }
       ]
     },
@@ -56,7 +53,12 @@ module.exports = {
     }
   ],
   run: async (client, interaction) => {
-    if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply(":x: | You must be an administrator of this server to request a welcome channels commands!");
+    let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+    let data = yaml.load(fileContents);
+
+    if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+      return interaction.reply({ content: data.reactionroles_dont_admin_added });
+    }
     let type = interaction.options.getString("value")
     let messagei = interaction.options.getString("messageid")
     let reaction = interaction.options.getString("reaction")
@@ -65,52 +67,57 @@ module.exports = {
     let help_embed = new EmbedBuilder()
       .setColor("#0000FF")
       .setTitle("/reactionroles Help !")
-      .setDescription(`__how to use ?__
-/rolesreaction add \`<message id>\` \`<reaction>\` \`<rolesid>\`
-/rolesreaction remove \`<message id>\` \`<reaction>\`
-/rolesreaction list \`<message id>\``)
+      .setDescription(data.reactionroles_embed_message_description_added)
 
     if (type == "add") {
-      /* Add roles to users pleasssssssse ihorisus*/
-
       interaction.channel.messages.fetch(messagei).then(message => { message.react(reaction) })
         .catch(error => { return interaction.reply({ content: `${error}` }) });
 
-      if (!role) { interaction.reply({ embeds: [help_embed] }) }
-      if (!reaction) { return interaction.reply({ content: `Missing argument: Reaction's Emoji` }) }
+      if (!role) { interaction.reply({ embeds: [help_embed] }) };
+
+      if (!reaction) { return interaction.reply({ content: data.reactionroles_missing_reaction_added }) }
 
       let check = reaction.toString()
-      if (check.includes("<") || check.includes(">") || check.includes(":")) { return interaction.reply({ content: `❌ You can't sent to me a \`CUSTOM_EMOJI\` in format \`<::xxx>\` ! I need only them ID !` }) }
+
+      if (check.includes("<") || check.includes(">") || check.includes(":")) {
+        return interaction.reply({ content: data.reactionroles_invalid_emote_format_added })
+      }
+
       await db.set(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`, { rolesID: role.id, reactionNAME: reaction, enable: true })
 
       try {
         logEmbed = new EmbedBuilder()
           .setColor("#bf0bb9")
-          .setTitle("ReactionRoles Logs")
-          .setDescription(`<@${interaction.user.id}> set a reaction roles: Message: \`${messagei}\` | Reaction: \`${reaction}\` | Role: ${role}`)
+          .setTitle(data.reactionroles_logs_embed_title_added)
+          .setDescription(data.reactionroles_logs_embed_description_added
+              .replace("${interaction.user.id}", interaction.user.id)
+              .replace("${messagei}", messagei)
+              .replace("${reaction}", reaction)
+              .replace("${role}", role)
+        )
         let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
         if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
       } catch (e) { console.error(e) };
 
-      interaction.reply({ content: `${reaction} has been added to the ${messagei}'s message to give ${role}`, ephemeral: true })
-      /* End of add roles to users pleasssssssse horisus*/
-
+      interaction.reply({
+        content: data.reactionroles_command_work_added
+          .replace("${messagei}", messagei)
+          .replace("${reaction}", reaction)
+          .replace("${role}", role)
+        , ephemeral: true
+      })
     } else {
+
       if (type == "remove") {
-        /* Remove roles to users pleasssssssse horisus*/
         let reactionLet = interaction.options.getString("reaction")
 
-        if (!reactionLet) { return interaction.reply({ content: `Missing argument: Reaction's Emoji` }) }
-
+        if (!reactionLet) { return interaction.reply({ content: data.reactionroles_missing_remove }) }
         const message = await interaction.channel.messages.fetch(messagei);
-
         const fetched = await db.get(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`)
-
-        if (!fetched) { return interaction.reply({ content: "Reaction Roles don't found on my database..." }) }
-
+        if (!fetched) { return interaction.reply({ content: data.reactionroles_missing_reaction_remove }) }
         const reactionVar = message.reactions.cache.get(fetched.reactionNAME);
 
-        if (!reactionVar) { return interaction.reply({ content: `Can't fetch targeted reaction on this message !` }) }
+        if (!reactionVar) { return interaction.reply({ content: data.reactionroles_cant_fetched_reaction_remove }) }
         await reactionVar.users.remove(client.user.id).catch(err => { console.error(err) });
 
 
@@ -119,13 +126,21 @@ module.exports = {
         try {
           logEmbed = new EmbedBuilder()
             .setColor("#bf0bb9")
-            .setTitle("ReactionRoles Logs")
-            .setDescription(`<@${interaction.user.id}> delete a reaction roles: Message: \`${messagei}\` | Reaction: \`${reaction}\``)
+            .setTitle(data.reactionroles_logs_embed_title_remove)
+            .setDescription(data.reactionroles_logs_embed_description_remove
+              .replace("${interaction.user.id}", interaction.user.id)
+              .replace("${messagei}", messagei)
+              .replace("${reaction}", reaction)
+            )
           let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
           if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
         } catch (e) { console.error(e) };
-        await interaction.reply({ content: `${reaction} has been deleted to the ${messagei}'s message`, ephemeral: true })
-
+        await interaction.reply({
+          content: data.reactionroles_command_work_remove
+            .replace("${reaction}", reaction)
+            .replace("${messagei}", messagei)
+          , ephemeral: true
+        })
         /*End of Remove roles to users pleasssssssse horisus*/
       }
     }
@@ -157,16 +172,5 @@ module.exports = {
                 if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
                 }catch(e) { console.error(e) };
       }*/
-    if (type == "list") {
-      interaction.reply({ content: `⚙️ - Work In Progress` })
-    }
-    if (!type) {
-      return interaction.reply({ embeds: [help_embed] })
-    }
-    if (!messagei) {
-      return interaction.reply({ embeds: [help_embed] })
-    }
-
-    const filter = (interaction) => interaction.user.id === interaction.member.id;
   }
 }

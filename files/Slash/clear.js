@@ -9,6 +9,8 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
+const yaml = require('js-yaml');
+const fs = require('fs');
 module.exports = {
     name: 'clear',
     description: 'Clear x number of message in a channels !',
@@ -21,34 +23,43 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
 
         const permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)
         var numberx = interaction.options.getNumber("number") + 1
-        if (!permission) return interaction.reply({ content: "❌ | You don't have permission `MANAGE_MESSAGES`." });
-        if (!numberx) { return message.channel.send(`You must specify a number of messages to delete!`); }
-        if (numberx > 100) { return interaction.reply({ content: "❌ | I can't delete more than 100 message in one time !" }) }
-        else if (isNaN(numberx)) { return interaction.reply({ content: `You must specify a number of messages to delete!` }); }
+        if (!permission) return interaction.reply({ content: "" });
+        if (numberx > 98) { return interaction.reply({ content: data.clear_max_message_limit }) };
+
         interaction.channel.bulkDelete(numberx, true)
             .then((messages) => {
                 interaction.channel
-                    .send(`${messages.size} messages deleted !`)
+                    .send({
+                        content: data.clear_channel_message_deleted
+                            .replace(/\${messages\.size}/g, messages.size)
+                    })
                     .then((sent) => {
                         setTimeout(() => {
                             sent.delete();
                         }, 3500);
-                        interaction.reply({ content: `${messages.size} message are been deleted !`, ephemeral: true })
+                        interaction.reply({
+                            content: data.clear_confirmation_message
+                                .replace(/\${messages\.size}/g, messages.size)
+                            , ephemeral: true
+                        })
                     })
-
                 try {
                     logEmbed = new EmbedBuilder()
                         .setColor("#bf0bb9")
-                        .setTitle("Clear Message Logs")
-                        .setDescription(`<@${interaction.user.id}> clear ${messages.size} messages in <#${interaction.channel.id}>`)
-
+                        .setTitle(data.clear_logs_embed_title)
+                        .setDescription(data.clear_logs_embed_description
+                            .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                            .replace(/\${messages\.size}/g, messages.size)
+                            .replace(/\${interaction\.channel\.id}/g, interaction.channel.id)
+                        )
                     let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-                    if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+                    if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
                 } catch (e) { console.error(e) };
             });
-        const filter = (interaction) => interaction.user.id === interaction.member.id;
     }
 }

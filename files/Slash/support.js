@@ -9,6 +9,7 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
     name: 'support',
     description: 'Give a roles when guild\'s member have something about your server on them bio',
@@ -44,7 +45,12 @@ module.exports = {
     ],
 
     run: async (client, interaction) => {
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply(":x: | You must be an administrator of this server to request this commands!");
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
+
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return interaction.reply({ content: data.support_not_admin });
+        }
 
         const { QuickDB } = require("quick.db");
         const db = new QuickDB();
@@ -60,12 +66,20 @@ module.exports = {
                     rolesId: roles.id,
                     state: action
                 });
-            
-            interaction.reply({content: `You have setup the support module for **${interaction.guild.name}**.\nWhen user have on this bio:\n**${input}**.\nI should give the <@&${roles.id}> role to them!`})
+
+            interaction.reply({
+                content: data.support_command_work
+                    .replace("${interaction.guild.name}", interaction.guild.name)
+                    .replace("${input}", input)
+                    .replace("${roles.id}", roles.id)
+            })
 
         } else {
             await db.delete(`${interaction.guild.id}.GUILD.SUPPORT`);
-            interaction.reply({content: `You have setup the support module for **${interaction.guild.name}**.\nNobody can have role now!`})
+            interaction.reply({
+                content: data.support_command_work_on_disable
+                    .replace("${interaction.guild.name}", interaction.guild.name)
+            })
         };
     }
 }

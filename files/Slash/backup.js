@@ -43,29 +43,32 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
         let data = yaml.load(fileContents)
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return
         let backup_options = interaction.options.getString('action')
-        await interaction.reply({ content: "⏲ Wait please..." })
+        await interaction.reply({ content: data.backup_wait_please });
 
         if (backup_options === "create") {
             if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-                if (!interaction.guild.me.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply("I don't have  permission `ADMINISTRATOR`")
-                return interaction.editReply({ content: ":x: | You must be an administrator of this server to request a backup!" });
+                return interaction.editReply({ content: data.backup_not_admin });
+            }
+            if (!interaction.guild.members.me.permissions.has(PermissionsBitField.Flags.Administrator)) {
+                return interaction.editReply({ content: data.backup_i_dont_have_permission })
             }
             backup.create(interaction.guild, {
                 jsonBeautify: true
             }).then((backupData) => {
-
-                interaction.channel.send(":white_check_mark: Backup successfully created.");
-                interaction.editReply({ content: "The backup has been created! ID: `" + backupData.id + "`!" });
+                interaction.channel.send({ content: data.backup_command_work_on_creation });
+                interaction.editReply({
+                    content: data.backup_command_work_info_on_creation
+                        .replace("${backupData.id}", backupData.id)
+                });
                 try {
                     logEmbed = new EmbedBuilder()
                         .setColor("#bf0bb9")
-                        .setTitle("Backup Logs")
-                        .setDescription(`<@${interaction.user.id}> Create Backup !`)
+                        .setTitle(data.backup_logs_embed_title_on_creation)
+                        .setDescription(data.backup_logs_embed_description_on_creation)
                     let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'iHorizon-logs');
                     if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
                 } catch (e) { console.error(e) };
@@ -74,25 +77,31 @@ module.exports = {
 
         if (backup_options === "load") {
             if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-                if (!interaction.guild.me.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply("I don't have  permission `ADMINISTRATOR`")
-                return interaction.editReply({ content: ":x: | You must be an administrator of this server to load a backup!" });
+                return interaction.editReply({ content: data.backup_dont_have_perm_on_load });
             }
-            let backupID = interaction.options.getString('backup-id')
+            if (!interaction.guild.members.me.permissions.has(PermissionsBitField.Flags.Administrator)) {
+                return interaction.editReply({ content: data.backup_i_dont_have_perm_on_load })
+            }
+            let backupID = interaction.options.getString('backup-id');
+
             if (!backupID) {
-                return interaction.editReply({ content: ":x: | You must specify a valid backup ID!" });
+                return interaction.editReply({ content: data.backup_unvalid_id_on_load });
             }
-            interaction.channel.send({ content: "✅ - Loading..." })
+            interaction.channel.send({ content: data.backup_waiting_on_load });
+
             backup.fetch(backupID).then(async () => {
                 backup.load(backupID, interaction.guild).then(() => {
                     backup.remove(backupID);
                 }).catch((err) => {
-                    return interaction.channel.send({ content: ":x: | Sorry, an error occurred... Please check that I have administrator permissions!", ephemeral: true });
+                    return interaction.channel.send({
+                        content: data.backup_error_on_load
+                            .replace("${backupID}", backupID)
+                        , ephemeral: true
+                    });
                 });
             }).catch((err) => {
-                //console.log(err);
-                return interaction.channel.send({ content: `:x: | No backup found for ${backupID} !` });
+                return interaction.channel.send({ content: `` });
             });
         }
-        const filter = (interaction) => interaction.user.id === interaction.member.id;
     }
 }

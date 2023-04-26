@@ -60,7 +60,13 @@ module.exports = {
     ],
 
     run: async (client, interaction) => {
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply(":x: | You must be an administrator of this server to request this commands!");
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents)
+
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return interaction.reply({ content: data.punishpub_not_admin });
+        }
+
         const { QuickDB } = require("quick.db");
         const db = new QuickDB();
 
@@ -69,9 +75,9 @@ module.exports = {
         let punishement = interaction.options.getString("punishement")
 
         if (action == "true") {
-            if (amount > 20) { return interaction.reply({ content: "You amount is too high ! Is not recommended !" }) };
-            if (amount < 0) { return interaction.reply({ content: "You can't type negative number !" }) };
-            if (amount == 0) { return interaction.reply({ content: "The number 0 is not possible !" }) };
+            if (amount > 50) { return interaction.reply({ content: data.punishpub_too_hight_enable }) };
+            if (amount < 0) { return interaction.reply({ content: data.punishpub_negative_number_enable }) };
+            if (amount == 0) { return interaction.reply({ content: data.punishpub_zero_number_enable }) };
 
             await db.set(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`,
                 {
@@ -80,31 +86,39 @@ module.exports = {
                     state: action
                 });
 
-            interaction.reply({ content: `You have successfully **enabled** PunishPub with a maximum flag count of **${amount}** and a punishment of **${punishement}** !` })
+            interaction.reply({ content: data.punishpub_confirmation_message_enable
+                .replace("${interaction.user.id}", interaction.user.id)
+                .replace("${amount}", amount)
+                .replace("${punishement}", punishement)
+            })
 
             try {
                 logEmbed = new EmbedBuilder()
-                  .setColor("#bf0bb9")
-                  .setTitle("PunishPub Logs")
-                  .setDescription(`<@${interaction.user.id}> set the PunishPUB to on with an amout of ${amount} max flags with ${punishement} punishement !`)
-          
+                    .setColor("#bf0bb9")
+                    .setTitle(data.punishpub_logs_embed_title)
+                    .setDescription(data.punishpub_logs_embed_description
+                        .replace("${interaction.user.id}", interaction.user.id)
+                        .replace("${amount}", amount)
+                        .replace("${punishement}", punishement)
+                    )
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-              } catch (e) { return };
+            } catch (e) { };
 
         } else {
+            await db.delete(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
+            interaction.reply({ content: data.punishpub_confirmation_disable })
+
             try {
                 logEmbed = new EmbedBuilder()
-                  .setColor("#bf0bb9")
-                  .setTitle("PunishPub Logs")
-                  .setDescription(`<@${interaction.user.id}> set the PunishPUB to off !`)
-          
+                    .setColor("#bf0bb9")
+                    .setTitle(data.punishpub_logs_embed_title_disable)
+                    .setDescription(data.punishpub_logs_embed_description_disable
+                        .replace("${interaction.user.id}", interaction.user.id)
+                    )
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-              } catch (e) { return console.error(e)};
-
-            await db.delete(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
-            interaction.reply({ content: `You have succefully setup the PunishPub to off` })
+            } catch (e) { };
         };
     }
 }

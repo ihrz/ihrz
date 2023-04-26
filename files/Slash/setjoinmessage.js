@@ -12,6 +12,7 @@ const {
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
   name: 'setjoinmessage',
   description: 'Set a join message when user join the server',
@@ -48,24 +49,23 @@ module.exports = {
 
   ],
   run: async (client, interaction) => {
-
-
-    if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply(":x: | You must be an administrator of this server to request a welcome channels commands!");
+    let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+    let data = yaml.load(fileContents);
+    
+    if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+      return interaction.reply({ content: data.setjoinmessage_not_admin });
+    }
     let type = interaction.options.getString("value")
     let messagei = interaction.options.getString("message")
 
     let help_embed = new EmbedBuilder()
       .setColor("#0014a8")
-      .setTitle("setjoinmessage Help !")
-      .setDescription('/setjoinmessage <Power on /Power off/Show the message set> <join message>')
-      .addField('how to use ?',
-        `Use \`\`\`/setjoinmessage <Power on /Power off/Show the message set> <message>\`\`\`
-  {user} = Username of Member
-  {membercount} = guild's member count
-  {createdat} = member account creation date
-  {guild} = The name of the guild
-  {inviter} = The inviter username & discriminator
-  {invites} = The invites count of him`)
+      .setTitle(data.setjoinmessage_help_embed_title)
+      .setDescription(data.setjoinmessage_help_embed_description)
+      .addFields({
+        name: data.setjoinmessage_help_embed_fields_name,
+        value: data.setjoinmessage_help_embed_fields_value
+      })
 
     if (type == "on") {
       if (messagei) {
@@ -75,18 +75,20 @@ module.exports = {
           .replace("{createdat}", "{createdat}")
           .replace("{membercount}", "{membercount}")
         await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`, joinmsgreplace)
+
         try {
-          logEmbed = new EmbedBuilder()
+          let logEmbed = new EmbedBuilder()
             .setColor("#bf0bb9")
-            .setTitle("SetJoinMessage Logs")
-            .setDescription(`<@${interaction.user.id}> set the join message !`)
+            .setTitle(data.setjoinmessage_logs_embed_title_on_enable)
+            .setDescription(data.setjoinmessage_logs_embed_description_on_enable
+              .replace("${interaction.user.id}", interaction.user.id)
+            )
 
           let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
           if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-        } catch (e) { console.error(e) };
+        } catch (e) { };
 
-        return interaction.reply(`✅ | Succefully set custom join message.`)
-
+        return interaction.reply({ content: data.setjoinmessage_command_work_on_enable })
       }
     } else {
       if (type == "off") {
@@ -94,31 +96,28 @@ module.exports = {
         try {
           logEmbed = new EmbedBuilder()
             .setColor("#bf0bb9")
-            .setTitle("SetJoinMessage Logs")
-            .setDescription(`<@${interaction.user.id}> deleted the join message !`)
+            .setTitle(data.setjoinmessage_logs_embed_title_on_disable)
+            .setDescription(data.setjoinmessage_logs_embed_description_on_disable
+              .replace("${interaction.user.id}", interaction.user.id)
+            )
 
           let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
           if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-        } catch (e) { console.error(e) };
+        } catch (e) { };
 
 
-        return interaction.reply(`✅ | Succefully deleted custom join message.`)
+        return interaction.reply({ content: data.setjoinmessage_command_work_on_disable })
       }
     }
     if (type == "ls") {
       var ls = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
-      return interaction.reply("The join message is: \n```" + ls + "```")
-    }
-    if (!type) {
-      return interaction.reply({ embeds: [help_embed] })
+      return interaction.reply({
+        content: data.setjoinmessage_command_work_ls
+          .replace("${ls}", ls)
+      })
     }
     if (!messagei) {
       return interaction.reply({ embeds: [help_embed] })
     }
-
-    if (!type == "ls" || "on" || "off") {
-      return interaction.reply({ embeds: [help_embed] })
-    }
-    const filter = (interaction) => interaction.user.id === interaction.member.id;
   }
 }

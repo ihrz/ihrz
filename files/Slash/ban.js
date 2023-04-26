@@ -38,13 +38,15 @@ module.exports = {
             .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.username)
             .replace(/\${interaction\.member\.user\.discriminator}/g, interaction.member.user.discriminator)
         })
+        .catch(() => {})
             .then(() => {
                 member.ban({ reason: 'banned by ' + interaction.user.username })
                     .then((member) => {
                         interaction.reply({ content: data.ban_command_work
                             .replace(/\${member\.user\.id}/g, member.user.id)
                             .replace(/\${interaction\.member\.id}/g, interaction.member.id)
-                        });
+                        })
+                        .catch(() => {});
 
                         try {
                             logEmbed = new EmbedBuilder()

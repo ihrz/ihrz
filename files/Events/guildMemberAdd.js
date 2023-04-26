@@ -21,7 +21,8 @@ module.exports = async (client, member, members) => {
       if (msg_dm == null) return;
       if (!msg_dm) return;
       if (msg_dm === "off") return
-      member.send({ content: "This is a Join DM from " + member.guild.id + " ! \n \n" + msg_dm });
+      member.send({ content: "This is a Join DM from " + member.guild.id + " ! \n \n" + msg_dm })
+      .catch(() => {})
     } catch (e) { return }
   }
 

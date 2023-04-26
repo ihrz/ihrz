@@ -406,16 +406,54 @@ setjoindm_not_setup_ls: "They are no join dm setup here !"
 setjoindm_command_work_ls: "The join dm message is: \n```${already_off}```"
 
 # /setjoinmessage
+setjoinmessage_not_admin: ":x: | You must be an administrator of this server to request a welcome channels commands!"
+setjoinmessage_help_embed_title: "setjoinmessage Help !" 
+setjoinmessage_help_embed_description: "/setjoinmessage <Power on /Power off/Show the message set> <join message>"
+setjoinmessage_help_embed_fields_name: "how to use ?"
+setjoinmessage_help_embed_fields_value: "Use ```/setjoinmessage <Power on /Power off/Show the message set> <message>```\n{user} = Username of Member\n{membercount} = guild's member count\n{createdat} = member account creation date\n{guild} = The name of the guild\n{inviter} = The inviter username & discriminator\n{invites} = The invites count of him"
+setjoinmessage_logs_embed_title_on_enable: "SetJoinMessage Logs"
+setjoinmessage_logs_embed_description_on_enable: "<@${interaction.user.id}> set the join message !"
+setjoinmessage_command_work_on_enable: "✅ | Succefully set custom join message."
+setjoinmessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
+setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deleted the join message !"
+setjoinmessage_command_work_on_disable: "✅ | Succefully deleted custom join message."
+setjoinmessage_command_work_ls: "The join message is:\n```${ls}```"
 
 # /setjoinroles
+setjoinroles_not_admin: ":x: | You must be an administrator of this server to request this commands!"
+setjoinroles_help_embed_title: "/setjoinroles Help !"
+setjoinroles_help_embed_description: "/setjoinroles <Power on /Power off/Show the message set> <role id>"
+setjoinroles_logs_embed_title_on_enable: "SetJoinRoles Logs"
+setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}> set the join roles !"
+setjoinroles_already_on_enable: "The join roles is already config with this role !"
+setjoinroles_command_work_enable: "You have successfully set the join roles to <@&${roleid}> !"
+setjoinroles_command_error_on_enable: "Error: missing permissions or role doesn't exist"
+setjoinroles_logs_embed_title_on_disable: "SetJoinRoles Logs"
+setjoinroles_logs_embed_description_on_disable: "<@${interaction.user.id}> delete the join roles !"
+setjoinroles_dont_need_command_on_disable: "You don't have a join roles configured, is useless !"
+setjoinroles_command_work_on_disable: "You have successfully delete the join roles !"
+setjoinroles_command_error_on_disable: "error?"
+setjoinroles_command_any_set_ls: "This guild don't have a join roles set."
+setjoinroles_command_work_ls: "The join roles set is <@&${roles}>"
 
 # /setleavemessage
+setleavemessage_not_admin: ":x: | You must be an administrator of this server to request a welcome channels commands!"
+setleavemessage_help_embed_title: "/setleavemessage Help !"
+setleavemessage_help_embed_description: "/setleavemessage <Power on /Power off/Show the message set> <leave message>"
+setleavemessage_help_embed_fields_name: "how to use ?"
+setleavemessage_help_embed_fields_value: "Use ```/setleavemessage <Power on /Power off/Show the message set> <message>```\n{user} = Username of Member\n{membercount} = guild's member count\n{guild} = The name of the guild"
+setleavemessage_logs_embed_title_on_enable: "SetJoinMessage Logs"
+setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}> set the leave message !"
+setleavemessage_command_work_on_enable: "✅ | Succefully set custom leave message."
+setleavemessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
+setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deleted the leave message !"
+setleavemessage_command_work_on_disable: "✅ | Succefully deleted custom leave message."
+setleavemessage_command_work_ls: "The leave message is:\n```${ls}```"
 
 # /setup
 setup_not_admin: ":x: | You must be an administrator of this server !"
 setup_command_work: "✅ | Channel Setup"
 setup_command_error: "The bot has already setup the logs channels ! Or the bot doesn't have permission..."
-
 
 
 # Member Count commands
@@ -527,7 +565,131 @@ ban_logs_embed_title: "Ban Logs"
 ban_logs_embed_description: "<@${member.user.id}> banned by <@${interaction.member.id}>"
 
 # /kick
-kick_
-kick_
-kick_
-kick_
+kick_not_permission: "❌ | You don't have permission to kick members."
+kick_dont_have_permission: "❌ | I don't have permission to kick members!"
+kick_attempt_kick_your_self: "❌ | You cannot kick yourself!"
+kick_attempt_kick_higter_member: "🛑 You cannot kick user who have higher role than you..."
+kick_message_to_the_banned_member: "You are kicked from this server: **${interaction.guild.name}** by `${interaction.member.user.username}#${interaction.member.user.discriminator}`"
+kick_command_work: "${member.user} kicked by ${interaction.user}"
+kick_logs_embed_title: "Kick Logs"
+kick_logs_embed_description: "${member.user} kick by <@${interaction.user.id}>"
+
+# /clear
+clear_dont_have_permission: "❌ | You don't have permission `MANAGE_MESSAGES`."
+clear_max_message_limit: "❌ | I can't delete more than 99 message in one time !"
+clear_channel_message_deleted: "${messages.size} messages deleted !"
+clear_confirmation_message: "${messages.size} message are been deleted !"
+clear_logs_embed_title: "Clear Message Logs"
+clear_logs_embed_description: "<@${interaction.user.id}> clear ${messages.size} messages in <#${interaction.channel.id}>"
+
+# /lock
+lock_embed_message_description: "The channel has been locked by <@${interaction.user.id}>."
+lock_dont_have_permission: "❌ | You don't have permission to lock channels."
+lock_logs_embed_title: "Lock Logs"
+lock_logs_embed_description: "<@${interaction.user.id}> lock <#${interaction.channel.id}>"
+
+# /unlock
+unlock_embed_message_description: "The channel has been successfully unlocked!"
+unlock_dont_have_permission: "❌ | You don't have permission to unlock channel."
+unlock_logs_embed_title: "Unlock Logs"
+unlock_logs_embed_description: "<@${interaction.user.id}> unlock <#${interaction.channel.id}>"
+
+# /lockall
+lockall_dont_have_permission: "❌ | You don't have permission to lockall channels."
+lockall_embed_message_description: "All channels have been locked by <@${interaction.user.id}>."
+lockall_logs_embed_title: "Lockall Logs"
+lockall_logs_embed_description: "<@${interaction.user.id}> lock all channels !"
+
+# /unban
+unban_dont_have_permission: "❌ | You don't have permission to unban members."
+unban_bot_dont_have_permission: "❌ | I don't have permission."
+unban_there_is_nobody_banned: "❌ | **There is nobody banned from this server !**"
+unban_the_member_is_not_banned: "❌ | **The ID stated is not banned from this server** !"
+unban_is_now_unbanned: "<@${userID}> is now unbanned from this server !"
+unban_logs_embed_title: "Unban Logs"
+unban_logs_embed_description: "<@${userID}> Is now unbanned from the server by ${interaction.user.id}!"
+
+# /tempmute
+tempmute_dont_have_permission: "❌ | You don't have permission to tempmute members."
+tempmute_i_dont_have_permission: "❌ | I don't have permission."
+tempmute_cannot_mute_yourself: "❌ | You cannot mute yourself!"
+tempmute_already_muted: "This user is already muted !"
+tempmute_command_work: "<@${tomute.id}> has been muted for ${ms(ms(mutetime))}"
+tempmute_unmuted_by_time: "<@${tomute.id}> has been unmuted!"
+tempmute_logs_embed_title: "Tempmute Logs"
+tempmute_logs_embed_description: "<@${interaction.user.id}> mute <@${tomute.id}> for ${ms(ms(mutetime))}"
+tempmute_reason_create_roles: "Create tempmute muted role!"
+
+# /unmute
+unmute_dont_have_permission: "❌ | You don't have permission to tempmute members."
+unmute_attempt_mute_your_self: "❌ | You cannot mute yourself!"
+unmute_i_dont_have_permission: "❌ | I don't have permission."
+unmute_not_muted: "This user is not muted !"
+unmute_muted_role_doesnt_exist: "The `muted` role does not exist. Please mute the user **before** for mute roles creation..."
+unmute_command_work: "<@${tomute.id}> has been unmuted!"
+unmute_logs_embed_title: "Unmute Logs"
+unmute_logs_embed_description: "<@${interaction.user.id}> unmute <@${tomute.id}>"
+
+
+# Backup commands
+# /backup
+
+# /backup
+backup_wait_please: "⏲ Wait please..."
+backup_not_admin: ":x: | You must be an administrator of this server to request a backup!"
+backup_i_dont_have_permission: "I don't have  permission `ADMINISTRATOR`"
+backup_command_work_on_creation: ":white_check_mark: Backup successfully created."
+backup_command_work_info_on_creation: "The backup has been created! ID: `${backupData.id}`!"
+backup_logs_embed_title_on_creation: "Backup Logs"
+backup_logs_embed_description_on_creation: "<@${interaction.user.id}> Create Backup !"
+backup_dont_have_perm_on_load: ":x: | You must be an administrator of this server to load a backup!"
+backup_i_dont_have_perm_on_load: "I don't have  permission `ADMINISTRATOR`"
+backup_unvalid_id_on_load: ":x: | You must specify a valid backup ID!"
+backup_waiting_on_load: "✅ - Loading..."
+backup_error_on_load: ":x: | Sorry, an error occurred... Please check that I have administrator permissions!"
+backup_error_when_fetch_backup_on_load: ":x: | No backup found for ${backupID} !"
+
+
+# Role Reactions
+# /reactionroles
+
+# /reactionroles
+reactionroles_dont_admin_added: ":x: | You must be an administrator of this server to request a welcome channels commands!"
+reactionroles_embed_message_description_added: "__how to use ?__\n/rolesreaction add `<message id>` `<reaction>` `<rolesid>`\n/rolesreaction remove `<message id>` `<reaction>`\n/rolesreaction list `<message id>`"
+reactionroles_missing_reaction_added: "Missing argument: Reaction's Emoji"
+reactionroles_invalid_emote_format_added: "❌ | You can't sent to me a `CUSTOM_EMOJI` in format `<::xxx>` ! I need only them ID !"
+reactionroles_logs_embed_title_added: "ReactionRoles Logs"
+reactionroles_logs_embed_description_added: "<@${interaction.user.id}> set a reaction roles: Message: `${messagei}` | Reaction: `${reaction}` | Role: ${role}"
+reactionroles_command_work_added: "${reaction} has been added to the ${messagei}'s message to give ${role}"
+reactionroles_missing_remove: "`Missing argument: Reaction's Emoji"
+reactionroles_missing_reaction_remove: "Reaction Roles don't found on my database..."
+reactionroles_cant_fetched_reaction_remove: "Can't fetch targeted reaction on this message !"
+reactionroles_logs_embed_title_remove: "ReactionRoles Logs"
+reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> delete a reaction roles: Message: `${messagei}` | Reaction: `${reaction}`"
+reactionroles_command_work_remove: "${reaction} has been deleted to the ${messagei}'s message"
+
+# New feature commands
+# /punishpub, /report, /support
+
+# /punishpub
+punishpub_not_admin: ":x: | You must be an administrator of this server to request this commands!"
+punishpub_too_hight_enable: "You amount is too high ! Is not recommended !"
+punishpub_negative_number_enable: "You can't type negative number !"
+punishpub_zero_number_enable: "The number 0 is not possible !"
+punishpub_confirmation_message_enable: "You have successfully **enabled** PunishPub with a maximum flag count of **${amount}** and a punishment of **${punishement}** !"
+punishpub_logs_embed_title: "PunishPub Logs"
+punishpub_logs_embed_description: "<@${interaction.user.id}> set the PunishPUB to on with an amout of ${amount} max flags with ${punishement} punishement !"
+punishpub_confirmation_disable: "You have succefully setup the PunishPub to off"
+punishpub_logs_embed_title_disable: "PunishPub Logs"
+punishpub_logs_embed_description_disable: "<@${interaction.user.id}> set the PunishPUB to off !"
+
+# /report
+report_cooldown_command: "Sorry you must wait **${time}** before running this command!"
+report_owner_need: ":x: | ** You must be the owner of the server to be able to run this command!**"
+report_specify: "Please specify the bug, Please make a good sentences !"
+report_command_work: "**Thanks for submitting a bug!**"
+
+# /support
+support_not_admin: ":x: | You must be an administrator of this server to request this commands!"
+support_command_work: "You have setup the support module for **${interaction.guild.name}**.\nWhen user have on this bio:\n**${input}**.\nI should give the <@&${roles.id}> role to them!"
+support_command_work_on_disable: "You have setup the support module for **${interaction.guild.name}**.\nNobody can have role now!"

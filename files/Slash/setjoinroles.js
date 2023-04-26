@@ -12,6 +12,8 @@ const {
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const yaml = require('js-yaml');
+const fs = require('fs');
 module.exports = {
     name: 'setjoinroles',
     description: 'Set a roles to new user',
@@ -48,71 +50,79 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply(":x: | You must be an administrator of this server to request a welcome channels commands!");
+        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let data = yaml.load(fileContents);
+
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return interaction.reply({ content: data.setjoinroles_not_admin });
+        }
 
         let query = interaction.options.getString("value")
         var roleid = interaction.options.get("roles").value
         let help_embed = new EmbedBuilder()
             .setColor("#016c9a")
-            .setTitle("/setjoinroles Help !")
-            .setDescription('/setjoinroles <Power on /Power off/Show the message set> <role id>')
+            .setTitle(data.setjoinroles_help_embed_title)
+            .setDescription(data.setjoinroles_help_embed_description)
 
         if (query === "true") {
             if (!roleid) return interaction.reply(help_embed);
             try {
                 logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
-                    .setTitle("SetJoinRoles Logs")
-                    .setDescription(`<@${interaction.user.id}> set the join roles !`)
+                    .setTitle(data.setjoinroles_logs_embed_title_on_enable)
+                    .setDescription(data.setjoinroles_logs_embed_description_on_enable
+                        .replace("${interaction.user.id}", interaction.user.id)
+                    )
 
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-            } catch (e) { console.error(e) };
+            } catch (e) {console.log(e) };
 
             try {
                 let already = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
-                if (already === roleid) return interaction.reply("The join roles is already config with this role !")
+                if (already === roleid) return interaction.reply({ content: data.setjoinroles_already_on_enable })
                 await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`, roleid);
 
-                return interaction.reply("You have successfully set the join roles to <@&" + roleid + "> !");
+                return interaction.reply({
+                    content: data.setjoinroles_command_work_enable
+                        .replace("${roleid}", roleid)
+                });
             } catch (e) {
-                console.log(e)
-                return interaction.reply("Error: missing permissions or role doesn't exist");
+                return interaction.reply({ content: data.setjoinroles_command_error_on_enable });
             }
         } else {
             if (query === "false") {
                 try {
                     let ban_embed = new EmbedBuilder()
                         .setColor("#bf0bb9")
-                        .setTitle("SetJoinRoles Logs")
-                        .setDescription(`<@${interaction.user.id}> delete the join roles !`)
+                        .setTitle(data.setjoinroles_logs_embed_title_on_disable)
+                        .setDescription(data.setjoinroles_logs_embed_description_on_disable
+                            .replace("${interaction.user.id}", interaction.user.id)
+                        )
                     let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                     logchannel.send({ embeds: [ban_embed] })
-                } catch (e) {
-
-                }
+                } catch (e) { }
 
                 try {
                     let already = await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
-                    if (!already) return interaction.reply("You don't have a join roles configured, is useless !")
+                    if (!already) return interaction.reply({ content: data.setjoinroles_dont_need_command_on_disable })
 
-                    return interaction.reply("You have successfully delete the join roles !");
+                    return interaction.reply({ content: data.setjoinroles_command_work_on_disable });
 
                 } catch (e) {
-                    console.log(e)
-                    return interaction.reply("error?");
+                    return interaction.reply({ content: data.setjoinroles_command_error_on_disable });
                 }
             } else {
                 if (query === "ls") {
                     let roles = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`)
-                    if (!roles) return interaction.reply("This guild don't have a join roles set.")
-                    return interaction.reply(`The join roles set is <@&${roles}>`)
+                    if (!roles) return interaction.reply({content: data.setjoinroles_command_any_set_ls})
+                    return interaction.reply({content: data.setjoinroles_command_work_ls
+                        .replace("${roles}", roles)
+                    })
                 } else {
-                    interaction.reply(help_embed)
+                    interaction.reply({embeds: [help_embed]});
                 }
             }
         }
-
-        const filter = (interaction) => interaction.user.id === interaction.member.id;
     }
 }
