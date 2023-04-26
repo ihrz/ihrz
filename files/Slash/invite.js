@@ -10,12 +10,14 @@ const {
 } = require('discord.js');
 
 const yaml = require('js-yaml'), fs = require('fs');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+
 module.exports = {
   name: 'invite',
   description: 'I love you, show me your love for me back ! Invite me !',
   run: async (client, interaction) => {
-    let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8'); //
-    let data = yaml.load(fileContents)
+    let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
+    let data = yaml.load(fileContents);
     
     let invites = new EmbedBuilder()
       .setColor("#416fec")

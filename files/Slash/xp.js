@@ -60,7 +60,6 @@ module.exports = {
 
       interaction.reply({ embeds: [nivEmbed] })
     }
-    const filter = (interaction) => interaction.user.id === interaction.member.id;
     return;
   }
 }

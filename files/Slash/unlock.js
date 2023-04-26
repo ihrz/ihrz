@@ -8,12 +8,14 @@ const { Client,
 } = require('discord.js');
 
 const yaml = require('js-yaml'), fs = require('fs');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+
 module.exports = {
   name: 'unlock',
   description: 'Give ability to speak of all users in this text',
   run: async (client, interaction) => {
-    let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
-    let data = yaml.load(fileContents)
+    let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
+    let data = yaml.load(fileContents);
     
     const permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageChannels);
     if (!permission) return interaction.reply({ content: data.unlock_dont_have_permission });

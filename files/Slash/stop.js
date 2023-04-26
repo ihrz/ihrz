@@ -12,13 +12,14 @@ const { QueryType } = require('discord-player');
 
 const yaml = require('js-yaml')
 const fs = require('fs');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 
 module.exports = {
   name: 'stop',
   description: '(music) Stop the music.',
   run: async (client, interaction) => {
-    let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
-    let data = yaml.load(fileContents)
+    let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
+    let data = yaml.load(fileContents);
 
     try {
       const queue = interaction.client.player.nodes.get(interaction.guild)

@@ -12,13 +12,14 @@ const {
 var os = require('os-utils');
 const yaml = require('js-yaml');
 const fs = require('fs');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 
 module.exports = {
     name: 'status',
     description: 'Only for developers !',
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8'); //
-        let data = yaml.load(fileContents)
+        let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
+        let data = yaml.load(fileContents);
         
         const config = require("../config.json")
         if (interaction.user.id != config.ownerid) return interaction.reply({ content: data.status_be_bot_dev })

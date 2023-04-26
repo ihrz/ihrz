@@ -15,6 +15,8 @@ const config = require('../config.json');
 const messages = require("../messages.js");
 
 const yaml = require('js-yaml'), fs = require('fs');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+
 module.exports = {
     name: 'start',
     description: 'Start a giveaways',
@@ -46,8 +48,8 @@ module.exports = {
     ],
 
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
-        let data = yaml.load(fileContents)
+        let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
+        let data = yaml.load(fileContents);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
             return interaction.reply({ content: data.start_not_perm });

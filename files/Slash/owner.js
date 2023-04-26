@@ -12,7 +12,7 @@ const {
 } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 const yaml = require('js-yaml')
 module.exports = {
     name: 'owner',
@@ -27,8 +27,8 @@ module.exports = {
     ],
 
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
-        let data = yaml.load(fileContents)
+        let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
+        let data = yaml.load(fileContents);
 
         var text = ""
         const ownerList = await db.all()

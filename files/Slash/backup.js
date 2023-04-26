@@ -13,6 +13,7 @@ const {
 const backup = require("discord-backup")
 
 const yaml = require('js-yaml'), fs = require('fs');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 
 module.exports = {
     name: 'backup',
@@ -43,7 +44,7 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
         let data = yaml.load(fileContents)
 
         let backup_options = interaction.options.getString('action')

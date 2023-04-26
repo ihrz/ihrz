@@ -12,12 +12,14 @@ const {
 } = require('discord.js');
 
 const yaml = require('js-yaml'), fs = require('fs');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+
 module.exports = {
   name: 'work',
   description: 'Work and earn money into your bank',
   run: async (client, interaction) => {
-    let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
-    let data = yaml.load(fileContents)
+    let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
+    let data = yaml.load(fileContents);
     const talkedRecentlyforw = new Set();
 
     if (talkedRecentlyforw.has(interaction.user.id)) {

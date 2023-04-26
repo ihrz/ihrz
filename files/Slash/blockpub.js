@@ -12,6 +12,7 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 const yaml = require('js-yaml');
 const fs = require('fs');
 module.exports = {
@@ -36,9 +37,8 @@ module.exports = {
         },
     ],
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
-        let data = yaml.load(fileContents);
-
+        let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
+        let data = yaml.load(fileContents)
         let turn = interaction.options.getString("action")
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.reply({ content: data.blockpub_not_admin });

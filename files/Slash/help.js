@@ -32,14 +32,12 @@ module.exports = {
         { name: "Invite Manager", value: "`/removeinvites`, `/invites`,`/addinvites`, `/leaderboard`", inline: true },
         { name: "Ticket", value: "`/add`, `/close`, `/delete`, `/sethereticket`, `/open`, `/remove`, `/transript`, `/disableticket`", inline: true },
         { name: "MemberCount", value: "`/setmembercount`", inline: true },
-        { name: "New feature", value: "`/support`, `/punishpub`", inline: true },
+        { name: "New feature", value: "`/support`, `/punishpub`, `/report`", inline: true },
         )
       .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
       .setThumbnail(client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 }))
       .setTimestamp();
 
     return interaction.reply({ embeds: [embed] });
-
-    const filter = (interaction) => interaction.user.id === interaction.member.id;
   }
 }

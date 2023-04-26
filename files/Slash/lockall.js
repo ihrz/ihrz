@@ -11,12 +11,13 @@ const {
 } = require('discord.js');
 
 const yaml = require('js-yaml'), fs = require('fs');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 module.exports = {
   name: 'lockall',
   description: 'Remove ability to speak of all users in all of text channel on the guild',
   run: async (client, interaction) => {
-    let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
-    let data = yaml.load(fileContents)
+    let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
+    let data = yaml.load(fileContents);
 
     const permission = interaction.member.permissions.has(PermissionsBitField.Flags.Administrator);
     if (!permission) return interaction.reply({ content: data.lockall_dont_have_permission });

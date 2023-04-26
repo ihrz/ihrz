@@ -11,12 +11,13 @@ const {
 
 const yaml = require('js-yaml');
 const fs = require('fs');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 
 module.exports = {
     name: 'nowplaying',
     description: '(music) see the current music played',
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
+        let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
         let data = yaml.load(fileContents);
         try {
             const queue = interaction.client.player.nodes.get(interaction.guild)

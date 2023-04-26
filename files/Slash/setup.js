@@ -15,12 +15,14 @@ const {
 } = require('discord.js');
 
 const yaml = require('js-yaml'), fs = require('fs');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+
 module.exports = {
   name: 'setup',
   description: 'Setup the bot, create a bot\'s logs channels',
   run: async (client, interaction) => {
-    let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
-    let data = yaml.load(fileContents)
+    let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
+    let data = yaml.load(fileContents);
 
     if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)){
       return interaction.reply(data.setup_not_admin);

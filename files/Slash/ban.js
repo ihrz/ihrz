@@ -1,5 +1,5 @@
 const { Client, Intents, Collection, Permissions, PermissionsBitField, ApplicationCommandType, ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
-
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
     name: 'ban',
@@ -13,8 +13,8 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
-        let data = yaml.load(fileContents);
+        let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
+        let data = yaml.load(fileContents)
 
         const member = interaction.guild.members.cache.get(interaction.options.get("member").user.id)
         const permission = interaction.member.permissions.has(PermissionsBitField.Flags.BanMembers)

@@ -9,7 +9,7 @@ const {
     PermissionsBitField,
     ApplicationCommandOptionType
 } = require('discord.js');
-
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 const yaml = require('js-yaml'), fs = require('fs');
 
 module.exports = {
@@ -24,7 +24,7 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
+        let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
         let data = yaml.load(fileContents)
         const { QuickDB } = require("quick.db");
         const db = new QuickDB();

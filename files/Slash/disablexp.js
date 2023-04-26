@@ -11,7 +11,7 @@ const {
 
 const { QuickDB } = require("quick.db");
 const db = new QuickDB
-
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 const yaml = require('js-yaml'), fs = require('fs');
 module.exports = {
     name: 'disablexp',
@@ -35,8 +35,8 @@ module.exports = {
         },
     ],
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(process.cwd() + "/files/lang/en-US.yml", 'utf-8');
-        let data = yaml.load(fileContents)
+        let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
+        let data = yaml.load(fileContents);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.reply({ content: data.disablexp_not_admin });
