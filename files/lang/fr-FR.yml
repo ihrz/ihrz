@@ -551,7 +551,7 @@ ban_cant_ban_member: "❌ | Je ne peux pas bannir ce membre."
 ban_message_to_the_banned_member: "Vous avez été banni de ce serveur : ${interaction.guild.name} par ${interaction.member.user.username}#${interaction.member.user.discriminator}."
 ban_command_work: "<@${member.user.id}> a été banni par <@${interaction.member.id}>."
 ban_logs_embed_title: "Logs de bannissement"
-ban_logs_embed_description: "<@${member.user.id}> a été banni par <@${interaction.member.id}>.
+ban_logs_embed_description: "<@${member.user.id}> a été banni par <@${interaction.member.id}>."
 
 # /kick
 kick_not_permission: "❌ | Vous n'avez pas la permission d'expulser des membres."

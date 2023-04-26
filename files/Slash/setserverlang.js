@@ -32,7 +32,7 @@ module.exports = {
                     value: "it-IT"
                 },
                 {
-                    name: "French (Soon)",
+                    name: "French (Available)",
                     value: "fr-FR"
                 },
                 {
