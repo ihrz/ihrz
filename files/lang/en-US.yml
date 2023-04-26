@@ -1,10 +1,5 @@
-# Basic language file for iHorizon
+# Basic language file for iHorizon Discord Bot
 # en-US: English
-# For replace ${member.tag}  -> .replace(/\${member\.tag}/g, member.tag)
-
-#const yaml = require('js-yaml'), fs = require('fs');
-#let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
-#let data = yaml.load(fileContents)
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -57,11 +52,9 @@ transript_not_in_ticket: "You cannot use this command outside of a ticket channe
 
 # /disableticket
 disableticket_not_admin: ":x: | You must be an administrator of this server to request this commands!"
-# when action is on "disable"
 disableticket_logs_embed_title_disable: "DisableTicket Logs"
 disableticket_logs_embed_description_disable: "<@${interaction.user.id}> disable ticket commands !"
 disableticket_command_work_disable: "You have successfully disable the ticket commands !"
-# when action is on "enable"
 disableticket_logs_embed_title_enable: "EnableTicket Logs"
 disableticket_logs_embed_description_enable: "<@${interaction.user.id}> enable ticket commands !"
 disableticket_command_work_enable: "You have successfully enable the ticket commands !"
@@ -72,24 +65,20 @@ disableticket_command_work_enable: "You have successfully enable the ticket comm
 
 # /disablexp
 disablexp_not_admin: ":x: | You must be an administrator of this server to request this commands!"
-# when action is on "disable"
 disablexp_logs_embed_title_disable: "Disable XP Logs"
 disablexp_logs_embed_description_disable: "<@${interaction.user.id}> disable xp !"
 disablexp_command_work_disable: "You have successfully disable the leveling message (XP)"
-# when action is on "enable"
 disablexp_logs_embed_title_enable: "Disable XP Logs"
 disablexp_logs_embed_description_enable: "<@${interaction.user.id}> enable xp !"
 disablexp_command_work_enable: "You have successfully enable the leveling message (XP)"
 
 # /setxpchannels
 setxpchannels_not_admin: ":x: | You must be an administrator of this server to request this commands!"
-# when action is on "disable"
 setxpchannels_logs_embed_title_disable: "SetXpChannels Logs"
 setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> disable the custom xp channels. I put the default settings..."
 setxpchannels_already_disabled_disable: "The custom xp channels is already disable !"
 setxpchannels_command_work_disable: "You have successfully disable the custom xp channel !"
 setxpchannels_command_error_disable: "Error: missing permissions or channel doesn't exist"
-# when action is on "enable"
 setxpchannels_logs_embed_title_enable: "SetXpChannels Logs"
 setxpchannels_logs_embed_description_enable: "<@${interaction.user.id}> set the custom xp channels to: <#${argsid}>"
 setxpchannels_valid_channel_message: "You must specify a valid channel for you configurations."

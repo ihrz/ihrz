@@ -1,10 +1,5 @@
-# Basic language file for iHorizon
-# en-US: English
-# For replace ${member.tag}  -> .replace(/\${member\.tag}/g, member.tag)
-
-#const yaml = require('js-yaml'), fs = require('fs');
-#let fileContents = fs.readFileSync(process.cwd()+"/files/lang/en-US.yml", 'utf-8');
-#let data = yaml.load(fileContents)
+# Basic language file for iHorizon Discord Bot
+# it-IT: Italian
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -63,6 +58,7 @@ disableticket_command_work_disable: "Hai disattivato con successo i comandi per 
 disableticket_logs_embed_title_enable: "Registri EnableTicket"
 disableticket_logs_embed_description_enable: "<@${interaction.user.id}> ha attivato i comandi per i ticket!"
 disableticket_command_work_enable: "Hai attivato con successo i comandi per i ticket!"
+
 
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
@@ -179,10 +175,10 @@ status_be_bot_dev: "**:x: | Devi essere lo sviluppatore del bot per farlo!**"
 cats_embed_title: "Miauw :cat:"
 
 # /hack
-description_embed_description: "<@${victim.id}> è stato hackerato da <@${interaction.user.id}> !"
-description_embed_fields_ip: "Indirizzo IP"
-description_embed_fields_email: "Email"
-description_embed_fields_password: "Password"
+hack_embed_description: "<@${victim.id}> è stato hackerato da <@${interaction.user.id}> !"
+hack_embed_fields_ip: "Indirizzo IP"
+hack_embed_fields_email: "Email"
+hack_embed_fields_password: "Password"
 
 # /hug
 hug_embed_title: "<@${interaction.user.id}> abbraccia <@${hug.id}> ❤️"
@@ -539,6 +535,7 @@ reroll_command_work: "Giveaway ripartito!"
 reroll_logs_embed_title: "Logs Giveaways"
 reroll_logs_embed_description: "<@${interaction.user.id}> ha rifatto il giveaway con questo id: ${giveaway.messageID}"
 reroll_command_error: "Errore!"
+
 
 # Moderation commands
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
