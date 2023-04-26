@@ -32,16 +32,16 @@ module.exports = {
                     value: "fr-FR"
                 },
                 {
+                    name: "Italian (Soon)",
+                    value: "it-IT"
+                },
+                {
                     name: "Spain (No ETA)",
                     value: "es-ES"
                 },
                 {
                     name: "Deutsch (No ETA)",
                     value: "de-DE"
-                },
-                {
-                    name: "Japanese (No ETA)",
-                    value: "jp-JP"
                 }
             ],
         }
