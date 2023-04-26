@@ -3,7 +3,6 @@ const fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 
 module.exports.playerEvents = async (player) => {
-
     player.events.on('playerStart', async (queue, track) => {
         let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(queue.channel.guildId)}.yml`, 'utf-8');
         let data = yaml.load(fileContents);
