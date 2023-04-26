@@ -686,9 +686,21 @@ support_command_work_on_disable: "Vous avez configuré le module de support pour
 support_command_not_role: ":x: | Vous n'avez pas spécifié le rôle !"
 
 # /setserverlang
-setserverlang_not_admin : ":x: | Vous devez être un administrateur de ce serveur pour demander cette commande !"
-setserverlang_logs_embed_title_on_enable : "Journaux SetServerLang"
-setserverlang_logs_embed_description_on_enable : "<@${interaction.user.id}> a défini la langue de iHorizon sur ${type} !"
-setserverlang_already : "Je suis déjà sur cette langue !"
-setserverlang_command_work_enable : "Ma langue est maintenant sur ${type}"
-setserverlang_command_error_enable : "erreur !"
+setserverlang_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour utiliser cette commande !"
+setserverlang_logs_embed_title_on_enable: "Logs SetServerLang"
+setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> a défini la langue d'iHorizon sur **${type}** !"
+setserverlang_already: "Je suis déjà sur cette langue !"
+setserverlang_command_work_enable: "Ma langue est maintenant sur **${type}** !"
+setserverlang_command_error_enable: "Erreur !"
+
+
+# -----------------------------/ \-----------------------------
+# Music Player Events
+
+event_mp_playerStart: "🎵 - Lecture de `${track.title}` en cours dans **${queue.channel.name}** ..."
+event_mp_audioTrackAdd: ":musical_note: - ${track.title} a été ajouté à la file d'attente !"
+event_mp_playerError: "Je rencontre des problèmes de connexion => ${error.message}"
+event_mp_error: "Il y a un problème avec la file d'attente de la chanson => ${error.message}"
+event_mp_emptyChannel: "❌ | Personne n'est dans le canal vocal, je quitte..."
+event_mp_playerSkip: ":musical_note: - Skip de **${track.title}** !"
+event_mp_emptyQueue: "⚠️ - La musique s'est arrêtée car il n'y a plus de musique dans la file d'attente !"

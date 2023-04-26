@@ -692,3 +692,15 @@ setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> ha im
 setserverlang_already: "Sono già in questa lingua!"
 setserverlang_command_work_enable: "La mia lingua è ora su ${type}"
 setserverlang_command_error_enable: "errore!"
+
+
+# -----------------------------/ \-----------------------------
+# Music Player Events
+
+event_mp_playerStart: "🎵 - Riproduzione in corso di `${track.title}` in `${queue.channel.name}` ..."
+event_mp_audioTrackAdd: ":musical_note: - ${track.title} è stato aggiunto alla coda di riproduzione!"
+event_mp_playerError: "Sto avendo problemi di connessione => ${error.message}"
+event_mp_error: "Si è verificato un problema con la coda di riproduzione della canzone => ${error.message}"
+event_mp_emptyChannel: "❌ | Nessuno è nel canale vocale, esco..."
+event_mp_playerSkip: ":musical_note: - Salto di `${track.title}` !"
+event_mp_emptyQueue: "⚠️ - La musica si è fermata poiché non ci sono più brani nella coda di riproduzione!"

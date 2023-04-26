@@ -37,6 +37,7 @@
     "promise-mysql": "^5.2.0",
     "public-ip": "^4.0.4",
     "quick.db": "^9.0.8",
+    "r": "^0.0.5",
     "request": "^2.88.2",
     "request-promise-native": "^1.0.9",
     "sourcebin_js": "^0.0.3-ignore",

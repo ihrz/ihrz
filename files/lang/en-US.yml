@@ -692,3 +692,15 @@ setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> set t
 setserverlang_already: "I'm already on this language !"
 setserverlang_command_work_enable: "My language is now on **${type}**"
 setserverlang_command_error_enable: "error!"
+
+
+# -----------------------------/ \-----------------------------
+# Music Player Events
+
+event_mp_playerStart: "🎵 - Now playing `${track.title}` into **${queue.channel.name}** ..."
+event_mp_audioTrackAdd: ":musical_note: - ${track.title} has been added to the queue !"
+event_mp_playerError: "I'm having trouble connecting => ${error.message}"
+event_mp_error: "There was a problem with the song queue => ${error.message}"
+event_mp_emptyChannel: "❌ | Nobody is in the voice channel, leaving..."
+event_mp_playerSkip: ":musical_note: - Skipping **${track.title}** !"
+event_mp_emptyQueue: "⚠️ - Music stopped as there is no more music in the queue !"

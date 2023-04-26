@@ -2,10 +2,11 @@ const couleurmdr = require("colors"),
   { QuickDB } = require("quick.db"),
   db = new QuickDB(),
   config = require("../config.json"),
-  register = require('../slashsync');
+  register = require('../slashsync'),
+  wait = require("timers/promises").setTimeout;
 
 module.exports = async (client) => {
-  const { Client, Intents, Collection, MessageEmbed, Permissions, ApplicationCommandType, ApplicationCommandOptionType } = require('discord.js');
+  const { Client, Collection, ChannelType, ApplicationCommandType, PermissionsBitField, GatewayIntentBits, Partials, EmbedBuilder } = require('discord.js');
 
   if (!client.user.username.toString().includes("orizon")) {
     const config = require("../config.json")
@@ -41,7 +42,24 @@ module.exports = async (client) => {
       "  / / /_/ / __ \\/ ___/ /_  / / __ \\/ __ \\\n".cyan + " / / __  / /_/ / /  / / / /_/ /_/ / / / /\n".cyan +
       "/_/_/ /_/\\____/_/  /_/ /___/\\____/_/ /_/\n".cyan), console.log("[".yellow, " 💾 ".green, "] >> ".yellow, "Dev by Kisakay".blue);
   }
-  term(), client.user.setPresence({ activities: [{ name: 'Powered by the iHorizon Project' }] }),
+  
+  async function fetchInvites() {
+    client.guilds.cache.forEach(async (guild) => {
+      try {
+        if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+        const firstInvites = await guild.invites.fetch()
+        client.invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
+      } catch (error) {
+        console.error(`Error fetching invites for guild ${guild.id}: ${error}`);
+      }
+    });
+  }
+  
+  async function refreshDatabaseModel() {
     await db.set(`GLOBAL.OWNER.${config.ownerid1}`, { owner: true }),
-    await db.set(`TEMP`, {})
+    await db.set(`TEMP`, {}),
+    await wait(1000);
+  }
+
+  await term(), fetchInvites(), refreshDatabaseModel();
 }

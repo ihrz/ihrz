@@ -1,2 +1,0 @@
-Guilds Config
-/setleavemessage, /setjoinroles

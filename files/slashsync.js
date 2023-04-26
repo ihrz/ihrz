@@ -41,7 +41,6 @@ module.exports = async (client, commands, options = {
             updatedCommandCount++;
         }
     }
-
     log(`Updated ${updatedCommandCount} commands!`.magenta);
 
     log(`Commands synchronized!`.magenta);
@@ -52,5 +51,4 @@ module.exports = async (client, commands, options = {
         deletedCommandCount: deletedCommands.length,
         updatedCommandCount
     };
-
 };
