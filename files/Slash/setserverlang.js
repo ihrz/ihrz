@@ -28,12 +28,12 @@ module.exports = {
                     value: "en-US"
                 },
                 {
-                    name: "French (Soon)",
-                    value: "fr-FR"
+                    name: "Italian (Available)",
+                    value: "it-IT"
                 },
                 {
-                    name: "Italian (Soon)",
-                    value: "it-IT"
+                    name: "French (Soon)",
+                    value: "fr-FR"
                 },
                 {
                     name: "Spain (No ETA)",
@@ -81,6 +81,3 @@ module.exports = {
         }
     }
 }
-
-
-

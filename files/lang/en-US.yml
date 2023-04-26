@@ -406,7 +406,7 @@ setjoindm_not_setup_ls: "They are no join dm setup here !"
 setjoindm_command_work_ls: "The join dm message is: \n```${already_off}```"
 
 # /setjoinmessage
-setjoinmessage_not_admin: ":x: | You must be an administrator of this server to request a welcome channels commands!"
+setjoinmessage_not_admin: ":x: | You must be an administrator of this server to request this commands!"
 setjoinmessage_help_embed_title: "setjoinmessage Help !" 
 setjoinmessage_help_embed_description: "/setjoinmessage <Power on /Power off/Show the message set> <join message>"
 setjoinmessage_help_embed_fields_name: "how to use ?"
@@ -437,7 +437,7 @@ setjoinroles_command_any_set_ls: "This guild don't have a join roles set."
 setjoinroles_command_work_ls: "The join roles set is <@&${roles}>"
 
 # /setleavemessage
-setleavemessage_not_admin: ":x: | You must be an administrator of this server to request a welcome channels commands!"
+setleavemessage_not_admin: ":x: | You must be an administrator of this server to request this commands!"
 setleavemessage_help_embed_title: "/setleavemessage Help !"
 setleavemessage_help_embed_description: "/setleavemessage <Power on /Power off/Show the message set> <leave message>"
 setleavemessage_help_embed_fields_name: "how to use ?"
@@ -460,7 +460,7 @@ setup_command_error: "The bot has already setup the logs channels ! Or the bot d
 # /setmembercount
 
 # /setmembercount
-setmembercount_not_admin: ":x: | You must be an administrator of this server to request a welcome channels commands!"
+setmembercount_not_admin: ":x: | You must be an administrator of this server to request this command commands!"
 setmembercount_helpembed_title: "Set MemberCount Help !"
 setmembercount_helpembed_description: "/setmembercount <Power on /Power off> <Name of the channel>"
 setmembercount_helpembed_fields_name: "how to use ?"
@@ -654,7 +654,7 @@ backup_error_when_fetch_backup_on_load: ":x: | No backup found for ${backupID} !
 # /reactionroles
 
 # /reactionroles
-reactionroles_dont_admin_added: ":x: | You must be an administrator of this server to request a welcome channels commands!"
+reactionroles_dont_admin_added: ":x: | You must be an administrator of this server to request this commands!"
 reactionroles_embed_message_description_added: "__how to use ?__\n/rolesreaction add `<message id>` `<reaction>` `<rolesid>`\n/rolesreaction remove `<message id>` `<reaction>`\n/rolesreaction list `<message id>`"
 reactionroles_missing_reaction_added: "Missing argument: Reaction's Emoji"
 reactionroles_invalid_emote_format_added: "❌ | You can't sent to me a `CUSTOM_EMOJI` in format `<::xxx>` ! I need only them ID !"
