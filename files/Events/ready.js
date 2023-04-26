@@ -38,9 +38,9 @@ module.exports = async (client) => {
   });
   async function term() {
     console.log(
-      "    _ __  __           _                 \n".cyan + "   (_) / / /___  _____(_)___  ____  ____ \n".cyan +
-      "  / / /_/ / __ \\/ ___/ /_  / / __ \\/ __ \\\n".cyan + " / / __  / /_/ / /  / / / /_/ /_/ / / / /\n".cyan +
-      "/_/_/ /_/\\____/_/  /_/ /___/\\____/_/ /_/\n".cyan), console.log("[".yellow, " 💾 ".green, "] >> ".yellow, "Dev by Kisakay".blue);
+      "    _ __  __           _                 \n".red + "   (_) / / /___  _____(_)___  ____  ____ \n".red +
+      "  / / /_/ / __ \\/ ___/ /_  / / __ \\/ __ \\\n".red + " / / __  / /_/ / /  / / / /_/ /_/ / / / /\n".red +
+      "/_/_/ /_/\\____/_/  /_/ /___/\\____/_/ /_/\n".red), console.log("[".yellow, " 🟢 ", "]".yellow+" >> ".gray, "Dev by Kisakay".green);
   }
   
   async function fetchInvites() {

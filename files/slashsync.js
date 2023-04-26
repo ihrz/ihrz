@@ -11,22 +11,22 @@ module.exports = async (client, commands, options = {
     await ready;
     const currentCommands = await client.application.commands.fetch(options.guildId && { guildId: options.guildId });
 
-    log(`Synchronizing commands...`.magenta);
-    log(`Currently ${currentCommands.size} commands are registered to the bot.`.magenta);
+    log(`Synchronizing commands...`.white);
+    log(`Currently ${currentCommands.size} commands are registered to the bot.`.white);
 
     const newCommands = commands.filter((command) => !currentCommands.some((c) => c.name === command.name));
     for (let newCommand of newCommands) {
         await client.application.commands.create(newCommand, options.guildId);
     }
 
-    log(`Created ${newCommands.length} commands!`.magenta);
+    log(`Created ${newCommands.length} commands!`.white);
 
     const deletedCommands = currentCommands.filter((command) => !commands.some((c) => c.name === command.name)).toJSON();
     for (let deletedCommand of deletedCommands) {
         await deletedCommand.delete();
     }
 
-    log(`Deleted ${deletedCommands.length} commands!`.magenta);
+    log(`Deleted ${deletedCommands.length} commands!`.white);
 
     const updatedCommands = commands.filter((command) => currentCommands.some((c) => c.name === command.name));
     let updatedCommandCount = 0;
@@ -41,9 +41,9 @@ module.exports = async (client, commands, options = {
             updatedCommandCount++;
         }
     }
-    log(`Updated ${updatedCommandCount} commands!`.magenta);
+    log(`Updated ${updatedCommandCount} commands!`.white);
 
-    log(`Commands synchronized!`.magenta);
+    log(`Commands synchronized!`.white);
 
     return {
         currentCommandCount: currentCommands.size,
