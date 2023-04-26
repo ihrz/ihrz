@@ -656,6 +656,7 @@ reactionroles_cant_fetched_reaction_remove: "Can't fetch targeted reaction on th
 reactionroles_logs_embed_title_remove: "ReactionRoles Logs"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> delete a reaction roles: Message: `${messagei}` | Reaction: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} has been deleted to the ${messagei}'s message"
+reactionroles_dont_message_found: "I can't get the message with you'r current message's ID !"
 
 # New feature commands
 # /punishpub, /report, /support
@@ -682,6 +683,7 @@ report_command_work: "**Thanks for submitting a bug!**"
 support_not_admin: ":x: | You must be an administrator of this server to request this commands!"
 support_command_work: "You have setup the support module for **${interaction.guild.name}**.\nWhen user have on this bio:\n**${input}**.\nI should give the <@&${roles.id}> role to them!"
 support_command_work_on_disable: "You have setup the support module for **${interaction.guild.name}**.\nNobody can have role now!"
+support_command_not_role: ":x: | You have not specified the role !"
 
 # /setserverlang
 setserverlang_not_admin: ":x: | You must be an administrator of this server to request this commands!"

@@ -60,14 +60,14 @@ module.exports = {
         }
 
         let query = interaction.options.getString("value")
-        var roleid = interaction.options.get("roles").value
+        var roleid = interaction.options.get("roles")
         let help_embed = new EmbedBuilder()
             .setColor("#016c9a")
             .setTitle(data.setjoinroles_help_embed_title)
             .setDescription(data.setjoinroles_help_embed_description)
 
         if (query === "true") {
-            if (!roleid) return interaction.reply(help_embed);
+            if (!roleid) return interaction.reply({embeds: [help_embed]});
             try {
                 logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
@@ -82,12 +82,12 @@ module.exports = {
 
             try {
                 let already = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
-                if (already === roleid) return interaction.reply({ content: data.setjoinroles_already_on_enable })
-                await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`, roleid);
+                if (already === roleid.value) return interaction.reply({ content: data.setjoinroles_already_on_enable })
+                await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`, roleid.value);
 
                 return interaction.reply({
                     content: data.setjoinroles_command_work_enable
-                        .replace("${roleid}", roleid)
+                        .replace("${roleid}", roleid.value)
                 });
             } catch (e) {
                 return interaction.reply({ content: data.setjoinroles_command_error_on_enable });

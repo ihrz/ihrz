@@ -656,6 +656,7 @@ reactionroles_cant_fetched_reaction_remove: "Impossible de récupérer la réact
 reactionroles_logs_embed_title_remove: "Logs des ReactionRoles"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> a supprimé un ReactionRole: Message: `${messagei}` | Réaction: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} a été supprimé du message ${messagei}"
+reactionroles_dont_message_found: ""
 
 # New feature commands
 # /punishpub, /report, /support
@@ -682,6 +683,7 @@ report_command_work: "Merci d'avoir signalé un bug !"
 support_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour utiliser cette commande !"
 support_command_work: "Vous avez configuré le module de support pour ${interaction.guild.name}.\nLorsqu'un utilisateur a ceci dans sa bio :\n**${input}**.\nJe devrais leur donner le rôle <@&${roles.id}> !"
 support_command_work_on_disable: "Vous avez configuré le module de support pour ${interaction.guild.name}.\nPersonne ne peut maintenant avoir de rôle !"
+support_command_not_role: ":x: | Vous n'avez pas spécifié le rôle !"
 
 # /setserverlang
 setserverlang_not_admin : ":x: | Vous devez être un administrateur de ce serveur pour demander cette commande !"

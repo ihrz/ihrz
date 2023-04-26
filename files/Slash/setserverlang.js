@@ -60,7 +60,10 @@ module.exports = {
             logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
                 .setTitle(data.setserverlang_logs_embed_title_on_enable)
-                .setDescription(data.setserverlang_logs_embed_description_on_enable.replace(/\${interaction\.user.id}/g, interaction.user.id))
+                .setDescription(data.setserverlang_logs_embed_description_on_enable
+                .replace(/\${type}/g, type)
+                .replace(/\${interaction\.user.id}/g, interaction.user.id)
+                )
 
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }

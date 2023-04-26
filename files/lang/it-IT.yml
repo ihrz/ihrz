@@ -656,6 +656,7 @@ reactionroles_cant_fetched_reaction_remove: "Impossibile recuperare la reazione 
 reactionroles_logs_embed_title_remove: "Log ReactionRoles"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> ha eliminato una reaction role: Messaggio: ${messagei} | Reazione: ${reaction}"
 reactionroles_command_work_remove: "${reaction} è stato eliminato dal messaggio ${messagei}"
+reactionroles_dont_message_found: ""
 
 # New feature commands
 # /punishpub, /report, /support
@@ -682,6 +683,7 @@ report_command_work: "**Grazie per aver segnalato un bug**!"
 support_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questi comandi!"
 support_command_work: "Hai configurato il modulo di supporto per ${interaction.guild.name}.\nQuando un utente ha questa descrizione:\n**${input}**.\nDovrei assegnare loro il ruolo <@&${roles.id}>!"
 support_command_work_on_disable: "Hai configurato il modulo di supporto per ${interaction.guild.name}.\nNessuno può avere il ruolo ora!"
+support_command_not_role: ":x: | Non hai specificato il ruolo!"
 
 # /setserverlang
 setserverlang_not_admin: ":x: | Devi essere un amministratore del server per richiedere questo comando!"

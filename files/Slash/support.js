@@ -61,6 +61,9 @@ module.exports = {
         let input = interaction.options.getString("input");
         let roles = interaction.options.getRole("roles")
 
+        if (!roles) {
+            return interaction.reply({ content: data.support_command_not_role })
+        }
         if (action == "true") {
             await db.set(`${interaction.guild.id}.GUILD.SUPPORT`,
                 {
@@ -76,12 +79,35 @@ module.exports = {
                     .replace("${roles.id}", roles.id)
             })
 
+            try {
+                logEmbed = new EmbedBuilder()
+                    .setColor("#bf0bb9")
+                    .setTitle(data.setjoinroles_logs_embed_title_on_enable)
+                    .setDescription(data.setjoinroles_logs_embed_description_on_enable
+                        .replace("${interaction.user.id}", interaction.user.id)
+                    )
+
+                let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+            } catch (e) {console.log(e) };
         } else {
             await db.delete(`${interaction.guild.id}.GUILD.SUPPORT`);
             interaction.reply({
                 content: data.support_command_work_on_disable
                     .replace("${interaction.guild.name}", interaction.guild.name)
             })
+
+            try {
+                logEmbed = new EmbedBuilder()
+                    .setColor("#bf0bb9")
+                    .setTitle(data.setjoinroles_logs_embed_title_on_enable)
+                    .setDescription(data.setjoinroles_logs_embed_description_on_enable
+                        .replace("${interaction.user.id}", interaction.user.id)
+                    )
+
+                let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+            } catch (e) {console.log(e) };
         };
     }
 }

@@ -72,31 +72,31 @@ module.exports = {
       .setDescription(data.reactionroles_embed_message_description_added)
 
     if (type == "add") {
-      interaction.channel.messages.fetch(messagei).then(message => { message.react(reaction) })
-        .catch(error => { return interaction.reply({ content: `${error}` }) });
-
       if (!role) { interaction.reply({ embeds: [help_embed] }) };
-
       if (!reaction) { return interaction.reply({ content: data.reactionroles_missing_reaction_added }) }
 
+      try {
+        await interaction.channel.messages.fetch(messagei).then(message => { message.react(reaction) });
+      } catch {
+        return interaction.reply({ content: data.reactionroles_dont_message_found });
+      }
       let check = reaction.toString()
 
       if (check.includes("<") || check.includes(">") || check.includes(":")) {
         return interaction.reply({ content: data.reactionroles_invalid_emote_format_added })
       }
-
       await db.set(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`, { rolesID: role.id, reactionNAME: reaction, enable: true })
-
+      
       try {
         logEmbed = new EmbedBuilder()
           .setColor("#bf0bb9")
           .setTitle(data.reactionroles_logs_embed_title_added)
           .setDescription(data.reactionroles_logs_embed_description_added
-              .replace("${interaction.user.id}", interaction.user.id)
-              .replace("${messagei}", messagei)
-              .replace("${reaction}", reaction)
-              .replace("${role}", role)
-        )
+            .replace("${interaction.user.id}", interaction.user.id)
+            .replace("${messagei}", messagei)
+            .replace("${reaction}", reaction)
+            .replace("${role}", role)
+          )
         let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
         if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
       } catch (e) { console.error(e) };
