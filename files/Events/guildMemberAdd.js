@@ -4,7 +4,11 @@ const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const yaml = require('js-yaml');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 module.exports = async (client, member, members) => {
+  let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(member.guild.id)}.yml`, 'utf-8');
+  let data = yaml.load(fileContents);
 
   async function joinRoles() {
     try {
@@ -87,20 +91,29 @@ module.exports = async (client, member, members) => {
       const oldInvites = client.invites.get(member.guild.id);
       const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
       const inviter = await client.users.fetch(invite.inviter.id)
-  
+
       checked = db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`)
-  
+
       if (checked) {
         await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.regular`, 1);
         await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`, 1);
       }
       let fetched = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`);
-  
+
       let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`)
       if (!wChan) return;
       let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`)
-      if (!messssssage) { return client.channels.cache.get(wChan).send({ content: `➕・<@${member.id}> join the guild. Invited by **${inviter.tag}** (**${fetched}** invites). Account created at: **${member.user.createdAt.toLocaleDateString()}**. Happy to see you on **${member.guild.name}**` }) }
-  
+      if (!messssssage) {
+        return client.channels.cache.get(wChan).send({
+          content: data.event_welcomer_inviter
+            .replace("${member.id}", member.id)
+            .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
+            .replace("${member.guild.name}", member.guild.name)
+            .replace("${inviter.tag}", member.guild.name)
+            .replace("${fetched}", member.guild.name)
+        })
+      }
+
       var messssssage4 = messssssage
         .replace("{user}", member.user.tag)
         .replace("{guild}", member.guild.name)
@@ -108,12 +121,17 @@ module.exports = async (client, member, members) => {
         .replace("{membercount}", member.guild.memberCount)
         .replace("{inviter}", inviter.tag)
         .replace("{invites}", fetched)
-  
+
       return client.channels.cache.get(wChan).send({ content: `${messssssage4}` });
     } catch (e) {
       let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`)
       if (!wChan) return;
-      return client.channels.cache.get(wChan).send({ content: `➕・<@${member.id}> join the guild. Account created at: **${member.user.createdAt.toLocaleDateString()}**. Happy to see you on **${member.guild.name}**` });
+      return client.channels.cache.get(wChan).send({
+        content: data.event_welcomer_default
+          .replace("${member.id}", member.id)
+          .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
+          .replace("${member.guild.name}", member.guild.name)
+      });
     }
   }
   await joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage()

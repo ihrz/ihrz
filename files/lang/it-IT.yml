@@ -704,3 +704,22 @@ event_mp_error: "Si è verificato un problema con la coda di riproduzione della 
 event_mp_emptyChannel: "❌ | Nessuno è nel canale vocale, esco..."
 event_mp_playerSkip: ":musical_note: - Salto di `${track.title}` !"
 event_mp_emptyQueue: "⚠️ - La musica si è fermata poiché non ci sono più brani nella coda di riproduzione!"
+
+# Channel Create Events
+
+event_channel_create_message_embed_title: "Setup effettuato con successo!"
+event_channel_create_message_embed_description: "Il bot è stato configurato perfettamente. Non devi fare più niente (zen).\n\nTutti i log relativi alla moderazione di iHorizon saranno mostrati qui."
+
+# Welcome Message Events
+event_welcomer_inviter: "➕・<@${member.id}> ha appena joinato il server. Invitato da **${inviter.tag}** (**${fetched}** inviti). Account creato il: **${member.user.createdAt.toLocaleDateString()}**. Siamo felici di vederti su **${member.guild.name}**"
+event_welcomer_default: "➕・<@${member.id}> ha appena joinato il server. Account creato il: **${member.user.createdAt.toLocaleDateString()}**. Siamo felici di vederti su **${member.guild.name}**"
+
+# Goodbye Message Events
+event_goodbye_inviter: "➖・<@${member.id}> ha appena lasciato il server. Era stato invitato da **${inviter.tag}** (**${fetched}** inviti). Addio, da **${member.guild.name}**."
+event_goodbye_default: "➖・<@${member.id}> ha appena lasciato il server. Addio, da **${member.guild.name}**."
+
+# XP Level Events
+event_xp_level_earn: "**GG**, <@${message.author.id}> sei salito di livello (Livello: **${newLevel}**)"
+
+# Ticket Module Events:
+event_ticket_embed_description: "Ciao ${user.username}, benvenuto al tuo ticket! Sii paziente, saremo con te al più presto. Se vuoi chiudere questo ticket, esegui /close."

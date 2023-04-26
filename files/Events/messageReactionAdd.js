@@ -1,11 +1,16 @@
 
-const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
+const { Client, Intents, ChannelType, Collection, EmbedBuilder, PermissionFlagsBits, Permissions, PermissionsBitField} = require('discord.js');
 const config = require('../config.json');
 const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const yaml = require('js-yaml');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 module.exports = async (client, reaction, user) => {
+  let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(reaction.message.guildId)}.yml`, 'utf-8');
+  let data = yaml.load(fileContents);
+
   async function reactionRole() {
     try {
       if (!reaction.message.guild) return;
@@ -59,12 +64,14 @@ module.exports = async (client, reaction, user) => {
     }).then(async channel => {
       reaction.users.remove(user);
       let welcome = new EmbedBuilder()
-        .setTitle(`${result.panelName}`)
+        .setTitle(result.panelName)
         .setColor("#3b8f41")
-        .setDescription(`Hi ${user.username}, welcome to your ticket! Please be patient, we will be with you shortly. If you would like to close this ticket please run \`/close\``)
+        .setDescription(data.event_ticket_embed_description
+          .replace("${user.username}", user.username)
+        )
         .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
   
-      return channel.send({ embeds: [welcome] });
+      return channel.send({ content: `<@${user.id}>`, embeds: [welcome] });
     });
   }
   

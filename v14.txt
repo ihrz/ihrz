@@ -28,3 +28,9 @@ for logs embed
 
 #016c9a
 for music embed
+
+const yaml = require('js-yaml'), fs = require('fs');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+
+let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
+let data = yaml.load(fileContents);
