@@ -38,6 +38,12 @@ module.exports = {
       .setThumbnail(client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 }))
       .setTimestamp();
 
-    return interaction.reply({ embeds: [embed] });
+      const news = new EmbedBuilder()
+      .setColor('#e1a95f')
+      .setTitle('📭 What is the news today ?')
+      .setDescription("iHorizon is now multilingual, many bugs are fixed.\n**Change iHorizon language**: ```/setserverlang```")
+      .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
+
+    return interaction.reply({ embeds: [news, embed] });
   }
 }

@@ -41,7 +41,5 @@ module.exports = {
       })
       interaction.reply({ content: data.setup_command_work })
     } else { return interaction.reply({ content: data.setup_command_error }) }
-
-    const filter = (interaction) => interaction.user.id === interaction.member.id;
   }
 }
