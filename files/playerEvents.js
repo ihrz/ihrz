@@ -47,7 +47,7 @@ module.exports.playerEvents = async (player) => {
         let data = yaml.load(fileContents);
 
         if (queue > 2) player?.nodes.delete(queue.metadata);
-        queue.metadata.channel.send({ content: data.event_mp_emptyChannel })
+        queue.metadata.channel.send({ content: data.event_mp_emptyChannel });
     });
 
     player.events.on('playerSkip', async (queue, track) => {
@@ -64,6 +64,6 @@ module.exports.playerEvents = async (player) => {
         let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(queue.channel.guildId)}.yml`, 'utf-8');
         let data = yaml.load(fileContents);
 
-        await queue.metadata.channel.send({ content: data.event_mp_emptyQueue })
+        queue.metadata.channel.send({ content: data.event_mp_emptyQueue });
     })
 };
