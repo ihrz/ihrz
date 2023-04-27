@@ -77,9 +77,9 @@ module.exports = async (client, member, members) => {
         return client.channels.cache.get(wChan).send({
           content: data.event_goodbye_inviter
             .replace("${member.id}", member.id)
-            .replace("${member.guild.name}", member.id)
-            .replace("${inviter.tag}", member.id)
-            .replace("${fetched}", member.id)
+            .replace("${member.guild.name}", member.guild.name)
+            .replace("${inviter.tag}", inviter.tag)
+            .replace("${fetched}", fetched)
         })
       }
 
@@ -99,7 +99,7 @@ module.exports = async (client, member, members) => {
       return client.channels.cache.get(wChan).send({
         content: data.event_goodbye_default
           .replace("${member.id}", member.id)
-          .replace("${member.guild.name}", member.id)
+          .replace("${member.guild.name}", member.guild.name)
       });
     }
   }

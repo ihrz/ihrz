@@ -109,8 +109,8 @@ module.exports = async (client, member, members) => {
             .replace("${member.id}", member.id)
             .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
             .replace("${member.guild.name}", member.guild.name)
-            .replace("${inviter.tag}", member.guild.name)
-            .replace("${fetched}", member.guild.name)
+            .replace("${inviter.tag}", inviter.tag)
+            .replace("${fetched}", fetched)
         })
       }
 
