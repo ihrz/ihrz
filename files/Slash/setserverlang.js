@@ -36,7 +36,7 @@ module.exports = {
                     value: "fr-FR"
                 },
                 {
-                    name: "Spain (Available)",
+                    name: "Spanish (Available)",
                     value: "es-ES"
                 },
                 {
