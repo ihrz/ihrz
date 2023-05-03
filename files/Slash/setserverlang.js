@@ -40,12 +40,12 @@ module.exports = {
                     value: "es-ES"
                 },
                 {
-                    name: "Deutsch (No ETA)",
-                    value: "de-DE"
+                    name: "Japanese (Available)",
+                    value: "jp-JP"
                 },
                 {
-                    name: "Japanese (No ETA)",
-                    value: "jp-JP"
+                    name: "Deutsch (No ETA)",
+                    value: "de-DE"
                 }
             ],
         }
