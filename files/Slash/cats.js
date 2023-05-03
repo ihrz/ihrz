@@ -1,4 +1,4 @@
-const request = require('request');
+const superagent = require('superagent');
 const {
   Client,
   Intents,
@@ -20,15 +20,22 @@ module.exports = {
     let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
     let data = yaml.load(fileContents);
 
-    request('http://edgecats.net/random', function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-        let emb = new EmbedBuilder()
-          .setImage(body)
-          .setTitle(data.cats_embed_title)
-          .setTimestamp()
+    superagent
+      .get('http://edgecats.net/random')
+      .end((err, res) => {
+        if (err) {
+          console.error(err);
+          interaction.reply('Erreur lors de la récupération de l\'image du chat.');
+          return;
+        } else {
+          const emb = new EmbedBuilder()
+            .setImage(res.text)
+            .setTitle(data.cats_embed_title)
+            .setTimestamp();
 
-        interaction.reply({ embeds: [emb] })
-      }
-    });
+          interaction.reply({ embeds: [emb] });
+        }
+      });
+
   }
 }
