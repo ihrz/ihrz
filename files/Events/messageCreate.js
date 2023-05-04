@@ -42,7 +42,7 @@ module.exports = async (client, message) => {
         }, 3500);
       })
       if (xpChan === "off") return message.channel.send({
-        content: data.data.event_xp_level_earn
+        content: data.event_xp_level_earn
           .replace("${message.author.id}", message.author.id)
           .replace("${newLevel}", newLevel)
       }).then((sent) => {
@@ -52,11 +52,11 @@ module.exports = async (client, message) => {
       })
       try {
         client.channels.cache.get(xpChan).send({
-          content: data.data.event_xp_level_earn
+          content: data.event_xp_level_earn
             .replace("${message.author.id}", message.author.id)
             .replace("${newLevel}", newLevel)
         }).then(msg => { });
-      } catch (e) { return }
+      } catch (e) { return };
     }
   }
   async function EconomyDebug() {

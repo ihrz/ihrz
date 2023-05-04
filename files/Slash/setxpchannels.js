@@ -45,7 +45,7 @@ module.exports = {
         let data = yaml.load(fileContents);
 
         let type = interaction.options.getString("action")
-        let argsid = interaction.options.getChannel("channel").id
+        let argsid = interaction.options.getChannel("channel")
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.reply({ content: data.setxpchannels_not_admin });
@@ -57,18 +57,19 @@ module.exports = {
                 logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.setxpchannels_logs_embed_title_enable)
-                    .setDescription(data.setxpchannels_logs_embed_description_enable.replace(/\${interaction\.user.id}/g, interaction.user.id))
+                    .setDescription(data.setxpchannels_logs_embed_description_enable.replace(/\${interaction\.user.id}/g, interaction.user.id)
+                    .replace(/\${argsid}/g, argsid.id))
 
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
             } catch (e) { console.error(e) };
             try {
                 let already = await db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`)
-                if (already === argsid) return interaction.reply({ content: data.setxpchannels_already_with_this_config })
-                client.channels.cache.get(argsid).send({ content: data.setxpchannels_confirmation_message })
-                await db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`, argsid);
+                if (already === argsid.id) return interaction.reply({ content: data.setxpchannels_already_with_this_config })
+                client.channels.cache.get(argsid.id).send({ content: data.setxpchannels_confirmation_message })
+                await db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`, argsid.id);
 
-                return interaction.reply({ content: data.setxpchannels_command_work_enable.replace(/\${argsid}/g, argsid) });
+                return interaction.reply({ content: data.setxpchannels_command_work_enable.replace(/\${argsid}/g, argsid.id) });
 
             } catch (e) {
                 interaction.reply({ content: data.setxpchannels_command_error_enable });
@@ -80,8 +81,8 @@ module.exports = {
             try {
                 logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
-                    .setTitle(config.setxpchannels_logs_embed_title_disable)
-                    .setDescription(config.setxpchannels_logs_embed_description_disable.replace(/\${interaction\.user.id}/g, interaction.user.id))
+                    .setTitle(data.setxpchannels_logs_embed_title_disable)
+                    .setDescription(data.setxpchannels_logs_embed_description_disable.replace(/\${interaction\.user.id}/g, interaction.user.id))
 
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
