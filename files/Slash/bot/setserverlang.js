@@ -20,7 +20,7 @@ module.exports = {
         {
             name: 'language',
             type: ApplicationCommandOptionType.String,
-            description: 'What language you want ?',
+            description: 'What language you want ? (soon more)',
             required: true,
             choices: [
                 {
@@ -44,7 +44,7 @@ module.exports = {
                     value: "jp-JP"
                 },
                 {
-                    name: "Deutsch (No ETA)",
+                    name: "Deutsch (Available)",
                     value: "de-DE"
                 }
             ],
@@ -60,7 +60,11 @@ module.exports = {
             return interaction.reply({ content: data.setserverlang_not_admin });
         }
 
+        
         try {
+            let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${type}.yml`, 'utf-8');
+            let data = yaml.load(fileContents);
+
             logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
                 .setTitle(data.setserverlang_logs_embed_title_on_enable)
@@ -74,6 +78,9 @@ module.exports = {
         } catch (e) { console.error(e) };
 
         try {
+            let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${type}.yml`, 'utf-8');
+            let data = yaml.load(fileContents);
+
             let already = await db.get(`${interaction.guild.id}.GUILD.LANG`)
             if (already) {
                 if (already.lang === type) return interaction.reply({ content: data.setserverlang_already })

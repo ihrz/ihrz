@@ -5,87 +5,87 @@
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
 
 # /add
-add_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
-add_incorect_syntax: "Incorrect Syntax ! **Correct Usage:** `.add <member>`"
-add_command_work: "Successfully added ${member.tag} to your ticket!"
-add_command_error: "error occurred, pls try again"
+add_disabled_command: "Sie können diesen Befehl nicht verwenden, da ein Administrator die Ticket-Befehle deaktiviert hat!"
+add_incorect_syntax: "Falsche Syntax! **Richtige Verwendung:** `.add <Mitglied>`"
+add_command_work: "${member.tag} wurde erfolgreich zu Ihrem Ticket hinzugefügt!"
+add_command_error: "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut!"
 
 # /close
-close_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
-close_title_sourcebin: "Ticket transcript by iHorizon"
+close_disabled_command: "Sie können diesen Befehl nicht verwenden, da ein Administrator die Ticket-Befehle deaktiviert hat!"
+close_title_sourcebin: "Ticket-Transkript von iHorizon"
 close_description_sourcebin: " "
-close_error_command: "Error occurred, pls try again!"
-close_command_work_channel: "You have closed your ticket. iHorizon sent you the transcript"
-close_command_work_notify_channel: "The ticket was succefully closed !"
-close_command_error: "Error occurred, please try again!"
-close_not_in_ticket: "You cannot use this command outside of a ticket channel !"
+close_error_command: "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut!"
+close_command_work_channel: "Sie haben Ihr Ticket geschlossen. iHorizon hat Ihnen das Transkript gesendet."
+close_command_work_notify_channel: "Das Ticket wurde erfolgreich geschlossen!"
+close_command_error: "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut!"
+close_not_in_ticket: "Sie können diesen Befehl außerhalb eines Ticket-Kanals nicht verwenden!"
 
 # /delete
-delete_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
-delete_not_in_ticket: "You cannot use this command outside of a ticket channel !"
+delete_disabled_command: "Sie können diesen Befehl nicht verwenden, da ein Administrator die Ticket-Befehle deaktiviert hat!"
+delete_not_in_ticket: "Sie können diesen Befehl außerhalb eines Ticket-Kanals nicht verwenden!"
 
 # /sethereticket
-sethereticket_disabled_command: "You can't use this commands because an another Administrator disable the ticket commands !"
-sethereticket_not_admin: ":x: | You must be an administrator of this server to request a this commands!"
-sethereticket_description_embed: "To create a new ticket, please react with 📩"
-sethereticket_command_work: "Ticket panel has been set successfully!"
+sethereticket_disabled_command: "Sie können diesen Befehl nicht verwenden, da ein anderer Administrator die Ticket-Befehle deaktiviert hat!"
+sethereticket_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
+sethereticket_description_embed: "Um ein neues Ticket zu erstellen, reagieren Sie bitte mit 📩"
+sethereticket_command_work: "Das Ticket-Panel wurde erfolgreich festgelegt!"
 
 # /open
-open_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
-open_command_work: "Successfully re-opened ${interaction.channel}"
-open_command_error: "Error occurred, please try again!"
-open_not_in_ticket: "You cannot use this command outside of a ticket channel!"
+open_disabled_command: "Du kannst diesen Befehl nicht verwenden, da ein Administrator die Ticket-Befehle deaktiviert hat!"
+open_command_work: "${interaction.channel} erfolgreich wieder geöffnet"
+open_command_error: "Es ist ein Fehler aufgetreten, bitte versuche es erneut!"
+open_not_in_ticket: "Du kannst diesen Befehl außerhalb eines Ticket-Kanals nicht verwenden!"
 
 # /remove
-remove_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
-remove_not_in_ticket: "You cannot use this command outside of a ticket channel !"
-remove_command_error: "Error occurred, pls try again"
-remove_command_work: "Successfully removed ${member.tag} to your ticket!"
+remove_disabled_command: "Du kannst diesen Befehl nicht verwenden, da ein Administrator die Ticket-Befehle deaktiviert hat!"
+remove_not_in_ticket: "Du kannst diesen Befehl außerhalb eines Ticket-Kanals nicht verwenden!"
+remove_command_error: "Es ist ein Fehler aufgetreten, bitte versuche es erneut!"
+remove_command_work: "${member.tag} erfolgreich aus deinem Ticket entfernt!"
 
-# /transript
-transript_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
+# /transcript
+transript_disabled_command: "Du kannst diesen Befehl nicht verwenden, da ein Administrator die Ticket-Befehle deaktiviert hat!"
 transript_name_sourcebin: " "
-transript_title_sourcebin: "Ticket Chat transcript for ${channel.name}"
-transript_command_error: "Error occurred, please try again!"
-transript_command_work: "You have closed your ticket. iHorizon sent you the transcript"
-transript_not_in_ticket: "You cannot use this command outside of a ticket channel !"
+transript_title_sourcebin: "Ticket Chat-Protokoll für ${channel.name}"
+transript_command_error: "Es ist ein Fehler aufgetreten, bitte versuche es erneut!"
+transript_command_work: "Du hast dein Ticket geschlossen. iHorizon hat dir das Protokoll gesendet."
+transript_not_in_ticket: "Du kannst diesen Befehl außerhalb eines Ticket-Kanals nicht verwenden!"
 
 # /disableticket
-disableticket_not_admin: ":x: | You must be an administrator of this server to request this commands!"
-disableticket_logs_embed_title_disable: "DisableTicket Logs"
-disableticket_logs_embed_description_disable: "<@${interaction.user.id}> disable ticket commands !"
-disableticket_command_work_disable: "You have successfully disable the ticket commands !"
-disableticket_logs_embed_title_enable: "EnableTicket Logs"
-disableticket_logs_embed_description_enable: "<@${interaction.user.id}> enable ticket commands !"
-disableticket_command_work_enable: "You have successfully enable the ticket commands !"
+disableticket_not_admin: ":x: | Sie müssen Administrator dieses Servers sein, um diesen Befehl auszuführen!"
+disableticket_logs_embed_title_disable: "Deaktiviere-Ticket-Logs"
+disableticket_logs_embed_description_disable: "<@${interaction.user.id}> hat die Ticket-Befehle deaktiviert!"
+disableticket_command_work_disable: "Sie haben erfolgreich die Ticket-Befehle deaktiviert!"
+disableticket_logs_embed_title_enable: "Aktiviere-Ticket-Logs"
+disableticket_logs_embed_description_enable: "<@${interaction.user.id}> hat die Ticket-Befehle aktiviert!"
+disableticket_command_work_enable: "Sie haben erfolgreich die Ticket-Befehle aktiviert!"
 
 
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
 
 # /disablexp
-disablexp_not_admin: ":x: | You must be an administrator of this server to request this commands!"
-disablexp_logs_embed_title_disable: "Disable XP Logs"
-disablexp_logs_embed_description_disable: "<@${interaction.user.id}> disable xp !"
-disablexp_command_work_disable: "You have successfully disable the leveling message (XP)"
-disablexp_logs_embed_title_enable: "Disable XP Logs"
-disablexp_logs_embed_description_enable: "<@${interaction.user.id}> enable xp !"
-disablexp_command_work_enable: "You have successfully enable the leveling message (XP)"
+disablexp_not_admin: ":x: | Sie müssen Administrator dieses Servers sein, um diesen Befehl auszuführen!"
+disablexp_logs_embed_title_disable: "Deaktiviere-XP-Logs"
+disablexp_logs_embed_description_disable: "<@${interaction.user.id}> hat XP deaktiviert!"
+disablexp_command_work_disable: "Sie haben erfolgreich die Leveling-Nachrichten (XP) deaktiviert!"
+disablexp_logs_embed_title_enable: "Aktiviere-XP-Logs"
+disablexp_logs_embed_description_enable: "<@${interaction.user.id}> hat XP aktiviert!"
+disablexp_command_work_enable: "Sie haben erfolgreich die Leveling-Nachrichten (XP) aktiviert!"
 
 # /setxpchannels
-setxpchannels_not_admin: ":x: | You must be an administrator of this server to request this commands!"
-setxpchannels_logs_embed_title_disable: "SetXpChannels Logs"
-setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> disable the custom xp channels. I put the default settings..."
-setxpchannels_already_disabled_disable: "The custom xp channels is already disable !"
-setxpchannels_command_work_disable: "You have successfully disable the custom xp channel !"
-setxpchannels_command_error_disable: "Error: missing permissions or channel doesn't exist"
-setxpchannels_logs_embed_title_enable: "SetXpChannels Logs"
-setxpchannels_logs_embed_description_enable: "<@${interaction.user.id}> set the custom xp channels to: <#${argsid}>"
-setxpchannels_valid_channel_message: "You must specify a valid channel for you configurations."
-setxpchannels_already_with_this_config: "The custom xp channels is already config with this channels id!"
-setxpchannels_confirmation_message: "**Custom XP channel set here!**"
-setxpchannels_command_work_enable: "You have successfully set the custom xp channel to <#${argsid}>"
-setxpchannels_command_error_enable: "Error: missing permissions or channel doesn't exist"
+setxpchannels_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
+setxpchannels_logs_embed_title_disable: "SetXpChannels Protokolle"
+setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> deaktivieren die benutzerdefinierten XP-Kanäle. Ich setze die Standardeinstellungen..."
+setxpchannels_already_disabled_disable: "Die benutzerdefinierten XP-Kanäle sind bereits deaktiviert!"
+setxpchannels_command_work_disable: "Sie haben den benutzerdefinierten XP-Kanal erfolgreich deaktiviert!"
+setxpchannels_command_error_disable: "Fehler: fehlende Berechtigungen oder Kanal existiert nicht"
+setxpchannels_logs_embed_title_enable: "SetXpChannels Protokolle"
+setxpchannels_logs_embed_description_enable: "<@${interaction.user.id}> setzen die benutzerdefinierten XP-Kanäle auf: <#${argsid}>"
+setxpchannels_valid_channel_message: "Sie müssen einen gültigen Kanal für Ihre Konfiguration angeben."
+setxpchannels_already_with_this_config: "Die benutzerdefinierten XP-Kanäle sind bereits mit dieser Kanal-ID konfiguriert!"
+setxpchannels_confirmation_message: "**Benutzerdefinierter XP-Kanal hier festgelegt!**"
+setxpchannels_command_work_enable: "Sie haben den benutzerdefinierten XP-Kanal erfolgreich auf <#${argsid}> festgelegt!"
+setxpchannels_command_error_enable: "Fehler: fehlende Berechtigungen oder Kanal existiert nicht"
 
 # /xp
 #nfn
@@ -94,78 +94,98 @@ setxpchannels_command_error_enable: "Error: missing permissions or channel doesn
 # /owner, /unowner, /blacklist, /unblacklist
 
 # /owner
-owner_not_owner: "You are not owner of the iHorizon Projects. You can't use this command."
-owner_already_owner: "This user is already owner !"
-owner_is_now_owner: "${member.user.username} is now owner of the iHorizon Projects"
+owner_not_owner: "Sie sind nicht der Eigentümer von iHorizon Projects. Sie können diesen Befehl nicht verwenden."
+owner_already_owner: "Dieser Benutzer ist bereits Eigentümer!"
+owner_is_now_owner: "${member.user.username} ist jetzt Eigentümer von iHorizon Projects"
 
 # /unowner
-unowner_not_owner: "You are not owner of the iHorizon Projects. You can't use this command."
-unowner_cant_unowner_creator: "Is not possible to remove him, is the iHorizon Projects Creator."
-unowner_command_work: "${member.username} no longer owner"
+unowner_not_owner: "Sie sind nicht der Eigentümer von iHorizon Projects. Sie können diesen Befehl nicht verwenden."
+unowner_cant_unowner_creator: "Es ist nicht möglich, ihn zu entfernen, da er der iHorizon Projects-Ersteller ist."
+unowner_command_work: "${member.username} ist nicht mehr Eigentümer"
 
 # /blacklist
-blacklist_not_owner: "You are not owner of the iHorizon Projects. You can't use this command."
-blacklist_bot_lol: "Can't blacklist myself x)"
-blacklist_command_work: "${member.user.username} is now blacklisted"
-blacklist_blacklisted_but_can_ban_him: "❌ Is now blacklisted, Can't ban this member here, missing permission?"
-blacklist_already_blacklisted: "${member.user.username} is already blacklisted !"
+blacklist_not_owner: "Du bist nicht der Besitzer von iHorizon Projects. Du kannst diesen Befehl nicht verwenden."
+blacklist_bot_lol: "Ich kann mich nicht selbst auf die Blacklist setzen x)"
+blacklist_command_work: "${member.user.username} steht jetzt auf der Blacklist"
+blacklist_blacklisted_but_can_ban_him: "❌ Steht jetzt auf der Blacklist. Kann dieses Mitglied hier nicht bannen, fehlende Berechtigungen?"
+blacklist_already_blacklisted: "${member.user.username} steht bereits auf der Blacklist!"
 
 # /unblacklist
-unblacklist_not_owner: "You are not owner of the iHorizon Projects. You can't use this command."
-unblacklist_command_work: "<@${member.id}> is not longer blacklisted"
-unblacklist_not_blacklisted: "<@${member.id}> was not blacklisted"
-unblacklist_unblacklisted_but_can_unban_him: "❌ Is now unlacklisted, Can't unban this member here, missing permission or already unban?"
-unblacklist_user_is_not_exist: "I couldn't find the user"
+unblacklist_not_owner: "Du bist nicht der Besitzer von iHorizon Projects. Du kannst diesen Befehl nicht verwenden."
+unblacklist_command_work: "<@${member.id}> steht nicht mehr auf der Blacklist"
+unblacklist_not_blacklisted: "<@${member.id}> stand nicht auf der Blacklist"
+unblacklist_unblacklisted_but_can_unban_him: "❌ Ist jetzt nicht mehr auf der Blacklist, kann dieses Mitglied hier nicht entbannen, fehlende Berechtigungen oder bereits entbannt?"
+unblacklist_user_is_not_exist: "Ich konnte das Mitglied nicht finden"
 
 
 # Invite Manager commands
 # /addinvites, /invites, /leaderboard, /removeinvites
 
 # /addinvites
-addinvites_not_admin_embed_description: "You need admin to use this!"
-addinvites_confirmation_embed_description: "Added ${amount} invites for ${user}"
-addinvites_logs_embed_title: "Invite Manager Logs"
-addinvites_logs_embed_description: "<@${interaction.user.id}> Added ${amount} invites to <@${user.id}> !"
+addinvites_not_admin_embed_description: "Du benötigst Administratorrechte, um diesen Befehl zu verwenden!"
+addinvites_confirmation_embed_description: "${amount} Einladungen für ${user} hinzugefügt"
+addinvites_logs_embed_title: "Einladungsmanager-Protokoll"
+addinvites_logs_embed_description: "<@${interaction.user.id}> hat ${amount} Einladungen zu <@${user.id}> hinzugefügt!"
 
 # /invites
-invites_confirmation_embed_description: "<@${member.user.id}> have `${inv || 0}` Invites (`${Regular || 0}` Regular, `${bonus || 0}` Bonus, `${leaves || 0}` Leaves)."
-invites_confirmation_embed_title: "Inviter Stats"
+invites_confirmation_embed_description: "<@${member.user.id}> hat `${inv || 0}` Einladungen (`${Regular || 0}` Reguläre, `${bonus || 0}` Bonus, `${leaves || 0}` Abgänge)."
+invites_confirmation_embed_title: "Inviter-Statistik"
 
 # /leaderboard
-leaderboard_text_inline: "<@${i}> Have **${a.invites || 0}** Invites (**${a.regular || 0}** Regular ** ${a.bonus || 0}** Bonus **${a.leaves || 0}** Leaves)\n"
-leaderboard_default_text: "**__Leaderboard :__**\n"
+leaderboard_text_inline: "<@${i}> hat **${a.invites || 0}** Einladungen (**${a.regular || 0}** Reguläre, **${a.bonus || 0}** Bonus, **${a.leaves || 0}** Abgänge)\n"
+leaderboard_default_text: "**__Bestenliste:__**\n"
 
 # /removeinvites
-removeinvites_not_admin_embed_description: "You need admin to use this!"
-removeinvites_confirmation_embed_description: "Remove ${amount} invites for ${user}"
-removeinvites_logs_embed_title: "Invite Manager Logs"
-removeinvites_logs_embed_description: "<@${interaction.user.id}> removed ${amount} invites to <@${user.id}> !"
+removeinvites_not_admin_embed_description: "Du benötigst Administratorrechte, um diesen Befehl zu verwenden!"
+removeinvites_confirmation_embed_description: "${amount} Einladungen für ${user} entfernt"
+removeinvites_logs_embed_title: "Einladungsmanager-Protokoll"
+removeinvites_logs_embed_description: "<@${interaction.user.id}> hat ${amount} Einladungen von <@${user.id}> entfernt!"
 
 
 # Bot commands
 # /botinfo, /invite, /kisakay, /ping, /status
 
 # /botinfo
-botinfo_embed_fields_myname: "My Name:"
-botinfo_embed_fields_mychannels: "My Channels:"
-botinfo_embed_fields_myservers: "My Servers:"
-botinfo_embed_fields_members: "Members:"
-botinfo_embed_fields_libraires: "Librairies:"
-botinfo_embed_fields_created_at: "Create at:"
-botinfo_embed_fields_created_by: "Create by:"
+botinfo_embed_fields_myname: "Mein Name:"
+botinfo_embed_fields_mychannels: "Meine Kanäle:"
+botinfo_embed_fields_myservers: "Meine Server:"
+botinfo_embed_fields_members: "Mitglieder:"
+botinfo_embed_fields_libraires: "Bibliotheken:"
+botinfo_embed_fields_created_at: "Erstellt am:"
+botinfo_embed_fields_created_by: "Erstellt von:"
 
 # /invite
-invite_embed_title: "Thank to adding iHorizon !"
-invite_embed_description: "I love you, show me your love for me back! Invite me!"
+invite_embed_title: "Vielen Dank, dass du iHorizon hinzugefügt hast!"
+invite_embed_description: "Ich liebe dich, zeig mir deine Liebe zu mir zurück! Lade mich ein!"
 
 # /kisakay
-kisakay_message: "***yes Kisakay its my owner and good developer. <3***"
+kisakay_message: "***Ja, Kisakay ist mein Besitzer und ein guter Entwickler. <3***"
 
 # /ping
 pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 
 # /status
-status_be_bot_dev: ":x: | **You have to be the bot developer to do this!**"
+status_be_bot_dev: ":x: | **Du musst der Bot-Entwickler sein, um dies zu tun!**"
+
+# /help
+help_tip_embed: "💡 __**Tipp**__: __iHorizon ist jetzt mehrsprachig und viele Fehler wurden behoben__.\n**Ändere jetzt die iHorizon-Sprache mit**: ```/setserverlang```Vielen Dank, dass du iHorizon verwendest!\nKontaktiere den Schöpfer: `Kisakay#3889`.\nDies ist eine Liste der Befehle, die du verwenden kannst."
+help_mod_fields: "Moderation"
+help_ranks_fields: "Ränge"
+help_fun_fields: "Fun"
+help_utils_fields: "Utils"
+help_giveaway_fields: "Giveaway"
+help_bot_fields: "Bot"
+help_music_fields: "Musik"
+help_backup_fields: "Backup"
+help_guildconf_fields: "Guild-Konfiguration"
+help_prof_fields: "Profilanpassung"
+help_economy_fields: "Wirtschaft"
+help_owner_fields: "Owner"
+help_roler_fields: "Rollenreaktion"
+help_invitem_fields: "Einladungsmanager"
+help_ticket_fields: "Ticket"
+help_memberc_fields: "Mitgliederzählung"
+help_newftrs_fields: "Neue Funktionen"
 
 
 # Fun commands
@@ -175,366 +195,366 @@ status_be_bot_dev: ":x: | **You have to be the bot developer to do this!**"
 cats_embed_title: "Miauw :cat:"
 
 # /hack
-hack_embed_description: "<@${victim.id}> hacked by <@${interaction.user.id}> !"
+hack_embed_description: "<@${victim.id}> wurde von <@${interaction.user.id}> gehackt!"
 hack_embed_fields_ip: "IP"
-hack_embed_fields_email: "Email"
-hack_embed_fields_password: "Password"
+hack_embed_fields_email: "E-Mail"
+hack_embed_fields_password: "Passwort"
 
 # /hug
-hug_embed_title: "<@${interaction.user.id}> give hug to <@${hug.id}> ❤️"
+hug_embed_title: "<@${interaction.user.id}> gibt <@${hug.id}> eine Umarmung ❤️"
 
 # /kiss
-kiss_embed_description: "<@${interaction.user.id}> make a kiss to <@${kiss.id}> 💏"
+kiss_embed_description: "<@${interaction.user.id}> gibt <@${kiss.id}> einen Kuss 💏"
 
 # /poll
-poll_not_admin: "You don't have the permissions to do this!"
-poll_embed_title: "__**Poll**__: `${interaction.user.username}`"
-poll_embed_fields_reaction: "Tap the reactions below.⬇"
-poll_embed_fields_choice: ":white_check_mark: **Yes**\n :x: **No** "
+poll_not_admin: "Du hast keine Berechtigung dafür!"
+poll_embed_title: "__**Umfrage**__: `${interaction.user.username}`"
+poll_embed_fields_reaction: "Tippe auf die Reaktionen unten.⬇"
+poll_embed_fields_choice: ":white_check_mark: **Ja**\n :x: **Nein** " 
 
 # /question
-question_not_full: "Enter a full question with 3 or more words!"
-question_s: ["Yes.","No.","I don't know.","I am not sure !","You'r crazy!", "No thanks.", "No.", "Yes."]
-question_fields_input_embed: ":question:__**Question**__"
-question_fields_output_embed: ":grey_exclamation:__**Answer:**__"
-question_embed_title: "__**Question**__: `${interaction.user.username}`"
+question_not_full: "Geben Sie eine vollständige Frage mit 3 oder mehr Wörtern ein!"
+question_s: ["Ja.", "Nein.", "Ich weiß es nicht.", "Ich bin mir nicht sicher!", "Du bist verrückt!", "Nein danke.", "Nein.", "Ja."]
+question_fields_input_embed: ":question:__**Frage**__"
+question_fields_output_embed: ":grey_exclamation:__**Antwort:**__"
+question_embed_title: "__**Frage**__: `${interaction.user.username}`"
 
 # /slap
-slap_embed_description: "<@${interaction.user.id}> slap <@${slap.id}> 😓"
+slap_embed_description: "<@${interaction.user.id}> schlägt <@${slap.id}> 😓"
 
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
 # /addmoney
-addmoney_not_admin: "You cannot run this command because you do not have the necessary permissions `ADMINISTRATOR`"
-addmoney_logs_embed_title: "Economy Logs"
-addmoney_logs_embed_description: "<@${interaction.user.id}> Added ${amount.value} coin to <@${user.user.id}> !"
+addmoney_not_admin: "Sie können diesen Befehl nicht ausführen, da Sie nicht über die erforderlichen Berechtigungen `ADMINISTRATOR` verfügen"
+addmoney_logs_embed_title: "Wirtschaftsprotokolle"
+addmoney_logs_embed_description: "<@${interaction.user.id}> hat ${amount.value} Münzen zu <@${user.user.id}> hinzugefügt!"
 
 # /balance
-balance_dont_have_wallet: "👛 You dont't have wallet... !"
-balance_he_dont_have_wallet: "👛 He dont't have wallet... !"
-balance_have_wallet: "👛 You have ${bal} coin(s) !"
-balance_he_have_wallet: "👛 He have ${bal} coin(s) !"
+balance_dont_have_wallet: "👛 Sie haben kein Portemonnaie... !"
+balance_he_dont_have_wallet: "👛 Er hat kein Portemonnaie... !"
+balance_have_wallet: "👛 Sie haben ${bal} Münze(n)!"
+balance_he_have_wallet: "👛 Er hat ${bal} Münze(n)!"
 
 # /daily
-daily_cooldown_error: "Sorry you must wait **${time}** before running this command!"
-daily_embed_title: "Daily"
-daily_embed_description: "**Daily Reward**"
-daily_embed_fields: "Collected"
+daily_cooldown_error: "Entschuldigung, Sie müssen **${time}** warten, bevor Sie diesen Befehl ausführen können!"
+daily_embed_title: "Täglich"
+daily_embed_description: "**Tägliche Belohnung**"
+daily_embed_fields: "Gesammelt"
 
 # /monthly
-monthly_cooldown_error: "Sorry you must wait **${time}** before running this command!"
-monthly_embed_title: "Monthly"
-monthly_embed_description: "**Monthly Reward**"
-monthly_embed_fields: "Collected"
+monthly_cooldown_error: "Entschuldigung, Sie müssen **${time}** warten, bevor Sie diesen Befehl erneut ausführen können!"
+monthly_embed_title: "Monatlich"
+monthly_embed_description: "**Monatliche Belohnung**"
+monthly_embed_fields: "Eingesammelt"
 
 # /pay
-pay_negative_number_error: "Negative money can not be paid."
-pay_dont_have_enought_to_give: "That's more money than you've got in your balance. try again."
-pay_command_work: "${interaction.user.username}#${interaction.user.discriminator}, You successfully paid to ${user.user.username} `${amount}`$."
+pay_negative_number_error: "Negative Geldbeträge können nicht gezahlt werden."
+pay_dont_have_enought_to_give: "Das ist mehr Geld, als Sie auf Ihrem Konto haben. Bitte versuchen Sie es erneut."
+pay_command_work: "${interaction.user.username}#${interaction.user.discriminator}, Sie haben erfolgreich ${amount}$ an ${user.user.username} überwiesen."
 
 # /removemoney
-removemoney_not_admin: "You cannot run this command because you do not have the necessary permissions `ADMINISTRATOR`"
-removemoney_embed_title: "Removed Money!"
-removemoney_embed_fields: "Amount"
-removemoney_embed_second_fields: "Balance Updated"
-removemoney_logs_embed_description: "<@${interaction.user.id}> remove ${amount} coin of <@${user.user.id}> !"
-removemoney_logs_embed_title: "Economy Logs"
+removemoney_not_admin: "Sie können diesen Befehl nicht ausführen, weil Sie nicht über die erforderlichen Berechtigungen `ADMINISTRATOR` verfügen."
+removemoney_embed_title: "Geld entfernt!"
+removemoney_embed_fields: "Betrag"
+removemoney_embed_second_fields: "Kontostand aktualisiert"
+removemoney_logs_embed_description: "<@${interaction.user.id}> hat ${amount} Münze von <@${user.user.id}> entfernt!"
+removemoney_logs_embed_title: "Wirtschaftsprotokolle"
 
 # /rob
-rob_cooldown_error: "**Wait 50minutes before rob user again !**"
-rob_dont_enought_error: ":x: You need atleast 250$ to rob somebody."
-rob_him_dont_enought_error: ":x: ${user.user.username} does not have enought to rob."
-rob_embed_description: "<@${interaction.user.id}> you robbed <@${user.id}> and got away with ${random}!"
+rob_cooldown_error: "**Warten Sie 50 Minuten, bevor Sie erneut versuchen, einen Benutzer zu überfallen!**"
+rob_dont_enought_error: ":x: Sie benötigen mindestens 250$, um jemanden zu überfallen."
+rob_him_dont_enought_error: ":x: ${user.user.username} hat nicht genug, um ausgeraubt zu werden."
+rob_embed_description: "<@${interaction.user.id}> Sie haben ${random}$ bei Ihrem Raubzug gegen <@${user.id}> erbeutet!"
 
 # /weekly
-weekly_cooldown_error: "Sorry you must wait **${time}** before running this command!"
-weekly_embed_title: "Daily"
-weekly_embed_description: "**Weekly Reward**"
-weekly_embed_fields: "Collected"
+weekly_cooldown_error: "Entschuldigung, Sie müssen **${time}** warten, bevor Sie diesen Befehl erneut ausführen können!"
+weekly_embed_title: "Wöchentlich"
+weekly_embed_description: "**Wöchentliche Belohnung**"
+weekly_embed_fields: "Eingesammelt"
 
 # /work
-work_cooldown_error: "**Wait 50minutes before rob user again !** ${interaction.user.username}#${interaction.user.discriminator}"
-work_embed_author: "${interaction.user.username}#${interaction.user.discriminator}, it payed off!"
-work_embed_description: "${interaction.user.username}#${interaction.user.discriminator}, you've worked and earned ${amount}$ !"
+work_cooldown_error: "**Warte 50 Minuten, bevor du wieder arbeitest!** ${interaction.user.username}#${interaction.user.discriminator}"
+work_embed_author: "${interaction.user.username}#${interaction.user.discriminator}, es hat sich ausgezahlt!"
+work_embed_description: "${interaction.user.username}#${interaction.user.discriminator}, du hast gearbeitet und ${amount}$ verdient!"
 
 
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
 # /setprofilage
-setprofilage_command_work: "**Your profil age has been updated successfully.**"
+setprofilage_command_work: "**Dein Alter im Profil wurde erfolgreich aktualisiert.**"
 
 # /setprofildescriptions
-setprofildescriptions_command_work: "**Your description has been updated successfully.**"
+setprofildescriptions_command_work: "**Deine Beschreibung wurde erfolgreich aktualisiert.**"
 
 # /profil
-profil_not_description_set: "Not descriptions set !"
-profil_unknown: "Unknown"
-profil_embed_title: "📌 __Profile of ${member.tag}__"
-profil_embed_fields_nickname: "📝 ・ __Nickname__"
-profil_embed_fields_money: "🪙 ・ __Money__"
-profil_embed_fields_money_value: " coins"
-profil_embed_fields_xplevels: "💳 ・ __XP Levels__"
-profil_embed_fields_xplevels_value: " XP Levels"
-profil_embed_fields_age: "🎂 ・ __Age__"
-profil_embed_fields_age_value: " years olds"
+profil_not_description_set: "Keine Beschreibung angegeben!"
+profil_unknown: "Unbekannt"
+profil_embed_title: "📌 __Profil von ${member.tag}__"
+profil_embed_fields_nickname: "📝 ・ __Spitzname__"
+profil_embed_fields_money: "🪙 ・ __Geld__"
+profil_embed_fields_money_value: " Münzen"
+profil_embed_fields_xplevels: "💳 ・ __XP-Levels__"
+profil_embed_fields_xplevels_value: " XP-Levels"
+profil_embed_fields_age: "🎂 ・ __Alter__"
+profil_embed_fields_age_value: " Jahre"
 
 
-# Utils commands
+# Befehle für nützliche Funktionen
 # /serverinfo, /snipe, /userinfo, /renew
 
 # /serverinfo
-serverinfo_verlvl_NONE: "NONE"
-serverinfo_verlvl_LOW: "LOW"
-serverinfo_verlvl_MEDIUM: "MEDIUM"
+serverinfo_verlvl_NONE: "KEINE"
+serverinfo_verlvl_LOW: "NIEDRIG"
+serverinfo_verlvl_MEDIUM: "MITTEL"
 serverinfo_verlvl_HIGHT: "(╯°□°）╯︵ ┻━┻"
 serverinfo_verlvl_VERY_HIGHT: "(ノಠ益ಠ)ノ彡┻━┻ "
 serverinfo_embed_author: "🚩 -> ${interaction.guild.name}"
-serverinfo_embed_description: "**Descriptions**: ${interaction.guild.description}"
+serverinfo_embed_description: "**Beschreibungen**: ${interaction.guild.description}"
 serverinfo_embed_fields_name: "🏷・**Name:**"
-serverinfo_embed_fields_members: "🧔・**Members:**"
+serverinfo_embed_fields_members: "🧔・**Mitglieder:**"
 serverinfo_embed_fields_id: "🆔・**ID:**"
-serverinfo_embed_fields_owner: "👑・**Owner:**"
-serverinfo_embed_fields_verlvl: "🎚 ・**Verification Level:**"
+serverinfo_embed_fields_owner: "👑・**Besitzer:**"
+serverinfo_embed_fields_verlvl: "🎚 ・**Verifikationslevel:**"
 serverinfo_embed_fields_region: "🌍・**Region:**"
-serverinfo_embed_fields_roles: "📇・**Role(s) number:**"
-serverinfo_embed_fields_channels: "✍・**Channel(s) number:**"
-serverinfo_embed_fields_joinat: "🚲・**Join at:**"
-serverinfo_embed_fields_createat: "⚓・**Create at:**"
+serverinfo_embed_fields_roles: "📇・**Anzahl der Rollen:**"
+serverinfo_embed_fields_channels: "✍・**Anzahl der Kanäle:**"
+serverinfo_embed_fields_joinat: "🚲・**Beitrittsdatum:**"
+serverinfo_embed_fields_createat: "⚓・**Erstellungsdatum:**"
 
 # /snipe
-snipe_no_previous_message_deleted: "No message deleted in this channel !"
+snipe_no_previous_message_deleted: "Keine Nachricht in diesem Kanal gelöscht!"
 
 # /userinfo
-userinfo_wait_please: "⏲ Wait please..."
+userinfo_wait_please: "⏲ Bitte warten..."
 
 # /renew
-renew_channel_send_success: "${interaction.user} channel re-created !"
-renew_dont_have_permission: ":x: **Can't** `Don't have permission !`"
+renew_channel_send_success: "${interaction.user} Kanal wurde erfolgreich neu erstellt!"
+renew_dont_have_permission: ":x: **Kann nicht** `Keine Berechtigung!`"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
 # /blockpub
-blockpub_not_admin: ":x: | You must be an administrator of this server! "
-blockpub_now_enable: "📌 | The antipub is now functional (It works for everyone except admin)"
-blockpub_now_disable: "📌 | The antipub is now deactivated!"
+blockpub_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein!"
+blockpub_now_enable: "📌 | Der Anti-Werbung ist jetzt aktiviert (Es funktioniert für alle außer Administratoren)"
+blockpub_now_disable: "📌 | Der Anti-Werbung ist jetzt deaktiviert!"
 
 # /guildprofil
-guildprofil_not_admin: ":x: | You must be an administrator of this server! "
-guildprofil_not_set_reactionrole: "No set!"
-guildprofil_set_reactionrole: "**MessageID**: `${i}` -> ${emoji || key} give <@&${rolesID}> role\n"
-guildprofil_not_set_ticketFetched: "No set!"
+guildprofil_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein!"
+guildprofil_not_set_reactionrole: "Nicht gesetzt!"
+guildprofil_set_reactionrole: "**MessageID**: `${i}` -> ${emoji || key} gibt <@&${rolesID}> Rolle\n"
+guildprofil_not_set_ticketFetched: "Nicht gesetzt!"
 guildprofil_set_ticketFetched: ""
-guildprofil_not_set_punishPub: "No set!"
-guildprofil_set_punishPub: "`${punishPub.punishementType}`: max: `${punishPub.amountMax}` flags."
-guildprofil_not_set_supportConfig: "No set!"
-guildprofil_set_supportConfig: "`${supportConfig.input}` in bio give <@&${supportConfig.rolesId}> role."
-guildprofil_not_set_setchannelsjoin: "No set!"
+guildprofil_not_set_punishPub: "Nicht gesetzt!"
+guildprofil_set_punishPub: "`${punishPub.punishementType}`: max: `${punishPub.amountMax}` Flags."
+guildprofil_not_set_supportConfig: "Nicht gesetzt!"
+guildprofil_set_supportConfig: "`${supportConfig.input}` in der Bio gibt <@&${supportConfig.rolesId}> Rolle."
+guildprofil_not_set_setchannelsjoin: "Nicht gesetzt!"
 guildprofil_set_setchannelsjoin: ""
-guildprofil_not_set_setchannelsleave: "No set!"
+guildprofil_not_set_setchannelsleave: "Nicht gesetzt!"
 guildprofil_set_setchannelsleave: ""
-guildprofil_not_set_joinmessage: "No set!"
+guildprofil_not_set_joinmessage: "Nicht gesetzt!"
 guildprofil_set_joinmessage: ""
-guildprofil_not_set_leavemessage: "No set!"
+guildprofil_not_set_leavemessage: "Nicht gesetzt!"
 guildprofil_set_leavemessage: ""
-guildprofil_not_set_joinroles: "No set!"
+guildprofil_not_set_joinroles: "Nicht gesetzt!"
 guildprofil_set_joinroles: ""
-guildprofil_not_set_joinDmMessage: "No set!"
+guildprofil_not_set_joinDmMessage: "Nicht gesetzt!"
 guildprofil_set_joinDmMessage: ""
-guildprofil_not_set_blockpub: "Power off"
-guildprofil_set_blockpub: "Power on"
+guildprofil_not_set_blockpub: "Ausgeschaltet"
+guildprofil_set_blockpub: "Eingeschaltet"
 guildprofil_embed_description: "`Guild Config:` ${interaction.guild.name} !"
-guildprofil_embed_fields_joinmessage: "Join Message"
-guildprofil_embed_fields_leavemessage: "Leave Message"
-guildprofil_embed_fields_setchannelsjoin: "Channel Join"
-guildprofil_embed_fields_setchannelsleave: "Channel Leave"
-guildprofil_embed_fields_joinroles: "Join Role"
-guildprofil_embed_fields_joinDmMessage: "Join DM"
-guildprofil_embed_fields_blockpub: "Block Pub"
-guildprofil_embed_fields_punishPub: "Punish Pub"
-guildprofil_embed_fields_supportConfig: "Support"
+guildprofil_embed_fields_joinmessage: "Beitritt Nachricht"
+guildprofil_embed_fields_leavemessage: "Verlassen Nachricht"
+guildprofil_embed_fields_setchannelsjoin: "Kanal Beitritt"
+guildprofil_embed_fields_setchannelsleave: "Kanal Verlassen"
+guildprofil_embed_fields_joinroles: "Beitritt Rolle"
+guildprofil_embed_fields_joinDmMessage: "Beitritt DM"
+guildprofil_embed_fields_blockpub: "Werbung blockieren"
+guildprofil_embed_fields_punishPub: "Werbung bestrafen"
+guildprofil_embed_fields_supportConfig: "Unterstützung"
 guildprofil_embed_fields_ticketFetched: "Tickets"
-guildprofil_embed_fields_reactionrole: "Reaction Role"
+guildprofil_embed_fields_reactionrole: "Reaktionsrolle"
 
 # /setchannels
-setchannels_not_admin: ":x: | You must be an administrator of this server to request a this commands!"
-setchannels_not_specified_args: "You must specify a valid channels for you module."
-setchannels_already_this_channel_on_join: "The module is already config with this channels !"
-setchannels_confirmation_message_on_join: "**Join channel set here!** :tada:"
-setchannels_command_error_on_join: "Error: missing permissions or channel doesn't exist"
-setchannels_command_work_on_join: "You have successfully set the join channel module to <#${argsid.id}>"
-setchannels_logs_embed_title_on_join: "Set Channel Logs"
-setchannels_logs_embed_description_on_join: "<@${interaction.user.id}> set the join channel module to: <#${argsid.id}>"
-setchannels_already_this_channel_on_leave: "The module is already config with this channels !"
-setchannels_confirmation_message_on_leave: "**Leave channel set here!** :tada:"
-setchannels_command_error_on_leave: "Error: missing permissions or channel doesn't exist"
-setchannels_command_work_on_leave: "You have successfully set the leave channel module to <#${argsid.id}>"
-setchannels_logs_embed_title_on_leave: "Set Channel Logs"
-setchannels_logs_embed_description_on_leave: "<@${interaction.user.id}> set the leave channel to: <#${argsid.id}>"
-setchannels_already_on_off: "The join & leave channels is already disable"
-setchannels_command_work_on_off: "You have successfully disable the leaves & join channel !"
-setchannels_logs_embed_title_on_off: "Set Channel Logs"
-setchannels_logs_embed_description_on_off: "<@${interaction.user.id}> delete all join/leave channel configuration !"
+setchannels_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
+setchannels_not_specified_args: "Sie müssen einen gültigen Kanal für Ihr Modul angeben."
+setchannels_already_this_channel_on_join: "Das Modul ist bereits mit diesem Kanal konfiguriert!"
+setchannels_confirmation_message_on_join: "**Beitrittskanal hier eingestellt!** :tada:"
+setchannels_command_error_on_join: "Fehler: Fehlende Berechtigungen oder Kanal existiert nicht"
+setchannels_command_work_on_join: "Sie haben das Beitrittskanal-Modul erfolgreich auf <#${argsid.id}> gesetzt"
+setchannels_logs_embed_title_on_join: "Setze Kanalprotokolle"
+setchannels_logs_embed_description_on_join: "<@${interaction.user.id}> hat das Beitrittskanal-Modul auf folgenden Kanal gesetzt: <#${argsid.id}>"
+setchannels_already_this_channel_on_leave: "Das Modul ist bereits mit diesem Kanal konfiguriert!"
+setchannels_confirmation_message_on_leave: "**Austrittskanal hier eingestellt!** :tada:"
+setchannels_command_error_on_leave: "Fehler: Fehlende Berechtigungen oder Kanal existiert nicht"
+setchannels_command_work_on_leave: "Sie haben das Austrittskanal-Modul erfolgreich auf <#${argsid.id}> gesetzt"
+setchannels_logs_embed_title_on_leave: "Setze Kanalprotokolle"
+setchannels_logs_embed_description_on_leave: "<@${interaction.user.id}> hat das Austrittskanal-Modul auf folgenden Kanal gesetzt: <#${argsid.id}>"
+setchannels_already_on_off: "Die Beitritts- und Austrittskanäle sind bereits deaktiviert"
+setchannels_command_work_on_off: "Sie haben die Beitritts- und Austrittskanäle erfolgreich deaktiviert!"
+setchannels_logs_embed_title_on_off: "Setze Kanalprotokolle"
+setchannels_logs_embed_description_on_off: "<@${interaction.user.id}> hat alle Einstellungen für Beitritts- und Austrittskanäle gelöscht!"
 
 # /setjoindm
-setjoindm_not_admin: ":x: | You must be an administrator of this server to request this commands!"
-setjoindm_logs_embed_title_on_enable: "Set JoinDm Logs"
-setjoindm_logs_embed_description_on_enable: "<@${interaction.user.id}> set the join dm message !"
-setjoindm_not_specified_args_on_enable: "You must specify a valid message for you join dm."
-setjoindm_confirmation_message_on_enable: "You have successfully set the join dm to :```${dm_msg}``` And enable it "
-setjoindm_command_error_on_enable: "Error: missing permissions or channel doesn't exist"
-setjoindm_logs_embed_title_on_disable: "Set JoinDm Logs"
-setjoindm_logs_embed_description_on_disable: "<@${interaction.user.id}> disable the join dm message !"
-setjoindm_confirmation_message_on_disable: "You have successfully disable the join dm !"
-setjoindm_command_error_on_disable: "Error: missing permissions or channel doesn't exist"
-setjoindm_already_disable: "The join dm message is already disable !"
-setjoindm_not_setup_ls: "They are no join dm setup here !"
-setjoindm_command_work_ls: "The join dm message is: \n```${already_off}```"
+setjoindm_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
+setjoindm_logs_embed_title_on_enable: "Setze JoinDm-Protokolle"
+setjoindm_logs_embed_description_on_enable: "<@${interaction.user.id}> hat die Join-Dm-Nachricht eingestellt!"
+setjoindm_not_specified_args_on_enable: "Sie müssen eine gültige Nachricht für Ihre Join-Dm angeben."
+setjoindm_confirmation_message_on_enable: "Sie haben die Join-Dm-Nachricht erfolgreich auf ```${dm_msg}``` gesetzt und aktiviert"
+setjoindm_command_error_on_enable: "Fehler: Fehlende Berechtigungen oder Kanal existiert nicht"
+setjoindm_logs_embed_title_on_disable: "Setze JoinDm-Protokolle"
+setjoindm_confirmation_message_on_disable: "You havesuccessfully disable the join dm !"
+setjoindm_logs_embed_description_on_disable: "<@${interaction.user.id}> hat die Join-Dm-Nachricht deaktiviert!"
+setjoindm_command_error_on_disable: "Fehler: fehlende Berechtigungen oder Kanal existiert nicht"
+setjoindm_already_disable: "Die Join-DM-Nachricht ist bereits deaktiviert!"
+setjoindm_not_setup_ls: "Es ist hier keine Join-DM eingerichtet!"
+setjoindm_command_work_ls: "Die Join-DM-Nachricht lautet: \n```${already_off}```"
 
 # /setjoinmessage
-setjoinmessage_not_admin: ":x: | You must be an administrator of this server to request this commands!"
-setjoinmessage_help_embed_title: "setjoinmessage Help !" 
-setjoinmessage_help_embed_description: "/setjoinmessage <Power on /Power off/Show the message set> <join message>"
-setjoinmessage_help_embed_fields_name: "how to use ?"
-setjoinmessage_help_embed_fields_value: "Use ```/setjoinmessage <Power on /Power off/Show the message set> <message>```\n{user} = Username of Member\n{membercount} = guild's member count\n{createdat} = member account creation date\n{guild} = The name of the guild\n{inviter} = The inviter username & discriminator\n{invites} = The invites count of him"
+setjoinmessage_not_admin: ":x: | Sie müssen Administrator dieses Servers sein, um diesen Befehl zu verwenden!"
+setjoinmessage_help_embed_title: "SetJoinMessage Hilfe!" 
+setjoinmessage_help_embed_description: "/setjoinmessage <Power on / Power off / Nachricht anzeigen> <Join-Nachricht>"
+setjoinmessage_help_embed_fields_name: "Wie wird es verwendet?"
+setjoinmessage_help_embed_fields_value: "Verwenden Sie ```/setjoinmessage <Power on / Power off / Nachricht anzeigen> <Nachricht>```\n{user} = Benutzername des Mitglieds\n{membercount} = Anzahl der Mitglieder auf dem Server\n{createdat} = Datum der Kontoerstellung des Mitglieds\n{guild} = Der Name des Servers\n{inviter} = Der Name und Diskriminator des Einladenden\n{invites} = Die Anzahl der von ihm gesendeten Einladungen"
 setjoinmessage_logs_embed_title_on_enable: "SetJoinMessage Logs"
-setjoinmessage_logs_embed_description_on_enable: "<@${interaction.user.id}> set the join message !"
-setjoinmessage_command_work_on_enable: "✅ | Succefully set custom join message."
+setjoinmessage_logs_embed_description_on_enable: "<@${interaction.user.id}> hat die Join-Nachricht eingerichtet!"
+setjoinmessage_command_work_on_enable: "✅ | Benutzerdefinierte Join-Nachricht erfolgreich eingerichtet."
 setjoinmessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
-setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deleted the join message !"
-setjoinmessage_command_work_on_disable: "✅ | Succefully deleted custom join message."
-setjoinmessage_command_work_ls: "The join message is:\n```${ls}```"
+setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> hat die Join-Nachricht gelöscht!"
+setjoinmessage_command_work_on_disable: "✅ | Benutzerdefinierte Join-Nachricht erfolgreich gelöscht."
+setjoinmessage_command_work_ls: "Die Join-Nachricht lautet:\n```${ls}```"
 
 # /setjoinroles
-setjoinroles_not_admin: ":x: | You must be an administrator of this server to request this commands!"
-setjoinroles_help_embed_title: "/setjoinroles Help !"
-setjoinroles_help_embed_description: "/setjoinroles <Power on /Power off/Show the message set> <role id>"
-setjoinroles_logs_embed_title_on_enable: "SetJoinRoles Logs"
-setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}> set the join roles !"
-setjoinroles_already_on_enable: "The join roles is already config with this role !"
-setjoinroles_command_work_enable: "You have successfully set the join roles to <@&${roleid}> !"
-setjoinroles_command_error_on_enable: "Error: missing permissions or role doesn't exist"
-setjoinroles_logs_embed_title_on_disable: "SetJoinRoles Logs"
-setjoinroles_logs_embed_description_on_disable: "<@${interaction.user.id}> delete the join roles !"
-setjoinroles_dont_need_command_on_disable: "You don't have a join roles configured, is useless !"
-setjoinroles_command_work_on_disable: "You have successfully delete the join roles !"
-setjoinroles_command_error_on_disable: "error?"
-setjoinroles_command_any_set_ls: "This guild don't have a join roles set."
-setjoinroles_command_work_ls: "The join roles set is <@&${roles}>"
+setjoinroles_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
+setjoinroles_help_embed_title: "/setjoinroles Hilfe!"
+setjoinroles_help_embed_description: "/setjoinroles <Einschalten / Ausschalten / Anzeigen der festgelegten Rolle> <Rollen-ID>"
+setjoinroles_logs_embed_title_on_enable: "SetJoinRoles-Protokolle"
+setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}> hat die Beitrittsrollen festgelegt!"
+setjoinroles_already_on_enable: "Die Beitrittsrollen sind bereits mit dieser Rolle konfiguriert!"
+setjoinroles_command_work_enable: "Sie haben die Beitrittsrollen erfolgreich auf <@&${roleid}> festgelegt!"
+setjoinroles_command_error_on_enable: "Fehler: Fehlende Berechtigungen oder Rolle existiert nicht"
+setjoinroles_logs_embed_title_on_disable: "SetJoinRoles-Protokolle"
+setjoinroles_logs_embed_description_on_disable: "<@${interaction.user.id}> hat die Beitrittsrollen gelöscht!"
+setjoinroles_dont_need_command_on_disable: "Sie haben keine Beitrittsrollen konfiguriert, es ist unnötig!"
+setjoinroles_command_work_on_disable: "Sie haben die Beitrittsrollen erfolgreich gelöscht!"
+setjoinroles_command_error_on_disable: "Fehler?"
+setjoinroles_command_any_set_ls: "Dieser Server hat keine Beitrittsrollen festgelegt."
+setjoinroles_command_work_ls: "Die Beitrittsrollen sind auf <@&${roles}> festgelegt."
 
 # /setleavemessage
-setleavemessage_not_admin: ":x: | You must be an administrator of this server to request this commands!"
-setleavemessage_help_embed_title: "/setleavemessage Help !"
-setleavemessage_help_embed_description: "/setleavemessage <Power on /Power off/Show the message set> <leave message>"
-setleavemessage_help_embed_fields_name: "how to use ?"
-setleavemessage_help_embed_fields_value: "Use ```/setleavemessage <Power on /Power off/Show the message set> <message>```\n{user} = Username of Member\n{membercount} = guild's member count\n{guild} = The name of the guild"
-setleavemessage_logs_embed_title_on_enable: "SetJoinMessage Logs"
-setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}> set the leave message !"
-setleavemessage_command_work_on_enable: "✅ | Succefully set custom leave message."
-setleavemessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
-setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deleted the leave message !"
-setleavemessage_command_work_on_disable: "✅ | Succefully deleted custom leave message."
-setleavemessage_command_work_ls: "The leave message is:\n```${ls}```"
+setleavemessage_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
+setleavemessage_help_embed_title: "/setleavemessage Hilfe!"
+setleavemessage_help_embed_description: "/setleavemessage <Einschalten / Ausschalten / Anzeigen der festgelegten Nachricht> <Austrittsnachricht>"
+setleavemessage_help_embed_fields_name: "Wie verwendet man?"
+setleavemessage_help_embed_fields_value: "Verwenden Sie ```/setleavemessage <Einschalten / Ausschalten / Anzeigen der festgelegten Nachricht> <Nachricht>```\n{user} = Benutzername des Mitglieds\n{membercount} = Anzahl der Mitglieder im Server\n{guild} = Der Name des Servers"
+setleavemessage_logs_embed_title_on_enable: "SetJoinMessage-Protokolle"
+setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}> hat die Austrittsnachricht festgelegt!"
+setleavemessage_command_work_on_enable: "✅ | Benutzerdefinierte Austrittsnachricht erfolgreich festgelegt."
+setleavemessage_logs_embed_title_on_disable: "SetJoinMessage-Protokolle"
+setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> hat die Austrittsnachricht gelöscht!"
+setleavemessage_command_work_on_disable: "✅ | Benutzerdefinierte Austrittsnachricht erfolgreich gelöscht."
+setleavemessage_command_work_ls: "Die Austrittsnachricht lautet:\n```${ls}```"
 
 # /setup
-setup_not_admin: ":x: | You must be an administrator of this server !"
-setup_command_work: "✅ | Channel Setup"
-setup_command_error: "The bot has already setup the logs channels ! Or the bot doesn't have permission..."
+setup_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
+setup_command_work: "✅ | Kanal-Einrichtung"
+setup_command_error: "Der Bot hat bereits die Protokollkanäle eingerichtet! Oder der Bot hat keine Berechtigung ..."
 
 
 # Member Count commands
 # /setmembercount
 
 # /setmembercount
-setmembercount_not_admin: ":x: | You must be an administrator of this server to request this command commands!"
-setmembercount_helpembed_title: "Set MemberCount Help !"
-setmembercount_helpembed_description: "/setmembercount <Power on /Power off> <Name of the channel>"
-setmembercount_helpembed_fields_name: "how to use ?"
-setmembercount_helpembed_fields_value: "Use ```/setjoinmessage <Power on /Power off/Show the message set> <message>```\n{membercount} = guild's member count\n{rolescount} = amount of roles\n{botcount} = guild's bot count"
+setmembercount_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
+setmembercount_helpembed_title: "Set MemberCount Hilfe!"
+setmembercount_helpembed_description: "/setmembercount <Einschalten / Ausschalten> <Name des Kanals>"
+setmembercount_helpembed_fields_name: "Wie man es benutzt?"
+setmembercount_helpembed_fields_value: "Benutzen Sie ```/setjoinmessage <Einschalten / Ausschalten / Anzeige der Nachricht> <Nachricht>```\n{membercount} = Anzahl der Mitglieder in der Gilde\n{rolescount} = Anzahl der Rollen\n{botcount} = Anzahl der Bots in der Gilde"
 setmembercount_logs_embed_title_on_enable: "Set MemberCount Logs"
-setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> set the MemberCount of <#${channel.id}> to `${messagei}`!"
-setmembercount_command_work_on_enable: "✅ | Succefully set MemberCount."
-setmembercount_command_work_on_disable: "✅ | Succefully removed MemberCount."
+setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> hat den MemberCount von <#${channel.id}> auf `${messagei}` gesetzt!"
+setmembercount_command_work_on_enable: "✅ | MemberCount erfolgreich eingerichtet."
+setmembercount_command_work_on_disable: "✅ | MemberCount erfolgreich entfernt."
 setmembercount_logs_embed_title_on_disable: "Set MemberCount Logs"
-setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> remove the MemberCount of this guild !"
+setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> hat den MemberCount dieser Gilde entfernt!"
 
 
 # Music commands
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
 # /p
-p_not_in_voice_channel: "You must be connected to a voice channel to use this command!"
-p_embed_title: "No results"
-p_loading_message:  "⏲️ Loading a : **{result}** !"
-p_duration: "Duration: "
+p_not_in_voice_channel: "Sie müssen mit einem Sprachkanal verbunden sein, um diesen Befehl zu verwenden!"
+p_embed_title: "Keine Ergebnisse"
+p_loading_message:  "⏲️ Lade ein: **{result}** !"
+p_duration: "Dauer: "
 
 # /loop
-loop_no_queue: "There is no queue!"
-loop_command_work: "{mode} | Updated loop mode"
+loop_no_queue: "Es gibt keine Warteschlange!"
+loop_command_work: "{mode} | Loop-Modus aktualisiert"
 
 # /nowplaying
-nowplaying_no_queue: "There is not playing anything"
-nowplaying_message_embed_title: "Now playing"
+nowplaying_no_queue: "Es wird gerade nichts abgespielt"
+nowplaying_message_embed_title: "Jetzt wird abgespielt"
 
 # /pause
-pause_no_queue: "⚠️ - You're not in a voice channel !"
-pause_nothing_playing: "There is nothing playing"
+pause_no_queue: "⚠️ - Sie befinden sich nicht in einem Sprachkanal!"
+pause_nothing_playing: "Es wird nichts abgespielt"
 
 # /resume
-resume_nothing_playing: "There is nothing playing"
-resume_command_work: "resumed successfully"
+resume_nothing_playing: "Es wird nichts abgespielt"
+resume_command_work: "wurde erfolgreich fortgesetzt"
 
 # /skip
-skip_not_in_voice_channel: "⚠️ - You're not in a voice channel !"
-skip_nothing_playing: "There is nothing playing"
-skip_command_work: "Skipped {queue}"
+skip_not_in_voice_channel: "⚠️ - Sie befinden sich nicht in einem Sprachkanal!"
+skip_nothing_playing: "Es wird nichts abgespielt"
+skip_command_work: "{queue} wurde übersprungen"
 
 # /stop
-stop_nothing_playing: "nothing playing"
-stop_command_work: "Queue stopped"
+stop_nothing_playing: "Es wird nichts abgespielt"
+stop_command_work: "Warteschlange gestoppt"
 
 # /queue
-queue_iam_not_voicec: "I am not in a voice channel"
-queue_no_queue: "There is no queue"
-queue_empty_queue: "There are no more tracks in the queue"
-queue_embed_title: "Tracks Queue"
-queue_embed_description_empty: "**No more queued songs**"
-queue_embed_footer_text: "Page {index} | Total {track} tracks"
+queue_iam_not_voicec: "Ich bin nicht in einem Sprachkanal"
+queue_no_queue: "Es gibt keine Warteschlange"
+queue_empty_queue: "Es gibt keine weiteren Titel in der Warteschlange"
+queue_embed_title: "Warteschlange der Titel"
+queue_embed_description_empty: "**Keine weiteren Titel in der Warteschlange**"
+queue_embed_footer_text: "Seite {index} | Insgesamt {track} Titel"
 
 # /shuffle
-shuffle_no_queue: "I am not in a voice channel"
-shuffle_no_enought: "There aren't **enough tracks** in queue to **shuffle**"
-shuffle_command_work: "I have **shuffled** the queue"
+shuffle_no_queue: "Ich bin nicht in einem Sprachkanal"
+shuffle_no_enought: "Es gibt nicht genug Titel in der Warteschlange, um zu **mischen**"
+shuffle_command_work: "Ich habe die Warteschlange **gemischt**"
 
 
 # Giveaway commands
 # /end, /start, /reroll
 
 # /end
-end_not_admin: "You must have permissions to manage messages to end this giveaway."
-end_not_find_giveaway: "Could not find a giveaway for `${gw}`."
-end_confirmation_message: "The giveaway will end in less than (${timeEstimate}) secondes..."
-end_logs_embed_title: "Giveaway Logs"
-end_logs_embed_description: "<@${interaction.user.id}> ended giveaways with this id: ${giveaway.messageID}"
-end_command_error: "This giveaway is already finished!"
+end_not_admin: "Sie müssen die Berechtigung haben, Nachrichten zu verwalten, um dieses Giveaway zu beenden."
+end_not_find_giveaway: "Konnte kein Giveaway für `${gw}` finden."
+end_confirmation_message: "Das Giveaway endet in weniger als (${timeEstimate}) Sekunden..."
+end_logs_embed_title: "Giveaway-Logs"
+end_logs_embed_description: "<@${interaction.user.id}> hat Giveaways mit dieser ID beendet: ${giveaway.messageID}"
+end_command_error: "Dieses Giveaway ist bereits beendet!"
 
 # /start
-start_not_perm: "You must have permissions to manage messages to start the giveaways."
-start_is_not_valid: "You must specify a valid number of winners!"
-start_confirmation_command: "Giveaway started in ${giveawayChannel}!"
-start_logs_embed_title: "Giveaway Logs"
-start_logs_embed_description: "<@${interaction.user.id}> started a giveways in: ${giveawayChannel}"
+start_not_perm: "Sie müssen die Berechtigung haben, Nachrichten zu verwalten, um Giveaways zu starten."
+start_is_not_valid: "Sie müssen eine gültige Anzahl von Gewinnern angeben!"
+start_confirmation_command: "Giveaway gestartet in ${giveawayChannel}!"
+start_logs_embed_title: "Giveaway-Logs"
+start_logs_embed_description: "<@${interaction.user.id}> hat ein Giveaway gestartet in: ${giveawayChannel}"
 
 # /reroll
-reroll_not_perm: "You must have permissions to manage messages to end this giveaway."
-reroll_dont_find_giveaway: "Could not find a giveaway for `{args}` ."
-reroll_command_work: "Giveaway relaunched!"
-reroll_logs_embed_title: "Giveaways Logs"
-reroll_logs_embed_description: "<@${interaction.user.id}> reroll giveaways with this id: ${giveaway.messageID}"
-reroll_command_error: "Error !"
+reroll_not_perm: "Sie müssen die Berechtigung haben, Nachrichten zu verwalten, um dieses Giveaway erneut auszulosen."
+reroll_dont_find_giveaway: "Konnte kein Giveaway für `{args}` finden."
+reroll_command_work: "Giveaway erneut ausgelost!"
+reroll_logs_embed_title: "Giveaway-Logs"
+reroll_logs_embed_description: "<@${interaction.user.id}> hat Giveaways mit dieser ID erneut ausgelost: ${giveaway.messageID}"
+reroll_command_error: "Fehler!"
 
 
 # Moderation commands
@@ -542,184 +562,184 @@ reroll_command_error: "Error !"
 # /unban, /tempmute, /unmute
 
 # /ban
-ban_not_permission: "❌ | You don't have permission to ban members."
-ban_dont_found_member: "🔍 | Cannot find this member"
-ban_dont_have_perm_myself: "❌ | I don't have permission to ban members!"
-ban_try_to_ban_yourself: "❌ | You cannot ban yourself!"
-ban_attempt_ban_higter_member: "🛑 You cannot ban user who have higher role than you..."
-ban_cant_ban_member: "❌ | I cannot ban that member"
-ban_message_to_the_banned_member: "You are banned from this server: **${interaction.guild.name}** by `${interaction.member.user.username}#${interaction.member.user.discriminator}`"
-ban_command_work: "<@${member.user.id}> banned by <@${interaction.member.id}>"
-ban_logs_embed_title: "Ban Logs"
-ban_logs_embed_description: "<@${member.user.id}> banned by <@${interaction.member.id}>"
+ban_not_permission: "❌ | Sie haben keine Berechtigung, Mitglieder zu bannen."
+ban_dont_found_member: "🔍 | Dieses Mitglied konnte nicht gefunden werden"
+ban_dont_have_perm_myself: "❌ | Ich habe keine Berechtigung, Mitglieder zu bannen!"
+ban_try_to_ban_yourself: "❌ | Sie können sich nicht selbst bannen!"
+ban_attempt_ban_higter_member: "🛑 Sie können Benutzer mit höherer Rolle als Sie nicht bannen..."
+ban_cant_ban_member: "❌ | Ich kann dieses Mitglied nicht bannen"
+ban_message_to_the_banned_member: "Sie wurden von diesem Server gebannt: **${interaction.guild.name}** von `${interaction.member.user.username}#${interaction.member.user.discriminator}`"
+ban_command_work: "<@${member.user.id}> gebannt von <@${interaction.member.id}>"
+ban_logs_embed_title: "Ban-Logs"
+ban_logs_embed_description: "<@${member.user.id}> gebannt von <@${interaction.member.id}>"
 
 # /kick
-kick_not_permission: "❌ | You don't have permission to kick members."
-kick_dont_have_permission: "❌ | I don't have permission to kick members!"
-kick_attempt_kick_your_self: "❌ | You cannot kick yourself!"
-kick_attempt_kick_higter_member: "🛑 You cannot kick user who have higher role than you..."
-kick_message_to_the_banned_member: "You are kicked from this server: **${interaction.guild.name}** by `${interaction.member.user.username}#${interaction.member.user.discriminator}`"
-kick_command_work: "${member.user} kicked by ${interaction.user}"
-kick_logs_embed_title: "Kick Logs"
-kick_logs_embed_description: "${member.user} kick by <@${interaction.user.id}>"
+kick_not_permission: "❌ | Sie haben keine Berechtigung, Mitglieder zu kicken."
+kick_dont_have_permission: "❌ | Ich habe keine Berechtigung, Mitglieder zu kicken!"
+kick_attempt_kick_your_self: "❌ | Sie können sich nicht selbst kicken!"
+kick_attempt_kick_higter_member: "🛑 Sie können Benutzer mit höherer Rolle als Sie nicht kicken..."
+kick_message_to_the_banned_member: "Sie wurden von diesem Server gekickt: **${interaction.guild.name}** von `${interaction.member.user.username}#${interaction.member.user.discriminator}`"
+kick_command_work: "${member.user} gekickt von ${interaction.user}"
+kick_logs_embed_title: "Kick-Logs"
+kick_logs_embed_description: "${member.user} gekickt von <@${interaction.user.id}>"
 
 # /clear
-clear_dont_have_permission: "❌ | You don't have permission `MANAGE_MESSAGES`."
-clear_max_message_limit: "❌ | I can't delete more than 99 message in one time !"
-clear_channel_message_deleted: "${messages.size} messages deleted !"
-clear_confirmation_message: "${messages.size} message are been deleted !"
-clear_logs_embed_title: "Clear Message Logs"
-clear_logs_embed_description: "<@${interaction.user.id}> clear ${messages.size} messages in <#${interaction.channel.id}>"
+clear_dont_have_permission: "❌ | Sie haben keine Berechtigung `MANAGE_MESSAGES`."
+clear_max_message_limit: "❌ | Ich kann nicht mehr als 99 Nachrichten auf einmal löschen!"
+clear_channel_message_deleted: "${messages.size} Nachrichten gelöscht!"
+clear_confirmation_message: "${messages.size} Nachrichten wurden gelöscht!"
+clear_logs_embed_title: "Löschen von Nachrichten-Logs"
+clear_logs_embed_description: "<@${interaction.user.id}> hat ${messages.size} Nachrichten in <#${interaction.channel.id}> gelöscht"
 
 # /lock
-lock_embed_message_description: "The channel has been locked by <@${interaction.user.id}>."
-lock_dont_have_permission: "❌ | You don't have permission to lock channels."
-lock_logs_embed_title: "Lock Logs"
-lock_logs_embed_description: "<@${interaction.user.id}> lock <#${interaction.channel.id}>"
+lock_embed_message_description: "Der Kanal wurde von <@${interaction.user.id}> gesperrt."
+lock_dont_have_permission: "❌ | Du hast keine Berechtigung, Kanäle zu sperren."
+lock_logs_embed_title: "Sperrprotokoll"
+lock_logs_embed_description: "<@${interaction.user.id}> hat <#${interaction.channel.id}> gesperrt."
 
 # /unlock
-unlock_embed_message_description: "The channel has been successfully unlocked!"
-unlock_dont_have_permission: "❌ | You don't have permission to unlock channel."
-unlock_logs_embed_title: "Unlock Logs"
-unlock_logs_embed_description: "<@${interaction.user.id}> unlock <#${interaction.channel.id}>"
+unlock_embed_message_description: "Der Kanal wurde erfolgreich entsperrt!"
+unlock_dont_have_permission: "❌ | Du hast keine Berechtigung, Kanäle zu entsperren."
+unlock_logs_embed_title: "Entsperrprotokoll"
+unlock_logs_embed_description: "<@${interaction.user.id}> hat <#${interaction.channel.id}> entsperrt."
 
 # /lockall
-lockall_dont_have_permission: "❌ | You don't have permission to lockall channels."
-lockall_embed_message_description: "All channels have been locked by <@${interaction.user.id}>."
-lockall_logs_embed_title: "Lockall Logs"
-lockall_logs_embed_description: "<@${interaction.user.id}> lock all channels !"
+lockall_dont_have_permission: "❌ | Du hast keine Berechtigung, alle Kanäle zu sperren."
+lockall_embed_message_description: "Alle Kanäle wurden von <@${interaction.user.id}> gesperrt."
+lockall_logs_embed_title: "Sperrprotokoll für alle Kanäle"
+lockall_logs_embed_description: "<@${interaction.user.id}> hat alle Kanäle gesperrt!"
 
 # /unban
-unban_dont_have_permission: "❌ | You don't have permission to unban members."
-unban_bot_dont_have_permission: "❌ | I don't have permission."
-unban_there_is_nobody_banned: "❌ | **There is nobody banned from this server !**"
-unban_the_member_is_not_banned: "❌ | **The ID stated is not banned from this server** !"
-unban_is_now_unbanned: "<@${userID}> is now unbanned from this server !"
-unban_logs_embed_title: "Unban Logs"
-unban_logs_embed_description: "<@${userID}> Is now unbanned from the server by ${interaction.user.id}!"
+unban_dont_have_permission: "❌ | Du hast keine Berechtigung, Mitglieder zu entbannen."
+unban_bot_dont_have_permission: "❌ | Ich habe keine Berechtigung dazu."
+unban_there_is_nobody_banned: "❌ | **Es gibt niemanden, der von diesem Server verbannt wurde!**"
+unban_the_member_is_not_banned: "❌ | **Die angegebene ID ist von diesem Server nicht verbannt!**"
+unban_is_now_unbanned: "<@${userID}> wurde von diesem Server entbannt!"
+unban_logs_embed_title: "Entbannungsprotokoll"
+unban_logs_embed_description: "<@${userID}> wurde von ${interaction.user.id} von diesem Server entbannt!"
 
 # /tempmute
-tempmute_dont_have_permission: "❌ | You don't have permission to tempmute members."
-tempmute_i_dont_have_permission: "❌ | I don't have permission."
-tempmute_cannot_mute_yourself: "❌ | You cannot mute yourself!"
-tempmute_already_muted: "This user is already muted !"
-tempmute_command_work: "<@${tomute.id}> has been muted for ${ms(ms(mutetime))}"
-tempmute_unmuted_by_time: "<@${tomute.id}> has been unmuted!"
-tempmute_logs_embed_title: "Tempmute Logs"
-tempmute_logs_embed_description: "<@${interaction.user.id}> mute <@${tomute.id}> for ${ms(ms(mutetime))}"
-tempmute_reason_create_roles: "Create tempmute muted role!"
+tempmute_dont_have_permission: "❌ | Du hast keine Berechtigung, Mitglieder zu temporär stummschalten."
+tempmute_i_dont_have_permission: "❌ | Ich habe keine Berechtigung."
+tempmute_cannot_mute_yourself: "❌ | Du kannst dich nicht selbst stummschalten!"
+tempmute_already_muted: "Dieser Benutzer ist bereits stummgeschaltet!"
+tempmute_command_work: "<@${tomute.id}> wurde für ${ms(ms(mutetime))} stummgeschaltet."
+tempmute_unmuted_by_time: "<@${tomute.id}> wurde wieder freigeschaltet!"
+tempmute_logs_embed_title: "Tempmute-Protokolle"
+tempmute_logs_embed_description: "<@${interaction.user.id}> stummschalten <@${tomute.id}> für ${ms(ms(mutetime))}"
+tempmute_reason_create_roles: "Erstellen von temporären stummschaltbaren Rollen!"
 
 # /unmute
-unmute_dont_have_permission: "❌ | You don't have permission to tempmute members."
-unmute_attempt_mute_your_self: "❌ | You cannot mute yourself!"
-unmute_i_dont_have_permission: "❌ | I don't have permission."
-unmute_not_muted: "This user is not muted !"
-unmute_muted_role_doesnt_exist: "The `muted` role does not exist. Please mute the user **before** for mute roles creation..."
-unmute_command_work: "<@${tomute.id}> has been unmuted!"
-unmute_logs_embed_title: "Unmute Logs"
-unmute_logs_embed_description: "<@${interaction.user.id}> unmute <@${tomute.id}>"
+unmute_dont_have_permission: "❌ | Du hast keine Berechtigung, Mitglieder temporär zu entstummschalten."
+unmute_attempt_mute_your_self: "❌ | Du kannst dich nicht selbst stummschalten!"
+unmute_i_dont_have_permission: "❌ | Ich habe keine Berechtigung."
+unmute_not_muted: "Dieser Benutzer ist nicht stummgeschaltet!"
+unmute_muted_role_doesnt_exist: "Die Rolle `stummgeschaltet` existiert nicht. Bitte stummschalten Sie den Benutzer **vor** der Erstellung der stummschaltbaren Rollen..."
+unmute_command_work: "<@${tomute.id}> wurde entstummschaltet!"
+unmute_logs_embed_title: "Entstummschaltungs-Protokolle"
+unmute_logs_embed_description: "<@${interaction.user.id}> entstummschaltet <@${tomute.id}>"
 
 
-# Backup commands
+# Backup-Befehle
 # /backup
 
 # /backup
-backup_wait_please: "⏲ Wait please..."
-backup_not_admin: ":x: | You must be an administrator of this server to request a backup!"
-backup_i_dont_have_permission: "I don't have  permission `ADMINISTRATOR`"
-backup_command_work_on_creation: ":white_check_mark: Backup successfully created."
-backup_command_work_info_on_creation: "The backup has been created! ID: `${backupData.id}`!"
-backup_logs_embed_title_on_creation: "Backup Logs"
-backup_logs_embed_description_on_creation: "<@${interaction.user.id}> Create Backup !"
-backup_dont_have_perm_on_load: ":x: | You must be an administrator of this server to load a backup!"
-backup_i_dont_have_perm_on_load: "I don't have  permission `ADMINISTRATOR`"
-backup_unvalid_id_on_load: ":x: | You must specify a valid backup ID!"
-backup_waiting_on_load: "✅ - Loading..."
-backup_error_on_load: ":x: | Sorry, an error occurred... Please check that I have administrator permissions!"
-backup_error_when_fetch_backup_on_load: ":x: | No backup found for ${backupID} !"
+backup_wait_please: "⏲ Bitte warten..."
+backup_not_admin: ":x: | Du musst ein Administrator dieses Servers sein, um ein Backup anzufordern!"
+backup_i_dont_have_permission: "Ich habe keine Berechtigung `ADMINISTRATOR`"
+backup_command_work_on_creation: ":white_check_mark: Backup erfolgreich erstellt."
+backup_command_work_info_on_creation: "Das Backup wurde erstellt! ID: `${backupData.id}`!"
+backup_logs_embed_title_on_creation: "Backup-Protokolle"
+backup_logs_embed_description_on_creation: "<@${interaction.user.id}> Backup erstellen!"
+backup_dont_have_perm_on_load: ":x: | Du musst ein Administrator dieses Servers sein, um ein Backup zu laden!"
+backup_i_dont_have_perm_on_load: "Ich habe keine Berechtigung `ADMINISTRATOR`"
+backup_unvalid_id_on_load: ":x: | Du musst eine gültige Backup-ID angeben!"
+backup_waiting_on_load: "✅ - Laden..."
+backup_error_on_load: ":x: | Entschuldigung, ein Fehler ist aufgetreten... Bitte überprüfe, ob ich Administratorberechtigungen habe!"
+backup_error_when_fetch_backup_on_load: ":x: | Kein Backup für ${backupID} gefunden!"
 
 
 # Role Reactions
 # /reactionroles
 
 # /reactionroles
-reactionroles_dont_admin_added: ":x: | You must be an administrator of this server to request this commands!"
-reactionroles_embed_message_description_added: "__how to use ?__\n/rolesreaction add `<message id>` `<reaction>` `<rolesid>`\n/rolesreaction remove `<message id>` `<reaction>`\n/rolesreaction list `<message id>`"
-reactionroles_missing_reaction_added: "Missing argument: Reaction's Emoji"
-reactionroles_invalid_emote_format_added: "❌ | You can't sent to me a `CUSTOM_EMOJI` in format `<::xxx>` ! I need only them ID !"
-reactionroles_logs_embed_title_added: "ReactionRoles Logs"
-reactionroles_logs_embed_description_added: "<@${interaction.user.id}> set a reaction roles: Message: `${messagei}` | Reaction: `${reaction}` | Role: ${role}"
-reactionroles_command_work_added: "${reaction} has been added to the ${messagei}'s message to give ${role}"
-reactionroles_missing_remove: "`Missing argument: Reaction's Emoji"
-reactionroles_missing_reaction_remove: "Reaction Roles don't found on my database..."
-reactionroles_cant_fetched_reaction_remove: "Can't fetch targeted reaction on this message !"
-reactionroles_logs_embed_title_remove: "ReactionRoles Logs"
-reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> delete a reaction roles: Message: `${messagei}` | Reaction: `${reaction}`"
-reactionroles_command_work_remove: "${reaction} has been deleted to the ${messagei}'s message"
-reactionroles_dont_message_found: "I can't get the message with you'r current message's ID !"
+reactionroles_dont_admin_added: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
+reactionroles_embed_message_description_added: "__Wie man benutzt?__\n/rolesreaction add `<message id>` `<reaction>` `<rolesid>`\n/rolesreaction remove `<message id>` `<reaction>`\n/rolesreaction list `<message id>`"
+reactionroles_missing_reaction_added: "Fehlendes Argument: Reaktionsemote"
+reactionroles_invalid_emote_format_added: "❌ | Sie können mir kein `CUSTOM_EMOJI` im Format `<::xxx>` senden! Ich brauche nur deren ID!"
+reactionroles_logs_embed_title_added: "ReactionRoles-Protokolle"
+reactionroles_logs_embed_description_added: "<@${interaction.user.id}> hat eine Reaktionsrolle festgelegt: Nachricht: `${messagei}` | Reaktion: `${reaction}` | Rolle: ${role}"
+reactionroles_command_work_added: "${reaction} wurde der Nachricht von ${messagei} hinzugefügt, um ${role} zu geben"
+reactionroles_missing_remove: "Fehlendes Argument: Reaktionsemote"
+reactionroles_missing_reaction_remove: "Reaktionsrolle nicht in meiner Datenbank gefunden..."
+reactionroles_cant_fetched_reaction_remove: "Kann die Zielreaktion in dieser Nachricht nicht abrufen!"
+reactionroles_logs_embed_title_remove: "ReactionRoles-Protokolle"
+reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> hat eine Reaktionsrolle gelöscht: Nachricht: `${messagei}` | Reaktion: `${reaction}`"
+reactionroles_command_work_remove: "${reaction} wurde aus der Nachricht von ${messagei} gelöscht"
+reactionroles_dont_message_found: "Ich kann die Nachricht mit Ihrer aktuellen Nachrichten-ID nicht abrufen!"
 
-# New feature commands
+# Neue Funktionenbefehle
 # /punishpub, /report, /support
 
 # /punishpub
-punishpub_not_admin: ":x: | You must be an administrator of this server to request this commands!"
-punishpub_too_hight_enable: "You amount is too high ! Is not recommended !"
-punishpub_negative_number_enable: "You can't type negative number !"
-punishpub_zero_number_enable: "The number 0 is not possible !"
-punishpub_confirmation_message_enable: "You have successfully **enabled** PunishPub with a maximum flag count of **${amount}** and a punishment of **${punishement}** !"
-punishpub_logs_embed_title: "PunishPub Logs"
-punishpub_logs_embed_description: "<@${interaction.user.id}> set the PunishPUB to on with an amout of ${amount} max flags with ${punishement} punishement !"
-punishpub_confirmation_disable: "You have succefully setup the PunishPub to off"
-punishpub_logs_embed_title_disable: "PunishPub Logs"
-punishpub_logs_embed_description_disable: "<@${interaction.user.id}> set the PunishPUB to off !"
+punishpub_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
+punishpub_too_hight_enable: "Ihr Betrag ist zu hoch! Es wird nicht empfohlen!"
+punishpub_negative_number_enable: "Sie können keine negative Zahl eingeben!"
+punishpub_zero_number_enable: "Die Zahl 0 ist nicht möglich!"
+punishpub_confirmation_message_enable: "Sie haben PunishPub erfolgreich mit einer maximalen Flaggenanzahl von **${amount}** und einer Bestrafung von **${punishement}** aktiviert!"
+punishpub_logs_embed_title: "PunishPub-Protokolle"
+punishpub_logs_embed_description: "<@${interaction.user.id}> hat PunishPub auf **An** mit einer Höchstzahl von ${amount} Flaggen und einer Bestrafung von ${punishement} gesetzt!"
+punishpub_confirmation_disable: "Sie haben PunishPub erfolgreich deaktiviert"
+punishpub_logs_embed_title_disable: "PunishPub-Protokolle"
+punishpub_logs_embed_description_disable: "<@${interaction.user.id}> hat PunishPub deaktiviert!"
 
 # /report
-report_cooldown_command: "Sorry you must wait **${time}** before running this command!"
-report_owner_need: ":x: | ** You must be the owner of the server to be able to run this command!**"
-report_specify: "Please specify the bug, Please make a good sentences !"
-report_command_work: "**Thanks for submitting a bug!**"
+report_cooldown_command: "Entschuldigung, Sie müssen **${time}** warten, bevor Sie diesen Befehl ausführen!"
+report_owner_need: ":x: | **Sie müssen der Besitzer des Servers sein, um diesen Befehl ausführen zu können!**"
+report_specify: "Bitte spezifiziere den Fehler, bitte mache einen guten Satz!"
+report_command_work: "**Vielen Dank für das Einreichen des Fehlers!**"
 
 # /support
-support_not_admin: ":x: | You must be an administrator of this server to request this commands!"
-support_command_work: "You have setup the support module for **${interaction.guild.name}**.\nWhen user have on this bio:\n**${input}**.\nI should give the <@&${roles.id}> role to them!"
-support_command_work_on_disable: "You have setup the support module for **${interaction.guild.name}**.\nNobody can have role now!"
-support_command_not_role: ":x: | You have not specified the role !"
+support_not_admin: ":x: | Du musst ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
+support_command_work: "Du hast das Support-Modul für **${interaction.guild.name}** eingerichtet. Wenn ein Benutzer dies im Profil hat:\n**${input}**.\nSoll ich die <@&${roles.id}>-Rolle an sie vergeben!"
+support_command_work_on_disable: "Du hast das Support-Modul für **${interaction.guild.name}** eingerichtet. Jetzt kann niemand eine Rolle haben!"
+support_command_not_role: ":x: | Du hast die Rolle nicht angegeben!"
 
 # /setserverlang
-setserverlang_not_admin: ":x: | You must be an administrator of this server to request this commands!"
+setserverlang_not_admin: ":x: | Du musst ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
 setserverlang_logs_embed_title_on_enable: "SetServerLang Logs"
-setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> set the language of iHorizon to **${type}** !"
-setserverlang_already: "I'm already on this language !"
-setserverlang_command_work_enable: "My language is now on **${type}**"
-setserverlang_command_error_enable: "error!"
+setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> hat die Sprache von iHorizon auf **${type}** geändert!"
+setserverlang_already: "Ich bin bereits auf dieser Sprache!"
+setserverlang_command_work_enable: "Meine Sprache ist jetzt auf **${type}**"
+setserverlang_command_error_enable: "Fehler!"
 
 
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
-event_mp_playerStart: "🎵 - Now playing `${track.title}` into **${queue.channel.name}** ..."
-event_mp_audioTrackAdd: ":musical_note: - ${track.title} has been added to the queue !"
-event_mp_playerError: "I'm having trouble connecting => ${error.message}"
-event_mp_error: "There was a problem with the song queue => ${error.message}"
-event_mp_emptyChannel: "❌ | Nobody is in the voice channel, leaving..."
-event_mp_playerSkip: ":musical_note: - Skipping **${track.title}** !"
-event_mp_emptyQueue: "⚠️ - Music stopped as there is no more music in the queue !"
+event_mp_playerStart: "🎵 - Wiedergabe von `${track.title}` in **${queue.channel.name}** gestartet ..."
+event_mp_audioTrackAdd: ":musical_note: - ${track.title} wurde zur Warteschlange hinzugefügt !"
+event_mp_playerError: "Ich habe Probleme beim Verbinden => ${error.message}"
+event_mp_error: "Es gab ein Problem mit der Song-Warteschlange => ${error.message}"
+event_mp_emptyChannel: "❌ | Niemand ist im Sprachkanal, ich verlasse ..."
+event_mp_playerSkip: ":musical_note: - Überspringe **${track.title}** !"
+event_mp_emptyQueue: "⚠️ - Die Musik wurde gestoppt, da keine weiteren Songs in der Warteschlange sind!"
 
-# Channel Create Events
+# Ereignisse zur Kanalerstellung
 
-event_channel_create_message_embed_title: "Succefully setup !"
-event_channel_create_message_embed_description: "The bot has been set up perfectly. You don't need to do anything (zen) anymore.\n\nAll moderation logs related to iHorizon will be displayed here"
+event_channel_create_message_embed_title: "Erfolgreich eingerichtet !"
+event_channel_create_message_embed_description: "Der Bot wurde perfekt eingerichtet. Sie müssen nichts mehr tun (zen).\n\nAlle Moderations-Logs, die iHorizon betreffen, werden hier angezeigt."
 
-# Welcome Message Events
-event_welcomer_inviter: "➕・<@${member.id}> join the guild. Invited by **${inviter.tag}** (**${fetched}** invites). Account created at: **${member.user.createdAt.toLocaleDateString()}**. Happy to see you on **${member.guild.name}**"
-event_welcomer_default: "➕・<@${member.id}> join the guild. Account created at: **${member.user.createdAt.toLocaleDateString()}**. Happy to see you on **${member.guild.name}**"
+# Ereignisse zur Begrüßungsnachricht
+event_welcomer_inviter: "➕・<@${member.id}> ist dem Server beigetreten. Eingeladen von **${inviter.tag}** (**${fetched}** Einladungen). Konto erstellt am: **${member.user.createdAt.toLocaleDateString()}**. Schön, dass du auf **${member.guild.name}** bist."
+event_welcomer_default: "➕・<@${member.id}> ist dem Server beigetreten. Konto erstellt am: **${member.user.createdAt.toLocaleDateString()}**. Schön, dass du auf **${member.guild.name}** bist."
 
-# Goodbye Message Events
-event_goodbye_inviter: "➖・<@${member.id}> just left the guild. Was Invited by **${inviter.tag}** (**${fetched}** invites). Goodbye, from **${member.guild.name}**."
-event_goodbye_default: "➖・<@${member.id}> just left the guild. Goodbye, from **${member.guild.name}**."
+# Ereignisse zur Verabschiedungsnachricht
+event_goodbye_inviter: "➖・<@${member.id}> hat den Server verlassen. Wurde eingeladen von **${inviter.tag}** (**${fetched}** Einladungen). Auf Wiedersehen von **${member.guild.name}**."
+event_goodbye_default: "➖・<@${member.id}> hat den Server verlassen. Auf Wiedersehen von **${member.guild.name}**."
 
 # XP Level Events
-event_xp_level_earn: "**GG**, <@${message.author.id}> you are +1, for xp level (Level : **${newLevel}**)"
+event_xp_level_earn: "**GG**, <@${message.author.id}> du hast +1 für dein XP-Level erhalten (Level: **${newLevel}**)"
 
 # Ticket Module Events:
-event_ticket_embed_description: "Hi ${user.username}, welcome to your ticket! Please be patient, we will be with you shortly. If you would like to close this ticket please run `/close`"
+event_ticket_embed_description: "Hallo ${user.username}, willkommen in deinem Ticket! Bitte hab etwas Geduld, wir werden bald bei dir sein. Wenn du das Ticket schließen möchtest, gib bitte `/close` ein."
