@@ -11,8 +11,8 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const config = require('../config.json');
-const messages = require("../messages.js");
+const config = require(`${process.cwd()}/files/config.json`);
+const messages = require(`${process.cwd()}/files/messages.js`);
 
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);

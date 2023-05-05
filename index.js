@@ -6,7 +6,7 @@ const { Client, Collection, ChannelType, PermissionFlagsBits, PermissionsBitFiel
     GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildModeration, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildScheduledEvents, GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates
     ], partials: [Partials.Channel, Partials.Reaction, Partials.Message], ws: { properties: { browser: 'Discord iOS' } }
-  }), config = require('./files/config.json'),{api}=require("./files/api/oauth.js"),{GiveawaysManager}=require('discord-giveaways'),
+  }), config = require('./files/config.json'), { api } = require("./files/api/oauth.js"), { GiveawaysManager } = require('discord-giveaways'),
   c = require("colors"), { Player } = require("discord-player"), fs = require('fs'), date = require('date-and-time'), process = require("process")
 client.commands = new Collection(), client.voiceManager = new Collection(), client.invites = new Map(), client.interactions = new Collection(), client.register_arr = [],
   { playerEvents } = require(`${process.cwd()}/files/playerEvents.js`), client.player = new Player(client, { ytdlOptions: { quality: 'highestaudio', smoothVolume: true, highWaterMark: 1 << 25, } }), playerEvents(client.player),
@@ -15,12 +15,13 @@ client.commands = new Collection(), client.voiceManager = new Collection(), clie
       if (!file.endsWith(".js")) return; const event = require(`./files/Events/${file}`); let eventName = file.split(".")[0];
       console.log(`[`.yellow, ` 🟢 `.green, `]`.yellow, ` >>`.gray, `${eventName}`.green); client.on(eventName, event.bind(null, client)); delete require.cache[require.resolve(`./files/Events/${file}`)];
     });
-  }), fs.readdir("./files/Slash/", (_err, files) => {
-    files.forEach(file => {
-      if (!file.endsWith(".js")) return; let props = require(`./files/Slash/${file}`); let commandName = file.split(".")[0];
-      client.interactions.set(commandName, { name: commandName, ...props }), client.register_arr.push(props)
-    });
-  }),
+  }), 
+  fs.readdir("./files/Slash/", (err, category) => {
+    category.forEach(subDir => {
+    fs.readdir("./files/Slash/"+subDir, (_err, files) => {
+        files.forEach(file => {
+          if (!file.endsWith(".js")) return; let props = require(`./files/Slash/${subDir}/${file}`); let commandName = file.split(".")[0];
+          client.interactions.set(commandName, { name: commandName, ...props }), client.register_arr.push(props) }); }) }) }),
   client.giveawaysManager = new GiveawaysManager(client, {
     storage: "./files/giveaways.json", updateCountdownEvery: 5000, embedColor: "#FF0000", reaction: "🎉",
     default: { botsCanWin: false, exemptPermissions: ["MANAGE_MESSAGES", "ADMINISTRATOR"] }

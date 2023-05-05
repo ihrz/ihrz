@@ -167,6 +167,26 @@ pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 # /status
 status_be_bot_dev: ":x: | **Botの開発者である必要があります！**"
 
+# /help
+help_tip_embed: "💡 __**ヒント**__: __iHorizonは今や多言語対応で、多くのバグが修正されました__。\n**今すぐiHorizonの言語を変更するには**: ```/setserverlang```iHorizonをご利用いただきありがとうございます！\n作成者に連絡する： `Kisakay#3889`。\n使用可能なコマンドの一覧です。"
+help_mod_fields: "モデレーション"
+help_ranks_fields: "ランク"
+help_fun_fields: "楽しい"
+help_utils_fields: "ユーティリティ"
+help_giveaway_fields: "ギブアウェイ"
+help_bot_fields: "ボット"
+help_music_fields: "音楽"
+help_backup_fields: "バックアップ"
+help_guildconf_fields: "ギルド設定"
+help_prof_fields: "プロフィールのカスタマイズ"
+help_economy_fields: "経済"
+help_owner_fields: "オーナー"
+help_roler_fields: "役割反応"
+help_invitem_fields: "招待管理"
+help_ticket_fields: "チケット"
+help_memberc_fields: "メンバーカウント"
+help_newftrs_fields: "新機能"
+
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
