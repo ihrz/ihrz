@@ -10,7 +10,7 @@ module.exports = (client) => {
     const event = require(path.resolve(__dirname, '..', 'Events', file));
     const eventName = file.split('.')[0];
 
-    logger.log(`[ 🟢 ] >> ${eventName}`.gray);
+    logger.log(`[ 🟢 ] >> ${eventName}`.white);
     client.on(eventName, event.bind(null, client));
   }
 };
