@@ -2,7 +2,7 @@ const couleurmdr = require("colors"),
   { QuickDB } = require("quick.db"),
   db = new QuickDB(),
   config = require("../config.json"),
-  register = require('../slashsync'),
+  register = require('../core/slashsync'),
   wait = require("timers/promises").setTimeout;
 
 module.exports = async (client) => {
