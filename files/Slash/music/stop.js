@@ -12,6 +12,7 @@ const { QueryType } = require('discord-player');
 
 const yaml = require('js-yaml')
 const fs = require('fs');
+const logger = require(`${process.cwd()}/files/core/logger`);
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 
 module.exports = {
@@ -31,7 +32,7 @@ module.exports = {
       interaction.client.player.nodes.delete(interaction.guild?.id);
       await interaction.reply({ content: data.stop_command_work })
     } catch (error) {
-      console.log(error)
+      logger.error(error)
     }
   }
 }

@@ -88,7 +88,7 @@ module.exports = {
 
           let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
           if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-        } catch (e) { console.error(e) };
+        } catch (e) { logger.err(e) };
 
         return interaction.reply({ content: data.setleavemessage_command_work_on_enable })
       }
@@ -105,7 +105,7 @@ module.exports = {
             )
           let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
           logchannel.send({ embeds: [ban_embed] })
-        } catch (e) { console.error(e) }
+        } catch (e) { logger.err(e) }
         return interaction.reply({ content: data.setleavemessage_command_work_on_disable })
       }
     }

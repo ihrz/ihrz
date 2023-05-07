@@ -2,6 +2,7 @@ const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('disc
 
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = {
     name: 'pause',
@@ -19,7 +20,7 @@ module.exports = {
             const paused = queue.node.setPaused(true)
             return interaction.reply({ content: paused ? 'paused' : "something went wrong" })
         } catch (error) {
-            console.log(error)
+            logger.err(error)
         }
     }
 }

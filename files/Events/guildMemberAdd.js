@@ -3,6 +3,7 @@ const config = require('../config.json');
 const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 const yaml = require('js-yaml');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
@@ -16,7 +17,7 @@ module.exports = async (client, member, members) => {
       if (roleid == null) return;
       if (!roleid) return;
       member.roles.add(roleid);
-    } catch (e) { return console.error(e) }
+    } catch (e) { return logger.err(e) }
   }
 
   async function joinDm() {

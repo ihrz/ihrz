@@ -1,17 +1,18 @@
 const fs = require("fs");
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = (client, callback) => {
   const result = {};
 
   fs.readdir(__dirname+"/../Slash/", (err, categories) => {
-    if (err) console.error(err);
+    if (err) logger.err(err);
 
     let filesCount = 0;
     categories.forEach((category) => {
       result[category] = [];
 
       fs.readdir(`${__dirname}/../Slash/${category}`, (err, files) => {
-        if (err) console.error(err);
+        if (err) logger.err(err);
 
         filesCount += files.length;
 

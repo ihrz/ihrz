@@ -13,6 +13,7 @@ const {
 
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = {
     name: 'reroll',
@@ -59,10 +60,10 @@ module.exports = {
 
                     let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                     if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-                } catch (e) { console.error(e) };
+                } catch (e) { logger.err(e) };
             })
             .catch((error) => {
-                console.error(error)
+                logger.err(error)
                 if (error.startsWith(`Giveaway with message Id ${giveaway.messageId} is not ended.`)) { interaction.reply({ content: `This giveaway is not over!` }); }
                 else { interaction.reply({ content: data.reroll_command_error }); }
             });

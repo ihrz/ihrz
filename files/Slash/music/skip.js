@@ -11,6 +11,7 @@ const {
 const { QueryType } = require('discord-player');
 
 const yaml = require('js-yaml'), fs = require('fs');
+const logger = require(`${process.cwd()}/files/core/logger`);
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 
 module.exports = {
@@ -37,7 +38,7 @@ module.exports = {
                 .replace("{queue}", queue.currentTrack)
             })
         } catch (error) {
-            console.log(error)
+            logger.err(error)
         }
 
         

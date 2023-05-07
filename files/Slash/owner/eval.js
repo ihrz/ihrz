@@ -9,7 +9,7 @@ const {
     PermissionsBitField,
     ApplicationCommandOptionType
 } = require('discord.js');
-
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = {
     name: 'eval',
@@ -23,7 +23,7 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        const print = (message) => { console.log(message); }
+        const print = (message) => { logger.log(message); }
 
         const { QuickDB } = require("quick.db");
         const db = new QuickDB();

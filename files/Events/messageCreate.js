@@ -1,9 +1,8 @@
 const { Client, Intents, Collection, EmbedBuilder, PermissionsBitField } = require('discord.js');
-const config = require('../config.json');
 const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const ms = require("ms");
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 const yaml = require('js-yaml');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
@@ -138,7 +137,7 @@ module.exports = async (client, message) => {
           }
         }
       } catch (e) {
-        console.error(e);
+        logger.err(e);
       }
     }
 

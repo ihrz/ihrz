@@ -12,6 +12,7 @@ const {
 } = require('discord.js');
 
 const yaml = require('js-yaml');
+const logger = require(`${process.cwd()}/files/core/logger`);
 const fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 module.exports = {
@@ -57,7 +58,7 @@ module.exports = {
                         )
                     let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                     if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-                } catch (e) { console.error(e) };
+                } catch (e) { logger.err(e) };
             })
             .catch((error) => {
                     return interaction.reply({ content: data.end_command_error });

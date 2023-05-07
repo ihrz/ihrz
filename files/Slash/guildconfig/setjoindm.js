@@ -10,6 +10,7 @@ const {
 } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 const yaml = require('js-yaml');
 const fs = require('fs');
@@ -68,7 +69,7 @@ module.exports = {
 
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-            } catch (e) { console.error(e) };
+            } catch (e) { logger.err(e) };
 
             try {
                 if (!dm_msg) return interaction.reply({ content: data.setjoindm_not_specified_args_on_enable })

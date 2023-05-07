@@ -14,6 +14,7 @@ const db = new QuickDB();
 
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = {
     name: 'setchannels',
@@ -71,7 +72,7 @@ module.exports = {
 
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-            } catch (e) { console.error(e) };
+            } catch (e) { logger.err(e) };
 
             try {
                 let already = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`)
@@ -107,7 +108,7 @@ module.exports = {
 
                     let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                     if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-                } catch (e) { console.error(e) };
+                } catch (e) { logger.err(e) };
 
                 return interaction.reply({
                     content: data.setchannels_command_work_on_leave
@@ -129,7 +130,7 @@ module.exports = {
 
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-            } catch (e) { console.error(e) };
+            } catch (e) { logger.err(e) };
 
             let leavec = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`)
             let joinc = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`)

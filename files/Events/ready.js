@@ -53,7 +53,7 @@ module.exports = async (client) => {
         const firstInvites = await guild.invites.fetch()
         client.invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
       } catch (error) {
-        console.error(`Error fetching invites for guild ${guild.id}: ${error}`);
+        logger.err(`Error fetching invites for guild ${guild.id}: ${error}`);
       }
     });
   }

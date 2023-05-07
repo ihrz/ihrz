@@ -12,6 +12,7 @@ const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = {
     name: 'setxpchannels',
@@ -62,7 +63,7 @@ module.exports = {
 
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-            } catch (e) { console.error(e) };
+            } catch (e) { logger.err(e) };
             try {
                 let already = await db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`)
                 if (already === argsid.id) return interaction.reply({ content: data.setxpchannels_already_with_this_config })
@@ -86,7 +87,7 @@ module.exports = {
 
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-            } catch (e) { console.error(e) };
+            } catch (e) { logger.err(e) };
             try {
                 let already2 = await db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`)
                 if (already2 === "off") return interaction.reply(data.setxpchannels_already_disabled_disable)

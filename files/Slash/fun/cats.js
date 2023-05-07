@@ -12,6 +12,7 @@ const {
 
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = {
   name: 'cats',
@@ -24,7 +25,7 @@ module.exports = {
       .get('http://edgecats.net/random')
       .end((err, res) => {
         if (err) {
-          console.error(err);
+          logger.err(err);
           interaction.reply('Erreur lors de la récupération de l\'image du chat.');
           return;
         } else {

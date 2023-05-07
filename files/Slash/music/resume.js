@@ -12,6 +12,7 @@ const {
 const yaml = require('js-yaml');
 const fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = {
   name: 'resume',
@@ -30,7 +31,7 @@ module.exports = {
       const paused = queue.node.setPaused(false)
       return interaction.reply({ content: data.resume_command_work });
     } catch (error) {
-      console.log(error)
+      logger.err(error)
     }
   }
 }

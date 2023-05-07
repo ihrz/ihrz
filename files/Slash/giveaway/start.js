@@ -16,6 +16,7 @@ const messages = require(`${process.cwd()}/files/messages.js`);
 
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = {
     name: 'start',
@@ -89,6 +90,6 @@ module.exports = {
 
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-        } catch (e) { console.error(e) };
+        } catch (e) { logger.err(e) };
     }
 }

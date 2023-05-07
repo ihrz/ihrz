@@ -14,6 +14,7 @@ const db = new QuickDB();
 
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = {
   name: 'reactionroles',
@@ -99,7 +100,7 @@ module.exports = {
           )
         let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
         if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-      } catch (e) { console.error(e) };
+      } catch (e) { logger.err(e) };
 
       interaction.reply({
         content: data.reactionroles_command_work_added
@@ -120,7 +121,7 @@ module.exports = {
         const reactionVar = message.reactions.cache.get(fetched.reactionNAME);
 
         if (!reactionVar) { return interaction.reply({ content: data.reactionroles_cant_fetched_reaction_remove }) }
-        await reactionVar.users.remove(client.user.id).catch(err => { console.error(err) });
+        await reactionVar.users.remove(client.user.id).catch(err => { logger.err(err) });
 
 
         await db.delete(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`)
@@ -136,7 +137,7 @@ module.exports = {
             )
           let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
           if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-        } catch (e) { console.error(e) };
+        } catch (e) { logger.err(e) };
         await interaction.reply({
           content: data.reactionroles_command_work_remove
             .replace("${reaction}", reaction)
