@@ -11,6 +11,5 @@ module.exports = (client) => {
   });
 
   playerEvents(player);
-
   client.player = player;
 };
