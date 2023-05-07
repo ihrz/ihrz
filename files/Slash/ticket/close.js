@@ -13,6 +13,8 @@ const {
 
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const logger = require(`${process.cwd()}/files/core/logger`);
+
 module.exports = {
 	name: 'close',
 	description: 'Close your ticket',
@@ -55,7 +57,7 @@ module.exports = {
 							.setColor('#5b92e5');
 						interaction.reply({ content: data.close_command_work_channel, embeds: [embed] })
 					} catch (e) {
-						console.error(e)
+						logger.err(e)
 
 					}
 

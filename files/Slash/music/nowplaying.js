@@ -12,6 +12,7 @@ const {
 const yaml = require('js-yaml');
 const fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = {
     name: 'nowplaying',
@@ -35,7 +36,7 @@ module.exports = {
                 )
             await interaction.reply({ embeds: [embed] })
         } catch (error) {
-            console.log(error)
+            logger.err(error)
         }
     }
 }

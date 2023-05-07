@@ -1,6 +1,7 @@
 const yaml = require('js-yaml');
 const fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports.playerEvents = async (player) => {
     player.events.on('playerStart', async (queue, track) => {
@@ -28,7 +29,7 @@ module.exports.playerEvents = async (player) => {
         let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(queue.channel.guildId)}.yml`, 'utf-8');
         let data = yaml.load(fileContents);
 
-        return console.log(data.event_mp_playerError
+        return logger.err(data.event_mp_playerError
             .replace("${error.message}", error.message)
         );
     });
@@ -37,7 +38,7 @@ module.exports.playerEvents = async (player) => {
         let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(queue.channel.guildId)}.yml`, 'utf-8');
         let data = yaml.load(fileContents);
 
-        return console.log(data.event_mp_error
+        return logger.err(data.event_mp_error
             .replace("${error.message}", error.message)
         );
     });

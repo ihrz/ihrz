@@ -78,7 +78,7 @@ module.exports = {
 
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-            } catch (e) {console.log(e) };
+            } catch (e) {logger.err(e) };
 
             try {
                 let already = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);

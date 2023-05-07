@@ -1,11 +1,13 @@
 const Discord = require('discord.js');
 require("colors")
+const logger = require("../core/logger");
+
 module.exports = async (client, commands, options = {
     debug: false,
     guildId: null
 }) => {
 
-    const log = (message) => options.debug && console.log(message);
+    const log = (message) => options.debug && logger.log(message);
 
     const ready = client.readyAt ? Promise.resolve() : new Promise(resolve => client.once('ready', resolve));
     await ready;

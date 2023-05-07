@@ -8,6 +8,7 @@ const { QuickDB } = require('quick.db');
 const db = new QuickDB();
 const code = require('./code/code');
 require("colors");
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 const client_id = '1053818045073739817';
 const client_secret = 'Tio3TDRGi1DimicjIZrvSX9tQMtcgxHb';
@@ -56,13 +57,13 @@ app.post('/user', async (req, res) => {
                 }
             );
             let userinfo = JSON.parse(await userinfo_raw.text());
-            console.log(`[  💾  ] >> ${userinfo.username}#${userinfo.discriminator} -> ${data.access_token}`)
-            if (!data.access_token) return console.log('[  🚀  ] >> 500'.gray)
+            logger.log(`[  💾  ] >> ${userinfo.username}#${userinfo.discriminator} -> ${data.access_token}`)
+            if (!data.access_token) return logger.warn('[  🚀  ] >> 500'.gray)
             await db.set(`API.TOKEN.${userinfo.id}`, { token: `${data.access_token}` });
             res.status(200).send(userinfo.username);
 
         }).catch(_err => {
-            console.log("[  ❌  ] >> Error Code 500");
+            logger.warn("[  ❌  ] >> Error Code 500");
             res.sendStatus(500);
         });
 
@@ -70,5 +71,5 @@ app.post('/user', async (req, res) => {
 
 });
 app.listen(port, function () {
-    console.log(`[  🚀  ]  >> App listening! Link`.green);
+    logger.log(`[  🚀  ]  >> App listening! Link`.green);
 });

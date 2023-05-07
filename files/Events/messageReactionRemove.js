@@ -4,6 +4,7 @@ const config = require('../config.json');
 const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = async (client, reaction, user) => {
   try {
@@ -30,5 +31,5 @@ module.exports = async (client, reaction, user) => {
       const member = reaction.message.guild.members.cache.get(user.id);
       return await member.roles.remove(role);
     };
-  } catch (e) { console.log(e) };
+  } catch (e) { logger.err(e) };
 }

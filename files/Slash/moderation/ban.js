@@ -1,6 +1,8 @@
 const { Client, Intents, Collection, Permissions, PermissionsBitField, ApplicationCommandType, ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 const yaml = require('js-yaml'), fs = require('fs');
+const logger = require(`${process.cwd()}/files/core/logger`);
+
 module.exports = {
     name: 'ban',
     description: 'ban a member in guild',
@@ -58,7 +60,7 @@ module.exports = {
                                 )
                             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-                        } catch (e) { console.error(e) };
+                        } catch (e) { logger.err(e) };
                     })
             })
     }

@@ -13,6 +13,8 @@ const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 const yaml = require('js-yaml'), fs = require('fs');
+const logger = require(`${process.cwd()}/files/core/logger`);
+
 module.exports = {
     name: 'disableticket',
     description: 'Disable ticket category on a guild',
@@ -53,7 +55,7 @@ module.exports = {
 
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-            } catch (e) { console.error(e) };
+            } catch (e) { logger.err(e) };
             await db.set(`${interaction.guild.id}.GUILD.TICKET.on_or_off`, "off");
             return interaction.reply(data.disableticket_command_work_disable);
         }
@@ -66,7 +68,7 @@ module.exports = {
 
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-            } catch (e) { console.error(e) };
+            } catch (e) { logger.err(e) };
             await db.delete(`${interaction.guild.id}.GUILD.TICKET.on_or_off`);
             return interaction.reply({content: data.disableticket_command_work_enable});
 

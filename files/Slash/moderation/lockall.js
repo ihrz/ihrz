@@ -12,6 +12,8 @@ const {
 
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const logger = require(`${process.cwd()}/files/core/logger`);
+
 module.exports = {
   name: 'lockall',
   description: 'Remove ability to speak of all users in all of text channel on the guild',
@@ -40,7 +42,7 @@ module.exports = {
         )
       let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
       if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-    } catch (e) { console.error(e) };
+    } catch (e) { logger.err(e) };
     return interaction.reply({ embeds: [Lockembed] })
   }
 }

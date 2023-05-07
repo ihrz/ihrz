@@ -12,6 +12,7 @@ const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = {
     name: 'setserverlang',
@@ -90,7 +91,7 @@ module.exports = {
             return interaction.reply({ content: data.setserverlang_command_work_enable.replace(/\${type}/g, type) });
 
         } catch (e) {
-            console.log(e)
+            logger.err(e)
             interaction.reply({ content: data.setserverlang_command_error_enable });
         }
     }

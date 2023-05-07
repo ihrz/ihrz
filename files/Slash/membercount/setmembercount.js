@@ -14,6 +14,7 @@ const db = new QuickDB();
 
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = {
   name: 'setmembercount',
@@ -94,7 +95,7 @@ module.exports = {
             )
           let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
           if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-        } catch (e) { console.error(e) };
+        } catch (e) { logger.err(e) };
         const fetched = interaction.guild.channels.cache.get(channel.id);
 
         fetched.edit({ name: `${joinmsgreplace}` });
@@ -114,7 +115,7 @@ module.exports = {
             )
           let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
           if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-        } catch (e) { console.error(e) };
+        } catch (e) { logger.err(e) };
         return interaction.reply({ content: data.setmembercount_command_work_on_disable })
       }
     }

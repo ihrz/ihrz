@@ -5,6 +5,7 @@ const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const logger = require(`${process.cwd()}/files/core/logger`);
 const yaml = require('js-yaml');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 module.exports = async (client, reaction, user) => {
@@ -35,7 +36,7 @@ module.exports = async (client, reaction, user) => {
         const member = reaction.message.guild.members.cache.get(user.id);
         return await member.roles.add(role);
       };
-    } catch (e) { console.log(e) };
+    } catch (e) { logger.log(e) };
   }
 
   async function ticketModule() {

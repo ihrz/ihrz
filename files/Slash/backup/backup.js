@@ -13,6 +13,7 @@ const {
 const backup = require("discord-backup")
 
 const yaml = require('js-yaml'), fs = require('fs');
+const logger = require(`${process.cwd()}/files/core/logger`);
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 
 module.exports = {
@@ -72,7 +73,7 @@ module.exports = {
                         .setDescription(data.backup_logs_embed_description_on_creation)
                     let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'iHorizon-logs');
                     if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-                } catch (e) { console.error(e) };
+                } catch (e) { logger.err(e) };
             });
         }
 

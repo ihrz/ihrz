@@ -11,6 +11,8 @@ const {
 
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const { QuickDB } = require("quick.db");
+const db = new QuickDB();
 
 module.exports = {
   name: 'help',
@@ -18,28 +20,29 @@ module.exports = {
   run: async (client, interaction) => {
     let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
     let data = yaml.load(fileContents);
-
+    let CONTENT = await db.get("BOT.CONTENT");
+    
     const embed = new EmbedBuilder()
       .setColor('#001eff')
       .setDescription(data.help_tip_embed)
       .addFields(
-        { name: data.help_mod_fields, value: "`/ban`, `/kick`, `/clear`, `/lock`, `/unlock`, `/avatar`, `/lockall`,\n `/unban`, `/tempmute`, `/unmute`", inline: true },
-        { name: data.help_ranks_fields, value: "`/xp`, `/setxpchannels`, `/disablexp`", inline: true },
-        { name: data.help_fun_fields, value: "`/caracteres`, `/cats`, `/hack`, `/hug`, `/kiss`, `/morse`, `/poll`, `/question`, `/slap`", inline: true },
-        { name: data.help_utils_fields, value: "`/serverinfo`, `/userinfo`, `/snipe`, `/renew`", inline: true },
-        { name: data.help_giveaway_fields, value: "`/start`, `/end`, `/reroll`", inline: true },
-        { name: data.help_bot_fields, value: "`/status`, `/ping`, `/botinfo`, `/invite`, `/kisakay`", inline: true },
-        { name: data.help_music_fields, value: "`/p`, `/loop`, `/nowplaying`, `/pause`, `/resume`, `/skip`, `/stop`, `/queue`, `/shuffle`", inline: true },
-        { name: data.help_backup_fields, value: "`/backup`", inline: true },
-        { name: data.help_guildconf_fields, value: '`/setchannels`, `/setjoinmessage`, `/setleavemessage`, `/setjoinroles`, `/setjoindm`, `/setup`, `/blockpub`, `/guildprofil`', inline: true },
-        { name: data.help_prof_fields, value: "`/setprofildescriptions`, `/profil`, `/setprofilage`", inline: true },
-        { name: data.help_economy_fields, value: "`/add-money`, `/balance`, `/daily`, `/monthly`, `/pay`, `/remove-money`, `/rob`, `/weekly`, `/work`", inline: true },
-        { name: data.help_owner_fields, value: "`/owner`, `/unowner`, `/blacklist`, `/unblacklist`", inline: true },
-        { name: data.help_roler_fields, value: "`/reactionroles`", inline: true },
-        { name: data.help_invitem_fields, value: "`/removeinvites`, `/invites`,`/addinvites`, `/leaderboard`", inline: true },
-        { name: data.help_ticket_fields, value: "`/add`, `/close`, `/delete`, `/sethereticket`, `/open`, `/remove`, `/transript`, `/disableticket`", inline: true },
-        { name: data.help_memberc_fields, value: "`/setmembercount`", inline: true },
-        { name: data.help_newftrs_fields, value: "`/support`, `/punishpub`, `/report`", inline: true },
+        { name: data.help_mod_fields, value: CONTENT.moderation.toString(), inline: true },
+        { name: data.help_ranks_fields, value: CONTENT.ranks.toString(), inline: true },
+        { name: data.help_fun_fields, value: CONTENT.fun.toString(), inline: true },
+        { name: data.help_utils_fields, value: CONTENT.utils.toString(), inline: true },
+        { name: data.help_giveaway_fields, value: CONTENT.giveaway.toString(), inline: true },
+        { name: data.help_bot_fields, value: CONTENT.bot.toString(), inline: true },
+        { name: data.help_music_fields, value: CONTENT.music.toString(), inline: true },
+        { name: data.help_backup_fields, value: CONTENT.backup.toString(), inline: true },
+        { name: data.help_guildconf_fields, value: CONTENT.guildconfig.toString(), inline: true },
+        { name: data.help_prof_fields, value: CONTENT.profil.toString(), inline: true },
+        { name: data.help_economy_fields, value: CONTENT.economy.toString(), inline: true },
+        { name: data.help_owner_fields, value: CONTENT.owner.toString(), inline: true },
+        { name: data.help_roler_fields, value: CONTENT.rolereactions.toString(), inline: true },
+        { name: data.help_invitem_fields, value: CONTENT.invitemanager.toString(), inline: true },
+        { name: data.help_ticket_fields, value: CONTENT.ticket.toString(), inline: true },
+        { name: data.help_memberc_fields, value: CONTENT.membercount.toString(), inline: true },
+        { name: data.help_newftrs_fields, value: CONTENT.newfeatures.toString(), inline: true },
       )
       .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
       .setThumbnail(client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 }))

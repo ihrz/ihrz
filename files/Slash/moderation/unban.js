@@ -10,6 +10,7 @@ const { Client,
 const yaml = require('js-yaml');
 const fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = {
   name: 'unban',
@@ -51,12 +52,12 @@ module.exports = {
         }
         let bannedID = bans.find(ban => ban.user.id == userID);
         if (!bannedID) return await interaction.reply({ content: data.unban_the_member_is_not_banned });
-        await interaction.guild.bans.remove(userID, reason).catch(err => console.error(err));
+        await interaction.guild.bans.remove(userID, reason).catch(err => logger.err(err));
         await interaction.reply({ content: data.unban_is_now_unbanned
           .replace(/\${userID}/g, userID)
         })
       })
-      .catch(err => console.error(err));
+      .catch(err => logger.err(err));
 
     try {
       logEmbed = new EmbedBuilder().setColor("#bf0bb9").setTitle("")
@@ -66,6 +67,6 @@ module.exports = {
           )
       let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
       if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-    } catch (e) { console.error(e) };
+    } catch (e) { logger.err(e) };
   }
 }

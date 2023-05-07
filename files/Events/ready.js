@@ -3,7 +3,8 @@ const couleurmdr = require("colors"),
   db = new QuickDB(),
   config = require("../config.json"),
   register = require('../core/slashsync'),
-  wait = require("timers/promises").setTimeout;
+  wait = require("timers/promises").setTimeout,
+  logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = async (client) => {
   const { Client, Collection, ChannelType, ApplicationCommandType, PermissionsBitField, GatewayIntentBits, Partials, EmbedBuilder } = require('discord.js');
@@ -37,10 +38,12 @@ module.exports = async (client) => {
     debug: true
   });
   async function term() {
-    console.log(
-      "    _ __  __           _                 \n".red + "   (_) / / /___  _____(_)___  ____  ____ \n".red +
-      "  / / /_/ / __ \\/ ___/ /_  / / __ \\/ __ \\\n".red + " / / __  / /_/ / /  / / / /_/ /_/ / / / /\n".red +
-      "/_/_/ /_/\\____/_/  /_/ /___/\\____/_/ /_/\n".red), console.log("[".yellow, " 🟢 ", "]".yellow+" >> ".gray, "Dev by Kisakay".green);
+    logger.log("    _ __  __           _                 ".red) 
+    logger.log("   (_) / / /___  _____(_)___  ____  ____ ".red)
+    logger.log("  / / /_/ / __ \\/ ___/ /_  / / __ \\/ __ \\".red)
+    logger.log(" / / __  / /_/ / /  / / / /_/ /_/ / / / /".red)
+    logger.log("/_/_/ /_/\\____/_/  /_/ /___/\\____/_/ /_/".red), 
+    logger.log("[ 🟢 ] >> Dev by Kisakay".gray);
   }
   
   async function fetchInvites() {

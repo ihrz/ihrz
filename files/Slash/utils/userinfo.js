@@ -81,6 +81,7 @@ function getBadges(flags) {
 
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = {
   name: 'userinfo',
@@ -163,7 +164,7 @@ module.exports = {
 
     superagent.post(`${api_url}`).send({ tokent: "want", adminKey: config.apiToken, userid: member.id, tor: 'CHECK_IN_SYSTEM' }).end(async (err, response) => {
       if (err) {
-        console.error(err)
+        logger.err(err)
         embed = new EmbedBuilder()
           .setAuthor({ name: `${member.user.tag}`, iconURL: member.user.displayAvatarURL({ dynamic: true }) })
           .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
