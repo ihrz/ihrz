@@ -490,6 +490,7 @@ p_not_in_voice_channel: "このコマンドを使用するには、ボイスチ�
 p_embed_title: "検索結果がありません"
 p_loading_message: "⏲️  {result}をロード中！"
 p_duration: "再生時間："
+p_not_allowed: "このボットではサポートされていないリンクを送信しようとしました。Deezer、Spotify、Youtubeなど、許可された音楽ストリーミングサービスを使用してください。"
 
 # /loop
 loop_no_queue: "キューがありません！"

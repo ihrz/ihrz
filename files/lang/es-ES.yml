@@ -490,6 +490,7 @@ p_not_in_voice_channel: "¡Debes estar conectado a un canal de voz para usar est
 p_embed_title: "Sin resultados"
 p_loading_message: "⏲️ Cargando un(a) : **{result}** !"
 p_duration: "Duración: "
+p_not_allowed: "El enlace que ha enviado no es compatible con este bot. Utilice servicios de transmisión de música autorizados como Deezer, Spotify, Youtube, etc."
 
 # /loop
 loop_no_queue: "¡No hay ninguna lista de reproducción!"

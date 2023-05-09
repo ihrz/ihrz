@@ -10,9 +10,11 @@ const {
 } = require('discord.js');
 
 const { QueryType, Player } = require('discord-player');
+const checker = require(`${process.cwd()}/files/core/isAllowedLink`);
 
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+
 module.exports = {
     name: 'p',
     description: '(music) play a music',
@@ -28,18 +30,15 @@ module.exports = {
         let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
         let data = yaml.load(fileContents);
         const voiceChannel = interaction.member.voice.channel;
+        const check = interaction.options.getString("title")
 
-        if (!voiceChannel) {
-            return interaction.reply({ content: data.p_not_in_voice_channel });
-        }
+        if (!voiceChannel) { return interaction.reply({ content: data.p_not_in_voice_channel }); };
+        if (!checker.isLinkAllowed(check)) { return interaction.reply({content: data.p_not_allowed })};
+
         try {
-            const check = interaction.options.getString("title")
-
             const result = await interaction.client.player.search(check, {
-                requestedBy: interaction.user,
-                searchEngine: QueryType.AUTO
+                requestedBy: interaction.user, searchEngine: QueryType.AUTO
             })
-
 
             const results = new EmbedBuilder()
                 .setTitle(data.p_embed_title)
@@ -64,7 +63,6 @@ module.exports = {
                     bufferingTimeout: 3000,
                     leaveOnEnd: true
                 },
-
             })
 
             const embed = new EmbedBuilder()
@@ -85,7 +83,6 @@ module.exports = {
                 .setTimestamp()
                 .setFooter({ text: data.p_duration+`${yes.track.playlist ? `${yess()}` : `${yes.track.duration}`}` })
             return interaction.editReply({ content: "", embeds: [embed] })
-        } catch (error) {
-        }
+        } catch (error) { };
     }
 }
