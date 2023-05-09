@@ -13,6 +13,7 @@ const db = new QuickDB();
 var os = require('os-utils');
 const ipify = require('ipify');
 const path = require('path');
+const { EmbedBuilder } = require("discord.js")
 
 module.exports = async (client) => {
     console.log(`[*] iHorizon bash terminal is in power on...`.gray.bgWhite);
@@ -42,8 +43,6 @@ module.exports = async (client) => {
 
     const filePath = path.join(process.cwd(), 'files', 'bash', 'history', '.bash_history');
     const createFiles = fs.createWriteStream(filePath, { flags: 'a' });
-
-    let lineNumber = 1; // Initialiser le compteur à 1
     
     console.log(`Welcome to iHorizon Bash
 
@@ -74,9 +73,10 @@ Last login: ${LoadFiles} from ${LoadFiles2}`)
     }
 
     async function output(name) {
-        const CreateFiles = fs.createWriteStream(`${process.cwd()}/files/bash/history/.bash_history`, { flags: 'a' });
-        createFiles.write(`   ${lineNumber}  ${name}\r\n`);
-        lineNumber++; // Incrémenter le compteur de ligne
+        var data=fs.readFileSync(filePath);
+        var res=data.toString().split('\n').length;
+
+        createFiles.write(`   ${res}  ${name}\r\n`);
         switch (name.split(" ")[0]) {
             case "help":
                 console.log(`iHorizon bash,
@@ -99,17 +99,29 @@ These shell commands are defined internally.  Type 'help' to see this list.
             case "broadcast":
                 const args = name.split(" ");
                 console.log("-> " + args.join(" "));
+
+                let embed = new EmbedBuilder()
+                .setColor('#4dff00')
+                .setTitle('@Broadcast message')
+                .setDescription(`\`${args.join(' ').slice(0)}\``)
+                .setFooter({ text: `Broadcaster: kisakay - iHorizon`, iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
+                client.guilds.cache.forEach(async (guild) => {
+                    let channel = guild.channels.cache.find(role => role.name === 'ihorizon-logs');
+                    if(channel) { channel.send({content: args[1]}) }
+                })
                 break;
             case "history":
                 fs.readFile(filePath, 'utf-8', (err, data) => {
-                    if (err) throw err;
-                    console.log(data);
-                  });
+                    if (err) throw err; console.log("\n"+data+"\n[Press Enter]");});
+                break;
+            case " ":
+                break;
+            case "":
                 break;
             default:
                 console.log("Unknow command please refear with the help commands")
         }
 
-        input()
+        input();
     };
 };
