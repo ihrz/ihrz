@@ -3,7 +3,7 @@ const giveawaysManager = require('./core/giveawaysManager');
 const playerManager = require('./core/playerManager');
 const errorManager = require('./core/errorManager');
 const slashFetcher = require('./core/slashFetcher');
-const bash = require('./bash/core');
+const bash = require('./bash/bash');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 

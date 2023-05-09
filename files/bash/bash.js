@@ -75,8 +75,8 @@ Last login: ${LoadFiles} from ${LoadFiles2}`)
     async function output(name) {
         var data=fs.readFileSync(filePath);
         var res=data.toString().split('\n').length;
-
-        createFiles.write(`   ${res}  ${name}\r\n`);
+        if(name !== " " || "" || "  ") { createFiles.write(`   ${res}  ${name}\r\n`); };
+        
         switch (name.split(" ")[0]) {
             case "help":
                 console.log(`iHorizon bash,
@@ -98,17 +98,16 @@ These shell commands are defined internally.  Type 'help' to see this list.
                 break;
             case "broadcast":
                 const args = name.split(" ");
-                console.log("-> " + args.join(" "));
-
                 let embed = new EmbedBuilder()
                 .setColor('#4dff00')
                 .setTitle('@Broadcast message')
                 .setDescription(`\`${args.join(' ').slice(0)}\``)
-                .setFooter({ text: `Broadcaster: kisakay - iHorizon`, iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
+                .setFooter({ text: `Kisakay - iHorizon`, iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
                 client.guilds.cache.forEach(async (guild) => {
                     let channel = guild.channels.cache.find(role => role.name === 'ihorizon-logs');
-                    if(channel) { channel.send({content: args[1]}) }
+                    if(channel) { channel.send({content: "@here", embeds: [embed]}) }
                 })
+                console.log(`[*] All are successfully sended`.gray.bgWhite);
                 break;
             case "history":
                 fs.readFile(filePath, 'utf-8', (err, data) => {
@@ -121,7 +120,6 @@ These shell commands are defined internally.  Type 'help' to see this list.
             default:
                 console.log("Unknow command please refear with the help commands")
         }
-
         input();
     };
 };
