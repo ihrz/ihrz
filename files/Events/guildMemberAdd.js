@@ -18,7 +18,7 @@ module.exports = async (client, member, members) => {
       if (!roleid) return;
       member.roles.add(roleid);
     } catch (e) { return logger.err(e) }
-  }
+  };
 
   async function joinDm() {
     try {
@@ -29,7 +29,7 @@ module.exports = async (client, member, members) => {
       member.send({ content: "This is a Join DM from " + member.guild.id + " ! \n \n" + msg_dm })
         .catch(() => { })
     } catch (e) { return }
-  }
+  };
 
   async function blacklistFetch() {
     try {
@@ -42,7 +42,7 @@ module.exports = async (client, member, members) => {
         members.ban({ reason: 'blacklisted!' })
       } else { return };
     } catch { return }
-  }
+  };
 
   async function memberCount() {
     try {
@@ -84,7 +84,7 @@ module.exports = async (client, member, members) => {
         await fetched.edit({ name: joinmsgreplace })
       }
     } catch (e) { return }
-  }
+  };
 
   async function welcomeMessage() {
     try {
@@ -134,6 +134,7 @@ module.exports = async (client, member, members) => {
           .replace("${member.guild.name}", member.guild.name)
       });
     }
-  }
-  await joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage()
-}
+  };
+
+  await joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage();
+};

@@ -140,7 +140,7 @@ module.exports = async (client, message) => {
         logger.err(e);
       }
     }
+  };
 
-  }
   await xpFetcher(), EconomyDebug(), logsMessage(), blockSpam();
 };

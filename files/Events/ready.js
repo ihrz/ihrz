@@ -34,9 +34,8 @@ module.exports = async (client) => {
     description: command.description,
     options: command.options,
     type: ApplicationCommandType.ChatInput
-  })), {
-    debug: true
-  });
+  })), { debug: true });
+  
   async function term() {
     logger.log("    _ __  __           _                 ".red) 
     logger.log("   (_) / / /___  _____(_)___  ____  ____ ".red)

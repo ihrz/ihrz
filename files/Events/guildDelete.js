@@ -11,7 +11,8 @@ module.exports = async (client, guild) => {
         await db.delete(`${guild.id}`);
 
         return client.invites.delete(guild.id);
-    }
+    };
+
     async function ownerLogs() {
         let embed = new EmbedBuilder()
             .setColor("#ff0505")
@@ -26,7 +27,7 @@ module.exports = async (client, guild) => {
             .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
 
         return client.channels.cache.get(config.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
-    }
+    };
 
     await inviteManager(), ownerLogs();
-}
+};

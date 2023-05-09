@@ -12,8 +12,11 @@ module.exports = async (client, reaction, user) => {
   let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(reaction.message.guildId)}.yml`, 'utf-8');
   let data = yaml.load(fileContents);
 
-  async function reactionRole() {
+  async function reactionRole() {    
     try {
+      if (user.bot) return;
+      if (user.id == client.user.id) return;
+
       if (!reaction.message.guild) return;
       const fetched = await db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`)
   
@@ -29,7 +32,6 @@ module.exports = async (client, reaction, user) => {
       const fetchedForNitro = await db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`)
   
       if (fetchedForNitro) {
-  
         const role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);
         if (!role) return;
   

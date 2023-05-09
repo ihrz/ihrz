@@ -51,7 +51,7 @@ module.exports = async (client, member, members) => {
         await fetched.edit({ name: joinmsgreplace })
       }
     } catch (e) { return };
-  }
+  };
 
   async function goodbyeMessage() {
     try {
@@ -102,6 +102,7 @@ module.exports = async (client, member, members) => {
           .replace("${member.guild.name}", member.guild.name)
       });
     }
-  }
+  };
+
   await memberCount(), goodbyeMessage();
-}
+};

@@ -48,7 +48,7 @@ Thanks for choosing me and let's have some fun together!`);
 
       channel.send({ embeds: [embed] });
     }
-  }
+  };
 
   async function getInvites() {
     if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
@@ -57,7 +57,7 @@ Thanks for choosing me and let's have some fun together!`);
         client.invites.set(guild.id, new Map(guildInvites.map((invite) => [invite.code, invite.uses])));
       })
     } catch (error) { }
-  }
+  };
 
   async function ownerLogs() {
     let embed = new EmbedBuilder()
@@ -74,7 +74,7 @@ Thanks for choosing me and let's have some fun together!`);
       .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
 
     client.channels.cache.get(config.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
-  }
+  };
 
-  await getInvites(), ownerLogs(), messageToServer()
+  await getInvites(), ownerLogs(), messageToServer();
 }
