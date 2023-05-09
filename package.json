@@ -42,6 +42,7 @@
     "request-promise-native": "^1.0.9",
     "sourcebin_js": "^0.0.3-ignore",
     "superagent": "^8.0.4",
+    "wait": "^0.4.2",
     "ytdl-core": "^4.11.4"
   },
   "name": "ihorizon",

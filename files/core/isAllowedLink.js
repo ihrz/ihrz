@@ -10,8 +10,7 @@ const allowedDomains = [
     'www.napster.com','napster.com','us.napster.com',
     'play.google.com', 'music.youtube.com',
     'music.apple.com', 'www.music.apple.com',
-]
-
+];
 
 function isLinkAllowed(link) {
   hehe=false
