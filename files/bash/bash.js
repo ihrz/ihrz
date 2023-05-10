@@ -68,7 +68,7 @@ Last login: ${LoadFiles} from ${LoadFiles2}`)
 
             var data = fs.readFileSync(filePath);
             var res = data.toString().split('\n').length;
-            if (commandName) { createFiles.write(`   ${res}  ${commandName}\r\n`); };
+            if (commandName) { createFiles.write(`   ${res}  ${line}\r\n`); };
         } else {
             if(!commandName) { } else{console.log(`Command not found: ${commandName}`);};
         }
