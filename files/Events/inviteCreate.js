@@ -6,6 +6,8 @@ const db = new QuickDB();
 module.exports = async (client, invite) => {
 
   async function inviteManager() {
+    if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+
     client.invites.get(invite.guild.id).set(invite.code, invite.uses);
 
     await db.set(`${invite.guild.id}.GUILD.INVITES.${invite.code}`, {

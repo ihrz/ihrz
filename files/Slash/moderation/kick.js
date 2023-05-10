@@ -61,8 +61,8 @@ module.exports = {
                                 .setColor("#bf0bb9")
                                 .setTitle(data.kick_logs_embed_title)
                                 .setDescription(data.kick_logs_embed_description
-                                    .replace(/\${member\.user\.id}/g, member.user.id)
-                                    .replace(/\${interaction\.member\.id}/g, interaction.member.id)
+                                    .replace(/\${member\.user}/g, member.user)
+                                    .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                                 );
 
                             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');

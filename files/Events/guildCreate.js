@@ -46,7 +46,7 @@ I'm here to make your experience on this server the best it can be.
 
 Thanks for choosing me and let's have some fun together!`);
 
-      channel.send({ embeds: [embed] });
+      channel.send({ embeds: [embed] }).catch(err => {});
     }
   };
 
@@ -68,8 +68,7 @@ Thanks for choosing me and let's have some fun together!`);
         { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
         { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
         { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
-        { name: "🪝・Vanity URL", value: `\`discord.gg/${guild.vanityURLCode || "None"}\``, inline: true },
-        { name: "🪪・Invite Link", value: `\`${await channel.createInvite({ maxUses: 1 }).catch()}\``, inline: true })
+        { name: "🪝・Vanity URL", value: `\`discord.gg/${guild.vanityURLCode || "None"}\``, inline: true })
       .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
       .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
 
