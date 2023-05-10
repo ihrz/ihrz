@@ -60,4 +60,4 @@ module.exports = {
       await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`, Date.now());
     }
   }
-}
+};

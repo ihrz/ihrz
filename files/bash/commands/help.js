@@ -6,6 +6,6 @@ These shell commands are defined internally.  Type 'help' to see this list.
  broadcast                                    Send a message to all of iHorizon guild
  shutdown                                     Shutdown the bot
  history                                      Show the bash history
-`)
+ leave                                        Leave a guild with them id`)
 };
   

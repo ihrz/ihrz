@@ -1,10 +1,12 @@
 const wait = require('wait');
 
 module.exports = async function () {
-    console.log(`\n[*] Shuting down..`.gray.bgWhite);
+    console.log(`[*] Closed session...`.gray.bgWhite);
     await wait(1000);
     console.log(`\n[*] Unload all script...`.gray.bgWhite);
     await wait(1000);
-    console.log(`\n[*] All are successfully unloaded`.gray.bgWhite);
+    console.log(`[*] All are successfully unloaded`.gray.bgWhite);
+
+    console.log(`[*] Power off...`.red.bgBlack);
     process.exit(0);
-}
+};
