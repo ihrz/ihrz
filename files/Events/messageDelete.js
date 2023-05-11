@@ -1,8 +1,9 @@
 const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
-const config = require('../config.json');
 const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
+const hidden = require(`${process.cwd()}/files/core/maskLink`);
+
 module.exports = async (client, message) => {
 
     async function snipeModules() {
@@ -12,7 +13,7 @@ module.exports = async (client, message) => {
 
         await db.set(`${message.guild.id}.GUILD.SNIPE.${message.channel.id}`,
             {
-                snipe: `${message.content}`,
+                snipe: `${hidden.maskLink(message.content)}`,
                 snipeUserInfoTag: `${message.author.username} (${message.author.id} )`,
                 snipeUserInfoPp: `${message.author.displayAvatarURL()}`,
                 snipeTimestamp: Date.now()
