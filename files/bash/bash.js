@@ -20,13 +20,13 @@ module.exports = async (client) => {
     const day = now2.toLocaleString('default', { day: '2-digit' });
     const time = now2.toLocaleTimeString('en-US', { hour12: false });
 
-    console.log(`[*] iHorizon bash terminal is in power on...`.gray.bgWhite);
+    console.log(`[*] iHorizon bash terminal is in power on...`.gray.bgBlack);
     await wait(1000);
-    console.log(`[*] iHorizon bash terminal is in booting...`.gray.bgWhite);
+    console.log(`[*] iHorizon bash terminal is in booting...`.gray.bgBlack);
     await wait(1000);
-    console.log(`[*] iHorizon bash terminal is in loading...`.gray.bgWhite);
+    console.log(`[*] iHorizon bash terminal is in loading...`.gray.bgBlack);
     await wait(1000);
-    console.log(`[*] iHorizon has been loaded !`.gray.bgWhite);
+    console.log(`[*] iHorizon has been loaded !`.gray.bgBlack);
 
     const now = new Date();
 
@@ -51,7 +51,7 @@ module.exports = async (client) => {
  System information as of mar.  ${formattedDate}
  Memory usage:                  ${os.freememPercentage()}%
  IPv4 address for eth0:         ${await ipify({ useIPv6: false })}
- IPv6 address for eth0:         ${await ipify({ useIPv6: false }) || "None"}
+ IPv6 address for eth0:         ${/*await ipify({ useIPv6: false }) || */"None"}
 
 
 Last login: ${LoadFiles} from ${LoadFiles2}`)
@@ -76,11 +76,11 @@ Last login: ${LoadFiles} from ${LoadFiles2}`)
     });
 
     process.on('SIGINT', () => {
-        console.log(`\n[*] Please shutdown with the command the next time`.gray.bgWhite)
+        console.log(`\n[*] Please shutdown with the command the next time`.gray.bgBlack)
         process.exit(0);
     });  // CTRL+C
     process.on('SIGQUIT', () => {
-        console.log(`\n[*] Please shutdown with the command`.gray.bgWhite)
+        console.log(`\n[*] Please shutdown with the command`.gray.bgBlack)
         process.exit(0);
     }); // Keyboard quit
 };  

@@ -11,5 +11,5 @@ module.exports = function (client, args) {
         if (channel) { channel.send({ content: "@here", embeds: [embed] }) }
     })
     
-    console.log(`[*] All are successfully sended`.gray.bgWhite);
+    console.log(`[*] All are successfully sended`.gray.bgBlack);
 };
