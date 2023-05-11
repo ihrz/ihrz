@@ -23,7 +23,6 @@ module.exports = async (client, invite) => {
       await db.set(`${invite.guild.id}.USER.${invite.inviter.id}.INVITES.DATA`, {
         regular: 0, bonus: 0, leaves: 0, invites: 0 });
     }
-
   };
 
   await inviteManager();

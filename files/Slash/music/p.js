@@ -33,7 +33,9 @@ module.exports = {
         const check = interaction.options.getString("title")
 
         if (!voiceChannel) { return interaction.reply({ content: data.p_not_in_voice_channel }); };
-        if (!checker.isLinkAllowed(check)) { return interaction.reply({content: data.p_not_allowed })};
+
+        let isBlacklist = checker.isLinkAllowed(check)
+        if (!isBlacklist) { return interaction.reply({ content: data.p_not_allowed }) };
 
         try {
             const result = await interaction.client.player.search(check, {
@@ -49,8 +51,10 @@ module.exports = {
                 return interaction.reply({ embeds: [results] })
             }
 
-            await interaction.reply({ content: data.p_loading_message
-            .replace("{result}", result.playlist ? 'playlist' : 'track')})
+            await interaction.reply({
+                content: data.p_loading_message
+                    .replace("{result}", result.playlist ? 'playlist' : 'track')
+            })
 
             const yes = await interaction.client.player.play(interaction.member.voice.channel?.id, result, {
                 nodeOptions: {
@@ -81,7 +85,7 @@ module.exports = {
                 .setThumbnail(`${yes.track.playlist ? `${yes.track.playlist.thumbnail.url}` : `${yes.track.thumbnail}`}`)
                 .setColor(`#d0ff00`)
                 .setTimestamp()
-                .setFooter({ text: data.p_duration+`${yes.track.playlist ? `${yess()}` : `${yes.track.duration}`}` })
+                .setFooter({ text: data.p_duration + `${yes.track.playlist ? `${yess()}` : `${yes.track.duration}`}` })
             return interaction.editReply({ content: "", embeds: [embed] })
         } catch (error) { };
     }
