@@ -1,4 +1,4 @@
-const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
+const { Client, Intents, Collection, EmbedBuilder, Permissions, PermissionsBitField } = require('discord.js');
 const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
@@ -6,7 +6,7 @@ const db = new QuickDB();
 module.exports = async (client, invite) => {
 
   async function inviteManager() {
-    if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+    if (!invite.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
 
     client.invites.get(invite.guild.id).set(invite.code, invite.uses);
 
