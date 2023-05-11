@@ -51,7 +51,7 @@ module.exports = async (client) => {
  System information as of mar.  ${formattedDate}
  Memory usage:                  ${os.freememPercentage()}%
  IPv4 address for eth0:         ${await ipify({ useIPv6: false })}
- IPv6 address for eth0:         ${await ipify({ useIPv6: true }) || "None"}
+ IPv6 address for eth0:         ${await ipify({ useIPv6: false }) || "None"}
 
 
 Last login: ${LoadFiles} from ${LoadFiles2}`)
