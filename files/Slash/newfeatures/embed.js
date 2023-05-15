@@ -32,7 +32,7 @@ module.exports = {
             return interaction.reply({ content: data.punishpub_not_admin });
         }
 
-        let __tempEmbed = new EmbedBuilder().setColor("#211f1f").setDescription('.');
+        let __tempEmbed = new EmbedBuilder().setDescription('** **');
 
         const select = new StringSelectMenuBuilder()
             .setCustomId('starter')
@@ -113,7 +113,6 @@ module.exports = {
         const row = new ActionRowBuilder()
             .addComponents(select);
 
-
         interaction.reply({
             content: 'Que veux tu faire ?',
             embeds: [__tempEmbed],
@@ -122,76 +121,78 @@ module.exports = {
             const collector = msgg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 3_600_000 });
 
             collector.on('collect', async i => {
-                const selection = i.values[0];
-                console.log(selection)
-                await chooseAction(selection)
+                console.log(i.values[0]);
+                await chooseAction(i);
             });
-            async function chooseAction(confirmation) {
-                switch (confirmation) {
+
+            async function chooseAction(i) {
+                switch (i.values[0]) {
                     case '0':
-                        let i0 = await interaction.followUp('Quel message voulez-vous inclure dans votre Embed?');
+                        let i0 = await i.reply('Quel message voulez-vous inclure dans votre Embed?');
                         const messageFilter = m => m.author.id === interaction.user.id;
                         const messageCollector = interaction.channel.createMessageCollector({ messageFilter, max: 1, time: 60000 });
                         messageCollector.on('collect', message => {
                             __tempEmbed.setDescription(message.content);
                             msgg.edit({ embeds: [__tempEmbed] })
-                            i0.delete()
-                            message.delete()
+                            i0.delete() && message.delete();
                         });
                         break;
                     case '1':
-                        let i1 = await interaction.followUp('Quel titre voulez-vous inclure dans votre Embed?');
+                        let i1 = await i.reply('Quel titre voulez-vous inclure dans votre Embed?');
                         const titleFilter = m => m.author.id === interaction.user.id;
                         const titleCollector = interaction.channel.createMessageCollector({ titleFilter, max: 1, time: 60000 });
                         titleCollector.on('collect', message => {
                             __tempEmbed.setTitle(message.content);
                             msgg.edit({ embeds: [__tempEmbed] })
-                            i1.delete()
-                            message.delete()
+                            i1.delete() && message.delete();
                         });
                         break;
                     case '2':
-                        __tempEmbed.setTitle('');
-                        interaction.followUp({ embeds: [__tempEmbed] });
+                        __tempEmbed.setTitle('** **');
+                        msgg.edit({ embeds: [__tempEmbed] });
+                        i.reply("Le titre de l'embed à été correctement Supprimer !")
                         break;
                     case '3':
-                        await interaction.followUp('Quelle description voulez-vous inclure dans votre Embed?');
+                        let i3 = await i.reply('Quelle description voulez-vous inclure dans votre Embed?');
                         const descriptionFilter = m => m.author.id === interaction.user.id;
                         const descriptionCollector = interaction.channel.createMessageCollector({ descriptionFilter, max: 1, time: 60000 });
                         descriptionCollector.on('collect', message => {
                             __tempEmbed.setDescription(message.content);
-                            interaction.followUp({ embeds: [__tempEmbed] });
+                            msgg.edit({ embeds: [__tempEmbed] });
+                            i3.delete() && message.delete();
                         });
                         break;
                     case '4':
-                        __tempEmbed.setDescription('');
-                        interaction.followUp({ embeds: [__tempEmbed] });
+                        __tempEmbed.setDescription('** **');
+                        msgg.edit({ embeds: [__tempEmbed] });
                         break;
                     case '5':
-                        await interaction.followUp('Quel auteur voulez-vous inclure dans votre Embed?');
+                        let i5 = await i.reply('Quel auteur voulez-vous inclure dans votre Embed?');
                         const authorFilter = m => m.author.id === interaction.user.id;
                         const authorCollector = interaction.channel.createMessageCollector({ authorFilter, max: 1, time: 60000 });
                         authorCollector.on('collect', message => {
-                            __tempEmbed.setAuthor(message.content);
-                            interaction.followUp({ embeds: [__tempEmbed] });
+                            __tempEmbed.setAuthor({ name: message.content });
+                            msgg.edit({ embeds: [__tempEmbed] });
+                            i5.delete() && message.delete();
                         });
                         break;
                     case '6':
-                        __tempEmbed.setAuthor('');
-                        interaction.followUp({ embeds: [__tempEmbed] });
+                        __tempEmbed.setAuthor({});
+                        msgg.edit({ embeds: [__tempEmbed] });
                         break;
                     case '7':
-                        await interaction.followUp('Quel footer voulez-vous inclure dans votre Embed?');
+                        i7 = await i.reply('Quel footer voulez-vous inclure dans votre Embed?');
                         const footerFilter = m => m.author.id === interaction.user.id;
                         const footerCollector = interaction.channel.createMessageCollector({ footerFilter, max: 1, time: 60000 });
                         footerCollector.on('collect', message => {
-                            __tempEmbed.setFooter(message.content);
-                            interaction.followUp({ embeds: [__tempEmbed] });
+                            __tempEmbed.setFooter({text: message.content});
+                            msgg.edit({ embeds: [__tempEmbed] });
+                            i7.delete() && message.delete();
                         });
                         break;
                     case '8':
-                        __tempEmbed.setFooter('');
-                        interaction.followUp({ embeds: [__tempEmbed] });
+                        __tempEmbed.setFooter({text: " "});
+                        msgg.edit({ embeds: [__tempEmbed] });
                         break;
                     case '9':
                         interaction.channel.send({ content: `**Modifier le thumbnail**` });
@@ -215,4 +216,4 @@ module.exports = {
 
         })
     }
-}
+};
