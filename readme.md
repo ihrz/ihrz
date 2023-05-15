@@ -5,7 +5,7 @@ iHorizon is a Discord bot written in [NodeJS](https://nodejs.org) and using the 
 The bot was primarily developed by Kisakay (*formerly known as Ezermoz*) and was first released in **September 2020** using **discord.js v12.** 
 *Now, It has a strong architecture with separated modules, each with their own owner directory.*
 
-*It also has a multi-language base**, currently supporting English, French, Italian, German, and Japanese, with more planned for the future.
+*It also has a multi-language base, currently supporting English, French, Italian, German, and Japanese, with more planned for the future.
 
 **The bot is continuously under development.**
 ## Contributor's Wall
@@ -50,4 +50,8 @@ If you have any questions or concerns, you can contact the owner via email at [k
 
 **Kisakay** (*formerly known as Ezermoz*) has not changed their identity, but has simply embraced who they truly are as a person. She now goes by she/her pronouns.
 
+<<<<<<< Updated upstream
 In the `LICENSE` files, the name `Kisa Keyara` is the name of the owner.
+=======
+In the `LICENSE` files, the name `Kisa Keyara` is the legal name of the owner.
+>>>>>>> Stashed changes
