@@ -1,13 +1,15 @@
 # Official iHorizon Repo :o
 
-iHorizon is a Discord bot written in [NodeJS](https://nodejs.org) and using the [discord.js](https://npmjs.org/discord.js) module. It has a large variety of features, including moderation, invite management, guild configuration, fun commands, music playback, giveaways, and backu, and lot of more.
+iHorizon is a Discord bot written in [NodeJS](https://nodejs.org) and using the [discord.js](https://npmjs.org/discord.js) module. It has a large variety of features, including moderation, invite management, guild configuration, fun commands, music playback, giveaways, and backup, and lot of more.
 
-The bot was primarily developed by Kisakay (*formerly known as Ezermoz*) and was first released in **September 2020** using **discord.js v12.** 
-*Now, It has a strong architecture with separated modules, each with their own owner directory.*
+# Languages
+* English
+* French
+* Italian
+* German
+* Japanese
+* And soon more !
 
-*It also has a multi-language base currently supporting English, French, Italian, German, and Japanese, with more planned for the future.*
-
-**The bot is continuously under development.**
 ## Contributor's Wall
 
 - [Kisakay](https://github.com/Kisakay) (She/Her)
@@ -21,6 +23,10 @@ There are no skidded scripts in the iHorizon source code, because talent is more
 
 ## Modules's Wall
 (Lots of modules here, not listed for brevity.)
+
+# Origin
+The bot was primarily developed by Kisakay (*formerly known as Ezermoz*) and was first released in **September 2020** using **discord.js v12.** 
+Now, It has a strong architecture with separated modules, each with their own owner directory.
 
 ## Is Free ?
 The iHorizon project is licensed under the  [`Creative Commons Attribution-NonCommercial-ShareAlike 2.0`](https://creativecommons.org/licenses/by-nc-sa/2.0/) license.
@@ -39,15 +45,21 @@ The iHorizon project is licensed under the  [`Creative Commons Attribution-NonCo
 
 # About the bot
 
-iHorizon is currently working towards being certified by Discord. We are aiming to reach +75 servers before starting the certification process!
+iHorizon is currently working towards being certified by Discord. We are aiming to reach +75 servers before starting the certification process!<br><br>
 
-To join the Official Discord Support Server, please visit our website at [Official Server Link](http://discord.ihorizon.me/) or click on this link: [Other Link](https://discord.gg/ZpBPGNsAsu).
+To join the Official Discord Support Server, please visit our website at [Official Server Link](http://discord.ihorizon.me/) or click on this link: [Other Link](https://discord.gg/ZpBPGNsAsu).<br><br>
 
-To invite the Discord official bot, please click on this link: [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot).
+To invite the Discord official bot, please click on this link: [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot).<br><br>
 
 If you have any questions or concerns, you can contact the owner via email at [kisakeyara@gmail.com](mailto:kisakeyara@gmail.com), phone at +33757823957, or on Discord at Kisakay#0001.
 # About the owner
 
-**Kisakay** (*formerly known as Ezermoz*) has not changed their identity, but has simply embraced who they truly are as a person. She now goes by she/her pronouns.
+**Kisakay** (*formerly known as Ezermoz*) has not changed their identity, but has simply embraced who they truly are as a person. She now goes by she/her pronouns.<br><br>
 
 In the `LICENSE` files, the name `Kisa Keyara` is the name of the owner.
+
+# Remarks
+
+Any sorts of hate trowards any contributor will not be tolerated.
+<br><br>
+Regardless of the type and the level of hate.
