@@ -50,4 +50,4 @@ If you have any questions or concerns, you can contact the owner via email at [k
 
 **Kisakay** (*formerly known as Ezermoz*) has not changed their identity, but has simply embraced who they truly are as a person. She now goes by she/her pronouns.
 
-In the `LICENSE` files, the name `Josselin Saraiva` is the legal name of the owner.
+In the `LICENSE` files, the name `Kisa Keyara` is the name of the owner.
