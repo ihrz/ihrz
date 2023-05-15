@@ -2,7 +2,7 @@
 
 iHorizon is a Discord bot written in [NodeJS](https://nodejs.org) and using the [discord.js](https://npmjs.org/discord.js) module. It has a large variety of features, including moderation, invite management, guild configuration, fun commands, music playback, giveaways, and backup, and lot of more.
 
-# Languages
+## Languages
 * English
 * French
 * Italian
@@ -24,7 +24,7 @@ There are no skidded scripts in the iHorizon source code, because talent is more
 ## Modules's Wall
 (Lots of modules here, not listed for brevity.)
 
-# Origin
+## Origin
 The bot was primarily developed by Kisakay (*formerly known as Ezermoz*) and was first released in **September 2020** using **discord.js v12.** 
 Now, It has a strong architecture with separated modules, each with their own owner directory.
 
@@ -58,7 +58,7 @@ If you have any questions or concerns, you can contact the owner via email at [k
 
 In the `LICENSE` files, the name `Kisa Keyara` is the name of the owner.
 
-# Remarks
+## Remarks
 
 Any sorts of hate trowards any contributor will not be tolerated.
 <br><br>
