@@ -25,16 +25,27 @@ const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 module.exports = {
     name: 'embed',
     description: 'Embed Creator!',
-
+    options: [
+        {
+            name: 'id',
+            type: ApplicationCommandOptionType.String,
+            description: 'If you have a embed\'s ID !',
+            required: false,
+        }
+    ],
     run: async (client, interaction) => {
         let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
         let data = yaml.load(fileContents);
+
+        let arg = interaction.options.getString("id");
+        potentialEmbed = await db.get(`${interaction.guild.id}.GUILD.EMBED.${arg}`);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.reply({ content: data.punishpub_not_admin });
         }
 
         let __tempEmbed = new EmbedBuilder().setDescription('** **');
+        if (potentialEmbed) { __tempEmbed = potentialEmbed.embedSource };
 
         const select = new StringSelectMenuBuilder()
             .setCustomId('starter')
@@ -156,8 +167,10 @@ module.exports = {
                 switch (confirmation.customId) {
                     case "save":
                         getButton()
+                        if(potentialEmbed) await db.delete(`${interaction.guild.id}.GUILD.EMBED.${arg}`);
+                        
                         return confirmation.update({
-                            content: `<@${interaction.user.id}>, **Vous avez décidé de sauvegardée la configuration de l'Embed !**\nIdentifiant de l'Embed: **${await saveEmbed()}**`,
+                            content: `<@${interaction.user.id}>, **Vous avez décidé de sauvegardée la configuration de l'Embed !**\nIdentifiant de l'Embed: \`${await saveEmbed()}\``,
                             components: [], embeds: []
                         });
                     case "cancel":
@@ -169,7 +182,7 @@ module.exports = {
                         return;
                 }
             } catch (e) {
-                console.log(e)
+                return interaction.channel.send({ content: `<@${interaction.user.id}>, **Vous avez mis trop de temps à répondre, je coupe l'opération en cours!`})
             };
         }; getButton();
 
@@ -233,7 +246,7 @@ module.exports = {
                     });
                     break;
                 case '6':
-                    __tempEmbed.setAuthor({name: "** **"});
+                    __tempEmbed.setAuthor({ name: "      " });
                     response.edit({ embeds: [__tempEmbed] });
                     i.reply("L'autheur de l'embed à été correctement Supprimer !")
                     break;
@@ -335,20 +348,19 @@ module.exports = {
 
         async function saveEmbed() {
             let result = '';
-            let length = 16;
             const characters = '0123456789';
-            for (let i = 0; i < length; i++) {
-                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            for (let i = 0; i < 16; i++) {
+              result += characters.charAt(Math.floor(Math.random() * characters.length));
             }
 
-            await db.set(`${interaction.guild.id}.GUILD.EMBED.SAVE.${result}`,
+            await db.set(`${interaction.guild.id}.GUILD.EMBED.${result}`,
                 {
                     embedOwner: interaction.user.id,
-                    embedSource: __tempEmbed.toJSON()
+                    embedSource:__tempEmbed
                 }
             );
 
-            return result
+            return result;
         }
     }
 };
