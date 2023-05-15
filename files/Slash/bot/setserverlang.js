@@ -76,7 +76,7 @@ module.exports = {
 
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-        } catch (e) { console.error(e) };
+        } catch (e) { logger.err(e) };
 
         try {
             let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${type}.yml`, 'utf-8');
