@@ -9,6 +9,7 @@ const {
     ApplicationCommandOptionType,
     ActionRowBuilder,
     SelectMenuBuilder,
+    ComponentType,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
 } = require('discord.js');
@@ -30,6 +31,8 @@ module.exports = {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.reply({ content: data.punishpub_not_admin });
         }
+
+        let __tempEmbed = new EmbedBuilder().setColor("#211f1f").setDescription('.');
 
         const select = new StringSelectMenuBuilder()
             .setCustomId('starter')
@@ -111,18 +114,105 @@ module.exports = {
             .addComponents(select);
 
 
-        await interaction.reply({
-            content: 'What do you want ?',
+        interaction.reply({
+            content: 'Que veux tu faire ?',
+            embeds: [__tempEmbed],
             components: [row],
-        });
+        }).then(async msgg => {
+            const collector = msgg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 3_600_000 });
 
-        const collectorFilter = i => i.user.id === interaction.user.id;
+            collector.on('collect', async i => {
+                const selection = i.values[0];
+                console.log(selection)
+                await chooseAction(selection)
+            });
+            async function chooseAction(confirmation) {
+                switch (confirmation) {
+                    case '0':
+                        let i0 = await interaction.followUp('Quel message voulez-vous inclure dans votre Embed?');
+                        const messageFilter = m => m.author.id === interaction.user.id;
+                        const messageCollector = interaction.channel.createMessageCollector({ messageFilter, max: 1, time: 60000 });
+                        messageCollector.on('collect', message => {
+                            __tempEmbed.setDescription(message.content);
+                            msgg.edit({ embeds: [__tempEmbed] })
+                            i0.delete()
+                            message.delete()
+                        });
+                        break;
+                    case '1':
+                        let i1 = await interaction.followUp('Quel titre voulez-vous inclure dans votre Embed?');
+                        const titleFilter = m => m.author.id === interaction.user.id;
+                        const titleCollector = interaction.channel.createMessageCollector({ titleFilter, max: 1, time: 60000 });
+                        titleCollector.on('collect', message => {
+                            __tempEmbed.setTitle(message.content);
+                            msgg.edit({ embeds: [__tempEmbed] })
+                            i1.delete()
+                            message.delete()
+                        });
+                        break;
+                    case '2':
+                        __tempEmbed.setTitle('');
+                        interaction.followUp({ embeds: [__tempEmbed] });
+                        break;
+                    case '3':
+                        await interaction.followUp('Quelle description voulez-vous inclure dans votre Embed?');
+                        const descriptionFilter = m => m.author.id === interaction.user.id;
+                        const descriptionCollector = interaction.channel.createMessageCollector({ descriptionFilter, max: 1, time: 60000 });
+                        descriptionCollector.on('collect', message => {
+                            __tempEmbed.setDescription(message.content);
+                            interaction.followUp({ embeds: [__tempEmbed] });
+                        });
+                        break;
+                    case '4':
+                        __tempEmbed.setDescription('');
+                        interaction.followUp({ embeds: [__tempEmbed] });
+                        break;
+                    case '5':
+                        await interaction.followUp('Quel auteur voulez-vous inclure dans votre Embed?');
+                        const authorFilter = m => m.author.id === interaction.user.id;
+                        const authorCollector = interaction.channel.createMessageCollector({ authorFilter, max: 1, time: 60000 });
+                        authorCollector.on('collect', message => {
+                            __tempEmbed.setAuthor(message.content);
+                            interaction.followUp({ embeds: [__tempEmbed] });
+                        });
+                        break;
+                    case '6':
+                        __tempEmbed.setAuthor('');
+                        interaction.followUp({ embeds: [__tempEmbed] });
+                        break;
+                    case '7':
+                        await interaction.followUp('Quel footer voulez-vous inclure dans votre Embed?');
+                        const footerFilter = m => m.author.id === interaction.user.id;
+                        const footerCollector = interaction.channel.createMessageCollector({ footerFilter, max: 1, time: 60000 });
+                        footerCollector.on('collect', message => {
+                            __tempEmbed.setFooter(message.content);
+                            interaction.followUp({ embeds: [__tempEmbed] });
+                        });
+                        break;
+                    case '8':
+                        __tempEmbed.setFooter('');
+                        interaction.followUp({ embeds: [__tempEmbed] });
+                        break;
+                    case '9':
+                        interaction.channel.send({ content: `**Modifier le thumbnail**` });
+                        break;
+                    case '10':
+                        interaction.channel.send({ content: `**Modifier l'image**` });
+                        break;
+                    case '11':
+                        interaction.channel.send({ content: `**Modifier l'URL du titre**` });
+                        break;
+                    case '12':
+                        interaction.channel.send({ content: `**Modifier la couleur**` });
+                        break;
+                    case '13':
+                        interaction.channel.send({ content: `**Supprimer la couleur**` });
+                        break;
+                    default:
+                        break;
+                };
+            }
 
-        try {
-            const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 60000 });
-        } catch (e) {
-            await interaction.editReply({ content: 'Confirmation not received within 1 minute, cancelling', components: [] });
-        }
-
+        })
     }
 }
