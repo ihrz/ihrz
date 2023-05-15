@@ -2,6 +2,8 @@
     "token": "MTA1MzgxODA0NTA3MzczOTgxNw.GZPIyo.fm66BB7Y5BCnAA-GaJuIHw0blafIo5dVepjndg",
     "everyoneMention": true,
     "hostedBy": true,
+    "devMode": true,
+    "bash": false,
     "ownerid1": "171356978310938624",
     "ownerid2": "171356978310938624",
     "ownerid": "171356978310938624",
