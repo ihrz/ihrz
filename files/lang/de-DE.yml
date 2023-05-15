@@ -748,3 +748,6 @@ event_ticket_embed_description: "Hallo ${user.username}, willkommen in deinem Ti
 # interactionCreate-Ereignisse:
 iC_event_cooldown: "Abklingzeit, bitte warten Sie zwischen den Befehlen einen Moment!"
 iC_event_connection_error: "Verbindungsfehler!"
+
+# Cooldown
+Msg_cooldown: "Kannst du bitte einen Moment warten, bevor du einen Befehl ausführst?"
