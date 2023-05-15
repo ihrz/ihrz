@@ -47,7 +47,7 @@
   },
   "name": "ihorizon",
   "version": "9.0.0",
-  "description": "iHORIZON Discord Made by Kisakay",
+  "description": "iHorizon Discord Made by Kisakay",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
