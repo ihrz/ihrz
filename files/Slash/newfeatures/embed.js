@@ -137,169 +137,173 @@ module.exports = {
             content: 'Que veux tu faire ?',
             embeds: [__tempEmbed],
             components: [row, btn],
-        })
-            const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 3_600_000 });
-            const collectorFilter = i => i.user.id === interaction.user.id;
+        }) && getButton();
 
+        const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 3_600_000 });
+
+        collector.on('collect', async i => {
+            console.log(i.customId);
+            if (i.member.id != interaction.user.id) {
+                return i.reply({ content: `This interaction is not for you`, ephemeral: true })
+            }
+            await chooseAction(i), getButton();
+        });
+
+        async function getButton() {
             try {
+                const collectorFilter = i => i.user.id === interaction.user.id;
                 const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
+
                 console.log(confirmation.customId)
-            } catch(e) {
+            } catch (e) {
                 console.log(e)
             };
-            
-            collector.on('collect', async i => {
-                console.log(i.customId);
-                if (i.member.id != interaction.user.id) {
-                    return i.reply({ content: `This interaction is not for you`, ephemeral: true })
-                }
-                await chooseAction(i);
-            });
+        }
 
-            const links = [
-                "https://",
-                "http://",
-            ];
+        const links = [
+            "https://",
+            "http://",
+        ];
 
-            var reg = /^#([0-9a-f]{3}){1,2}$/i;
+        var reg = /^#([0-9a-f]{3}){1,2}$/i;
 
-            async function chooseAction(i) {
-                switch (i.values[0]) {
-                    case '0':
-                        let i0 = await i.reply('Quel message voulez-vous inclure dans votre Embed?');
-                        const messageFilter = m => m.author.id === interaction.user.id;
-                        const messageCollector = interaction.channel.createMessageCollector({ messageFilter, max: 1, time: 60000 });
-                        messageCollector.on('collect', message => {
-                            __tempEmbed.setDescription(message.content);
-                            response.edit({ embeds: [__tempEmbed] })
-                            i0.delete() && message.delete();
-                        });
-                        break;
-                    case '1':
-                        let i1 = await i.reply('Quel titre voulez-vous inclure dans votre Embed?');
-                        const titleFilter = m => m.author.id === interaction.user.id;
-                        const titleCollector = interaction.channel.createMessageCollector({ titleFilter, max: 1, time: 60000 });
-                        titleCollector.on('collect', message => {
-                            __tempEmbed.setTitle(message.content);
-                            response.edit({ embeds: [__tempEmbed] })
-                            i1.delete() && message.delete();
-                        });
-                        break;
-                    case '2':
-                        __tempEmbed.setTitle('** **');
+        async function chooseAction(i) {
+            switch (i.values[0]) {
+                case '0':
+                    let i0 = await i.reply('Quel message voulez-vous inclure dans votre Embed?');
+                    const messageFilter = m => m.author.id === interaction.user.id;
+                    const messageCollector = interaction.channel.createMessageCollector({ messageFilter, max: 1, time: 60000 });
+                    messageCollector.on('collect', message => {
+                        __tempEmbed.setDescription(message.content);
+                        response.edit({ embeds: [__tempEmbed] })
+                        i0.delete() && message.delete();
+                    });
+                    break;
+                case '1':
+                    let i1 = await i.reply('Quel titre voulez-vous inclure dans votre Embed?');
+                    const titleFilter = m => m.author.id === interaction.user.id;
+                    const titleCollector = interaction.channel.createMessageCollector({ titleFilter, max: 1, time: 60000 });
+                    titleCollector.on('collect', message => {
+                        __tempEmbed.setTitle(message.content);
+                        response.edit({ embeds: [__tempEmbed] })
+                        i1.delete() && message.delete();
+                    });
+                    break;
+                case '2':
+                    __tempEmbed.setTitle('** **');
+                    response.edit({ embeds: [__tempEmbed] });
+                    i.reply("Le titre de l'embed à été correctement Supprimer !")
+                    break;
+                case '3':
+                    let i3 = await i.reply('Quelle description voulez-vous inclure dans votre Embed?');
+                    const descriptionFilter = m => m.author.id === interaction.user.id;
+                    const descriptionCollector = interaction.channel.createMessageCollector({ descriptionFilter, max: 1, time: 60000 });
+                    descriptionCollector.on('collect', message => {
+                        __tempEmbed.setDescription(message.content);
                         response.edit({ embeds: [__tempEmbed] });
-                        i.reply("Le titre de l'embed à été correctement Supprimer !")
-                        break;
-                    case '3':
-                        let i3 = await i.reply('Quelle description voulez-vous inclure dans votre Embed?');
-                        const descriptionFilter = m => m.author.id === interaction.user.id;
-                        const descriptionCollector = interaction.channel.createMessageCollector({ descriptionFilter, max: 1, time: 60000 });
-                        descriptionCollector.on('collect', message => {
-                            __tempEmbed.setDescription(message.content);
-                            response.edit({ embeds: [__tempEmbed] });
-                            i3.delete() && message.delete();
-                        });
-                        break;
-                    case '4':
-                        __tempEmbed.setDescription('** **');
+                        i3.delete() && message.delete();
+                    });
+                    break;
+                case '4':
+                    __tempEmbed.setDescription('** **');
+                    response.edit({ embeds: [__tempEmbed] });
+                    i.reply("La description de l'embed à été correctement Supprimer !")
+                    break;
+                case '5':
+                    let i5 = await i.reply('Quel auteur voulez-vous inclure dans votre Embed?');
+                    const authorFilter = m => m.author.id === interaction.user.id;
+                    const authorCollector = interaction.channel.createMessageCollector({ authorFilter, max: 1, time: 60000 });
+                    authorCollector.on('collect', message => {
+                        __tempEmbed.setAuthor({ name: message.content });
                         response.edit({ embeds: [__tempEmbed] });
-                        i.reply("La description de l'embed à été correctement Supprimer !")
-                        break;
-                    case '5':
-                        let i5 = await i.reply('Quel auteur voulez-vous inclure dans votre Embed?');
-                        const authorFilter = m => m.author.id === interaction.user.id;
-                        const authorCollector = interaction.channel.createMessageCollector({ authorFilter, max: 1, time: 60000 });
-                        authorCollector.on('collect', message => {
-                            __tempEmbed.setAuthor({ name: message.content });
-                            response.edit({ embeds: [__tempEmbed] });
-                            i5.delete() && message.delete();
-                        });
-                        break;
-                    case '6':
-                        __tempEmbed.setAuthor({});
+                        i5.delete() && message.delete();
+                    });
+                    break;
+                case '6':
+                    __tempEmbed.setAuthor({});
+                    response.edit({ embeds: [__tempEmbed] });
+                    i.reply("L'autheur de l'embed à été correctement Supprimer !")
+                    break;
+                case '7':
+                    i7 = await i.reply('Quel footer voulez-vous inclure dans votre Embed?');
+                    const footerFilter = m => m.author.id === interaction.user.id;
+                    const footerCollector = interaction.channel.createMessageCollector({ footerFilter, max: 1, time: 60000 });
+                    footerCollector.on('collect', message => {
+                        __tempEmbed.setFooter({ text: message.content });
                         response.edit({ embeds: [__tempEmbed] });
-                        i.reply("L'autheur de l'embed à été correctement Supprimer !")
-                        break;
-                    case '7':
-                        i7 = await i.reply('Quel footer voulez-vous inclure dans votre Embed?');
-                        const footerFilter = m => m.author.id === interaction.user.id;
-                        const footerCollector = interaction.channel.createMessageCollector({ footerFilter, max: 1, time: 60000 });
-                        footerCollector.on('collect', message => {
-                            __tempEmbed.setFooter({ text: message.content });
-                            response.edit({ embeds: [__tempEmbed] });
-                            i7.delete() && message.delete();
-                        });
-                        break;
-                    case '8':
-                        __tempEmbed.setFooter({ text: "** **" });
+                        i7.delete() && message.delete();
+                    });
+                    break;
+                case '8':
+                    __tempEmbed.setFooter({ text: "** **" });
+                    response.edit({ embeds: [__tempEmbed] });
+                    i.reply("Le footer de l'embed à été correctement Supprimer !")
+                    break;
+                case '9':
+                    i9 = await i.reply('Quel image de thumbnail voulez-vous inclure dans votre Embed?');
+                    const thumbnailFilter = m => m.author.id === interaction.user.id;
+                    const thumbnailCollector = interaction.channel.createMessageCollector({ thumbnailFilter, max: 1, time: 60000 });
+                    thumbnailCollector.on('collect', message => {
+                        if (!links.some(word => message.content.includes(word))) {
+                            __tempEmbed.setThumbnail("https://exemple.com/exemple/png")
+                        } else {
+                            __tempEmbed.setThumbnail(message.content)
+                        };
+
                         response.edit({ embeds: [__tempEmbed] });
-                        i.reply("Le footer de l'embed à été correctement Supprimer !")
-                        break;
-                    case '9':
-                        i9 = await i.reply('Quel image de thumbnail voulez-vous inclure dans votre Embed?');
-                        const thumbnailFilter = m => m.author.id === interaction.user.id;
-                        const thumbnailCollector = interaction.channel.createMessageCollector({ thumbnailFilter, max: 1, time: 60000 });
-                        thumbnailCollector.on('collect', message => {
-                            if (!links.some(word => message.content.includes(word))) {
-                                __tempEmbed.setThumbnail("https://exemple.com/exemple/png")
-                            } else {
-                                __tempEmbed.setThumbnail(message.content)
-                            };
+                        i9.delete() && message.delete();
+                    });
+                    break;
+                case '10':
+                    i10 = await i.reply('Quel image voulez-vous inclure dans votre Embed?');
+                    const imageFilter = m => m.author.id === interaction.user.id;
+                    const imageCollector = interaction.channel.createMessageCollector({ imageFilter, max: 1, time: 60000 });
+                    imageCollector.on('collect', message => {
+                        if (!links.some(word => message.content.includes(word))) {
+                            __tempEmbed.setImage("https://exemple.com/exemple/png")
+                        } else {
+                            __tempEmbed.setImage(message.content)
+                        };
 
-                            response.edit({ embeds: [__tempEmbed] });
-                            i9.delete() && message.delete();
-                        });
-                        break;
-                    case '10':
-                        i10 = await i.reply('Quel image voulez-vous inclure dans votre Embed?');
-                        const imageFilter = m => m.author.id === interaction.user.id;
-                        const imageCollector = interaction.channel.createMessageCollector({ imageFilter, max: 1, time: 60000 });
-                        imageCollector.on('collect', message => {
-                            if (!links.some(word => message.content.includes(word))) {
-                                __tempEmbed.setImage("https://exemple.com/exemple/png")
-                            } else {
-                                __tempEmbed.setImage(message.content)
-                            };
-
-                            response.edit({ embeds: [__tempEmbed] });
-                            i10.delete() && message.delete();
-                        });
-                        break;
-                    case '11':
-                        i11 = await i.reply('Quel URL de titre voulez-vous inclure dans votre Embed?');
-                        const ttUrlFilter = m => m.author.id === interaction.user.id;
-                        const ttUrlCollector = interaction.channel.createMessageCollector({ ttUrlFilter, max: 1, time: 60000 });
-                        ttUrlCollector.on('collect', message => {
-                            if (links.some(word => message.content.includes(word))) {
-                                __tempEmbed.setURL(message.content) && response.edit({ embeds: [__tempEmbed] });
-                            };
-
-                            i11.delete() && message.delete();
-                        });
-                        break;
-                    case '12':
-                        i12 = await i.reply('Quel est la couleur que voulez-vous inclure dans votre Embed? **www.color-hex.com**');
-                        const colorFilter = m => m.author.id === interaction.user.id;
-                        const colorCollector = interaction.channel.createMessageCollector({ colorFilter, max: 1, time: 60000 });
-                        colorCollector.on('collect', message => {
-                            if (reg.test(message.content)) {
-                                __tempEmbed.setColor(message.content);
-                                response.edit({ embeds: [__tempEmbed] });
-                            } else {
-                                interaction.channel.send("❌ | Couleur Invalide ! Svp, renseignez vous sur **www.color-hex.com**");
-                            }
-
-                            i12.delete() && message.delete();
-                        });
-                        break;
-                    case '13':
-                        __tempEmbed.setColor("#000000");
                         response.edit({ embeds: [__tempEmbed] });
-                        i.reply("La couleur de l'Embed à correctement été Supprimer !")
-                        break;
-                    default:
-                        break;
-                };
-            }
+                        i10.delete() && message.delete();
+                    });
+                    break;
+                case '11':
+                    i11 = await i.reply('Quel URL de titre voulez-vous inclure dans votre Embed?');
+                    const ttUrlFilter = m => m.author.id === interaction.user.id;
+                    const ttUrlCollector = interaction.channel.createMessageCollector({ ttUrlFilter, max: 1, time: 60000 });
+                    ttUrlCollector.on('collect', message => {
+                        if (links.some(word => message.content.includes(word))) {
+                            __tempEmbed.setURL(message.content) && response.edit({ embeds: [__tempEmbed] });
+                        };
+
+                        i11.delete() && message.delete();
+                    });
+                    break;
+                case '12':
+                    i12 = await i.reply('Quel est la couleur que voulez-vous inclure dans votre Embed? **www.color-hex.com**');
+                    const colorFilter = m => m.author.id === interaction.user.id;
+                    const colorCollector = interaction.channel.createMessageCollector({ colorFilter, max: 1, time: 60000 });
+                    colorCollector.on('collect', message => {
+                        if (reg.test(message.content)) {
+                            __tempEmbed.setColor(message.content);
+                            response.edit({ embeds: [__tempEmbed] });
+                        } else {
+                            interaction.channel.send("❌ | Couleur Invalide ! Svp, renseignez vous sur **www.color-hex.com**");
+                        }
+
+                        i12.delete() && message.delete();
+                    });
+                    break;
+                case '13':
+                    __tempEmbed.setColor("#000000");
+                    response.edit({ embeds: [__tempEmbed] });
+                    i.reply("La couleur de l'Embed à correctement été Supprimer !")
+                    break;
+                default:
+                    break;
+            };
+        }
     }
 };
