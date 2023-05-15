@@ -11,6 +11,8 @@ const {
     SelectMenuBuilder,
     ComponentType,
     StringSelectMenuBuilder,
+    ButtonBuilder,
+    ButtonStyle,
     StringSelectMenuOptionBuilder,
 } = require('discord.js');
 
@@ -110,18 +112,47 @@ module.exports = {
                     .setValue('13')
             );
 
-        const row = new ActionRowBuilder()
-            .addComponents(select);
+        const save = new ButtonBuilder()
+            .setCustomId('save')
+            .setLabel('Save Embed')
+            .setStyle(ButtonStyle.Success);
 
-        interaction.reply({
+        const send = new ButtonBuilder()
+            .setCustomId('send')
+            .setLabel('Send Embed')
+            .setStyle(ButtonStyle.Primary);
+
+        const cancel = new ButtonBuilder()
+            .setCustomId('cancel')
+            .setLabel('Cancel')
+            .setStyle(ButtonStyle.Danger);
+
+        const row = new ActionRowBuilder()
+            .addComponents(select)
+
+        const btn = new ActionRowBuilder()
+            .addComponents(save, send, cancel);
+
+        const response = await interaction.reply({
             content: 'Que veux tu faire ?',
             embeds: [__tempEmbed],
-            components: [row],
-        }).then(async msgg => {
-            const collector = msgg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 3_600_000 });
+            components: [row, btn],
+        })
+            const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 3_600_000 });
+            const collectorFilter = i => i.user.id === interaction.user.id;
 
+            try {
+                const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
+                console.log(confirmation.customId)
+            } catch(e) {
+                console.log(e)
+            };
+            
             collector.on('collect', async i => {
-                console.log(i.values[0]);
+                console.log(i.customId);
+                if (i.member.id != interaction.user.id) {
+                    return i.reply({ content: `This interaction is not for you`, ephemeral: true })
+                }
                 await chooseAction(i);
             });
 
@@ -131,7 +162,7 @@ module.exports = {
             ];
 
             var reg = /^#([0-9a-f]{3}){1,2}$/i;
-            
+
             async function chooseAction(i) {
                 switch (i.values[0]) {
                     case '0':
@@ -140,7 +171,7 @@ module.exports = {
                         const messageCollector = interaction.channel.createMessageCollector({ messageFilter, max: 1, time: 60000 });
                         messageCollector.on('collect', message => {
                             __tempEmbed.setDescription(message.content);
-                            msgg.edit({ embeds: [__tempEmbed] })
+                            response.edit({ embeds: [__tempEmbed] })
                             i0.delete() && message.delete();
                         });
                         break;
@@ -150,13 +181,13 @@ module.exports = {
                         const titleCollector = interaction.channel.createMessageCollector({ titleFilter, max: 1, time: 60000 });
                         titleCollector.on('collect', message => {
                             __tempEmbed.setTitle(message.content);
-                            msgg.edit({ embeds: [__tempEmbed] })
+                            response.edit({ embeds: [__tempEmbed] })
                             i1.delete() && message.delete();
                         });
                         break;
                     case '2':
                         __tempEmbed.setTitle('** **');
-                        msgg.edit({ embeds: [__tempEmbed] });
+                        response.edit({ embeds: [__tempEmbed] });
                         i.reply("Le titre de l'embed à été correctement Supprimer !")
                         break;
                     case '3':
@@ -165,13 +196,13 @@ module.exports = {
                         const descriptionCollector = interaction.channel.createMessageCollector({ descriptionFilter, max: 1, time: 60000 });
                         descriptionCollector.on('collect', message => {
                             __tempEmbed.setDescription(message.content);
-                            msgg.edit({ embeds: [__tempEmbed] });
+                            response.edit({ embeds: [__tempEmbed] });
                             i3.delete() && message.delete();
                         });
                         break;
                     case '4':
                         __tempEmbed.setDescription('** **');
-                        msgg.edit({ embeds: [__tempEmbed] });
+                        response.edit({ embeds: [__tempEmbed] });
                         i.reply("La description de l'embed à été correctement Supprimer !")
                         break;
                     case '5':
@@ -180,13 +211,13 @@ module.exports = {
                         const authorCollector = interaction.channel.createMessageCollector({ authorFilter, max: 1, time: 60000 });
                         authorCollector.on('collect', message => {
                             __tempEmbed.setAuthor({ name: message.content });
-                            msgg.edit({ embeds: [__tempEmbed] });
+                            response.edit({ embeds: [__tempEmbed] });
                             i5.delete() && message.delete();
                         });
                         break;
                     case '6':
                         __tempEmbed.setAuthor({});
-                        msgg.edit({ embeds: [__tempEmbed] });
+                        response.edit({ embeds: [__tempEmbed] });
                         i.reply("L'autheur de l'embed à été correctement Supprimer !")
                         break;
                     case '7':
@@ -195,13 +226,13 @@ module.exports = {
                         const footerCollector = interaction.channel.createMessageCollector({ footerFilter, max: 1, time: 60000 });
                         footerCollector.on('collect', message => {
                             __tempEmbed.setFooter({ text: message.content });
-                            msgg.edit({ embeds: [__tempEmbed] });
+                            response.edit({ embeds: [__tempEmbed] });
                             i7.delete() && message.delete();
                         });
                         break;
                     case '8':
                         __tempEmbed.setFooter({ text: "** **" });
-                        msgg.edit({ embeds: [__tempEmbed] });
+                        response.edit({ embeds: [__tempEmbed] });
                         i.reply("Le footer de l'embed à été correctement Supprimer !")
                         break;
                     case '9':
@@ -215,7 +246,7 @@ module.exports = {
                                 __tempEmbed.setThumbnail(message.content)
                             };
 
-                            msgg.edit({ embeds: [__tempEmbed] });
+                            response.edit({ embeds: [__tempEmbed] });
                             i9.delete() && message.delete();
                         });
                         break;
@@ -230,7 +261,7 @@ module.exports = {
                                 __tempEmbed.setImage(message.content)
                             };
 
-                            msgg.edit({ embeds: [__tempEmbed] });
+                            response.edit({ embeds: [__tempEmbed] });
                             i10.delete() && message.delete();
                         });
                         break;
@@ -240,7 +271,8 @@ module.exports = {
                         const ttUrlCollector = interaction.channel.createMessageCollector({ ttUrlFilter, max: 1, time: 60000 });
                         ttUrlCollector.on('collect', message => {
                             if (links.some(word => message.content.includes(word))) {
-                            __tempEmbed.setURL(message.content) && msgg.edit({ embeds: [__tempEmbed] }); };
+                                __tempEmbed.setURL(message.content) && response.edit({ embeds: [__tempEmbed] });
+                            };
 
                             i11.delete() && message.delete();
                         });
@@ -250,22 +282,24 @@ module.exports = {
                         const colorFilter = m => m.author.id === interaction.user.id;
                         const colorCollector = interaction.channel.createMessageCollector({ colorFilter, max: 1, time: 60000 });
                         colorCollector.on('collect', message => {
-                            if(!reg.test(message.content)) {
-                            interaction.channel.send("❌ | Couleur Invalide ! Svp, renseignez vous sur **www.color-hex.com**") } else { 
-                            __tempEmbed.setColor(message.content) };
-                            msgg.edit({ embeds: [__tempEmbed] });
-                            
+                            if (reg.test(message.content)) {
+                                __tempEmbed.setColor(message.content);
+                                response.edit({ embeds: [__tempEmbed] });
+                            } else {
+                                interaction.channel.send("❌ | Couleur Invalide ! Svp, renseignez vous sur **www.color-hex.com**");
+                            }
+
                             i12.delete() && message.delete();
                         });
                         break;
                     case '13':
-                        interaction.channel.send({ content: `**Supprimer la couleur**` });
+                        __tempEmbed.setColor("#000000");
+                        response.edit({ embeds: [__tempEmbed] });
+                        i.reply("La couleur de l'Embed à correctement été Supprimer !")
                         break;
                     default:
                         break;
                 };
             }
-
-        })
     }
 };
