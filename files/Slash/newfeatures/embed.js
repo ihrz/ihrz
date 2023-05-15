@@ -165,6 +165,7 @@ module.exports = {
                     case '4':
                         __tempEmbed.setDescription('** **');
                         msgg.edit({ embeds: [__tempEmbed] });
+                        i.reply("La description de l'embed à été correctement Supprimer !")
                         break;
                     case '5':
                         let i5 = await i.reply('Quel auteur voulez-vous inclure dans votre Embed?');
@@ -179,6 +180,7 @@ module.exports = {
                     case '6':
                         __tempEmbed.setAuthor({});
                         msgg.edit({ embeds: [__tempEmbed] });
+                        i.reply("L'autheur de l'embed à été correctement Supprimer !")
                         break;
                     case '7':
                         i7 = await i.reply('Quel footer voulez-vous inclure dans votre Embed?');
@@ -193,15 +195,37 @@ module.exports = {
                     case '8':
                         __tempEmbed.setFooter({text: " "});
                         msgg.edit({ embeds: [__tempEmbed] });
+                        i.reply("Le footer de l'embed à été correctement Supprimer !")
                         break;
                     case '9':
-                        interaction.channel.send({ content: `**Modifier le thumbnail**` });
+                        i9 = await i.reply('Quel image de thumbnail voulez-vous inclure dans votre Embed?');
+                        const thumbnailFilter = m => m.author.id === interaction.user.id;
+                        const thumbnailCollector = interaction.channel.createMessageCollector({ thumbnailFilter, max: 1, time: 60000 });
+                        thumbnailCollector.on('collect', message => {
+                            __tempEmbed.setThumbnail(message.content);
+                            msgg.edit({ embeds: [__tempEmbed] });
+                            i9.delete() && message.delete();
+                        });
                         break;
                     case '10':
-                        interaction.channel.send({ content: `**Modifier l'image**` });
+                        i10 = await i.reply('Quel image voulez-vous inclure dans votre Embed?');
+                        const imageFilter = m => m.author.id === interaction.user.id;
+                        const imageCollector = interaction.channel.createMessageCollector({ imageFilter, max: 1, time: 60000 });
+                        imageCollector.on('collect', message => {
+                            __tempEmbed.setImage(message.content);
+                            msgg.edit({ embeds: [__tempEmbed] });
+                            i10.delete() && message.delete();
+                        });
                         break;
                     case '11':
-                        interaction.channel.send({ content: `**Modifier l'URL du titre**` });
+                        i11 = await i.reply('Quel URL de titre voulez-vous inclure dans votre Embed?');
+                        const ttUrlFilter = m => m.author.id === interaction.user.id;
+                        const ttUrlCollector = interaction.channel.createMessageCollector({ ttUrlFilter, max: 1, time: 60000 });
+                        ttUrlCollector.on('collect', message => {
+                            __tempEmbed.setURL(message.content);
+                            msgg.edit({ embeds: [__tempEmbed] });
+                            i11.delete() && message.delete();
+                        });
                         break;
                     case '12':
                         interaction.channel.send({ content: `**Modifier la couleur**` });
