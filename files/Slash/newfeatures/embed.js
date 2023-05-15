@@ -125,6 +125,11 @@ module.exports = {
                 await chooseAction(i);
             });
 
+            const links = [
+                "https://",
+                "http://",
+            ];
+
             async function chooseAction(i) {
                 switch (i.values[0]) {
                     case '0':
@@ -193,7 +198,7 @@ module.exports = {
                         });
                         break;
                     case '8':
-                        __tempEmbed.setFooter({text: " "});
+                        __tempEmbed.setFooter({text: "** **"});
                         msgg.edit({ embeds: [__tempEmbed] });
                         i.reply("Le footer de l'embed à été correctement Supprimer !")
                         break;
@@ -202,7 +207,10 @@ module.exports = {
                         const thumbnailFilter = m => m.author.id === interaction.user.id;
                         const thumbnailCollector = interaction.channel.createMessageCollector({ thumbnailFilter, max: 1, time: 60000 });
                         thumbnailCollector.on('collect', message => {
-                            __tempEmbed.setThumbnail(message.content);
+                            if (!links.some(word => message.content.includes(word))){
+                            __tempEmbed.setThumbnail("https://exemple.com/exemple/png")} else{
+                            __tempEmbed.setThumbnail(message.content) };
+
                             msgg.edit({ embeds: [__tempEmbed] });
                             i9.delete() && message.delete();
                         });
@@ -212,7 +220,10 @@ module.exports = {
                         const imageFilter = m => m.author.id === interaction.user.id;
                         const imageCollector = interaction.channel.createMessageCollector({ imageFilter, max: 1, time: 60000 });
                         imageCollector.on('collect', message => {
-                            __tempEmbed.setImage(message.content);
+                            if (!links.some(word => message.content.includes(word))){
+                            __tempEmbed.setImage("https://exemple.com/exemple/png")} else{
+                            __tempEmbed.setImage(message.content) };
+
                             msgg.edit({ embeds: [__tempEmbed] });
                             i10.delete() && message.delete();
                         });
@@ -222,13 +233,24 @@ module.exports = {
                         const ttUrlFilter = m => m.author.id === interaction.user.id;
                         const ttUrlCollector = interaction.channel.createMessageCollector({ ttUrlFilter, max: 1, time: 60000 });
                         ttUrlCollector.on('collect', message => {
-                            __tempEmbed.setURL(message.content);
+                            if (links.some(word => message.content.includes(word))){
+                            __tempEmbed.setURL(message.content) };
+
                             msgg.edit({ embeds: [__tempEmbed] });
                             i11.delete() && message.delete();
                         });
                         break;
                     case '12':
-                        interaction.channel.send({ content: `**Modifier la couleur**` });
+                        i12 = await i.reply('Quel est la couleur que voulez-vous inclure dans votre Embed?');
+                        const colorFilter = m => m.author.id === interaction.user.id;
+                        const colorCollector = interaction.channel.createMessageCollector({ colorFilter, max: 1, time: 60000 });
+                        colorCollector.on('collect', message => {
+                            if (links.some(word => message.content.includes(word))){
+                            __tempEmbed.setURL(message.content) };
+
+                            msgg.edit({ embeds: [__tempEmbed] });
+                            i12.delete() && message.delete();
+                        });
                         break;
                     case '13':
                         interaction.channel.send({ content: `**Supprimer la couleur**` });
