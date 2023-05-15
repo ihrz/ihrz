@@ -744,3 +744,7 @@ event_xp_level_earn: "**GG**, <@${message.author.id}> du hast +1 für dein XP-Le
 
 # Ticket Module Events:
 event_ticket_embed_description: "Hallo ${user.username}, willkommen in deinem Ticket! Bitte hab etwas Geduld, wir werden bald bei dir sein. Wenn du das Ticket schließen möchtest, gib bitte `/close` ein."
+
+# interactionCreate-Ereignisse:
+iC_event_cooldown: "Abklingzeit, bitte warten Sie zwischen den Befehlen einen Moment!"
+iC_event_connection_error: "Verbindungsfehler!"
