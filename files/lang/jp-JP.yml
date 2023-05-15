@@ -748,3 +748,6 @@ event_ticket_embed_description: "${user.username}さん、チケットへよう�
 # interactionCreateイベント：
 iC_event_cooldown: "クールダウン、コマンド間に少し待ってください！"
 iC_event_connection_error: "接続エラー！"
+
+# Cooldown
+Msg_cooldown: "「コマンドを実行する前に、一秒待っていただけますか？お願いします。」"
