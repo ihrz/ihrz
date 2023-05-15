@@ -137,16 +137,15 @@ module.exports = {
             content: 'Que veux tu faire ?',
             embeds: [__tempEmbed],
             components: [row, btn],
-        }) && getButton();
-
+        })
         const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 3_600_000 });
 
         collector.on('collect', async i => {
-            console.log(i.customId);
-            if (i.member.id != interaction.user.id) {
+            if (i.member.id !== interaction.user.id) {
                 return i.reply({ content: `This interaction is not for you`, ephemeral: true })
             }
-            await chooseAction(i), getButton();
+            getButton();
+            await chooseAction(i);
         });
 
         async function getButton() {
@@ -154,11 +153,25 @@ module.exports = {
                 const collectorFilter = i => i.user.id === interaction.user.id;
                 const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 60_000 });
 
-                console.log(confirmation.customId)
+                switch (confirmation.customId) {
+                    case "save":
+                        getButton()
+                        return confirmation.update({
+                            content: `<@${interaction.user.id}>, **Vous avez décidé de sauvegardée la configuration de l'Embed !**\nIdentifiant de l'Embed: **${await saveEmbed()}**`,
+                            components: [], embeds: []
+                        });
+                    case "cancel":
+                        return confirmation.update({ content: `<@${interaction.user.id}>, **Vous avez décidé d'abandonner la configuration de l'Embed !**`, components: [], embeds: [] });
+                    case "send":
+                        getButton();
+                        confirmation.update({ content: `<@${interaction.user.id}>, **Dans quel cannal je dois envoyez cette embed ?** (*Avec l'ID du salon*)`, components: [] });
+                        sendEmbed();
+                        return;
+                }
             } catch (e) {
                 console.log(e)
             };
-        }
+        }; getButton();
 
         const links = [
             "https://",
@@ -172,7 +185,7 @@ module.exports = {
                 case '0':
                     let i0 = await i.reply('Quel message voulez-vous inclure dans votre Embed?');
                     const messageFilter = m => m.author.id === interaction.user.id;
-                    const messageCollector = interaction.channel.createMessageCollector({ messageFilter, max: 1, time: 60000 });
+                    const messageCollector = interaction.channel.createMessageCollector({ filter: messageFilter, max: 1, time: 60000 });
                     messageCollector.on('collect', message => {
                         __tempEmbed.setDescription(message.content);
                         response.edit({ embeds: [__tempEmbed] })
@@ -182,7 +195,7 @@ module.exports = {
                 case '1':
                     let i1 = await i.reply('Quel titre voulez-vous inclure dans votre Embed?');
                     const titleFilter = m => m.author.id === interaction.user.id;
-                    const titleCollector = interaction.channel.createMessageCollector({ titleFilter, max: 1, time: 60000 });
+                    const titleCollector = interaction.channel.createMessageCollector({ filter: titleFilter, max: 1, time: 60000 });
                     titleCollector.on('collect', message => {
                         __tempEmbed.setTitle(message.content);
                         response.edit({ embeds: [__tempEmbed] })
@@ -197,7 +210,7 @@ module.exports = {
                 case '3':
                     let i3 = await i.reply('Quelle description voulez-vous inclure dans votre Embed?');
                     const descriptionFilter = m => m.author.id === interaction.user.id;
-                    const descriptionCollector = interaction.channel.createMessageCollector({ descriptionFilter, max: 1, time: 60000 });
+                    const descriptionCollector = interaction.channel.createMessageCollector({ filter: descriptionFilter, max: 1, time: 60000 });
                     descriptionCollector.on('collect', message => {
                         __tempEmbed.setDescription(message.content);
                         response.edit({ embeds: [__tempEmbed] });
@@ -212,7 +225,7 @@ module.exports = {
                 case '5':
                     let i5 = await i.reply('Quel auteur voulez-vous inclure dans votre Embed?');
                     const authorFilter = m => m.author.id === interaction.user.id;
-                    const authorCollector = interaction.channel.createMessageCollector({ authorFilter, max: 1, time: 60000 });
+                    const authorCollector = interaction.channel.createMessageCollector({ filter: authorFilter, max: 1, time: 60000 });
                     authorCollector.on('collect', message => {
                         __tempEmbed.setAuthor({ name: message.content });
                         response.edit({ embeds: [__tempEmbed] });
@@ -220,14 +233,14 @@ module.exports = {
                     });
                     break;
                 case '6':
-                    __tempEmbed.setAuthor({});
+                    __tempEmbed.setAuthor({name: "** **"});
                     response.edit({ embeds: [__tempEmbed] });
                     i.reply("L'autheur de l'embed à été correctement Supprimer !")
                     break;
                 case '7':
                     i7 = await i.reply('Quel footer voulez-vous inclure dans votre Embed?');
                     const footerFilter = m => m.author.id === interaction.user.id;
-                    const footerCollector = interaction.channel.createMessageCollector({ footerFilter, max: 1, time: 60000 });
+                    const footerCollector = interaction.channel.createMessageCollector({ filter: footerFilter, max: 1, time: 60000 });
                     footerCollector.on('collect', message => {
                         __tempEmbed.setFooter({ text: message.content });
                         response.edit({ embeds: [__tempEmbed] });
@@ -242,7 +255,7 @@ module.exports = {
                 case '9':
                     i9 = await i.reply('Quel image de thumbnail voulez-vous inclure dans votre Embed?');
                     const thumbnailFilter = m => m.author.id === interaction.user.id;
-                    const thumbnailCollector = interaction.channel.createMessageCollector({ thumbnailFilter, max: 1, time: 60000 });
+                    const thumbnailCollector = interaction.channel.createMessageCollector({ filter: thumbnailFilter, max: 1, time: 60000 });
                     thumbnailCollector.on('collect', message => {
                         if (!links.some(word => message.content.includes(word))) {
                             __tempEmbed.setThumbnail("https://exemple.com/exemple/png")
@@ -257,7 +270,7 @@ module.exports = {
                 case '10':
                     i10 = await i.reply('Quel image voulez-vous inclure dans votre Embed?');
                     const imageFilter = m => m.author.id === interaction.user.id;
-                    const imageCollector = interaction.channel.createMessageCollector({ imageFilter, max: 1, time: 60000 });
+                    const imageCollector = interaction.channel.createMessageCollector({ filter: imageFilter, max: 1, time: 60000 });
                     imageCollector.on('collect', message => {
                         if (!links.some(word => message.content.includes(word))) {
                             __tempEmbed.setImage("https://exemple.com/exemple/png")
@@ -272,7 +285,7 @@ module.exports = {
                 case '11':
                     i11 = await i.reply('Quel URL de titre voulez-vous inclure dans votre Embed?');
                     const ttUrlFilter = m => m.author.id === interaction.user.id;
-                    const ttUrlCollector = interaction.channel.createMessageCollector({ ttUrlFilter, max: 1, time: 60000 });
+                    const ttUrlCollector = interaction.channel.createMessageCollector({ filter: ttUrlFilter, max: 1, time: 60000 });
                     ttUrlCollector.on('collect', message => {
                         if (links.some(word => message.content.includes(word))) {
                             __tempEmbed.setURL(message.content) && response.edit({ embeds: [__tempEmbed] });
@@ -284,7 +297,7 @@ module.exports = {
                 case '12':
                     i12 = await i.reply('Quel est la couleur que voulez-vous inclure dans votre Embed? **www.color-hex.com**');
                     const colorFilter = m => m.author.id === interaction.user.id;
-                    const colorCollector = interaction.channel.createMessageCollector({ colorFilter, max: 1, time: 60000 });
+                    const colorCollector = interaction.channel.createMessageCollector({ filter: colorFilter, max: 1, time: 60000 });
                     colorCollector.on('collect', message => {
                         if (reg.test(message.content)) {
                             __tempEmbed.setColor(message.content);
@@ -304,6 +317,38 @@ module.exports = {
                 default:
                     break;
             };
+        }
+
+        async function sendEmbed() {
+            const seFilter = m => m.author.id === interaction.user.id;
+            const seCollector = interaction.channel.createMessageCollector({ filter: seFilter, max: 1, time: 60000 });
+
+            seCollector.on('collect', message => {
+                let channel = interaction.guild.channels.cache.get(message.content)
+
+                if (!channel) return;
+                channel.send({ embeds: [__tempEmbed] });
+                message.delete();
+                response.edit({ content: `<@${interaction.user.id}>, **Vous avez parfaitement envoyé l'Embed dans le salon <#${message.content}> !**`, embeds: [] });
+            });
+        }
+
+        async function saveEmbed() {
+            let result = '';
+            let length = 16;
+            const characters = '0123456789';
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+
+            await db.set(`${interaction.guild.id}.GUILD.EMBED.SAVE.${result}`,
+                {
+                    embedOwner: interaction.user.id,
+                    embedSource: __tempEmbed.toJSON()
+                }
+            );
+
+            return result
         }
     }
 };
