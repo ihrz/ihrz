@@ -1,8 +1,9 @@
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const fs = require("fs")
+const fs = require("fs");
+const timeout = 1000;
 const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
-const config = require(`${process.cwd()}/files/config.json`)
+const config = require(`${process.cwd()}/files/config.json`);
 module.exports = async (client, interaction) => {
   if (!interaction.isCommand()) return;
   if (!interaction.guild.channels) return;
@@ -19,6 +20,8 @@ module.exports = async (client, interaction) => {
       .setColor("#0827F5").setTitle(":(").setImage(config.blacklistPictureInEmbed);
 
     if (potential_blacklisted) { return interaction.reply({ embeds: [blacklisted] }) };
+    if (await cooldDown()) return interaction.reply({content: "Cooldown.", ephemeral: true});
+
     command.run(client, interaction);
   };
 
@@ -31,6 +34,18 @@ module.exports = async (client, interaction) => {
 
     let i = `[${interaction.guild.name}] >> ${interaction.user.username}#${interaction.user.discriminator} - ${now}\n#${interaction.channel.name}: /${interaction.commandName}`;
     CreateFiles.write(i.toString() + '\r\n');
+  };
+
+  async function cooldDown() {
+    let label = `TEMP.COOLDOWN.${interaction.user.id}`;
+    let tn = Date.now();
+    let fetch = await db.get(label);
+    if (fetch !== null && timeout - (tn - fetch) > 0) {
+      return true;
+    } else {
+      await db.set(label, tn);
+      return false;
+    }
   };
 
   await slashExecutor(), logsCommands();
