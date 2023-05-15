@@ -748,3 +748,6 @@ event_ticket_embed_description: "Salut ${user.username}, bienvenue dans votre ti
 # Événements interactionCreate :
 iC_event_cooldown: "Cooldown, veuillez patienter un peu entre les commandes !"
 iC_event_connection_error: "Erreur de connexion !"
+
+# Cooldown
+Msg_cooldown: "Peux-tu patienter une seconde avant d'exécuter une commande, s'il te plaît ?"
