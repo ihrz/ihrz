@@ -48,7 +48,6 @@ The iHorizon project is licensed under the  [`Creative Commons Attribution-NonCo
 iHorizon is currently working towards being certified by Discord. We are aiming to reach +75 servers before starting the certification process!<br><br>
 
 To join the Official Discord Support Server, please visit our website at [Official Server Link](http://discord.ihorizon.me/) or click on this link: [Other Link](https://discord.gg/ZpBPGNsAsu).<br><br>
-
 To invite the Discord official bot, please click on this link: [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot).<br><br>
 
 If you have any questions or concerns, you can contact the owner via email at [kisakeyara@gmail.com](mailto:kisakeyara@gmail.com), phone at +33757823957, or on Discord at Kisakay#0001.
@@ -57,7 +56,6 @@ If you have any questions or concerns, you can contact the owner via email at [k
 **Kisakay** (*formerly known as Ezermoz*) has not changed their identity, but has simply embraced who they truly are as a person. She now goes by she/her pronouns.<br><br>
 
 In the `LICENSE` files, the name `Kisa Keyara` is the name of the owner.
-
 ## Remarks
 
 Any sorts of hate trowards any contributor will not be tolerated.
