@@ -130,6 +130,8 @@ module.exports = {
                 "http://",
             ];
 
+            var reg = /^#([0-9a-f]{3}){1,2}$/i;
+            
             async function chooseAction(i) {
                 switch (i.values[0]) {
                     case '0':
@@ -192,13 +194,13 @@ module.exports = {
                         const footerFilter = m => m.author.id === interaction.user.id;
                         const footerCollector = interaction.channel.createMessageCollector({ footerFilter, max: 1, time: 60000 });
                         footerCollector.on('collect', message => {
-                            __tempEmbed.setFooter({text: message.content});
+                            __tempEmbed.setFooter({ text: message.content });
                             msgg.edit({ embeds: [__tempEmbed] });
                             i7.delete() && message.delete();
                         });
                         break;
                     case '8':
-                        __tempEmbed.setFooter({text: "** **"});
+                        __tempEmbed.setFooter({ text: "** **" });
                         msgg.edit({ embeds: [__tempEmbed] });
                         i.reply("Le footer de l'embed à été correctement Supprimer !")
                         break;
@@ -207,9 +209,11 @@ module.exports = {
                         const thumbnailFilter = m => m.author.id === interaction.user.id;
                         const thumbnailCollector = interaction.channel.createMessageCollector({ thumbnailFilter, max: 1, time: 60000 });
                         thumbnailCollector.on('collect', message => {
-                            if (!links.some(word => message.content.includes(word))){
-                            __tempEmbed.setThumbnail("https://exemple.com/exemple/png")} else{
-                            __tempEmbed.setThumbnail(message.content) };
+                            if (!links.some(word => message.content.includes(word))) {
+                                __tempEmbed.setThumbnail("https://exemple.com/exemple/png")
+                            } else {
+                                __tempEmbed.setThumbnail(message.content)
+                            };
 
                             msgg.edit({ embeds: [__tempEmbed] });
                             i9.delete() && message.delete();
@@ -220,9 +224,11 @@ module.exports = {
                         const imageFilter = m => m.author.id === interaction.user.id;
                         const imageCollector = interaction.channel.createMessageCollector({ imageFilter, max: 1, time: 60000 });
                         imageCollector.on('collect', message => {
-                            if (!links.some(word => message.content.includes(word))){
-                            __tempEmbed.setImage("https://exemple.com/exemple/png")} else{
-                            __tempEmbed.setImage(message.content) };
+                            if (!links.some(word => message.content.includes(word))) {
+                                __tempEmbed.setImage("https://exemple.com/exemple/png")
+                            } else {
+                                __tempEmbed.setImage(message.content)
+                            };
 
                             msgg.edit({ embeds: [__tempEmbed] });
                             i10.delete() && message.delete();
@@ -233,22 +239,22 @@ module.exports = {
                         const ttUrlFilter = m => m.author.id === interaction.user.id;
                         const ttUrlCollector = interaction.channel.createMessageCollector({ ttUrlFilter, max: 1, time: 60000 });
                         ttUrlCollector.on('collect', message => {
-                            if (links.some(word => message.content.includes(word))){
-                            __tempEmbed.setURL(message.content) };
+                            if (links.some(word => message.content.includes(word))) {
+                            __tempEmbed.setURL(message.content) && msgg.edit({ embeds: [__tempEmbed] }); };
 
-                            msgg.edit({ embeds: [__tempEmbed] });
                             i11.delete() && message.delete();
                         });
                         break;
                     case '12':
-                        i12 = await i.reply('Quel est la couleur que voulez-vous inclure dans votre Embed?');
+                        i12 = await i.reply('Quel est la couleur que voulez-vous inclure dans votre Embed? **www.color-hex.com**');
                         const colorFilter = m => m.author.id === interaction.user.id;
                         const colorCollector = interaction.channel.createMessageCollector({ colorFilter, max: 1, time: 60000 });
                         colorCollector.on('collect', message => {
-                            if (links.some(word => message.content.includes(word))){
-                            __tempEmbed.setURL(message.content) };
-
+                            if(!reg.test(message.content)) {
+                            interaction.channel.send("❌ | Couleur Invalide ! Svp, renseignez vous sur **www.color-hex.com**") } else { 
+                            __tempEmbed.setColor(message.content) };
                             msgg.edit({ embeds: [__tempEmbed] });
+                            
                             i12.delete() && message.delete();
                         });
                         break;
