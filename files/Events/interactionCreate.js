@@ -1,6 +1,8 @@
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const fs = require("fs");
+const yaml = require('js-yaml');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 const timeout = 1000;
 const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
 const config = require(`${process.cwd()}/files/config.json`);
@@ -20,7 +22,12 @@ module.exports = async (client, interaction) => {
       .setColor("#0827F5").setTitle(":(").setImage(config.blacklistPictureInEmbed);
 
     if (potential_blacklisted) { return interaction.reply({ embeds: [blacklisted] }) };
-    if (await cooldDown()) return interaction.reply({content: "Cooldown.", ephemeral: true});
+    if (await cooldDown()) {
+      let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
+      let data = yaml.load(fileContents);
+      interaction.reply({content: data.Msg_cooldown, ephemeral: true});
+      return;
+    }
 
     command.run(client, interaction);
   };
