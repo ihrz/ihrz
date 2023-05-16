@@ -14,12 +14,10 @@ function uncaughtExceptionHandler() {
           date.format(now, 'DD.MM.YYYY HH;mm;ss') + ".txt", { flags: 'a' });
       let i = `${config.asciicrash}\n${err.stack || err.message}`;
       CreateFiles.write(i.toString() + '\r\n');
-    }
+    };
 
     console.log(err.stack || err.message);
   });
 }
 
-module.exports = {
-  uncaughtExceptionHandler
-};
+module.exports = { uncaughtExceptionHandler };
