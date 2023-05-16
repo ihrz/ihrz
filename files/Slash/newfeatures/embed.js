@@ -18,6 +18,8 @@ const {
 
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
+var generator = require('generate-password');
+
 
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
@@ -40,6 +42,7 @@ module.exports = {
         let arg = interaction.options.getString("id");
         potentialEmbed = await db.get(`${interaction.guild.id}.GUILD.EMBED.${arg}`);
 
+        console.log(potentialEmbed)
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.reply({ content: data.punishpub_not_admin });
         }
@@ -149,7 +152,7 @@ module.exports = {
             embeds: [__tempEmbed],
             components: [row, btn],
         })
-        const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 3_600_000 });
+        const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 120_000 });
 
         collector.on('collect', async i => {
             if (i.member.id !== interaction.user.id) {
@@ -182,7 +185,7 @@ module.exports = {
                         return;
                 }
             } catch (e) {
-                return interaction.channel.send({ content: `<@${interaction.user.id}>, **Vous avez mis trop de temps à répondre, je coupe l'opération en cours!`})
+                return interaction.channel.send({ content: `<@${interaction.user.id}>, **Vous avez mis trop de temps à répondre, je coupe l'opération en cours!**`})
             };
         }; getButton();
 
@@ -347,20 +350,19 @@ module.exports = {
         }
 
         async function saveEmbed() {
-            let result = '';
-            const characters = '0123456789';
-            for (let i = 0; i < 16; i++) {
-              result += characters.charAt(Math.floor(Math.random() * characters.length));
-            }
+            var password = generator.generate({
+                length: 8,
+                numbers: true
+            });
 
-            await db.set(`${interaction.guild.id}.GUILD.EMBED.${result}`,
+            await db.set(`${interaction.guild.id}.GUILD.EMBED.${password}`,
                 {
                     embedOwner: interaction.user.id,
-                    embedSource:__tempEmbed
+                    embedSource: __tempEmbed
                 }
             );
 
-            return result;
+            return password;
         }
     }
 };
