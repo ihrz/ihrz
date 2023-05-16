@@ -9,6 +9,7 @@ iHorizon is a Discord bot written in [NodeJS](https://nodejs.org) and using the 
 * German
 * Japanese
 * And soon more !
+* Spannish
 
 ## Contributor's Wall
 
