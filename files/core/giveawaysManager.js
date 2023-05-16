@@ -13,4 +13,4 @@ module.exports = (client) => {
   });
 
   client.giveawaysManager = manager;
-}
+};

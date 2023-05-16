@@ -8,13 +8,14 @@ iHorizon is a Discord bot written in [NodeJS](https://nodejs.org) and using the 
 * Italian
 * German
 * Japanese
+* Spannish
 * And soon more !
 
 ## Contributor's Wall
 
 - [Kisakay](https://github.com/Kisakay) (She/Her)
 - [Noémie](https://github.com/name-shitty-github-profile) (She/Her)
-- [Yvain](https://github.com/Y-va-i-n) (He/him)
+- [Yvain](https://github.com/Y-v-a-i-n) (He/him)
 - [ChatGPT](https://github.com/OpenAI) (No Pronouns)
 - [Wyene](https://github.com/F-r-o-i-d) (He/him)
 
