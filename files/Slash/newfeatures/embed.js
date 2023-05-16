@@ -45,7 +45,7 @@ module.exports = {
         }
 
         let __tempEmbed = new EmbedBuilder().setDescription('** **');
-        if (potentialEmbed) { __tempEmbed = potentialEmbed.embedSource };
+        if (potentialEmbed) { __tempEmbed = new EmbedBuilder(potentialEmbed.embedSource) };
 
         const select = new StringSelectMenuBuilder()
             .setCustomId('starter')
@@ -168,9 +168,9 @@ module.exports = {
                     case "save":
                         getButton()
                         if(potentialEmbed) await db.delete(`${interaction.guild.id}.GUILD.EMBED.${arg}`);
-                        
+
                         return confirmation.update({
-                            content: `<@${interaction.user.id}>, **Vous avez décidé de sauvegardée la configuration de l'Embed !**\nIdentifiant de l'Embed: \`${await saveEmbed()}\``,
+                            content: `<@${interaction.user.id}>, **Vous avez décidé de sauvegardée la configuration de l'Embed !** -> Identifiant de l'Embed: \`${await saveEmbed()}\` 📜`,
                             components: [], embeds: []
                         });
                     case "cancel":
