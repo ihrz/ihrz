@@ -1,6 +1,4 @@
-const { Client } = require('discord.js');
-const clientIntents = require('./files/core/clientIntents.js');
-const clientPartial = require('./files/core/clientPartial.js');
-const client = new Client({ intents: clientIntents, partials: clientPartial, ws: { properties: { browser: 'Discord iOS' } } });
-const core = require('./files/core')(client);
-client.login(require('./files/config.json').token);
+const { ShardingManager } = require("discord.js");
+const manager = new ShardingManager("./files/core/bot.js", { totalShards: "auto", token: require('./files/config.json').token});
+manager.on("shardCreate", (shard) => console.log(`Shard ${shard.id} launched`));
+manager.spawn();
