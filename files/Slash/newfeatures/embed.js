@@ -40,9 +40,8 @@ module.exports = {
         let data = yaml.load(fileContents);
 
         let arg = interaction.options.getString("id");
-        potentialEmbed = await db.get(`${interaction.guild.id}.GUILD.EMBED.${arg}`);
+        potentialEmbed = await db.get(`EMBED.${arg}`);
 
-        console.log(potentialEmbed)
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.reply({ content: data.punishpub_not_admin });
         }
@@ -169,23 +168,22 @@ module.exports = {
 
                 switch (confirmation.customId) {
                     case "save":
-                        getButton()
-                        if(potentialEmbed) await db.delete(`${interaction.guild.id}.GUILD.EMBED.${arg}`);
+                        if (potentialEmbed) await db.delete(`EMBED.${arg}`);
 
-                        return confirmation.update({
-                            content: `<@${interaction.user.id}>, **Vous avez décidé de sauvegardée la configuration de l'Embed !** -> Identifiant de l'Embed: \`${await saveEmbed()}\` 📜`,
+                        await confirmation.update({
+                            content: `<@${interaction.user.id}>, **Vous avez décidé de sauvegardée la configuration de l'Embed !**\`\`\`Identifiant de l'Embed: ${await saveEmbed()}\`\`\``,
                             components: [], embeds: []
-                        });
+                        })
+                        return;
                     case "cancel":
                         return confirmation.update({ content: `<@${interaction.user.id}>, **Vous avez décidé d'abandonner la configuration de l'Embed !**`, components: [], embeds: [] });
                     case "send":
-                        getButton();
                         confirmation.update({ content: `<@${interaction.user.id}>, **Dans quel cannal je dois envoyez cette embed ?** (*Avec l'ID du salon*)`, components: [] });
                         sendEmbed();
                         return;
                 }
             } catch (e) {
-                return interaction.channel.send({ content: `<@${interaction.user.id}>, **Vous avez mis trop de temps à répondre, je coupe l'opération en cours!**`})
+                return interaction.channel.send({ content: `<@${interaction.user.id}>, **Vous avez mis trop de temps à répondre, je coupe l'opération en cours!**` })
             };
         }; getButton();
 
@@ -355,13 +353,12 @@ module.exports = {
                 numbers: true
             });
 
-            await db.set(`${interaction.guild.id}.GUILD.EMBED.${password}`,
+            await db.set(`EMBED.${password}`,
                 {
                     embedOwner: interaction.user.id,
                     embedSource: __tempEmbed
                 }
             );
-
             return password;
         }
     }
