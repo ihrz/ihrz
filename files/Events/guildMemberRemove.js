@@ -92,6 +92,7 @@ module.exports = async (client, member, members) => {
 
       client.channels.cache.get(wChan).send({ content: `${messssssage4}` })
     } catch (e) {
+      console.log(e)
       let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`)
       if (wChan == null) return;
       if (!wChan) return;

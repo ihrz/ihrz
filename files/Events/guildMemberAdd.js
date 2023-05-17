@@ -127,6 +127,8 @@ module.exports = async (client, member, members) => {
     } catch (e) {
       let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`)
       if (!wChan) return;
+      console.log(e);
+
       return client.channels.cache.get(wChan).send({
         content: data.event_welcomer_default
           .replace("${member.id}", member.id)

@@ -29,13 +29,14 @@ module.exports = async (client) => {
     client.guilds.cache.forEach(async (guild) => {
       try {
         if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+        console.log("dev")
         const firstInvites = await guild.invites.fetch()
         client.invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
       } catch (error) {
         logger.err(`Error fetching invites for guild ${guild.id}: ${error}`);
       }
     });
-  }
+  };
   
   async function refreshDatabaseModel() {
     await db.set(`GLOBAL.OWNER.${config.ownerid1}`, { owner: true }),

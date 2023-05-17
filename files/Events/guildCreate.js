@@ -56,7 +56,7 @@ Thanks for choosing me and let's have some fun together!`);
       guild.invites.fetch().then(guildInvites => {
         client.invites.set(guild.id, new Map(guildInvites.map((invite) => [invite.code, invite.uses])));
       })
-    } catch (error) { }
+    } catch (error) { console.log(error) };
   };
 
   async function ownerLogs() {
