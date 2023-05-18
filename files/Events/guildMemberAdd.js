@@ -91,15 +91,13 @@ module.exports = async (client, member, members) => {
       const newInvites = await member.guild.invites.fetch()
       const oldInvites = client.invites.get(member.guild.id);
       const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
-      console.log("----------------------------------------------------------------------")
 
-      console.log("🛹 INVITE : "+invite);
+      console.log(invite.code);
 
-      const inviter = await client.users.fetch(await db.get(`${member.guild.id}.GUILD.INVITES.${invite}`).creatorUser);
+      let tempDB = await db.get(`${member.guild.id}.GUILD.INVITES.${invite.code}.creatorUser`);
+      const inviter = await client.users.fetch(tempDB);
 
-      console.log("🛹 INVITER : "+inviter)
-
-      console.log("----------------------------------------------------------------------")
+      console.log(inviter)
 
       let check = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`);
 
@@ -112,7 +110,8 @@ module.exports = async (client, member, members) => {
 
       let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`)
       if (!wChan) return;
-      let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`)
+      let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
+
       if (!messssssage) {
         return client.channels.cache.get(wChan).send({
           content: data.event_welcomer_inviter
@@ -134,12 +133,11 @@ module.exports = async (client, member, members) => {
 
       return client.channels.cache.get(wChan).send({ content: `${messssssage4}` });
     } catch (e) {
+      console.log(e);
       let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`)
       if (!wChan) return;
-      console.log(e);
 
-      return client.channels.cache.get(wChan).send({
-        content: data.event_welcomer_default
+      return client.channels.cache.get(wChan).send({content: data.event_welcomer_default
           .replace("${member.id}", member.id)
           .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
           .replace("${member.guild.name}", member.guild.name)
