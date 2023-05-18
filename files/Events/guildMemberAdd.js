@@ -87,28 +87,34 @@ module.exports = async (client, member, members) => {
   };
 
   async function welcomeMessage() {
-    try {
-      const newInvites = await member.guild.invites.fetch()
+try {
+      const newInvites = await member.guild.invites.fetch();
       const oldInvites = client.invites.get(member.guild.id);
-      const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
+
+      var invitesdb = Object.values(await db.get(`${member.guild.id}.GUILD.INVITES`));
+
+      var invite = newInvites.find(i => {
+        let invitedb = invitesdb.find(idb => idb.code == (isVanity(i) ? "vanity" : i.code));
+        return invitedb && i.uses > invitedb.uses;
+      });
 
       console.log(invite.code);
 
       let tempDB = await db.get(`${member.guild.id}.GUILD.INVITES.${invite.code}.creatorUser`);
       const inviter = await client.users.fetch(tempDB);
 
-      console.log(inviter)
+      console.log(inviter);
 
       let check = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`);
 
       if (check) {
         await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.regular`, 1);
         await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`, 1);
-      };
+      }
 
       let fetched = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`);
 
-      let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`)
+      let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
       if (!wChan) return;
       let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
 
@@ -120,7 +126,7 @@ module.exports = async (client, member, members) => {
             .replace("${member.guild.name}", member.guild.name)
             .replace("${inviter.tag}", inviter.tag)
             .replace("${fetched}", fetched)
-        })
+        });
       }
 
       var messssssage4 = messssssage
@@ -129,20 +135,28 @@ module.exports = async (client, member, members) => {
         .replace("{createdat}", member.user.createdAt.toLocaleDateString())
         .replace("{membercount}", member.guild.memberCount)
         .replace("{inviter}", inviter.tag)
-        .replace("{invites}", fetched)
+        .replace("{invites}", fetched);
 
       return client.channels.cache.get(wChan).send({ content: `${messssssage4}` });
     } catch (e) {
       console.log(e);
-      let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`)
+      let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
       if (!wChan) return;
-
-      return client.channels.cache.get(wChan).send({content: data.event_welcomer_default
+      return client.channels.cache.get(wChan).send({
+        content: data.event_welcomer_default
           .replace("${member.id}", member.id)
           .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
           .replace("${member.guild.name}", member.guild.name)
       });
     }
+  }
+
+  function isVanity(invite) {
+    return member.guild.features.includes("VANITY_URL") && invite.code == member.guild.vanityURLCode;
+  }
+
+  function isVanity(invite) {
+    return member.guild.features.includes("VANITY_URL") && invite.code == guild.vanityURLCode;
   };
 
   await joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage();

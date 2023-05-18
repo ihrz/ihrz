@@ -58,7 +58,6 @@ module.exports = async (client, member, members) => {
       const newInvites = await member.guild.invites.fetch()
       const oldInvites = client.invites.get(member.guild.id);
       const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
-
       console.log(invite.code);
       let tempDB = await db.get(`${member.guild.id}.GUILD.INVITES.${invite.code}.creatorUser`);
 
