@@ -92,13 +92,23 @@ module.exports = async (client, member, members) => {
       const oldInvites = client.invites.get(member.guild.id);
       const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
       const inviter = await client.users.fetch(invite.inviter.id)
+      console.log("----------------------------------------------------------------------")
 
-      checked = db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`)
+      console.log("🛹 INVITE : "+invite);
 
-      if (checked) {
+      const inviter = await client.users.fetch(await db.get(`${member.guild.id}.GUILD.INVITES.${invite}`).creatorUser);
+
+      console.log("🛹 INVITER : "+inviter)
+
+      console.log("----------------------------------------------------------------------")
+
+      let check = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`);
+
+      if (check) {
         await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.regular`, 1);
         await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`, 1);
-      }
+      };
+
       let fetched = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`);
 
       let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`)

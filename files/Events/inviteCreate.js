@@ -8,6 +8,7 @@ module.exports = async (client, invite) => {
   async function inviteManager() {
     if (!invite.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
 
+    console.log(invite.code, invite.uses)
     client.invites.get(invite.guild.id).set(invite.code, invite.uses);
 
     await db.set(`${invite.guild.id}.GUILD.INVITES.${invite.code}`, {
@@ -17,9 +18,9 @@ module.exports = async (client, invite) => {
       creatorUser: `${invite.inviter.id}`, inviteCode: `${invite.code}`,
       guildID: `${invite.guild.id}`, invitesAmount: 0 });
 
-    checked = db.get(`${invite.guild.id}.USER.${invite.inviter.id}.INVITES.DATA`);
+    let check = await db.get(`${invite.guild.id}.USER.${invite.inviter.id}.INVITES.DATA`);
 
-    if (!checked) {
+    if (!check) {
       await db.set(`${invite.guild.id}.USER.${invite.inviter.id}.INVITES.DATA`, {
         regular: 0, bonus: 0, leaves: 0, invites: 0 });
     }

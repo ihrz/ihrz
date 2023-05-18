@@ -57,9 +57,15 @@ module.exports = async (client, member, members) => {
     try {
       const newInvites = await member.guild.invites.fetch()
       const oldInvites = client.invites.get(member.guild.id);
-      const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
-      const inviter = await client.users.fetch(invite.inviter.id).catch(e => { });
+      console.log(oldInvites);
 
+      const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
+      console.log("LEAVE_INVITE:"+invite);
+
+      const inviter = await client.users.fetch(invite.inviter.id)
+
+      console.log(inviter,"\n")
+      console.log("-----------------_________----------------------------------")
       checked = db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`)
 
       if (checked) {
@@ -67,7 +73,6 @@ module.exports = async (client, member, members) => {
         await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.leaves`, 1);
       }
       let fetched = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`);
-
 
       let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`)
       if (wChan == null || !wChan) return;
