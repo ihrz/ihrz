@@ -91,7 +91,6 @@ module.exports = async (client, member, members) => {
       const newInvites = await member.guild.invites.fetch()
       const oldInvites = client.invites.get(member.guild.id);
       const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
-      const inviter = await client.users.fetch(invite.inviter.id)
       console.log("----------------------------------------------------------------------")
 
       console.log("🛹 INVITE : "+invite);
