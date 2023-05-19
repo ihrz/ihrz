@@ -50,7 +50,9 @@ _There are many some different software needed :_
 - [Npm](https://npmjs.com) (**With NodeJS**)
 
 ### How to configure the bot ?
-Open [config.json.exemple]()
+
+*Open [config.example.json](https://github.com/Kisakay/ihrz/blob/main/files/config.example.json) in Text file's Editor (Notepad, VSCode...)*
+
 ## Linux System
 ```bash
 node -v  &&  npm -v ## Checking if NodeJS & NPM are installed on the System
