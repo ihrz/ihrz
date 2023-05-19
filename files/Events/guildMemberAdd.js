@@ -148,10 +148,10 @@ module.exports = async (client, member, members) => {
           .replace("${member.guild.name}", member.guild.name)
       });
     }
-  }
+  };
 
   function isVanity(invite) {
-    return member.guild.features.includes("VANITY_URL") && invite.code == guild.vanityURLCode;
+    return member.guild.features.includes("VANITY_URL") && invite.code == member.guild.vanityURLCode;
   };
 
   await joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage();
