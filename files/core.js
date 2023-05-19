@@ -7,7 +7,7 @@ const bash = require('./bash/bash');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
-module.exports = (client) => {
+module.exports = async (client) => {
   api = require(__dirname+"/api/oauth.js");
 
   client.commands = new Map();
