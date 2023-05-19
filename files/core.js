@@ -21,9 +21,8 @@ module.exports = async (client) => {
   playerManager(client);
   bash(client);
   slashFetcher(client, async (callback) => { 
-    if(await db.get("BOT.CONTENT") !== callback) {
       await db.set("BOT.CONTENT", callback);
-  }; });
+  });
 
   errorManager.uncaughtExceptionHandler();
 };

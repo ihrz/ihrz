@@ -21,7 +21,6 @@ module.exports = {
     let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
     let data = yaml.load(fileContents);
     let CONTENT = await db.get("BOT.CONTENT");
-    console.log(CONTENT)
     const embed = new EmbedBuilder()
       .setColor('#001eff')
       .setDescription(data.help_tip_embed)

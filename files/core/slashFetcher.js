@@ -1,7 +1,7 @@
 const fs = require("fs");
 const logger = require(`${process.cwd()}/files/core/logger`);
 
-module.exports = (client, callback) => {
+module.exports = async (client, callback) => {
   const result = {};
 
   fs.readdir(__dirname + "/../Slash/", (err, categories) => {
@@ -38,6 +38,6 @@ module.exports = (client, callback) => {
         clearInterval(interval);
         callback(result)
       }
-    }, 100);
+    }, 500);
   });
 };
