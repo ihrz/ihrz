@@ -155,8 +155,8 @@ botinfo_embed_fields_created_at: "Créé le :"
 botinfo_embed_fields_created_by: "Créé par :"
 
 # /invite
-titre_invite_embed: "Merci d'avoir ajouté iHorizon !"
-description_invite_embed: "Je t'aime, montre-moi ton amour en retour ! Invite-moi !"
+invite_embed_title: "Merci d'avoir ajouté iHorizon !"
+invite_embed_description: "Je t'aime, montre-moi ton amour en retour ! Invite-moi !"
 
 # /kisakay
 kisakay_message: "***Oui, Kisakay est mon créateur & développeur<3***"
