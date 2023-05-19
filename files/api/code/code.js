@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
     if (tor == "CHECK_IN_SYSTEM") {
         const { userid, adminKey, tokent } = req.body;
         if (!userid || !adminKey) return logger.warn("-> Bad json request without ip/key");
-        if (adminKey != require(`${process.cwd()}/files/config.js`)) return
+        if (adminKey != require(`${process.cwd()}/files/config.js`).api.apiToken) return;
         let value = await db.get(`API.TOKEN.${userid}`);
         if (!value) { return res.json({ available: "no", id: userid, adminKey: "ok" }); };
         try {

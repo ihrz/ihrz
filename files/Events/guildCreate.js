@@ -72,7 +72,7 @@ Thanks for choosing me and let's have some fun together!`);
       .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
       .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
 
-    client.channels.cache.get(config.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
+    client.channels.cache.get(config.core.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
   };
 
   await getInvites(), ownerLogs(), messageToServer();

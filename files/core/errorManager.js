@@ -6,14 +6,14 @@ const fs = require('fs'),
 function uncaughtExceptionHandler() {
   process.on('uncaughtException', function (err) {
 
-    if (!config.devMode) {
+    if (!config.core.devMode) {
 
       logger.error("[  💥  ] >> Error detected".red)
       logger.error("[  📜  ] >> Save in the logs".gray);
       const now = new Date(),
         CreateFiles = fs.createWriteStream(__dirname + '/../logs/crash/' +
           date.format(now, 'DD.MM.YYYY HH;mm;ss') + ".txt", { flags: 'a' });
-      let i = `${config.asciicrash}\n${err.stack || err.message}`;
+      let i = `${config.core.asciicrash}\n${err.stack || err.message}`;
       CreateFiles.write(i.toString() + '\r\n');
       console.log(err.stack || err.message);
     } else { console.log(err.stack || err.message); };

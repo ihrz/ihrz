@@ -19,7 +19,7 @@ module.exports = async (client, interaction) => {
     let potential_blacklisted = await db.get(`GLOBAL.BLACKLIST.${interaction.user.id}.blacklisted`);
 
     const blacklisted = new EmbedBuilder()
-      .setColor("#0827F5").setTitle(":(").setImage(config.blacklistPictureInEmbed);
+      .setColor("#0827F5").setTitle(":(").setImage(config.core.blacklistPictureInEmbed);
 
     if (potential_blacklisted) { return interaction.reply({ embeds: [blacklisted] }) };
     if (await cooldDown()) {

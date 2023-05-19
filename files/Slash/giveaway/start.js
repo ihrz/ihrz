@@ -72,7 +72,7 @@ module.exports = {
             duration: ms(giveawayDuration),
             prize: giveawayPrize,
             winnerCount: parseInt(giveawayNumberWinners),
-            hostedBy: config.hostedBy ? `<@${interaction.user.id}>` : null,
+            hostedBy: config.giveaway.hostedBy ? `<@${interaction.user.id}>` : null,
             messages
         });
         interaction.reply({ content: data.start_confirmation_command

@@ -1,5 +1,3 @@
-const config = require('./config');
-
 module.exports = {
     giveaway: "🎉🎉 **GIVEAWAY** 🎉🎉",
     giveawayEnded: "🎉🎉 **GIVEAWAY ENDED** 🎉🎉",

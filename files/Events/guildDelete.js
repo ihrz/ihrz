@@ -26,7 +26,7 @@ module.exports = async (client, guild) => {
             .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
             .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
 
-        return client.channels.cache.get(config.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
+        return client.channels.cache.get(config.core.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
     };
 
     await inviteManager(), ownerLogs();

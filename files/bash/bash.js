@@ -10,7 +10,7 @@ const fs = require('fs');
 const config = require(`${process.cwd()}/files/config.js`);
 
 module.exports = async (client) => {
-    if (config.bash) {
+    if (config.core.bash) {
 
         const rl = readline.createInterface({
             input: process.stdin,

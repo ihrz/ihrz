@@ -38,7 +38,7 @@ module.exports = async (client) => {
   };
   
   async function refreshDatabaseModel() {
-    await db.set(`GLOBAL.OWNER.${config.ownerid1}`, { owner: true }),
+    await db.set(`GLOBAL.OWNER.${config.owner.ownerid1}`, { owner: true }),
     await db.set(`TEMP`, {}),
     await wait(1000);
   };
