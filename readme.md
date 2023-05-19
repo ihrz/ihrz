@@ -51,7 +51,9 @@ _There are many some different software needed :_
 
 ### How to configure the bot ?
 
-*Open [config.example.json](https://github.com/Kisakay/ihrz/blob/main/files/config.example.json) in Text file's Editor (Notepad, VSCode...)*
+*Open [config.example.js](https://github.com/Kisakay/ihrz/blob/main/files/config.example.js) in file Editor (Notepad, VSCode...)*, Rename to config.js.
+
+After your configuration in the config.js :
 
 ## Linux System
 ```bash
