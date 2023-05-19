@@ -57,7 +57,8 @@ module.exports = async (client, message) => {
         }).then(msg => { });
       } catch (e) { return };
     }
-  }
+  };
+  
   async function EconomyDebug() {
     if (!message.guild) return;
     if (!message.channel.type === "GUILD_TEXT") { return; }
@@ -65,7 +66,7 @@ module.exports = async (client, message) => {
     if (message.author.id == client.user.id) return
     d = await db.get(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`)
     if (!d) { return await db.set(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`, 1) }
-  }
+  };
 
   async function logsMessage() {
     if (!message.guild) return;
@@ -78,7 +79,7 @@ module.exports = async (client, message) => {
     })
     let i = message.guild.name + " | MESSAGE | [" + now + "]" + " \n " + message.author.id + ": " + message.content + " " + " in: #" + message.channel.name + ""
     CreateFiles.write(i.toString() + '\r\n')
-  }
+  };
 
   async function blockSpam() {
     if (!message.guild) return;

@@ -41,7 +41,7 @@ module.exports = async (client) => {
     await db.set(`GLOBAL.OWNER.${config.ownerid1}`, { owner: true }),
     await db.set(`TEMP`, {}),
     await wait(1000);
-  }
+  };
 
   await term(), fetchInvites(), refreshDatabaseModel();
 }

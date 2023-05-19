@@ -34,7 +34,7 @@ module.exports = async (client, reaction, user) => {
         return await member.roles.remove(role);
       };
     } catch (e) { logger.err(e) };
-  }
+  };
 
   await reactionRole();
 }

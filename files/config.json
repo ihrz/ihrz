@@ -1,12 +1,10 @@
 {
     "token": "MTA1MzgxODA0NTA3MzczOTgxNw.GZPIyo.fm66BB7Y5BCnAA-GaJuIHw0blafIo5dVepjndg",
-    "everyoneMention": true,
     "hostedBy": true,
     "devMode": true,
     "bash": false,
     "ownerid1": "171356978310938624",
     "ownerid2": "171356978310938624",
-    "ownerid": "171356978310938624",
     "guildLogsChannelID": "1100225042861805598",
     "blacklistPictureInEmbed": "https://media.discordapp.net/attachments/1047271029606723656/1049433666671087626/image.png?width=1358&height=676",
     "apiURL": "http://french.myserver.cool:25272/api/check/",

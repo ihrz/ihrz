@@ -8,21 +8,22 @@ const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
 module.exports = (client) => {
-  slashFetcher(client, (callback) => { 
-    let old_content = db.get("BOT.CONTENT");
-    if(old_content != callback) {
-      db.set("BOT.CONTENT", callback);
-  }; });
+  api = require(__dirname+"/api/oauth.js");
 
   client.commands = new Map();
   client.voiceManager = new Map();
   client.invites = new Map();
   client.interactions = new Map();
   client.register_arr = [];
+
   eventManager(client);
   giveawaysManager(client);
   playerManager(client);
-  errorManager.uncaughtExceptionHandler(),
-  api = require(__dirname+"/api/oauth.js");
   bash(client);
+  slashFetcher(client, async (callback) => { 
+    if(await db.get("BOT.CONTENT") !== callback) {
+      await db.set("BOT.CONTENT", callback);
+  }; });
+
+  errorManager.uncaughtExceptionHandler();
 };

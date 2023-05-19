@@ -43,6 +43,34 @@ The iHorizon project is licensed under the  [`Creative Commons Attribution-NonCo
 -   **ShareAlike** — If you remix, transform, or build upon the material, you must distribute your contributions under the [same license](https://creativecommons.org/licenses/by-nc-sa/2.0/#) as the original.
 -   **No additional restrictions** — You may not apply legal terms or [technological measures](https://creativecommons.org/licenses/by-nc-sa/2.0/#) that legally restrict others from doing anything the license permits.
 
+# How to selfhost ?
+
+_There are many some different software needed :_
+- [NodeJS](https://nodejs.org) (**16 and highter required**)
+- [Npm](https://npmjs.com) (**With NodeJS**)
+
+### How to configure the bot ?
+Open [config.json.exemple]()
+## Linux System
+```bash
+node -v  &&  npm -v ## Checking if NodeJS & NPM are installed on the System
+npm i ## Installing the dependencies for the bot
+npm start ## Start the bot (or node index)
+```
+
+## Microsoft Windows
+```bash
+node -v  &&  npm -v ## Checking if NodeJS & NPM are installed on the System
+npm i ## Installing the dependencies for the bot
+npm start ## Start the bot (or node index)
+```
+
+## Apple macOS
+```bash
+node -v  &&  npm -v ## Checking if NodeJS & NPM are installed on the System
+npm i ## Installing the dependencies for the bot
+npm start ## Start the bot (or node index)
+```
 
 # About the bot
 

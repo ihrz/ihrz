@@ -22,7 +22,10 @@ module.exports = {
         let data = yaml.load(fileContents);
         
         const config = require("../config.json")
-        if (interaction.user.id != config.ownerid) return interaction.reply({ content: data.status_be_bot_dev })
+        if (interaction.user.id != config.ownerid1 || interaction.user.id != config.ownerid2) {
+            return interaction.reply({ content: data.status_be_bot_dev })
+        };
+
         os.cpuUsage(function (c) {
 
             const embed = new EmbedBuilder()

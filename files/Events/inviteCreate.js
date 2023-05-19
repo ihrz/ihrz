@@ -14,17 +14,20 @@ module.exports = async (client, invite) => {
     await db.set(`${invite.guild.id}.GUILD.INVITES.${invite.code}`, {
       creatorUser: `${invite.inviter.id}`, inviterId: invite.inviter?.id,
       code: invite.code,
-      uses: invite.uses });
+      uses: invite.uses
+    });
 
     await db.set(`${invite.guild.id}.USER.${invite.inviter.id}.INVITES.${invite.code}`, {
       creatorUser: `${invite.inviter.id}`, inviteCode: `${invite.code}`,
-      guildID: `${invite.guild.id}`, invitesAmount: 0 });
+      guildID: `${invite.guild.id}`, invitesAmount: 0
+    });
 
     let check = await db.get(`${invite.guild.id}.USER.${invite.inviter.id}.INVITES.DATA`);
 
     if (!check) {
       await db.set(`${invite.guild.id}.USER.${invite.inviter.id}.INVITES.DATA`, {
-        regular: 0, bonus: 0, leaves: 0, invites: 0 });
+        regular: 0, bonus: 0, leaves: 0, invites: 0
+      });
     }
   };
 

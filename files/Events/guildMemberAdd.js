@@ -83,11 +83,11 @@ module.exports = async (client, member, members) => {
         const fetched = member.guild.channels.cache.get(roles.channel);
         await fetched.edit({ name: joinmsgreplace })
       }
-    } catch (e) { return }
+    } catch (e) { return };
   };
 
   async function welcomeMessage() {
-try {
+    try {
       const newInvites = await member.guild.invites.fetch();
       const oldInvites = client.invites.get(member.guild.id);
 
@@ -149,10 +149,6 @@ try {
           .replace("${member.guild.name}", member.guild.name)
       });
     }
-  }
-
-  function isVanity(invite) {
-    return member.guild.features.includes("VANITY_URL") && invite.code == member.guild.vanityURLCode;
   }
 
   function isVanity(invite) {

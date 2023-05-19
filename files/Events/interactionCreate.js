@@ -25,7 +25,7 @@ module.exports = async (client, interaction) => {
     if (await cooldDown()) {
       let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
       let data = yaml.load(fileContents);
-      interaction.reply({content: data.Msg_cooldown, ephemeral: true});
+      interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
       return;
     }
 

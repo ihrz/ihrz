@@ -4,7 +4,7 @@ const logger = require(`${process.cwd()}/files/core/logger`);
 module.exports = (client, callback) => {
   const result = {};
 
-  fs.readdir(__dirname+"/../Slash/", (err, categories) => {
+  fs.readdir(__dirname + "/../Slash/", (err, categories) => {
     if (err) logger.err(err);
 
     let filesCount = 0;

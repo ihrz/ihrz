@@ -12,5 +12,5 @@ module.exports = (client) => {
 
     logger.log(`[ 🟢 ] >> ${eventName}`.white);
     client.on(eventName, event.bind(null, client));
-  }
+  };
 };

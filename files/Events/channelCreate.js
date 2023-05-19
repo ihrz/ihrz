@@ -1,8 +1,6 @@
 const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
 const config = require('../config.json');
 const fs = require("fs")
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 
 const yaml = require('js-yaml');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
@@ -17,6 +15,6 @@ module.exports = async (client, channel) => {
             .setColor("#1e1d22")
             .setTitle(data.event_channel_create_message_embed_title)
             .setDescription(data.event_channel_create_message_embed_description)
-        return logchannel.send({ embeds: [setup_embed] })
-    }
+        return logchannel.send({ embeds: [setup_embed] });
+    };
 };
