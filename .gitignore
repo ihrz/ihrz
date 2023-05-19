@@ -109,3 +109,5 @@ dist
 
 # Obsidian
 .obsidian
+
+files/config.js
