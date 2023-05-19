@@ -1,5 +1,5 @@
 const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
-const config = require('../config.json');
+const config = require('../config');
 const fs = require("fs")
 
 const yaml = require('js-yaml');

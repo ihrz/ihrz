@@ -2,7 +2,7 @@ const { Client, Collection, ChannelType, PermissionFlagsBits, PermissionsBitFiel
 const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const config = require(`${process.cwd()}/files/config.json`)
+const config = require(`${process.cwd()}/files/config.js`)
 
 module.exports = async (client, guild) => {
   const channel = await guild.channels.cache.get(guild.systemChannelId);

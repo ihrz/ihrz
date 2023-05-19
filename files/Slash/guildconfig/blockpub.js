@@ -1,6 +1,6 @@
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const config = require(`${process.cwd()}/files/config.json`);
+const config = require(`${process.cwd()}/files/config.js`);
 const {
     Client,
     Intents,

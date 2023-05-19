@@ -1,7 +1,7 @@
-{
+module.exports =  {
     "token": "MTA1MzgxODA0NTA3MzczOTgxNw.GZPIyo.fm66BB7Y5BCnAA-GaJuIHw0blafIo5dVepjndg",
     "hostedBy": true,
-    "devMode": true,
+    "devMode": false,
     "bash": false,
     "ownerid1": "171356978310938624",
     "ownerid2": "171356978310938624",

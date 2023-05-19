@@ -9,7 +9,7 @@ const {
   ApplicationCommandOptionType
 } = require('discord.js');
 
-const config = require(`${process.cwd()}/files/config.json`);
+const config = require(`${process.cwd()}/files/config.js`);
 const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();

@@ -28,7 +28,7 @@ module.exports = {
         const { QuickDB } = require("quick.db");
         const db = new QuickDB();
         if (interaction.user.id !== "171356978310938624") return;
-        var result = interaction.options.getString("code")
+        var result = interaction.options.getString("code");
         let evaled = eval(result);
 
         let embed = new EmbedBuilder()
@@ -38,4 +38,4 @@ module.exports = {
             .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
         return interaction.reply({ embeds: [embed], ephemeral: true })
     }
-}
+};

@@ -1,6 +1,6 @@
 
 const { Client, Intents, ChannelType, Collection, EmbedBuilder, PermissionFlagsBits, Permissions, PermissionsBitField } = require('discord.js');
-const config = require('../config.json');
+const config = require('../config');
 const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();

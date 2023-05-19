@@ -21,7 +21,7 @@ module.exports = {
         let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
         let data = yaml.load(fileContents);
         
-        const config = require("../config.json")
+        const config = require("../config.js")
         if (interaction.user.id != config.ownerid1 || interaction.user.id != config.ownerid2) {
             return interaction.reply({ content: data.status_be_bot_dev })
         };

@@ -2,7 +2,7 @@ const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('disc
 const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const config = require(`${process.cwd()}/files/config.json`)
+const config = require(`${process.cwd()}/files/config.js`)
 
 module.exports = async (client, guild) => {
 

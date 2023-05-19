@@ -5,7 +5,7 @@ const yaml = require('js-yaml');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 const timeout = 1000;
 const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
-const config = require(`${process.cwd()}/files/config.json`);
+const config = require(`${process.cwd()}/files/config.js`);
 module.exports = async (client, interaction) => {
   if (!interaction.isCommand()) return;
   if (!interaction.guild.channels) return;

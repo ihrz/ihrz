@@ -12,7 +12,7 @@ const {
 } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const config = require(`${process.cwd()}/files/config.json`);
+const config = require(`${process.cwd()}/files/config.js`);
 
 const yaml = require('js-yaml');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
