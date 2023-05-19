@@ -8,4 +8,3 @@ These shell commands are defined internally.  Type 'help' to see this list.
  history                                      Show the bash history
  leave                                        Leave a guild with them id`)
 };
-  
