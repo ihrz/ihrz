@@ -86,7 +86,7 @@ module.exports = {
                 .setDescription(data.start_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     .replace(/\${giveawayChannel}/g, giveawayChannel) 
-                )
+                );
 
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
