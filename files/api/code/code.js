@@ -5,18 +5,25 @@ const oauth = new DiscordOauth2();
 const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = async (req, res) => {
-    const { tokent, userid, tor, adminKey } = req.body;
+    const { userid, tor, adminKey } = req.body;
+
     if (!userid || !adminKey) return logger.warn("-> Bad json request without ip/key");
+
     if (!tor == 'CHECK_IN_SYSTEM') {
         logger.warn('-> Bad json requests without options');
         return res.send('-> Bad json requests without options');
     }
+
     if (tor == "CHECK_IN_SYSTEM") {
-        const { userid, adminKey, tokent } = req.body;
+        const { userid, adminKey } = req.body;
+
         if (!userid || !adminKey) return logger.warn("-> Bad json request without ip/key");
+
         if (adminKey != require(`${process.cwd()}/files/config.js`).api.apiToken) return;
+
         let value = await db.get(`API.TOKEN.${userid}`);
         if (!value) { return res.json({ available: "no", id: userid, adminKey: "ok" }); };
+        
         try {
             await oauth.getUser(value.token);
             res.json({ connectionToken: value.token, available: "yes", id: userid, adminKey: "ok" });

@@ -3,17 +3,30 @@ const { URLSearchParams } = require('url');
 const axios = require('axios');
 const path = require('path');
 const bodyParser = require('body-parser');
+
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+
 const { QuickDB } = require('quick.db');
 const db = new QuickDB();
-const code = require('./code/code');
-require("colors");
-const logger = require(`${process.cwd()}/files/core/logger`);
 
-const client_id = '1053818045073739817';
-const client_secret = 'Tio3TDRGi1DimicjIZrvSX9tQMtcgxHb';
+require("colors");
+
+const logger = require(`${process.cwd()}/files/core/logger`);
+const config = require(`${process.cwd()}/files/config`);
+const code = require('./code/code');
+
 const app = Express();
-const port = 25272;
+
+const client_id = config.api.clientID;
+const client_secret = config.api.clientSecret;
+const port = config.api.hostPort;
+
+app.use(Express.json())
+app.post('/api/check/', code);
+
+app.use(Express.urlencoded({ extended: false }));
+app.use(Express.json());
+app.use(bodyParser.text());
 
 function make_config(authorization_token) {
     data = {
@@ -24,12 +37,6 @@ function make_config(authorization_token) {
     return data;
 }
 
-app.use(Express.json())
-app.post('/api/check/', code);
-
-app.use(Express.urlencoded({ extended: false }));
-app.use(Express.json());
-app.use(bodyParser.text());
 
 app.get('/', (_req, res) => {
     res.sendFile(path.join(__dirname + '/index.html'));
@@ -63,13 +70,12 @@ app.post('/user', async (req, res) => {
             res.status(200).send(userinfo.username);
 
         }).catch(_err => {
-            logger.warn("[  ❌  ] >> Error Code 500");
+            logger.warn(`[${config.console.emojis.ERROR}] >> Error Code 500`);
             res.sendStatus(500);
         });
 
     });
-
 });
 app.listen(port, function () {
-    logger.log(`[  🚀  ]  >> App listening! Link`.green);
+    logger.log(`[${config.console.emojis.HOST}] >> App listening! Link:`.green);
 });
