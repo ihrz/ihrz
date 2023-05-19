@@ -82,9 +82,8 @@ module.exports = async (client, message) => {
     if (type === "on") {
       const LOG = await db.get(`${guildId}.GUILD.PUNISH.PUNISH_PUB`);
       const LOGfetched = await db.get(`TEMP.${guildId}.PUNISH_DATA.${message.author.id}`);
-      const maxAmount = LOG.amountMax;
 
-      if (LOGfetched && LOG && maxAmount === LOGfetched.flags && LOG.state === "true") {
+      if (LOGfetched && LOG && LOG.amountMax === LOGfetched.flags && LOG.state === "true") {
         switch (LOG.punishementType) {
           case 'ban':
             message.guild.members.ban(message.author.id, { reason: "Ban by PUNISHPUB" }).catch(() => { });

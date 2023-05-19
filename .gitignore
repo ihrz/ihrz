@@ -110,4 +110,10 @@ dist
 # Obsidian
 .obsidian
 
+# Can't upload a critical informations
 files/config.js
+
+# Can't upload a zip
+*.zip
+*.rar
+*.tar.gz
