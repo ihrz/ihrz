@@ -66,5 +66,5 @@ module.exports.playerEvents = async (player) => {
         let data = yaml.load(fileContents);
 
         queue.metadata.channel.send({ content: data.event_mp_emptyQueue });
-    })
+    });
 };

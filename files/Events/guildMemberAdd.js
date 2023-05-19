@@ -97,12 +97,8 @@ module.exports = async (client, member, members) => {
         return invitedb && i.uses > invitedb.uses;
       });
 
-      console.log(invite.code);
-
       let tempDB = await db.get(`${member.guild.id}.GUILD.INVITES.${invite.code}.creatorUser`);
       const inviter = await client.users.fetch(tempDB);
-
-      console.log(inviter);
 
       let check = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`);
 

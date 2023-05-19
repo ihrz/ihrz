@@ -18,6 +18,6 @@ function uncaughtExceptionHandler() {
       console.log(err.stack || err.message);
     } else { console.log(err.stack || err.message); };
   });
-}
+};
 
 module.exports.uncaughtExceptionHandler = uncaughtExceptionHandler;
