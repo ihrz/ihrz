@@ -16,7 +16,7 @@ module.exports = async (client, message) => {
     if (!message.guild) return;
     if (!message.channel.type === "GUILD_TEXT") { return; }
     if (message.author.bot) return
-    const randomNumber = Math.floor(Math.random() * 100) + 150;
+    const randomNumber = Math.floor(Math.random() * 100) + 50;
     await db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, randomNumber)
     await db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xptotal`, randomNumber)
 
@@ -58,14 +58,14 @@ module.exports = async (client, message) => {
       } catch (e) { return };
     }
   };
-  
+
   async function EconomyDebug() {
     if (!message.guild) return;
     if (!message.channel.type === "GUILD_TEXT") { return; }
     if (message.author.bot) return
     if (message.author.id == client.user.id) return
     d = await db.get(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`)
-    if (!d) { return await db.set(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`, 1) }
+    if (!d) { return await db.set(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`, 0) }
   };
 
   async function logsMessage() {
