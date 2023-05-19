@@ -13,8 +13,7 @@ module.exports = async (client, invite) => {
 
     await db.set(`${invite.guild.id}.GUILD.INVITES.${invite.code}`, {
       creatorUser: `${invite.inviter.id}`, inviterId: invite.inviter?.id,
-      code: invite.code,
-      uses: invite.uses
+      code: invite.code, uses: invite.uses
     });
 
     await db.set(`${invite.guild.id}.USER.${invite.inviter.id}.INVITES.${invite.code}`, {

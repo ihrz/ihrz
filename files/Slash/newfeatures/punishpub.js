@@ -82,7 +82,7 @@ module.exports = {
 
             await db.set(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`,
                 {
-                    amountMax: amount,
+                    amountMax: amount-1,
                     punishementType: punishement,
                     state: action
                 });

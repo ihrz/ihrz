@@ -76,4 +76,4 @@ Thanks for choosing me and let's have some fun together!`);
   };
 
   await getInvites(), ownerLogs(), messageToServer();
-}
+};

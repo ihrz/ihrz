@@ -12,7 +12,6 @@ module.exports = async (client, interaction) => {
   if (interaction.user.bot) return;
 
   const command = client.interactions.get(interaction.commandName);
-
   if (!command) return interaction.reply({ content: "Connection error.", ephemeral: true });
 
   async function slashExecutor() {
@@ -35,9 +34,7 @@ module.exports = async (client, interaction) => {
   async function logsCommands() {
     const now = new Date();
 
-    const CreateFiles = fs.createWriteStream(`${process.cwd()}/files/logs/commands/${interaction.guild.id}.txt`, {
-      flags: 'a'
-    });
+    const CreateFiles = fs.createWriteStream(`${process.cwd()}/files/logs/commands/${interaction.guild.id}.txt`, { flags: 'a' });
 
     let i = `[${interaction.guild.name}] >> ${interaction.user.username}#${interaction.user.discriminator} - ${now}\n#${interaction.channel.name}: /${interaction.commandName}`;
     CreateFiles.write(i.toString() + '\r\n');
