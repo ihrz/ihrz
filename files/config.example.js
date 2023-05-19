@@ -34,11 +34,11 @@ module.exports = {
 
         "apiToken": "The API's token for create a request (Need to be private for security reason)",
 
-        "hostPort": 3000,
+        "hostPort": "3000",
 
-        "clientSecret": "Tio3TDRGi1DimicjIZrvSX9tQMtcgxHb",
+        "clientSecret": "The client Secret of your application",
 
-        "clientID": 1053818045073739817
+        "clientID": "The client ID of your application"
     },
 
     console: {

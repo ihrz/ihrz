@@ -36,7 +36,7 @@ module.exports = {
             return interaction.reply({ content: data.unowner_not_owner });
         }
 
-        let member = interaction.options.getUser('member')
+        let member = interaction.options.getUser('member');
 
         if (member.id === config.ownerid1 || member.id === config.ownerid2) {
             return interaction.reply({ content: data.unowner_cant_unowner_creator })

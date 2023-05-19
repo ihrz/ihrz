@@ -111,4 +111,4 @@ module.exports = {
             } catch (e) {logger.err(e) };
         };
     }
-}
+};

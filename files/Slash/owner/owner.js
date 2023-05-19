@@ -30,9 +30,11 @@ module.exports = {
         let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
         let data = yaml.load(fileContents);
 
-        var text = ""
-        const ownerList = await db.all()
-        for (var i in ownerList[0].value.OWNER) {
+        var text = "";
+        const ownerList = await db.all();
+        const foundArray = ownerList.findIndex(ownerList => ownerList.id === "GLOBAL");
+        const char = ownerList[foundArray].value.OWNER;
+        for (var i in char) {
             text += `<@${i}>\n`
         }
         if (!text.includes(interaction.user.id)) {

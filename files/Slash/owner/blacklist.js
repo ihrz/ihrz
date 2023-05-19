@@ -64,4 +64,4 @@ module.exports = {
             return interaction.reply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, member.user.username) });
         }
     }
-}
+};
