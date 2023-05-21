@@ -9,26 +9,25 @@ const {
   ApplicationCommandOptionType
 } = require('discord.js');
 const { QuickDB } = require("quick.db");
-const db = new QuickDB();
-
+const db = new QuickDB();p
 const yaml = require('js-yaml');
 const fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 
 module.exports = {
   name: 'addmoney',
-  description: 'add money to the bank of the typed user',
+  description: 'add money to the bank of the user',
   options: [
     {
       name: 'amount',
       type: ApplicationCommandOptionType.Number,
-      description: 'amount of $ you want add',
+      description: 'The amount of money you want to add',
       required: true
     },
     {
       name: 'member',
       type: ApplicationCommandOptionType.User,
-      description: 'the member you want to add the money',
+      description: 'The member who you want to add money',
       required: true
     }
   ],
