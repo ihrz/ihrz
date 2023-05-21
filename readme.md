@@ -8,7 +8,7 @@ iHorizon is a Discord bot written in [NodeJS](https://nodejs.org) and using the 
 * Italian
 * German
 * Japanese
-* Spannish
+* Spanish
 * And soon more !
 
 ## Contributor's Wall
@@ -16,17 +16,13 @@ iHorizon is a Discord bot written in [NodeJS](https://nodejs.org) and using the 
 - [Kisakay](https://github.com/Kisakay) (She/Her)
 - [Noémie](https://github.com/name-shitty-github-profile) (She/Her)
 - [Yvain](https://github.com/Y-v-a-i-n) (He/him)
-- [ChatGPT](https://github.com/OpenAI) (No Pronouns)
 - [Wyene](https://github.com/F-r-o-i-d) (He/him)
 
 ## Skids's hall
 There are no skidded scripts in the iHorizon source code, because talent is more important than being an idiot.
 
-## Modules's Wall
-(Lots of modules here, not listed for brevity.)
-
 ## Origin
-The bot was primarily developed by Kisakay (*formerly known as Ezermoz*) and was first released in **September 2020** using **discord.js v12.** 
+The bot was primarily developed by Kisakay (*formerly known as Ezermoz*) and was first released in **September 2020** using **discord.js v12.**<br>
 Now, It has a strong architecture with separated modules, each with their own owner directory.
 
 ## Is Free ?
