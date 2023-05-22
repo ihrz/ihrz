@@ -16,18 +16,18 @@ const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 
 module.exports = {
     name: 'pay',
-    description: 'Give money to typed user',
+    description: 'Give your money to someone',
     options: [
         {
             name: 'amount',
             type: ApplicationCommandOptionType.Number,
-            description: 'amount of $ you want add',
+            description: 'The amount of money you want to donate to them',
             required: true
         },
         {
             name: 'member',
             type: ApplicationCommandOptionType.User,
-            description: 'the member you want to add the money',
+            description: 'The member you want to donate the money',
             required: true
         }
     ],
@@ -35,11 +35,11 @@ module.exports = {
         let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
         let data = yaml.load(fileContents);
 
-        let user = interaction.options.getMember("member")
-        let amount = interaction.options.getNumber("amount")
-        let member = await db.get(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`)
+        let user = interaction.options.getMember("member");
+        let amount = interaction.options.getNumber("amount");
+        let member = await db.get(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`);
         if (amount.toString().includes('-')) {
-            return interaction.reply({ content: data.pay_negative_number_error })
+            return interaction.reply({ content: data.pay_negative_number_error });
         }
         if (member < amount.value) {
             return interaction.reply({ content: data.pay_dont_have_enought_to_give })
@@ -51,7 +51,7 @@ module.exports = {
             .replace(/\${user\.user\.username}/g, user.user.username)  
             .replace(/\${amount}/g, amount)  
         })
-        await db.add(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, amount)
-        await db.sub(`${interaction.guild.id}.USER.${interaction.member.id}.ECONOMY.money`, amount)
+        await db.add(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, amount);
+        await db.sub(`${interaction.guild.id}.USER.${interaction.member.id}.ECONOMY.money`, amount);
     }
 }
