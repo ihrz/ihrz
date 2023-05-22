@@ -14,8 +14,8 @@ iHorizon is a Discord bot written in [NodeJS](https://nodejs.org) and using the 
 ## Contributor's Wall
 
 - [Kisakay](https://github.com/Kisakay) (She/Her)
-- [Noémie](https://github.com/name-shitty-github-profile) (She/Her)
 - [Yvain](https://github.com/Y-v-a-i-n) (He/him)
+- [Noémie](https://github.com/name-shitty-github-profile) (She/Her)
 - [Wyene](https://github.com/F-r-o-i-d) (He/him)
 
 ## Skids's hall
@@ -51,21 +51,7 @@ _There are many some different software needed :_
 
 After your configuration in the config.js :
 
-## Linux System
-```bash
-node -v  &&  npm -v ## Checking if NodeJS & NPM are installed on the System
-npm i ## Installing the dependencies for the bot
-npm start ## Start the bot (or node index)
-```
-
-## Microsoft Windows
-```bash
-node -v  &&  npm -v ## Checking if NodeJS & NPM are installed on the System
-npm i ## Installing the dependencies for the bot
-npm start ## Start the bot (or node index)
-```
-
-## Apple macOS
+## Linux, Microsoft Windows & Mac os
 ```bash
 node -v  &&  npm -v ## Checking if NodeJS & NPM are installed on the System
 npm i ## Installing the dependencies for the bot
@@ -73,7 +59,6 @@ npm start ## Start the bot (or node index)
 ```
 
 # About the bot
-
 iHorizon is currently working towards being certified by Discord. We are aiming to reach +75 servers before starting the certification process!<br><br>
 
 To join the Official Discord Support Server, please visit our website at [Official Server Link](http://discord.ihorizon.me/) or click on this link: [Other Link](https://discord.gg/ZpBPGNsAsu).<br><br>
