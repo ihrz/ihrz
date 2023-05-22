@@ -1,6 +1,6 @@
 # Official iHorizon Repo :o
 
-iHorizon is a Discord bot written in [NodeJS](https://nodejs.org) and using the [discord.js](https://npmjs.org/discord.js) module. It has a large variety of features, including moderation, invite management, guild configuration, fun commands, music playback, giveaways, and backup, and lot of more.
+iHorizon is a Discord bot written in [JS](https://nodejs.org) and using the [discord.js](https://npmjs.org/discord.js) module. It has a large variety of features, including moderation, invite management, guild configuration, fun commands, music playback, giveaways, backup and lot more!
 
 ## Languages
 * English
@@ -41,12 +41,11 @@ The iHorizon project is licensed under the  [`Creative Commons Attribution-NonCo
 
 # How to selfhost ?
 
-_There are many some different software needed :_
-- [NodeJS](https://nodejs.org) (**16 and highter required**)
+_There are only some few software needed :_
+- [NodeJS](https://nodejs.org) (**16 or higher required**)
 - [Npm](https://npmjs.com) (**With NodeJS**)
 
 ### How to configure the bot ?
-
 *Open [config.example.js](https://github.com/Kisakay/ihrz/blob/main/files/config.example.js) in file Editor (Notepad, VSCode...)*, Rename to config.js.
 
 After your configuration in the config.js :
