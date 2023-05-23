@@ -6,4 +6,4 @@ async function getLanguage(arg) {
     return fetched.lang;
 }
 
-module.exports.getLanguage = getLanguage;
+module.exports = getLanguage;
