@@ -13,7 +13,8 @@ module.exports = async (client, channel) => {
         let setup_embed = new EmbedBuilder()
             .setColor("#1e1d22")
             .setTitle(data.event_channel_create_message_embed_title)
-            .setDescription(data.event_channel_create_message_embed_description)
+            .setDescription(data.event_channel_create_message_embed_description);
+            
         return logchannel.send({ embeds: [setup_embed] });
     };
 };

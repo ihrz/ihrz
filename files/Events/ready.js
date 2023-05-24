@@ -23,7 +23,7 @@ module.exports = async (client) => {
     logger.log(" / / __  / /_/ / /  / / / /_/ /_/ / / / /".blue)
     logger.log("/_/_/ /_/\\____/_/  /_/ /___/\\____/_/ /_/".blue), 
     logger.log(`[${config.console.emojis.KISA}] >> Dev by Kisakay`.magenta);
-  }
+  };
   
   async function fetchInvites() {
     client.guilds.cache.forEach(async (guild) => {
@@ -44,4 +44,4 @@ module.exports = async (client) => {
   };
 
   await term(), fetchInvites(), refreshDatabaseModel();
-}
+};

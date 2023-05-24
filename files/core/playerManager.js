@@ -7,7 +7,6 @@ module.exports = (client) => {
       quality: "highestaudio", smoothVolume: true, highWaterMark: 1 << 25,
     },
   });
-
   playerEvents(player);
   client.player = player;
 };

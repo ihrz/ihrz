@@ -25,4 +25,4 @@ module.exports = async (client, oldPresence, newPresence) => {
     };
 
     await supportModule();
-}
+};
