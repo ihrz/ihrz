@@ -9,7 +9,7 @@ const {
   ApplicationCommandOptionType
 } = require('discord.js');
 const { QuickDB } = require("quick.db");
-const db = new QuickDB();p
+const db = new QuickDB();
 const yaml = require('js-yaml');
 const fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);

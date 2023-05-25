@@ -20,7 +20,6 @@ const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 var generator = require('generate-password');
 
-
 const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 
