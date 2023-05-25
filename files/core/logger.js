@@ -1,10 +1,8 @@
-require("colors")
+require("colors");
 
 function getCurrentDateTime() {
-  const now = new Date();
-  const dateTimeString = now.toLocaleString('fr-FR', { timeZone: 'Europe/Paris' });
-  return dateTimeString;
-};
+  return (new Date()).toLocaleString('en-US' { timeZone: 'America/New_York'}) 
+}
 
 module.exports = {
   warn: function (message) {
