@@ -27,7 +27,7 @@ module.exports = async (client, callback) => {
           client.interactions.set(commandName, { name: commandName, ...props });
           client.register_arr.push(props);
 
-          result[category].push(`\`/${commandName}\``);
+          result[category].push(`\`${commandName}\``);
           filesCount--;
         });
       });
