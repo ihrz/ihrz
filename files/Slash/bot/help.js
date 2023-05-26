@@ -47,10 +47,8 @@ module.exports = {
 
     collector.on('collect', async i => {
       if (i.member.id !== interaction.user.id) { return i.reply({ content: `This interaction is not for you`, ephemeral: true }) };
-
-      await i.reply({ content: `${categories[i.values[0]].emoji}・**${categories[i.values[0]].name}**`, ephemeral: true })
-        .then((sent) => { setTimeout(() => { sent.delete(); }, 2000); });
-
+      await i.deferUpdate()
+      
       embed
         .setTitle(`${categories[i.values[0]].emoji}・${categories[i.values[0]].name}`)
         .setDescription(categories[i.values[0]].description)
