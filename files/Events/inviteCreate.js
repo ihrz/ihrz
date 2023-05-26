@@ -7,8 +7,6 @@ module.exports = async (client, invite) => {
 
   async function inviteManager() {
     if (!invite.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
-
-    console.log(invite.code, invite.uses)
     client.invites.get(invite.guild.id).set(invite.code, invite.uses);
 
     await db.set(`${invite.guild.id}.GUILD.INVITES.${invite.code}`, {

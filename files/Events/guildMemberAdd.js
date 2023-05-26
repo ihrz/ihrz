@@ -134,7 +134,6 @@ module.exports = async (client, member, members) => {
 
       return client.channels.cache.get(wChan).send({ content: `${messssssage4}` });
     } catch (e) {
-      console.log(e);
       let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
       if (!wChan) return;
       return client.channels.cache.get(wChan).send({

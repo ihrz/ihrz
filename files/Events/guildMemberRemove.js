@@ -57,12 +57,9 @@ module.exports = async (client, member, members) => {
       const newInvites = await member.guild.invites.fetch()
       const oldInvites = client.invites.get(member.guild.id);
       const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
-      console.log(invite.code);
       let tempDB = await db.get(`${member.guild.id}.GUILD.INVITES.${invite.code}.creatorUser`);
 
       const inviter = await client.users.fetch(tempDB);
-
-      console.log(inviter);
 
       let checked = db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`);
 
@@ -95,7 +92,6 @@ module.exports = async (client, member, members) => {
 
       client.channels.cache.get(wChan).send({ content: `${messssssage4}` })
     } catch (e) {
-      console.log(e)
       let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`)
       if (wChan == null) return;
       if (!wChan) return;
