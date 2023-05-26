@@ -11,7 +11,7 @@ module.exports = {
     let data = yaml.load(fileContents);
     let CONTENT = await db.get("BOT.CONTENT");
 
-    const categories = [ 
+    const categories = [
       { name: data.help_mod_fields, value: CONTENT.moderation.toString(), inline: true, description: data.help_mod_dsc, emoji: "👮‍♀️" },
       { name: data.help_ranks_fields, value: CONTENT.ranks.toString(), inline: true, description: data.help_ranks_dsc, emoji: "🌟" },
       { name: data.help_fun_fields, value: CONTENT.fun.toString(), inline: true, description: data.help_fun_dsc, emoji: "🆒" },
@@ -43,7 +43,7 @@ module.exports = {
       .setTimestamp();
 
     const response = await interaction.reply({ embeds: [embed], components: [row] });
-    const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 120_000 });
+    const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60_000 });
 
     collector.on('collect', async i => {
       if (i.member.id !== interaction.user.id) { return i.reply({ content: `This interaction is not for you`, ephemeral: true }) };
