@@ -3,6 +3,7 @@ const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const config = require(`${process.cwd()}/files/config.js`)
+const logger = require(`${process.cwd()}/files/core/logger`);
 
 module.exports = async (client, guild) => {
   const channel = await guild.channels.cache.get(guild.systemChannelId);
@@ -56,7 +57,7 @@ Thanks for choosing me and let's have some fun together!`);
       guild.invites.fetch().then(guildInvites => {
         client.invites.set(guild.id, new Map(guildInvites.map((invite) => [invite.code, invite.uses])));
       })
-    } catch (error) { console.log(error) };
+    } catch (error) { logger.err(error) };
   };
 
   async function ownerLogs() {
