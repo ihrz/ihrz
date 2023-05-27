@@ -351,6 +351,12 @@ userinfo_wait_please: "⏲ お待ちください..."
 renew_channel_send_success: "${interaction.user} チャンネルが再作成されました！"
 renew_dont_have_permission: ":x: **権限がありません！**"
 
+# /prevnames
+prevnames_embed_title: "${user.username} のニックネームのリスト"
+prevnames_undetected: "データが見つかりませんでした！"
+prevnames_not_admin: "このコマンドを実行するための `ADMINISTRATOR` 権限がありません！"
+
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

@@ -351,6 +351,12 @@ userinfo_wait_please: "⏲ Veuillez patienter s'il vous plaît..."
 renew_channel_send_success: "${interaction.user} le canal a été recréé !"
 renew_dont_have_permission: ":x: **Impossible** Vous n'avez pas la permission !"
 
+# /prevnames
+prevnames_embed_title: "Liste de tous les pseudonymes de ${user.username}"
+prevnames_undetected: "Aucune donnée trouvée !"
+prevnames_not_admin: "Vous n'avez pas la permission `ADMINISTRATOR` pour exécuter cette commande !"
+
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

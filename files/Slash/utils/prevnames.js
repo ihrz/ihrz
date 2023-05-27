@@ -27,12 +27,12 @@ module.exports = {
         let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
         let data = yaml.load(fileContents);
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: "you don't have admin permission !" })
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: "" })
 
-        let fetch = await db.get(`DB.PREVNAMES.${user.id}`) || "Aucune donnée";
+        let fetch = await db.get(`DB.PREVNAMES.${user.id}`) || data.prevnames_undetected;
 
         let prevEmbed = new EmbedBuilder().setColor("#000000");
-        prevEmbed.setTitle(`Liste des anciens pseudo de ${user.username}`);
+        prevEmbed.setTitle(``);
         prevEmbed.setDescription(fetch.join('\n'));
         prevEmbed.setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
 
