@@ -168,7 +168,7 @@ pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 status_be_bot_dev: "**:x: | ¡Tienes que ser el desarrollador del bot para hacer esto!**"
 
 # /help
-help_tip_embed: "💡 __**Consejo**__: __iHorizon ahora es multilingüe, se han corregido muchos errores__.\n**Cambie ahora el idioma de iHorizon con**: ```/setserverlang``` ¡Gracias por usar iHorizon!\nContacta con el creador: `Kisakay#3889`.\nEsta es una lista de comandos que puedes usar."
+help_tip_embed: "💡 __**Consejo**__: __iHorizon ahora es multilingüe, se han corregido muchos errores__.\n**Cambie ahora el idioma de iHorizon con**: ```/setserverlang``` ¡Gracias por usar iHorizon!\nContacta con el creador: `Kisakay`.\nEsta es una lista de comandos que puedes usar."
 help_mod_fields: "Moderación"
 help_ranks_fields: "Rangos"
 help_fun_fields: "Diversión"
