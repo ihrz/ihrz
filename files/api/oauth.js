@@ -5,7 +5,6 @@ const { QuickDB } = require('quick.db'), db = new QuickDB(), c = require("colors
 const logger = require(`${process.cwd()}/files/core/logger`), config = require(`${process.cwd()}/files/config`), code = require('./code/code');
 
 const app = Express();
-
 const client_id = config.api.clientID,
     client_secret = config.api.clientSecret,
     port = config.api.hostPort;
@@ -19,7 +18,6 @@ function make_config(authorization_token) {
 };
 
 app.get('/', (_req, res) => { res.sendFile(path.join(__dirname + '/index.html')); });
-
 app.post('/user', async (req, res) => {
     const data_1 = new URLSearchParams();
     data_1.append('client_id', client_id); data_1.append('client_secret', client_secret);
