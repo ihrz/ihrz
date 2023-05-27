@@ -481,6 +481,15 @@ setup_not_admin: ":x: | You must be an administrator of this server !"
 setup_command_work: "✅ | Channel Setup"
 setup_command_error: "The bot has already setup the logs channels ! Or the bot doesn't have permission..."
 
+# /setlogschannel
+setlogschannel_not_admin:  ":x: | You must be an administrator of this server to request this commands!"
+setlogschannel_not_specified_args: "You must specify a valid channels for you module."
+setlogschannel_confirmation_message: "✅ | Here is now for the `${typeOfLogs}`, setup by <@${interaction.user.id}> !"
+setlogschannel_already_this_channel: "This server has already this channel for logs !"
+setlogschannel_command_error: "error?"
+setlogschannel_command_work: "You have succefully setup the `${typeOfLogs}` in <#${argsid.id}> !"
+setlogschannel_command_work_on_delete: "You have succefully delete all of `SERVER_LOGS` in **${interaction.guild.name}**"
+
 
 # Member Count commands
 # /setmembercount
