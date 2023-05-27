@@ -12,7 +12,6 @@ module.exports = async (client, oldMessage, newMessage) => {
     async function serverLogs() {
         if (!oldMessage) return;
         if (!oldMessage.guild) return;
-        if (oldMessage.author.bot) return;
 
         const guildId = oldMessage.guildId;
         const someinfo = await db.get(`${guildId}.GUILD.SERVER_LOGS.message`);
