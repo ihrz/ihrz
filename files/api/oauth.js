@@ -40,4 +40,4 @@ app.post('/user', async (req, res) => {
     });
 });
 
-app.listen(port, function () { logger.log(`[${config.console.emojis.HOST}] >> App listening! Link:`.green); });
+app.listen(port, function () { logger.log(`[${config.console.emojis.HOST}] >> App listening!`.green); });

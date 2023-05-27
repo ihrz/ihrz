@@ -15,7 +15,7 @@ const DiscordOauth2 = require("discord-oauth2");
 const oauth = new DiscordOauth2();
 const superagent = require('superagent');
 const api_login = config.api.loginURL;
-const api_url = config.api.loginURL + `/api/check`;
+const apiURL = config.api.apiURL;
 const badges = {
   Discord_Employee: {
     Value: 1,
@@ -162,7 +162,7 @@ module.exports = {
 
     await interaction.reply({ content: data.userinfo_wait_please })
 
-    superagent.post(`${api_url}`).send({ tokent: "want", adminKey: config.api.apiToken, userid: member.id, tor: 'CHECK_IN_SYSTEM' }).end(async (err, response) => {
+    superagent.post(apiURL).send({ tokent: "want", adminKey: config.api.apiToken, userid: member.id, tor: 'CHECK_IN_SYSTEM' }).end(async (err, response) => {
       if (err) {
         logger.err(err)
         embed = new EmbedBuilder()
