@@ -29,11 +29,12 @@ module.exports = {
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: "" })
 
-        let fetch = await db.get(`DB.PREVNAMES.${user.id}`) || data.prevnames_undetected;
-
+        let fetch = await db.get(`DB.PREVNAMES.${user.id}`);
+        if (fetch) fetch = fetch.join('\n');
+        
         let prevEmbed = new EmbedBuilder().setColor("#000000");
-        prevEmbed.setTitle(``);
-        prevEmbed.setDescription(fetch.join('\n'));
+        prevEmbed.setTitle(data.prevnames_embed_title.replace("${user.username}", user.username));
+        prevEmbed.setDescription(fetch || data.prevnames_undetected);
         prevEmbed.setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
 
         return interaction.reply({ embeds: [prevEmbed] });
