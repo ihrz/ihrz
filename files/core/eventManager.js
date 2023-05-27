@@ -12,5 +12,5 @@ module.exports = (client) => {
     const eventName = file.split('.')[0];
     i++; client.on(eventName, event.bind(null, client));
   };
-  logger.log(`[${config.console.emojis.OK}] >> Loaded ${i} events.`.green);
+  logger.log(`【${config.console.emojis.OK}】 >> Loaded ${i} events.`.green);
 };

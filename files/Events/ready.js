@@ -22,7 +22,7 @@ module.exports = async (client) => {
     logger.log("  / / /_/ / __ \\/ ___/ /_  / / __ \\/ __ \\".blue)
     logger.log(" / / __  / /_/ / /  / / / /_/ /_/ / / / /".blue)
     logger.log("/_/_/ /_/\\____/_/  /_/ /___/\\____/_/ /_/".blue),
-      logger.log(`[${config.console.emojis.KISA}] >> Dev by Kisakay`.magenta);
+      logger.log(`【${config.console.emojis.KISA}】 >> Dev by Kisakay`.magenta);
   };
 
   async function fetchInvites() {

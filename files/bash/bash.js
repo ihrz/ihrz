@@ -23,13 +23,13 @@ module.exports = async (client) => {
         const day = now2.toLocaleString('default', { day: '2-digit' });
         const time = now2.toLocaleTimeString('en-US', { hour12: false });
 
-        console.log(`[*] iHorizon bash terminal is in power on...`.gray.bgBlack);
+        console.log(`【*】iHorizon bash terminal is in power on...`.gray.bgBlack);
         await wait(1000);
-        console.log(`[*] iHorizon bash terminal is in booting...`.gray.bgBlack);
+        console.log(`【*】 iHorizon bash terminal is in booting...`.gray.bgBlack);
         await wait(1000);
-        console.log(`[*] iHorizon bash terminal is in loading...`.gray.bgBlack);
+        console.log(`【*】 iHorizon bash terminal is in loading...`.gray.bgBlack);
         await wait(1000);
-        console.log(`[*] iHorizon has been loaded !`.gray.bgBlack);
+        console.log(`【*】 iHorizon has been loaded !`.gray.bgBlack);
 
         const now = new Date();
 
@@ -79,11 +79,11 @@ module.exports = async (client) => {
         });
 
         process.on('SIGINT', () => {
-            console.log(`\n[*] Please shutdown with the command the next time`.gray.bgBlack)
+            console.log(`\n【*】 Please shutdown with the command the next time`.gray.bgBlack)
             process.exit(0);
         });  // CTRL+C
         process.on('SIGQUIT', () => {
-            console.log(`\n[*] Please shutdown with the command`.gray.bgBlack)
+            console.log(`\n【*】 Please shutdown with the command`.gray.bgBlack)
             process.exit(0);
         }); // Keyboard quit
     }
