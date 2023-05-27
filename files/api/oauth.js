@@ -37,4 +37,4 @@ app.post('/user', async (req, res) => {
     });
 });
 
-app.listen(port, function () { logger.log(`[${config.console.emojis.HOST}] >> App listening, link: (${config.api.apiURL})`.green); });
+app.listen(port, function () { logger.log(`[${config.console.emojis.HOST}] >> App listening, link: (${config.api.loginURL})`.green); });
