@@ -27,7 +27,7 @@ module.exports = {
         let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
         let data = yaml.load(fileContents);
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: "" })
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: data.prevnames_not_admin })
 
         let fetch = await db.get(`DB.PREVNAMES.${user.id}`);
         if (fetch) fetch = fetch.join('\n');
