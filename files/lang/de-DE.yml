@@ -481,6 +481,20 @@ setup_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um di
 setup_command_work: "✅ | Kanal-Einrichtung"
 setup_command_error: "Der Bot hat bereits die Protokollkanäle eingerichtet! Oder der Bot hat keine Berechtigung ..."
 
+# /setlogschannel
+setlogschannel_not_admin:  ":x: | Du musst ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
+setlogschannel_not_specified_args: "Du musst einen gültigen Kanal für dein Modul angeben."
+setlogschannel_confirmation_message: "✅ | Hier ist jetzt für `${typeOfLogs}` eingerichtet von <@${interaction.user.id}> !"
+setlogschannel_already_this_channel: "Dieser Server hat bereits diesen Kanal für Logs!"
+setlogschannel_already_deleted: "Dieser Server hat bereits keinen `SERVER_LOGS` mehr!"
+setlogschannel_command_error: "Fehler bei der Ausführung des Befehls?"
+setlogschannel_command_work: "Du hast erfolgreich `${typeOfLogs}` in <#${argsid.id}> eingerichtet!"
+setlogschannel_command_work_on_delete: "Du hast erfolgreich alle `SERVER_LOGS` in **${interaction.guild.name}** gelöscht!"
+setlogschannel_logs_embed_title: "Setze ServerLogs"
+setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> hat `${typeOfLogs}` zu <#${argsid.id}> gesetzt"
+setlogschannel_logs_embed_title_on_off: "Setze ServerLogs"
+setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> hat alle `SERVER_LOGS` in der Gilde gelöscht!"
+
 
 # Member Count commands
 # /setmembercount

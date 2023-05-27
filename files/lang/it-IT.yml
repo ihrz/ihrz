@@ -481,6 +481,20 @@ setup_not_admin: ":x: | Devi essere un amministratore di questo server!"
 setup_command_work: "✅ | Canali di setup configurati con successo."
 setup_command_error: "Il bot ha già configurato i canali di log! Oppure il bot non ha le autorizzazioni necessarie..."
 
+# /setlogschannel
+setlogschannel_not_admin:  ":x: | Devi essere un amministratore di questo server per utilizzare questo comando!"
+setlogschannel_not_specified_args: "Devi specificare un canale valido per il tuo modulo."
+setlogschannel_confirmation_message: "✅ | Ora è stato impostato il canale per `${typeOfLogs}`, configurato da <@${interaction.user.id}> !"
+setlogschannel_already_this_channel: "Questo server ha già questo canale per i log!"
+setlogschannel_already_deleted: "Questo server non ha più il canale `SERVER_LOGS`!"
+setlogschannel_command_error: "Errore durante l'esecuzione del comando?"
+setlogschannel_command_work: "Hai configurato correttamente `${typeOfLogs}` in <#${argsid.id}> !"
+setlogschannel_command_work_on_delete: "Hai eliminato correttamente tutti i `SERVER_LOGS` in **${interaction.guild.name}**"
+setlogschannel_logs_embed_title: "Impostazione ServerLogs"
+setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> ha impostato `${typeOfLogs}` su <#${argsid.id}>"
+setlogschannel_logs_embed_title_on_off: "Impostazione ServerLogs"
+setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> ha eliminato tutti i `SERVER_LOGS` nel server!"
+
 
 # Member Count commands
 # /setmembercount

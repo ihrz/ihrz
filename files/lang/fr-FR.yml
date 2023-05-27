@@ -481,6 +481,20 @@ setup_not_admin: ":x: | Vous devez être administrateur de ce serveur !"
 setup_command_work: "✅ | Configuration du salon terminée."
 setup_command_error: "Le bot a déjà configuré les salons de logs ! Ou le bot n'a pas la permission..."
 
+# /setlogschannel
+setlogschannel_not_admin:  ":x: | Vous devez être administrateur de ce serveur pour exécuter cette commande !"
+setlogschannel_not_specified_args: "Vous devez spécifier un canal valide pour votre module."
+setlogschannel_confirmation_message: "✅ | Le canal pour les `${typeOfLogs}` est maintenant configuré par <@${interaction.user.id}> !"
+setlogschannel_already_this_channel: "Ce serveur a déjà ce canal pour les logs !"
+setlogschannel_already_deleted: "Ce serveur n'a déjà plus de `SERVER_LOGS` !"
+setlogschannel_command_error: "Erreur lors de l'exécution de la commande ?"
+setlogschannel_command_work: "Vous avez configuré avec succès les `${typeOfLogs}` dans <#${argsid.id}> !"
+setlogschannel_command_work_on_delete: "Vous avez supprimé avec succès tous les `SERVER_LOGS` dans **${interaction.guild.name}**"
+setlogschannel_logs_embed_title: "Configuration des logs du serveur"
+setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> a configuré les `${typeOfLogs}` vers <#${argsid.id}>"
+setlogschannel_logs_embed_title_on_off: "Configuration des logs du serveur"
+setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> a supprimé tous les `SERVER_LOGS` dans le serveur !"
+
 
 # Member Count commands
 # /setmembercount
