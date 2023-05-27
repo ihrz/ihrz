@@ -350,6 +350,7 @@ userinfo_wait_please: "⏲ Attendi per favore..."
 # /renew
 renew_channel_send_success: "Canale ricreato da ${interaction.user}!"
 renew_dont_have_permission: ":x: Non posso farlo Non ho i permessi necessari!"
+renew_not_administrator: ":x: **Non sei un amministratore per utilizzare questo comando!**"
 
 # /prevnames
 prevnames_embed_title: "Elenco di tutti i soprannomi di ${user.username}"

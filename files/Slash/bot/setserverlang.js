@@ -25,28 +25,28 @@ module.exports = {
             required: true,
             choices: [
                 {
-                    name: "English (Default)",
+                    name: "Deutsch",
+                    value: "de-DE"
+                },
+                {
+                    name: "English",
                     value: "en-US"
                 },
                 {
-                    name: "Italian (Available)",
-                    value: "it-IT"
-                },
-                {
-                    name: "French (Available)",
+                    name: "French",
                     value: "fr-FR"
                 },
                 {
-                    name: "Spanish (Available)",
-                    value: "es-ES"
+                    name: "Italian",
+                    value: "it-IT"
                 },
                 {
-                    name: "Japanese (Available)",
+                    name: "Japanese",
                     value: "jp-JP"
                 },
                 {
-                    name: "Deutsch (Available)",
-                    value: "de-DE"
+                    name: "Spanish",
+                    value: "es-ES"
                 }
             ],
         }

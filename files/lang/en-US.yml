@@ -350,6 +350,7 @@ userinfo_wait_please: "⏲ Wait please..."
 # /renew
 renew_channel_send_success: "${interaction.user} channel re-created !"
 renew_dont_have_permission: ":x: **Can't** `Don't have permission !`"
+renew_not_administrator: ":x: **You are not an administrator for use this command !**"
 
 # /prevnames
 prevnames_embed_title: "List of all ${user.username}'s nickname"

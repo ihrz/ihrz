@@ -350,6 +350,7 @@ userinfo_wait_please: "⏲ お待ちください..."
 # /renew
 renew_channel_send_success: "${interaction.user} チャンネルが再作成されました！"
 renew_dont_have_permission: ":x: **権限がありません！**"
+renew_not_administrator: ":x: **このコマンドを使用するための管理者ではありません！**"
 
 # /prevnames
 prevnames_embed_title: "${user.username} のニックネームのリスト"

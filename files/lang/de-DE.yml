@@ -350,6 +350,7 @@ userinfo_wait_please: "⏲ Bitte warten..."
 # /renew
 renew_channel_send_success: "${interaction.user} Kanal wurde erfolgreich neu erstellt!"
 renew_dont_have_permission: ":x: **Kann nicht** `Keine Berechtigung!`"
+renew_not_administrator: ":x: **Du bist kein Administrator, um diesen Befehl zu verwenden!**"
 
 # /prevnames
 prevnames_embed_title: "Liste aller Spitznamen von ${user.username}"
