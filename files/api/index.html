@@ -74,16 +74,16 @@
     <script>
         window.onload = function () {
             document.getElementById("top_bar").innerText = `iHorizon | Login Portal`
-            if (location.href.indexOf("code") !== -1) { // Detect if you logged in or not
-                const code = location.href.substring(location.href.indexOf("code") + 5, location.href.length); // Get the code OAUTH gives you
-                const req = new XMLHttpRequest(); // Create a new XMLHttpRequest
-                document.getElementById('credit_txt').innerText = `📳・[Portal]\n\n🤖・iHORIZON - Created by Ezermoz`;
-                req.open("POST", "http://french.myserver.cool:25272/user"); // Open the XMLHttpRequest; CHANGE THE PORT TO THE PORT YOU HAVE AS YOUR VARIABLE IN OAUTH.js.
-                req.send(code); // Send the code in the request
-                req.onload = () => { // Will run when the request is loaded
-                    if (req.status === 500) { // Error
+            if (location.href.indexOf("code") !== -1) {
+                const code = location.href.substring(location.href.indexOf("code") + 5, location.href.length);
+                const req = new XMLHttpRequest();
+                document.getElementById('credit_txt').innerText = `📳・[Portal]\n\n🤖・iHorizon - Created by Kisakay`;
+                req.open("POST", "http://french.myserver.cool:25272/user");
+                req.send(code);
+                req.onload = () => {
+                    if (req.status === 500) {
                         document.getElementById('welcome_txt').innerText = `There was an error with that. Please try logging in again. Error Code: ${req.status}`;
-                    } else if (req.status === 200) { // Successful
+                    } else if (req.status === 200) {
                         document.getElementById("welcome_txt").innerText = `Welcome, ${req.responseText}!`
                     } else { // Other
                         document.getElementById('welcome_txt').innerText = `An error occured. Please try logging in again. Error Code: ${req.status}`;
