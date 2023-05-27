@@ -38,10 +38,14 @@ module.exports = {
     if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
       return interaction.reply(data.addmoney_not_admin)
     }
-    var amount = interaction.options.get("amount")
-    let user = interaction.options.get("member")
-    interaction.reply({ content: `Successfully added \`${amount.value}\`$ to <@${user.user.id}>` })
-    await db.add(`${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, amount.value)
+    var amount = interaction.options.get("amount");
+    let user = interaction.options.get("member");
+
+    interaction.reply({ content: data.addmoney_command_work
+      .replace("${user.user.id}", user.user.id)
+      .replace("${amount.value}", amount.value)}
+    );
+    await db.add(`${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, amount.value);
 
     try {
       logEmbed = new EmbedBuilder()
@@ -49,7 +53,7 @@ module.exports = {
         .setTitle(data.addmoney_logs_embed_title)
         .setDescription(data.addmoney_logs_embed_description
           .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-          .replace(/\${amount\.value\.id}/g, amount.value)
+          .replace(/\${amount\.value}/g, amount.value)
           .replace(/\${user\.user\.id}/g, user.user.id)
           )
 

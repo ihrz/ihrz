@@ -247,6 +247,7 @@ slap_embed_description: "<@${interaction.user.id}> le da una bofetada a <@${slap
 addmoney_not_admin: "No puedes ejecutar este comando porque no tienes los permisos necesarios `ADMINISTRATOR`"
 addmoney_logs_embed_title: "Registros de economía"
 addmoney_logs_embed_description: "<@${interaction.user.id}> ¡Añadió ${amount.value} monedas a <@${user.user.id}> !"
+addmoney_command_work: "Se agregaron con éxito `${amount.value}`$ a <@${user.user.id}>"
 
 # /balance
 balance_dont_have_wallet: "👛 ¡No tienes billetera... !"
