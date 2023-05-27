@@ -161,7 +161,6 @@ module.exports = {
     }
 
     await interaction.reply({ content: data.userinfo_wait_please })
-
     superagent.post(apiURL).send({ tokent: "want", adminKey: config.api.apiToken, userid: member.id, tor: 'CHECK_IN_SYSTEM' }).end(async (err, response) => {
       if (err) {
         logger.err(err)
