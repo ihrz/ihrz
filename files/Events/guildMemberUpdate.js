@@ -1,4 +1,4 @@
-const { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client } = require('discord.js');
+const { Collection, EmbedBuilder, Permissions, AuditLogEvent, PermissionsBitField } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
@@ -9,6 +9,8 @@ module.exports = async (client, oldMember, newMember) => {
     let data = yaml.load(fileContents);
 
     async function serverLogs() {
+        if (!oldMember.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+
         const fetchedLogs = await oldMember.guild.fetchAuditLogs({
             type: AuditLogEvent.MemberRoleUpdate,
             limit: 1,
