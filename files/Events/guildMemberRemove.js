@@ -1,5 +1,5 @@
 
-const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
+const { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client } = require('discord.js');
 const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
@@ -9,6 +9,13 @@ const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 module.exports = async (client, member, members) => {
   let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(member.guild.id)}.yml`, 'utf-8');
   let data = yaml.load(fileContents);
+
+  const fetchedLogs = await member.guild.fetchAuditLogs({
+    type: AuditLogEvent.MemberKick,
+    limit: 1,
+  });
+
+  const firstEntry = fetchedLogs.entries.first();
 
   async function memberCount() {
     try {
@@ -104,5 +111,19 @@ module.exports = async (client, member, members) => {
     }
   };
 
-  await memberCount(), goodbyeMessage();
+  async function serverLogs() {
+    if (!member.guild) return;
+
+    const guildId = member.guild.id;
+    const someinfo = await db.get(`${guildId}.GUILD.SERVER_LOGS.moderation`);
+    if (!someinfo) return;
+
+    let logsEmbed = new EmbedBuilder()
+        .setColor("#000000")
+        .setDescription(`<@${firstEntry.executor.id}> **a kick** <@${firstEntry.target.id}>`)
+        .setTimestamp();
+
+    await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
+  }
+  await memberCount(), goodbyeMessage(), serverLogs();
 };

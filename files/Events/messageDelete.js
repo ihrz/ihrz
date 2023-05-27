@@ -39,7 +39,7 @@ module.exports = async (client, message) => {
             const attachments = message.attachments;
             const attachment = attachments.first();
 
-            if (attachment.contentType.startsWith('image/')) {
+            if (attachment && attachment.contentType.startsWith('image/')) {
                 const imageUrl = attachment.attachment;
                 logsEmbed.setImage(imageUrl)
             };

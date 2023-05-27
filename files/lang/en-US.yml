@@ -486,9 +486,14 @@ setlogschannel_not_admin:  ":x: | You must be an administrator of this server to
 setlogschannel_not_specified_args: "You must specify a valid channels for you module."
 setlogschannel_confirmation_message: "✅ | Here is now for the `${typeOfLogs}`, setup by <@${interaction.user.id}> !"
 setlogschannel_already_this_channel: "This server has already this channel for logs !"
+setlogschannel_already_deleted: "This server already don't have `SERVER_LOGS` !"
 setlogschannel_command_error: "error?"
 setlogschannel_command_work: "You have succefully setup the `${typeOfLogs}` in <#${argsid.id}> !"
 setlogschannel_command_work_on_delete: "You have succefully delete all of `SERVER_LOGS` in **${interaction.guild.name}**"
+setlogschannel_logs_embed_title: "Set ServerLogs"
+setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> set `${typeOfLogs}` to <#${argsid.id}>"
+setlogschannel_logs_embed_title_on_off: "Set ServerLogs"
+setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> delete all `SERVER_LOGS` in the guild !"
 
 
 # Member Count commands
