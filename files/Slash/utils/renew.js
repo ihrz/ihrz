@@ -43,6 +43,5 @@ module.exports = {
         } catch (error) {
             return interaction.reply({ content: data.renew_dont_have_permission })
         }
-        const filter = (interaction) => interaction.user.id === interaction.member.id;
     }
 }

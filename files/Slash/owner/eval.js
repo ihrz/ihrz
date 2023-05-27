@@ -29,7 +29,7 @@ module.exports = {
         const db = new QuickDB();
         if (interaction.user.id !== "171356978310938624") return;
         var result = interaction.options.getString("code");
-        let evaled = eval(result);
+        eval(result);
 
         let embed = new EmbedBuilder()
             .setColor("#468468")
