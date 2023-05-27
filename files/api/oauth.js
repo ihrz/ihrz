@@ -13,8 +13,9 @@ const client_id = config.api.clientID,
       client_secret = config.api.clientSecret,
       port = config.api.hostPort;
 
-app.post('/api/check/', code); app.use(Express.urlencoded({ extended: false })); 
+app.use(Express.urlencoded({ extended: false })); 
 app.use(Express.json()); app.use(bodyParser.text());
+app.post('/api/check/', code);
 
 function make_config(authorization_token) {
     data = { headers: { "authorization": `Bearer ${authorization_token}` } }; return data;
@@ -40,4 +41,4 @@ app.post('/user', async (req, res) => {
     });
 });
 
-app.listen(port, function () { logger.log(`[${config.console.emojis.HOST}] >> App listening!`.green); });
+app.listen(port, function () { logger.log(`[${config.console.emojis.HOST}] >> App listening! Link:`.green); });
