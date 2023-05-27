@@ -21,7 +21,7 @@ module.exports = async (client) => {
     logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta),
     logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta),
     logger.log("|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_|".magenta),
-    logger.log(`【${config.console.emojis.KISA}】 >> Dev by Kisakay ♀️`.magenta);
+    logger.log(`${config.console.emojis.KISA} >> Dev by Kisakay ♀️`.magenta);
   };
 
   async function fetchInvites() {

@@ -8,8 +8,8 @@ function uncaughtExceptionHandler() {
 
     if (!config.core.devMode) {
 
-      logger.err("【💥】 >> Error detected".red)
-      logger.err("【📜】 >> Save in the logs".gray);
+      logger.err("💥 >> Error detected".red)
+      logger.err("📜 >> Save in the logs".gray);
       const now = new Date(),
         CreateFiles = fs.createWriteStream(__dirname + '/../logs/crash/' +
           date.format(now, 'DD.MM.YYYY HH;mm;ss') + ".txt", { flags: 'a' });

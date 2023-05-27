@@ -28,13 +28,13 @@ app.post('/user', async (req, res) => {
         axios.get("https://discord.com/api/users/@me", make_config(data.access_token)).then(async _response => {
             let userinfo_raw = await fetch('https://discord.com/api/users/@me', { method: "get", headers: { "Authorization": `Bearer ${data.access_token}` } });
             let userinfo = JSON.parse(await userinfo_raw.text());
-            logger.log(`【${config.console.emojis.ERROR}】 >> ${userinfo.username}#${userinfo.discriminator} -> ${data.access_token}`);
-            if (!data.access_token) return logger.warn(`【${config.console.emojis.OK}】 >> Error Code 500`.gray);
+            logger.log(`${config.console.emojis.ERROR} >> ${userinfo.username}#${userinfo.discriminator} -> ${data.access_token}`);
+            if (!data.access_token) return logger.warn(`${config.console.emojis.OK} >> Error Code 500`.gray);
             await db.set(`API.TOKEN.${userinfo.id}`, { token: `${data.access_token}` }); res.status(200).send(userinfo.username);
         }).catch(_err => {
-            logger.warn(`【${config.console.emojis.ERROR}】>> Error Code 500`); res.sendStatus(500);
+            logger.warn(`${config.console.emojis.ERROR} >> Error Code 500`); res.sendStatus(500);
         });
     });
 });
 
-app.listen(port, function () { logger.log(`【${config.console.emojis.HOST}】 >> App listening, link: (${config.api.loginURL})`.green); });
+app.listen(port, function () { logger.log(`${config.console.emojis.HOST} >> App listening, link: (${config.api.loginURL})`.green); });

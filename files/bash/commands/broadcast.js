@@ -9,5 +9,5 @@ module.exports = function (client, args) {
     client.guilds.cache.forEach(async (guild) => {
         let channel = guild.channels.cache.find(role => role.name === 'ihorizon-logs'); if (channel) { channel.send({ content: "@here", embeds: [embed] }) };
     });
-    console.log(`【*】 All are successfully sended`.gray.bgBlack);
+    console.log(`* All are successfully sended`.gray.bgBlack);
 };
