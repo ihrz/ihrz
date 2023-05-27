@@ -788,3 +788,23 @@ iC_event_connection_error: "Verbindungsfehler!"
 
 # Cooldown
 Msg_cooldown: "Kannst du bitte einen Moment warten, bevor du einen Befehl ausführst?"
+
+# Server-Protokolle
+event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **hat <@${firstEntry.target.id}> gebannt**"
+event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **hat das Bann von ${firstEntry.target.username} aufgehoben**"
+event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **hat <@${firstEntry.target.id}> gekickt**"
+event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> **hat die Rolle <@&${removedRoles}> von ${oldMember.user.username} entfernt**"
+event_srvLogs_guildMemberUpdate_2_description: "📥 <@${firstEntry.executor.id}> **hat die Rolle <@&${addedRoles}> zu ${oldMember.user.username} hinzugefügt**"
+event_srvLogs_messageDelete_description: "**Nachricht in <#${message.channel.id}> gelöscht**\n${message.content}"
+event_srvLogs_messageUpdate_description: "**Nachricht in <#${oldMessage.channelId}> bearbeitet**"
+event_srvLogs_messageUpdate_footer_1: "Vorher"
+event_srvLogs_messageUpdate_footer_2: "Nachher"
+event_srvLogs_voiceStateUpdate_description: "📤 <@${targetUser.id}> **hat den Sprachkanal <#${OchannelID}> verlassen**"
+event_srvLogs_voiceStateUpdate_2_description: "📥 <@${targetUser.id}> **hat den Sprachkanal <#${channelID}> betreten**"
+event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> **hat das Headset im Kanal <#${channelID}> stummgeschaltet**"
+event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> **hat das Headset im Kanal <#${channelID}> stummschalten aufgehoben**"
+event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> **hat sich im Kanal <#${channelID}> stummgeschaltet**"
+event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> **hat sich im Kanal <#${channelID}> stummschalten aufgehoben**"
+
+
+# -----------------------------\ /-----------------------------

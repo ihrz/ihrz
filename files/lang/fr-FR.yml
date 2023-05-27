@@ -788,3 +788,23 @@ iC_event_connection_error: "Erreur de connexion !"
 
 # Cooldown
 Msg_cooldown: "Peux-tu patienter une seconde avant d'exécuter une commande, s'il te plaît ?"
+
+# Server Logs
+event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **a ban** <@${firstEntry.target.id}>"
+event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> a **révoqué le bannissement** de ${firstEntry.target.username}"
+event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **a kick** <@${firstEntry.target.id}>"
+event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> a supprimé le rôle <@&${removedRoles}> à ${oldMember.user.username}"
+event_srvLogs_guildMemberUpdate_2_description: "📥 <@${firstEntry.executor.id}> a ajouté le rôle <@&${addedRoles}> à ${oldMember.user.username}"
+event_srvLogs_messageDelete_description: "**Message supprimé dans <#${message.channel.id}>**\n${message.content}"
+event_srvLogs_messageUpdate_description: "**Message édité dans <#${oldMessage.channelId}>**"
+event_srvLogs_messageUpdate_footer_1: "Avant"
+event_srvLogs_messageUpdate_footer_2: "Après"
+event_srvLogs_voiceStateUpdate_description: "📤 <@${targetUser.id}> quitte le salon <#${OchannelID}>"
+event_srvLogs_voiceStateUpdate_2_description: "📥 <@${targetUser.id}> se connecte au salon <#${channelID}>"
+event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> s'est mute casque dans le salon <#${channelID}>"
+event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> s'est demute casque casque dans le salon <#${channelID}>"
+event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> s'est mute dans le salon <#${channelID}>"
+event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> s'est demute casque dans le salon <#${channelID}>"
+
+
+# -----------------------------\ /-----------------------------

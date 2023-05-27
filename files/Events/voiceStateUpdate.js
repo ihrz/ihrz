@@ -2,7 +2,13 @@ const { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client } =
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const yaml = require('js-yaml'), fs = require('fs');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+
 module.exports = async (client, oldState, newState) => {
+    let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(oldState.guild.id)}.yml`, 'utf-8');
+    let data = yaml.load(fileContents);
+
     async function serverLogs() {
         if (!oldState) return;
         if (!oldState.guild) return;
@@ -27,30 +33,48 @@ module.exports = async (client, oldState, newState) => {
 
         // JOIN/LEAVE
         if (user && !channelID) {
-            logsEmbed.setDescription(`📤 <@${targetUser.id}> quitte le salon <#${OchannelID}>`);
+            logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_description
+                .replace("${targetUser.id}", targetUser.id)
+                .replace("${OchannelID}", OchannelID)
+            );
             return await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
         }
         if (Ouser && !OchannelID) {
-            logsEmbed.setDescription(`📥 <@${targetUser.id}> se connecte au salon <#${channelID}>`);
+            logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_2_description
+                .replace("${targetUser.id}", targetUser.id)
+                .replace("${channelID}", channelID)
+            );
             return await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
         };
         // MUTE CASQUE
         if (!Ostatus.selfDeaf && status.selfDeaf) {
-            logsEmbed.setDescription(`<@${targetUser.id}> s'est mute casque dans le salon <#${channelID}>`);
+            logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_3_description
+                .replace("${targetUser.id}", targetUser.id)
+                .replace("${channelID}", channelID)
+            );
             return await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
         }
         if (Ostatus.selfDeaf && !status.selfDeaf) {
-            logsEmbed.setDescription(`<@${targetUser.id}> s'est demute casque casque dans le salon <#${channelID}>`);
+            logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_4_description
+                .replace("${targetUser.id}", targetUser.id)
+                .replace("${channelID}", channelID)
+            );
             return await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
         }
-        
+
         // MUTE MICRO
         if (!Ostatus.selfMute && status.selfMute) {
-            logsEmbed.setDescription(`<@${targetUser.id}> s'est mute dans le salon <#${channelID}>`);
+            logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_5_description
+                .replace("${targetUser.id}", targetUser.id)
+                .replace("${channelID}", channelID)
+            );
             return await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
         }
         if (Ostatus.selfMute && !status.selfMute) {
-            logsEmbed.setDescription(`<@${targetUser.id}> s'est demute casque dans le salon <#${channelID}>`);
+            logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_6_description
+                .replace("${targetUser.id}", targetUser.id)
+                .replace("${channelID}", channelID)
+            );
             return await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
         }
     };

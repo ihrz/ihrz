@@ -120,7 +120,10 @@ module.exports = async (client, member, members) => {
 
     let logsEmbed = new EmbedBuilder()
         .setColor("#000000")
-        .setDescription(`<@${firstEntry.executor.id}> **a kick** <@${firstEntry.target.id}>`)
+        .setDescription(data.event_srvLogs_guildMemberRemove_description
+          .replace("${firstEntry.executor.id}", firstEntry.executor.id)
+          .replace("${firstEntry.target.id}", firstEntry.target.id)
+        )
         .setTimestamp();
 
     await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });

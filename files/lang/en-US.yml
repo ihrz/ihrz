@@ -788,3 +788,23 @@ iC_event_connection_error: "Connection error !"
 
 # Cooldown
 Msg_cooldown: "Can you please wait a second before executing the command?"
+
+# Server Logs
+event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **banned** <@${firstEntry.target.id}>"
+event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **revoked the ban** on ${firstEntry.target.username}"
+event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **kicked** <@${firstEntry.target.id}>"
+event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> removed the <@&${removedRoles}> role from ${oldMember.user.username}"
+event_srvLogs_guildMemberUpdate_2_description: "📥 <@${firstEntry.executor.id}> added the <@&${addedRoles}> role to ${oldMember.user.username}"
+event_srvLogs_messageDelete_description: "**Message deleted in <#${message.channel.id}>**\n${message.content}"
+event_srvLogs_messageUpdate_description: "**Message edited in <#${oldMessage.channelId}>**"
+event_srvLogs_messageUpdate_footer_1: "Before"
+event_srvLogs_messageUpdate_footer_2: "After"
+event_srvLogs_voiceStateUpdate_description: "📤 <@${targetUser.id}> left the <#${OchannelID}> channel"
+event_srvLogs_voiceStateUpdate_2_description: "📥 <@${targetUser.id}> joined the <#${channelID}> channel"
+event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> muted their headset in the <#${channelID}> channel"
+event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> unmuted their headset in the <#${channelID}> channel"
+event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> muted themselves in the <#${channelID}> channel"
+event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> unmuted themselves in the <#${channelID}> channel"
+
+
+# -----------------------------\ /-----------------------------

@@ -4,7 +4,12 @@ const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const hidden = require(`${process.cwd()}/files/core/maskLink`);
 
+const yaml = require('js-yaml');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
+
 module.exports = async (client, message) => {
+    let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(message.guild.id)}.yml`, 'utf-8');
+    let data = yaml.load(fileContents);
 
     async function snipeModules() {
         if (!message.guild) return;
@@ -32,7 +37,10 @@ module.exports = async (client, message) => {
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setAuthor({ name: message.author.username, iconURL: message.author.avatarURL({ format: 'png', dynamic: true, size: 512 }) })
-            .setDescription(`**Message supprimé dans <#${message.channel.id}>**\n${message.content}`)
+            .setDescription(data.event_srvLogs_messageDelete_description
+                .replace("${message.channel.id}", message.channel.id)
+                .replace("${message.content}", message.content)
+            )
             .setTimestamp();
 
         if (message.attachments) {

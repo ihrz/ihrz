@@ -788,3 +788,23 @@ iC_event_connection_error: "Errore di connessione!"
 
 # Cooldown
 Msg_cooldown: "Puoi pazientare un secondo prima di eseguire un comando, per favore?"
+
+# Registri del Server
+event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **ha bannato** <@${firstEntry.target.id}>"
+event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **ha revocato il ban** di ${firstEntry.target.username}"
+event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **ha cacciato** <@${firstEntry.target.id}>"
+event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> ha rimosso il ruolo <@&${removedRoles}> da ${oldMember.user.username}"
+event_srvLogs_guildMemberUpdate_2_description: "📥 <@${firstEntry.executor.id}> ha aggiunto il ruolo <@&${addedRoles}> a ${oldMember.user.username}"
+event_srvLogs_messageDelete_description: "**Messaggio eliminato in <#${message.channel.id}>**\n${message.content}"
+event_srvLogs_messageUpdate_description: "**Messaggio modificato in <#${oldMessage.channelId}>**"
+event_srvLogs_messageUpdate_footer_1: "Prima"
+event_srvLogs_messageUpdate_footer_2: "Dopo"
+event_srvLogs_voiceStateUpdate_description: "📤 <@${targetUser.id}> ha lasciato il canale <#${OchannelID}>"
+event_srvLogs_voiceStateUpdate_2_description: "📥 <@${targetUser.id}> si è unito al canale <#${channelID}>"
+event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> ha messo in muto le cuffie nel canale <#${channelID}>"
+event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> ha tolto il muto alle cuffie nel canale <#${channelID}>"
+event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> si è messo in muto nel canale <#${channelID}>"
+event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> si è tolto il muto nel canale <#${channelID}>"
+
+
+# -----------------------------\ /-----------------------------

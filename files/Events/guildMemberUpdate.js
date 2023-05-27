@@ -2,16 +2,19 @@ const { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client } =
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
+const yaml = require('js-yaml'), fs = require('fs');
+const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 module.exports = async (client, oldMember, newMember) => {
-
-    const fetchedLogs = await oldMember.guild.fetchAuditLogs({
-        type: AuditLogEvent.MemberRoleUpdate,
-        limit: 1,
-    });
-
-    const firstEntry = fetchedLogs.entries.first();
+    let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(oldMember.guild.id)}.yml`, 'utf-8');
+    let data = yaml.load(fileContents);
 
     async function serverLogs() {
+        const fetchedLogs = await oldMember.guild.fetchAuditLogs({
+            type: AuditLogEvent.MemberRoleUpdate,
+            limit: 1,
+        });
+        const firstEntry = fetchedLogs.entries.first();
+
         if (!oldMember) return;
         if (!oldMember.guild) return;
 
@@ -29,12 +32,19 @@ module.exports = async (client, oldMember, newMember) => {
 
         if (oldRoles > newRoles) {
             const removedRoles = oldMember._roles.filter(roleId => !newMember._roles.includes(roleId));
-            logsEmbed.setDescription(`📤 <@${firstEntry.executor.id}> a supprimé le rôle <@&${removedRoles}> à ${oldMember.user.username}`)
-
+            logsEmbed.setDescription(data.event_srvLogs_guildMemberUpdate_description
+                .replace("${firstEntry.executor.id}", firstEntry.executor.id)
+                .replace("${removedRoles}", removedRoles)
+                .replace("${oldMember.user.username}", oldMember.user.username)
+            )
         }
         if (newRoles > oldRoles) {
             const addedRoles = newMember._roles.filter(roleId => !oldMember._roles.includes(roleId));
-            logsEmbed.setDescription(`📥 <@${firstEntry.executor.id}> a ajouté le rôle <@&${addedRoles}> à ${oldMember.user.username}`)
+            logsEmbed.setDescription(data.event_srvLogs_guildMemberUpdate_2_description
+                .replace("${firstEntry.executor.id}", firstEntry.executor.id)
+                .replace("${addedRoles}", addedRoles)
+                .replace("${oldMember.user.username}", oldMember.user.username)
+            )
         }
 
         await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });

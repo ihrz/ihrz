@@ -788,3 +788,23 @@ iC_event_connection_error: "接続エラー！"
 
 # Cooldown
 Msg_cooldown: "「コマンドを実行する前に、一秒待っていただけますか？お願いします。」"
+
+# サーバーログ
+event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **が<@${firstEntry.target.id}>をBANしました**"
+event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **が${firstEntry.target.username}のBANを解除しました**"
+event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **が<@${firstEntry.target.id}>をキックしました**"
+event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> **が${oldMember.user.username}から<@&${removedRoles}>役職を削除しました**"
+event_srvLogs_guildMemberUpdate_2_description: "📥 <@${firstEntry.executor.id}> **が${oldMember.user.username}に<@&${addedRoles}>役職を追加しました**"
+event_srvLogs_messageDelete_description: "**<#${message.channel.id}>でメッセージが削除されました**\n${message.content}"
+event_srvLogs_messageUpdate_description: "**<#${oldMessage.channelId}>でメッセージが編集されました**"
+event_srvLogs_messageUpdate_footer_1: "編集前"
+event_srvLogs_messageUpdate_footer_2: "編集後"
+event_srvLogs_voiceStateUpdate_description: "📤 <@${targetUser.id}> **が<#${OchannelID}>チャンネルから退出しました**"
+event_srvLogs_voiceStateUpdate_2_description: "📥 <@${targetUser.id}> **が<#${channelID}>チャンネルに参加しました**"
+event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> **が<#${channelID}>チャンネルでヘッドセットをミュートしました**"
+event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> **が<#${channelID}>チャンネルでヘッドセットのミュートを解除しました**"
+event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> **が<#${channelID}>チャンネルで自身をミュートしました**"
+event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> **が<#${channelID}>チャンネルで自身のミュートを解除しました**"
+
+
+# -----------------------------\ /-----------------------------
