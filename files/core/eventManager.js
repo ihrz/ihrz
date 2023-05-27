@@ -6,12 +6,11 @@ const config = require(`${process.cwd()}/files/config`);
 
 module.exports = (client) => {
   const eventFiles = fs.readdirSync(path.resolve(__dirname, '..', 'Events')).filter(file => file.endsWith('.js'));
-
+  let i = 0;
   for (const file of eventFiles) {
     const event = require(path.resolve(__dirname, '..', 'Events', file));
     const eventName = file.split('.')[0];
-
-    logger.log(`[${config.console.emojis.OK}] >> ${eventName}`.white);
-    client.on(eventName, event.bind(null, client));
+    i++; client.on(eventName, event.bind(null, client));
   };
+  logger.log(`[${config.console.emojis.OK}] >> Loaded ${i} events.`.green);
 };
