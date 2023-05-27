@@ -17,12 +17,11 @@ module.exports = async (client) => {
   })), { debug: true });
 
   async function term() {
-    logger.log("    _ __  __           _                 ".blue)
-    logger.log("   (_) / / /___  _____(_)___  ____  ____ ".blue)
-    logger.log("  / / /_/ / __ \\/ ___/ /_  / / __ \\/ __ \\".blue)
-    logger.log(" / / __  / /_/ / /  / / / /_/ /_/ / / / /".blue)
-    logger.log("/_/_/ /_/\\____/_/  /_/ /___/\\____/_/ /_/".blue),
-      logger.log(`【${config.console.emojis.KISA}】 >> Dev by Kisakay`.magenta);
+    logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta),
+    logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta),
+    logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta),
+    logger.log("|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_|".magenta),
+    logger.log(`【${config.console.emojis.KISA}】 >> Dev by Kisakay ♀️`.magenta);
   };
 
   async function fetchInvites() {
