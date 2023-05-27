@@ -16,8 +16,8 @@ const yaml = require('js-yaml'), fs = require('fs');
 const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 
 module.exports = {
-    name: 'p',
-    description: '(music) play a music',
+    name: 'play',
+    description: 'Play music in voice call !',
     options: [
         {
             name: 'title',
