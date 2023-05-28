@@ -29,7 +29,7 @@ Thank you for your understanding and have a great day.
 Best regards,
 iHorizon Project`);
 
-      channel.send({ embeds: [embed] });
+      channel.send({ embeds: [embed] }).catch(err => {});
       return guild.leave();
     } else {
       let embed = new EmbedBuilder()

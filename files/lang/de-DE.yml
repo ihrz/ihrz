@@ -239,6 +239,10 @@ question_embed_title: "__**Frage**__: `${interaction.user.username}`"
 # /slap
 slap_embed_description: "<@${interaction.user.id}> schlägt <@${slap.id}> 😓"
 
+# /dogs
+dogs_embed_command_error: "Fehler beim Abrufen des Hunde-Bildes."
+dogs_embed_title: "🐶 wuff-wuff."
+
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
