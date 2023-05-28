@@ -106,7 +106,7 @@ module.exports = async (client, member, members) => {
 
   async function serverLogs() {
 
-    if (!oldMember.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+    if (!member.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
 
     const fetchedLogs = await member.guild.fetchAuditLogs({
       type: AuditLogEvent.MemberKick,
