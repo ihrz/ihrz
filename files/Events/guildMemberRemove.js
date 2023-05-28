@@ -10,13 +10,6 @@ module.exports = async (client, member, members) => {
   let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(member.guild.id)}.yml`, 'utf-8');
   let data = yaml.load(fileContents);
 
-  const fetchedLogs = await member.guild.fetchAuditLogs({
-    type: AuditLogEvent.MemberKick,
-    limit: 1,
-  });
-
-  const firstEntry = fetchedLogs.entries.first();
-
   async function memberCount() {
     try {
       const botMembers = member.guild.members.cache.filter(member => member.user.bot);
@@ -112,6 +105,15 @@ module.exports = async (client, member, members) => {
   };
 
   async function serverLogs() {
+
+    if (!oldMember.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+
+    const fetchedLogs = await member.guild.fetchAuditLogs({
+      type: AuditLogEvent.MemberKick,
+      limit: 1,
+    });
+    const firstEntry = fetchedLogs.entries.first();
+
     if (!member.guild) return;
 
     const guildId = member.guild.id;
@@ -119,12 +121,12 @@ module.exports = async (client, member, members) => {
     if (!someinfo) return;
 
     let logsEmbed = new EmbedBuilder()
-        .setColor("#000000")
-        .setDescription(data.event_srvLogs_guildMemberRemove_description
-          .replace("${firstEntry.executor.id}", firstEntry.executor.id)
-          .replace("${firstEntry.target.id}", firstEntry.target.id)
-        )
-        .setTimestamp();
+      .setColor("#000000")
+      .setDescription(data.event_srvLogs_guildMemberRemove_description
+        .replace("${firstEntry.executor.id}", firstEntry.executor.id)
+        .replace("${firstEntry.target.id}", firstEntry.target.id)
+      )
+      .setTimestamp();
 
     await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
   }

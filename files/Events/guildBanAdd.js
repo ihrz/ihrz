@@ -11,6 +11,8 @@ module.exports = async (client, ban) => {
     let data = yaml.load(fileContents);
 
     async function serverLogs() {
+        if (!oldMember.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+
         const fetchedLogs = await ban.guild.fetchAuditLogs({
             type: AuditLogEvent.MemberBanAdd,
             limit: 1,

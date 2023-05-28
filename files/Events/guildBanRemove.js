@@ -6,6 +6,8 @@ const db = new QuickDB();
 module.exports = async (client, ban) => {
 
     async function serverLogs() {
+        if (!oldMember.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+
         const fetchedLogs = await ban.guild.fetchAuditLogs({
             type: AuditLogEvent.MemberBanRemove,
             limit: 1,
