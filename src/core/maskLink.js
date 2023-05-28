@@ -1,0 +1,1 @@
+module.exports.maskLink = (link) => `[Hidden Link] ${link.replace(/./g, "*")}`;
