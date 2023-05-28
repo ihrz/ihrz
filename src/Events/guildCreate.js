@@ -2,7 +2,7 @@ const { Client, Collection, ChannelType, PermissionFlagsBits, PermissionsBitFiel
 const fs = require("fs")
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const config = require(`${process.cwd()}/src/config.js`)
+const config = require(`${process.cwd()}/src/config.js`);
 const logger = require(`${process.cwd()}/src/core/logger`);
 
 module.exports = async (client, guild) => {
@@ -15,7 +15,7 @@ module.exports = async (client, guild) => {
       "iHorizon has joined the chat! 💬",
       "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂",
       "Let's give a warm welcome to iHorizon! 🔥",
-    ]
+    ];
       let embed = new EmbedBuilder()
         .setColor("#00FF00")
         .setTimestamp()
@@ -53,7 +53,7 @@ Thanks for choosing me and let's have some fun together!`);
         { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
         { name: "🪝・Vanity URL", value: `\`discord.gg/${guild.vanityURLCode || "None"}\``, inline: true })
       .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
-      .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
+      .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
     client.channels.cache.get(config.core.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
   };
 

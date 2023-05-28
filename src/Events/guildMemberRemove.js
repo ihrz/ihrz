@@ -12,9 +12,9 @@ module.exports = async (client, member, members) => {
       const rolesCollection = member.guild.roles.cache;
       const rolesCount = rolesCollection.size;
 
-      let bot = await db.get(`${member.guild.id}.GUILD.MCOUNT.bot`)
-      let member_2 = await db.get(`${member.guild.id}.GUILD.MCOUNT.member`)
-      let roles = await db.get(`${member.guild.id}.GUILD.MCOUNT.roles`)
+      let bot = await db.get(`${member.guild.id}.GUILD.MCOUNT.bot`);
+      let member_2 = await db.get(`${member.guild.id}.GUILD.MCOUNT.member`);
+      let roles = await db.get(`${member.guild.id}.GUILD.MCOUNT.roles`);
 
       if (bot) {
         let joinmsgreplace = bot.name
@@ -22,7 +22,7 @@ module.exports = async (client, member, members) => {
           .replace("{membercount}", member.guild.memberCount)
           .replace("{botcount}", botMembers.size);
         const fetched = member.guild.channels.cache.get(bot.channel);
-        await fetched.edit({ name: joinmsgreplace }).then(response => { })
+        await fetched.edit({ name: joinmsgreplace }).then(response => { });
       }
 
       if (member_2) {
@@ -31,7 +31,7 @@ module.exports = async (client, member, members) => {
           .replace("{membercount}", member.guild.memberCount)
           .replace("{botcount}", botMembers.size);
         const fetched = member.guild.channels.cache.get(member_2.channel);
-        await fetched.edit({ name: joinmsgreplace })
+        await fetched.edit({ name: joinmsgreplace });
       }
 
       if (roles) {
@@ -40,9 +40,9 @@ module.exports = async (client, member, members) => {
           .replace("{membercount}", member.guild.memberCount)
           .replace("{botcount}", botMembers.size);
         const fetched = member.guild.channels.cache.get(roles.channel);
-        await fetched.edit({ name: joinmsgreplace })
+        await fetched.edit({ name: joinmsgreplace });
       }
-    } catch (e) { return };
+    } catch (e) { return }
   };
 
   async function goodbyeMessage() {
@@ -78,7 +78,7 @@ module.exports = async (client, member, members) => {
         .replace("{membercount}", member.guild.memberCount)
         .replace("{inviter}", inviter.tag)
         .replace("{invites}", fetched);
-      client.channels.cache.get(wChan).send({ content: `${messssssage4}` })
+      client.channels.cache.get(wChan).send({ content: `${messssssage4}` });
     } catch (e) {
       let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`);
       if (!wChan) return;
