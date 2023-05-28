@@ -29,7 +29,7 @@ Thank you for your understanding and have a great day.
 Best regards,
 iHorizon Project`);
 
-      channel.send({ embeds: [embed] }).catch(err => {});
+      if (channel) channel.send({ embeds: [embed] }).catch(err => { });
       return guild.leave();
     } else {
       let embed = new EmbedBuilder()
@@ -47,7 +47,7 @@ I'm here to make your experience on this server the best it can be.
 
 Thanks for choosing me and let's have some fun together!`);
 
-      channel.send({ embeds: [embed] }).catch(err => {});
+      if (channel) channel.send({ embeds: [embed] }).catch(err => { });
     }
   };
 
