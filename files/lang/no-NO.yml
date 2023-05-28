@@ -1,0 +1,785 @@
+# Grunnleggende språkfil for iHorizon Discord-bot
+# nb-NO: Norsk
+
+# Kommandoer for billetter
+# /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
+
+# /add
+add_disabled_command: "Du kan ikke bruke denne kommandoen fordi en administrator har deaktivert billettkommandoene!"
+add_incorect_syntax: "Feil syntaks! **Riktig bruk:** `.add <medlem>`"
+add_command_work: "La til ${member.tag} i billetten din!"
+add_command_error: "Det oppstod en feil. Prøv igjen."
+
+# /close
+close_disabled_command: "Du kan ikke bruke denne kommandoen fordi en administrator har deaktivert billettkommandoene!"
+close_title_sourcebin: "Billettranskripsjon av iHorizon"
+close_description_sourcebin: " "
+close_error_command: "Det oppstod en feil. Prøv igjen!"
+close_command_work_channel: "Du har lukket billetten din. iHorizon har sendt deg transkripsjonen."
+close_command_work_notify_channel: "Billetten ble lukket vellykket!"
+close_command_error: "Det oppstod en feil. Prøv igjen!"
+close_not_in_ticket: "Du kan ikke bruke denne kommandoen utenfor en billettkanal!"
+
+# /delete
+delete_disabled_command: "Du kan ikke bruke denne kommandoen fordi en administrator har deaktivert billettkommandoene!"
+delete_not_in_ticket: "Du kan ikke bruke denne kommandoen utenfor en billettkanal!"
+
+# /sethereticket
+sethereticket_disabled_command: "Du kan ikke bruke denne kommandoen fordi en annen administrator har deaktivert billettkommandoene!"
+sethereticket_not_admin: ":x: | Du må være administrator på denne serveren for å bruke denne kommandoen!"
+sethereticket_description_embed: "For å opprette en ny billett, reager med 📩"
+sethereticket_command_work: "Billettpanelet er opprettet vellykket!"
+
+# /open
+open_disabled_command: "Du kan ikke bruke denne kommandoen fordi en administrator har deaktivert billettkommandoene!"
+open_command_work: "Gjenåpnet ${interaction.channel} vellykket!"
+open_command_error: "Det oppstod en feil. Prøv igjen!"
+open_not_in_ticket: "Du kan ikke bruke denne kommandoen utenfor en billettkanal!"
+
+# /remove
+remove_disabled_command: "Du kan ikke bruke denne kommandoen fordi en administrator har deaktivert billettkommandoene!"
+remove_not_in_ticket: "Du kan ikke bruke denne kommandoen utenfor en billettkanal!"
+remove_command_error: "Det oppstod en feil. Prøv igjen."
+remove_command_work: "Fjernet ${member.tag} fra billetten din vellykket!"
+
+# /transript
+transript_disabled_command: "Du kan ikke bruke denne kommandoen fordi en administrator har deaktivert billettkommandoene!"
+transript_name_sourcebin: " "
+transript_title_sourcebin: "Billettsamtaletranskripsjon for ${channel.name}"
+transript_command_error: "Det oppstod en feil. Prøv igjen!"
+transript_command_work: "Du har lukket billetten din. iHorizon har sendt deg transkripsjonen."
+transript_not_in_ticket: "Du kan ikke bruke denne kommandoen utenfor en billettkanal!"
+
+# /disableticket
+disableticket_not_admin: ":x: | Du må være administrator på denne serveren for å bruke denne kommandoen!"
+disableticket_logs_embed_title_disable: "Logg for deaktivering av billettkommandoer"
+disableticket_logs_embed_description_disable: "<@${interaction.user.id}> deaktiverte billettkommandoene!"
+disableticket_command_work_disable: "Du har deaktivert billettkommandoene!"
+disableticket_logs_embed_title_enable: "Logg for aktivering av billettkommandoer"
+disableticket_logs_embed_description_enable: "<@${interaction.user.id}> aktiverte billettkommandoene!"
+disableticket_command_work_enable: "Du har aktivert billettkommandoene!"
+
+# Rangkommandoer
+# /xp, /setxpchannels, /disablexp
+
+# /disablexp
+disablexp_not_admin: ":x: | Du må være administrator på denne serveren for å bruke denne kommandoen!"
+disablexp_logs_embed_title_disable: "Logg for deaktivering av XP"
+disablexp_logs_embed_description_disable: "<@${interaction.user.id}> deaktiverte XP!"
+disablexp_command_work_disable: "Du har deaktivert nivåmeldingene (XP)!"
+disablexp_logs_embed_title_enable: "Logg for aktivering av XP"
+disablexp_logs_embed_description_enable: "<@${interaction.user.id}> aktiverte XP!"
+disablexp_command_work_enable: "Du har aktivert nivåmeldingene (XP)!"
+
+# /setxpchannels
+setxpchannels_not_admin: ":x: | Du må være administrator på denne serveren for å bruke denne kommandoen!"
+setxpchannels_logs_embed_title_disable: "Logg for deaktivering av tilpassede XP-kanaler"
+setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> deaktiverte de tilpassede XP-kanalene. Jeg brukte standardinnstillingene..."
+setxpchannels_already_disabled_disable: "De tilpassede XP-kanalene er allerede deaktivert!"
+setxpchannels_command_work_disable: "Du har deaktivert de tilpassede XP-kanalene!"
+setxpchannels_command_error_disable: "Feil: manglende tillatelser eller kanalen eksisterer ikke"
+setxpchannels_logs_embed_title_enable: "Logg for aktivering av tilpassede XP-kanaler"
+setxpchannels_logs_embed_description_enable: "<@${interaction.user.id}> har satt de tilpassede XP-kanalene til: <#${argsid}>"
+setxpchannels_valid_channel_message: "Du må spesifisere en gyldig kanal for konfigurasjonene dine."
+setxpchannels_already_with_this_config: "De tilpassede XP-kanalene er allerede konfigurert med denne kanal-IDen!"
+setxpchannels_confirmation_message: "**Tilpassede XP-kanaler satt her!**"
+setxpchannels_command_work_enable: "Du har satt de tilpassede XP-kanalene til <#${argsid}>"
+setxpchannels_command_error_enable: "Feil: manglende tillatelser eller kanalen eksisterer ikke"
+
+# /xp
+#nfn
+
+# Eierkommandoer
+# /owner, /unowner, /blacklist, /unblacklist
+
+# /owner
+owner_not_owner: "Du er ikke eier av iHorizon-prosjektene. Du kan ikke bruke denne kommandoen."
+owner_already_owner: "Denne brukeren er allerede eier!"
+owner_is_now_owner: "${member.user.username} er nå eier av iHorizon-prosjektene"
+
+# /unowner
+unowner_not_owner: "Du er ikke eier av iHorizon-prosjektene. Du kan ikke bruke denne kommandoen."
+unowner_cant_unowner_creator: "Det er ikke mulig å fjerne ham, han er iHorizon-prosjektenes skaper."
+unowner_command_work: "${member.username} er ikke lenger eier"
+
+# /blacklist
+blacklist_not_owner: "Du er ikke eier av iHorizon-prosjektene. Du kan ikke bruke denne kommandoen."
+blacklist_bot_lol: "Kan ikke svarteliste meg selv x)"
+blacklist_command_work: "${member.user.username} er nå svartelistet"
+blacklist_blacklisted_but_can_ban_him: "❌ Er nå svartelistet, kan ikke banne dette medlemmet her, mangler tillatelser?"
+blacklist_already_blacklisted: "${member.user.username} er allerede svartelistet!"
+
+# /unblacklist
+unblacklist_not_owner: "Du er ikke eier av iHorizon-prosjektene. Du kan ikke bruke denne kommandoen."
+unblacklist_command_work: "<@${member.id}> er ikke lenger svartelistet"
+unblacklist_not_blacklisted: "<@${member.id}> var ikke svartelistet"
+unblacklist_unblacklisted_but_can_unban_him: "❌ Er nå fjernet fra svartelisten, kan ikke oppheve utestengelse av dette medlemmet her, mangler tillatelser eller er allerede opphevet?"
+unblacklist_user_is_not_exist: "Jeg klarte ikke å finne brukeren"
+
+
+# /addinvites
+addinvites_not_admin_embed_description: "Du trenger administratortillatelser for å bruke dette!"
+addinvites_confirmation_embed_description: "La til ${amount} invitasjoner for ${user}"
+addinvites_logs_embed_title: "Logg for Invitasjonsbehandling"
+addinvites_logs_embed_description: "<@${interaction.user.id}> la til ${amount} invitasjoner for <@${user.id}>!"
+
+# /invites
+invites_confirmation_embed_description: "<@${member.user.id}> har `${inv || 0}` invitasjoner (`${Regular || 0}` vanlige, `${bonus || 0}` bonus, `${leaves || 0}` forlatte)."
+invites_confirmation_embed_title: "Invitasjonsstatistikk"
+
+# /leaderboard
+leaderboard_text_inline: "<@${i}> Har **${a.invites || 0}** Invitasjoner (**${a.regular || 0}** vanlige, **${a.bonus || 0}** bonus, **${a.leaves || 0}** forlatte)\n"
+leaderboard_default_text: "**__Toppliste:__**\n"
+
+# /removeinvites
+removeinvites_not_admin_embed_description: "Du trenger administratortillatelser for å bruke dette!"
+removeinvites_confirmation_embed_description: "Fjernet ${amount} invitasjoner for ${user}"
+removeinvites_logs_embed_title: "Logg for Invitasjonsbehandling"
+removeinvites_logs_embed_description: "<@${interaction.user.id}> fjernet ${amount} invitasjoner for <@${user.id}>!"
+
+
+# Bot-kommandoer
+# /botinfo, /invite, /kisakay, /ping, /status
+
+# /botinfo
+botinfo_embed_fields_myname: "Mitt navn:"
+botinfo_embed_fields_mychannels: "Mine kanaler:"
+botinfo_embed_fields_myservers: "Mine servere:"
+botinfo_embed_fields_members: "Medlemmer:"
+botinfo_embed_fields_libraires: "Biblioteker:"
+botinfo_embed_fields_created_at: "Opprettet den:"
+botinfo_embed_fields_created_by: "Opprettet av:"
+
+# /invite
+invite_embed_title: "Takk for at du la til iHorizon!"
+invite_embed_description: "Jeg elsker deg, vis meg kjærlighet tilbake ved å invitere meg!"
+
+# /kisakay
+kisakay_message: "✨Kisakay er både skaperen og utvikleren min. Det er takket være henne og tastaturet hennes at jeg kom til liv. Jeg er dypt takknemlig for henne!✨ ❤️❤️"
+
+# /ping
+pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
+
+# /status
+status_be_bot_dev: ":x: | **Du må være bot-utvikleren for å gjøre dette!**"
+
+# /help
+help_tip_embed: "💡 __**Tips**__: __iHorizon er nå flerspråklig, mange feil er rettet opp__. \n**Bytt nå språket for iHorizon med**: ```/setserverlang```Takk for at du bruker iHorizon! \nKontakt skaperen: `Kisakay`. \nDette er en liste over kommandoer du kan bruke."
+help_mod_fields: "Moderasjon"
+help_ranks_fields: "Rangeringer"
+help_fun_fields: "Morro"
+help_utils_fields: "Verktøy"
+help_giveaway_fields: "Giveaway"
+help_bot_fields: "Bot"
+help_music_fields: "Musikk"
+help_backup_fields: "Backup"
+help_guildconf_fields: "Serverkonfigurasjon"
+help_prof_fields: "Profiltilpasning"
+help_economy_fields: "Økonomi"
+help_owner_fields: "Eier"
+help_roler_fields: "Rollereaksjon"
+help_invitem_fields: "Invitasjonshåndtering"
+help_ticket_fields: "Support"
+help_memberc_fields: "Medlemsteller"
+help_newftrs_fields: "Nye funksjoner"
+help_mod_dsc: "Moderer Discord-serveren din uten stress med iHorizons kommandoer."
+help_ranks_dsc: "Ha det gøy med å spore erfaringsnivået ditt for å se hvem som er mest aktiv på serveren!"
+help_fun_dsc: "Synes du Discord er kjedelig? Ok, denne kategorien er laget for deg! iHorizon vil få smilet tilbake på ansiktet ditt!"
+help_utils_dsc: "Trenger du spesifikke kommandoer som er nyttige i visse tilfeller? Ok! Her er de!"
+help_giveaway_dsc: "Føler du deg generøs? Vil du gi noe til fellesskapet ditt? Her er mine kommandoer for å hjelpe deg!"
+help_bot_dsc: "Er du nysgjerrig og vil vite mer om meg? Disse kommandoene er her for det!"
+help_music_dsc: "Er du glad i musikk? Her er en gave til deg :)"
+help_backup_dsc: "Trenger du en rask sikkerhetskopi av serveren din? Her er jeg!"
+help_guildconf_dsc: "På jakt etter en avansert og enkel konfigurasjon? Her er jeg :3"
+help_prof_dsc: "Tar du vare på utseendet ditt? Her er noen kommandoer for å sikre at du har en fantastisk profil blant brukerne :)"
+help_economy_dsc: "Passer du på lommeboken din? Eller vil du bare foreta kjøp? Jeg er her :)"
+help_owner_dsc: "Denne kategorien er forbeholdt eiere og administratorer av iHorizon-prosjektet!"
+help_roler_dsc: "Vil du sette opp en rolle-reaksjon for serveren din? Her er jeg!"
+help_invitem_dsc: "Vil du sjekke en brukers invitasjoner? Det er her!"
+help_ticket_dsc: "Vil du opprette en supportbillett eller bruke en av mine funksjoner innenfor den? Selvfølgelig!"
+help_memberc_dsc: "Vil du sette opp talekanaler for telling av medlemmer? Selvfølgelig :smile:"
+help_newftrs_dsc: "Her er noen nye og svært interessante funksjoner!"
+
+# Fun commands
+# /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
+
+# Fun commands
+# /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
+
+# /cats
+cats_embed_title: "Miauw :cat:"
+
+# /hack
+hack_embed_description: "<@${victim.id}> ble hacket av <@${interaction.user.id}>!"
+hack_embed_fields_ip: "IP"
+hack_embed_fields_email: "E-post"
+hack_embed_fields_password: "Passord"
+
+# /hug
+hug_embed_title: "<@${interaction.user.id}> gir en klem til <@${hug.id}> ❤️"
+
+# /kiss
+kiss_embed_description: "<@${interaction.user.id}> gir en kyss til <@${kiss.id}> 💏"
+
+# /poll
+poll_embed_title: "__**Avstemning**__: `${interaction.user.username}`"
+poll_embed_fields_reaction: "Trykk på reaksjonene nedenfor.⬇"
+poll_embed_fields_choice: ":white_check_mark: **Ja**\n :x: **Nei**"
+
+# /question
+question_not_full: "Skriv inn et fullstendig spørsmål med 3 eller flere ord!"
+question_s: ["Ja.", "Nei.", "Jeg vet ikke.", "Jeg er usikker!", "Du er gal!", "Nei takk.", "Nei.", "Ja."]
+question_fields_input_embed: ":question:__**Spørsmål**__"
+question_fields_output_embed: ":grey_exclamation:__**Svar:**__"
+question_embed_title: "__**Spørsmål**__: `${interaction.user.username}`"
+
+# /slap
+slap_embed_description: "<@${interaction.user.id}> gir en ørefik til <@${slap.id}> 😓"
+
+# /dogs
+dogs_embed_command_error: "Feil ved henting av hundebilde."
+dogs_embed_title: "🐶 woof-woof."
+
+
+# Economy commands
+# /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
+
+# /addmoney
+addmoney_not_admin: "Du kan ikke kjøre denne kommandoen fordi du ikke har nødvendige tillatelser `ADMINISTRATOR`"
+addmoney_logs_embed_title: "Økonomi logger"
+addmoney_logs_embed_description: "<@${interaction.user.id}> la til ${amount.value} mynter for <@${user.user.id}>!"
+addmoney_command_work: "La til `${amount.value}`$ for <@${user.user.id}>"
+
+# /balance
+balance_dont_have_wallet: "👛 Du har ikke lommebok...!"
+balance_he_dont_have_wallet: "👛 Han har ikke lommebok...!"
+balance_have_wallet: "👛 Du har ${bal} mynt(er)!"
+balance_he_have_wallet: "👛 Han har ${bal} mynt(er)!"
+
+# /daily
+daily_cooldown_error: "Beklager, du må vente **${time}** før du kan kjøre denne kommandoen igjen!"
+daily_embed_title: "Daglig"
+daily_embed_description: "**Daglig Belønning**"
+daily_embed_fields: "Samlet inn"
+
+# /monthly
+monthly_cooldown_error: "Beklager, du må vente **${time}** før du kan kjøre denne kommandoen igjen!"
+monthly_embed_title: "Månedlig"
+monthly_embed_description: "**Månedlig Belønning**"
+monthly_embed_fields: "Samlet inn"
+
+# /pay
+pay_negative_number_error: "Negative penger kan ikke betales."
+pay_dont_have_enought_to_give: "Du har ikke nok penger på saldoen din. Prøv igjen."
+pay_command_work: "${interaction.user.username}#${interaction.user.discriminator}, Du betalte vellykket til ${user.user.username} `${amount}`$."
+
+# /removemoney
+removemoney_not_admin: "Du kan ikke kjøre denne kommandoen fordi du ikke har nødvendige tillatelser `ADMINISTRATOR`"
+removemoney_embed_title: "Fjernet Penger!"
+removemoney_embed_fields: "Beløp"
+removemoney_embed_second_fields: "Oppdatert Saldo"
+removemoney_logs_embed_description: "<@${interaction.user.id}> fjernet ${amount} mynter for <@${user.user.id}>!"
+removemoney_logs_embed_title: "Økonomi logger"
+
+# /rob
+rob_cooldown_error: "**Vent 50 minutter før du røver en annen bruker igjen!**"
+rob_dont_enought_error: ":x: Du trenger minst 250$ for å røve noen."
+rob_him_dont_enought_error: ":x: ${user.user.username} har ikke nok penger til å bli ranet."
+rob_embed_description: "<@${interaction.user.id}>, du ranet <@${user.id}> og klarte å komme unna med ${random}!"
+
+# /weekly
+weekly_cooldown_error: "Beklager, du må vente **${time}** før du kan kjøre denne kommandoen igjen!"
+weekly_embed_title: "Ukentlig"
+weekly_embed_description: "**Ukentlig Belønning**"
+weekly_embed_fields: "Samlet inn"
+
+# /work
+work_cooldown_error: "**Vent 50 minutter før du kan jobbe igjen!** ${interaction.user.username}#${interaction.user.discriminator}"
+work_embed_author: "${interaction.user.username}#${interaction.user.discriminator}, det lønnet seg!"
+work_embed_description: "${interaction.user.username}#${interaction.user.discriminator}, du har jobbet og tjent ${amount}$!"
+
+
+# Profil Customisation commands
+# /setprofilage, /setprofildescriptions, /profil
+
+# /setprofilage
+setprofilage_command_work: "**Alderen din i profilen er oppdatert vellykket.**"
+
+# /setprofildescriptions
+setprofildescriptions_command_work: "**Beskrivelsen din er oppdatert vellykket.**"
+
+# /profil
+profil_not_description_set: "Ingen beskrivelse satt!"
+profil_unknown: "Ukjent"
+profil_embed_title: "📌 __Profil for ${member.tag}__"
+profil_embed_fields_nickname: "📝 ・ __Kallenavn__"
+profil_embed_fields_money: "🪙 ・ __Penger__"
+profil_embed_fields_money_value: " mynt(er)"
+profil_embed_fields_xplevels: "💳 ・ __XP Nivåer__"
+profil_embed_fields_xplevels_value: " XP Nivåer"
+profil_embed_fields_age: "🎂 ・ __Alder__"
+profil_embed_fields_age_value: " år gammel(e)"
+
+# /serverinfo
+serverinfo_verlvl_NONE: "NONE"
+serverinfo_verlvl_LOW: "LOW"
+serverinfo_verlvl_MEDIUM: "MEDIUM"
+serverinfo_verlvl_HIGHT: "(╯°□°）╯︵ ┻━┻"
+serverinfo_verlvl_VERY_HIGHT: "(ノಠ益ಠ)ノ彡┻━┻ "
+serverinfo_embed_author: "🚩 -> ${interaction.guild.name}"
+serverinfo_embed_description: "**Beskrivelser**: ${interaction.guild.description}"
+serverinfo_embed_fields_name: "🏷️・**Navn:**"
+serverinfo_embed_fields_members: "🧔・**Medlemmer:**"
+serverinfo_embed_fields_id: "🆔・**ID:**"
+serverinfo_embed_fields_owner: "👑・**Eier:**"
+serverinfo_embed_fields_verlvl: "🎚️・**Verifiseringsnivå:**"
+serverinfo_embed_fields_region: "🌍・**Region:**"
+serverinfo_embed_fields_roles: "📇・**Antall roller:**"
+serverinfo_embed_fields_channels: "✍️・**Antall kanaler:**"
+serverinfo_embed_fields_joinat: "🚲・**Ble med:**"
+serverinfo_embed_fields_createat: "⚓・**Opprettet:**"
+
+# /snipe
+snipe_no_previous_message_deleted: "Ingen meldinger slettet i denne kanalen!"
+
+# /userinfo
+userinfo_wait_please: "Vennligst vent..."
+
+# /renew
+renew_channel_send_success: "${interaction.user} kanal gjenopprettet!"
+renew_dont_have_permission: ":x: **Kan ikke** `Har ikke tillatelse!`"
+renew_not_administrator: ":x: **Du er ikke en administrator og kan ikke bruke denne kommandoen!**"
+
+# /prevnames
+prevnames_embed_title: "Liste over alle tidligere kallenavn for ${user.username}"
+prevnames_undetected: "Ingen data funnet!"
+prevnames_not_admin: "Du har ikke tillatelse til å kjøre denne kommandoen. Du må ha `ADMINISTRATOR`-tillatelse!"
+
+
+# Guild Config commands
+# /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
+
+# /blockpub
+blockpub_not_admin: ":x: | Du må være en administrator for denne serveren!"
+blockpub_now_enable: "📌 | Antipub er nå aktivert (Den fungerer for alle unntatt administratorer)"
+blockpub_now_disable: "📌 | Antipub er nå deaktivert!"
+
+# /guildprofil
+guildprofil_not_admin: ":x: | Du må være en administrator for denne serveren!"
+guildprofil_not_set_reactionrole: "Ikke satt!"
+guildprofil_set_reactionrole: "**MessageID**: `${i}` -> ${emoji || key} gir rollen <@&${rolesID}>\n"
+guildprofil_not_set_ticketFetched: "Ikke satt!"
+guildprofil_set_ticketFetched: ""
+guildprofil_not_set_punishPub: "Ikke satt!"
+guildprofil_set_punishPub: "`${punishPub.punishementType}`: maks: `${punishPub.amountMax}` flagg."
+guildprofil_not_set_supportConfig: "Ikke satt!"
+guildprofil_set_supportConfig: "`${supportConfig.input}` i bio gir rollen <@&${supportConfig.rolesId}>."
+guildprofil_not_set_setchannelsjoin: "Ikke satt!"
+guildprofil_set_setchannelsjoin: ""
+guildprofil_not_set_setchannelsleave: "Ikke satt!"
+guildprofil_set_setchannelsleave: ""
+guildprofil_not_set_joinmessage: "Ikke satt!"
+guildprofil_set_joinmessage: ""
+guildprofil_not_set_leavemessage: "Ikke satt!"
+guildprofil_set_leavemessage: ""
+guildprofil_not_set_joinroles: "Ikke satt!"
+guildprofil_set_joinroles: ""
+guildprofil_not_set_joinDmMessage: "Ikke satt!"
+guildprofil_set_joinDmMessage: ""
+guildprofil_not_set_blockpub: "Av"
+guildprofil_set_blockpub: "På"
+guildprofil_embed_description: "`Guild Config:` ${interaction.guild.name}!"
+guildprofil_embed_fields_joinmessage: "Melding ved innmelding"
+guildprofil_embed_fields_leavemessage: "Melding ved utmelding"
+guildprofil_embed_fields_setchannelsjoin: "Innmeldingskanal"
+guildprofil_embed_fields_setchannelsleave: "Utmeldingskanal"
+guildprofil_embed_fields_joinroles: "Innmeldingsrolle"
+guildprofil_embed_fields_joinDmMessage: "Melding ved innmelding (DM)"
+guildprofil_embed_fields_blockpub: "Blokker pub"
+guildprofil_embed_fields_punishPub: "Straff pub"
+guildprofil_embed_fields_supportConfig: "Støtte"
+guildprofil_embed_fields_ticketFetched: "Billetter"
+guildprofil_embed_fields_reactionrole: "Reaksjonsrolle"
+
+# /setchannels
+setchannels_not_admin: ":x: | Du må være en administrator for å bruke denne kommandoen!"
+setchannels_not_specified_args: "Du må angi en gyldig kanal for modulen."
+setchannels_already_this_channel_on_join: "Modulen er allerede konfigurert med denne kanalen!"
+setchannels_confirmation_message_on_join: "**Innmeldingskanal satt her!** :tada:"
+setchannels_command_error_on_join: "Feil: manglende tillatelser eller kanalen finnes ikke"
+setchannels_command_work_on_join: "Du har satt innmeldingskanalmodulen til <#${argsid.id}>"
+setchannels_logs_embed_title_on_join: "Angi kanallogger"
+setchannels_logs_embed_description_on_join: "<@${interaction.user.id}> satte innmeldingskanalmodulen til: <#${argsid.id}>"
+setchannels_already_this_channel_on_leave: "Modulen er allerede konfigurert med denne kanalen!"
+setchannels_confirmation_message_on_leave: "**Utmeldingskanal satt her!** :tada:"
+setchannels_command_error_on_leave: "Feil: manglende tillatelser eller kanalen finnes ikke"
+setchannels_command_work_on_leave: "Du har satt utmeldingskanalmodulen til <#${argsid.id}>"
+setchannels_logs_embed_title_on_leave: "Angi kanallogger"
+setchannels_logs_embed_description_on_leave: "<@${interaction.user.id}> satte utmeldingskanalen til: <#${argsid.id}>"
+setchannels_already_on_off: "Innmeldings- og utmeldingskanalene er allerede deaktivert"
+setchannels_command_work_on_off: "Du har deaktivert innmeldings- og utmeldingskanalene!"
+setchannels_logs_embed_title_on_off: "Angi kanallogger"
+setchannels_logs_embed_description_on_off: "<@${interaction.user.id}> slettet all konfigurasjon for innmeldings- og utmeldingskanaler!"
+
+# /setjoindm
+setjoindm_not_admin: ":x: | Du må være en administrator for å bruke denne kommandoen!"
+setjoindm_logs_embed_title_on_enable: "Angi JoinDm logger"
+setjoindm_logs_embed_description_on_enable: "<@${interaction.user.id}> satte meldingen for innmelding DM!"
+setjoindm_not_specified_args_on_enable: "Du må angi en gyldig melding for innmelding DM."
+setjoindm_confirmation_message_on_enable: "Du har satt innmelding DM til:```${dm_msg}``` Og aktivert det"
+setjoindm_command_error_on_enable: "Feil: manglende tillatelser eller kanalen finnes ikke"
+setjoindm_logs_embed_title_on_disable: "Angi JoinDm logger"
+setjoindm_logs_embed_description_on_disable: "<@${interaction.user.id}> deaktiverte meldingen for innmelding DM!"
+setjoindm_confirmation_message_on_disable: "Du har deaktivert innmelding DM!"
+setjoindm_command_error_on_disable: "Feil: manglende tillatelser eller kanalen finnes ikke"
+setjoindm_already_disable: "Meldingen for innmelding DM er allerede deaktivert!"
+setjoindm_not_setup_ls: "Det er ingen innmelding DM-konfigurasjon her!"
+setjoindm_command_work_ls: "Meldingen for innmelding DM er: \n```${already_off}```"
+
+
+# /setjoinmessage
+setjoinmessage_not_admin: ":x: | Du må være en administrator på denne serveren for å bruke denne kommandoen!"
+setjoinmessage_help_embed_title: "Hjelp for /setjoinmessage!"
+setjoinmessage_help_embed_description: "/setjoinmessage <Power on/Power off/Vis meldingen> <velkomstmelding>"
+setjoinmessage_help_embed_fields_name: "Slik bruker du det:"
+setjoinmessage_help_embed_fields_value: "Bruk ```/setjoinmessage <Power on/Power off/Vis meldingen> <melding>```\n{user} = Brukernavn på medlem\n{membercount} = Antall medlemmer på serveren\n{createdat} = Opprettelsesdato for medlemskontoen\n{guild} = Navnet på serveren\n{inviter} = Invitatoren brukernavn og diskriminator\n{invites} = Antall invitasjoner fra invitatoren"
+setjoinmessage_logs_embed_title_on_enable: "SetJoinMessage Logg"
+setjoinmessage_logs_embed_description_on_enable: "<@${interaction.user.id}> satte opp velkomstmeldingen!"
+setjoinmessage_command_work_on_enable: "✅ | Velkomstmeldingen er satt opp."
+setjoinmessage_logs_embed_title_on_disable: "SetJoinMessage Logg"
+setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> slettet velkomstmeldingen!"
+setjoinmessage_command_work_on_disable: "✅ | Velkomstmeldingen er slettet."
+setjoinmessage_command_work_ls: "Velkomstmeldingen er:\n```${ls}```"
+
+# /setjoinroles
+setjoinroles_not_admin: ":x: | Du må være en administrator på denne serveren for å bruke denne kommandoen!"
+setjoinroles_help_embed_title: "/setjoinroles Hjelp!"
+setjoinroles_help_embed_description: "/setjoinroles <Power on/Power off/Vis meldingen> <rolle-ID>"
+setjoinroles_logs_embed_title_on_enable: "SetJoinRoles Logg"
+setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}> satte opp medlemsrollene!"
+setjoinroles_already_on_enable: "Medlemsrollene er allerede konfigurert med denne rollen!"
+setjoinroles_command_work_enable: "Du har konfigurert medlemsrollene til <@&${roleid}>!"
+setjoinroles_command_error_on_enable: "Feil: manglende tillatelser eller rollen eksisterer ikke"
+setjoinroles_logs_embed_title_on_disable: "SetJoinRoles Logg"
+setjoinroles_logs_embed_description_on_disable: "<@${interaction.user.id}> slettet medlemsrollene!"
+setjoinroles_dont_need_command_on_disable: "Du har ikke konfigurert noen medlemsroller, det er unødvendig!"
+setjoinroles_command_work_on_disable: "Du har slettet medlemsrollene!"
+setjoinroles_command_error_on_disable: "Feil?"
+setjoinroles_command_any_set_ls: "Denne serveren har ingen medlemsroller satt."
+setjoinroles_command_work_ls: "Medlemsrollene er satt til <@&${roles}>"
+
+# /setleavemessage
+setleavemessage_not_admin: ":x: | Du må være en administrator på denne serveren for å bruke denne kommandoen!"
+setleavemessage_help_embed_title: "/setleavemessage Hjelp!"
+setleavemessage_help_embed_description: "/setleavemessage <Power on/Power off/Vis meldingen> <avskjedsmelding>"
+setleavemessage_help_embed_fields_name: "Slik bruker du det:"
+setleavemessage_help_embed_fields_value: "Bruk ```/setleavemessage <Power on/Power off/Vis meldingen> <melding>```\n{user} = Brukernavn på medlem\n{membercount} = Antall medlemmer på serveren\n{guild} = Navnet på serveren"
+setleavemessage_logs_embed_title_on_enable: "SetJoinMessage Logg"
+setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}> satte opp avskjedsmeldingen!"
+setleavemessage_command_work_on_enable: "✅ | Avskjedsmeldingen er satt opp."
+setleavemessage_logs_embed_title_on_disable: "SetJoinMessage Logg"
+setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> slettet avskjedsmeldingen!"
+setleavemessage_command_work_on_disable: "✅ | Avskjedsmeldingen er slettet."
+setleavemessage_command_work_ls: "Avskjedsmeldingen er:\n```${ls}```"
+
+# /setup
+setup_not_admin: ":x: | Du må være en administrator på denne serveren!"
+setup_command_work: "✅ | Kanaloppsett"
+setup_command_error: "Boten har allerede satt opp loggkanalene! Eller så har ikke boten tilgang..."
+
+# /setlogschannel
+setlogschannel_not_admin: ":x: | Du må være en administrator på denne serveren for å bruke denne kommandoen!"
+setlogschannel_not_specified_args: "Du må spesifisere en gyldig kanal for modulen."
+setlogschannel_confirmation_message: "✅ | Nå er kanalen for `${typeOfLogs}` satt opp av <@${interaction.user.id}>!"
+setlogschannel_already_this_channel: "Denne serveren har allerede denne kanalen for logger!"
+setlogschannel_already_deleted: "Denne serveren har allerede ikke `SERVER_LOGS`!"
+setlogschannel_command_error: "Feil?"
+setlogschannel_command_work: "Du har satt opp `${typeOfLogs}` i <#${argsid.id}>!"
+setlogschannel_command_work_on_delete: "Du har slettet alle `SERVER_LOGS` på **${interaction.guild.name}**"
+setlogschannel_logs_embed_title: "Sett opp ServerLogs"
+setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> satte `${typeOfLogs}` til <#${argsid.id}>"
+setlogschannel_logs_embed_title_on_off: "Sett opp ServerLogs"
+setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> slettet alle `SERVER_LOGS` på serveren!"
+
+# Member Count-kommandoer
+# /setmembercount
+
+# /setmembercount
+setmembercount_not_admin: ":x: | Du må være en administrator på denne serveren for å bruke denne kommandoen!"
+setmembercount_helpembed_title: "Sett MemberCount Hjelp!"
+setmembercount_helpembed_description: "/setmembercount <Power on/Power off> <Navn på kanalen>"
+setmembercount_helpembed_fields_name: "Slik bruker du det:"
+setmembercount_helpembed_fields_value: "Bruk ```/setjoinmessage <Power on/Power off/Vis meldingen> <melding>```\n{membercount} = Antall medlemmer på serveren\n{rolescount} = Antall roller\n{botcount} = Antall bots på serveren"
+setmembercount_logs_embed_title_on_enable: "Sett MemberCount Logg"
+setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> satte opp MemberCount på <#${channel.id}> til `${messagei}`!"
+setmembercount_command_work_on_enable: "✅ | MemberCount er satt opp."
+setmembercount_command_work_on_disable: "✅ | MemberCount er fjernet."
+setmembercount_logs_embed_title_on_disable: "Sett MemberCount Logg"
+setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> fjernet MemberCount på denne serveren!"
+
+# Music-kommandoer
+# /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
+
+# /p
+p_not_in_voice_channel: "Du må være koblet til en talekanal for å bruke denne kommandoen!"
+p_embed_title: "Ingen resultater"
+p_loading_message: "⏲️ Laster en: **{result}**!"
+p_duration: "Varighet: "
+p_not_allowed: "Lenken du sendte støttes ikke av denne boten. Vennligst bruk autoriserte musikkstrømmetjenester som Deezer, Spotify, Youtube, osv."
+
+# /loop
+loop_no_queue: "Det er ingen kø!"
+loop_command_work: "{mode} | Oppdaterte loop-modus"
+
+# /nowplaying
+nowplaying_no_queue: "Ingenting spilles for øyeblikket"
+nowplaying_message_embed_title: "Spilles nå"
+
+# /pause
+pause_no_queue: "⚠️ - Du er ikke i en talekanal!"
+pause_nothing_playing: "Ingenting spilles for øyeblikket"
+
+# /resume
+resume_nothing_playing: "Ingenting spilles for øyeblikket"
+resume_command_work: "Gjenopptok avspillingen"
+
+# /skip
+skip_not_in_voice_channel: "⚠️ - Du er ikke i en talekanal!"
+skip_nothing_playing: "Ingenting spilles for øyeblikket"
+skip_command_work: "Hoppet over {queue}"
+
+# /stop
+stop_nothing_playing: "ingenting spilles for øyeblikket"
+stop_command_work: "Køen stoppet"
+
+# /queue
+queue_iam_not_voicec: "Jeg er ikke i en talekanal"
+queue_no_queue: "Det er ingen kø"
+queue_empty_queue: "Det er ikke flere sanger i køen"
+queue_embed_title: "Sangkø"
+queue_embed_description_empty: "**Ingen flere sanger i køen**"
+queue_embed_footer_text: "Side {index} | Totalt {track} sanger"
+
+# /shuffle
+shuffle_no_queue: "Jeg er ikke i en talekanal"
+shuffle_no_enought: "Det er ikke **nok sanger** i køen til å **blande**"
+shuffle_command_work: "Jeg har **blandet** køen"
+
+# Giveaway-kommandoer
+# /end, /start, /reroll
+
+# /end
+end_not_admin: "Du må ha tillatelse til å administrere meldinger for å bruke denne kommandoen!"
+end_embed_title: "Gevinst avsluttet"
+end_embed_description: "Vinner: {winner}"
+end_embed_footer: "Gevinst ID: {giveawayid}"
+
+# /start
+start_not_admin: "Du må ha tillatelse til å administrere meldinger for å bruke denne kommandoen!"
+start_no_time: "Du må angi en gyldig varighet for gevinsten (f.eks. 1d, 1h, 1m)"
+start_no_winnercount: "Du må angi et gyldig antall vinnere for gevinsten"
+start_embed_title: "Ny gevinst!"
+start_embed_description: "{prize}"
+start_embed_footer_text: "Reager med 🎉 for å delta!"
+start_embed_footer_time: "Varighet: {time}"
+start_embed_footer_vf: "Antall vinnere: {winnercount}"
+
+# /reroll
+reroll_not_admin: "Du må ha tillatelse til å administrere meldinger for å bruke denne kommandoen!"
+reroll_no_messageid: "Du må angi en gyldig meldings-ID for gevinsten du vil trekke på nytt"
+reroll_no_validid: "Du må angi en gyldig meldings-ID for gevinsten du vil trekke på nytt"
+reroll_no_results: "Ingen gyldige deltakere funnet, ingen ny vinner kan bli valgt"
+reroll_embed_title: "Ny vinner valgt!"
+reroll_embed_description: "Vinner: {winner}"
+reroll_embed_footer: "Gevinst ID: {giveawayid}"
+
+# Brukergrensesnitt-kommandoer
+# /poll
+
+# /poll
+poll_not_admin: "Du må være en administrator på denne serveren for å bruke denne kommandoen!"
+poll_no_question: "Du må stille et spørsmål for avstemningen"
+poll_embed_description: "{question}"
+poll_embed_footer: "Reager med ✅ eller ❌ for å stemme!"
+
+# Feilmeldinger
+error_something_wrong: "Noe gikk galt. Vennligst prøv igjen senere."
+error_no_permission: "Beklager, men du har ikke tillatelse til å bruke denne kommandoen."
+error_command_not_found: "Beklager, men denne kommandoen ble ikke funnet."
+error_invalid_command_usage: "Ugyldig bruk av kommandoen. Vennligst sjekk riktig kommandobruk."
+error_invalid_args: "Ugyldige argumenter. Vennligst sjekk riktig kommandobruk."
+
+
+# /start
+start_not_perm: "Du må ha tillatelser til å administrere meldinger for å starte giveaways."
+start_is_not_valid: "Du må spesifisere et gyldig antall vinnere!"
+start_confirmation_command: "Giveaway startet i ${giveawayChannel}!"
+start_logs_embed_title: "Giveaway Logger"
+start_logs_embed_description: "<@${interaction.user.id}> startet en giveaway i: ${giveawayChannel}"
+
+# /reroll
+reroll_not_perm: "Du må ha tillatelser til å administrere meldinger for å avslutte denne giveawayen."
+reroll_dont_find_giveaway: "Kunne ikke finne en giveaway for `${args}`."
+reroll_command_work: "Giveawayen er startet på nytt!"
+reroll_logs_embed_title: "Giveaway Logger"
+reroll_logs_embed_description: "<@${interaction.user.id}> startet giveawayen på nytt med denne ID-en: ${giveaway.messageID}"
+reroll_command_error: "Feil!"
+
+# Moderasjon kommandoer
+# /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
+# /unban, /tempmute, /unmute
+
+# /ban
+ban_not_permission: "❌ | Du har ikke tillatelse til å banne medlemmer."
+ban_dont_found_member: "🔍 | Kan ikke finne dette medlemmet."
+ban_dont_have_perm_myself: "❌ | Jeg har ikke tillatelse til å banne medlemmer!"
+ban_try_to_ban_yourself: "❌ | Du kan ikke banne deg selv!"
+ban_attempt_ban_higter_member: "🛑 Du kan ikke banne en bruker med høyere rolle enn deg..."
+ban_cant_ban_member: "❌ | Jeg kan ikke banne det medlemmet."
+ban_message_to_the_banned_member: "Du er utestengt fra denne serveren: **${interaction.guild.name}** av `${interaction.member.user.username}#${interaction.member.user.discriminator}`"
+ban_command_work: "<@${member.user.id}> ble utestengt av <@${interaction.member.id}>"
+ban_logs_embed_title: "Ban Logger"
+ban_logs_embed_description: "<@${member.user.id}> ble utestengt av <@${interaction.member.id}>"
+
+# /kick
+kick_not_permission: "❌ | Du har ikke tillatelse til å sparke medlemmer."
+kick_dont_have_permission: "❌ | Jeg har ikke tillatelse til å sparke medlemmer!"
+kick_attempt_kick_your_self: "❌ | Du kan ikke sparke deg selv!"
+kick_attempt_kick_higter_member: "🛑 Du kan ikke sparke en bruker med høyere rolle enn deg..."
+kick_message_to_the_banned_member: "Du ble sparket fra denne serveren: **${interaction.guild.name}** av `${interaction.member.user.username}#${interaction.member.user.discriminator}`"
+kick_command_work: "${member.user} ble sparket av ${interaction.user}"
+kick_logs_embed_title: "Kick Logger"
+kick_logs_embed_description: "${member.user} ble sparket av <@${interaction.user.id}>"
+
+# /clear
+clear_dont_have_permission: "❌ | Du har ikke tillatelse `MANAGE_MESSAGES`."
+clear_max_message_limit: "❌ | Jeg kan ikke slette mer enn 99 meldinger om gangen!"
+clear_channel_message_deleted: "${messages.size} meldinger slettet!"
+clear_confirmation_message: "${messages.size} meldinger er blitt slettet!"
+clear_logs_embed_title: "Slett Melding Logger"
+clear_logs_embed_description: "<@${interaction.user.id}> slettet ${messages.size} meldinger i <#${interaction.channel.id}>"
+
+# /lock
+lock_embed_message_description: "Kanalen er låst av <@${interaction.user.id}>."
+lock_dont_have_permission: "❌ | Du har ikke tillatelse til å låse kanaler."
+lock_logs_embed_title: "Lås Logger"
+lock_logs_embed_description: "<@${interaction.user.id}> låste <#${interaction.channel.id}>"
+
+# /unlock
+unlock_embed_message_description: "Kanalen er nå låst opp!"
+unlock_dont_have_permission: "❌ | Du har ikke tillatelse til å låse opp kanaler."
+unlock_logs_embed_title: "Lås Opp Logger"
+unlock_logs_embed_description: "<@${interaction.user.id}> låste opp <#${interaction.channel.id}>"
+
+# /lockall
+lockall_dont_have_permission: "❌ | Du har ikke tillatelse til å låse alle kanaler."
+lockall_embed_message_description: "Alle kanaler er låst av <@${interaction.user.id}>."
+lockall_logs_embed_title: "Lås Alle Logger"
+lockall_logs_embed_description: "<@${interaction.user.id}> låste alle kanaler!"
+
+# /unban
+unban_dont_have_permission: "❌ | Du har ikke tillatelse til å oppheve utestengelse av medlemmer."
+unban_bot_dont_have_permission: "❌ | Jeg har ikke tillatelse."
+unban_there_is_nobody_banned: "❌ | **Ingen er utestengt fra denne serveren!**"
+unban_the_member_is_not_banned: "❌ | **Den oppgitte ID-en er ikke utestengt fra denne serveren!**"
+unban_is_now_unbanned: "<@${userID}> er nå opphevet utestengelse fra denne serveren!"
+unban_logs_embed_title: "Opphev Utestengelse Logger"
+unban_logs_embed_description: "<@${userID}> er nå opphevet utestengelse fra serveren av ${interaction.user.id}!"
+
+# /tempmute
+tempmute_dont_have_permission: "❌ | Du har ikke tillatelse til å midlertidig mute medlemmer."
+tempmute_i_dont_have_permission: "❌ | Jeg har ikke tillatelse."
+tempmute_cannot_mute_yourself: "❌ | Du kan ikke mute deg selv!"
+tempmute_already_muted: "Denne brukeren er allerede muted!"
+tempmute_command_work: "<@${tomute.id}> er blitt muted i ${ms(ms(mutetime))}"
+tempmute_unmuted_by_time: "<@${tomute.id}> er ikke lenger muted!"
+tempmute_logs_embed_title: "Tempmute Logger"
+tempmute_logs_embed_description: "<@${interaction.user.id}> mutet <@${tomute.id}> i ${ms(ms(mutetime))}"
+tempmute_reason_create_roles: "Opprett midlertidig mute-rolle!"
+
+# /unmute
+unmute_dont_have_permission: "❌ | Du har ikke tillatelse til å unmute medlemmer."
+unmute_attempt_mute_your_self: "❌ | Du kan ikke mute deg selv!"
+unmute_i_dont_have_permission: "❌ | Jeg har ikke tillatelse."
+unmute_user_is_not_muted: "❌ | Denne brukeren er ikke muted!"
+unmute_command_work: "<@${member.id}> er unmuted!"
+unmute_logs_embed_title: "Unmute Logger"
+unmute_logs_embed_description: "<@${member.id}> er unmuted av ${interaction.user.id}!"
+
+# /report
+report_cooldown_command: "Beklager, du må vente **${time}** før du kan kjøre denne kommandoen!"
+report_owner_need: ":x: | **Du må være eier av serveren for å kunne kjøre denne kommandoen!**"
+report_specify: "Vennligst spesifiser feilen. Vennligst lag en god setning!"
+report_command_work: "**Takk for at du rapporterte en feil!**"
+
+# /support
+support_not_admin: ":x: | Du må være administrator på denne serveren for å bruke denne kommandoen!"
+support_command_work: "Du har konfigurert støttemodulen for **${interaction.guild.name}**.\nNår brukeren har i sin biografi:\n**${input}**.\nSkal jeg gi rollen <@&${roles.id}> til dem!"
+support_command_work_on_disable: "Du har deaktivert støttemodulen for **${interaction.guild.name}**.\nIngen kan lenger få rollen!"
+support_command_not_role: ":x: | Du har ikke spesifisert rollen!"
+
+# /setserverlang
+setserverlang_not_admin: ":x: | Du må være administrator på denne serveren for å bruke denne kommandoen!"
+setserverlang_logs_embed_title_on_enable: "SetServerLang Logger"
+setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> har satt språket til iHorizon til **${type}**!"
+setserverlang_already: "Jeg er allerede på dette språket!"
+setserverlang_command_work_enable: "Språket mitt er nå satt til **${type}**"
+setserverlang_command_error_enable: "feil!"
+
+# -----------------------------/ \-----------------------------
+# Music Player Events
+
+event_mp_playerStart: "🎵 - Spiller nå av `${track.title}` i **${queue.channel.name}**..."
+event_mp_audioTrackAdd: ":musical_note: - ${track.title} har blitt lagt til i køen!"
+event_mp_playerError: "Jeg har problemer med å koble til => ${error.message}"
+event_mp_error: "Det oppstod et problem med sangkøen => ${error.message}"
+event_mp_emptyChannel: "❌ | Ingen er i talekanalen, forlater..."
+event_mp_playerSkip: ":musical_note: - Hopper over **${track.title}**!"
+event_mp_emptyQueue: "⚠️ - Musikk stoppet da det ikke er mer musikk i køen!"
+
+# Channel Create Events
+
+event_channel_create_message_embed_title: "Vellykket oppsett!"
+event_channel_create_message_embed_description: "Botten er satt opp perfekt. Du trenger ikke å gjøre noe mer (zen).\n\nAlle modereringslogger relatert til iHorizon vil bli vist her"
+
+# Welcome Message Events
+event_welcomer_inviter: "➕・<@${member.id}> ble med i serveren. Invitert av **${inviter.tag}** (**${fetched}** invitasjoner). Konto opprettet den: **${member.user.createdAt.toLocaleDateString()}**. Hyggelig å se deg på **${member.guild.name}**"
+event_welcomer_default: "➕・<@${member.id}> ble med i serveren. Konto opprettet den: **${member.user.createdAt.toLocaleDateString()}**. Hyggelig å se deg på **${member.guild.name}**"
+
+# Goodbye Message Events
+event_goodbye_inviter: "➖・<@${member.id}> forlot nettopp serveren. Ble invitert av **${inviter.tag}** (**${fetched}** invitasjoner). Farvel fra **${member.guild.name}**."
+event_goodbye_default: "➖・<@${member.id}> forlot nettopp serveren. Farvel fra **${member.guild.name}**."
+
+# XP Level Events
+event_xp_level_earn: "**Gratulerer**, <@${message.author.id}>, du er +1 for XP-nivå (Nivå: **${newLevel}**)"
+
+# Ticket Module Events:
+event_ticket_embed_description: "Hei ${user.username}, velkommen til din billett! Vennligst vær tålmodig, vi vil hjelpe deg snart. Hvis du vil lukke denne billetten, kan du kjøre `/close`"
+
+# interactionCreate Events:
+iC_event_cooldown: "Kjølehviletid, vennligst vent litt mellom kommandoene!"
+iC_event_connection_error: "Tilkoblingsfeil!"
+
+# Cooldown
+Msg_cooldown: "Vennligst vent et øyeblikk før du utfører kommandoen!"
+
+# Server Logs
+event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **bannet** <@${firstEntry.target.id}>"
+event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **opphevet forbudet** på ${firstEntry.target.username}"
+event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **sparket** <@${firstEntry.target.id}>"
+event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> fjernet rollen <@&${removedRoles}> fra ${oldMember.user.username}"
+event_srvLogs_guildMemberUpdate_2_description: "📥 <@${firstEntry.executor.id}> la til rollen <@&${addedRoles}> på ${oldMember.user.username}"
+event_srvLogs_messageDelete_description: "**Melding slettet i <#${message.channel.id}>**\n${message.content}"
+event_srvLogs_messageUpdate_description: "**Melding redigert i <#${oldMessage.channelId}>**"
+event_srvLogs_messageUpdate_footer_1: "Før"
+event_srvLogs_messageUpdate_footer_2: "Etter"
+event_srvLogs_voiceStateUpdate_description: "📤 <@${targetUser.id}> forlot kanalen <#${OchannelID}>"
+event_srvLogs_voiceStateUpdate_2_description: "📥 <@${targetUser.id}> ble med i kanalen <#${channelID}>"
+event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> dempet hodetelefonene sine i kanalen <#${channelID}>"
+event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> fjernet dempingen på hodetelefonene sine i kanalen <#${channelID}>"
+event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> dempet seg selv i kanalen <#${channelID}>"
+event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> fjernet dempingen på seg selv i kanalen <#${channelID}>"
+
+
+
+# -----------------------------\ /-----------------------------

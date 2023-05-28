@@ -47,6 +47,10 @@ module.exports = {
                 {
                     name: "Spanish",
                     value: "es-ES"
+                },
+                {
+                    name: "Norwegian",
+                    value: "no-NO"
                 }
             ],
         }
