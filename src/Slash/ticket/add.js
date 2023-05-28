@@ -10,9 +10,6 @@ const {
 	ApplicationCommandOptionType
 } = require('discord.js');
 
-const yaml = require('js-yaml'), fs = require('fs');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
-
 module.exports = {
 	name: 'add',
 	description: 'Add a member into your ticket',
@@ -28,9 +25,9 @@ module.exports = {
 	run: async (client, interaction) => {
 		const { QuickDB } = require("quick.db");
 		const db = new QuickDB();
-		let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-		let data = yaml.load(fileContents)
-
+		const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+		let data = getLanguageData(interaction.guild.id);
+		
 		let blockQ = await db.get(`${interaction.user.id}.GUILD.TICKET.on_or_off`)
 		if (blockQ === true) { return interaction.reply(data.add_disabled_command) }
 		if (interaction.channel.name.includes('ticket-')) {

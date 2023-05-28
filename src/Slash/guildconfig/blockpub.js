@@ -11,9 +11,6 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
-const yaml = require('js-yaml');
-const fs = require('fs');
 module.exports = {
     name: 'blockpub',
     description: 'Disable the member\'s spam with this command',
@@ -36,8 +33,9 @@ module.exports = {
         },
     ],
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-        let data = yaml.load(fileContents)
+        const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+        let data = getLanguageData(interaction.guild.id);
+
         let turn = interaction.options.getString("action")
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.reply({ content: data.blockpub_not_admin });

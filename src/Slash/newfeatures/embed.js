@@ -20,8 +20,6 @@ const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 var generator = require('generate-password');
 
-const yaml = require('js-yaml'), fs = require('fs');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
 
 module.exports = {
     name: 'embed',
@@ -35,9 +33,9 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-        let data = yaml.load(fileContents);
-
+        const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+        let data = getLanguageData(interaction.guild.id);
+        
         let arg = interaction.options.getString("id");
         potentialEmbed = await db.get(`EMBED.${arg}`);
 

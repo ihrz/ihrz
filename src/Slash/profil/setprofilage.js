@@ -12,9 +12,6 @@ const {
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
-const yaml = require('js-yaml'), fs = require('fs');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
-
 module.exports = {
     name: 'setprofilage',
     description: 'Set your age on the iHorizon Profil !',
@@ -27,8 +24,9 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-        let data = yaml.load(fileContents);
+        const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+        let data = getLanguageData(interaction.guild.id);
+        
         var age = interaction.options.getNumber("age")
 
         await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.age`, age)

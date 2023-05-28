@@ -9,17 +9,15 @@ const {
   ApplicationCommandOptionType
 } = require('discord.js');
 
-const yaml = require('js-yaml'), fs = require('fs');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
+const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 module.exports = {
   name: 'botinfo',
   description: 'Informations about the bot',
   run: async (client, interaction) => {
 
-    let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-    let data = yaml.load(fileContents);
-
+    let data = getLanguageData(interaction.guild.id);
+    
     let usersize = client.users.cache.size
     let chansize = client.channels.cache.size
     let servsize = client.guilds.cache.size

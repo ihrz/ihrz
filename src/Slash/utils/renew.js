@@ -11,15 +11,12 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const yaml = require('js-yaml'), fs = require('fs');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
-
 module.exports = {
     name: 'renew',
     description: 'Re-created a channels (cloning permission and all configurations). nuke equivalent',
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-        let data = yaml.load(fileContents);
+        const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+        let data = getLanguageData(interaction.guild.id);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: data.renew_not_administrator });
         let channel = interaction.channel

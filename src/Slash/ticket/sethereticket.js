@@ -11,9 +11,6 @@ const {
 	ApplicationCommandOptionType
 } = require('discord.js');
 
-const yaml = require('js-yaml'), fs = require('fs');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
-
 module.exports = {
 	name: 'sethereticket',
 	description: 'Open a ticket if the ticket module is enable on the guild',
@@ -24,16 +21,11 @@ module.exports = {
 			type: ApplicationCommandOptionType.String,
 			required: true,
 		}
-		// {
-		// 	name: 'role',
-		// 	type: ApplicationCommandOptionType.Role,
-		// 	description: `The role you want to configure`,
-		// 	required: false
-		// }
 	],
 	run: async (client, interaction) => {
-		let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-		let data = yaml.load(fileContents);
+		const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+		let data = getLanguageData(interaction.guild.id);
+
 		let panelName = interaction.options.getString("name")
 
 		const { QuickDB } = require("quick.db");

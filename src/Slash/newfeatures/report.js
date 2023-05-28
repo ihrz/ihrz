@@ -16,7 +16,6 @@ const ms = require("ms");
 
 const yaml = require('js-yaml')
 const fs = require('fs');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
 
 module.exports = {
   name: 'report',
@@ -30,8 +29,8 @@ module.exports = {
     }
   ],
   run: async (client, interaction) => {
-    let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-    let data = yaml.load(fileContents);
+    const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+    let data = getLanguageData(interaction.guild.id);
 
     var sentences = interaction.options.getString("message-to-dev")
     let timeout = 18000000

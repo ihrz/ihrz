@@ -12,7 +12,6 @@ const {
 const { QueueRepeatMode } = require('discord-player');
 
 const logger = require(`${process.cwd()}/src/core/logger`);
-const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`)
 module.exports = {
     name: 'loop',
     description: '(music) Set loop mode of the guild',
@@ -35,7 +34,9 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
+        const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
         let data = getLanguageData(interaction.guild.id);
+        
         try {
             const queue = interaction.client.player.nodes.get(interaction.guild)
             if (!queue || !queue.isPlaying()) {
@@ -45,8 +46,9 @@ module.exports = {
 
             queue.setRepeatMode(loopMode)
             const mode = loopMode === QueueRepeatMode.TRACK ? `🔂` : loopMode === QueueRepeatMode.QUEUE ? `🔂` : `▶`;
-            return interaction.reply({ content: data.loop_command_work
-                .replace("{mode}", mode)
+            return interaction.reply({
+                content: data.loop_command_work
+                    .replace("{mode}", mode)
             });
         } catch (error) {
             logger.err(error);

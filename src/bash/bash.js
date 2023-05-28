@@ -11,7 +11,7 @@ import('ipify').then(module => {
 const path = require('path');
 const readline = require('readline');
 const fs = require('fs');
-const config = require(`${process.cwd()}/src/config.js`);
+const config = require(`${process.cwd()}/files/config.js`);
 
 module.exports = async (client) => {
     if (config.core.bash) {

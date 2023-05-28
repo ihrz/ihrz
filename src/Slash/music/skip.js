@@ -11,7 +11,7 @@ const {
 const { QueryType } = require('discord-player');
 
 const logger = require(`${process.cwd()}/src/core/logger`);
-const getLanguageData = require(`${process.cwd()}/src/lang/getData`);
+const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 module.exports = {
     name: 'skip',

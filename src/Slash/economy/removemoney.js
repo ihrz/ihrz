@@ -11,8 +11,7 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const yaml = require('js-yaml'), fs = require('fs');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
+const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 module.exports = {
     name: 'removemoney',
@@ -32,9 +31,8 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-        let data = yaml.load(fileContents);
-
+        let data = getLanguageData(interaction.guild.id);
+        
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.reply({ content: data.removemoney_not_admin })
         }

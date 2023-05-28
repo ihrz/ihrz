@@ -10,7 +10,6 @@ const {
 } = require('discord.js');
 
 const yaml = require('js-yaml'), fs = require('fs');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
 const logger = require(`${process.cwd()}/src/core/logger`);
 
 module.exports = {
@@ -48,8 +47,8 @@ module.exports = {
     ],
 
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-        let data = yaml.load(fileContents);
+        const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+        let data = getLanguageData(interaction.guild.id);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.reply({ content: data.support_not_admin });

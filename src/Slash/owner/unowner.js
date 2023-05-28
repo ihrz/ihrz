@@ -1,4 +1,3 @@
-const fs = require("fs");
 const {
     Client,
     Intents,
@@ -12,10 +11,7 @@ const {
 } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const config = require(`${process.cwd()}/src/config.js`);
-
-const yaml = require('js-yaml');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
+const config = require(`${process.cwd()}/files/config.js`);
 
 module.exports = {
     name: 'unowner',
@@ -29,8 +25,8 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-        let data = yaml.load(fileContents);
+        const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+        let data = getLanguageData(interaction.guild.id);
 
         if (await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
             return interaction.reply({ content: data.unowner_not_owner });

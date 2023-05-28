@@ -10,16 +10,13 @@ const {
 } = require('discord.js');
 
 var os = require('os-utils');
-const yaml = require('js-yaml');
-const fs = require('fs');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
+const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 module.exports = {
     name: 'status',
     description: 'Only for developers !',
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-        let data = yaml.load(fileContents);
+        let data = getLanguageData(interaction.guild.id);
         
         const config = require("../config.js")
         if (interaction.user.id != config.owner.ownerid1 || interaction.user.id != config.owner.ownerid2) {

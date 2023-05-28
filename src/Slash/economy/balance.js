@@ -11,8 +11,8 @@ const {
 
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
-const yaml = require('js-yaml'), fs = require('fs');
+const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+
 module.exports = {
     name: 'balance',
     description: 'shows how much money you have in your bank',
@@ -25,8 +25,7 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-        let data = yaml.load(fileContents);
+        let data = getLanguageData(interaction.guild.id);
         const member = interaction.options.get('user');
 
         if (!member) {

@@ -1,7 +1,7 @@
 const couleurmdr = require("colors"),
   { QuickDB } = require("quick.db"),
   db = new QuickDB(),
-  config = require("../config"),
+  config = require("../../files/config.js"),
   register = require('../core/slashsync'),
   wait = require("timers/promises").setTimeout,
   logger = require(`${process.cwd()}/src/core/logger`);

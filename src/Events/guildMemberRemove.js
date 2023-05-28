@@ -1,5 +1,5 @@
 
-const { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client } = require('discord.js');
+const { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, Client } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);

@@ -60,7 +60,7 @@ module.exports = async (client, message) => {
   async function logsMessage() {
     if (!message.guild) return; if (message.channel.type !== ChannelType.GuildText) return; if (message.author.bot) return; if (message.author.id == client.user.id) return;
     const now = new Date();
-    const CreateFiles = fs.createWriteStream('./src/logs/message/' + message.guild.id + ".txt", { flags: 'a' });
+    const CreateFiles = fs.createWriteStream('./files/logs/message/' + message.guild.id + ".txt", { flags: 'a' });
     let i = message.guild.name + " | MESSAGE | [" + now + "]" + " \n " + message.author.id + ": " + message.content + " " + " in: #" + message.channel.name + "";
     CreateFiles.write(i.toString() + '\r\n');
   };

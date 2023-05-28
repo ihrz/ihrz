@@ -12,15 +12,12 @@ const {
   ApplicationCommandOptionType
 } = require('discord.js');
 
-const yaml = require('js-yaml'), fs = require('fs');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
-
 module.exports = {
   name: 'weekly',
   description: 'Earn your weekly gain from you work',
   run: async (client, interaction) => {
-    let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-    let data = yaml.load(fileContents);
+    const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+    let data = getLanguageData(interaction.guild.id);
     
     let timeout = 604800000
     let amount = 1000

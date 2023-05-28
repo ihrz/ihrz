@@ -1,4 +1,4 @@
-const { Collection, EmbedBuilder, Permissions, AuditLogEvent, PermissionsBitField } = require('discord.js');
+const { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 

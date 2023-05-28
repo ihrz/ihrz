@@ -9,10 +9,8 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const yaml = require('js-yaml');
-const fs = require('fs');
 const logger = require(`${process.cwd()}/src/core/logger`);
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
+
 module.exports = {
     name: 'clear',
     description: 'Clear x number of message in a channels !',
@@ -25,8 +23,8 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-        let data = yaml.load(fileContents);
+        const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+        let data = getLanguageData(interaction.guild.id);
         
         const permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)
         var numberx = interaction.options.getNumber("number") + 1

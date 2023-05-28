@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 require("colors");
 const logger = require("./logger");
-const config = require(`${process.cwd()}/src/config`);
+const config = require(`${process.cwd()}/files/config`);
 
 module.exports = (client) => {
   const eventFiles = fs.readdirSync(path.resolve(__dirname, '..', 'Events')).filter(file => file.endsWith('.js'));

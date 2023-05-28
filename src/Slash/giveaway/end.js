@@ -11,10 +11,7 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const yaml = require('js-yaml');
 const logger = require(`${process.cwd()}/src/core/logger`);
-const fs = require('fs');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
 module.exports = {
     name: 'end',
     description: 'force end a giveaways',
@@ -27,8 +24,8 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(`${process.cwd()}/files/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-        let data = yaml.load(fileContents);
+        const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+        let data = getLanguageData(interaction.guild.id);
 
         const fuckingLifeOfTrees = interaction.options.getString("giveaway-id")
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {

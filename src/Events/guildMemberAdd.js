@@ -3,6 +3,7 @@ const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const logger = require(`${process.cwd()}/src/core/logger`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+
 module.exports = async (client, member, members) => {
   let data = getLanguageData(member.guild.id);
   async function joinRoles() {

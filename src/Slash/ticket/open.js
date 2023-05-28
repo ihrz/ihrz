@@ -1,11 +1,9 @@
-const yaml = require('js-yaml'), fs = require('fs');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
 module.exports = {
 	name: 'open',
 	description: 're-open a closed tickets',
 	run: async (client, interaction) => {
-		let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-		let data = yaml.load(fileContents);
+		const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+		let data = getLanguageData(interaction.guild.id);
 
 		const { QuickDB } = require("quick.db");
 		const db = new QuickDB();

@@ -9,7 +9,7 @@ const {
     PermissionsBitField,
     ApplicationCommandOptionType
 } = require('discord.js');
-const logger = require(`${process.cwd()}/files/core/logger`);
+const logger = require(`${process.cwd()}/src/core/logger`);
 
 module.exports = {
     name: 'eval',

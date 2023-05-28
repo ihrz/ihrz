@@ -1,6 +1,6 @@
 const fs = require('fs'),
   date = require('date-and-time'),
-  config = require('../config'),
+  config = require('../../files/config.js'),
   logger = require("./logger");
 
 function uncaughtExceptionHandler() {

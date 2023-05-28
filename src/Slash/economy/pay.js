@@ -11,8 +11,7 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const yaml = require('js-yaml'), fs = require('fs');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
+const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 module.exports = {
     name: 'pay',
@@ -32,9 +31,7 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-        let data = yaml.load(fileContents);
-
+        let data = getLanguageData(interaction.guild.id);
         let user = interaction.options.getMember("member");
         let amount = interaction.options.getNumber("amount");
         let member = await db.get(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`);

@@ -10,9 +10,8 @@ const {
 } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const yaml = require('js-yaml'), fs = require('fs');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
 const logger = require(`${process.cwd()}/src/core/logger`);
+const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 module.exports = {
     name: 'setserverlang',
@@ -56,8 +55,7 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-        let data = yaml.load(fileContents);
+        let data = getLanguageData(interaction.guild.id);
 
         let type = interaction.options.getString("language")
 
@@ -67,9 +65,6 @@ module.exports = {
 
         
         try {
-            let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${type}.yml`, 'utf-8');
-            let data = yaml.load(fileContents);
-
             logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
                 .setTitle(data.setserverlang_logs_embed_title_on_enable)
@@ -83,9 +78,6 @@ module.exports = {
         } catch (e) { logger.err(e) };
 
         try {
-            let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${type}.yml`, 'utf-8');
-            let data = yaml.load(fileContents);
-
             let already = await db.get(`${interaction.guild.id}.GUILD.LANG`)
             if (already) {
                 if (already.lang === type) return interaction.reply({ content: data.setserverlang_already })

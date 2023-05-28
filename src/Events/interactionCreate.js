@@ -4,7 +4,7 @@ const fs = require("fs");
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 const timeout = 1000;
 const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
-const config = require(`${process.cwd()}/src/config.js`);
+const config = require(`${process.cwd()}/files/config.js`);
 module.exports = async (client, interaction) => {
   if (!interaction.isCommand() || !interaction.guild.channels || interaction.user.bot) return;
 
@@ -33,7 +33,7 @@ module.exports = async (client, interaction) => {
 
   async function logsCommands() {
     const now = new Date();
-    const CreateFiles = fs.createWriteStream(`${process.cwd()}/src/logs/commands/${interaction.guild.id}.txt`, { flags: 'a' });
+    const CreateFiles = fs.createWriteStream(`${process.cwd()}/files/logs/commands/${interaction.guild.id}.txt`, { flags: 'a' });
     let i = `[${interaction.guild.name}] >> ${interaction.user.username}#${interaction.user.discriminator} - ${now}\n#${interaction.channel.name}: /${interaction.commandName}`;
     CreateFiles.write(i.toString() + '\r\n');
   };

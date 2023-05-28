@@ -1,4 +1,4 @@
-const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
+const { Client, Collection, EmbedBuilder, PermissionsBitField } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const hidden = require(`${process.cwd()}/src/core/maskLink`);

@@ -8,7 +8,6 @@ const {
   PermissionsBitField,
   ApplicationCommandOptionType
 } = require('discord.js');
-const getLanguage = require(`${process.cwd()}/files/lang/getLanguage`);
 
 module.exports = {
   name: 'caracteres',

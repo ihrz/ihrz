@@ -10,9 +10,7 @@ const {
 } = require('discord.js');
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
-const yaml = require('js-yaml');
-const fs = require('fs');
-const getLanguage = require(`${process.cwd()}/src/lang/getLanguage`);
+const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 module.exports = {
   name: 'addmoney',
@@ -32,9 +30,8 @@ module.exports = {
     }
   ],
   run: async (client, interaction) => {
-    let fileContents = fs.readFileSync(`${process.cwd()}/src/lang/${await getLanguage(interaction.guild.id)}.yml`, 'utf-8');
-    let data = yaml.load(fileContents)
-
+    let data = getLanguageData(interaction.guild.id);
+    
     if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
       return interaction.reply(data.addmoney_not_admin)
     }
