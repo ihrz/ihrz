@@ -825,7 +825,7 @@ event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> muted themsel
 event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> unmuted themselves in the <#${channelID}> channel"
 
 # RankUp event
-event_rank_role: "<@${message.author.id}>, you have now the role <@&${fetch.id}>"
+event_rank_role: "<@${message.author.id}>, you now have the role <@&${fetch.id}>"
 
 
 # -----------------------------\ /-----------------------------
