@@ -1,9 +1,7 @@
 const {Client, Collection, EmbedBuilder, PermissionsBitField} = require('discord.js');
-const {QuickDB} = require("quick.db");
-const db = new QuickDB();
 const hidden = require(`${process.cwd()}/src/core/maskLink`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-const {DataBaseModel} = require(`${process.cwd()}/files/ihorizon-api/main`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
 
 module.exports = async (client, message) => {
     let data = await getLanguageData(message.guild.id);
