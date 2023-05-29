@@ -42,6 +42,8 @@ module.exports = {
 
         "loginURL": "https://login.domain.com:3000",
 
+        "dbApiUrl": "https://exemple.domain.com:3000/api/database/",
+
         "apiToken": "The API's token for create a request (Need to be private for security reason)",
 
         "hostPort": "3000",

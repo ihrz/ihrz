@@ -1,7 +1,7 @@
 const Express = require('express'), { URLSearchParams } = require('url'), axios = require('axios'), path = require('path');
 const bodyParser = require('body-parser'), fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
-const { QuickDB } = require('quick.db'), db = new QuickDB(), c = require("colors");
+const { QuickDB } = require('quick.db'), db = new QuickDB(), c = require("colors"), api = require('./code/api');
 const logger = require(`${process.cwd()}/src/core/logger`), config = require(`${process.cwd()}/files/config`), code = require('./code/code');
 
 const app = Express();
@@ -12,6 +12,7 @@ const client_id = config.api.clientID,
 app.use(Express.urlencoded({ extended: false }));
 app.use(Express.json()); app.use(bodyParser.text());
 app.post('/api/check/', code);
+app.post('/api/database', api);
 
 function make_config(authorization_token) {
     data = { headers: { "authorization": `Bearer ${authorization_token}` } }; return data;
