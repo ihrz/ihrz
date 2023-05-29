@@ -346,6 +346,18 @@ serverinfo_embed_fields_channels: "✍・**Número de canal(es):**"
 serverinfo_embed_fields_joinat: "🚲・**Unido en:**"
 serverinfo_embed_fields_createat: "⚓・**Creado en:**"
 
+# /setrankroles
+setrankroles_not_admin: "❌ No eres un administrador de este servidor. ¡No puedes ejecutar este comando!"
+setrankroles_already_this_in_db: "❎ Los roles de clasificación ya están en la base de datos para este servidor."
+setrankroles_not_roles_typed: "❌ No has incluido ningún rol en tu comando."
+setrankroles_command_work: "Ahora, cuando me menciones `@iHorizon`, agregaré los siguientes roles: <@&${argsid}>"
+setrankroles_logs_embed_description_enable: "<@${interaction.user.id}> ha establecido el rol de clasificación en <@&${argsid}>"
+setrankroles_logs_embed_title_enable: "Establecer Rol de Clasificación"
+setrankroles_logs_embed_description_disable: "<@${interaction.user.id}> ha eliminado el rol de clasificación."
+setrankroles_logs_embed_title_disable: "Establecer Rol de Clasificación"
+setrankroles_command_work_disable: "<@${interaction.user.id}>, has eliminado el rol de clasificación."
+setrankroles_command_error: "❌ ¡La comando ha encontrado un error! Por favor, inténtalo de nuevo más tarde."
+
 # /snipe
 snipe_no_previous_message_deleted: "¡No se ha eliminado ningún mensaje en este canal!"
 
@@ -811,6 +823,9 @@ event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> ha silenciado
 event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> ha quitado el silencio de sus auriculares en el canal <#${channelID}>"
 event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> se ha silenciado en el canal <#${channelID}>"
 event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> se ha quitado el silencio en el canal <#${channelID}>"
+
+# Evento de Ascenso de Rango
+event_rank_role: "<@${message.author.id}>, ahora tienes el rol <@&${fetch.id}>"
 
 
 # -----------------------------\ /-----------------------------

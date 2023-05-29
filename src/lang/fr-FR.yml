@@ -346,6 +346,18 @@ serverinfo_embed_fields_channels: "✍・**Nombre de chaîne(s)** :"
 serverinfo_embed_fields_joinat: "🚲・**Rejoint le** :"
 serverinfo_embed_fields_createat: "⚓・**Créé le** :"
 
+# /setrankroles
+setrankroles_not_admin: "❌ Vous n'êtes pas administrateur de ce serveur. Vous ne pouvez pas exécuter cette commande !"
+setrankroles_already_this_in_db: "❎ Les rôles de classement sont déjà enregistrés dans la base de données de ce serveur."
+setrankroles_not_roles_typed: "❌ Vous n'avez spécifié aucun rôle dans votre commande !"
+setrankroles_command_work: "Maintenant, lorsque vous me mentionnez `@iHorizon`, je vais ajouter les rôles suivants : <@&${argsid}>"
+setrankroles_logs_embed_description_enable: "<@${interaction.user.id}> a défini le rôle de classement sur <@&${argsid}>"
+setrankroles_logs_embed_title_enable: "Définir le rôle de classement"
+setrankroles_logs_embed_description_disable: "<@${interaction.user.id}> a supprimé le rôle de classement !"
+setrankroles_logs_embed_title_disable: "Définir le rôle de classement"
+setrankroles_command_work_disable: "<@${interaction.user.id}>, vous avez supprimé le rôle de classement !"
+setrankroles_command_error: "❌ Une erreur s'est produite lors de l'exécution de la commande ! Veuillez réessayer ultérieurement."
+
 # /snipe
 snipe_no_previous_message_deleted: "Le message précédent n'a pas été supprimé dans ce canal !"
 
@@ -811,6 +823,9 @@ event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> s'est mute ca
 event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> s'est demute casque casque dans le salon <#${channelID}>"
 event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> s'est mute dans le salon <#${channelID}>"
 event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> s'est demute casque dans le salon <#${channelID}>"
+
+# Événement de Promotion de Rang
+event_rank_role: "<@${message.author.id}>, tu as maintenant le rôle <@&${fetch.id}>"
 
 
 # -----------------------------\ /-----------------------------

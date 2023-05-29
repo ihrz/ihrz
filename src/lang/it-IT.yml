@@ -346,6 +346,18 @@ serverinfo_embed_fields_channels: "✍・Numero di canali:"
 serverinfo_embed_fields_joinat: "🚲・Entrato il:"
 serverinfo_embed_fields_createat: "⚓・Creato il:"
 
+# /setrankroles
+setrankroles_not_admin: "❌ Non sei un amministratore di questo server. Non puoi eseguire questo comando!"
+setrankroles_already_this_in_db: "❎ I ruoli di classifica sono già presenti nel database di questo server."
+setrankroles_not_roles_typed: "❌ Non hai specificato nessun ruolo nel tuo comando!"
+setrankroles_command_work: "Ora, quando mi menzioni `@iHorizon`, aggiungerò i seguenti ruoli: <@&${argsid}>"
+setrankroles_logs_embed_description_enable: "<@${interaction.user.id}> ha impostato il ruolo di classifica su <@&${argsid}>"
+setrankroles_logs_embed_title_enable: "Imposta Ruolo di Classifica"
+setrankroles_logs_embed_description_disable: "<@${interaction.user.id}> ha eliminato il ruolo di classifica!"
+setrankroles_logs_embed_title_disable: "Imposta Ruolo di Classifica"
+setrankroles_command_work_disable: "<@${interaction.user.id}>, hai eliminato il ruolo di classifica!"
+setrankroles_command_error: "❌ Si è verificato un errore durante l'esecuzione del comando! Riprova più tardi."
+
 # /snipe
 snipe_no_previous_message_deleted: "Nessun messaggio eliminato in questo canale!"
 
@@ -811,6 +823,9 @@ event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> ha messo in m
 event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> ha tolto il muto alle cuffie nel canale <#${channelID}>"
 event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> si è messo in muto nel canale <#${channelID}>"
 event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> si è tolto il muto nel canale <#${channelID}>"
+
+# Evento di Promozione di Livello
+event_rank_role: "<@${message.author.id}>, ora hai il ruolo <@&${fetch.id}>"
 
 
 # -----------------------------\ /-----------------------------

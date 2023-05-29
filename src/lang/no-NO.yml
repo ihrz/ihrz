@@ -339,6 +339,18 @@ serverinfo_embed_fields_channels: "✍️・**Antall kanaler:**"
 serverinfo_embed_fields_joinat: "🚲・**Ble med:**"
 serverinfo_embed_fields_createat: "⚓・**Opprettet:**"
 
+# /setrankroles
+setrankroles_not_admin: "❌ Du er ikke administrator for denne serveren. Du kan ikke utføre denne kommandoen!"
+setrankroles_already_this_in_db: "❎ Rangeringsrollene er allerede i databasen for denne serveren."
+setrankroles_not_roles_typed: "❌ Du har ikke inkludert noen roller i kommandoen din!"
+setrankroles_command_work: "Nå, når du nevner meg `@iHorizon`, vil jeg legge til følgende roller: <@&${argsid}>"
+setrankroles_logs_embed_description_enable: "<@${interaction.user.id}> har satt rangeringsrollen til <@&${argsid}>"
+setrankroles_logs_embed_title_enable: "Sett Rangeringsrolle"
+setrankroles_logs_embed_description_disable: "<@${interaction.user.id}> har slettet rangeringsrollen!"
+setrankroles_logs_embed_title_disable: "Sett Rangeringsrolle"
+setrankroles_command_work_disable: "<@${interaction.user.id}>, du har slettet rangeringsrollen!"
+setrankroles_command_error: "❌ Kommandoen støtte på en feil! Vennligst prøv igjen senere."
+
 # /snipe
 snipe_no_previous_message_deleted: "Ingen meldinger slettet i denne kanalen!"
 
@@ -780,6 +792,8 @@ event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> fjernet dempi
 event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> dempet seg selv i kanalen <#${channelID}>"
 event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> fjernet dempingen på seg selv i kanalen <#${channelID}>"
 
+# Rangeringsoppgradering hendelse
+event_rank_role: "<@${message.author.id}>, du har nå rollen <@&${fetch.id}>"
 
 
 # -----------------------------\ /-----------------------------

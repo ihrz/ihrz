@@ -346,6 +346,18 @@ serverinfo_embed_fields_channels: "✍・**チャンネル数:**"
 serverinfo_embed_fields_joinat: "🚲・**参加日時:**"
 serverinfo_embed_fields_createat: "⚓・**作成日時:**"
 
+# /setrankroles
+setrankroles_not_admin: "❌ このサーバーの管理者ではありません。このコマンドを実行することはできません！"
+setrankroles_already_this_in_db: "❎ ランクロールは既にこのサーバーのデータベースに存在します。"
+setrankroles_not_roles_typed: "❌ コマンドには役職が指定されていません！"
+setrankroles_command_work: "今後、`@iHorizon` とメンションすると、以下の役職が追加されます: <@&${argsid}>"
+setrankroles_logs_embed_description_enable: "<@${interaction.user.id}> がランクロールを <@&${argsid}> に設定しました"
+setrankroles_logs_embed_title_enable: "ランクロールの設定"
+setrankroles_logs_embed_description_disable: "<@${interaction.user.id}> がランクロールを削除しました！"
+setrankroles_logs_embed_title_disable: "ランクロールの設定"
+setrankroles_command_work_disable: "<@${interaction.user.id}> さん、ランクロールを削除しました！"
+setrankroles_command_error: "❌ コマンドの実行中にエラーが発生しました！後でもう一度お試しください。"
+
 # /snipe
 snipe_no_previous_message_deleted: "このチャンネルで削除されたメッセージはありません！"
 
@@ -811,6 +823,9 @@ event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> **が<#${chan
 event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> **が<#${channelID}>チャンネルでヘッドセットのミュートを解除しました**"
 event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> **が<#${channelID}>チャンネルで自身をミュートしました**"
 event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> **が<#${channelID}>チャンネルで自身のミュートを解除しました**"
+
+# ランクアップイベント
+event_rank_role: "<@${message.author.id}>さん、あなたは今、役職 <@&${fetch.id}> を持っています"
 
 
 # -----------------------------\ /-----------------------------

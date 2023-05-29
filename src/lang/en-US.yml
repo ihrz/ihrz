@@ -346,6 +346,18 @@ serverinfo_embed_fields_channels: "✍・**Channel(s) number:**"
 serverinfo_embed_fields_joinat: "🚲・**Join at:**"
 serverinfo_embed_fields_createat: "⚓・**Create at:**"
 
+# /setrankroles
+setrankroles_not_admin: "❌ You are not an administrator of this server. You cannot execute this commands !"
+setrankroles_already_this_in_db: "❎ The rank roles are already in the database for this server. "
+setrankroles_not_roles_typed: "❌ You have not included any roles in your commands !"
+setrankroles_command_work: "Now when you ping me `@iHorizon` i will add the following roles: <@&${argsid}>"
+setrankroles_logs_embed_description_enable: "<@${interaction.user.id}> set the rankrole to <@&${argsid}>"
+setrankroles_logs_embed_title_enable: "Set RankRole"
+setrankroles_logs_embed_description_disable: "<@${interaction.user.id}> deleted the rank role!"
+setrankroles_logs_embed_title_disable: "Set RankRole"
+setrankroles_command_work_disable: "<@${interaction.user.id}>, you have deleted the rank role !"
+setrankroles_command_error: "❌ The command has encountered an error! Please try again later."
+
 # /snipe
 snipe_no_previous_message_deleted: "No message deleted in this channel !"
 
@@ -811,6 +823,9 @@ event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> muted their h
 event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> unmuted their headset in the <#${channelID}> channel"
 event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> muted themselves in the <#${channelID}> channel"
 event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> unmuted themselves in the <#${channelID}> channel"
+
+# RankUp event
+event_rank_role: "<@${message.author.id}>, you have now the role <@&${fetch.id}>"
 
 
 # -----------------------------\ /-----------------------------

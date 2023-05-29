@@ -346,6 +346,18 @@ serverinfo_embed_fields_channels: "✍・**Anzahl der Kanäle:**"
 serverinfo_embed_fields_joinat: "🚲・**Beitrittsdatum:**"
 serverinfo_embed_fields_createat: "⚓・**Erstellungsdatum:**"
 
+# /setrankroles
+setrankroles_not_admin: "❌ Du bist kein Administrator dieses Servers. Du kannst diesen Befehl nicht ausführen!"
+setrankroles_already_this_in_db: "❎ Die Rangrollen sind bereits in der Datenbank für diesen Server vorhanden."
+setrankroles_not_roles_typed: "❌ Du hast keine Rollen in deinem Befehl angegeben!"
+setrankroles_command_work: "Ab jetzt, wenn du mich markierst `@iHorizon`, werde ich die folgenden Rollen hinzufügen: <@&${argsid}>"
+setrankroles_logs_embed_description_enable: "<@${interaction.user.id}> hat die Rangrolle auf <@&${argsid}> gesetzt"
+setrankroles_logs_embed_title_enable: "Rangrolle setzen"
+setrankroles_logs_embed_description_disable: "<@${interaction.user.id}> hat die Rangrolle gelöscht!"
+setrankroles_logs_embed_title_disable: "Rangrolle setzen"
+setrankroles_command_work_disable: "<@${interaction.user.id}>, du hast die Rangrolle gelöscht!"
+setrankroles_command_error: "❌ Bei der Ausführung des Befehls ist ein Fehler aufgetreten! Bitte versuche es später erneut."
+
 # /snipe
 snipe_no_previous_message_deleted: "Keine Nachricht in diesem Kanal gelöscht!"
 
@@ -811,6 +823,9 @@ event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> **hat das Hea
 event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> **hat das Headset im Kanal <#${channelID}> stummschalten aufgehoben**"
 event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> **hat sich im Kanal <#${channelID}> stummgeschaltet**"
 event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> **hat sich im Kanal <#${channelID}> stummschalten aufgehoben**"
+
+# Rang-Erhöhung Ereignis
+event_rank_role: "<@${message.author.id}>, du hast jetzt die Rolle <@&${fetch.id}>"
 
 
 # -----------------------------\ /-----------------------------

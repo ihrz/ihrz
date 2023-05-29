@@ -9,6 +9,7 @@ const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 module.exports = async (client, message) => {
   if (!message.guild || message.author.bot) return;
   let data = await getLanguageData(message.guild.id);
+
   async function xpFetcher() {
     if (!message.guild) return; if (message.channel.type !== ChannelType.GuildText) return; if (message.author.bot) return;
     const randomNumber = Math.floor(Math.random() * 100) + 50;
@@ -123,5 +124,32 @@ module.exports = async (client, message) => {
     }
   };
 
-  await xpFetcher(), EconomyDebug(), logsMessage(), blockSpam();
+  async function rankRole() {
+    if (!message.guild || message.channel.type !== ChannelType.GuildText || message.author.bot || message.author.id === client.user.id) {
+      return;
+    }
+
+    if (!message.channel.permissionsFor(client.user).has(PermissionsBitField.Flags.SendMessages)) return;
+    if (!message.channel.permissionsFor(client.user).has(PermissionsBitField.Flags.ManageRoles)) return;
+    
+    let check = message.mentions.users.find(user => user.id === client.user.id);
+
+    if (check) {
+      let dbGet = await db.get(`${message.guild.id}.GUILD.RANK_ROLES.roles`)
+      let fetch = message.guild.roles.cache.find(role => role.id === dbGet);
+      if (fetch) {
+        let target = message.guild.members.cache.get(message.author.id);
+        
+        if (target.roles.cache.has(fetch.id)) { return; };
+        
+        message.member.roles.add(fetch).catch(() => { });
+        message.channel.send({content: data.event_rank_role
+          .replace("${message.author.id}", message.author.id)
+          .replace("${fetch.id}", fetch.id)
+        });
+      }
+    }
+  };
+
+  await xpFetcher(), EconomyDebug(), logsMessage(), blockSpam(), rankRole();
 };
