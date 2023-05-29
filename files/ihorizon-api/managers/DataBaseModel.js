@@ -25,7 +25,11 @@ class DataBaseModel {
             console.error(err);
             reject(err);
           } else {
-            this.data = res.body;
+            if (JSON.stringify(res.body) === "{}") {
+              this.data = res.text;
+            } else {
+              this.data = res.body;
+            }
             resolve(this);
           }
         });
