@@ -1,10 +1,10 @@
-const { QuickDB } = require('quick.db'), db = new QuickDB();
+const {QuickDB} = require('quick.db'), db = new QuickDB();
 var CryptoJS = require("crypto-js");
 const logger = require(`${process.cwd()}/src/core/logger.js`);
 const config = require(`${process.cwd()}/files/config.js`);
 
 module.exports = async (req, res) => {
-    const { text } = req.body;
+    const {text} = req.body;
 
     try {
         var bytes = CryptoJS.AES.decrypt(text, config.api.apiToken);
@@ -28,16 +28,14 @@ module.exports = async (req, res) => {
                 res.sendStatus(200);
                 break;
             case 5:
-                let callback = await db.get(decryptedData.key, decryptedData.value);
-                res.send({callback});
+                res.send({r: await db.get(decryptedData.key)});
                 break;
             case 6:
-                await db.delete(decryptedData.key, decryptedData.value);
-                res.sendStatus(200);
+                await db.pull(decryptedData.key, decryptedData.value);
+                res.send(200);
                 break;
             case 7:
-                await db.all(decryptedData.key, decryptedData.value);
-                res.sendStatus(200);
+                res.send(await db.all(decryptedData.key, decryptedData.value));
                 break;
             default:
                 logger.warn("-> Bad json request without ip/key");

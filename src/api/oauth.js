@@ -4,7 +4,7 @@ const bodyParser = require('body-parser'), fetch = (...args) => import('node-fet
 const c = require("colors"), api = require('./code/api');
 const logger = require(`${process.cwd()}/src/core/logger`), config = require(`${process.cwd()}/files/config`), code = require('./code/code');
 
-const { DataBaseModel } = require(`${process.cwd()}/files/ihorizon-api/main`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
 
 const app = Express();
 const client_id = config.api.clientID,
@@ -33,7 +33,7 @@ app.post('/user', async (req, res) => {
             let userinfo = JSON.parse(await userinfo_raw.text());
             logger.log(`${config.console.emojis.ERROR} >> ${userinfo.username}#${userinfo.discriminator} -> ${data.access_token}`);
             if (!data.access_token) return logger.warn(`${config.console.emojis.OK} >> Error Code 500`.gray);
-            await new DataBaseModel({id: DataBaseModel.Set, key: `API.TOKEN.${userinfo.id}`, value: { token: `${data.access_token}` }});
+            await DataBaseModel({id: DataBaseModel.Set, key: `API.TOKEN.${userinfo.id}`, value: { token: `${data.access_token}` }});
             res.status(200).send(userinfo.username);
         }).catch(_err => {
             logger.warn(`${config.console.emojis.ERROR} >> Error Code 500`); res.sendStatus(500);
