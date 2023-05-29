@@ -26,7 +26,7 @@ module.exports = {
     ],
     run: async (client, interaction) => {
         const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-        let data = getLanguageData(interaction.guild.id);
+        let data = await getLanguageData(interaction.guild.id);
 
         if (await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
             return interaction.reply({ content: data.unowner_not_owner });

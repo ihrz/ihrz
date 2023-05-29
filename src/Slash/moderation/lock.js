@@ -14,7 +14,7 @@ module.exports = {
   description: 'Remove ability to speak of all users in this text channel',
   run: async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
 
     const Lockembed = new EmbedBuilder()
       .setColor("#5b3475")

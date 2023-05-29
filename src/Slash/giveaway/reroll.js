@@ -26,7 +26,7 @@ module.exports = {
     ],
     run: async (client, interaction) => {
         const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-        let data = getLanguageData(interaction.guild.id);
+        let data = await getLanguageData(interaction.guild.id);
 
         const fuckingLifeOfTrees = interaction.options.getString("giveaway-id")
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {

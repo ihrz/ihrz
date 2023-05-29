@@ -17,7 +17,7 @@ module.exports = {
     name: 'skip',
     description: '(music) Skip the current music played.',
     run: async (client, interaction) => {
-        let data = getLanguageData(interaction.guild.id);
+        let data = await getLanguageData(interaction.guild.id);
 
         if (!interaction.member.voice.channel) {
             return interaction.reply({ content: data.skip_not_in_voice_channel });

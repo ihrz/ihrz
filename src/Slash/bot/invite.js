@@ -15,7 +15,7 @@ module.exports = {
   name: 'invite',
   description: 'I love you, show me your love for me back ! Invite me !',
   run: async (client, interaction) => {
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
 
     let invites = new EmbedBuilder()
       .setColor("#416fec")

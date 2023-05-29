@@ -30,7 +30,7 @@ module.exports = {
     }
   ],
   run: async (client, interaction) => {
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
     
     if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
       return interaction.reply(data.addmoney_not_admin)

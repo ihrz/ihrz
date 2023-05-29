@@ -16,7 +16,7 @@ module.exports = {
   description: 'Work and earn money into your bank',
   run: async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
     
     const talkedRecentlyforw = new Set();
 

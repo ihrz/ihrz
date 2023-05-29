@@ -14,7 +14,7 @@ module.exports = {
   description: 'Give ability to speak of all users in this text',
   run: async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
     
     const permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageChannels);
     if (!permission) return interaction.reply({ content: data.unlock_dont_have_permission });

@@ -20,7 +20,7 @@ module.exports = async (client, interaction) => {
       return;
     };
     if (await cooldDown()) {
-      let data = getLanguageData(interaction.guild.id);
+      let data = await getLanguageData(interaction.guild.id);
       interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
       return;
     }

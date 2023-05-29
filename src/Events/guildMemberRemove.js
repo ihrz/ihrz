@@ -5,7 +5,7 @@ const db = new QuickDB();
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 module.exports = async (client, member, members) => {
-  let data = getLanguageData(member.guild.id);
+  let data = await getLanguageData(member.guild.id);
   async function memberCount() {
     try {
       const botMembers = member.guild.members.cache.filter(member => member.user.bot);

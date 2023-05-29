@@ -36,7 +36,5 @@ module.exports = {
 
         msg.delete()
         return interaction.reply({ embeds: [embed] })
-
-        const filter = (interaction) => interaction.user.id === interaction.member.id;
     }
 }

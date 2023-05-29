@@ -14,7 +14,7 @@ module.exports = {
   description: 'Show the server informations',
   run: async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
 
     const verlvl = {
       NONE: data.serverinfo_verlvl_NONE,

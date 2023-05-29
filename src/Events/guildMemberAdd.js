@@ -5,7 +5,7 @@ const logger = require(`${process.cwd()}/src/core/logger`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 module.exports = async (client, member, members) => {
-  let data = getLanguageData(member.guild.id);
+  let data = await getLanguageData(member.guild.id);
   async function joinRoles() {
     try {
       let roleid = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`)

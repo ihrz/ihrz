@@ -18,7 +18,7 @@ module.exports = {
   description: 'Show the guild invites\'s leaderboard',
   run: async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
 
     var text = data.leaderboard_default_text;
     const ownerList = await db.all();

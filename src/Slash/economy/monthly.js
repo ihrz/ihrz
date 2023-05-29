@@ -18,7 +18,7 @@ module.exports = {
   name: 'monthly',
   description: 'Claim your monthly gain',
   run: async (client, interaction) => {
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
     let timeout = 2592000000;
     let amount = 5000;
     let monthly = await await db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly`);

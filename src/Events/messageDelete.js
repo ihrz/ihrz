@@ -5,7 +5,7 @@ const hidden = require(`${process.cwd()}/src/core/maskLink`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 module.exports = async (client, message) => {
-    let data = getLanguageData(message.guild.id);
+    let data = await getLanguageData(message.guild.id);
     async function snipeModules() {
         if (!message.guild) return;
         if (!message.author) return;

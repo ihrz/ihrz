@@ -22,7 +22,7 @@ module.exports = {
   ],
   run: async (client, interaction, message) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
 
     let question = interaction.options.getString("question")
 

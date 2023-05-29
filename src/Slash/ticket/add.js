@@ -26,7 +26,7 @@ module.exports = {
 		const { QuickDB } = require("quick.db");
 		const db = new QuickDB();
 		const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-		let data = getLanguageData(interaction.guild.id);
+		let data = await getLanguageData(interaction.guild.id);
 		
 		let blockQ = await db.get(`${interaction.user.id}.GUILD.TICKET.on_or_off`)
 		if (blockQ === true) { return interaction.reply(data.add_disabled_command) }

@@ -16,7 +16,7 @@ module.exports = {
     name: 'status',
     description: 'Only for developers !',
     run: async (client, interaction) => {
-        let data = getLanguageData(interaction.guild.id);
+        let data = await getLanguageData(interaction.guild.id);
         
         const config = require("../config.js")
         if (interaction.user.id != config.owner.ownerid1 || interaction.user.id != config.owner.ownerid2) {

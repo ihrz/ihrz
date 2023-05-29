@@ -18,7 +18,7 @@ module.exports = {
 	description: 'Close your ticket',
 	run: async (client, interaction) => {
 		const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-		let data = getLanguageData(interaction.guild.id);
+		let data = await getLanguageData(interaction.guild.id);
 
 		const { QuickDB } = require("quick.db");
 		const db = new QuickDB();

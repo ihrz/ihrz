@@ -16,7 +16,7 @@ module.exports = {
   name: 'queue',
   description: 'Get the music queue',
   run: async (client, interaction) => {
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
     const queue = useQueue(interaction.guildId);
 
     if (!queue) return interaction.reply({ content: data.queue_iam_not_voicec })

@@ -17,7 +17,7 @@ module.exports = {
   name: 'ping',
   description: 'Pong in ms xd',
   run: async (client, interaction) => {
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
     
     await interaction.reply(':ping_pong:')
 

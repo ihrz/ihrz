@@ -16,7 +16,7 @@ module.exports = {
   description: 'Informations about the bot',
   run: async (client, interaction) => {
 
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
     
     let usersize = client.users.cache.size
     let chansize = client.channels.cache.size

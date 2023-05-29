@@ -16,7 +16,7 @@ module.exports = {
   name: 'resume',
   description: 'Resume the song if them is in pauses!',
   run: async (client, interaction, guild) => {
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
 
     try {
       const queue = interaction.client.player.nodes.get(interaction.guild)

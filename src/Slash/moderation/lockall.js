@@ -17,7 +17,7 @@ module.exports = {
   description: 'Remove ability to speak of all users in all of text channel on the guild',
   run: async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
 
     const permission = interaction.member.permissions.has(PermissionsBitField.Flags.Administrator);
     if (!permission) return interaction.reply({ content: data.lockall_dont_have_permission });

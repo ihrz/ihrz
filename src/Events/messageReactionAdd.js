@@ -6,7 +6,7 @@ const db = new QuickDB();
 const logger = require(`${process.cwd()}/src/core/logger`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 module.exports = async (client, reaction, user) => {
-  let data = getLanguageData(reaction.message.guildId);
+  let data = await getLanguageData(reaction.message.guildId);
   async function reactionRole() {
     try {
       if (user.bot || user.id == client.user.id || !reaction.message.guild) return;

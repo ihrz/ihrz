@@ -7,7 +7,7 @@ module.exports = {
     name: 'pause',
     description: '(music) freeze the music',
     run: async (client, interaction) => {
-        let data = getLanguageData(interaction.guild.id);
+        let data = await getLanguageData(interaction.guild.id);
 
         if (!interaction.member.voice.channel) return interaction.reply({ content: data.pause_no_queue });
         try {

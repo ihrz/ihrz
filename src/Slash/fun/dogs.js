@@ -17,7 +17,7 @@ module.exports = {
   description: 'cute dogs',
   run: async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
 
     superagent
       .get('dog.ceo/api/breeds/image/random')

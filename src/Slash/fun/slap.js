@@ -23,7 +23,7 @@ module.exports = {
 
     run: async (client, interaction) => {
         const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-        let data = getLanguageData(interaction.guild.id);
+        let data = await getLanguageData(interaction.guild.id);
         
         var slapGif = [
             'https://cdn.discordapp.com/attachments/717813924203855882/717982041899139152/slap1.gif',

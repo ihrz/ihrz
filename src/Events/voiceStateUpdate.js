@@ -5,7 +5,7 @@ const db = new QuickDB();
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 module.exports = async (client, oldState, newState) => {
-    let data = getLanguageData(oldState.guild.id);
+    let data = await getLanguageData(oldState.guild.id);
     async function serverLogs() {
         if (!oldState || !oldState.guild) return;
         const guildId = oldState.guild.id;

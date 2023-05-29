@@ -17,7 +17,7 @@ module.exports = {
   name: 'stop',
   description: '(music) Stop the music.',
   run: async (client, interaction) => {
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
     try {
       const queue = interaction.client.player.nodes.get(interaction.guild);
 

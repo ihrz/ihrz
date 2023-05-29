@@ -8,7 +8,7 @@ const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 module.exports = async (client, message) => {
   if (!message.guild || message.author.bot) return;
-  let data = getLanguageData(message.guild.id);
+  let data = await getLanguageData(message.guild.id);
   async function xpFetcher() {
     if (!message.guild) return; if (message.channel.type !== ChannelType.GuildText) return; if (message.author.bot) return;
     const randomNumber = Math.floor(Math.random() * 100) + 50;

@@ -34,7 +34,7 @@ module.exports = {
     ],
     run: async (client, interaction) => {
         const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-        let data = getLanguageData(interaction.guild.id);
+        let data = await getLanguageData(interaction.guild.id);
 
         let turn = interaction.options.getString("action")
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {

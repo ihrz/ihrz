@@ -3,7 +3,7 @@ const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 module.exports = async (client, channel) => {
     if (channel.name !== "ihorizon-logs") return;
-    let data = getLanguageData(channel.guild.id);
+    let data = await getLanguageData(channel.guild.id);
     
     let setup_embed = new EmbedBuilder()
         .setColor("#1e1d22")

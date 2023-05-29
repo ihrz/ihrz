@@ -4,7 +4,7 @@ const db = new QuickDB();
 
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 module.exports = async (client, oldMember, newMember) => {
-    let data = getLanguageData(oldMember.guild.id);
+    let data = await getLanguageData(oldMember.guild.id);
 
     async function serverLogs() {
         if (!oldMember.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;

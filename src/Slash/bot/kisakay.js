@@ -5,7 +5,7 @@ module.exports = {
         name: 'kisakay',
         description: 'What is that?',
         run: async (client, interaction) => {
-                let data = getLanguageData(interaction.guild.id);
+                let data = await getLanguageData(interaction.guild.id);
                 return interaction.reply(data.kisakay_message);
         }
 }

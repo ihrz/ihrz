@@ -31,7 +31,7 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let data = getLanguageData(interaction.guild.id);
+        let data = await getLanguageData(interaction.guild.id);
         let user = interaction.options.getMember("member");
         let amount = interaction.options.getNumber("amount");
         let member = await db.get(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`);

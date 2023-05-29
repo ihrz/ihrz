@@ -6,7 +6,7 @@ module.exports = {
   name: 'help',
   description: 'Need help? Use this command !',
   run: async (client, interaction) => {
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
     let CONTENT = await db.get("BOT.CONTENT");
 
     const categories = [

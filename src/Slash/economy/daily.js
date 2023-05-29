@@ -18,7 +18,7 @@ module.exports = {
   name: 'daily',
   description: 'Claim your daily gain',
   run: async (client, interaction) => {
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
     
     let timeout = 86400000;
     let amount = 500;

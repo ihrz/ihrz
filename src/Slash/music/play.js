@@ -26,7 +26,7 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let data = getLanguageData(interaction.guild.id);
+        let data = await getLanguageData(interaction.guild.id);
         const voiceChannel = interaction.member.voice.channel;
         const check = interaction.options.getString("title")
 

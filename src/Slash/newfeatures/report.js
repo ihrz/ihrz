@@ -30,7 +30,7 @@ module.exports = {
   ],
   run: async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-    let data = getLanguageData(interaction.guild.id);
+    let data = await getLanguageData(interaction.guild.id);
 
     var sentences = interaction.options.getString("message-to-dev")
     let timeout = 18000000

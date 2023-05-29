@@ -55,7 +55,7 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let data = getLanguageData(interaction.guild.id);
+        let data = await getLanguageData(interaction.guild.id);
 
         let type = interaction.options.getString("language")
 
