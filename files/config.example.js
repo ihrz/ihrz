@@ -56,7 +56,7 @@ module.exports = {
 
         "emojis": {
 
-            OK: " ✅ ", ERROR: " ❌ ", HOST: " 💻 ", KISA: "  👩  "
+            OK: "✅", ERROR: "❌", HOST: "💻", KISA: "👩"
 
         }
 
