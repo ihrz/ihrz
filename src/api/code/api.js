@@ -42,7 +42,6 @@ module.exports = async (req, res) => {
                 res.sendStatus(403);
                 return;
         };
-
         return;
     } catch (e) {
         res.sendStatus(403);
