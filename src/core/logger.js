@@ -1,6 +1,9 @@
-let time = (new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris'});
-const err = (message) => { console.log(`[${time} ERROR]: `.red + message); },
-  log = (message) => { console.log(`[${time} LOG]: `.green + message); },
-  warn = (message) => { console.log(`[${time} WARN]: `.red + message); };
+async function getCurrentTime() {
+  return (new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' });
+};
+
+const err = async (message) => { console.log(`[${await getCurrentTime()} ERROR]: `.red + message); },
+  log = async (message) => { console.log(`[${await getCurrentTime()} LOG]: `.green + message); },
+  warn = async (message) => { console.log(`[${await getCurrentTime()} WARN]: `.red + message); };
 
 module.exports = { err, log, warn };

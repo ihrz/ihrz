@@ -13,7 +13,7 @@ module.exports = async (client, message) => {
 
         await db.set(`${message.guild.id}.GUILD.SNIPE.${message.channel.id}`,
             {
-                snipe: `${hidden.maskLink(message.content)}`,
+                snipe: `${await hidden.maskLink(message.content)}`,
                 snipeUserInfoTag: `${message.author.username} (${message.author.id} )`,
                 snipeUserInfoPp: `${message.author.displayAvatarURL()}`,
                 snipeTimestamp: Date.now()

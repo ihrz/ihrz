@@ -8,21 +8,23 @@ const logger = require(`${process.cwd()}/src/core/logger`);
 module.exports = async (client, guild) => {
   const channel = await guild.channels.cache.get(guild.systemChannelId);
 
+  /*if(guild.memberCount < 10) {    
+    if(channel) { channel.send({ embeds: [embed] }).catch(err => { }); };
+
+    return guild.leave();
+  }*/
   async function messageToServer() {
     const welcomeMessage = [
-      "Welcome to our server! 🎉",
-      "Greetings, fellow Discordians! 👋",
-      "iHorizon has joined the chat! 💬",
-      "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂",
+      "Welcome to our server! 🎉","Greetings, fellow Discordians! 👋",
+      "iHorizon has joined the chat! 💬", "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂",
       "Let's give a warm welcome to iHorizon! 🔥",
     ];
-      let embed = new EmbedBuilder()
-        .setColor("#00FF00")
-        .setTimestamp()
-        .setTitle(welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)])
-        .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
-        .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
-        .setDescription(`Hi there! I'm excited to join your server and be a part of your community. 
+    let embed = new EmbedBuilder()
+      .setColor("#00FF00").setTimestamp()
+      .setTitle(welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)])
+      .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
+      .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
+      .setDescription(`Hi there! I'm excited to join your server and be a part of your community. 
       
 My name is iHorizon and I'm here to help you with all your needs. Feel free to use my commands and explore all the features I have to offer.
 
@@ -30,7 +32,8 @@ If you have any questions or run into any issues, don't hesitate to reach out to
 I'm here to make your experience on this server the best it can be. 
 
 Thanks for choosing me and let's have some fun together!`);
-      channel.send({ embeds: [embed] }).catch(err => {});
+
+    if(channel) { channel.send({ embeds: [embed] }).catch(err => { }); };
   };
 
   async function getInvites() {

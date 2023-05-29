@@ -46,7 +46,7 @@ module.exports = async (client) => {
         const LoadFiles = await db.get(`BASH.LAST_LOGIN`) || "None"
         const LoadFiles2 = "127.0.0.1";
 
-        const filePath = path.join(process.cwd(), 'files', 'bash', 'history', '.bash_history');
+        const filePath = path.join(process.cwd(), 'src', 'bash', 'history', '.bash_history');
         const createFiles = fs.createWriteStream(filePath, { flags: 'a' });
 
         const dateStr = `${day} ${month} ${year} ${time} 2023`;
@@ -68,7 +68,7 @@ module.exports = async (client) => {
         rl.on('line', (line) => {
             const [commandName, ...args] = line.trim().split(' ');
 
-            const commandPath = `${process.cwd()}/files/bash/commands/${commandName}.js`;
+            const commandPath = `${process.cwd()}/src/bash/commands/${commandName}.js`;
             if (fs.existsSync(commandPath)) {
                 const command = require(commandPath);
                 command(client, args.join(' '));
