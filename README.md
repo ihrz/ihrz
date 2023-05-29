@@ -46,7 +46,7 @@ _There are only some few software needed :_
 - [Npm](https://npmjs.com) (**With NodeJS**)
 
 ### How to configure the bot ?
-*Open [config.example.js](https://github.com/ihrz/ihrz/blob/main/files/config.example.js) in file Editor (Notepad, VSCode...)*, Rename to config.js.
+*Open [config.example.js](https://github.com/ihrz/ihrz/blob/main/files/config.example.js) in file Editor (Notepad, VSCode...)*, enter your informations, and rename to config.js.
 
 After your configuration in the config.js :
 
