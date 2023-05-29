@@ -29,11 +29,10 @@ module.exports = async (req, res) => {
                 break;
             case 5:
                 let callback = await db.get(decryptedData.key, decryptedData.value);
-                console.log(callback);
-                res.send(callback);
+                res.send({callback});
                 break;
             case 6:
-                await db.pull(decryptedData.key, decryptedData.value);
+                await db.delete(decryptedData.key, decryptedData.value);
                 res.sendStatus(200);
                 break;
             case 7:

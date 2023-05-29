@@ -56,7 +56,7 @@ class DataBaseModel {
    * Represents the "Sub" action.
    * @returns {string}
    */
-  static get Sub() {
+  static get Delete() {
     return 3;
   }
 

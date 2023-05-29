@@ -3,12 +3,13 @@ const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const logger = require(`${process.cwd()}/src/core/logger`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+const { DataBaseModel } = require(`${process.cwd()}/files/ihorizon-api/main`);
 
 module.exports = async (client, member, members) => {
   let data = await getLanguageData(member.guild.id);
   async function joinRoles() {
     try {
-      let roleid = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`)
+      let roleid = await new DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.joinroles` });
       if (!roleid) return;
       member.roles.add(roleid);
     } catch (e) { return logger.err(e) }
@@ -16,7 +17,7 @@ module.exports = async (client, member, members) => {
 
   async function joinDm() {
     try {
-      let msg_dm = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`)
+      let msg_dm = await new DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.joindm` });
       if (!msg_dm || msg_dm === "off") return;
       member.send({ content: "This is a Join DM from " + member.guild.id + " ! \n \n" + msg_dm })
         .catch(() => { })
@@ -25,11 +26,14 @@ module.exports = async (client, member, members) => {
 
   async function blacklistFetch() {
     try {
-      d = await db.get(`${members.guild.id}.USER.${members.user.id}.ECONOMY.money`)
-      if (!d) { await db.set(`${members.guild.id}.USER.${members.user.id}.ECONOMY.money`, 1) }
-      if (db.get(`GLOBAL.BLACKLIST.${members.user.id}.blacklisted`) === "yes") {
-        members.send({ content: "You've been banne, because you are blacklisted" }).catch(members.ban({ reason: 'blacklisted!' }))
-        members.ban({ reason: 'blacklisted!' })
+      d = await new DataBaseModel({ id: DataBaseModel.Get, key: `${members.guild.id}.USER.${members.user.id}.ECONOMY.money` });
+      if (!d) {
+        await new DataBaseModel({id: DataBaseModel.Sub, key: `${members.guild.id}.USER.${members.user.id}.ECONOMY.money`, value: 1});
+      }
+      let e = await new DataBaseModel({ id: DataBaseModel.Get, key: `GLOBAL.BLACKLIST.${members.user.id}.blacklisted` })
+      if (e.data === "yes") {
+        members.send({ content: "You've been banned, because you are blacklisted" }).catch(members.ban({ reason: 'blacklisted!' }));
+        members.ban({ reason: 'blacklisted!' });
       }
     } catch { return }
   };

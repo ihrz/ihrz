@@ -1,13 +1,12 @@
 const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
-const fs = require("fs")
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
-const config = require(`${process.cwd()}/files/config.js`)
+const fs = require("fs");
+const config = require(`${process.cwd()}/files/config.js`);
+const { DataBaseModel } = require(`${process.cwd()}/files/ihorizon-api/main`);
 
 module.exports = async (client, guild) => {
 
     async function inviteManager() {
-        await db.delete(`${guild.id}`); await db.delete(`${guild.id}`);
+        await new DataBaseModel({id: DataBaseModel.Delete, key: `${guild.id}`});
         return client.invites.delete(guild.id);
     };
 

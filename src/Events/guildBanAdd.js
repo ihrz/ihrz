@@ -1,8 +1,7 @@
 const { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, Client } = require('discord.js');
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+const { DataBaseModel } = require(`${process.cwd()}/files/ihorizon-api/main`);
 
 module.exports = async (client, ban) => {
     let data = await getLanguageData(ban.guild.id);
@@ -15,8 +14,9 @@ module.exports = async (client, ban) => {
         const firstEntry = fetchedLogs.entries.first();
 
         const guildId = ban.guild.id;
-        const someinfo = await db.get(`${guildId}.GUILD.SERVER_LOGS.moderation`);
-        if (!someinfo) return;
+        const someinfo = await new DataBaseModel({id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.moderation`});
+
+        if (!someinfo.data) return;
 
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
@@ -24,7 +24,7 @@ module.exports = async (client, ban) => {
                 .replace("${firstEntry.executor.id}", firstEntry.executor.id)
                 .replace("${firstEntry.target.id}", firstEntry.target.id)
             ).setTimestamp();
-        await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
+        await client.channels.cache.get(someinfo.data).send({ embeds: [logsEmbed] }).catch(() => { });
     };
     await serverLogs();
 };

@@ -5,7 +5,8 @@ const db = new QuickDB();
 const logger = require(`${process.cwd()}/src/core/logger`);
 
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-
+const { DataBaseModel } = require(`${process.cwd()}/files/ihorizon-api/main`);
+  
 module.exports = async (client, message) => {
   if (!message.guild || message.author.bot) return;
   let data = await getLanguageData(message.guild.id);
@@ -13,53 +14,65 @@ module.exports = async (client, message) => {
   async function xpFetcher() {
     if (!message.guild) return; if (message.channel.type !== ChannelType.GuildText) return; if (message.author.bot) return;
     const randomNumber = Math.floor(Math.random() * 100) + 50;
-    await db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, randomNumber); await db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xptotal`, randomNumber);
+    await new DataBaseModel({ id: DataBaseModel.Add, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, value: randomNumber });
+    await new DataBaseModel({ id: DataBaseModel.Add, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xptotal`, value: randomNumber });
 
-    var level = await db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`) || 1; var xp = await db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`);
-    var xpNeeded = level * 500;
-    if (xpNeeded < xp) {
-      await db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`, 1);
-      var newLevel = await db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`, 1); await db.sub(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, xpNeeded);
-      let xp_turn = await db.get(`${message.guild.id}.GUILD.XP_LEVELING.on_or_off`);
-      if (xp_turn === "off") { return };
+    var level = await new DataBaseModel({ id: DataBaseModel.Get, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`}) || 1; 
 
-      if (!message.channel.permissionsFor(client.user).has(PermissionsBitField.Flags.SendMessages)) return; let xpChan = await db.get(`${message.guild.id}.GUILD.XP_LEVELING.xpchannels`);
-      if (!xpChan) return message.channel.send({
+    var xp = await new DataBaseModel({id: DataBaseModel.Get, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`});
+    var xpNeeded = level.data * 500;
+    if (xpNeeded < xp.data) {
+      await new DataBaseModel({id: DataBaseModel.Add, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`, value: 1});
+
+      var newLevel = await new DataBaseModel({id: DataBaseModel.Get, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`});
+
+      await new DataBaseModel({id: DataBaseModel.Sub, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, value: xpNeeded});
+
+      let xp_turn = await new DataBaseModel({id: DataBaseModel.Get, key: `${message.guild.id}.GUILD.XP_LEVELING.on_or_off`});
+      if (xp_turn.data === "off") { return };
+
+      if (!message.channel.permissionsFor(client.user).has(PermissionsBitField.Flags.SendMessages)) return;
+      
+      let xpChan = await new DataBaseModel({id: DataBaseModel.Get, key: `${message.guild.id}.GUILD.XP_LEVELING.xpchannels`});
+
+      if (!xpChan.data) return message.channel.send({
         content: data.event_xp_level_earn
           .replace("${message.author.id}", message.author.id)
-          .replace("${newLevel}", newLevel)
+          .replace("${newLevel.data}", newLevel.data)
       }).then((sent) => {
         setTimeout(() => {
           sent.delete();
         }, 6500);
       })
-      if (xpChan === "off") return message.channel.send({
+      if (xpChan.data === "off") return message.channel.send({
         content: data.event_xp_level_earn
           .replace("${message.author.id}", message.author.id)
-          .replace("${newLevel}", newLevel)
+          .replace("${newLevel.data}", newLevel.data)
       }).then((sent) => {
         setTimeout(() => {
           sent.delete();
         }, 6500);
       })
       try {
-        client.channels.cache.get(xpChan).send({
+        client.channels.cache.get(xpChan.data).send({
           content: data.event_xp_level_earn
             .replace("${message.author.id}", message.author.id)
-            .replace("${newLevel}", newLevel)
+            .replace("${newLevel.data}", newLevel.data)
         })
       } catch (e) { return };
     }
   };
 
   async function EconomyDebug() {
-    if (!message.guild) return; if (message.channel.type !== ChannelType.GuildText) return; if (message.author.bot) return; if (message.author.id == client.user.id) return;
+    if (!message.guild) return; if (message.channel.type !== ChannelType.GuildText) return; 
+    if (message.author.bot) return; if (message.author.id == client.user.id) return;
     d = await db.get(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`);
     if (!d) { return await db.set(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`, 0) };
   };
 
   async function logsMessage() {
-    if (!message.guild) return; if (message.channel.type !== ChannelType.GuildText) return; if (message.author.bot) return; if (message.author.id == client.user.id) return;
+    if (!message.guild) return; if (message.channel.type !== ChannelType.GuildText) return; 
+    if (message.author.bot) return; if (message.author.id == client.user.id) return;
     const now = new Date();
     const CreateFiles = fs.createWriteStream('./files/logs/message/' + message.guild.id + ".txt", { flags: 'a' });
     let i = message.guild.name + " | MESSAGE | [" + now + "]" + " \n " + message.author.id + ": " + message.content + " " + " in: #" + message.channel.name + "";
@@ -94,11 +107,11 @@ module.exports = async (client, message) => {
             if (muterole) {
               const member = message.guild.members.cache.get(message.author.id);
               await member.roles.add(muterole.id).catch(err => { });
-              setTimeout(() => {
+              setTimeout(async () => {
                 if (member.roles.cache.has(muterole.id)) {
                   member.roles.remove(muterole.id);
                 }
-                db.set(`TEMP.${guildId}.PUNISH_DATA.${message.author.id}`, {});
+                await db.set(`TEMP.${guildId}.PUNISH_DATA.${message.author.id}`, {});
               }, 40000);
             }
             break;
@@ -135,8 +148,9 @@ module.exports = async (client, message) => {
     let check = message.mentions.users.find(user => user.id === client.user.id);
 
     if (check) {
-      let dbGet = await db.get(`${message.guild.id}.GUILD.RANK_ROLES.roles`)
-      let fetch = message.guild.roles.cache.find(role => role.id === dbGet);
+      let dbGet = await new DataBaseModel({id: DataBaseModel.Get, key: `${message.guild.id}.GUILD.RANK_ROLES.roles`});
+      let fetch = message.guild.roles.cache.find(role => role.id === dbGet.data);
+
       if (fetch) {
         let target = message.guild.members.cache.get(message.author.id);
         
