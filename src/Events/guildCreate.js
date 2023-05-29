@@ -1,7 +1,5 @@
 const { Client, Collection, ChannelType, PermissionsBitField, GatewayIntentBits, Partials, EmbedBuilder } = require('discord.js')
 const fs = require("fs")
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 const config = require(`${process.cwd()}/files/config.js`);
 const logger = require(`${process.cwd()}/src/core/logger`);
 

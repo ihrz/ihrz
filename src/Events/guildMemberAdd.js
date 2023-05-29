@@ -3,12 +3,13 @@ const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const logger = require(`${process.cwd()}/src/core/logger`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
 
 module.exports = async (client, member, members) => {
   let data = await getLanguageData(member.guild.id);
   async function joinRoles() {
     try {
-      let roleid = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`)
+      let roleid = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.joinroles` });
       if (!roleid) return;
       member.roles.add(roleid);
     } catch (e) { return logger.err(e) }
@@ -16,22 +17,28 @@ module.exports = async (client, member, members) => {
 
   async function joinDm() {
     try {
-      let msg_dm = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`)
+      let msg_dm = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.joindm` });
+
       if (!msg_dm || msg_dm === "off") return;
-      member.send({ content: "This is a Join DM from " + member.guild.id + " ! \n \n" + msg_dm })
-        .catch(() => { })
-    } catch (e) { return }
+      member.send({ content: "**This is a Join DM from** \`" + member.guild.id + "\`**!**\n" + msg_dm }).catch(() => { })
+    } catch (e) { return };
   };
 
   async function blacklistFetch() {
     try {
-      d = await db.get(`${members.guild.id}.USER.${members.user.id}.ECONOMY.money`)
-      if (!d) { await db.set(`${members.guild.id}.USER.${members.user.id}.ECONOMY.money`, 1) }
-      if (db.get(`GLOBAL.BLACKLIST.${members.user.id}.blacklisted`) === "yes") {
-        members.send({ content: "You've been banne, because you are blacklisted" }).catch(members.ban({ reason: 'blacklisted!' }))
-        members.ban({ reason: 'blacklisted!' })
+      let d = await DataBaseModel({ id: DataBaseModel.Get, key: `${members.guild.id}.USER.${members.user.id}.ECONOMY.money` });
+
+      if (!d) {
+        await DataBaseModel({ id: DataBaseModel.Sub, key: `${members.guild.id}.USER.${members.user.id}.ECONOMY.money`, value: 1 });
       }
-    } catch { return }
+
+      let e = await DataBaseModel({ id: DataBaseModel.Get, key: `GLOBAL.BLACKLIST.${members.user.id}.blacklisted` });
+
+      if (e === "yes") {
+        members.send({ content: "You've been banned, because you are blacklisted" }).catch(members.ban({ reason: 'blacklisted!' }));
+        members.ban({ reason: 'blacklisted!' });
+      }
+    } catch { return; };
   };
 
   async function memberCount() {
@@ -40,9 +47,9 @@ module.exports = async (client, member, members) => {
       const rolesCollection = member.guild.roles.cache;
       const rolesCount = rolesCollection.size;
 
-      let bot = await db.get(`${member.guild.id}.GUILD.MCOUNT.bot`)
-      let member_2 = await db.get(`${member.guild.id}.GUILD.MCOUNT.member`)
-      let roles = await db.get(`${member.guild.id}.GUILD.MCOUNT.roles`)
+      let bot = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.MCOUNT.bot` });
+      let member_2 = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.MCOUNT.member` });
+      let roles = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.MCOUNT.roles` });
 
       if (bot) {
         let joinmsgreplace = bot.name
@@ -79,28 +86,29 @@ module.exports = async (client, member, members) => {
       const newInvites = await member.guild.invites.fetch();
       const oldInvites = client.invites.get(member.guild.id);
 
-      var invitesdb = Object.values(await db.get(`${member.guild.id}.GUILD.INVITES`));
+      var invitesdb = Object.values(await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.INVITES` }));
 
       var invite = newInvites.find(i => {
         let invitedb = invitesdb.find(idb => idb.code == (isVanity(i) ? "vanity" : i.code));
         return invitedb && i.uses > invitedb.uses;
       });
 
-      let tempDB = await db.get(`${member.guild.id}.GUILD.INVITES.${invite.code}.creatorUser`);
+      let tempDB = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.INVITES.${invite.code}.creatorUser` });
       const inviter = await client.users.fetch(tempDB);
-
-      let check = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`);
+      
+      let check = await DataBaseModel({id: DataBaseModel.Get, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`});
 
       if (check) {
-        await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.regular`, 1);
-        await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`, 1);
+        await DataBaseModel({id: DataBaseModel.Add, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.regular`, value: 1});
+        await DataBaseModel({id: DataBaseModel.Add, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`, value: 1});
       }
+      
+      let fetched = await DataBaseModel({id: DataBaseModel.Get, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`});
 
-      let fetched = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`);
-
-      let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
+      let wChan = await DataBaseModel({id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.join`});
       if (!wChan) return;
-      let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
+
+      let messssssage = await DataBaseModel({id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`});
 
       if (!messssssage) {
         return client.channels.cache.get(wChan).send({
@@ -123,7 +131,7 @@ module.exports = async (client, member, members) => {
 
       return client.channels.cache.get(wChan).send({ content: `${messssssage4}` });
     } catch (e) {
-      let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
+      let wChan = await DataBaseModel({id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.join`});
       if (!wChan) return;
       return client.channels.cache.get(wChan).send({
         content: data.event_welcomer_default

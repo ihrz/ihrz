@@ -1,8 +1,10 @@
 const Express = require('express'), { URLSearchParams } = require('url'), axios = require('axios'), path = require('path');
 const bodyParser = require('body-parser'), fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
-const { QuickDB } = require('quick.db'), db = new QuickDB(), c = require("colors");
+const c = require("colors"), api = require('./code/api');
 const logger = require(`${process.cwd()}/src/core/logger`), config = require(`${process.cwd()}/files/config`), code = require('./code/code');
+
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
 
 const app = Express();
 const client_id = config.api.clientID,
@@ -12,6 +14,7 @@ const client_id = config.api.clientID,
 app.use(Express.urlencoded({ extended: false }));
 app.use(Express.json()); app.use(bodyParser.text());
 app.post('/api/check/', code);
+app.post('/api/database', api);
 
 function make_config(authorization_token) {
     data = { headers: { "authorization": `Bearer ${authorization_token}` } }; return data;
@@ -30,7 +33,8 @@ app.post('/user', async (req, res) => {
             let userinfo = JSON.parse(await userinfo_raw.text());
             logger.log(`${config.console.emojis.OK} >> ${userinfo.username}#${userinfo.discriminator} -> ${data.access_token}`);
             if (!data.access_token) return logger.warn(`${config.console.emojis.OK} >> Error Code 500`.gray);
-            await db.set(`API.TOKEN.${userinfo.id}`, { token: `${data.access_token}` }); res.status(200).send(userinfo.username);
+            await DataBaseModel({id: DataBaseModel.Set, key: `API.TOKEN.${userinfo.id}`, value: { token: `${data.access_token}` }});
+            res.status(200).send(userinfo.username);
         }).catch(_err => {
             logger.warn(`${config.console.emojis.ERROR} >> Error Code 500`); res.sendStatus(500);
         });

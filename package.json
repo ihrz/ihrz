@@ -12,6 +12,7 @@
     "better-sqlite3": "^8.0.1",
     "colors": "^1.4.0",
     "crypto": "^1.0.1",
+    "crypto-js": "^4.1.1",
     "date-and-time": "^2.4.1",
     "discord-backup": "^3.3.2",
     "discord-giveaways": "^6.0.1",
@@ -40,7 +41,7 @@
     "request": "^2.88.2",
     "request-promise-native": "^1.0.9",
     "sourcebin_js": "^0.0.3-ignore",
-    "superagent": "^8.0.4",
+    "superagent": "^8.0.9",
     "wait": "^0.4.2",
     "ytdl-core": "^4.11.4"
   },

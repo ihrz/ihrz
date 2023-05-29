@@ -1,8 +1,8 @@
 const { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent } = require('discord.js');
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
+
 module.exports = async (client, oldMember, newMember) => {
     let data = await getLanguageData(oldMember.guild.id);
 
@@ -19,7 +19,8 @@ module.exports = async (client, oldMember, newMember) => {
         if (!oldMember.guild) return;
 
         const guildId = oldMember.guild.id;
-        const someinfo = await db.get(`${guildId}.GUILD.SERVER_LOGS.roles`);
+
+        const someinfo = await DataBaseModel({id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.roles`});
         if (!someinfo) return;
 
         let oldRoles = oldMember._roles.length;
