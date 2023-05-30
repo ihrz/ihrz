@@ -46,7 +46,7 @@
     "ytdl-core": "^4.11.4"
   },
   "name": "ihorizon",
-  "version": "9.0.0",
+  "version": "10.45.5",
   "description": "iHorizon Discord Made by Kisakay",
   "main": "index.js",
   "scripts": {
@@ -54,13 +54,17 @@
     "start": "node index.js"
   },
   "author": "kisakay",
-  "license": "ISC",
+  "license": "Creative Commons Attribution-NonCommercial-ShareAlike 2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Kisakay/ihrz.git"
+    "url": "git+https://github.com/ihrz/ihrz.git"
   },
   "bugs": {
-    "url": "https://github.com/Kisakay/ihrz/issues"
+    "url": "https://github.com/ihrz/ihrz/issues"
   },
-  "homepage": "https://github.com/Kisakay/ihrz#readme"
+  "homepage": "https://github.com/ihrz/ihrz#readme",
+  "devDependencies": {},
+  "keywords": [
+    "discordbot"
+  ]
 }
