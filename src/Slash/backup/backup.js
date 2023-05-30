@@ -10,7 +10,7 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const backup = require("discord-backup")
+const backup = require('discord-backup')
 
 const logger = require(`${process.cwd()}/src/core/logger`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);

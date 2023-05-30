@@ -1,4 +1,4 @@
-const { Player } = require("discord-player");
+const { Player } = require('discord-player');
 const { playerEvents } = require(__dirname + "/../playerEvents.js");
 
 module.exports = (client) => {

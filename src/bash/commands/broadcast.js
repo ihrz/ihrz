@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require("discord.js");
+const { EmbedBuilder } = require('discord.js');
 module.exports = function (client, args) {
     const args2 = args.split(" ");
     let embed = new EmbedBuilder()

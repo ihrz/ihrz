@@ -1,4 +1,4 @@
-const { ShardingManager } = require("discord.js");
+const { ShardingManager } = require('discord.js');
 logger = require(`${process.cwd()}/src/core/logger`);
 manager = new ShardingManager("./src/core/bot.js", { totalShards: "auto", token: require('./files/config').discord.token});
 colors = require("colors");

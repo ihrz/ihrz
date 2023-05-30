@@ -1,4 +1,4 @@
-const Discord = require('discord.js'),
+const { ApplicationCommand } = require('discord.js'),
 logger = require("../core/logger");
 require("colors");
 
@@ -35,7 +35,7 @@ module.exports = async (client, commands, options = {
         const previousCommand = currentCommands.find((c) => c.name === updatedCommand.name);
         let modified = false;
         if (previousCommand.description !== newCommand.description) modified = true;
-        if (!Discord.ApplicationCommand.optionsEqual(previousCommand.options ?? [], newCommand.options ?? [])) modified = true;
+        if (!ApplicationCommand.optionsEqual(previousCommand.options ?? [], newCommand.options ?? [])) modified = true;
         if (modified) {
             await previousCommand.edit(newCommand);
             updatedCommandCount++;
