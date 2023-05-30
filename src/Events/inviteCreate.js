@@ -2,7 +2,7 @@ const {Client, Intents, Collection, EmbedBuilder, Permissions, PermissionsBitFie
 const fs = require("fs")
 const {QuickDB} = require("quick.db");
 const db = new QuickDB();
-const {DataBaseModel} = require(`${process.cwd()}/files/ihorizon-api/main`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
 
 module.exports = async (client, invite) => {
     async function inviteManager() {

@@ -30,7 +30,7 @@ module.exports = async (client, message) => {
         const guildId = message.guild.id;
         const someinfo = await DataBaseModel({id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.message`});
 
-        if (!someinfo.data) return;
+        if (!someinfo) return;
 
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
