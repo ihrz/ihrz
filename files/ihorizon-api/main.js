@@ -1,6 +1,6 @@
 const superagent = require('superagent'), 
-      config = require('../config'),
-    CryptoJS = require("crypto-js");
+      config = require('../config');
+var CryptoJS = require("crypto-js");
 
 async function DataBaseModel(id) {
     return new Promise((resolve, reject) => {
