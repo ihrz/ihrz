@@ -1,7 +1,8 @@
-const {QuickDB} = require('quick.db'), db = new QuickDB();
+const {QuickDB} = require('quick.db'), 
+      db = new QuickDB();
 var CryptoJS = require("crypto-js");
-const logger = require(`${process.cwd()}/src/core/logger.js`);
-const config = require(`${process.cwd()}/files/config.js`);
+const logger = require(`${process.cwd()}/src/core/logger.js`),
+      config = require(`${process.cwd()}/files/config.js`);
 
 module.exports = async (req, res) => {
     const {text} = req.body;
@@ -9,7 +10,6 @@ module.exports = async (req, res) => {
     try {
         var bytes = CryptoJS.AES.decrypt(text, config.api.apiToken);
         var decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-
         switch (decryptedData.id) {
             case 1:
                 await db.set(decryptedData.key, decryptedData.value);
