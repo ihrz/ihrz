@@ -18,7 +18,7 @@ module.exports = {
     run: async (client, interaction) => {
         let data = await getLanguageData(interaction.guild.id);
         
-        const config = require("../config.js")
+        const config = require(`${process.cwd()}/files/config.js`)
         if (interaction.user.id != config.owner.ownerid1 || interaction.user.id != config.owner.ownerid2) {
             return interaction.reply({ content: data.status_be_bot_dev })
         };

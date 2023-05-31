@@ -5,7 +5,7 @@ const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
 
 module.exports = async (client, guild) => {
     async function inviteManager() {
-        await DataBaseModel({id: DataBaseModel.Delete, key: `${guildId.id}`})
+        await DataBaseModel({id: DataBaseModel.Delete, key: `${guild.id}`})
         return client.invites.delete(guild.id);
     };
 
