@@ -19,7 +19,7 @@ iHorizon is a Discord bot written in [JS](https://nodejs.org) and using the [dis
 - [Wyene](https://github.com/F-r-o-i-d) (He/him)
 
 ## Skids's hall
-There are no skidded scripts in the iHorizon source code, because talent is more important than being an idiot.
+There are no skidded scripts in the iHorizon source code, because talent is more important than being dumb. Skidding codes doesn't make you a developper, coding does. Skidding is only to flex and to lie to your friends.
 
 ## Origin
 The bot was primarily developed by Kisakay (*formerly known as Ezermoz*) and was first released in **September 2020** using **discord.js v12.**<br>
@@ -70,7 +70,6 @@ If you have any questions or concerns, you can contact the owner via email at [k
 
 In the `LICENSE` files, the name `Kisa Keyara` is the name of the owner.
 ## Remarks
-
 Any sorts of hate trowards any contributor will not be tolerated.
 <br><br>
 Regardless of the type and the level of hate.
