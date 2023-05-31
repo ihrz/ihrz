@@ -34,7 +34,6 @@ module.exports = {
                     value: "load"
                 },
             ],
-
         },
         {
             name: 'backup-id',
@@ -44,9 +43,9 @@ module.exports = {
         }
     ],
     run: async (client, interaction) => {
-        let data = getLanguageData(interaction.guild.id);
+        let data = await getLanguageData(interaction.guild.id);
 
-        let backup_options = interaction.options.getString('action')
+        let backup_options = interaction.options.getString('action');
         await interaction.reply({ content: data.backup_wait_please });
 
         if (backup_options === "create") {

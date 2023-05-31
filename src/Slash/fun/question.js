@@ -24,7 +24,7 @@ module.exports = {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
     let data = await getLanguageData(interaction.guild.id);
 
-    let question = interaction.options.getString("question")
+    let question = interaction.options.getString("question");
 
     let text = question.split(" ");
 
@@ -40,8 +40,8 @@ module.exports = {
       .setColor("#ddd98b")
       .addFields({ name: data.question_fields_input_embed, value: question, inline: true },
         { name: data.question_fields_output_embed, value: reponse[result] })
-      .setTimestamp()
+      .setTimestamp();
 
-    await interaction.reply({ embeds: [embed] })
+     return interaction.reply({ embeds: [embed] })
   }
 }
