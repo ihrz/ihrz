@@ -1,12 +1,10 @@
-const superagent = require('superagent');
-const config = require('../config');
-var CryptoJS = require("crypto-js");
+const superagent = require('superagent'), 
+      config = require('../config'),
+    CryptoJS = require("crypto-js");
 
 async function DataBaseModel(id) {
     return new Promise((resolve, reject) => {
-        let data = id;
-        let encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), config.api.apiToken);
-
+        let encrypted = CryptoJS.AES.encrypt(JSON.stringify(id), config.api.apiToken);
         superagent
             .post(config.api.dbApiUrl)
             .send({ text: encrypted.toString() })
