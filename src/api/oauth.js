@@ -1,10 +1,11 @@
 const Express = require('express'), { URLSearchParams } = require('url'), axios = require('axios'), path = require('path');
 const bodyParser = require('body-parser'), fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
-const c = require("colors"), api = require('./code/api');
-const logger = require(`${process.cwd()}/src/core/logger`), config = require(`${process.cwd()}/files/config`), code = require('./code/code');
-
-const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
+const c = require("colors"), api = require('./code/api'),
+      logger = require(`${process.cwd()}/src/core/logger`),
+      config = require(`${process.cwd()}/files/config`),
+      code = require('./code/code'),
+      DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
 
 const app = Express();
 const client_id = config.api.clientID,
@@ -26,7 +27,6 @@ app.post('/user', async (req, res) => {
     data_1.append('client_id', client_id); data_1.append('client_secret', client_secret);
     data_1.append('grant_type', 'authorization_code'); data_1.append('redirect_uri', `http://french.myserver.cool:${port}`);
     data_1.append('scope', 'identify'); data_1.append('code', req.body);
-
     await fetch('https://discord.com/api/oauth2/token', { method: "POST", body: data_1 }).then(response => response.json()).then(async data => {
         axios.get("https://discord.com/api/users/@me", make_config(data.access_token)).then(async _response => {
             let userinfo_raw = await fetch('https://discord.com/api/users/@me', { method: "get", headers: { "Authorization": `Bearer ${data.access_token}` } });
