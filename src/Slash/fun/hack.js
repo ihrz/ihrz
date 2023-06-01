@@ -154,7 +154,7 @@ module.exports = {
             )
             .addFields({ name: data.hack_embed_fields_ip, value: `\`${generatedIp}\`` },
                 { name: data.hack_embed_fields_email, value: `\`${generatedEmail}\`` },
-                { name: "☎", value: `\`${generatedPhoneNumber}\`` },
+                { name: "📞", value: `\`${generatedPhoneNumber}\`` },
                 { name: data.hack_embed_fields_password, value: `\`${generatedPassword}\`` },
                 { name: "🔑", value: `\`${bruteForce()}\`` },
                 { name: "🏠", value: `\`${wtf.address()}\`` },
