@@ -5,6 +5,7 @@ const { writeFile, readFile, access } = require('node:fs/promises');
 const Discord = require('discord.js');
 const serialize = require('serialize-javascript');
 const { deepmerge } = require('deepmerge-ts');
+const logger = require(`${process.cwd()}/src/core/logger`);
 
 const {
     GiveawayMessages,
@@ -439,7 +440,6 @@ class GiveawaysManager extends EventEmitter {
             // If the file exists, read it
             const storageContent = await readFile(this.options.storage, { encoding: 'utf-8' });
             if (!storageContent.trim().startsWith('[') || !storageContent.trim().endsWith(']')) {
-                console.log(storageContent);
                 throw new SyntaxError('The storage file is not properly formatted (does not contain an array).');
             }
 
@@ -788,7 +788,7 @@ class GiveawaysManager extends EventEmitter {
  * @example
  * // This can be used to add logs
  * manager.on('giveawayDeleted', (giveaway) => {
- *      console.log('Giveaway with message Id ' + giveaway.messageId + ' was deleted.')
+ *      logger.log('Giveaway with message Id ' + giveaway.messageId + ' was deleted.')
  * });
  */
 
