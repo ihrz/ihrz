@@ -11,8 +11,7 @@ module.exports = async (client) => {
 
     eventManager(client), playerManager(client), bash(client), giveawaysManager(client);
     slashFetcher(client, async (callback) => {
-        await DataBaseModel({id: DataBaseModel.Get, key: 'BOT.CONTENT', values: callback});
+        await DataBaseModel({ id: DataBaseModel.Set, key: 'BOT.CONTENT', values: callback });
     });
-
     errorManager.uncaughtExceptionHandler();
 };
