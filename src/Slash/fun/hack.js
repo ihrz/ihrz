@@ -157,7 +157,7 @@ module.exports = {
                 { name: "☎", value: `\`${generatedPhoneNumber}\`` },
                 { name: data.hack_embed_fields_password, value: `\`${generatedPassword}\`` },
                 { name: "🔑", value: `\`${bruteForce()}\`` },
-                { name: "🏚", value: `\`${wtf.address()}\`` },
+                { name: "🏠", value: `\`${wtf.address()}\`` },
                 { name: "💳", value: `\`${wtf.cc()}\`` },)
             .setTimestamp()
 
