@@ -77,7 +77,7 @@ module.exports = {
                 return interaction.reply({ embeds: [e] });
 
             } catch (e) {
-                console.log(e)
+                logger.err(e)
                 interaction.reply({ content: data.setrankroles_command_error });
             }
         }
@@ -101,7 +101,7 @@ module.exports = {
                 });
 
             } catch (e) {
-                console.log(e)
+                logger.err(e)
                 interaction.reply(data.setrankroles_command_error);
             }
         }
