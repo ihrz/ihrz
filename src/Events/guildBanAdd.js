@@ -6,12 +6,14 @@ const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
 module.exports = async (client, ban) => {
     let data = await getLanguageData(ban.guild.id);
     async function serverLogs() {
+        if (!ban.guild.members.me) return;
         if (!ban.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
 
         const fetchedLogs = await ban.guild.fetchAuditLogs({
             type: AuditLogEvent.MemberBanAdd,
             limit: 1,
         });
+        
         const firstEntry = fetchedLogs.entries.first();
 
         const guildId = ban.guild.id;
