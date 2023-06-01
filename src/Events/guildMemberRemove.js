@@ -93,6 +93,7 @@ module.exports = async (client, member, members) => {
   };
 
   async function serverLogs() {
+    if (!member.guild.members.me) return;
     if (!member.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
 
     const fetchedLogs = await member.guild.fetchAuditLogs({
@@ -101,7 +102,7 @@ module.exports = async (client, member, members) => {
     });
     const firstEntry = fetchedLogs.entries.first();
     if (!member.guild) return;
-    const someinfo = await DataBaseModel({id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.SERVER_LOGS.moderation`});
+    const someinfo = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.SERVER_LOGS.moderation` });
 
     if (!someinfo) return;
 
