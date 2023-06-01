@@ -6,36 +6,35 @@ const logger = require(`${process.cwd()}/src/core/logger.js`),
 
 module.exports = async (req, res) => {
     const {text} = req.body;
-
     try {
         var bytes = CryptoJS.AES.decrypt(text, config.api.apiToken);
         var decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
         switch (decryptedData.id) {
             case 1:
-                await db.set(decryptedData.key, decryptedData.value);
+                await db.set(decryptedData.key, decryptedData.values || decryptedData.value);
                 res.sendStatus(200);
                 break;
             case 2:
-                await db.push(decryptedData.key, decryptedData.value);
+                await db.push(decryptedData.key, decryptedData.values || decryptedData.value);
                 res.sendStatus(200);
                 break;
             case 3:
-                await db.sub(decryptedData.key, decryptedData.value);
+                await db.sub(decryptedData.key, decryptedData.values || decryptedData.value);
                 res.sendStatus(200);
                 break;
             case 4:
-                await db.add(decryptedData.key, decryptedData.value);
+                await db.add(decryptedData.key, decryptedData.values || decryptedData.value);
                 res.sendStatus(200);
                 break;
             case 5:
                 res.send({r: await db.get(decryptedData.key)});
                 break;
             case 6:
-                await db.pull(decryptedData.key, decryptedData.value);
+                await db.pull(decryptedData.key, decryptedData.values || decryptedData.value);
                 res.send(200);
                 break;
             case 7:
-                res.send(await db.all(decryptedData.key, decryptedData.value));
+                res.send(await db.all(decryptedData.key, decryptedData.values || decryptedData.value));
                 break;
             default:
                 logger.warn("-> Bad json request without ip/key");
@@ -45,6 +44,6 @@ module.exports = async (req, res) => {
         return;
     } catch (e) {
         res.sendStatus(403);
-        return logger.warn("-> Bad json request without ip/key");
+        return logger.warn("-> Bad json request without ip/key", e);
     };
 };
