@@ -95,6 +95,6 @@ module.exports = {
                 { name: data.hack_embed_fields_password, value: `\`${Password[Math.floor(Math.random() * Password.length)]}\`` })
             .setTimestamp()
 
-        return interaction.reply({ embeds: [embed] });/hack user: @Eto
+        return interaction.reply({ embeds: [embed] });
     }
 };
