@@ -162,11 +162,16 @@ module.exports = async (client, message) => {
         
         if (target.roles.cache.has(fetch.id)) { return; };
         
-        message.member.roles.add(fetch).catch(() => { });
-        message.channel.send({content: data.event_rank_role
+        let embed = new EmbedBuilder()
+        .setDescription(data.event_rank_role
           .replace("${message.author.id}", message.author.id)
           .replace("${fetch.id}", fetch.id)
-        });
+        )
+        .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
+        .setTimestamp();
+        
+        message.member.roles.add(fetch).catch(() => { });
+        message.channel.send({embeds: [embed]});
       }
     }
   };
