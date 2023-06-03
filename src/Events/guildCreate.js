@@ -4,13 +4,27 @@ const config = require(`${process.cwd()}/files/config.js`);
 const logger = require(`${process.cwd()}/src/core/logger`);
 
 module.exports = async (client, guild) => {
-  const channel = await guild.channels.cache.get(guild.systemChannelId);
+  const channel = await guild.channels.cache.get(guild.systemChannelId).catch(() => {});
 
-  /*if(guild.memberCount < 10) {    
+  let embed = new EmbedBuilder()
+  .setColor("#f44336")
+  .setTimestamp()
+  .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
+  .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
+  .setDescription(`Dear members of this server,
+We regret to inform you that our bot will be leaving this server. We noticed that this server has less than 10 members, which may suggest that it is not an active and healthy community for our bot to be a part of.
+We value the safety and satisfaction of our users, and we believe that being part of active and thriving communities is essential to achieving this goal. We apologize for any inconvenience this may cause and we hope to have the opportunity to serve you in a more suitable environment in the future.
+
+Thank you for your understanding and have a great day.
+Best regards,
+iHorizon Project`);
+  
+  if(guild.memberCount <= 9) {    
     if(channel) { channel.send({ embeds: [embed] }).catch(err => { }); };
 
     return guild.leave();
-  }*/
+  };
+
   async function messageToServer() {
     const welcomeMessage = [
       "Welcome to our server! 🎉","Greetings, fellow Discordians! 👋",
@@ -52,7 +66,7 @@ Thanks for choosing me and let's have some fun together!`);
         { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
         { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
         { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
-        { name: "🪝・Vanity URL", value: `\`discord.gg/${guild.vanityURLCode || "None"}\``, inline: true })
+        { name: "🪝・Vanity URL", value: `\`${'discord.gg/'+guild.vanityURLCode || "None"}\``, inline: true })
       .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
       .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
     client.channels.cache.get(config.core.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
