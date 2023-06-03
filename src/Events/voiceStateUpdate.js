@@ -21,6 +21,9 @@ module.exports = async (client, oldState, newState) => {
         var status = { selfDeaf: newState.selfDeaf, selfMute: newState.selfMute };
 
         let targetUser = await client.users.fetch(user);
+
+        if(targetUser.id === client.user.id) return;
+        
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setAuthor({ name: targetUser.username, iconURL: targetUser.avatarURL({ format: 'png', dynamic: true, size: 512 }) })

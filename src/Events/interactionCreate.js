@@ -18,8 +18,7 @@ module.exports = async (client, interaction) => {
     if (potential_blacklisted === interaction.user.id) {
       const blacklisted = new EmbedBuilder()
         .setColor("#0827F5").setTitle(":(").setImage(config.core.blacklistPictureInEmbed);
-      interaction.reply({ embeds: [blacklisted] });
-      return;
+      return interaction.reply({ embeds: [blacklisted] });
     };
     if (await cooldDown()) {
       let data = await getLanguageData(interaction.guild.id);

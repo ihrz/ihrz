@@ -12,7 +12,7 @@ module.exports = async (client, oldUser) => {
         
         const someinfo = await db.get(`DB.PREVNAMES.${oldUser.id}`);
         var char = `${time((new Date()), 'd')} - ${oldUser.username}#${oldUser.discriminator}`;
-        if (someinfo) { await db.push(`DB.PREVNAMES.${oldUser.id}`, char); } else { await db.push(`DB.PREVNAMES.${oldUser.id}`, char) }
+        if (someinfo) { await db.push(`DB.PREVNAMES.${oldUser.id}`, char); } else { await db.push(`DB.PREVNAMES.${oldUser.id}`, char) };
     };
 
     await serverLogs();

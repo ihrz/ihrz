@@ -17,7 +17,8 @@ module.exports = async (client, oldMember, newMember) => {
 
         if (!oldMember) return;
         if (!oldMember.guild) return;
-
+        if (firstEntry.executor.id === client.user.id) return;
+        
         const guildId = oldMember.guild.id;
 
         const someinfo = await DataBaseModel({id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.roles`});
