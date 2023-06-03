@@ -31,3 +31,4 @@ module.exports.Add = 4;
 module.exports.Get = 5;
 module.exports.Pull = 6;
 module.exports.All = 7;
+module.exports.Delete = 8;

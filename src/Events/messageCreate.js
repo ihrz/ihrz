@@ -10,6 +10,8 @@ const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
 
 module.exports = async (client, message) => {
   if (!message.guild || message.author.bot) return;
+  if (!message.channel) return;
+  
   let data = await getLanguageData(message.guild.id);
 
   async function xpFetcher() {
@@ -70,15 +72,23 @@ module.exports = async (client, message) => {
   };
 
   async function EconomyDebug() {
-    if (!message.guild) return; if (message.channel.type !== ChannelType.GuildText) return; 
-    if (message.author.bot) return; if (message.author.id == client.user.id) return;
+    if (!message.guild || !message.channel) return; 
+    if (message.channel.type !== ChannelType.GuildText) return; 
+
+    if (message.author.bot) return;
+    if (message.author.id === client.user.id) return;
+
     d = await db.get(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`);
-    if (!d) { return await db.set(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`, 0) };
+    if (!d) { return await db.set(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`, 0); };
   };
 
   async function logsMessage() {
-    if (!message.guild) return; if (message.channel.type !== ChannelType.GuildText) return; 
-    if (message.author.bot) return; if (message.author.id == client.user.id) return;
+    if (!message.guild || !message.channel) return;
+    if (message.channel.type !== ChannelType.GuildText) return; 
+
+    if (message.author.bot) return; 
+    if (message.author.id === client.user.id) return;
+
     const now = new Date();
     const CreateFiles = fs.createWriteStream('./files/logs/message/' + message.guild.id + ".txt", { flags: 'a' });
     let i = message.guild.name + " | MESSAGE | [" + now + "]" + " \n " + message.author.id + ": " + message.content + " " + " in: #" + message.channel.name + "";
@@ -86,7 +96,7 @@ module.exports = async (client, message) => {
   };
 
   async function blockSpam() {
-    if (!message.guild || message.channel.type !== ChannelType.GuildText || message.author.bot || message.author.id === client.user.id) {
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || message.author.bot || message.author.id === client.user.id) {
       return;
     }
 
@@ -144,7 +154,7 @@ module.exports = async (client, message) => {
   };
 
   async function rankRole() {
-    if (!message.guild || message.channel.type !== ChannelType.GuildText || message.author.bot || message.author.id === client.user.id) {
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || message.author.bot || message.author.id === client.user.id) {
       return;
     }
 

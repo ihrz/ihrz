@@ -36,14 +36,18 @@ module.exports = async (req, res) => {
             case 7:
                 res.send(await db.all(decryptedData.key, decryptedData.values || decryptedData.value));
                 break;
+            case 8:
+                await db.delete(decryptedData.key, decryptedData.values || decryptedData.value);
+                break;
             default:
+                console.log(decryptedData.id);
                 logger.warn("-> Bad json request without ip/key");
                 res.sendStatus(403);
-                return;
+                break;
         };
-        return;
     } catch (e) {
         res.sendStatus(403);
+        logger.warn(e);
         return logger.warn("-> Bad json request without ip/key", e);
     };
 };
