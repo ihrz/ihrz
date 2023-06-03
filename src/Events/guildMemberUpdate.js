@@ -36,14 +36,14 @@ module.exports = async (client, oldMember, newMember) => {
             const removedRoles = oldMember._roles.filter(roleId => !newMember._roles.includes(roleId));
             logsEmbed.setDescription(data.event_srvLogs_guildMemberUpdate_description
                 .replace("${firstEntry.executor.id}", firstEntry.executor.id)
-                .replace("${removedRoles}", removedRoles)
+                .replace("${removedRoles}", removedRoles.map(value => `<@&${value}>`))
                 .replace("${oldMember.user.username}", oldMember.user.username)
             )
         } else {
             const addedRoles = newMember._roles.filter(roleId => !oldMember._roles.includes(roleId));
             logsEmbed.setDescription(data.event_srvLogs_guildMemberUpdate_2_description
                 .replace("${firstEntry.executor.id}", firstEntry.executor.id)
-                .replace("${addedRoles}", addedRoles)
+                .replace("${addedRoles}", addedRoles.map(value => `<@&${value}>`))
                 .replace("${oldMember.user.username}", oldMember.user.username)
             );
         }
