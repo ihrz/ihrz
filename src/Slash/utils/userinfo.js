@@ -90,7 +90,7 @@ module.exports = {
       name: 'user',
       type: ApplicationCommandOptionType.User,
       description: 'user you want to lookup',
-      required: true
+      required: false
     }
   ],
   run: async (client, interaction) => {
@@ -98,7 +98,7 @@ module.exports = {
     let data = await getLanguageData(interaction.guild.id);
     
     let member = interaction.options.get("user") || interaction.member;
-    member = await interaction.guild.members.fetch(member)
+    member = await interaction.guild.members.fetch(member);
 
     function getSubscriptions(response) {
       if (!response.available) { return };
