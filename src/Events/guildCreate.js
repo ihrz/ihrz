@@ -25,8 +25,8 @@ const config = require(`${process.cwd()}/files/config.js`);
 const logger = require(`${process.cwd()}/src/core/logger`);
 
 module.exports = async (client, guild) => {
-  const channel = await guild.channels.cache.get(guild.systemChannelId).catch(() => {});
-
+  const channel = await guild.channels.cache.get(guild.systemChannelId);
+  
   let embed = new EmbedBuilder()
   .setColor("#f44336")
   .setTimestamp()
