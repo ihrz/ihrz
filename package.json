@@ -46,7 +46,7 @@
     "ytdl-core": "^4.11.4"
   },
   "name": "ihorizon",
-  "version": "10.45.5",
+  "version": "11.5.0",
   "description": "iHorizon Discord Made by Kisakay",
   "main": "index.js",
   "scripts": {
@@ -54,7 +54,7 @@
     "start": "node index.js"
   },
   "author": "kisakay",
-  "license": "Creative Commons Attribution-NonCommercial-ShareAlike 2.0",
+  "license": "CC BY-NC-SA 2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ihrz/ihrz.git"

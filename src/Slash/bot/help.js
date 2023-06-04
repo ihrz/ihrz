@@ -49,7 +49,6 @@ slashInfo.bot.help.run = async (client, interaction) => {
       { name: data.help_newftrs_fields, value: CONTENT.newfeatures.toString(), inline: true, description: data.help_newftrs_dsc, emoji: "🆕" }
     ];
 
-    console.log(categories);
     const select = new StringSelectMenuBuilder().setCustomId('starter').setPlaceholder('Make a selection!');
     categories.forEach((category, index) => { select.addOptions(new StringSelectMenuOptionBuilder().setLabel(category.name).setValue(index.toString()).setEmoji(category.emoji)); });
     const row = new ActionRowBuilder().addComponents(select);
