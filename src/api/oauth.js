@@ -19,14 +19,14 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const Express = require('express'), 
-    { URLSearchParams } = require('url'), 
-    axios = require('axios'), 
+const Express = require('express'),
+    { URLSearchParams } = require('url'),
+    axios = require('axios'),
     path = require('path'),
     bodyParser = require('body-parser'),
     fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
-const c = require("colors"), 
+const c = require("colors"),
     api = require('./code/api'),
     logger = require(`${process.cwd()}/src/core/logger`),
     config = require(`${process.cwd()}/files/config`),
@@ -50,21 +50,39 @@ function make_config(authorization_token) {
 app.get('/', (_req, res) => { res.sendFile(path.join(__dirname + '/index.html')); });
 app.post('/user', async (req, res) => {
     const data_1 = new URLSearchParams();
-    data_1.append('client_id', client_id); data_1.append('client_secret', client_secret);
-    data_1.append('grant_type', 'authorization_code'); data_1.append('redirect_uri', `http://french.myserver.cool:${port}`);
-    data_1.append('scope', 'identify'); data_1.append('code', req.body);
-    await fetch('https://discord.com/api/oauth2/token', { method: "POST", body: data_1 }).then(response => response.json()).then(async data => {
-        axios.get("https://discord.com/api/users/@me", make_config(data.access_token)).then(async _response => {
-            let userinfo_raw = await fetch('https://discord.com/api/users/@me', { method: "get", headers: { "Authorization": `Bearer ${data.access_token}` } });
-            let userinfo = JSON.parse(await userinfo_raw.text());
-            logger.log(`${config.console.emojis.OK} >> ${userinfo.username}#${userinfo.discriminator} -> ${data.access_token}`);
-            if (!data.access_token) return logger.warn(`${config.console.emojis.OK} >> Error Code 500`.gray);
-            await DataBaseModel({id: DataBaseModel.Set, key: `API.TOKEN.${userinfo.id}`, value: { token: `${data.access_token}` }});
-            res.status(200).send(userinfo.username);
-        }).catch(_err => {
-            logger.warn(`${config.console.emojis.ERROR} >> Error Code 500`); res.sendStatus(500);
-        });
-    });
+
+    try {
+        JSON.parse(data_1);
+        
+        data_1.append('client_id', client_id); data_1.append('client_secret', client_secret);
+        data_1.append('grant_type', 'authorization_code'); data_1.append('redirect_uri', `http://french.myserver.cool:${port}`);
+        data_1.append('scope', 'identify'); data_1.append('code', req.body);
+        await fetch('https://discord.com/api/oauth2/token', { method: "POST", body: data_1 })
+            .then(response => response.json()).then(async data => {
+                axios.get("https://discord.com/api/users/@me", make_config(data.access_token))
+                    .then(async _response => {
+                        let userinfo_raw = await fetch('https://discord.com/api/users/@me',
+                            {
+                                method: "get",
+                                headers: { "Authorization": `Bearer ${data.access_token}` }
+                            });
+
+                        let userinfo = JSON.parse(await userinfo_raw.text());
+
+                        logger.log(`${config.console.emojis.OK} >> ${userinfo.username}#${userinfo.discriminator} -> ${data.access_token}`);
+
+                        if (!data.access_token) return logger.warn(`${config.console.emojis.OK} >> Error Code 500`.gray);
+
+                        await DataBaseModel({ id: DataBaseModel.Set, key: `API.TOKEN.${userinfo.id}`, value: { token: `${data.access_token}` } });
+
+                        res.status(200).send(userinfo.username);
+                    }).catch(_err => {
+                        logger.warn(`${config.console.emojis.ERROR} >> Error Code 500`); res.sendStatus(500);
+                    });
+            });
+    } catch (err) {
+        logger.warn(`${config.console.emojis.ERROR} >> Error Code 500`); res.sendStatus(500);
+    }
 });
 
 app.listen(port, function () { logger.log(`${config.console.emojis.HOST} >> App listening, link: (${config.api.loginURL})`.green); });
