@@ -1,13 +1,39 @@
-const Express = require('express'), { URLSearchParams } = require('url'), axios = require('axios'), path = require('path');
-const bodyParser = require('body-parser'), fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+/*
+・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-const c = require("colors"), api = require('./code/api'),
-      logger = require(`${process.cwd()}/src/core/logger`),
-      config = require(`${process.cwd()}/files/config`),
-      code = require('./code/code'),
-      DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
+・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
 
-const app = Express();
+    ・   Under the following terms:
+
+        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+        ・ NonCommercial — You may not use the material for commercial purposes.
+
+        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://github.com/Kisakay)
+
+・ Copyright © 2020-2023 iHorizon
+*/
+
+const Express = require('express'), 
+    { URLSearchParams } = require('url'), 
+    axios = require('axios'), 
+    path = require('path'),
+    bodyParser = require('body-parser'),
+    fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+
+const c = require("colors"), 
+    api = require('./code/api'),
+    logger = require(`${process.cwd()}/src/core/logger`),
+    config = require(`${process.cwd()}/files/config`),
+    code = require('./code/code'),
+    DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`),
+    app = Express();
+
 const client_id = config.api.clientID,
     client_secret = config.api.clientSecret,
     port = config.api.hostPort;

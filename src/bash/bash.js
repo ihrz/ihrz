@@ -1,16 +1,38 @@
-const wait = require('wait');
-require('colors');
-const { QuickDB } = require("quick.db"),
-      db = new QuickDB(),
-      os = require('os-utils');
+/*
+・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+
+    ・   Under the following terms:
+
+        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+        ・ NonCommercial — You may not use the material for commercial purposes.
+
+        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://github.com/Kisakay)
+
+・ Copyright © 2020-2023 iHorizon
+*/
+
+const wait = require('wait'),
+    coleurmdr = require('colors'),
+    { QuickDB } = require("quick.db"),
+    db = new QuickDB(),
+    os = require('os-utils');
+    readline = require('readline'),
+    fs = require('fs'),
+    config = require(`${process.cwd()}/files/config.js`),
+    path = require('path');
+
 let ipify;
 import('ipify').then(module => {
     ipify = module.default;
-}).catch(error => {console.error(error)});
-const path = require('path'),
-    readline = require('readline'),
-    fs = require('fs'),
-    config = require(`${process.cwd()}/files/config.js`);
+}).catch(error => { console.error(error) });
 
 module.exports = async (client) => {
     if (config.core.bash) {
@@ -21,10 +43,10 @@ module.exports = async (client) => {
         });
 
         const now2 = new Date(),
-              year = now2.getFullYear().toString().substr(-2),
-              month = now2.toLocaleString('default', { month: 'short' }),
-              day = now2.toLocaleString('default', { day: '2-digit' }),
-              time = now2.toLocaleTimeString('en-US', { hour12: false });
+            year = now2.getFullYear().toString().substr(-2),
+            month = now2.toLocaleString('default', { month: 'short' }),
+            day = now2.toLocaleString('default', { day: '2-digit' }),
+            time = now2.toLocaleTimeString('en-US', { hour12: false });
 
         console.log(`* iHorizon bash terminal is in power on...`.gray.bgBlack);
         await wait(1000);
@@ -41,13 +63,13 @@ module.exports = async (client) => {
         };
 
         const formattedDate = now.toLocaleDateString('fr-FR', options),
-              LoadFiles = await db.get(`BASH.LAST_LOGIN`) || "None",
-              LoadFiles2 = "127.0.0.1";
+            LoadFiles = await db.get(`BASH.LAST_LOGIN`) || "None",
+            LoadFiles2 = "127.0.0.1";
 
         const filePath = path.join(process.cwd(), 'src', 'bash', 'history', '.bash_history'),
-              createFiles = fs.createWriteStream(filePath, { flags: 'a' });
+            createFiles = fs.createWriteStream(filePath, { flags: 'a' });
 
-        const dateStr = `${day} ${month} ${year} ${time} 2023`;
+        let dateStr = `${day} ${month} ${year} ${time} 2023`;
         await db.set(`BASH.LAST_LOGIN`, dateStr.toString());
         console.log(`Welcome to iHorizon Bash
     
@@ -65,7 +87,7 @@ module.exports = async (client) => {
         rl.prompt();
         rl.on('line', (line) => {
             const [commandName, ...args] = line.trim().split(' '),
-                  commandPath = `${process.cwd()}/src/bash/commands/${commandName}.js`;
+                commandPath = `${process.cwd()}/src/bash/commands/${commandName}.js`;
             if (fs.existsSync(commandPath)) {
                 const command = require(commandPath);
                 command(client, args.join(' '));
