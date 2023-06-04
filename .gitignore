@@ -119,4 +119,4 @@ files/config.js
 *.tar.gz
 
 # Not upload logs
-files/*.txt
+*.txt
