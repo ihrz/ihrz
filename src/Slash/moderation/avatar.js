@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+
 const {
     Client,
     Intents,
@@ -30,32 +32,22 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-module.exports = {
-    name: 'avatar',
-    description: 'See the user avatar !',
-    options: [
-        {
-            name: 'user',
-            type: ApplicationCommandOptionType.User,
-            description: 'The user',
-            required: false
-        }
-    ],
-    run: async (client, interaction) => {
+slashInfo.moderation.avatar.run = async (client, interaction) => {
 
-        let msg = await interaction.channel.send(`Loading...`);
+    let msg = await interaction.channel.send(`Loading...`);
 
-        let mentionedUser = interaction.options.getUser("user") || interaction.user;
+    let mentionedUser = interaction.options.getUser("user") || interaction.user;
 
-        let embed = new EmbedBuilder()
+    let embed = new EmbedBuilder()
 
-            .setImage(mentionedUser.avatarURL({ format: 'png', dynamic: true, size: 512 }))
-            .setColor("#add5ff")
-            .setTitle("__**Avatar**__: \`" + mentionedUser.username + "\`")
-            .setDescription("Look this avatar :D")
-            .setTimestamp()
+        .setImage(mentionedUser.avatarURL({ format: 'png', dynamic: true, size: 512 }))
+        .setColor("#add5ff")
+        .setTitle("__**Avatar**__: \`" + mentionedUser.username + "\`")
+        .setDescription("Look this avatar :D")
+        .setTimestamp()
 
-        msg.delete()
-        return interaction.reply({ embeds: [embed] })
-    }
-}
+    msg.delete()
+    return interaction.reply({ embeds: [embed] })
+};
+
+module.exports = slashInfo.moderation.avatar;

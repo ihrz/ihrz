@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+
 const {
     Client,
     Intents,
@@ -32,18 +34,8 @@ const {
 } = require('discord.js');
 
 const logger = require(`${process.cwd()}/src/core/logger`);
-module.exports = {
-    name: 'end',
-    description: 'force end a giveaways',
-    options: [
-        {
-            name: 'giveaway-id',
-            type: ApplicationCommandOptionType.String,
-            description: 'The giveaway id (is the message id of the embed\'s giveaways)',
-            required: true
-        }
-    ],
-    run: async (client, interaction) => {
+
+slashInfo.giveaway.end.run = async (client, interaction) => {
         const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
         let data = await getLanguageData(interaction.guild.id);
 
@@ -81,5 +73,6 @@ module.exports = {
                     return interaction.reply({ content: data.end_command_error });
             });
         const filter = (interaction) => interaction.user.id === interaction.member.id;
-    }
-}
+};
+
+module.exports = slashInfo.giveaway.end;

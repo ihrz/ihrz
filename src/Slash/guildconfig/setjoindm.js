@@ -18,6 +18,7 @@
 
 ・ Copyright © 2020-2023 iHorizon
 */
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
 
 const {
     Client,
@@ -33,38 +34,7 @@ const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const logger = require(`${process.cwd()}/src/core/logger`);
 
-module.exports = {
-    name: 'setjoindm',
-    description: 'Set a join dm message when user join the guild',
-    options: [
-        {
-            name: "value",
-            description: "Choose the action you want to do",
-            type: ApplicationCommandOptionType.String,
-            required: true,
-            choices: [
-                {
-                    name: "Power on",
-                    value: "on"
-                },
-                {
-                    name: "Power off",
-                    value: "off"
-                },
-                {
-                    name: "Show the message set",
-                    value: "ls"
-                }
-            ]
-        },
-        {
-            name: 'message',
-            type: ApplicationCommandOptionType.String,
-            description: '<Message if the first args is on>',
-            required: false
-        }
-    ],
-    run: async (client, interaction) => {
+slashInfo.guildconfig.setjoindm.run = async (client, interaction) => {
         const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
         let data = await getLanguageData(interaction.guild.id);
 
@@ -133,5 +103,6 @@ module.exports = {
                     .replace(/\${already_off}/g, already_off)
             })
         }
-    }
-}
+};
+
+module.exports = slashInfo.guildconfig.setjoindm;

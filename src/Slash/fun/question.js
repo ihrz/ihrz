@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+
 const {
   Client,
   Intents,
@@ -30,39 +32,29 @@ const {
   ApplicationCommandOptionType
 } = require('discord.js');
 
-module.exports = {
-  name: 'question',
-  description: 'give a question to the bot',
-  options: [
-    {
-      name: 'question',
-      type: ApplicationCommandOptionType.String,
-      description: 'The question you want to give for the bot',
-      required: true
-    }
-  ],
-  run: async (client, interaction, message) => {
-    const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-    let data = await getLanguageData(interaction.guild.id);
+slashInfo.fun.question.run = async (client, interaction, message) => {
+  const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+  let data = await getLanguageData(interaction.guild.id);
 
-    let question = interaction.options.getString("question");
+  let question = interaction.options.getString("question");
 
-    let text = question.split(" ");
+  let text = question.split(" ");
 
-    if (!text[2]) return interaction.reply({ content: data.question_not_full });
+  if (!text[2]) return interaction.reply({ content: data.question_not_full });
 
-    let reponse = data.question_s
-    let result = Math.floor((Math.random() * reponse.length));
+  let reponse = data.question_s
+  let result = Math.floor((Math.random() * reponse.length));
 
-    const embed = new EmbedBuilder()
-      .setTitle(data.question_embed_title
-        .replace(/\${interaction\.user\.username}/g, interaction.user.username)
-      )
-      .setColor("#ddd98b")
-      .addFields({ name: data.question_fields_input_embed, value: question, inline: true },
-        { name: data.question_fields_output_embed, value: reponse[result] })
-      .setTimestamp();
+  const embed = new EmbedBuilder()
+    .setTitle(data.question_embed_title
+      .replace(/\${interaction\.user\.username}/g, interaction.user.username)
+    )
+    .setColor("#ddd98b")
+    .addFields({ name: data.question_fields_input_embed, value: question, inline: true },
+      { name: data.question_fields_output_embed, value: reponse[result] })
+    .setTimestamp();
 
-     return interaction.reply({ embeds: [embed] })
-  }
-}
+  return interaction.reply({ embeds: [embed] })
+};
+
+module.exports = slashInfo.fun.question;

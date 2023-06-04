@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+
 const {
   Client,
   Intents,
@@ -33,24 +35,7 @@ const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
-module.exports = {
-  name: 'addmoney',
-  description: 'add money to the bank of the user',
-  options: [
-    {
-      name: 'amount',
-      type: ApplicationCommandOptionType.Number,
-      description: 'The amount of money you want to add',
-      required: true
-    },
-    {
-      name: 'member',
-      type: ApplicationCommandOptionType.User,
-      description: 'The member who you want to add money',
-      required: true
-    }
-  ],
-  run: async (client, interaction) => {
+slashInfo.economy.addmoney.run = async (client, interaction) => {
     let data = await getLanguageData(interaction.guild.id);
     
     if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
@@ -78,5 +63,6 @@ module.exports = {
       let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
       if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
     } catch (e) { return };
-  }
-}
+};
+
+module.exports = slashInfo.economy.addmoney;

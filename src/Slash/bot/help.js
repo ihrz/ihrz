@@ -19,14 +19,13 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+
 const { EmbedBuilder, ActionRowBuilder, ComponentType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 const { QuickDB } = require("quick.db"), db = new QuickDB();
 
-module.exports = {
-  name: 'help',
-  description: 'Need help? Use this command !',
-  run: async (client, interaction) => {
+slashInfo.bot.help.run = async (client, interaction) => {
     let data = await getLanguageData(interaction.guild.id);
     let CONTENT = await db.get("BOT.CONTENT");
 
@@ -43,13 +42,14 @@ module.exports = {
       { name: data.help_prof_fields, value: CONTENT.profil.toString(), inline: true, description: data.help_prof_dsc, emoji: "👩" },
       { name: data.help_economy_fields, value: CONTENT.economy.toString(), inline: true, description: data.help_economy_dsc, emoji: "👩‍💼" },
       { name: data.help_owner_fields, value: CONTENT.owner.toString(), inline: true, description: data.help_owner_dsc, emoji: "👩‍✈️" },
-      { name: data.help_roler_fields, value: CONTENT.rolereactions.toString(), inline: true, description: data.help_roler_dsc, emoji: "📇" },
+      { name: data.help_roler_fields, value: CONTENT.rolereaction.toString(), inline: true, description: data.help_roler_dsc, emoji: "📇" },
       { name: data.help_invitem_fields, value: CONTENT.invitemanager.toString(), inline: true, description: data.help_invitem_dsc, emoji: "💾" },
       { name: data.help_ticket_fields, value: CONTENT.ticket.toString(), inline: true, description: data.help_ticket_dsc, emoji: "🎫" },
       { name: data.help_memberc_fields, value: CONTENT.membercount.toString(), inline: true, description: data.help_memberc_dsc, emoji: "👥" },
       { name: data.help_newftrs_fields, value: CONTENT.newfeatures.toString(), inline: true, description: data.help_newftrs_dsc, emoji: "🆕" }
     ];
 
+    console.log(categories);
     const select = new StringSelectMenuBuilder().setCustomId('starter').setPlaceholder('Make a selection!');
     categories.forEach((category, index) => { select.addOptions(new StringSelectMenuOptionBuilder().setLabel(category.name).setValue(index.toString()).setEmoji(category.emoji)); });
     const row = new ActionRowBuilder().addComponents(select);
@@ -75,5 +75,6 @@ module.exports = {
 
       await response.edit({ embeds: [embed] });
     });
-  }
 };
+
+module.exports = slashInfo.bot.help;

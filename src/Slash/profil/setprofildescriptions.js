@@ -53,4 +53,4 @@ module.exports = {
         await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.desc`, desc)
         interaction.reply({ content: data.setprofildescriptions_command_work })
     }
-}
+};

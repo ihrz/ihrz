@@ -33,7 +33,6 @@ const {
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
-const yaml = require('js-yaml'), fs = require('fs');
 const logger = require(`${process.cwd()}/src/core/logger`);
 
 module.exports = {

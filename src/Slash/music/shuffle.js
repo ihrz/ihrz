@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+
 const {
   Client,
   Intents,
@@ -33,10 +35,7 @@ const { QueryType, useQueue } = require('discord-player');
 
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
-module.exports = {
-  name: 'shuffle',
-  description: 'Shuffle all the music queue.',
-  run: async (client, interaction) => {
+slashInfo.music.shuffle.run = async (client, interaction) => {
     let data = await getLanguageData(interaction.guild.id);
     const queue = useQueue(interaction.guild.id);
     if (!queue) return interaction.reply({ content: data.shuffle_no_queue });
@@ -44,5 +43,5 @@ module.exports = {
     queue.tracks.shuffle();
     interaction.reply({ content: data.shuffle_command_work });
     return;
-  }
 }
+module.exports = slashInfo.music.shuffle;

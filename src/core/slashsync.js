@@ -31,7 +31,7 @@ module.exports = async (client, commands, options = {
     const ready = client.readyAt ? Promise.resolve() : new Promise(resolve => client.once('ready', resolve));
     await ready;
     const currentCommands = await client.application.commands.fetch(options.guildId && { guildId: options.guildId });
-
+    
     log(`Synchronizing commands...`.white);
     log(`Currently ${currentCommands.size} commands are registered to the bot.`.white);
 

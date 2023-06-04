@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+
 const {
     Client,
     Intents,
@@ -35,38 +37,7 @@ const db = new QuickDB();
 
 const logger = require(`${process.cwd()}/src/core/logger`);
 
-module.exports = {
-    name: 'setchannels',
-    description: 'Set a message channels for when a user join and leave',
-    options: [
-        {
-            name: 'type',
-            type: ApplicationCommandOptionType.String,
-            description: '<On join/On leave/Delete all settings>',
-            required: true,
-            choices: [
-                {
-                    name: "On join",
-                    value: "join"
-                },
-                {
-                    name: "On leave",
-                    value: "leave"
-                },
-                {
-                    name: "Delete all settings",
-                    value: "off"
-                }
-            ]
-        },
-        {
-            name: 'channel',
-            type: ApplicationCommandOptionType.Channel,
-            description: "The channel you wan't your welcome/goodbye message !",
-            required: false
-        }
-    ],
-    run: async (client, interaction) => {
+slashInfo.guildconfig.guildconfig.run = async (client, interaction) => {
         const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
         let data = await getLanguageData(interaction.guild.id);
 
@@ -159,5 +130,6 @@ module.exports = {
             await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`);
             return interaction.reply({ content: data.setchannels_command_work_on_off });
         }
-    }
-}
+};
+
+module.exports = slashInfo.guildconfig.guildconfig;

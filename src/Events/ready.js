@@ -89,7 +89,8 @@ module.exports = async (client) => {
 
         const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
         client.user.setPresence({activities: [{name: randomQuote, type: ActivityType.Watching}]});
-    };quotesPresence();
+    };
+    quotesPresence();
 
     await term(), fetchInvites(), refreshDatabaseModel(), setInterval(quotesPresence, 80_000);
 };

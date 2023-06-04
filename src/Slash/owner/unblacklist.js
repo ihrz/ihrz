@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+
 const {
     Client,
     Intents,
@@ -31,46 +33,33 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const yaml = require('js-yaml')
-const fs = require('fs');
+slashInfo.owner.unblacklist.run = async (client, interaction) => {
+    const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+    let data = await getLanguageData(interaction.guild.id);
 
-module.exports = {
-    name: 'unblacklist',
-    description: 'Unblacklist a typed member',
-    options: [
-        {
-            name: 'member',
-            type: ApplicationCommandOptionType.User,
-            description: 'The user you want to unblacklist (Only Owner of ihorizon)',
-            required: true
-        }
-    ],
-    run: async (client, interaction) => {
-        const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-        let data = await getLanguageData(interaction.guild.id);
-        
-        const { QuickDB } = require("quick.db");
-        const db = new QuickDB();
+    const { QuickDB } = require("quick.db");
+    const db = new QuickDB();
 
-        if (await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
-            return interaction.reply({ content: data.unblacklist_not_owner });
-        }
-
-        const member = interaction.options.getUser('member')
-        let fetched = await db.get(`GLOBAL.BLACKLIST.${member.id}`)
-
-        if (!fetched) { return interaction.reply({ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member.id) }) }
-
-        try {
-            let bannedMember = await client.users.fetch(member.user.id)
-            if (!bannedMember) { return interaction.reply({ content: data.unblacklist_user_is_not_exist }) }
-            interaction.guild.members.unban(bannedMember)
-            db.delete(`GLOBAL.BLACKLIST.${member.id}`);
-
-            return interaction.reply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member.id) })
-        } catch (e) {
-            db.delete(`GLOBAL.BLACKLIST.${member.id}`);
-            return interaction.reply({ content: data.unblacklist_unblacklisted_but_can_unban_him })
-        }
+    if (await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
+        return interaction.reply({ content: data.unblacklist_not_owner });
     }
-}
+
+    const member = interaction.options.getUser('member')
+    let fetched = await db.get(`GLOBAL.BLACKLIST.${member.id}`)
+
+    if (!fetched) { return interaction.reply({ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member.id) }) }
+
+    try {
+        let bannedMember = await client.users.fetch(member.user.id)
+        if (!bannedMember) { return interaction.reply({ content: data.unblacklist_user_is_not_exist }) }
+        interaction.guild.members.unban(bannedMember)
+        db.delete(`GLOBAL.BLACKLIST.${member.id}`);
+
+        return interaction.reply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member.id) })
+    } catch (e) {
+        db.delete(`GLOBAL.BLACKLIST.${member.id}`);
+        return interaction.reply({ content: data.unblacklist_unblacklisted_but_can_unban_him })
+    }
+};
+
+module.exports = slashInfo.owner.unblacklist

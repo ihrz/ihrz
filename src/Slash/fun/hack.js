@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+
 const {
     Client,
     Intents,
@@ -29,20 +31,8 @@ const {
     PermissionsBitField,
     ApplicationCommandOptionType
 } = require('discord.js');
-const crypto = require('crypto')
 
-module.exports = {
-    name: 'hack',
-    description: 'hack someone !',
-    options: [
-        {
-            name: "user",
-            type: ApplicationCommandOptionType.User,
-            description: "The user you want to hack",
-            required: true
-        }
-    ],
-    run: async (client, interaction) => {
+slashInfo.fun.hack.run = async (client, interaction) => {
         const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
         let data = await getLanguageData(interaction.guild.id);
         const wtf = require(`${process.cwd()}/files/ihorizon-api/wtf`);
@@ -175,13 +165,10 @@ module.exports = {
             )
             .addFields({ name: data.hack_embed_fields_ip, value: `\`${generatedIp}\`` },
                 { name: data.hack_embed_fields_email, value: `\`${generatedEmail}\`` },
-                { name: "📞", value: `\`${generatedPhoneNumber}\`` },
-                { name: data.hack_embed_fields_password, value: `\`${generatedPassword}\`` },
-                { name: "🔑", value: `\`${bruteForce()}\`` },
-                { name: "🏠", value: `\`${wtf.address()}\`` },
-                { name: "💳", value: `\`${wtf.cc()}\`` },)
+                { name: data.hack_embed_fields_password, value: `\`${generatedPassword}\`` })
             .setTimestamp()
 
         return interaction.reply({ embeds: [embed] });
-    }
 };
+
+module.exports = slashInfo.fun.hack;

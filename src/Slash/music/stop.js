@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+
 const {
   Client,
   Intents,
@@ -29,15 +31,11 @@ const {
   PermissionsBitField,
   ApplicationCommandOptionType
 } = require('discord.js');
-const { QueryType } = require('discord-player');
 
 const logger = require(`${process.cwd()}/src/core/logger`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
-module.exports = {
-  name: 'stop',
-  description: '(music) Stop the music.',
-  run: async (client, interaction) => {
+slashInfo.music.stop.run = async (client, interaction) => {
     let data = await getLanguageData(interaction.guild.id);
     try {
       const queue = interaction.client.player.nodes.get(interaction.guild);
@@ -51,5 +49,6 @@ module.exports = {
     } catch (error) {
       logger.error(error);
     }
-  }
-}
+};
+
+module.exports = slashInfo.music.stop;

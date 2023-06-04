@@ -18,6 +18,7 @@
 
 ・ Copyright © 2020-2023 iHorizon
 */
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
 
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
@@ -34,24 +35,7 @@ const {
 
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
-module.exports = {
-    name: 'pay',
-    description: 'Give your money to someone',
-    options: [
-        {
-            name: 'amount',
-            type: ApplicationCommandOptionType.Number,
-            description: 'The amount of money you want to donate to them',
-            required: true
-        },
-        {
-            name: 'member',
-            type: ApplicationCommandOptionType.User,
-            description: 'The member you want to donate the money',
-            required: true
-        }
-    ],
-    run: async (client, interaction) => {
+slashInfo.economy.pay.run = async (client, interaction) => {
         let data = await getLanguageData(interaction.guild.id);
         let user = interaction.options.getMember("member");
         let amount = interaction.options.getNumber("amount");
@@ -71,5 +55,6 @@ module.exports = {
         })
         await db.add(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, amount);
         await db.sub(`${interaction.guild.id}.USER.${interaction.member.id}.ECONOMY.money`, amount);
-    }
-}
+};
+
+module.exports = slashInfo.economy.pay;

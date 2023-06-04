@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+
 const {
   Client,
   Intents,
@@ -97,103 +99,92 @@ function getBadges(flags) {
   };
   if (b == '') b = 'None'
   return b;
-}
+};
 
-
-const yaml = require('js-yaml'), fs = require('fs');
 const logger = require(`${process.cwd()}/src/core/logger`);
 
-module.exports = {
-  name: 'userinfo',
-  description: 'lookup a user',
-  options: [
-    {
-      name: 'user',
-      type: ApplicationCommandOptionType.User,
-      description: 'user you want to lookup',
-      required: false
-    }
-  ],
-  run: async (client, interaction) => {
-    const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-    let data = await getLanguageData(interaction.guild.id);
-    
-    let member = interaction.options.get("user") || interaction.member;
-    member = await interaction.guild.members.fetch(member);
+slashInfo.utils.userinfo.run = async (client, interaction) => {
+  const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+  let data = await getLanguageData(interaction.guild.id);
 
-    function getSubscriptions(response) {
-      if (!response.available) { return };
-      //si il n'est pas enregistré dans la db
-      if (response.available == "no") {
-        description = `${getBadges(member.user.flags)}\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\`\n[My nitro is not showed](${api_login})`;
-        sendMessage(description)
-      };
+  let member = interaction.options.get("user") || interaction.member;
+  member = await interaction.guild.members.fetch(member);
 
-      if (response.available == "yes") {
-        const access_token = response.connectionToken;
-        oauth.getUser(access_token).then(data => {
-          switch (data.premium_type) {
-            case 0:
-              /*Don't have nitro*/
-              descriptionTwo = `${getBadges(member.user.flags)}\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
-              sendMessage(descriptionTwo)
-              break;
-            case 1:
-              /* Discord Nitro Classic*/
-              if (getBadges(member.user.flags) === 'None') {
-                descriptionTwo = `<:NITRO:1047317443770581062>\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
-              } else {
-                descriptionTwo = `${getBadges(member.user.flags)}<:NITRO:1047317443770581062>\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
-              }
-              sendMessage(descriptionTwo);
-              break;
-            case 2:
-              /* Discord Nitro Boost*/
-              if (getBadges(member.user.flags) === 'None') {
-                descriptionTwo = `<:NITRO:1047317443770581062><:BOOST:1047322188493099038>\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
-              } else {
-                descriptionTwo = `${getBadges(member.user.flags)}<:NITRO:1047317443770581062><:BOOST:1047322188493099038>\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
-              }
-              sendMessage(descriptionTwo);
-              break;
-            case 3:
-              /* Discord Nitro Basic*/
-              if (getBadges(member.user.flags) === 'None') {
-                descriptionTwo = `<:NITRO:1047317443770581062>\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
-              } else {
-                descriptionTwo = `${getBadges(member.user.flags)}<:NITRO:1047317443770581062>\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
-              }
-              sendMessage(descriptionTwo);
-              break;
-          };
-        })
-      }
+  function getSubscriptions(response) {
+    if (!response.available) { return };
+    //si il n'est pas enregistré dans la db
+    if (response.available == "no") {
+      description = `${getBadges(member.user.flags)}\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\`\n[My nitro is not showed](${api_login})`;
+      sendMessage(description)
     };
-    async function sendMessage(description) {
+
+    if (response.available == "yes") {
+      const access_token = response.connectionToken;
+      oauth.getUser(access_token).then(data => {
+        switch (data.premium_type) {
+          case 0:
+            /*Don't have nitro*/
+            descriptionTwo = `${getBadges(member.user.flags)}\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
+            sendMessage(descriptionTwo)
+            break;
+          case 1:
+            /* Discord Nitro Classic*/
+            if (getBadges(member.user.flags) === 'None') {
+              descriptionTwo = `<:NITRO:1047317443770581062>\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
+            } else {
+              descriptionTwo = `${getBadges(member.user.flags)}<:NITRO:1047317443770581062>\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
+            }
+            sendMessage(descriptionTwo);
+            break;
+          case 2:
+            /* Discord Nitro Boost*/
+            if (getBadges(member.user.flags) === 'None') {
+              descriptionTwo = `<:NITRO:1047317443770581062><:BOOST:1047322188493099038>\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
+            } else {
+              descriptionTwo = `${getBadges(member.user.flags)}<:NITRO:1047317443770581062><:BOOST:1047322188493099038>\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
+            }
+            sendMessage(descriptionTwo);
+            break;
+          case 3:
+            /* Discord Nitro Basic*/
+            if (getBadges(member.user.flags) === 'None') {
+              descriptionTwo = `<:NITRO:1047317443770581062>\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
+            } else {
+              descriptionTwo = `${getBadges(member.user.flags)}<:NITRO:1047317443770581062>\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\``;
+            }
+            sendMessage(descriptionTwo);
+            break;
+        };
+      })
+    }
+  };
+  async function sendMessage(description) {
+    embed = new EmbedBuilder()
+      .setAuthor({ name: `${member.user.tag}`, iconURL: member.user.displayAvatarURL({ dynamic: true }) })
+      .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
+      .setFooter({ text: `ID: ${member.id}` })
+      .setTimestamp()
+      .setColor("#0014a8")
+      .setDescription(description);
+
+    return interaction.editReply({ embeds: [embed], content: "✅ Fetched !" });
+  };
+
+  await interaction.reply({ content: data.userinfo_wait_please });
+
+  superagent.post(apiURL).send({ tokent: "want", adminKey: config.api.apiToken, userid: member.id, tor: 'CHECK_IN_SYSTEM' }).end(async (err, response) => {
+    if (err) {
+      logger.err(err)
       embed = new EmbedBuilder()
         .setAuthor({ name: `${member.user.tag}`, iconURL: member.user.displayAvatarURL({ dynamic: true }) })
         .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
         .setFooter({ text: `ID: ${member.id}` })
         .setTimestamp()
         .setColor("#0014a8")
-        .setDescription(description);
-
-      return interaction.editReply({ embeds: [embed], content: "✅ Fetched !" });
-    }
-
-    await interaction.reply({ content: data.userinfo_wait_please })
-    superagent.post(apiURL).send({ tokent: "want", adminKey: config.api.apiToken, userid: member.id, tor: 'CHECK_IN_SYSTEM' }).end(async (err, response) => {
-      if (err) {
-        logger.err(err)
-        embed = new EmbedBuilder()
-          .setAuthor({ name: `${member.user.tag}`, iconURL: member.user.displayAvatarURL({ dynamic: true }) })
-          .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
-          .setFooter({ text: `ID: ${member.id}` })
-          .setTimestamp()
-          .setColor("#0014a8")
-          .setDescription(`${getBadges(member.user.flags)}\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\`\n[🔴 API DOWN](${api_login})`)
-        await interaction.editReply({ embeds: [embed], content: "🔴 API DOWN" })
-      } else { getSubscriptions(response.body) };
-    })
-  }
+        .setDescription(`${getBadges(member.user.flags)}\n**User:** \`${member.user.username}\#${member.user.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.user.createdAt).format('MMMM Do YYYY')}\`\n**Joined Server on:** \`${moment(member.joinedAt).format('MMMM Do YYYY')}\`\n[🔴 API DOWN](${api_login})`)
+      await interaction.editReply({ embeds: [embed], content: "🔴 API DOWN" })
+    } else { getSubscriptions(response.body) };
+  })
 };
+
+module.exports = slashInfo.utils.userinfo;

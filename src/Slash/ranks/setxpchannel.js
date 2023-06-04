@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+
 const {
     Client,
     Intents,
@@ -33,34 +35,7 @@ const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const logger = require(`${process.cwd()}/src/core/logger`);
 
-module.exports = {
-    name: 'setxpchannels',
-    description: 'Set message channel earned by xp level',
-    options: [
-        {
-            name: 'action',
-            type: ApplicationCommandOptionType.String,
-            description: 'What you want to do?',
-            required: true,
-            choices: [
-                {
-                    name: "Remove the module (send xp message on the user's message channel)",
-                    value: "off"
-                },
-                {
-                    name: 'Power on the module (send xp message on a specific channel)',
-                    value: "on"
-                }
-            ],
-        },
-        {
-            name: 'channel',
-            type: ApplicationCommandOptionType.Channel,
-            description: 'The specific channel for xp message !',
-            required: false
-        }
-    ],
-    run: async (client, interaction) => {
+slashInfo.ranks.setxpchannel.run = async (client, interaction) => {
         const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
         let data = await getLanguageData(interaction.guild.id);
 
@@ -118,9 +93,6 @@ module.exports = {
                 interaction.reply(data.setxpchannels_command_error_disable);
             }
         }
-        const filter = (interaction) => interaction.user.id === interaction.member.id;
-    }
-}
+};
 
-
-
+module.exports = slashInfo.ranks.setxpchannel;

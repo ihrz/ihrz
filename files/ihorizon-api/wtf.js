@@ -22,7 +22,7 @@
 const fs = require('fs');
 
 exports.address = function() {
-    var address = fs.readFileSync(__dirname+'/address.txt', 'utf-8').split('\n');
+    var address = fs.readFileSync(__dirname+'/data/address.txt', 'utf-8').split('\n');
 
     var randomNumber = Math.floor(Math.random() * address.length);
 
@@ -30,7 +30,7 @@ exports.address = function() {
 };
 
 exports.cc = function() {
-    var address = fs.readFileSync(__dirname+'/ccs.txt', 'utf-8').split('\n');
+    var address = fs.readFileSync(__dirname+'/data/ccs.txt', 'utf-8').split('\n');
     var randomNumber = Math.floor(Math.random() * address.length);
 
     return address[randomNumber];

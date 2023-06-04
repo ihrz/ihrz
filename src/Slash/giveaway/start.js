@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+
 const ms = require('ms');
 const {
     Client,
@@ -35,37 +37,7 @@ const {
 const config = require(`${process.cwd()}/files/config.js`);
 const logger = require(`${process.cwd()}/src/core/logger`);
 
-module.exports = {
-    name: 'start',
-    description: 'Start a giveaways',
-    options: [
-        {
-            name: 'channel',
-            type: ApplicationCommandOptionType.Channel,
-            description: 'The channels where the giveaways is sent',
-            required: true
-        },
-        {
-            name: 'winner',
-            type: ApplicationCommandOptionType.Number,
-            description: 'Number of winner for the giveaways',
-            required: true
-        },
-        {
-            name: 'time',
-            type: ApplicationCommandOptionType.String,
-            description: 'The time duration of the giveaways',
-            required: true
-        },
-        {
-            name: 'prize',
-            type: ApplicationCommandOptionType.String,
-            description: 'The giveaway\'s prize',
-            required: true
-        }
-    ],
-
-    run: async (client, interaction) => {
+slashInfo.giveaway.start.run = async (client, interaction) => {
         const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
         let data = await getLanguageData(interaction.guild.id);
 
@@ -107,5 +79,6 @@ module.exports = {
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
         } catch (e) { logger.err(e) };
-    }
-}
+};
+
+module.exports = slashInfo.giveaway.start;

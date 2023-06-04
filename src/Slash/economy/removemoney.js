@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const {
@@ -34,24 +36,7 @@ const {
 
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
-module.exports = {
-    name: 'removemoney',
-    description: 'remove money to the bank of the typed user',
-    options: [
-        {
-            name: 'amount',
-            type: ApplicationCommandOptionType.Number,
-            description: 'amount of $ you want add',
-            required: true
-        },
-        {
-            name: 'member',
-            type: ApplicationCommandOptionType.User,
-            description: 'the member you want to add the money',
-            required: true
-        }
-    ],
-    run: async (client, interaction) => {
+slashInfo.economy.removemoney.run = async (client, interaction) => {
         let data = await getLanguageData(interaction.guild.id);
         
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
@@ -86,5 +71,6 @@ module.exports = {
 
 
         return interaction.reply({ embeds: [embed] })
-    }
-}
+};
+
+module.exports = slashInfo.economy.removemoney;
