@@ -108,6 +108,26 @@ module.exports = {
     "setlogschannel": {
         name: 'setlogschannel',
         description: 'Set a logs channels for Audits Logs!',
+        options: [
+            {
+                name: 'type',
+                type: ApplicationCommandOptionType.String,
+                description: 'Specified logs category',
+                required: true,
+                choices: [
+                    { name: "Delete all settings", value: "off" },
+                    { name: "Roles Logs", value: "1" },
+                    { name: "Moderation Logs", value: "2" },
+                    { name: "Voice Logs", value: "3" },
+                    { name: "Messages Logs", value: "4" }]
+            },
+            {
+                name: 'channel',
+                type: ApplicationCommandOptionType.Channel,
+                description: "The channel you wan't your logs message !",
+                required: false
+            }
+        ],
     },
     "support": {
         name: 'support',

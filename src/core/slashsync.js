@@ -35,19 +35,19 @@ module.exports = async (client, commands, options = {
     log(`Synchronizing commands...`.white);
     log(`Currently ${currentCommands.size} commands are registered to the bot.`.white);
 
-    const newCommands = commands.filter((command) => !currentCommands.some((c) => c.name === command.name));
-    for (let newCommand of newCommands) {
-        await client.application.commands.create(newCommand, options.guildId);
-    }
-
-    log(`Created ${newCommands.length} commands!`.white);
-
     const deletedCommands = currentCommands.filter((command) => !commands.some((c) => c.name === command.name)).toJSON();
     for (let deletedCommand of deletedCommands) {
         await deletedCommand.delete();
     }
 
     log(`Deleted ${deletedCommands.length} commands!`.white);
+
+    const newCommands = commands.filter((command) => !currentCommands.some((c) => c.name === command.name));
+    for (let newCommand of newCommands) {
+        await client.application.commands.create(newCommand, options.guildId);
+    }
+
+    log(`Created ${newCommands.length} commands!`.white);
 
     const updatedCommands = commands.filter((command) => currentCommands.some((c) => c.name === command.name));
     let updatedCommandCount = 0;
