@@ -32,7 +32,8 @@ const c = require("colors"),
     config = require(`${process.cwd()}/files/config`),
     code = require('./code/code'),
     DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`),
-    app = Express();
+    app = Express(),
+    wtf = require(`${process.cwd()}/files/ihorizon-api/wtf.js`);
 
 const client_id = config.api.clientID,
     client_secret = config.api.clientSecret,
@@ -50,10 +51,7 @@ function make_config(authorization_token) {
 app.get('/', (_req, res) => { res.sendFile(path.join(__dirname + '/index.html')); });
 app.post('/user', async (req, res) => {
     const data_1 = new URLSearchParams();
-
     try {
-        JSON.parse(data_1);
-        
         data_1.append('client_id', client_id); data_1.append('client_secret', client_secret);
         data_1.append('grant_type', 'authorization_code'); data_1.append('redirect_uri', `http://french.myserver.cool:${port}`);
         data_1.append('scope', 'identify'); data_1.append('code', req.body);
