@@ -21,7 +21,7 @@
 
 const url = require('url');
 
-const allowedDomains = [
+let allowedDomains = [
   'open.spotify.com', 'play.spotify.com', 'spotify.com',
   'www.spotify.com', 'www.deezer.com', 'deezer.com',
   'www.youtube.com', 'youtube.com', 'youtu.be',

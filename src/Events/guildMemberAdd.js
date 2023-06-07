@@ -20,8 +20,6 @@
 */
 
 const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 const logger = require(`${process.cwd()}/src/core/logger`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);

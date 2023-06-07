@@ -37,7 +37,7 @@ const db = new QuickDB();
 
 const logger = require(`${process.cwd()}/src/core/logger`);
 
-slashInfo.guildconfig.guildconfig.run = async (client, interaction) => {
+slashInfo.guildconfig.setchannel.run = async (client, interaction) => {
         const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
         let data = await getLanguageData(interaction.guild.id);
 
@@ -132,4 +132,4 @@ slashInfo.guildconfig.guildconfig.run = async (client, interaction) => {
         }
 };
 
-module.exports = slashInfo.guildconfig.guildconfig;
+module.exports = slashInfo.guildconfig.setchannel;

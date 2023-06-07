@@ -36,9 +36,11 @@ module.exports = async (client, oldMember, newMember) => {
         });
         const firstEntry = fetchedLogs.entries.first();
 
+        if (!firstEntry) return;
+        if (firstEntry.executor.id === client.user.id) return;
+
         if (!oldMember) return;
         if (!oldMember.guild) return;
-        if (firstEntry.executor.id === client.user.id) return;
         
         const guildId = oldMember.guild.id;
 

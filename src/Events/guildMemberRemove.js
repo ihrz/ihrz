@@ -33,9 +33,10 @@ module.exports = async (client, member, members) => {
       const rolesCollection = member.guild.roles.cache;
       const rolesCount = rolesCollection.size;
 
-      let bot = await db.get(`${member.guild.id}.GUILD.MCOUNT.bot`);
-      let member_2 = await db.get(`${member.guild.id}.GUILD.MCOUNT.member`);
-      let roles = await db.get(`${member.guild.id}.GUILD.MCOUNT.roles`);
+      let bot = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.MCOUNT.bot` });
+
+      let member_2 = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.MCOUNT.member` });
+      let roles = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.MCOUNT.roles` });
 
       if (bot) {
         let joinmsgreplace = bot.name
@@ -71,11 +72,15 @@ module.exports = async (client, member, members) => {
       const newInvites = await member.guild.invites.fetch();
       const oldInvites = client.invites.get(member.guild.id);
       const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
-      let tempDB = await db.get(`${member.guild.id}.GUILD.INVITES.${invite.code}.creatorUser`);
+      
+      let tempDB = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.INVITES.${invite.code}.creatorUser` });
       const inviter = await client.users.fetch(tempDB);
-      if (db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`)) {
-        await db.sub(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`, 1);
+
+      if (await DataBaseModel({ id: DataBaseModel.Get, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA` })) {
+
+        await DataBaseModel({ id: DataBaseModel.Sub, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`, values: 1 });
         await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.leaves`, 1);
+  
       }
       let fetched = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`);
 
