@@ -65,6 +65,24 @@ module.exports = {
             }
         ],
     },
+    "love": {
+        name: 'love',
+        description: 'Show your love compatibilty with the user!',
+        options: [
+            {
+                name: "user1",
+                type: ApplicationCommandOptionType.User,
+                description: "The user you want to know you love's compatibilty",
+                required: true
+            },
+            {
+                name: "user2",
+                type: ApplicationCommandOptionType.User,
+                description: "The user you want to know you love's compatibilty",
+                required: true
+            }
+        ],
+    },
     "hug": {
         name: 'hug',
         description: 'Hug a user!',

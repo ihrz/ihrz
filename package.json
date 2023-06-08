@@ -10,6 +10,7 @@
     "avconv": "^3.1.0",
     "axios": "^1.2.0",
     "better-sqlite3": "^8.0.1",
+    "canvas": "^2.11.2",
     "colors": "^1.4.0",
     "crypto": "^1.0.1",
     "crypto-js": "^4.1.1",
@@ -63,7 +64,6 @@
     "url": "https://github.com/ihrz/ihrz/issues"
   },
   "homepage": "https://github.com/ihrz/ihrz#readme",
-  "devDependencies": {},
   "keywords": [
     "discordbot"
   ]
