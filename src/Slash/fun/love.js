@@ -37,9 +37,17 @@ const downloadImage = (url, filename) => {
 };
 
 slashInfo.fun.love.run = async (client, interaction) => {
-  const user1 = interaction.options.getUser("user1");
-  const user2 = interaction.options.getUser("user2");
+  const random = interaction.options.getBoolean("random");
 
+  if (random) {
+    var user1 = interaction.guild.members.cache.random().user;
+    var user2 = interaction.guild.members.cache.random().user;
+  } else {
+    var user1 = interaction.options.getUser("user1");
+    var user2 = interaction.options.getUser("user2");
+
+    if(!user1 || !user2) { return interaction.reply({ content: "Please provide two users !", ephemeral: true }); };
+  }
   const profileImageSize = 512;
   const canvasWidth = profileImageSize * 3;
   const canvasHeight = profileImageSize;

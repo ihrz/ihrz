@@ -70,16 +70,22 @@ module.exports = {
         description: 'Show your love compatibilty with the user!',
         options: [
             {
+                name: "random",
+                type: ApplicationCommandOptionType.Boolean,
+                description: "Choice if you want to show your love compatibilty with a random user",
+                required: true
+            },
+            {
                 name: "user1",
                 type: ApplicationCommandOptionType.User,
                 description: "The user you want to know you love's compatibilty",
-                required: true
+                required: false
             },
             {
                 name: "user2",
                 type: ApplicationCommandOptionType.User,
                 description: "The user you want to know you love's compatibilty",
-                required: true
+                required: false
             }
         ],
     },
