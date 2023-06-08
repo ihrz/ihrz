@@ -322,6 +322,7 @@ profil_embed_fields_xplevels: "💳 ・ __XPレベル__"
 profil_embed_fields_xplevels_value: " XPレベル"
 profil_embed_fields_age: "🎂 ・ __年齢__"
 profil_embed_fields_age_value: " 歳"
+profil_embed_fields_gender: "👤 ・ __性別__"
 
 
 # Utils commands

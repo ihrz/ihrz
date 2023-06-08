@@ -35,14 +35,14 @@ const {
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 
-slashInfo.profil.setprofilage.run = async (client, interaction) => {
-    const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-    let data = await getLanguageData(interaction.guild.id);
+slashInfo.profil.setprofildescription.run = async (client, interaction) => {
+        const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+        let data = await getLanguageData(interaction.guild.id);
 
-    var age = interaction.options.getNumber("age");
+        var desc = interaction.options.getString("descriptions")
 
-    await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.age`, age)
-    return interaction.reply({ content: data.setprofilage_command_work });
+        await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.desc`, desc)
+        return interaction.reply({ content: data.setprofildescriptions_command_work });
 };
 
-module.exports = slashInfo.profil.setprofilage;
+module.exports = slashInfo.profil.setprofildescription;

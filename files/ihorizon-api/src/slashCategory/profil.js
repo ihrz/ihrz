@@ -48,9 +48,51 @@ module.exports = {
     "setprofilage": {
         name: "setprofilage",
         description: "Set your age on the iHorizon Profil !",
+        options: [
+            {
+                name: 'age',
+                type: ApplicationCommandOptionType.Number,
+                description: 'you age on the iHorizon profil',
+                required: true
+            }
+        ],
     },
     "setprofildescription": {
         name: "setprofildescription",
         description: "Set your description on the iHorizon Profil!",
+        options: [
+            {
+                name: 'descriptions',
+                type: ApplicationCommandOptionType.String,
+                description: 'you descriptions on the iHorizon profil',
+                required: true
+            }
+        ],
+    },
+    "setprofilgender": {
+        name: "setprofilgender",
+        description: 'Set your description on the iHorizon Profil!',
+        options: [
+            {
+                name: "gender",
+                description: "Please make your choice.",
+                type: ApplicationCommandOptionType.String,
+                required: true,
+                choices: [
+                    {
+                        name: "♀️ Female",
+                        value: "♀️ Female"
+                    },
+                    {
+                        name: "♂️ Male",
+                        value: "♂️ Male"
+                    },
+                    {
+                        name: "⚧️ Other",
+                        value: "⚧️ Other"
+                    }
+                ]
+            },
+        ],
     },
 };
