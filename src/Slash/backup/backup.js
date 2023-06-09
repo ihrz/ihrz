@@ -95,7 +95,7 @@ slashInfo.backup.backup.run = async (client, interaction) => {
                 });
             });
         }).catch((err) => {
-            return interaction.channel.send({ content: `` });
+            return interaction.channel.send({ content: `❌` });
         });
     }
 };
