@@ -94,13 +94,13 @@ setxpchannels_command_error_enable: "Erreur : autorisations manquantes ou canal 
 # /owner, /unowner, /blacklist, /unblacklist
 
 # /owner
-owner_not_owner: "Vous n'êtes pas le propriétaire des projets iHorizon. Vous ne pouvez pas utiliser cette commande."
+owner_not_owner: "Vous n'êtes pas propriétaire du projets iHorizon. Vous ne pouvez pas utiliser cette commande."
 owner_already_owner: "Cet utilisateur est déjà propriétaire !"
 owner_is_now_owner: "${member.user.username} est désormais propriétaire des projets iHorizon."
 
 # /unowner
 unowner_not_owner: "Vous n'êtes pas propriétaire du projet iHorizon. Vous ne pouvez pas utiliser cette commande."
-unowner_cant_unowner_creator: "Il n'est pas possible de le supprimer, car c'est le créateur du projet iHorizon."
+unowner_cant_unowner_creator: "Il n'est pas possible de supprimer cette perssonne, car elle est créateur du projet iHorizon."
 unowner_command_work: "${member.username} n'est plus propriétaire."
 
 # /blacklist
@@ -111,7 +111,7 @@ blacklist_blacklisted_but_can_ban_him: "❌ Est maintenant blacklisté, impossib
 blacklist_already_blacklisted: "${member.user.username} est déjà blacklisté !"
 
 # /unblacklist
-unblacklist_not_owner: "Vous n'êtes pas le propriétaire du projet iHorizon. Vous ne pouvez pas utiliser cette commande."
+unblacklist_not_owner: "Vous n'êtes pas propriétaire du projet iHorizon. Vous ne pouvez pas utiliser cette commande."
 unblacklist_command_work: "<@${member.id}> n'est plus sur la liste noire"
 unblacklist_not_blacklisted: "<@${member.id}> n'était pas sur la liste noire"
 unblacklist_unblacklisted_but_can_unban_him: "❌ A été retiré de la liste noire, impossible de débannir ce membre ici, permission manquante ou déjà débanni ?"
@@ -165,7 +165,7 @@ kisakay_message: "✨Kisakay est à la fois ma créatrice et ma développeuse. C
 pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 
 # /status
-status_be_bot_dev: ":x: | **Vous devez être le développeur du bot pour faire cela !**"
+status_be_bot_dev: ":x: | **Vous devez être la développeuse du bot pour faire cela !**"
 
 # /help
 help_tip_embed: "💡 __**Astuce**__: __iHorizon est maintenant multilingue, de nombreux bugs ont été corrigés__.\n**Changez maintenant la langue d'iHorizon avec**: ```/setserverlang```Merci d'utiliser iHorizon !\nContactez le créateur : `Kisakay`.\nVoici une liste de commandes que vous pouvez utiliser."
