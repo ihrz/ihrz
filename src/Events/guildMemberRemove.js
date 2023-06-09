@@ -107,7 +107,7 @@ module.exports = async (client, member, members) => {
       client.channels.cache.get(wChan).send({ content: `${messssssage4}` });
     } catch (e) {
       let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`);
-      if (!wChan) return;
+      if (!wChan || !client.channels.cache.get(wChan)) return;
 
       return client.channels.cache.get(wChan).send({
         content: data.event_goodbye_default
