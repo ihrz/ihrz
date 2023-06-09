@@ -96,8 +96,8 @@ module.exports = async (client, member, members) => {
             .replace("${inviter.tag}", inviter.tag)
             .replace("${fetched}", fetched)
         });
-      }
-
+      };
+      
       var messssssage4 = messssssage
         .replace("{user}", member.user.tag)
         .replace("{guild}", member.guild.name)
