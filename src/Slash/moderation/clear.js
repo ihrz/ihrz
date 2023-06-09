@@ -39,27 +39,16 @@ slashInfo.moderation.clear.run = async (client, interaction) => {
     let data = await getLanguageData(interaction.guild.id);
 
     const permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)
-    var numberx = interaction.options.getNumber("number") + 1
+    var numberx = interaction.options.getNumber("number") + 1;
     if (!permission) return interaction.reply({ content: data.clear_dont_have_permission });
     if (numberx > 98) { return interaction.reply({ content: data.clear_max_message_limit }) };
 
     interaction.channel.bulkDelete(numberx, true)
         .then((messages) => {
-            interaction.channel
-                .send({
-                    content: data.clear_channel_message_deleted
-                        .replace(/\${messages\.size}/g, messages.size)
-                })
-                .then((sent) => {
-                    setTimeout(() => {
-                        sent.delete();
-                    }, 3500);
-                    interaction.reply({
-                        content: data.clear_confirmation_message
-                            .replace(/\${messages\.size}/g, messages.size)
-                        , ephemeral: true
-                    })
-                })
+            interaction.reply({content: data.clear_confirmation_message
+                    .replace(/\${messages\.size}/g, messages.size)
+            })
+
             try {
                 logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")

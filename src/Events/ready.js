@@ -20,14 +20,14 @@
 */
 
 const couleurmdr = require("colors"),
-    {QuickDB} = require("quick.db"),
+    { QuickDB } = require("quick.db"),
     db = new QuickDB(),
     config = require(`${process.cwd()}/files/config.js`),
     register = require('../core/slashsync'),
     wait = require("timers/promises").setTimeout,
     logger = require(`${process.cwd()}/src/core/logger`);
 
-const {Client, Collection, ApplicationCommandType, PermissionsBitField, ActivityType} = require('discord.js');
+const { Client, Collection, ApplicationCommandType, PermissionsBitField, ActivityType } = require('discord.js');
 module.exports = async (client) => {
 
     await register(client, client.register_arr.map((command) => ({
@@ -35,7 +35,7 @@ module.exports = async (client) => {
         description: command.description,
         options: command.options,
         type: ApplicationCommandType.ChatInput
-    })), {debug: true});
+    })), { debug: true });
 
     async function term() {
         logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta),
@@ -58,9 +58,10 @@ module.exports = async (client) => {
     };
 
     async function refreshDatabaseModel() {
-        await db.set(`GLOBAL.OWNER.${config.owner.ownerid1}`, {owner: true}),
+        await db.set(`GLOBAL.OWNER.${config.owner.ownerid1}`, { owner: true }),
+        await db.set(`GLOBAL.OWNER.${config.owner.ownerid2}`, { owner: true }),
             await db.set(`TEMP`, {}),
-            await wait(1000);
+            await wait(500);
     };
 
     async function quotesPresence() {
@@ -88,7 +89,7 @@ module.exports = async (client) => {
         ];
 
         const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        client.user.setPresence({activities: [{name: randomQuote, type: ActivityType.Watching}]});
+        client.user.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Watching }] });
     };
     quotesPresence();
 

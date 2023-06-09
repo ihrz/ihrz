@@ -19,24 +19,23 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { Client, Collection, EmbedBuilder, Permissions } = require('discord.js');
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
-
-const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+const { Client, Collection, EmbedBuilder, Permissions } = require('discord.js'),
+    { QuickDB } = require("quick.db"),
+    db = new QuickDB(),
+    getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 module.exports = async (client, oldMessage, newMessage) => {
     let data = await getLanguageData(oldMessage.guild.id)
     async function serverLogs() {
-        if (!oldMessage) return;
-        if (!oldMessage.guild) return;
+        if (!oldMessage || !oldMessage.guild) return;
 
-        const guildId = oldMessage.guildId;
-        const someinfo = await db.get(`${guildId}.GUILD.SERVER_LOGS.message`);
+        if (newMessage.author.bot) return;
 
-        if (!someinfo) return;
-        if (!oldMessage.content || !newMessage.content) return;
-        if (oldMessage.content === newMessage.content) return;
+        const guildId = oldMessage.guildId,
+            someinfo = await db.get(`${guildId}.GUILD.SERVER_LOGS.message`);
+
+        if (!someinfo || !oldMessage.content || !newMessage.content
+        || oldMessage.content === newMessage.content) return;
 
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")

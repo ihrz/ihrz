@@ -44,15 +44,26 @@ slashInfo.owner.unowner.run = async (client, interaction) => {
         return interaction.reply({ content: data.unowner_not_owner });
     }
 
-    let member = interaction.options.getUser('member');
+    var member = interaction.options.getUser('member');
+    var userid = interaction.options.getString('userid');
 
-    if (member.id === config.ownerid1 || member.id === config.ownerid2) {
-        return interaction.reply({ content: data.unowner_cant_unowner_creator })
-    }
-    db.delete(`GLOBAL.OWNER.${member.id}`)
-    interaction.reply({ content: data.unowner_command_work.replace(/\${member\.username}/g, member.username) })
+    if (member) {
+        if (member.id === config.owner.ownerid1 || member.id === config.owner.ownerid2) {
+            return interaction.reply({ content: data.unowner_cant_unowner_creator })
+        }
+        await db.delete(`GLOBAL.OWNER.${member.id}`)
+        return interaction.reply({ content: data.unowner_command_work.replace(/\${member\.username}/g, member.username) });
+    } else if (userid) {
+        var userid = await client.users.fetch(userid);
 
-    const filter = (interaction) => interaction.user.id === interaction.member.id;
+        if (userid.id === config.owner.ownerid1 || userid.id === config.owner.ownerid2) {
+            return interaction.reply({ content: data.unowner_cant_unowner_creator })
+        }
+        await db.delete(`GLOBAL.OWNER.${userid.id}`)
+        return interaction.reply({ content: data.unowner_command_work.replace(/\${member\.username}/g, userid.username) });
+    } else {
+        return interaction.reply({ content: data.unowner_not_owner });
+    };
 };
 
 module.exports = slashInfo.owner.unowner;

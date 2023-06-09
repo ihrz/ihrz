@@ -89,7 +89,13 @@ module.exports = {
                 name: 'member',
                 type: ApplicationCommandOptionType.User,
                 description: 'The member who wants to delete of the owner list',
-                required: true
+                required: false
+            },
+            {
+                name: 'userid',
+                type: ApplicationCommandOptionType.String,
+                description: 'The member who wants to delete of the owner list',
+                required: false
             }
         ],
     },
