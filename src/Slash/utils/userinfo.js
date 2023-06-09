@@ -87,6 +87,10 @@ const badges = {
   Discord_Moderators: {
     Value: 262144,
     Emoji: "<:MODERATORS:1047264626695483453>",
+  },
+  Slash_Bot: {
+    Value: 524288,
+    Emoji: "<:SLASH_BOTS:1116790067365683251>",
   }
 };
 

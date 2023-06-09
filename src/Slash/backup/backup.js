@@ -34,6 +34,7 @@ const {
 } = require('discord.js');
 
 const backup = require('discord-backup')
+backup.setStorageFolder(`${process.cwd()}/files/ihorizon-api/backups/`);
 
 const logger = require(`${process.cwd()}/src/core/logger`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
@@ -52,6 +53,7 @@ slashInfo.backup.backup.run = async (client, interaction) => {
             return interaction.editReply({ content: data.backup_i_dont_have_permission })
         }
         backup.create(interaction.guild, {
+            maxMessagesPerChannel: 40,
             jsonBeautify: true
         }).then((backupData) => {
             interaction.channel.send({ content: data.backup_command_work_on_creation });
