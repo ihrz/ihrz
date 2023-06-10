@@ -35,7 +35,7 @@ const couleurmdr = require("colors"),
     app = Express();
 
 app.use(Express.urlencoded({ extended: false }));
-app.use(Express.json()); 
+app.use(Express.json());
 app.use(bodyParser.text());
 app.post('/api/check/', code);
 app.post('/api/database', api);
@@ -51,11 +51,11 @@ app.post('/user', async (req, res) => {
 
     try {
 
-        data_1.append('client_id', config.api.clientID); 
+        data_1.append('client_id', config.api.clientID);
         data_1.append('client_secret', config.api.clientSecret);
-        data_1.append('grant_type', 'authorization_code'); 
+        data_1.append('grant_type', 'authorization_code');
         data_1.append('redirect_uri', config.api.loginURL);
-        data_1.append('scope', 'identify'); 
+        data_1.append('scope', 'identify');
         data_1.append('code', req.body);
 
         await fetch('https://discord.com/api/oauth2/token', { method: "POST", body: data_1 })
@@ -78,12 +78,12 @@ app.post('/user', async (req, res) => {
 
                         return res.status(200).send(userinfo.username);
                     }).catch(_err => {
-                        logger.warn(`${config.console.emojis.ERROR} >> Error Code 500`); 
+                        logger.warn(`${config.console.emojis.ERROR} >> Error Code 500`);
                         return res.sendStatus(500);
                     });
             });
     } catch (err) {
-        logger.warn(`${config.console.emojis.ERROR} >> Error Code 500`); 
+        logger.warn(`${config.console.emojis.ERROR} >> Error Code 500`);
         return res.sendStatus(500);
     }
 });
