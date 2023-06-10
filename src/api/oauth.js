@@ -45,12 +45,19 @@ function make_config(authorization_token) {
 };
 
 app.get('/', (_req, res) => { res.sendFile(path.join(__dirname + '/index.html')); });
+
 app.post('/user', async (req, res) => {
     const data_1 = new URLSearchParams();
+
     try {
-        data_1.append('client_id', config.api.clientID); data_1.append('client_secret', config.api.clientSecret);
-        data_1.append('grant_type', 'authorization_code'); data_1.append('redirect_uri', config.api.loginURL);
-        data_1.append('scope', 'identify'); data_1.append('code', req.body);
+
+        data_1.append('client_id', config.api.clientID); 
+        data_1.append('client_secret', config.api.clientSecret);
+        data_1.append('grant_type', 'authorization_code'); 
+        data_1.append('redirect_uri', config.api.loginURL);
+        data_1.append('scope', 'identify'); 
+        data_1.append('code', req.body);
+
         await fetch('https://discord.com/api/oauth2/token', { method: "POST", body: data_1 })
             .then(response => response.json()).then(async data => {
                 axios.get("https://discord.com/api/users/@me", make_config(data.access_token))
@@ -69,14 +76,16 @@ app.post('/user', async (req, res) => {
 
                         await DataBaseModel({ id: DataBaseModel.Set, key: `API.TOKEN.${userinfo.id}`, value: { token: `${data.access_token}` } });
 
-                        res.status(200).send(userinfo.username);
+                        return res.status(200).send(userinfo.username);
                     }).catch(_err => {
-                        logger.warn(`${config.console.emojis.ERROR} >> Error Code 500`); res.sendStatus(500);
+                        logger.warn(`${config.console.emojis.ERROR} >> Error Code 500`); 
+                        return res.sendStatus(500);
                     });
             });
     } catch (err) {
-        logger.warn(`${config.console.emojis.ERROR} >> Error Code 500`); res.sendStatus(500);
+        logger.warn(`${config.console.emojis.ERROR} >> Error Code 500`); 
+        return res.sendStatus(500);
     }
 });
 
-app.listen(config.api.hostPort, function () { logger.log(`${config.console.emojis.HOST} >> App listening, link: (${config.api.loginURL})`.green); });
+app.listen(config.api.hostPort, async function () { await logger.log(`${config.console.emojis.HOST} >> App listening, link: (${config.api.loginURL})`.green); });
