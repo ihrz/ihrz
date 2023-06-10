@@ -26,21 +26,17 @@ const Express = require('express'),
     bodyParser = require('body-parser'),
     fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
-const c = require("colors"),
+const couleurmdr = require("colors"),
     api = require('./code/api'),
     logger = require(`${process.cwd()}/src/core/logger`),
     config = require(`${process.cwd()}/files/config`),
     code = require('./code/code'),
     DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`),
-    app = Express(),
-    wtf = require(`${process.cwd()}/files/ihorizon-api/wtf.js`);
-
-const client_id = config.api.clientID,
-    client_secret = config.api.clientSecret,
-    port = config.api.hostPort;
+    app = Express();
 
 app.use(Express.urlencoded({ extended: false }));
-app.use(Express.json()); app.use(bodyParser.text());
+app.use(Express.json()); 
+app.use(bodyParser.text());
 app.post('/api/check/', code);
 app.post('/api/database', api);
 
@@ -52,8 +48,8 @@ app.get('/', (_req, res) => { res.sendFile(path.join(__dirname + '/index.html'))
 app.post('/user', async (req, res) => {
     const data_1 = new URLSearchParams();
     try {
-        data_1.append('client_id', client_id); data_1.append('client_secret', client_secret);
-        data_1.append('grant_type', 'authorization_code'); data_1.append('redirect_uri', `http://french.myserver.cool:${port}`);
+        data_1.append('client_id', config.api.clientID); data_1.append('client_secret', config.api.clientSecret);
+        data_1.append('grant_type', 'authorization_code'); data_1.append('redirect_uri', config.api.loginURL);
         data_1.append('scope', 'identify'); data_1.append('code', req.body);
         await fetch('https://discord.com/api/oauth2/token', { method: "POST", body: data_1 })
             .then(response => response.json()).then(async data => {
@@ -83,4 +79,4 @@ app.post('/user', async (req, res) => {
     }
 });
 
-app.listen(port, function () { logger.log(`${config.console.emojis.HOST} >> App listening, link: (${config.api.loginURL})`.green); });
+app.listen(config.api.hostPort, function () { logger.log(`${config.console.emojis.HOST} >> App listening, link: (${config.api.loginURL})`.green); });
