@@ -59,7 +59,7 @@ slashInfo.moderation.tempmute.run = async (client, interaction) => {
 			})
 
 			interaction.guild.channels.cache.forEach(async (channel, id) => {
-				if (channel) {
+				if (channel.permissionOverwrites) {
 					await channel.permissionOverwrites.create(muterole, {
 						SendMessages: false,
 						AddReactions: false,
