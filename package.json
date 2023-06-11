@@ -46,15 +46,15 @@
     "wait": "^0.4.2",
     "ytdl-core": "^4.11.4"
   },
-  "name": "ihorizon",
-  "version": "11.5.0",
+  "name": "ihrz",
+  "version": "11.8.0",
   "description": "iHorizon Discord Made by Kisakay",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js"
   },
-  "author": "kisakay",
+  "author": "Kisakay",
   "license": "CC BY-NC-SA 2.0",
   "repository": {
     "type": "git",

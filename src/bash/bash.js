@@ -20,10 +20,10 @@
 */
 
 const wait = require('wait'),
-    coleurmdr = require('colors'),
+    couleurmdr = require('colors'),
     { QuickDB } = require("quick.db"),
     db = new QuickDB(),
-    os = require('os-utils');
+    os = require('os-utils'),
     readline = require('readline'),
     fs = require('fs'),
     config = require(`${process.cwd()}/files/config.js`),
@@ -110,4 +110,4 @@ module.exports = async (client) => {
             process.exit(0);
         }); // Keyboard quit
     }
-};  
+};

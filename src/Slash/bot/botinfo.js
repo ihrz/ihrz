@@ -32,11 +32,11 @@ const {
   ApplicationCommandOptionType
 } = require('discord.js');
 
-const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`),
+  package = require(`${process.cwd()}/package.json`);
 
 slashInfo.bot.botinfo.run = async (client, interaction) => {
   let data = await getLanguageData(interaction.guild.id);
-
   let usersize = client.users.cache.size
   let chansize = client.channels.cache.size
   let servsize = client.guilds.cache.size
@@ -48,7 +48,7 @@ slashInfo.bot.botinfo.run = async (client, interaction) => {
       { name: data.botinfo_embed_fields_mychannels, value: `:green_circle: ${chansize}`, inline: false },
       { name: data.botinfo_embed_fields_myservers, value: `:green_circle: ${servsize}`, inline: false },
       { name: data.botinfo_embed_fields_members, value: `:green_circle: ${usersize}`, inline: false },
-      { name: data.botinfo_embed_fields_libraires, value: ":green_circle: discord.js@14.12.0", inline: false },
+      { name: data.botinfo_embed_fields_libraires, value: `:green_circle: discord.js@${package.dependencies['discord.js']}`, inline: false },
       { name: data.botinfo_embed_fields_created_at, value: ":green_circle: 14/09/2020", inline: false },
       { name: data.botinfo_embed_fields_created_by, value: ":green_circle: <@171356978310938624>", inline: false },
     )
@@ -56,8 +56,7 @@ slashInfo.bot.botinfo.run = async (client, interaction) => {
     .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
     .setTimestamp()
 
-  interaction.reply({ embeds: [clientembed] });
-  const filter = (interaction) => interaction.user.id === interaction.member.id;
+  return interaction.reply({ embeds: [clientembed] });
 };
 
 module.exports = slashInfo.bot.botinfo;
