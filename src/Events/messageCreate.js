@@ -103,19 +103,6 @@ module.exports = async (client, message) => {
     if (!d) { return await db.set(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`, 0); };
   };
 
-  async function logsMessage() {
-    if (!message.guild || !message.channel) return;
-    if (message.channel.type !== ChannelType.GuildText) return;
-
-    if (message.author.bot) return;
-    if (message.author.id === client.user.id) return;
-
-    const now = new Date();
-    const CreateFiles = fs.createWriteStream('./files/logs/message/' + message.guild.id + ".txt", { flags: 'a' });
-    let i = message.guild.name + " | MESSAGE | [" + now + "]" + " \n " + message.author.id + ": " + message.content + " " + " in: #" + message.channel.name + "";
-    CreateFiles.write(i.toString() + '\r\n');
-  };
-
   async function blockSpam() {
     if (!message.guild || !message.channel || !message.member || message.channel.type !== ChannelType.GuildText || message.author.bot || message.author.id === client.user.id) {
       return;
@@ -208,5 +195,5 @@ module.exports = async (client, message) => {
     }
   };
 
-  await xpFetcher(), EconomyDebug(), logsMessage(), blockSpam(), rankRole();
+  await xpFetcher(), EconomyDebug(), blockSpam(), rankRole();
 };
