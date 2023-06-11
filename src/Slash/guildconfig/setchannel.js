@@ -106,7 +106,7 @@ slashInfo.guildconfig.setchannel.run = async (client, interaction) => {
                 });
 
             } catch (e) {
-                interaction.reply({ content: data.setchannels_command_error_on_leave });
+                return interaction.reply({ content: data.setchannels_command_error_on_leave });
             }
         }
         if (type === "off") {
