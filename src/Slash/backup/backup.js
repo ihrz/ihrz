@@ -96,7 +96,7 @@ slashInfo.backup.backup.run = async (client, interaction) => {
             return interaction.editReply({ content: data.backup_unvalid_id_on_load });
         }
 
-        if(!await db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {
+        if(backupID && !await db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {
             return interaction.editReply({ content: "❌ | This is not your backup !" });
         };
 
@@ -119,7 +119,7 @@ slashInfo.backup.backup.run = async (client, interaction) => {
 
     if (backup_options === "see") {
         // If the user provided a backup ID, show the backup's info.
-        if(!await db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {
+        if(backupID && !await db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {
             return interaction.editReply({ content: "❌ | This is not your backup !" });
         };
 
