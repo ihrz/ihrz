@@ -100,7 +100,7 @@ owner_is_now_owner: "${member.user.username} is now owner of the iHorizon Projec
 
 # /unowner
 unowner_not_owner: "You are not owner of the iHorizon Projects. You can't use this command."
-unowner_cant_unowner_creator: "Is not possible to remove him, is the iHorizon Projects Creator."
+unowner_cant_unowner_creator: "Is not possible to remove this user, is the iHorizon Projects Creator."
 unowner_command_work: "${member.username} no longer owner"
 
 # /blacklist
@@ -461,7 +461,7 @@ setjoinmessage_not_admin: ":x: | You must be an administrator of this server to 
 setjoinmessage_help_embed_title: "setjoinmessage Help !" 
 setjoinmessage_help_embed_description: "/setjoinmessage <Power on /Power off/Show the message set> <join message>"
 setjoinmessage_help_embed_fields_name: "how to use ?"
-setjoinmessage_help_embed_fields_value: "Use ```/setjoinmessage <Power on /Power off/Show the message set> <message>```\n{user} = Username of Member\n{membercount} = guild's member count\n{createdat} = member account creation date\n{guild} = The name of the guild\n{inviter} = The inviter username & discriminator\n{invites} = The invites count of him"
+setjoinmessage_help_embed_fields_value: "Use ```/setjoinmessage <Power on /Power off/Show the message set> <message>```\n{user} = Username of Member\n{membercount} = guild's member count\n{createdat} = member account creation date\n{guild} = The name of the guild\n{inviter} = The inviter username & discriminator\n{invites} = The invites count of the user"
 setjoinmessage_logs_embed_title_on_enable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_enable: "<@${interaction.user.id}> set the join message !"
 setjoinmessage_command_work_on_enable: "✅ | Succefully set custom join message."
