@@ -36,6 +36,9 @@ const {
 const backup = require('discord-backup')
 backup.setStorageFolder(`${process.cwd()}/files/ihorizon-api/backups/`);
 
+const { QuickDB } = require('quick.db');
+const db = new QuickDB();
+
 const logger = require(`${process.cwd()}/src/core/logger`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
@@ -43,6 +46,8 @@ slashInfo.backup.backup.run = async (client, interaction) => {
     let data = await getLanguageData(interaction.guild.id);
 
     let backup_options = interaction.options.getString('action');
+    let backupID = interaction.options.getString('backup-id');
+
     await interaction.reply({ content: data.backup_wait_please });
 
     if (backup_options === "create") {
@@ -52,10 +57,17 @@ slashInfo.backup.backup.run = async (client, interaction) => {
         if (!interaction.guild.members.me.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.editReply({ content: data.backup_i_dont_have_permission })
         }
+        i = 0; j = 0;
+
         backup.create(interaction.guild, {
-            maxMessagesPerChannel: 40,
+            maxMessagesPerChannel: 15,
             jsonBeautify: true
-        }).then((backupData) => {
+        }).then(async (backupData) => {
+            await backupData.channels.categories.forEach(category => { i++; category.children.forEach(() => { j++; }); });
+            elData =  {guildName: backupData.name, categoryCount: i, channelCount: j};
+
+            await db.set(`BACKUPS.${interaction.user.id}.${backupData.id}`, elData);
+
             interaction.channel.send({ content: data.backup_command_work_on_creation });
             interaction.editReply({
                 content: data.backup_command_work_info_on_creation
@@ -79,12 +91,16 @@ slashInfo.backup.backup.run = async (client, interaction) => {
         if (!interaction.guild.members.me.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.editReply({ content: data.backup_i_dont_have_perm_on_load })
         }
-        let backupID = interaction.options.getString('backup-id');
 
         if (!backupID) {
             return interaction.editReply({ content: data.backup_unvalid_id_on_load });
         }
-        interaction.channel.send({ content: data.backup_waiting_on_load });
+
+        if(!await db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {
+            return interaction.editReply({ content: "❌ | This is not your backup !" });
+        };
+
+        await interaction.channel.send({ content: data.backup_waiting_on_load });
 
         backup.fetch(backupID).then(async () => {
             backup.load(backupID, interaction.guild).then(() => {
@@ -99,6 +115,35 @@ slashInfo.backup.backup.run = async (client, interaction) => {
         }).catch((err) => {
             return interaction.channel.send({ content: `❌` });
         });
+    }
+
+    if (backup_options === "see") {
+        // If the user provided a backup ID, show the backup's info.
+        if(!await db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {
+            return interaction.editReply({ content: "❌ | This is not your backup !" });
+        };
+
+        if (backupID) {
+            let data = await db.get(`BACKUPS.${interaction.user.id}.${backupID}`);
+
+            if (!data) return interaction.editReply({ content: "ERROR? Backup don't exist." });
+            let v = `:placard:・Category's Count: \`${data.categoryCount}\`\n:hash:・Channel's Count: \`${data.channelCount}\``
+            em = new EmbedBuilder().setColor("#bf0bb9").setTimestamp().addFields({ name: `${data.guildName} - (||${backupID}||)`, value: v });
+            return interaction.editReply({ content: ' ', embeds: [em] });
+        }
+        // If the user didn't provide a backup ID, show all the backups.
+        else {
+            let em = new EmbedBuilder().setDescription("**All of your backup:** ").setColor("#bf0bb9").setTimestamp();
+            let data2 = await db.get(`BACKUPS.${interaction.user.id}`);
+            b = 1;
+            for (i in data2) {
+                let result = await db.get(`BACKUPS.${interaction.user.id}.${i}`);
+                let v = `:placard:・Category's Count: \`${result.categoryCount}\`\n:hash:・Channel's Count: \`${result.channelCount}\``
+                if (result) em.addFields({ name: `${result.guildName} - (||${i}||)`, value: v }) && b++;
+            };
+
+            return interaction.editReply({ content: ' ', embeds: [em] });
+        }
     }
 };
 

@@ -51,6 +51,10 @@ module.exports = {
                         name: 'Load your backup',
                         value: "load"
                     },
+                    {
+                        name: 'See your backup(s)',
+                        value: "see"
+                    }
                 ],
             },
             {
