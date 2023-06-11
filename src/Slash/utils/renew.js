@@ -38,9 +38,12 @@ slashInfo.utils.renew.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
     let data = await getLanguageData(interaction.guild.id);
 
-    if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: data.renew_not_administrator });
-    let channel = interaction.channel
+    if (!interaction.member.permissions.has([PermissionsBitField.Flags.Administrator])) return interaction.reply({ content: data.renew_not_administrator });
+    let channel = interaction.channel;
+
     try {
+        await channel.delete();
+
         let here = await channel.clone({
             name: channel.name,
             permissions: channel.permissionsOverwrites,
@@ -53,12 +56,11 @@ slashInfo.utils.renew.run = async (client, interaction) => {
             permissions: channel.withPermissions,
             position: channel.rawPosition,
             reason: `Channel re-create by ${interaction.user} (${interaction.user.id})`
-        })
+        });
 
-        channel.delete()
         here.send({ content: data.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.user) })
     } catch (error) {
-        return interaction.reply({ content: data.renew_dont_have_permission })
+        return interaction.reply({ content: data.renew_dont_have_permission });
     }
 };
 
