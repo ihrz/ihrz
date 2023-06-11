@@ -118,18 +118,19 @@ module.exports = async (client, member, members) => {
   };
 
   async function serverLogs() {
+    if (!member.guild) return;
     if (!member.guild.members.me) return;
-    if (!member.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+    if (!member.guild.members.me.permissions.has([PermissionsBitField.Flags.ViewAuditLog])) return;
 
     const fetchedLogs = await member.guild.fetchAuditLogs({
       type: AuditLogEvent.MemberKick,
       limit: 1,
     });
+
     const firstEntry = fetchedLogs.entries.first();
-    if (!member.guild) return;
+    if (member.id !== firstEntry.target.id) return;
 
     const someinfo = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.SERVER_LOGS.moderation` });
-
     if (!someinfo) return;
 
     let Msgchannel = client.channels.cache.get(someinfo);
@@ -144,6 +145,7 @@ module.exports = async (client, member, members) => {
       .setTimestamp();
 
     await Msgchannel.send({ embeds: [logsEmbed] });
-  }
+  };
+
   await memberCount(), goodbyeMessage(), serverLogs();
 };
