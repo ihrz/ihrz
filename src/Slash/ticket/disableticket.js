@@ -73,7 +73,6 @@ slashInfo.ticket.disableticket.run = async (client, interaction) => {
         return interaction.reply({ content: data.disableticket_command_work_enable });
 
     }
-    const filter = (interaction) => interaction.user.id === interaction.member.id;
 };
 
 module.exports = slashInfo.ticket.disableticket;

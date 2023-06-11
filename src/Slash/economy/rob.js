@@ -67,7 +67,7 @@ slashInfo.economy.rob.run = async (client, interaction) => {
     )
     .setColor("#a4cb80")
     .setTimestamp()
-  interaction.reply({ embeds: [embed] })
+  await interaction.reply({ embeds: [embed] });
 
   await db.sub(`${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, random)
   await db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, random)

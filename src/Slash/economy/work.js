@@ -59,10 +59,10 @@ slashInfo.economy.work.run = async (client, interaction) => {
       .replace(/\${interaction\.user\.discriminator}/g, interaction.user.discriminator)
       .replace(/\${amount}/g, amount)
     )
-    .setColor("#f1d488")
+    .setColor("#f1d488");
 
-  interaction.reply({ embeds: [embed] })
-  await db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount)
+  await interaction.reply({ embeds: [embed] });
+  await db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
 
   talkedRecentlyforw.add(interaction.user.id);
   setTimeout(() => {

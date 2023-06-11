@@ -54,7 +54,6 @@ slashInfo.ticket.remove.run = async (client, interaction) => {
 	} else {
 		return interaction.reply({ content: data.remove_not_in_ticket })
 	}
-	const filter = (interaction) => interaction.user.id === interaction.member.id;
 };
 
 module.exports = slashInfo.ticket.remove;

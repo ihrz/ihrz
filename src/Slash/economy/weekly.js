@@ -60,8 +60,7 @@ slashInfo.economy.weekly.run = async (client, interaction) => {
 
     interaction.reply({ embeds: [embed] })
     return await db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount),
-      await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.weekly`, Date.now()),
-      filter = (interaction) => interaction.user.id === interaction.member.id;
+      await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.weekly`, Date.now());
   }
 };
 

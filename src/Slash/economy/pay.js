@@ -47,7 +47,7 @@ slashInfo.economy.pay.run = async (client, interaction) => {
             return interaction.reply({ content: data.pay_dont_have_enought_to_give })
         }
 
-        interaction.reply({content: data.pay_command_work
+        await interaction.reply({content: data.pay_command_work
             .replace(/\${interaction\.user\.username}/g, interaction.user.username)  
             .replace(/\${interaction\.user\.discriminator}/g, interaction.user.discriminator)  
             .replace(/\${user\.user\.username}/g, user.user.username)  

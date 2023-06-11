@@ -60,7 +60,7 @@ slashInfo.economy.balance.run = async (client, interaction) => {
                     })
 
             }
-            interaction.reply({
+            return await interaction.reply({
                 content: data.balance_he_have_wallet.replace(/\${bal}/g, bal)
             });
         }

@@ -72,7 +72,6 @@ slashInfo.giveaway.end.run = async (client, interaction) => {
             .catch((error) => {
                     return interaction.reply({ content: data.end_command_error });
             });
-        const filter = (interaction) => interaction.user.id === interaction.member.id;
 };
 
 module.exports = slashInfo.giveaway.end;

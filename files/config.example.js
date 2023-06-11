@@ -43,6 +43,8 @@ module.exports = {
 
         "guildLogsChannelID": "The Discord Channel's ID for logs when guildCreate/guildRemove",
 
+        "reportChannelID": "The Discord Channel's ID for logs when bugs/message are reported",
+        
         "asciicrash": "    ___              _     _                     \n   / __\\ __ __ _ ___| |__ | | ___   __ _ ___   _ \n  / / | '__/ _` / __| '_ \\| |/ _ \\ / _` / __| (_)\n / /__| | | (_| \\__ \\ | | | | (_) | (_| \\__ \\  _ \n \\____/_|  \\__,_|___/_| |_|_|\\___/ \\__, |___/ (_)\n                                   |___/         \n"
 
         // The ASCII ART OF CRASH in the /files/logs/crash/

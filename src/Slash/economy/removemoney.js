@@ -41,7 +41,7 @@ slashInfo.economy.removemoney.run = async (client, interaction) => {
         
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.reply({ content: data.removemoney_not_admin })
-        }
+        };
 
         var amount = interaction.options.getNumber("amount")
         let user = interaction.options.get("member")
@@ -66,11 +66,10 @@ slashInfo.economy.removemoney.run = async (client, interaction) => {
                     )
 
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-            if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-        } catch (e) { return };
+            if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
+        } catch (e) { return; };
 
-
-        return interaction.reply({ embeds: [embed] })
+        return interaction.reply({ embeds: [embed] });
 };
 
 module.exports = slashInfo.economy.removemoney;

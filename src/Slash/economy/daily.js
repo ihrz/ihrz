@@ -46,7 +46,7 @@ slashInfo.economy.daily.run = async (client, interaction) => {
   if (daily !== null && timeout - (Date.now() - daily) > 0) {
     let time = ms(timeout - (Date.now() - daily));
 
-    interaction.reply({ content: data.daily_cooldown_error.replace(/\${time}/g, time) });
+    return await interaction.reply({ content: data.daily_cooldown_error.replace(/\${time}/g, time) });
   } else {
     let embed = new EmbedBuilder()
       .setAuthor({ name: data.daily_embed_title, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
@@ -54,9 +54,9 @@ slashInfo.economy.daily.run = async (client, interaction) => {
       .setDescription(data.daily_embed_description)
       .addFields({ name: data.daily_embed_fields, value: `${amount}🪙` })
 
-    interaction.reply({ embeds: [embed] });
-    db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
-    db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.daily`, Date.now());
+    await interaction.reply({ embeds: [embed] });
+    await db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
+    await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.daily`, Date.now());
   }
 };
 

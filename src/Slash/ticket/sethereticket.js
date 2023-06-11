@@ -68,7 +68,7 @@ slashInfo.ticket.sethereticket.run = async (client, interaction) => {
 			})
 	});
 
-	interaction.reply({ content: data.sethereticket_command_work, ephemeral: true });
+	return interaction.reply({ content: data.sethereticket_command_work, ephemeral: true });
 };
 
 module.exports = slashInfo.ticket.sethereticket;

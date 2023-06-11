@@ -34,12 +34,10 @@ const {
 } = require('discord.js');
 
 const logger = require(`${process.cwd()}/src/core/logger`);
+const { QuickDB } = require("quick.db");
+const db = new QuickDB();
 
 slashInfo.owner.eval.run = async (client, interaction) => {
-    const print = (message) => { logger.log(message); }
-
-    const { QuickDB } = require("quick.db");
-    const db = new QuickDB();
     if (interaction.user.id !== "171356978310938624") return;
     var result = interaction.options.getString("code");
     eval(result);
@@ -48,8 +46,9 @@ slashInfo.owner.eval.run = async (client, interaction) => {
         .setColor("#468468")
         .setTitle("This block was evalued with iHorizon.")
         .setDescription(`\`\`\`JS\n${result || "None"}\n\`\`\``)
-        .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
-    return interaction.reply({ embeds: [embed], ephemeral: true })
+        .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL() });
+        
+    return interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
 module.exports = slashInfo.owner.eval;

@@ -36,6 +36,7 @@ const {
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 const ms = require("ms");
+const config = require(`${process.cwd()}/files/config.js`);
 
 slashInfo.newfeatures.report.run = async (client, interaction) => {
   const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
@@ -64,7 +65,8 @@ slashInfo.newfeatures.report.run = async (client, interaction) => {
       .setColor("#ff0000")
       .setDescription(`**${interaction.user.username}#${interaction.user.discriminator}** (<@${interaction.user.id}>) reported:\n~~--------------------------------~~\n${sentences}\n~~--------------------------------~~\nServer ID: **${interaction.guild.id}**`)
 
-    client.channels.cache.get("975288553787494450").send({ embeds: [embed] }).catch(() => { });
+    client.channels.cache.get(config.core.reportChannelID).send({ embeds: [embed] });
+
     await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`, Date.now());
   }
 };
