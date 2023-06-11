@@ -31,7 +31,8 @@ module.exports = async (client, guild) => {
     };
 
     async function ownerLogs() {
-        let embed = new EmbedBuilder().setColor("#ff0505").setTimestamp(guild.joinedTimestamp).setDescription(`**A guild have deleted iHorizon !**`)
+        try {
+            let embed = new EmbedBuilder().setColor("#ff0505").setTimestamp(guild.joinedTimestamp).setDescription(`**A guild have deleted iHorizon !**`)
             .addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
                 { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
                 { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
@@ -41,7 +42,11 @@ module.exports = async (client, guild) => {
             .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
 
         return client.channels.cache.get(config.core.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
+
+        } catch (error) {
+            console.log(error);
+        };
     };
 
-    await inviteManager(), ownerLogs();
+    await ownerLogs(), inviteManager();
 };
