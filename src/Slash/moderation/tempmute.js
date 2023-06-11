@@ -39,7 +39,7 @@ slashInfo.moderation.tempmute.run = async (client, interaction) => {
 	const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 	let data = await getLanguageData(interaction.guild.id);
 
-	let mutetime = interaction.options.getString("time")
+	let mutetime = interaction.options.getString("time").split(" ")[0]
 	let tomute = interaction.options.getMember("user")
 	const permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)
 	if (!permission) return interaction.reply({ content: data.tempmute_dont_have_permission });
