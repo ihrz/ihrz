@@ -72,7 +72,7 @@ module.exports = async (client, member, members) => {
       const newInvites = await member.guild.invites.fetch();
       const oldInvites = client.invites.get(member.guild.id);
       const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
-      
+
       let tempDB = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.INVITES.${invite.code}.creatorUser` });
       const inviter = await client.users.fetch(tempDB);
 
@@ -80,7 +80,7 @@ module.exports = async (client, member, members) => {
 
         await DataBaseModel({ id: DataBaseModel.Sub, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`, values: 1 });
         await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.leaves`, 1);
-  
+
       }
       let fetched = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`);
 
@@ -127,9 +127,13 @@ module.exports = async (client, member, members) => {
     });
     const firstEntry = fetchedLogs.entries.first();
     if (!member.guild) return;
+
     const someinfo = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.SERVER_LOGS.moderation` });
 
     if (!someinfo) return;
+
+    let Msgchannel = client.channels.cache.get(someinfo);
+    if (!Msgchannel) return;
 
     let logsEmbed = new EmbedBuilder()
       .setColor("#000000")
@@ -139,7 +143,7 @@ module.exports = async (client, member, members) => {
       )
       .setTimestamp();
 
-    await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
+    await Msgchannel.send({ embeds: [logsEmbed] });
   }
   await memberCount(), goodbyeMessage(), serverLogs();
 };

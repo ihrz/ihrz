@@ -53,6 +53,9 @@ module.exports = async (client, message) => {
 
         if (!someinfo) return;
 
+        let Msgchannel = client.channels.cache.get(someinfo);
+        if (!Msgchannel) return;
+
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setAuthor({
@@ -73,13 +76,9 @@ module.exports = async (client, message) => {
                 const imageUrl = attachment.attachment;
                 logsEmbed.setImage(imageUrl)
             }
+        };
 
-            ;
-        }
-
-        await client.channels.cache.get(someinfo).send({embeds: [logsEmbed]}).catch(() => {
-
-        });
+        await Msgchannel.send({embeds: [logsEmbed]});
     };
 
     await snipeModules(), serverLogs();

@@ -42,13 +42,17 @@ module.exports = async (client, ban) => {
 
         if (!someinfo) return;
 
+        let Msgchannel = client.channels.cache.get(someinfo);
+        if (!Msgchannel) return;
+
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setDescription(data.event_srvLogs_banAdd_description
                 .replace("${firstEntry.executor.id}", firstEntry.executor.id)
                 .replace("${firstEntry.target.id}", firstEntry.target.id)
             ).setTimestamp();
-        await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
+            
+        await Msgchannel.send({ embeds: [logsEmbed] });
     };
     await serverLogs();
 };

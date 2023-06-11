@@ -37,6 +37,9 @@ module.exports = async (client, oldMessage, newMessage) => {
         if (!someinfo || !oldMessage.content || !newMessage.content
         || oldMessage.content === newMessage.content) return;
 
+        let Msgchannel = client.channels.cache.get(someinfo);
+        if (!Msgchannel) return;
+
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setAuthor({ name: newMessage.author.username, iconURL: newMessage.author.avatarURL({ format: 'png', dynamic: true, size: 512 }) })
@@ -47,7 +50,7 @@ module.exports = async (client, oldMessage, newMessage) => {
                 { name: data.event_srvLogs_messageUpdate_footer_2, value: newMessage.content })
             .setTimestamp();
 
-        await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
+        await Msgchannel.send({ embeds: [logsEmbed] });
     };
 
     await serverLogs();

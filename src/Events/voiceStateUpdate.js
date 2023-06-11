@@ -33,6 +33,9 @@ module.exports = async (client, oldState, newState) => {
         const someinfo = await db.get(`${guildId}.GUILD.SERVER_LOGS.voice`);
         if (!someinfo) return;
 
+        let Msgchannel = client.channels.cache.get(someinfo);
+        if (!Msgchannel) return;
+
         var Ouser = oldState.id
         var OchannelID = oldState.channelId
         var Ostatus = { selfDeaf: oldState.selfDeaf, selfMute: oldState.selfMute };
@@ -56,14 +59,14 @@ module.exports = async (client, oldState, newState) => {
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${OchannelID}", OchannelID)
             );
-            return await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
+            return await Msgchannel.send({ embeds: [logsEmbed] });
         }
         if (Ouser && !OchannelID) {
             logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_2_description
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${channelID}", channelID)
             );
-            return await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
+            return await Msgchannel.send({ embeds: [logsEmbed] });
         };
         // MUTE CASQUE
         if (!Ostatus.selfDeaf && status.selfDeaf) {
@@ -71,14 +74,14 @@ module.exports = async (client, oldState, newState) => {
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${channelID}", channelID)
             );
-            return await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
+            return await Msgchannel.send({ embeds: [logsEmbed] });
         }
         if (Ostatus.selfDeaf && !status.selfDeaf) {
             logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_4_description
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${channelID}", channelID)
             );
-            return await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
+            return await Msgchannel.send({ embeds: [logsEmbed] });
         }
 
         // MUTE MICRO
@@ -87,14 +90,14 @@ module.exports = async (client, oldState, newState) => {
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${channelID}", channelID)
             );
-            return await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
+            return await Msgchannel.send({ embeds: [logsEmbed] });
         }
         if (Ostatus.selfMute && !status.selfMute) {
             logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_6_description
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${channelID}", channelID)
             );
-            return await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
+            return await Msgchannel.send({ embeds: [logsEmbed] });
         }
     };
 

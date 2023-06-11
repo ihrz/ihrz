@@ -42,7 +42,9 @@ module.exports = async (client, reaction, user) => {
     async function reactionRole() {
         try {
             if (user.bot || user.id == client.user.id || !reaction.message.guild) return;
+
             const fetched = await db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
+
             if (fetched) {
                 const role = reaction.message.guild.roles.cache.get(fetched.rolesID);
                 if (!role) return;
@@ -62,9 +64,8 @@ module.exports = async (client, reaction, user) => {
                 return await member.roles.add(role);
             };
         } catch (e) {
-            logger.log(e)
-        }
-        ;
+            logger.log(e);
+        };
     };
 
     async function ticketModule() {

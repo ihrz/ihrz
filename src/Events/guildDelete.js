@@ -36,7 +36,7 @@ module.exports = async (client, guild) => {
                 { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
                 { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
                 { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
-                { name: "🪝・Vanity URL", value: `\`discord.gg/${guild.vanityURLCode || "None"}\``, inline: true })
+                { name: "🪝・Vanity URL", value: `\`${'discord.gg/'+ guild.vanityURLCode || "None"}\``, inline: true })
             .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
             .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
 

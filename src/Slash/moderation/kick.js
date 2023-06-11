@@ -32,54 +32,61 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const logger = require(`${process.cwd()}/src/core/logger`);
+const logger = require(`${process.cwd()}/src/core/logger`),
+    getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 slashInfo.moderation.kick.run = async (client, interaction) => {
-    const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+
     let data = await getLanguageData(interaction.guild.id);
 
-    const member = interaction.options.getMember("member")
-    const permission = interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers)
-    if (!permission) return interaction.reply({ content: data.kick_not_permission });
+    const member = interaction.options.getMember("member");
+
+    const permission = interaction.member.permissions.has([PermissionsBitField.Flags.KickMembers]);
+
+    if (!permission) {
+        return interaction.reply({ content: data.kick_not_permission });
+    };
+
     if (!interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.KickMembers])) {
-        return interaction.reply({ content: data.kick_dont_have_permission })
-    }
+        return interaction.reply({ content: data.kick_dont_have_permission });
+    };
+
     if (member.user.id === interaction.member.id) {
-        return interaction.reply({ content: data.kick_attempt_kick_your_self })
+        return interaction.reply({ content: data.kick_attempt_kick_your_self });
     };
 
     if (interaction.member.roles.highest.position < member.roles.highest.position) {
         return interaction.reply({ content: data.kick_attempt_kick_higter_member });
-    }
+    };
+
     member.send({
         content: data.kick_message_to_the_banned_member
             .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
             .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.username)
             .replace(/\${interaction\.member\.user\.discriminator}/g, interaction.member.user.discriminator)
-    })
-        .catch(() => { })
-        .then(() => {
-            member.kick({ reason: 'kicked by ' + interaction.user.username })
-                .then((member) => {
-                    interaction.reply({
-                        content: data.kick_command_work
-                            .replace(/\${member\.user}/g, member.user)
-                            .replace(/\${interaction\.user}/g, interaction.user)
-                    })
-                    try {
-                        logEmbed = new EmbedBuilder()
-                            .setColor("#bf0bb9")
-                            .setTitle(data.kick_logs_embed_title)
-                            .setDescription(data.kick_logs_embed_description
-                                .replace(/\${member\.user}/g, member.user)
-                                .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                            );
+    }).catch(() => { });
 
-                        let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-                        if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-                    } catch (e) { logger.err(e) };
-                })
+    try {
+        await member.kick({ reason: 'kicked by ' + interaction.user.username });
 
-        })
+        logEmbed = new EmbedBuilder()
+            .setColor("#bf0bb9")
+            .setTitle(data.kick_logs_embed_title)
+            .setDescription(data.kick_logs_embed_description
+                .replace(/\${member\.user}/g, member.user)
+                .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+            );
+
+        let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
+        if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+
+        await interaction.reply({
+            content: data.kick_command_work
+                .replace(/\${member\.user}/g, member.user)
+                .replace(/\${interaction\.user}/g, interaction.user)
+        });
+    } catch (e) {
+        logger.err(e);
+    };
 };
 module.exports = slashInfo.moderation.kick;

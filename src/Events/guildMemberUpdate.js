@@ -47,6 +47,9 @@ module.exports = async (client, oldMember, newMember) => {
         const someinfo = await DataBaseModel({id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.roles`});
         if (!someinfo) return;
 
+        let Msgchannel = client.channels.cache.get(someinfo);
+        if (!Msgchannel) return;
+
         let oldRoles = oldMember._roles.length;
         let newRoles = newMember._roles.length;
 
@@ -71,7 +74,7 @@ module.exports = async (client, oldMember, newMember) => {
             );
         }
 
-        await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
+        await Msgchannel.send({ embeds: [logsEmbed] });
     };
 
     await serverLogs();

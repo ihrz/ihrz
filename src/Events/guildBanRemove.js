@@ -35,9 +35,13 @@ module.exports = async (client, ban) => {
         });
         const firstEntry = fetchedLogs.entries.first();
         const guildId = ban.guild.id;
-        const someinfo = await DataBaseModel({id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.moderation`});
+        const someinfo = await DataBaseModel({ id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.moderation` });
+
         if (!someinfo) return;
-        
+
+        let Msgchannel = client.channels.cache.get(someinfo);
+        if (!Msgchannel) return;
+
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setDescription(data.event_srvLogs_banRemove_description
@@ -46,7 +50,7 @@ module.exports = async (client, ban) => {
             )
             .setTimestamp();
 
-        await client.channels.cache.get(someinfo).send({ embeds: [logsEmbed] }).catch(() => { });
+        await Msgchannel.send({ embeds: [logsEmbed] });
     };
     await serverLogs();
 };
