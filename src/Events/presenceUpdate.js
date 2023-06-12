@@ -31,6 +31,9 @@ module.exports = async (client, oldPresence, newPresence) => {
 
         const guildId = oldPresence.guild.id;
         const someinfo = await db.get(`${guildId}.GUILD.SUPPORT`);
+
+        if (!someinfo) { return; };
+
         const bio = newPresence.activities[0] || 'null';
 
         const vanity = oldPresence.guild.vanityURLCode || 'null';
@@ -39,10 +42,6 @@ module.exports = async (client, oldPresence, newPresence) => {
         const fetchedRoles = newPresence.guild.roles.cache.get(someinfo.rolesId);
 
         if (newPresence.guild.members.me.roles.highest.position < fetchedRoles.rawPosition) {
-            return;
-        };
-
-        if (!someinfo) {
             return;
         };
 
