@@ -62,7 +62,8 @@ module.exports = async (client, commands, options = {
             await previousCommand.edit(newCommand);
             updatedCommandCount++;
         }
-    }
+    };
+    
     log(`Updated ${updatedCommandCount} commands!`.white);
 
     log(`Commands synchronized!`.white);

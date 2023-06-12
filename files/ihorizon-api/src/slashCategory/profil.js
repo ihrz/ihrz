@@ -71,7 +71,7 @@ module.exports = {
     },
     "setprofilgender": {
         name: "setprofilgender",
-        description: 'Set your description on the iHorizon Profil!',
+        description: 'Set your gender on the iHorizon Profil!',
         options: [
             {
                 name: "gender",
