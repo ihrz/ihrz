@@ -61,7 +61,7 @@ slashInfo.bot.help.run = async (client, interaction) => {
     .setTimestamp();
 
   const response = await interaction.reply({ embeds: [embed], components: [row] });
-  const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60_000 });
+  const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 240_000 });
 
   collector.on('collect', async i => {
     if (i.member.id !== interaction.user.id) { return i.reply({ content: `This interaction is not for you`, ephemeral: true }) };
