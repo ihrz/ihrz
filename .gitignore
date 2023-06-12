@@ -110,6 +110,7 @@ dist
 
 # Can't upload a critical informations
 files/config.js
+files/giveaways.json
 
 # Can't upload a zip
 *.zip
