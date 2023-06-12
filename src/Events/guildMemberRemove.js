@@ -128,7 +128,7 @@ module.exports = async (client, member, members) => {
     });
 
     const firstEntry = fetchedLogs.entries.first();
-    if (member.id !== firstEntry.target.id) return;
+    if (!firstEntry.target || member.id !== firstEntry.target.id) return;
 
     const someinfo = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.SERVER_LOGS.moderation` });
     if (!someinfo) return;
