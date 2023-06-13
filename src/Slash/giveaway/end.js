@@ -39,15 +39,16 @@ slashInfo.giveaway.end.run = async (client, interaction) => {
         const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
         let data = await getLanguageData(interaction.guild.id);
 
-        const fuckingLifeOfTrees = interaction.options.getString("giveaway-id")
+        const inputData = interaction.options.getString("giveaway-id");
+
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
              return interaction.reply({ content: data.end_not_admin }); }
 
         const giveaway =
-            client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.prize === fuckingLifeOfTrees) ||
-            client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.messageId === fuckingLifeOfTrees);
+            client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.prize === inputData) ||
+            client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.messageId === inputData);
         if (!giveaway) { return interaction.reply({ content: data.end_not_find_giveaway
-            .replace(/\${gw}/g, fuckingLifeOfTrees) 
+            .replace(/\${gw}/g, inputData) 
          }); };
 
         client.giveawaysManager
@@ -63,7 +64,7 @@ slashInfo.giveaway.end.run = async (client, interaction) => {
                         .setTitle(data.end_logs_embed_title)
                         .setDescription(data.end_logs_embed_description
                             .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                            .replace(/\${giveaway\.messageID}/g, giveaway.messageID)
+                            .replace(/\${giveaway\.messageID}/g, giveaway.messageId)
                         )
                     let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                     if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }

@@ -35,30 +35,29 @@ module.exports = async (client, oldPresence, newPresence) => {
         if (!someinfo) { return; };
 
         const bio = newPresence.activities[0] || 'null';
-
         const vanity = oldPresence.guild.vanityURLCode || 'null';
 
         const fetchedUser = await oldPresence.guild.members.cache.get(oldPresence.user.id);
-        const fetchedRoles = newPresence.guild.roles.cache.get(someinfo.rolesId);
+        const fetchedRoles = await newPresence.guild.roles.cache.get(someinfo.rolesId);
 
         if (newPresence.guild.members.me.roles.highest.position < fetchedRoles.rawPosition) {
             return;
         };
 
         if (!bio.state) {
-            try {
-                return fetchedUser.roles.remove(someinfo.rolesId);
-            } catch (err) { };
+            if(fetchedUser.roles.cache.has(someinfo.rolesId)) return fetchedUser.roles.remove(someinfo.rolesId);
+            return;
         };
 
         if (bio.state.toString().toLowerCase().includes(someinfo.input.toString().toLowerCase()) || bio.state.toString().toLowerCase().includes(vanity.toString().toLowerCase())) {
-            try { return fetchedUser.roles.add(someinfo.rolesId); } catch (err) { };
+            try { return fetchedUser.roles.add(someinfo.rolesId); 
+            } catch (err) { return; };
         };
 
         if (fetchedUser.roles.cache.has(someinfo.rolesId)) {
             try {
                 fetchedUser.roles.remove(someinfo.rolesId);
-            } catch (err) { };
+            } catch (err) { return; };
         };
     };
 

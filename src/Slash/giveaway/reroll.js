@@ -39,14 +39,15 @@ slashInfo.giveaway.reroll.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
     let data = await getLanguageData(interaction.guild.id);
 
-    const fuckingLifeOfTrees = interaction.options.getString("giveaway-id")
+    const inputData = interaction.options.getString("giveaway-id");
+
     if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
         return interaction.reply({ content: data.reroll_not_perm });
     }
 
     const giveaway =
-        client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.prize === fuckingLifeOfTrees) ||
-        client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.messageId === fuckingLifeOfTrees);
+        client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.prize === inputData) ||
+        client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.messageId === inputData);
     if (!giveaway) {
         return interaction.reply({
             content: data.reroll_dont_find_giveaway
@@ -64,7 +65,7 @@ slashInfo.giveaway.reroll.run = async (client, interaction) => {
                     .setTitle(data.reroll_logs_embed_title)
                     .setDescription(data.reroll_logs_embed_description
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                        .replace(/\${giveaway\.messageID}/g, giveaway.messageID)
+                        .replace(/\${giveaway\.messageID}/g, giveaway.messageId)
                     )
 
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
