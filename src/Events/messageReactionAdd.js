@@ -29,12 +29,10 @@ const {
     Permissions,
     PermissionsBitField
 } = require('discord.js');
-const {QuickDB} = require("quick.db");
-const db = new QuickDB();
 
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 const logger = require(`${process.cwd()}/src/core/logger`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
 
 module.exports = async (client, reaction, user) => {
     let data = await getLanguageData(reaction.message.guildId);
@@ -43,7 +41,8 @@ module.exports = async (client, reaction, user) => {
         try {
             if (user.bot || user.id == client.user.id || !reaction.message.guild) return;
 
-            const fetched = await db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
+            // const fetched = await db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
+            const fetched = await DataBaseModel({id: DataBaseModel.Get, key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`});
 
             if (fetched) {
                 const role = reaction.message.guild.roles.cache.get(fetched.rolesID);
@@ -70,7 +69,8 @@ module.exports = async (client, reaction, user) => {
 
     async function ticketModule() {
         if (user.bot) return;
-        let result = await db.get(`${reaction.message.guildId}.GUILD.TICKET.${reaction.message.id}`)
+        // let result = await db.get(`${reaction.message.guildId}.GUILD.TICKET.${reaction.message.id}`)
+        let result = await DataBaseModel({id: DataBaseModel.Get, key: `${reaction.message.guildId}.GUILD.TICKET.${reaction.message.id}`})
         if (!result) return;
         if (result.channel !== reaction.message.channelId) return;
         if (result.messageID !== reaction.message.id) return;

@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const {
     Client,
@@ -32,15 +33,14 @@ const {
     PermissionsBitField,
     ApplicationCommandOptionType
 } = require('discord.js');
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 const config = require(`${process.cwd()}/files/config.js`);
 
 slashInfo.owner.unowner.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
     let data = await getLanguageData(interaction.guild.id);
 
-    if (await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
+    if (await DataBaseModel({ id: DataBaseModel.Get, key: `GLOBAL.OWNER.${interaction.user.id}.owner` })
+        !== true) {
         return interaction.reply({ content: data.unowner_not_owner });
     }
 
@@ -51,15 +51,18 @@ slashInfo.owner.unowner.run = async (client, interaction) => {
         if (member.id === config.owner.ownerid1 || member.id === config.owner.ownerid2) {
             return interaction.reply({ content: data.unowner_cant_unowner_creator })
         }
-        await db.delete(`GLOBAL.OWNER.${member.id}`)
+        await DataBaseModel({ id: DataBaseModel.Delete, key: `GLOBAL.OWNER.${member.id}` });
+
         return interaction.reply({ content: data.unowner_command_work.replace(/\${member\.username}/g, member.username) });
     } else if (userid) {
         var userid = await client.users.fetch(userid);
 
         if (userid.id === config.owner.ownerid1 || userid.id === config.owner.ownerid2) {
             return interaction.reply({ content: data.unowner_cant_unowner_creator })
-        }
-        await db.delete(`GLOBAL.OWNER.${userid.id}`)
+        };
+
+        await DataBaseModel({ id: DataBaseModel.Delete, key: `GLOBAL.OWNER.${userid.id}` });
+        
         return interaction.reply({ content: data.unowner_command_work.replace(/\${member\.username}/g, userid.username) });
     } else {
         return interaction.reply({ content: data.unowner_not_owner });

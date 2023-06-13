@@ -20,12 +20,12 @@
 */
 
 const couleurmdr = require("colors"),
-    { QuickDB } = require("quick.db"),
-    db = new QuickDB(),
     config = require(`${process.cwd()}/files/config.js`),
     register = require('../core/slashsync'),
     wait = require("timers/promises").setTimeout,
-    logger = require(`${process.cwd()}/src/core/logger`);
+    logger = require(`${process.cwd()}/src/core/logger`),
+    DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
+
 
 const { Client, Collection, ApplicationCommandType, PermissionsBitField, ActivityType } = require('discord.js');
 module.exports = async (client) => {
@@ -58,10 +58,13 @@ module.exports = async (client) => {
     };
 
     async function refreshDatabaseModel() {
-        await db.set(`GLOBAL.OWNER.${config.owner.ownerid1}`, { owner: true }),
-        await db.set(`GLOBAL.OWNER.${config.owner.ownerid2}`, { owner: true }),
-            await db.set(`TEMP`, {}),
-            await wait(500);
+        // await db.set(`GLOBAL.OWNER.${config.owner.ownerid1}`, { owner: true }),
+        await DataBaseModel({ id: DataBaseModel.Set, key: `GLOBAL.OWNER.${config.owner.ownerid1}`, value: { owner: true } }),
+            // await db.set(`GLOBAL.OWNER.${config.owner.ownerid2}`, { owner: true }),
+            await DataBaseModel({ id: DataBaseModel.Set, key: `GLOBAL.OWNER.${config.owner.ownerid2}`, value: { owner: true } }),
+            // await db.set(`TEMP`, {}),
+            await DataBaseModel({ id: DataBaseModel.Set, key: `TEMP`, value: {} }),
+            await wait(365);
     };
 
     async function quotesPresence() {

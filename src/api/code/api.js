@@ -19,14 +19,15 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const {QuickDB} = require('quick.db'), 
-      db = new QuickDB();
-var CryptoJS = require("crypto-js");
-const logger = require(`${process.cwd()}/src/core/logger.js`),
-      config = require(`${process.cwd()}/files/config.js`);
+const CryptoJS = require("crypto-js"),
+    logger = require(`${process.cwd()}/src/core/logger.js`),
+    config = require(`${process.cwd()}/files/config.js`),
+    { QuickDB } = require("quick.db"),
+    db = new QuickDB();
+
 
 module.exports = async (req, res) => {
-    const {text} = req.body;
+    const { text } = req.body;
     try {
         var bytes = CryptoJS.AES.decrypt(text, config.api.apiToken);
         var decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
@@ -48,14 +49,14 @@ module.exports = async (req, res) => {
                 res.sendStatus(200);
                 break;
             case 5:
-                res.send({r: await db.get(decryptedData.key)});
+                res.send({ r: await db.get(decryptedData.key) });
                 break;
             case 6:
                 await db.pull(decryptedData.key, decryptedData.values || decryptedData.value);
                 res.send(200);
                 break;
             case 7:
-                res.send(await db.all(decryptedData.key, decryptedData.values || decryptedData.value));
+                res.send({ r: await db.all() });
                 break;
             case 8:
                 await db.delete(decryptedData.key, decryptedData.values || decryptedData.value);

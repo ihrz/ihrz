@@ -21,8 +21,7 @@
 
 const wait = require('wait'),
     couleurmdr = require('colors'),
-    { QuickDB } = require("quick.db"),
-    db = new QuickDB(),
+    DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
     os = require('os-utils'),
     readline = require('readline'),
     fs = require('fs'),
@@ -63,17 +62,17 @@ module.exports = async (client) => {
         };
 
         const formattedDate = now.toLocaleDateString('fr-FR', options),
-            LoadFiles = await db.get(`BASH.LAST_LOGIN`) || "None",
+            LoadFiles = await DataBaseModel({ id: DataBaseModel.Get, key: `BASH.LAST_LOGIN` }) || "None",
             LoadFiles2 = "127.0.0.1";
 
         const filePath = path.join(process.cwd(), 'src', 'bash', 'history', '.bash_history'),
             createFiles = fs.createWriteStream(filePath, { flags: 'a' });
 
         let dateStr = `${day} ${month} ${year} ${time} 2023`;
-        await db.set(`BASH.LAST_LOGIN`, dateStr.toString());
+        await DataBaseModel({ id: DataBaseModel.Set, key: `BASH.LAST_LOGIN`, value: dateStr.toString()});
         console.log(`Welcome to iHorizon Bash
     
-    * Documentation:  https://github.com/Kisakay/ihrz/
+    * Documentation:  https://github.com/ihrz/ihrz/
     
      System information as of mar.  ${formattedDate}
      Memory usage:                  ${os.freememPercentage()}%

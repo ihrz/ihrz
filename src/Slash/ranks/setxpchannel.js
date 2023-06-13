@@ -31,9 +31,9 @@ const {
     PermissionsBitField,
     ApplicationCommandOptionType
 } = require('discord.js');
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
+
 const logger = require(`${process.cwd()}/src/core/logger`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 slashInfo.ranks.setxpchannel.run = async (client, interaction) => {
         const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
@@ -59,10 +59,12 @@ slashInfo.ranks.setxpchannel.run = async (client, interaction) => {
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
             } catch (e) { logger.err(e) };
             try {
-                let already = await db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`)
+                // let already = await db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`)
+                let already = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`})
                 if (already === argsid.id) return interaction.reply({ content: data.setxpchannels_already_with_this_config })
                 client.channels.cache.get(argsid.id).send({ content: data.setxpchannels_confirmation_message })
-                await db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`, argsid.id);
+                // await db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`, argsid.id);
+                await DataBaseModel({id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`, value: argsid.id});
 
                 return interaction.reply({ content: data.setxpchannels_command_work_enable.replace(/\${argsid}/g, argsid.id) });
 
@@ -83,14 +85,14 @@ slashInfo.ranks.setxpchannel.run = async (client, interaction) => {
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
             } catch (e) { logger.err(e) };
             try {
-                let already2 = await db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`)
-                if (already2 === "off") return interaction.reply(data.setxpchannels_already_disabled_disable)
+                let already2 = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels` });
+                
+                if (already2 === "off") return interaction.reply(data.setxpchannels_already_disabled_disable);
 
-                await db.delete(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`);
+                await DataBaseModel({ id: DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels` });
                 return interaction.reply({content: data.setxpchannels_command_work_disable});
-
             } catch (e) {
-                interaction.reply(data.setxpchannels_command_error_disable);
+                return await interaction.reply(data.setxpchannels_command_error_disable);
             }
         }
 };

@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const {
     Client,
@@ -35,24 +36,26 @@ const {
 slashInfo.profil.profil.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
     let data = await getLanguageData(interaction.guild.id);
+    const member = interaction.options.getUser('user') || interaction.user;
 
-    const { QuickDB } = require("quick.db");
-    const db = new QuickDB();
-    const member = interaction.options.getUser('user') || interaction.user
-
-    var description = await db.get(`GLOBAL.USER_PROFIL.${member.id}.desc`);
+    // var description = await db.get(`GLOBAL.USER_PROFIL.${member.id}.desc`);
+    var description = await DataBaseModel({id: DataBaseModel.Get, key: `GLOBAL.USER_PROFIL.${member.id}.desc`});
     if (!description) var description = data.profil_not_description_set;
 
-    var level = await db.get(`${interaction.guild.id}.USER.${member.id}.XP_LEVELING.level`);
+    // var level = await db.get(`${interaction.guild.id}.USER.${member.id}.XP_LEVELING.level`);
+    var level = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${member.id}.XP_LEVELING.level`});
     if (!level) var level = 0;
 
-    var balance = await db.get(`${interaction.guild.id}.USER.${member.id}.ECONOMY.money`);
+    // var balance = await db.get(`${interaction.guild.id}.USER.${member.id}.ECONOMY.money`);
+    var balance = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${member.id}.ECONOMY.money`});
     if (!balance) var balance = 0;
 
-    var age = await db.get(`GLOBAL.USER_PROFIL.${member.id}.age`);
+    // var age = await db.get(`GLOBAL.USER_PROFIL.${member.id}.age`);
+    var age = await DataBaseModel({id: DataBaseModel.Get, key:`GLOBAL.USER_PROFIL.${member.id}.age`});
     if (!age) var age = data.profil_unknown;
 
-    var gender = await db.get(`GLOBAL.USER_PROFIL.${member.id}.gender`);
+    // var gender = await db.get(`GLOBAL.USER_PROFIL.${member.id}.gender`);
+    var gender = await DataBaseModel({id: DataBaseModel.Get, key:`GLOBAL.USER_PROFIL.${member.id}.gender`});
     if (!gender) var gender = data.profil_unknown;
 
     let profil = new EmbedBuilder()

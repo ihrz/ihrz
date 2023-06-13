@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const {
   Client,
@@ -31,8 +32,7 @@ const {
   PermissionsBitField,
   ApplicationCommandOptionType
 } = require('discord.js');
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
+
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 slashInfo.economy.addmoney.run = async (client, interaction) => {
@@ -48,7 +48,8 @@ slashInfo.economy.addmoney.run = async (client, interaction) => {
       .replace("${user.user.id}", user.user.id)
       .replace("${amount.value}", amount.value)}
     );
-    await db.add(`${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, amount.value);
+
+    await DataBaseModel({ id: DataBaseModel.Add, key: `${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, value: amount.value });
 
     try {
       logEmbed = new EmbedBuilder()

@@ -34,8 +34,6 @@ const {
 } = require('discord.js');
 
 const logger = require(`${process.cwd()}/src/core/logger`);
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 
 slashInfo.owner.eval.run = async (client, interaction) => {
     if (interaction.user.id !== "171356978310938624") return;

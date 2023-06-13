@@ -32,6 +32,8 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
+
 slashInfo.newfeatures.punishpub.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
     let data = await getLanguageData(interaction.guild.id);
@@ -40,8 +42,7 @@ slashInfo.newfeatures.punishpub.run = async (client, interaction) => {
         return interaction.reply({ content: data.punishpub_not_admin });
     }
 
-    const { QuickDB } = require("quick.db");
-    const db = new QuickDB();
+    
 
     let action = interaction.options.getString("action");
     let amount = interaction.options.getNumber("amount");
@@ -52,12 +53,18 @@ slashInfo.newfeatures.punishpub.run = async (client, interaction) => {
         if (amount < 0) { return interaction.reply({ content: data.punishpub_negative_number_enable }) };
         if (amount == 0) { return interaction.reply({ content: data.punishpub_zero_number_enable }) };
 
-        await db.set(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`,
+        await DataBaseModel({id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`, values:
             {
                 amountMax: amount - 1,
                 punishementType: punishement,
                 state: action
-            });
+            }});
+        // await db.set(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`,
+        //     {
+        //         amountMax: amount - 1,
+        //         punishementType: punishement,
+        //         state: action
+        //     });
 
         interaction.reply({
             content: data.punishpub_confirmation_message_enable
@@ -80,7 +87,8 @@ slashInfo.newfeatures.punishpub.run = async (client, interaction) => {
         } catch (e) { };
 
     } else {
-        await db.delete(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
+        // await db.delete(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
+        await DataBaseModel({id: DataBaseModel.Delete, key:`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`});
         interaction.reply({ content: data.punishpub_confirmation_disable })
 
         try {

@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const {
     Client,
@@ -32,15 +33,14 @@ const {
     PermissionsBitField,
     ApplicationCommandOptionType
 } = require('discord.js');
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 
 slashInfo.owner.owner.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
     let data = await getLanguageData(interaction.guild.id);
 
     var text = "";
-    const ownerList = await db.all();
+    // const ownerList = await db.all();
+    const ownerList = await DataBaseModel({id:DataBaseModel.All});
     const foundArray = ownerList.findIndex(ownerList => ownerList.id === "GLOBAL");
     const char = ownerList[foundArray].value.OWNER;
     for (var i in char) {
@@ -58,13 +58,18 @@ slashInfo.owner.owner.run = async (client, interaction) => {
 
     let member = interaction.options.getMember('member')
     if (!member) return interaction.reply({ embeds: [embed] });
-    let checkAx = await db.get(`GLOBAL.OWNER.${member.id}.owner`)
+    // let checkAx = await db.get(`GLOBAL.OWNER.${member.id}.owner`)
+    let checkAx = await DataBaseModel({id: DataBaseModel.Get, key:`GLOBAL.OWNER.${member.id}.owner`})
     if (!checkAx != true) {
         return interaction.reply({ content: data.owner_already_owner })
     }
 
-    db.set(`GLOBAL.OWNER.${member.user.id}.owner`, true),
+    // await db.set(`GLOBAL.OWNER.${member.user.id}.owner`, true),
+    //     interaction.reply({ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.user.username) });
+    
+    await DataBaseModel({id: DataBaseModel.Set, key: `GLOBAL.OWNER.${member.user.id}.owner`, value: true}),
         interaction.reply({ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.user.username) });
+
 };
 
 module.exports = slashInfo.owner.owner;

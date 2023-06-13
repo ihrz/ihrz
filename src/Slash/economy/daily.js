@@ -20,9 +20,8 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 const ms = require('ms');
 const {
   Client,
@@ -42,7 +41,8 @@ slashInfo.economy.daily.run = async (client, interaction) => {
 
   let timeout = 86400000;
   let amount = 500;
-  let daily = await db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.daily`);
+  let daily = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.daily` });
+
   if (daily !== null && timeout - (Date.now() - daily) > 0) {
     let time = ms(timeout - (Date.now() - daily));
 
@@ -55,8 +55,8 @@ slashInfo.economy.daily.run = async (client, interaction) => {
       .addFields({ name: data.daily_embed_fields, value: `${amount}🪙` })
 
     await interaction.reply({ embeds: [embed] });
-    await db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
-    await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.daily`, Date.now());
+    await DataBaseModel({ id: DataBaseModel.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: amount});
+    await DataBaseModel({ id: DataBaseModel.Set, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.daily`, value: Date.now() });
   }
 };
 

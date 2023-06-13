@@ -21,8 +21,9 @@
 
 const { Player } = require('discord-player');
 const { playerEvents } = require(__dirname + "/../playerEvents.js");
+const { SpotifyExtractor, SoundCloudExtractor } = require('@discord-player/extractor');
 
-module.exports = (client) => {
+module.exports = async (client) => {
   const player = new Player(client, {
     ytdlOptions: {
       quality: "highestaudio",
@@ -30,6 +31,9 @@ module.exports = (client) => {
       highWaterMark: 1 << 25
     }
   });
+  await player.extractors.loadDefault();
+  await player.extractors.register(SpotifyExtractor, {});
+  await player.extractors.register(SoundCloudExtractor, {});
 
   playerEvents(player);
   client.player = player;

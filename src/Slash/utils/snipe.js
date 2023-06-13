@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const {
   Client,
@@ -36,9 +37,7 @@ slashInfo.utils.snipe.run = async (client, interaction) => {
   const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
   let data = await getLanguageData(interaction.guild.id);
 
-  const { QuickDB } = require("quick.db");
-  const db = new QuickDB();
-  var based = await db.get(`${interaction.guild.id}.GUILD.SNIPE.${interaction.channel.id}`)
+  var based = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.SNIPE.${interaction.channel.id}` });
 
   if (!based) { return interaction.reply({ content: data.snipe_no_previous_message_deleted }) };
 

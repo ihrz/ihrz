@@ -39,16 +39,17 @@ const {
     StringSelectMenuOptionBuilder,
 } = require('discord.js');
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 var generator = require('generate-password');
+
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 slashInfo.newfeatures.embed.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
     let data = await getLanguageData(interaction.guild.id);
 
     let arg = interaction.options.getString("id");
-    potentialEmbed = await db.get(`EMBED.${arg}`);
+    // potentialEmbed = await db.get(`EMBED.${arg}`);
+    potentialEmbed = await DataBaseModel({id: DataBaseModel.Get, key: `EMBED.${arg}`});
 
     if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
         return interaction.reply({ content: data.punishpub_not_admin });
@@ -176,7 +177,8 @@ slashInfo.newfeatures.embed.run = async (client, interaction) => {
 
             switch (confirmation.customId) {
                 case "save":
-                    if (potentialEmbed) await db.delete(`EMBED.${arg}`);
+                    // if (potentialEmbed) await db.delete(`EMBED.${arg}`);
+                    if (potentialEmbed) await DataBaseModel({id: DataBaseModel.Delete, key: `EMBED.${arg}`});
 
                     await confirmation.update({
                         content: `<@${interaction.user.id}>, **Vous avez décidé de sauvegardée la configuration de l'Embed !**\`\`\`Identifiant de l'Embed: ${await saveEmbed()}\`\`\``,
@@ -361,12 +363,18 @@ slashInfo.newfeatures.embed.run = async (client, interaction) => {
             numbers: true
         });
 
-        await db.set(`EMBED.${password}`,
+        // await db.set(`EMBED.${password}`,
+        //     {
+        //         embedOwner: interaction.user.id,
+        //         embedSource: __tempEmbed
+        //     }
+        // );
+        await DataBaseModel({id: DataBaseModel.Set, key: `EMBED.${password}`, values:
             {
                 embedOwner: interaction.user.id,
                 embedSource: __tempEmbed
             }
-        );
+        });
         return password;
     }
 };

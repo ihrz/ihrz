@@ -20,7 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
-
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 const sourcebin = require('sourcebin_js');
 
 const {
@@ -41,11 +41,10 @@ slashInfo.ticket.close.run = async (client, interaction) => {
 	const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 	let data = await getLanguageData(interaction.guild.id);
 
-	const { QuickDB } = require("quick.db");
-	const db = new QuickDB();
-	let blockQ = await db.get(`${interaction.user.id}.GUILD.TICKET.on_or_off`)
+	let blockQ = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.user.id}.GUILD.TICKET.on_or_off` });
+
 	if (blockQ === true) {
-		return interaction.reply(data.close_disabled_command)
+		return interaction.reply(data.close_disabled_command);
 	}
 
 	if (interaction.channel.name.includes('ticket-')) {
@@ -91,7 +90,7 @@ slashInfo.ticket.close.run = async (client, interaction) => {
 		}
 	} else {
 		return interaction.reply(data.close_not_in_ticket);
-	}
+	};
 };
 
 module.exports = slashInfo.ticket.close;

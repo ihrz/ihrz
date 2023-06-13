@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const {
     Client,
@@ -34,9 +35,6 @@ const {
 
 const logger = require(`${process.cwd()}/src/core/logger`);
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
-
 slashInfo.newfeatures.support.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
     let data = await getLanguageData(interaction.guild.id);
@@ -47,25 +45,27 @@ slashInfo.newfeatures.support.run = async (client, interaction) => {
 
     let action = interaction.options.getString("action");
     let input = interaction.options.getString("input");
-    let roles = interaction.options.getRole("roles")
+    let roles = interaction.options.getRole("roles");
 
     if (!roles) {
-        return interaction.reply({ content: data.support_command_not_role })
+        return interaction.reply({ content: data.support_command_not_role });
     }
     if (action == "true") {
-        await db.set(`${interaction.guild.id}.GUILD.SUPPORT`,
+        await DataBaseModel({
+            id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.SUPPORT`, value:
             {
                 input: input,
                 rolesId: roles.id,
                 state: action
-            });
+            }
+        });
 
         interaction.reply({
             content: data.support_command_work
                 .replace("${interaction.guild.name}", interaction.guild.name)
                 .replace("${input}", input)
                 .replace("${roles.id}", roles.id)
-        })
+        });
 
         try {
             logEmbed = new EmbedBuilder()
@@ -79,8 +79,9 @@ slashInfo.newfeatures.support.run = async (client, interaction) => {
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
         } catch (e) { logger.err(e) };
     } else {
-        await db.delete(`${interaction.guild.id}.GUILD.SUPPORT`);
-        interaction.reply({
+        await DataBaseModel({ id: DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.SUPPORT` });
+
+        await interaction.reply({
             content: data.support_command_work_on_disable
                 .replace("${interaction.guild.name}", interaction.guild.name)
         })

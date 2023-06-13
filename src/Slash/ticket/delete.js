@@ -36,9 +36,7 @@ const {
 slashInfo.ticket.delete.run = async (client, interaction) => {
 	const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 	let data = await getLanguageData(interaction.guild.id);
-
-	const { QuickDB } = require("quick.db");
-	const db = new QuickDB();
+	
 	let blockQ = await db.get(`${interaction.user.id}.GUILD.TICKET.on_or_off`)
 	if (blockQ === true) {
 		return interaction.reply(data.delete_disabled_command);

@@ -32,9 +32,7 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
-
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 const logger = require(`${process.cwd()}/src/core/logger`);
 
 slashInfo.guildconfig.setchannel.run = async (client, interaction) => {
@@ -65,10 +63,12 @@ slashInfo.guildconfig.setchannel.run = async (client, interaction) => {
             } catch (e) { logger.err(e) };
 
             try {
-                let already = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`)
+                // let already = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`)
+                let already = await DataBaseModel({id: DataBaseModel.Get, key:`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`})
                 if (already === argsid.id) return interaction.reply({ content: data.setchannels_already_this_channel_on_join })
                 client.channels.cache.get(argsid.id).send({ content: data.setchannels_confirmation_message_on_join })
-                await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`, argsid.id);
+                // await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`, argsid.id);
+                await DataBaseModel({id: DataBaseModel.Set, key:`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`, value: argsid.id})
 
                 return interaction.reply({
                     content: data.setchannels_command_work_on_join
@@ -82,10 +82,12 @@ slashInfo.guildconfig.setchannel.run = async (client, interaction) => {
         if (type === "leave") {
             try {
                 if (!argsid) return interaction.reply({ content: data.setchannels_not_specified_args })
-                let already = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`)
+                // let already = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`)
+                let already = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`})
                 if (already === argsid.id) return interaction.reply({ content: data.setchannels_already_this_channel_on_leave })
                 client.channels.cache.get(argsid.id).send({ content: data.setchannels_confirmation_message_on_leave })
-                await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`, argsid.id);
+                // await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`, argsid.id);
+                await DataBaseModel({id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`, value: argsid.id});
 
                 try {
                     logEmbed = new EmbedBuilder()
@@ -122,12 +124,17 @@ slashInfo.guildconfig.setchannel.run = async (client, interaction) => {
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
             } catch (e) { logger.err(e) };
 
-            let leavec = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`)
-            let joinc = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`)
-            if (joinc === "off" & leavec === "off") return interaction.reply({ content: data.setchannels_already_on_off })
+            // let leavec = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`)
+            // let joinc = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`)
+            let leavec = await DataBaseModel({id: DataBaseModel.Get, key:`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`});
+            let joinc = await DataBaseModel({id: DataBaseModel.Get, key:`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`});
+            if (joinc === "off" & leavec === "off") return interaction.reply({ content: data.setchannels_already_on_off });
 
-            await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`);
-            await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`);
+            // await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`);
+            // await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`);
+            
+            await DataBaseModel({id:DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join`});
+            await DataBaseModel({id:DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`});
             return interaction.reply({ content: data.setchannels_command_work_on_off });
         }
 };

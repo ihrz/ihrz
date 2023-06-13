@@ -36,11 +36,9 @@ const {
 const backup = require('discord-backup')
 backup.setStorageFolder(`${process.cwd()}/files/ihorizon-api/backups/`);
 
-const { QuickDB } = require('quick.db');
-const db = new QuickDB();
-
 const logger = require(`${process.cwd()}/src/core/logger`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 slashInfo.backup.backup.run = async (client, interaction) => {
     let data = await getLanguageData(interaction.guild.id);
@@ -66,7 +64,8 @@ slashInfo.backup.backup.run = async (client, interaction) => {
             await backupData.channels.categories.forEach(category => { i++; category.children.forEach(() => { j++; }); });
             elData =  {guildName: backupData.name, categoryCount: i, channelCount: j};
 
-            await db.set(`BACKUPS.${interaction.user.id}.${backupData.id}`, elData);
+            // await db.set(`BACKUPS.${interaction.user.id}.${backupData.id}`, elData);
+            await DataBaseModel({id: DataBaseModel.Set, key: `BACKUPS.${interaction.user.id}.${backupData.id}`, value: elData});
 
             interaction.channel.send({ content: data.backup_command_work_on_creation });
             interaction.editReply({
@@ -119,12 +118,16 @@ slashInfo.backup.backup.run = async (client, interaction) => {
 
     if (backup_options === "see") {
         // If the user provided a backup ID, show the backup's info.
-        if(backupID && !await db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {
+
+        // if(backupID && !await db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) { 
+            
+        if(backupID && !await DataBaseModel({id: DataBaseModel.Get, key: `BACKUPS.${interaction.user.id}.${backupID}`})) {
             return interaction.editReply({ content: "❌ | This is not your backup !" });
         };
 
         if (backupID) {
-            let data = await db.get(`BACKUPS.${interaction.user.id}.${backupID}`);
+            let data = await DataBaseModel({id: DataBaseModel.Get, key: `BACKUPS.${interaction.user.id}.${backupID}`});
+            // let data = await db.get(`BACKUPS.${interaction.user.id}.${backupID}`);
 
             if (!data) return interaction.editReply({ content: "ERROR? Backup don't exist." });
             let v = `:placard:・Category's Count: \`${data.categoryCount}\`\n:hash:・Channel's Count: \`${data.channelCount}\``
@@ -134,10 +137,12 @@ slashInfo.backup.backup.run = async (client, interaction) => {
         // If the user didn't provide a backup ID, show all the backups.
         else {
             let em = new EmbedBuilder().setDescription("**All of your backup:** ").setColor("#bf0bb9").setTimestamp();
-            let data2 = await db.get(`BACKUPS.${interaction.user.id}`);
+            // let data2 = await db.get(`BACKUPS.${interaction.user.id}`);
+            let data2 = await DataBaseModel({id: DataBaseModel.Get, key: `BACKUPS.${interaction.user.id}`});
             b = 1;
             for (i in data2) {
-                let result = await db.get(`BACKUPS.${interaction.user.id}.${i}`);
+                // let result = await db.get(`BACKUPS.${interaction.user.id}.${i}`);
+                let result = await DataBaseModel({id: DataBaseModel.Get, key: `BACKUPS.${interaction.user.id}.${i}`});
                 let v = `:placard:・Category's Count: \`${result.categoryCount}\`\n:hash:・Channel's Count: \`${result.channelCount}\``
                 if (result) em.addFields({ name: `${result.guildName} - (||${i}||)`, value: v }) && b++;
             };

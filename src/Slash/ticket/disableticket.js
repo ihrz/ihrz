@@ -32,8 +32,7 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 const logger = require(`${process.cwd()}/src/core/logger`);
 
 slashInfo.ticket.disableticket.run = async (client, interaction) => {
@@ -56,7 +55,8 @@ slashInfo.ticket.disableticket.run = async (client, interaction) => {
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
         } catch (e) { logger.err(e) };
-        await db.set(`${interaction.guild.id}.GUILD.TICKET.on_or_off`, "off");
+
+        await DataBaseModel({ id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.TICKET.on_or_off`, value: "off"});
         return interaction.reply(data.disableticket_command_work_disable);
     }
     if (type === "on") {
@@ -69,7 +69,7 @@ slashInfo.ticket.disableticket.run = async (client, interaction) => {
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
         } catch (e) { logger.err(e) };
-        await db.delete(`${interaction.guild.id}.GUILD.TICKET.on_or_off`);
+        await DataBaseModel({ id: DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.TICKET.on_or_off` });
         return interaction.reply({ content: data.disableticket_command_work_enable });
 
     }

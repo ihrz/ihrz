@@ -20,9 +20,8 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 const {
     Client,
     Intents,
@@ -43,10 +42,11 @@ slashInfo.economy.removemoney.run = async (client, interaction) => {
             return interaction.reply({ content: data.removemoney_not_admin })
         };
 
-        var amount = interaction.options.getNumber("amount")
-        let user = interaction.options.get("member")
-        await db.sub(`${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, amount)
-        let bal = await db.get(`${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`)
+        var amount = interaction.options.getNumber("amount");
+        let user = interaction.options.get("member");
+
+        await DataBaseModel({ id: DataBaseModel.Sub, key: `${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, value: amount});
+        let bal = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money` });
 
         let embed = new EmbedBuilder()
             .setAuthor({ name: data.removemoney_embed_title, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })

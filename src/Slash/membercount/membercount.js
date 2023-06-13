@@ -32,9 +32,7 @@ const {
   ApplicationCommandOptionType
 } = require('discord.js');
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
-
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 const logger = require(`${process.cwd()}/src/core/logger`);
 
 slashInfo.membercount.membercount.run = async (client, interaction) => {
@@ -66,11 +64,21 @@ slashInfo.membercount.membercount.run = async (client, interaction) => {
         .replace("{botcount}", botMembers.size)
 
       if (messagei.includes("member")) {
-        await db.set(`${interaction.guild.id}.GUILD.MCOUNT.member`, { name: messagei, enable: true, event: "member", channel: channel.id })
+        await DataBaseModel({
+          id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.MCOUNT.member`, values:
+            { name: messagei, enable: true, event: "member", channel: channel.id }
+        });
+
       } else if (messagei.includes("roles")) {
-        await db.set(`${interaction.guild.id}.GUILD.MCOUNT.roles`, { name: messagei, enable: true, event: "roles", channel: channel.id })
+        await DataBaseModel({
+          id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.MCOUNT.roles`, values:
+            { name: messagei, enable: true, event: "roles", channel: channel.id }
+        });
       } else if (messagei.includes("bot")) {
-        await db.set(`${interaction.guild.id}.GUILD.MCOUNT.bot`, { name: messagei, enable: true, event: "bot", channel: channel.id })
+        await DataBaseModel({
+          id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.MCOUNT.bot`, values:
+            { name: messagei, enable: true, event: "bot", channel: channel.id }
+        });
       }
       try {
         logEmbed = new EmbedBuilder()
@@ -91,9 +99,7 @@ slashInfo.membercount.membercount.run = async (client, interaction) => {
     }
   } else {
     if (type == "off") {
-      await db.delete(`${interaction.guild.id}.GUILD.MCOUNT.member`)
-      await db.delete(`${interaction.guild.id}.GUILD.MCOUNT.roles`)
-      await db.delete(`${interaction.guild.id}.GUILD.MCOUNT.bot`)
+      await DataBaseModel({ id: DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.MCOUNT` });
       try {
         logEmbed = new EmbedBuilder()
           .setColor("#bf0bb9")
@@ -104,14 +110,14 @@ slashInfo.membercount.membercount.run = async (client, interaction) => {
         let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
         if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
       } catch (e) { logger.err(e) };
-      return interaction.reply({ content: data.setmembercount_command_work_on_disable })
+      return interaction.reply({ content: data.setmembercount_command_work_on_disable });
     }
   }
   if (!type) {
-    return interaction.reply({ embeds: [help_embed] })
+    return interaction.reply({ embeds: [help_embed] });
   }
   if (!messagei) {
-    return interaction.reply({ embeds: [help_embed] })
+    return interaction.reply({ embeds: [help_embed] });
   }
 };
 

@@ -32,10 +32,9 @@ const {
   PermissionsBitField,
   ApplicationCommandOptionType
 } = require('discord.js');
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 
 const logger = require(`${process.cwd()}/src/core/logger`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 slashInfo.rolereaction.rolereaction.run = async (client, interaction) => {
   const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
@@ -68,7 +67,12 @@ slashInfo.rolereaction.rolereaction.run = async (client, interaction) => {
     if (check.includes("<") || check.includes(">") || check.includes(":")) {
       return interaction.reply({ content: data.reactionroles_invalid_emote_format_added })
     }
-    await db.set(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`, { rolesID: role.id, reactionNAME: reaction, enable: true })
+    await DataBaseModel({
+      id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`,
+      value: {
+        rolesID: role.id, reactionNAME: reaction, enable: true
+      }
+    });
 
     try {
       logEmbed = new EmbedBuilder()
@@ -84,7 +88,7 @@ slashInfo.rolereaction.rolereaction.run = async (client, interaction) => {
       if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
     } catch (e) { logger.err(e) };
 
-    interaction.reply({
+    return await interaction.reply({
       content: data.reactionroles_command_work_added
         .replace("${messagei}", messagei)
         .replace("${reaction}", reaction)
@@ -98,15 +102,16 @@ slashInfo.rolereaction.rolereaction.run = async (client, interaction) => {
 
       if (!reactionLet) { return interaction.reply({ content: data.reactionroles_missing_remove }) }
       const message = await interaction.channel.messages.fetch(messagei);
-      const fetched = await db.get(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`)
-      if (!fetched) { return interaction.reply({ content: data.reactionroles_missing_reaction_remove }) }
+
+      const fetched = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}` });
+
+      if (!fetched) { return interaction.reply({ content: data.reactionroles_missing_reaction_remove }) };
       const reactionVar = message.reactions.cache.get(fetched.reactionNAME);
 
       if (!reactionVar) { return interaction.reply({ content: data.reactionroles_cant_fetched_reaction_remove }) }
       await reactionVar.users.remove(client.user.id).catch(err => { logger.err(err) });
 
-
-      await db.delete(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`)
+      await DataBaseModel({ id: DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}` });
 
       try {
         logEmbed = new EmbedBuilder()

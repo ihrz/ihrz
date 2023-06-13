@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const {
     Client,
@@ -32,8 +33,6 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 
 slashInfo.profil.setprofildescription.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
@@ -41,7 +40,8 @@ slashInfo.profil.setprofildescription.run = async (client, interaction) => {
 
     var desc = interaction.options.getString("descriptions")
 
-    await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.desc`, desc)
+    // await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.desc`, desc)
+    await DataBaseModel({id: DataBaseModel.Set, key: `GLOBAL.USER_PROFIL.${interaction.user.id}.desc`, value: desc})
     return interaction.reply({ content: data.setprofildescriptions_command_work });
 };
 

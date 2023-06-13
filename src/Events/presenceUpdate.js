@@ -20,8 +20,8 @@
 */
 
 const { Client, Intents, Collection, EmbedBuilder, PermissionsBitField } = require('discord.js');
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
+
 
 module.exports = async (client, oldPresence, newPresence) => {
 
@@ -30,7 +30,8 @@ module.exports = async (client, oldPresence, newPresence) => {
         if (!oldPresence || !oldPresence.guild) return;
 
         const guildId = oldPresence.guild.id;
-        const someinfo = await db.get(`${guildId}.GUILD.SUPPORT`);
+        // const someinfo = await db.get(`${guildId}.GUILD.SUPPORT`);
+        const someinfo = await DataBaseModel({id: DataBaseModel.Get, key: `${guildId}.GUILD.SUPPORT`});
 
         if (!someinfo) { return; };
 

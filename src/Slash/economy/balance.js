@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const {
     Client,
@@ -32,8 +33,6 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 slashInfo.economy.balance.run = async (client, interaction) => {
@@ -41,10 +40,11 @@ slashInfo.economy.balance.run = async (client, interaction) => {
     const member = interaction.options.get('user');
 
     if (!member) {
-        var bal = await db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`);
+        var bal = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money` });
+
         if (!bal) {
-            return await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, 1),
-                interaction.reply({ content: data.balance_dont_have_wallet })
+            return await DataBaseModel({ id: DataBaseModel.Set, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: 1 }),
+                interaction.reply({ content: data.balance_dont_have_wallet });
         }
         interaction.reply({
             content: data.balance_have_wallet
@@ -52,14 +52,14 @@ slashInfo.economy.balance.run = async (client, interaction) => {
         });
     } else {
         if (member) {
-            var bal = await db.get(`${interaction.guild.id}.USER.${member.value}.ECONOMY.money`);
+            var bal = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${member.value}.ECONOMY.money` });
+
             if (!bal) {
-                return db.set(`${interaction.guild.id}.USER.${member.value}.ECONOMY.money`, 1),
+                return await DataBaseModel({ id: DataBaseModel.Set, key: `${interaction.guild.id}.USER.${member.value}.ECONOMY.money`, value: 1}),
                     interaction.reply({
                         content: data.balance_he_dont_have_wallet
-                    })
-
-            }
+                    });
+            };
             return await interaction.reply({
                 content: data.balance_he_have_wallet.replace(/\${bal}/g, bal)
             });

@@ -32,9 +32,8 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB
 const logger = require(`${process.cwd()}/src/core/logger`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 slashInfo.ranks.disablexp.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
@@ -56,7 +55,8 @@ slashInfo.ranks.disablexp.run = async (client, interaction) => {
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
         } catch (e) { logger.err(e) };
-        await db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.on_or_off`, "off");
+        // await db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.on_or_off`, "off");
+        await DataBaseModel({id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.on_or_off`, value: "off"});
         return interaction.reply({ content: data.disablexp_command_work_disable });
     } else {
         if (types == "on") {
@@ -69,7 +69,7 @@ slashInfo.ranks.disablexp.run = async (client, interaction) => {
                 let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
             } catch (e) { logger.err(e) };
-            await db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.on_or_off`, "on");
+            await DataBaseModel({ id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.on_or_off`, value: "on" });
             return interaction.reply({ content: data.disablexp_command_work_enable });
         }
     }

@@ -19,8 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { QuickDB } = require("quick.db"), db = new QuickDB();
 const { time } = require('discord.js');
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 module.exports = async (client, oldUser) => {
     async function serverLogs() {
@@ -31,14 +31,11 @@ module.exports = async (client, oldUser) => {
         if (oldUsertag === newUsertag) return;
         if (!oldUser) return;
 
-        const someinfo = await db.get(`DB.PREVNAMES.${oldUser.id}`);
+        // const someinfo = await db.get(`DB.PREVNAMES.${oldUser.id}`);
+        const someinfo = await DataBaseModel({ id: DataBaseModel.Get, key: `DB.PREVNAMES.${oldUser.id}` });
         var char = `${time((new Date()), 'd')} - ${oldUser.username}#${oldUser.discriminator}`;
 
-        if (someinfo) {
-            await db.push(`DB.PREVNAMES.${oldUser.id}`, char);
-        } else {
-            await db.push(`DB.PREVNAMES.${oldUser.id}`, char);
-        };
+        await DataBaseModel({ id: DataBaseModel.Push, key: `DB.PREVNAMES.${oldUser.id}`, value: char });
     };
 
     await serverLogs();

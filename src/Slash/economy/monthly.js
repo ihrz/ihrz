@@ -20,9 +20,8 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 const ms = require('ms');
 const {
   Client,
@@ -40,7 +39,8 @@ slashInfo.economy.monthly.run = async (client, interaction) => {
   let data = await getLanguageData(interaction.guild.id);
   let timeout = 2592000000;
   let amount = 5000;
-  let monthly = await db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly`);
+
+  let monthly = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly` });
 
   if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
     let time = ms(timeout - (Date.now() - monthly));
@@ -53,9 +53,9 @@ slashInfo.economy.monthly.run = async (client, interaction) => {
       .setDescription(data.monthly_embed_description)
       .addFields({ name: data.monthly_embed_fields, value: `${amount}🪙` })
     await interaction.reply({ embeds: [embed] });
-    await db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount),
-      await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly`, Date.now());
-  }
+    await DataBaseModel({ id: DataBaseModel.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: amount });
+    await DataBaseModel({ id: DataBaseModel.Set, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly`, value: Date.now() });
+  };
 };
 
 module.exports = slashInfo.economy.monthly;

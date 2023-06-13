@@ -21,8 +21,6 @@
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 const {
   Client,
   Intents,
@@ -62,7 +60,7 @@ slashInfo.economy.work.run = async (client, interaction) => {
     .setColor("#f1d488");
 
   await interaction.reply({ embeds: [embed] });
-  await db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
+  await DataBaseModel({ id: DataBaseModel.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: amount });
 
   talkedRecentlyforw.add(interaction.user.id);
   setTimeout(() => {

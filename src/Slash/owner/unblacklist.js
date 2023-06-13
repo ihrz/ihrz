@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const {
     Client,
@@ -37,15 +38,14 @@ slashInfo.owner.unblacklist.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
     let data = await getLanguageData(interaction.guild.id);
 
-    const { QuickDB } = require("quick.db");
-    const db = new QuickDB();
-
-    if (await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
+    // if (await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
+    if (await DataBaseModel({id: DataBaseModel.Get, key: `GLOBAL.OWNER.${interaction.user.id}.owner`}) !== true) {
         return interaction.reply({ content: data.unblacklist_not_owner });
     }
 
     const member = interaction.options.getUser('member')
-    let fetched = await db.get(`GLOBAL.BLACKLIST.${member.id}`)
+    // let fetched = await db.get(`GLOBAL.BLACKLIST.${member.id}`)
+    let fetched = await DataBaseModel({id: DataBaseModel.Get, key: `GLOBAL.BLACKLIST.${member.id}`})
 
     if (!fetched) { return interaction.reply({ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member.id) }) }
 
@@ -53,11 +53,13 @@ slashInfo.owner.unblacklist.run = async (client, interaction) => {
         let bannedMember = await client.users.fetch(member.user.id)
         if (!bannedMember) { return interaction.reply({ content: data.unblacklist_user_is_not_exist }) }
         interaction.guild.members.unban(bannedMember)
-        db.delete(`GLOBAL.BLACKLIST.${member.id}`);
+        // await db.delete(`GLOBAL.BLACKLIST.${member.id}`);
+        await DataBaseModel({id: DataBaseModel.Delete, key: `GLOBAL.BLACKLIST.${member.id}`});
 
         return interaction.reply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member.id) })
     } catch (e) {
-        db.delete(`GLOBAL.BLACKLIST.${member.id}`);
+        // db.delete(`GLOBAL.BLACKLIST.${member.id}`);
+        await DataBaseModel({id: DataBaseModel.Delete, key: `GLOBAL.BLACKLIST.${member.id}`});
         return interaction.reply({ content: data.unblacklist_unblacklisted_but_can_unban_him })
     }
 };

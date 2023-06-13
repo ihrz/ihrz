@@ -21,8 +21,6 @@
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 const {
     Client,
     Intents,
@@ -33,6 +31,7 @@ const {
     PermissionsBitField,
     ApplicationCommandOptionType
 } = require('discord.js');
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 slashInfo.guildconfig.blockpub.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
@@ -43,12 +42,14 @@ slashInfo.guildconfig.blockpub.run = async (client, interaction) => {
         return interaction.reply({ content: data.blockpub_not_admin });
     }
     if (turn === "on") {
-        await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "on")
+        // await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "on")
+        await DataBaseModel({id: DataBaseModel.Set, key:`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "on"})
         return interaction.reply({ content: data.blockpub_now_enable })
     }
 
     if (turn === "off") {
-        await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "off")
+        // await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "off")
+        await DataBaseModel({id: DataBaseModel.Set, key:`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "off"})
         return interaction.reply({ content: data.blockpub_now_disable })
     }
 };

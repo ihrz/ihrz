@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const {
 	Client,
@@ -34,12 +35,10 @@ const {
 } = require('discord.js');
 
 slashInfo.ticket.add.run = async (client, interaction) => {
-	const { QuickDB } = require("quick.db");
-	const db = new QuickDB();
 	const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 	let data = await getLanguageData(interaction.guild.id);
 
-	let blockQ = await db.get(`${interaction.user.id}.GUILD.TICKET.on_or_off`)
+	let blockQ = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.user.id}.GUILD.TICKET.on_or_off` });
 	if (blockQ === true) { return interaction.reply(data.add_disabled_command) }
 	if (interaction.channel.name.includes('ticket-')) {
 		const member = interaction.options.getUser("user")

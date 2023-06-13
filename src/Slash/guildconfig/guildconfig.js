@@ -32,6 +32,8 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
+
 slashInfo.guildconfig.guildconfig.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
     let data = await getLanguageData(interaction.guild.id);
@@ -39,38 +41,50 @@ slashInfo.guildconfig.guildconfig.run = async (client, interaction) => {
     if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
         return interaction.reply({ content: data.guildprofil_not_admin });
     }
-    const { QuickDB } = require("quick.db");
-    const db = new QuickDB();
-
-    let setchannelsjoin = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`)
-    let setchannelsleave = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`)
-    let joinroles = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
-    let joinDmMessage = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`)
-    let blockpub = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`)
-    let joinmessage = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`)
-    let leavemessage = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`)
-    let punishPub = await db.get(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`)
-    let supportConfig = await db.get(`${interaction.guild.id}.GUILD.SUPPORT`)
+    // let setchannelsjoin = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`)
+    // let setchannelsleave = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`)
+    // let joinroles = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
+    // let joinDmMessage = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`)
+    // let blockpub = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`)
+    // let joinmessage = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`)
+    // let leavemessage = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`)
+    // let punishPub = await db.get(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`)
+    // let supportConfig = await db.get(`${interaction.guild.id}.GUILD.SUPPORT`)
+    
+    let setchannelsjoin = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join`})
+    let setchannelsleave = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`})
+    let joinroles = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`});
+    let joinDmMessage = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`})
+    let blockpub = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`})
+    let joinmessage = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`})
+    let leavemessage = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`})
+    let punishPub = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`})
+    let supportConfig = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.SUPPORT`})
     let reactionrole;
 
     try {
         var text = '';
         var text2 = '';
-        const dbAll = await db.all();
+        
+        // const dbAll = await db.all();
+        const dbAll = await DataBaseModel({id: DataBaseModel.All});
         const foundArray = dbAll.findIndex(ticketList => ticketList.id === interaction.guild.id)
 
         const charForTicket = dbAll[foundArray].value.GUILD.TICKET;
         const charForRr = dbAll[foundArray].value.GUILD.REACTION_ROLES;
 
         for (var i in charForTicket) {
-            var a = await db.get(`${interaction.guild.id}.GUILD.TICKET.${i}`)
+            // var a = await db.get(`${interaction.guild.id}.GUILD.TICKET.${i}`)
+            var a = await DataBaseModel({id:DataBaseModel.Get, key:`${interaction.guild.id}.GUILD.TICKET.${i}`})
             if (a) {
                 text += `**${a.panelName}**: <#${a.channel}>\n`
             };
         };
 
         for (var i in charForRr) {
-            var a = await db.get(`${interaction.guild.id}.GUILD.REACTION_ROLES.${i}`)
+            // var a = await db.get(`${interaction.guild.id}.GUILD.REACTION_ROLES.${i}`)
+            var a = await DataBaseModel({id:DataBaseModel.Get, key:`${interaction.guild.id}.GUILD.REACTION_ROLES.${i}`})
+
             if (a) {
                 const stringContent = Object.keys(a).map((key) => {
                     const rolesID = a[key].rolesID;

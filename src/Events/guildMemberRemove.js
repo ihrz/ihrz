@@ -20,8 +20,6 @@
 */
 
 const { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, Client } = require('discord.js');
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
 
@@ -79,15 +77,14 @@ module.exports = async (client, member, members) => {
       if (await DataBaseModel({ id: DataBaseModel.Get, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA` })) {
 
         await DataBaseModel({ id: DataBaseModel.Sub, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`, values: 1 });
-        await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.leaves`, 1);
-
+        await DataBaseModel({ id: DataBaseModel.Add, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.leaves`, values: 1 });
       }
-      let fetched = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`);
-
-      let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`);
+    
+      let fetched = await DataBaseModel({ id: DataBaseModel.Get, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites` });
+      let wChan = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.leave` });
       if (wChan == null || !wChan) return;
 
-      let messssssage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leavemessage`);
+      let messssssage = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.leavemessage` });
       if (!messssssage) {
         return client.channels.cache.get(wChan).send({
           content: data.event_goodbye_inviter
@@ -106,7 +103,7 @@ module.exports = async (client, member, members) => {
         .replace("{invites}", fetched);
       client.channels.cache.get(wChan).send({ content: `${messssssage4}` });
     } catch (e) {
-      let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`);
+      let wChan = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.leave` });
       if (!wChan || !client.channels.cache.get(wChan)) return;
 
       return client.channels.cache.get(wChan).send({

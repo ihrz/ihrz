@@ -19,10 +19,9 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 const ms = require('ms')
 const {
   Client,
@@ -41,7 +40,8 @@ slashInfo.economy.weekly.run = async (client, interaction) => {
 
   let timeout = 604800000
   let amount = 1000
-  let weekly = await db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.weekly`);
+
+  let weekly = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.weekly` });
 
   if (weekly !== null && timeout - (Date.now() - weekly) > 0) {
     let time = ms(timeout - (Date.now() - weekly));
@@ -58,9 +58,10 @@ slashInfo.economy.weekly.run = async (client, interaction) => {
       .addFields({ name: data.weekly_embed_fields, value: `${amount}🪙` })
 
 
-    interaction.reply({ embeds: [embed] })
-    return await db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount),
-      await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.weekly`, Date.now());
+    await interaction.reply({ embeds: [embed] });
+
+    return await DataBaseModel({ id: DataBaseModel.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: amount }),
+      await DataBaseModel({ id: DataBaseModel.Set, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.weekly`, value: Date.now()});
   }
 };
 

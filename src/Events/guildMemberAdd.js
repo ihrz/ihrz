@@ -22,7 +22,7 @@
 const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
 const logger = require(`${process.cwd()}/src/core/logger`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 module.exports = async (client, member, members) => {
   let data = await getLanguageData(member.guild.id);
@@ -48,7 +48,7 @@ module.exports = async (client, member, members) => {
       let d = await DataBaseModel({ id: DataBaseModel.Get, key: `${members.guild.id}.USER.${members.user.id}.ECONOMY.money` });
 
       if (!d) {
-        await DataBaseModel({ id: DataBaseModel.Sub, key: `${members.guild.id}.USER.${members.user.id}.ECONOMY.money`, value: 1 });
+        await DataBaseModel({ id: DataBaseModel.Add, key: `${members.guild.id}.USER.${members.user.id}.ECONOMY.money`, value: 1 });
       }
 
       let e = await DataBaseModel({ id: DataBaseModel.Get, key: `GLOBAL.BLACKLIST.${members.user.id}.blacklisted` });

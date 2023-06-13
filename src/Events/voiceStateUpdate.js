@@ -20,17 +20,18 @@
 */
 
 const { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client } = require('discord.js');
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
+
 
 module.exports = async (client, oldState, newState) => {
     let data = await getLanguageData(oldState.guild.id);
     async function serverLogs() {
         if (!oldState || !oldState.guild) return;
         const guildId = oldState.guild.id;
-        const someinfo = await db.get(`${guildId}.GUILD.SERVER_LOGS.voice`);
+        // const someinfo = await db.get(`${guildId}.GUILD.SERVER_LOGS.voice`);
+        const someinfo = await DataBaseModel({id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.voice`});
         if (!someinfo) return;
 
         let Msgchannel = client.channels.cache.get(someinfo);

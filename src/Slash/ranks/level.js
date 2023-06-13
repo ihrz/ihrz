@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const {
   Client,
@@ -32,16 +33,18 @@ const {
   ApplicationCommandOptionType
 } = require('discord.js');
 
-const fs = require("fs")
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
-
 slashInfo.ranks.level.run = async (client, interaction) => {
-  let sus = interaction.options.getMember("user")
+  let sus = interaction.options.getMember("user");
+  
   if (!sus) {
-    var user = interaction.user
-    var level = await db.get(`${interaction.guild.id}.USER.${user.id}.XP_LEVELING.level`) || 0;
-    var currentxp = await db.get(`${interaction.guild.id}.USER.${user.id}.XP_LEVELING.xp`) || 0;
+    var user = interaction.user;
+
+    // var level = await db.get(`${interaction.guild.id}.USER.${user.id}.XP_LEVELING.level`) || 0;
+    // var currentxp = await db.get(`${interaction.guild.id}.USER.${user.id}.XP_LEVELING.xp`) || 0;
+
+    var level = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${user.id}.XP_LEVELING.level`}) || 0;
+    var currentxp = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${user.id}.XP_LEVELING.xp` }) || 0;
+
     var xpNeeded = level * 500 + 500
     var expNeededForLevelUp = xpNeeded - currentxp
     let nivEmbed = new EmbedBuilder()
@@ -54,10 +57,15 @@ slashInfo.ranks.level.run = async (client, interaction) => {
       .setThumbnail("https://cdn.discordapp.com/attachments/847484098070970388/850684283655946240/discord-icon-new-2021-logo-09772BF096-seeklogo.com.png")
       .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
 
-    interaction.reply({ embeds: [nivEmbed] })
+    return await interaction.reply({ embeds: [nivEmbed] });
   } else {
-    var level = await db.get(`${interaction.guild.id}.USER.${sus.user.id}.XP_LEVELING.level`) || 0;
-    var currentxp = await db.get(`${interaction.guild.id}.USER.${sus.user.id}.XP_LEVELING.xp`) || 0;
+
+    // var level = await db.get(`${interaction.guild.id}.USER.${sus.user.id}.XP_LEVELING.level`) || 0;
+    // var currentxp = await db.get(`${interaction.guild.id}.USER.${sus.user.id}.XP_LEVELING.xp`) || 0;
+
+    var level = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${sus.user.id}.XP_LEVELING.level`}) || 0;
+    var currentxp = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${sus.user.id}.XP_LEVELING.xp`}) || 0;
+
     var xpNeeded = level * 500 + 500
     var expNeededForLevelUp = xpNeeded - currentxp
     let nivEmbed = new EmbedBuilder()
@@ -70,9 +78,8 @@ slashInfo.ranks.level.run = async (client, interaction) => {
       .setThumbnail("https://cdn.discordapp.com/attachments/847484098070970388/850684283655946240/discord-icon-new-2021-logo-09772BF096-seeklogo.com.png")
       .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
 
-    interaction.reply({ embeds: [nivEmbed] })
+    return await interaction.reply({ embeds: [nivEmbed] });
   }
-  return;
 };
 
 module.exports = slashInfo.ranks.level;

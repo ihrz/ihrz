@@ -32,8 +32,7 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 slashInfo.profil.setprofilgender.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
@@ -41,7 +40,8 @@ slashInfo.profil.setprofilgender.run = async (client, interaction) => {
 
     var gender = interaction.options.getString("gender");
 
-    await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.gender`, gender)
+    // await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.gender`, gender)
+    await DataBaseModel({id:DataBaseModel.Set, key: `GLOBAL.USER_PROFIL.${interaction.user.id}.gender`, value: gender})
     return interaction.reply({ content: data.setprofildescriptions_command_work });
 };
 

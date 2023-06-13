@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const {
     Client,
@@ -32,8 +33,6 @@ const {
     PermissionsBitField,
     ApplicationCommandOptionType
 } = require('discord.js');
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 
 slashInfo.invitemanager.invites.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
@@ -42,11 +41,15 @@ slashInfo.invitemanager.invites.run = async (client, interaction) => {
     const member = interaction.options.getMember("member")
 
 
-    let inv = await db.get(`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.invites`);
-    let leaves = await db.get(`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.leaves`);
-    let Regular = await db.get(`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.regular`);
-    let bonus = await db.get(`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.bonus`);
+    // let inv = await db.get(`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.invites`);
+    // let leaves = await db.get(`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.leaves`);
+    // let Regular = await db.get(`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.regular`);
+    // let bonus = await db.get(`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.bonus`);
 
+    let inv = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.invites`});
+    let leaves = await DataBaseModel({id: DataBaseModel.Get,key:`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.leaves`});
+    let Regular = await DataBaseModel({id: DataBaseModel.Get,key:`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.regular`});
+    let bonus = await DataBaseModel({id: DataBaseModel.Get,key:`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.bonus`});
 
     let embed = new EmbedBuilder()
         .setColor("#92A8D1")

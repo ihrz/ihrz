@@ -38,17 +38,17 @@ slashInfo.ticket.sethereticket.run = async (client, interaction) => {
 	const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 	let data = await getLanguageData(interaction.guild.id);
 
-	let panelName = interaction.options.getString("name")
+	let panelName = interaction.options.getString("name");
 
-	const { QuickDB } = require("quick.db");
-	const db = new QuickDB();
-	let blockQ = await db.get(`${interaction.user.id}.GUILD.TICKET.on_or_off`)
+	let blockQ = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.user.id}.GUILD.TICKET.on_or_off` });
+
 	if (blockQ === true) {
 		return interaction.reply(data.sethereticket_disabled_command);
 	}
 
-	if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator))
+	if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
 		return interaction.reply(data.sethereticket_not_admin);
+	}
 
 	let panel = new EmbedBuilder()
 		.setTitle(`${panelName}`)
@@ -57,15 +57,18 @@ slashInfo.ticket.sethereticket.run = async (client, interaction) => {
 		.setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
 
 	interaction.channel.send({ embeds: [panel] }).then(async message => {
-		message.react("📩")
-		await db.set(`${message.guild.id}.GUILD.TICKET.${message.id}`,
-			{
+		message.react("📩");
+
+		await DataBaseModel({
+			id: DataBaseModel.Set, key: `${message.guild.id}.GUILD.TICKET.${message.id}`,
+			value: {
 				author: interaction.user.id,
 				used: true,
 				panelName: panelName,
 				channel: message.channel.id,
 				messageID: message.id,
-			})
+			}
+		});
 	});
 
 	return interaction.reply({ content: data.sethereticket_command_work, ephemeral: true });

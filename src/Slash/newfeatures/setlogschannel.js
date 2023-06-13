@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const {
     Client,
@@ -31,9 +32,6 @@ const {
     PermissionsBitField,
     ApplicationCommandOptionType
 } = require('discord.js');
-
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 
 const logger = require(`${process.cwd()}/src/core/logger`);
 
@@ -68,14 +66,15 @@ slashInfo.newfeatures.setlogschannel.run = async (client, interaction) => {
         } catch (e) { logger.err(e) };
 
         try {
-            let already = await db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS.roles`)
+            let already = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.roles` });
+
             if (already === argsid.id) return interaction.reply({ content: data.setlogschannel_already_this_channel })
             client.channels.cache.get(argsid.id).send({
                 content: data.setlogschannel_confirmation_message
                     .replace("${interaction.user.id}", interaction.user.id)
                     .replace("${typeOfLogs}", typeOfLogs)
             })
-            await db.set(`${interaction.guild.id}.GUILD.SERVER_LOGS.roles`, argsid.id);
+            await DataBaseModel({ id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.roles`, values: argsid.id });
 
             return interaction.reply({
                 content: data.setlogschannel_command_work
@@ -83,9 +82,9 @@ slashInfo.newfeatures.setlogschannel.run = async (client, interaction) => {
                     .replace("${typeOfLogs}", typeOfLogs)
             });
         } catch (e) {
-            interaction.reply({ content: data.setlogschannel_command_error });
+            return await interaction.reply({ content: data.setlogschannel_command_error });
         }
-    }
+    };
 
     /*                                        MODERATION LOGS                                                */
     if (type === "2") {
@@ -107,14 +106,18 @@ slashInfo.newfeatures.setlogschannel.run = async (client, interaction) => {
         } catch (e) { logger.err(e) };
 
         try {
-            let already = await db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS.moderation`)
+            let already = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.moderation` });
+
             if (already === argsid.id) return interaction.reply({ content: data.setlogschannel_already_this_channel })
             client.channels.cache.get(argsid.id).send({
                 content: data.setlogschannel_confirmation_message
                     .replace("${interaction.user.id}", interaction.user.id)
                     .replace("${typeOfLogs}", typeOfLogs)
             })
-            await db.set(`${interaction.guild.id}.GUILD.SERVER_LOGS.moderation`, argsid.id);
+            await DataBaseModel({
+                id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.moderation`,
+                value: argsid.id
+            });
 
             return interaction.reply({
                 content: data.setlogschannel_command_work
@@ -122,7 +125,7 @@ slashInfo.newfeatures.setlogschannel.run = async (client, interaction) => {
                     .replace("${typeOfLogs}", typeOfLogs)
             });
         } catch (e) {
-            interaction.reply({ content: data.setlogschannel_command_error });
+            return await interaction.reply({ content: data.setlogschannel_command_error });
         }
     }
 
@@ -146,14 +149,15 @@ slashInfo.newfeatures.setlogschannel.run = async (client, interaction) => {
         } catch (e) { logger.err(e) };
 
         try {
-            let already = await db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS.voice`)
+            let already = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.voice` });
             if (already === argsid.id) return interaction.reply({ content: data.setlogschannel_already_this_channel })
             client.channels.cache.get(argsid.id).send({
                 content: data.setlogschannel_confirmation_message
                     .replace("${interaction.user.id}", interaction.user.id)
                     .replace("${typeOfLogs}", typeOfLogs)
             })
-            await db.set(`${interaction.guild.id}.GUILD.SERVER_LOGS.voice`, argsid.id);
+            // await db.set(`${interaction.guild.id}.GUILD.SERVER_LOGS.voice`, argsid.id);
+            await DataBaseModel({ id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.voice`, value: argsid.id });
 
             return interaction.reply({
                 content: data.setlogschannel_command_work
@@ -161,7 +165,7 @@ slashInfo.newfeatures.setlogschannel.run = async (client, interaction) => {
                     .replace("${typeOfLogs}", typeOfLogs)
             });
         } catch (e) {
-            interaction.reply({ content: data.setlogschannel_command_error });
+            return await interaction.reply({ content: data.setlogschannel_command_error });
         }
     }
 
@@ -186,14 +190,17 @@ slashInfo.newfeatures.setlogschannel.run = async (client, interaction) => {
         } catch (e) { logger.err(e) };
 
         try {
-            let already = await db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS.message`)
+            
+            // let already = await db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS.message`)
+            let already = await DataBaseModel({id:DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.message`})
             if (already === argsid.id) return interaction.reply({ content: data.setlogschannel_already_this_channel });
             client.channels.cache.get(argsid.id).send({
                 content: data.setlogschannel_confirmation_message
                     .replace("${interaction.user.id}", interaction.user.id)
                     .replace("${typeOfLogs}", typeOfLogs)
             })
-            await db.set(`${interaction.guild.id}.GUILD.SERVER_LOGS.message`, argsid.id);
+            // await db.set(`${interaction.guild.id}.GUILD.SERVER_LOGS.message`, argsid.id);
+            await DataBaseModel({ id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.message`, value: argsid.id });
 
             return interaction.reply({
                 content: data.setlogschannel_command_work
@@ -201,7 +208,7 @@ slashInfo.newfeatures.setlogschannel.run = async (client, interaction) => {
                     .replace("${typeOfLogs}", typeOfLogs)
             });
         } catch (e) {
-            interaction.reply({ content: data.setlogschannel_command_error });
+            return await interaction.reply({ content: data.setlogschannel_command_error });
         }
     }
 
@@ -219,11 +226,13 @@ slashInfo.newfeatures.setlogschannel.run = async (client, interaction) => {
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
         } catch (e) { logger.err(e) };
 
-        let checkData = await db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS`)
+        // let checkData = await db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS`)
+        let checkData = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS` })
         if (!checkData) return interaction.reply({ content: data.setlogschannel_already_deleted })
 
-        await db.delete(`${interaction.guild.id}.GUILD.SERVER_LOGS`);
-        return interaction.reply({
+        // await db.delete(`${interaction.guild.id}.GUILD.SERVER_LOGS`);
+        await DataBaseModel({ id: DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.SERVER_LOGS` });
+        return await interaction.reply({
             content: data.setlogschannel_command_work_on_delete
                 .replace("${interaction.guild.name}", interaction.guild.name)
         });

@@ -19,9 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 const {
     Client,
     Intents,
@@ -39,7 +38,8 @@ slashInfo.economy.pay.run = async (client, interaction) => {
         let data = await getLanguageData(interaction.guild.id);
         let user = interaction.options.getMember("member");
         let amount = interaction.options.getNumber("amount");
-        let member = await db.get(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`);
+
+        let member = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${user.id}.ECONOMY.money` });
         if (amount.toString().includes('-')) {
             return interaction.reply({ content: data.pay_negative_number_error });
         }
@@ -53,8 +53,8 @@ slashInfo.economy.pay.run = async (client, interaction) => {
             .replace(/\${user\.user\.username}/g, user.user.username)  
             .replace(/\${amount}/g, amount)  
         })
-        await db.add(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, amount);
-        await db.sub(`${interaction.guild.id}.USER.${interaction.member.id}.ECONOMY.money`, amount);
+        await DataBaseModel({ id: DataBaseModel.Add, key: `${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, value: amount });
+        await DataBaseModel({ id: DataBaseModel.Sub, key: `${interaction.guild.id}.USER.${interaction.member.id}.ECONOMY.money`, value: amount});
 };
 
 module.exports = slashInfo.economy.pay;

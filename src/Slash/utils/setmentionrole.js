@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const {
     Client,
@@ -31,8 +32,7 @@ const {
     PermissionsBitField,
     ApplicationCommandOptionType
 } = require('discord.js');
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
+
 const logger = require(`${process.cwd()}/src/core/logger`);
 
 slashInfo.utils.setmentionrole.run = async (client, interaction) => {
@@ -46,7 +46,7 @@ slashInfo.utils.setmentionrole.run = async (client, interaction) => {
         return interaction.reply({ content: data.setrankroles_not_admin });
     }
     if (type === "on") {
-        if (!argsid) return interaction.reply({ content: data.setrankroles_not_roles_typed })
+        if (!argsid) return interaction.reply({ content: data.setrankroles_not_roles_typed });
 
         try {
             logEmbed = new EmbedBuilder()
@@ -55,26 +55,26 @@ slashInfo.utils.setmentionrole.run = async (client, interaction) => {
                 .setDescription(data.setrankroles_logs_embed_description_enable
                     .replace(/\${interaction\.user.id}/g, interaction.user.id)
                     .replace(/\${argsid}/g, argsid.id)
-                )
+                );
 
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-            if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+            if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
         } catch (e) { logger.err(e) };
 
         try {
-            let already = await db.get(`${interaction.guild.id}.GUILD.RANK_ROLES.roles`)
-            if (already === argsid.id) return interaction.reply({ content: data.setrankroles_already_this_in_db })
+            let already = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.RANK_ROLES.roles` });
 
-            await db.set(`${interaction.guild.id}.GUILD.RANK_ROLES.roles`, argsid.id);
+            if (already === argsid.id) return interaction.reply({ content: data.setrankroles_already_this_in_db });
 
-            let e = new EmbedBuilder().setDescription(data.setrankroles_command_work
-                .replace(/\${argsid}/g, argsid.id));
+            await DataBaseModel({ id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.RANK_ROLES.roles`, value: argsid.id });
+
+            let e = new EmbedBuilder().setDescription(data.setrankroles_command_work.replace(/\${argsid}/g, argsid.id));
 
             return interaction.reply({ embeds: [e] });
 
         } catch (e) {
-            logger.err(e)
-            interaction.reply({ content: data.setrankroles_command_error });
+            logger.err(e);
+            return await interaction.reply({ content: data.setrankroles_command_error });
         }
     }
     if (type == "off") {
@@ -91,7 +91,8 @@ slashInfo.utils.setmentionrole.run = async (client, interaction) => {
         } catch (e) { logger.err(e) };
 
         try {
-            await db.delete(`${interaction.guild.id}.GUILD.RANK_ROLES.roles`);
+            await DataBaseModel({ id: DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.RANK_ROLES.roles` });
+
             return interaction.reply({
                 content: data.setrankroles_command_work_disable
                     .replace(/\${interaction\.user.id}/g, interaction.user.id)

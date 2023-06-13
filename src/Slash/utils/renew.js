@@ -21,8 +21,6 @@
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 const {
     Client,
     Intents,

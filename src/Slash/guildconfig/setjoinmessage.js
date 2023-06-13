@@ -32,8 +32,7 @@ const {
   ApplicationCommandOptionType
 } = require('discord.js');
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 slashInfo.guildconfig.setjoinmessage.run = async (client, interaction) => {
   const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
@@ -61,7 +60,8 @@ slashInfo.guildconfig.setjoinmessage.run = async (client, interaction) => {
         .replace("{guild}", "{guild}")
         .replace("{createdat}", "{createdat}")
         .replace("{membercount}", "{membercount}")
-      await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`, joinmsgreplace)
+      // await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`, joinmsgreplace)
+      await DataBaseModel(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`, joinmsgreplace)
 
       try {
         let logEmbed = new EmbedBuilder()
@@ -79,7 +79,8 @@ slashInfo.guildconfig.setjoinmessage.run = async (client, interaction) => {
     }
   } else {
     if (type == "off") {
-      await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
+      // await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
+      await DataBaseModel({id: DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`});
       try {
         logEmbed = new EmbedBuilder()
           .setColor("#bf0bb9")
@@ -92,12 +93,12 @@ slashInfo.guildconfig.setjoinmessage.run = async (client, interaction) => {
         if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
       } catch (e) { };
 
-
       return interaction.reply({ content: data.setjoinmessage_command_work_on_disable })
     }
   }
   if (type == "ls") {
-    var ls = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
+    // var ls = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
+    var ls = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`});
     return interaction.reply({
       content: data.setjoinmessage_command_work_ls
         .replace("${ls}", ls)

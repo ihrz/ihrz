@@ -21,13 +21,10 @@
 
 const { Client, Intents, Collection, EmbedBuilder, PermissionsBitField, ChannelType } = require('discord.js');
 const fs = require("fs")
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 const logger = require(`${process.cwd()}/src/core/logger`);
 
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
-
 
 module.exports = async (client, message) => {
   if (!message.guild || message.author.bot) return;
@@ -99,8 +96,10 @@ module.exports = async (client, message) => {
     if (message.author.bot) return;
     if (message.author.id === client.user.id) return;
 
-    d = await db.get(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`);
-    if (!d) { return await db.set(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`, 0); };
+    let d = await DataBaseModel({ id: DataBaseModel.Get, key: `${message.guild.id}.USER.${message.author.id}.ECONOMY.money` });
+    if (!d) {
+      return await DataBaseModel({ id: DataBaseModel.Get, key: `${message.guild.id}.USER.${message.author.id}.ECONOMY.money`, value: 0 });
+    };
   };
 
   async function blockSpam() {
@@ -109,15 +108,15 @@ module.exports = async (client, message) => {
     }
 
     const guildId = message.guild.id;
-    const type = await db.get(`${guildId}.GUILD.GUILD_CONFIG.antipub`);
+    const type = await DataBaseModel({ id: DataBaseModel.Get, key: `${guildId}.GUILD.GUILD_CONFIG.antipub` });
 
     if (type === "off" || message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
       return;
     }
 
     if (type === "on") {
-      const LOG = await db.get(`${guildId}.GUILD.PUNISH.PUNISH_PUB`);
-      const LOGfetched = await db.get(`TEMP.${guildId}.PUNISH_DATA.${message.author.id}`);
+      const LOG = await DataBaseModel({ id: DataBaseModel.Get, key: `${guildId}.GUILD.PUNISH.PUNISH_PUB` });
+      const LOGfetched = await DataBaseModel({ id: DataBaseModel.Get, key: `TEMP.${guildId}.PUNISH_DATA.${message.author.id}` });
 
       if (LOGfetched && LOG && LOG.amountMax === LOGfetched.flags && LOG.state === "true") {
         switch (LOG.punishementType) {
@@ -136,7 +135,7 @@ module.exports = async (client, message) => {
                 if (member.roles.cache.has(muterole.id)) {
                   member.roles.remove(muterole.id);
                 }
-                await db.set(`TEMP.${guildId}.PUNISH_DATA.${message.author.id}`, {});
+                await DataBaseModel({ id: DataBaseModel.Set, key: `TEMP.${guildId}.PUNISH_DATA.${message.author.id}`, value: {} });
               }, 40000);
             }
             break;
@@ -149,9 +148,11 @@ module.exports = async (client, message) => {
 
         for (const word of blacklist) {
           if (contentLower.includes(word)) {
-            let FLAGS_FETCH = await db.get(`TEMP.${guildId}.PUNISH_DATA.${message.author.id}.flags`);
+            await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.joindm` });
+
+            let FLAGS_FETCH = await DataBaseModel({ id: DataBaseModel.Get, key: `TEMP.${guildId}.PUNISH_DATA.${message.author.id}.flags` });
             FLAGS_FETCH = FLAGS_FETCH || 0;
-            await db.set(`TEMP.${guildId}.PUNISH_DATA.${message.author.id}`, { flags: FLAGS_FETCH + 1 });
+            await DataBaseModel({ id: DataBaseModel.Set, key: `TEMP.${guildId}.PUNISH_DATA.${message.author.id}`, value: { flags: FLAGS_FETCH + 1 } });
             await message.delete();
             break;
           }

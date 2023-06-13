@@ -20,9 +20,8 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 const {
     Client,
     Intents,
@@ -42,7 +41,7 @@ slashInfo.utils.prevnames.run = async (client, interaction) => {
 
     if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: data.prevnames_not_admin })
 
-    let fetch = await db.get(`DB.PREVNAMES.${user.id}`);
+    let fetch = await DataBaseModel({ id: DataBaseModel.Get, key: `DB.PREVNAMES.${user.id}` });
     if (fetch) fetch = fetch.join('\n');
 
     let prevEmbed = new EmbedBuilder().setColor("#000000");

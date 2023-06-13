@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const {
     Client,
@@ -37,15 +38,13 @@ slashInfo.owner.blacklist.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
     let data = await getLanguageData(interaction.guild.id);
 
-    const { QuickDB } = require("quick.db");
-    const db = new QuickDB();
-
-    if (await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
+    // if (await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
+    if (await DataBaseModel({ id: DataBaseModel.Get, key: `GLOBAL.OWNER.${interaction.user.id}.owner` }) !== true) {
         return interaction.reply({ content: data.blacklist_not_owner });
     }
 
     var text = ""
-    const ownerList = await db.all()
+    const ownerList = await DataBaseModel({ id: DataBaseModel.All });
     for (var i in ownerList[0].value.BLACKLIST) {
         text += `<@${i}>\n`
     }
@@ -60,15 +59,19 @@ slashInfo.owner.blacklist.run = async (client, interaction) => {
 
     if (member.user.id === client.user.id) return interaction.reply({ content: data.blacklist_bot_lol })
 
-    let fetched = await db.get(`GLOBAL.BLACKLIST.${member.user.id}`)
+    // let fetched = await db.get(`GLOBAL.BLACKLIST.${member.user.id}`)
+    let fetched = await DataBaseModel({ id: DataBaseModel.Get, key: `GLOBAL.BLACKLIST.${member.user.id}` })
 
     if (!fetched) {
-        await db.set(`GLOBAL.BLACKLIST.${member.user.id}`, { blacklisted: true })
+        // await db.set(`GLOBAL.BLACKLIST.${member.user.id}`, { blacklisted: true })
+        await DataBaseModel({ id: DataBaseModel.Set, key: `GLOBAL.BLACKLIST.${member.user.id}`, value: { blacklisted: true } })
         if (member.bannable) {
             member.ban({ reason: "blacklisted !" })
             return interaction.reply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, member.user.username) });
         } else {
-            await db.set(`GLOBAL.BLACKLIST.${member.user.id}`, { blacklisted: true })
+            await DataBaseModel({ id: DataBaseModel.Set, key: `${member.guild.id}.GUILD.GUILD_CONFIG.joindm` });
+            await DataBaseModel({ id: DataBaseModel.Set, key: `GLOBAL.BLACKLIST.${member.user.id}`, value: { blacklisted: true } });
+            await DataBaseModel({ id: DataBaseModel.Set, key: `GLOBAL.BLACKLIST.${member.user.id}`, value: { blacklisted: true } })
             return interaction.reply({ content: data.blacklist_blacklisted_but_can_ban_him })
         }
     } else {

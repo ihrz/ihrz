@@ -18,6 +18,7 @@
 
 ・ Copyright © 2020-2023 iHorizon
 */
+
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
 
 const {
@@ -30,8 +31,8 @@ const {
     PermissionsBitField,
     ApplicationCommandOptionType
 } = require('discord.js');
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
+
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 const logger = require(`${process.cwd()}/src/core/logger`);
 
 slashInfo.guildconfig.setjoindm.run = async (client, interaction) => {
@@ -60,7 +61,8 @@ slashInfo.guildconfig.setjoindm.run = async (client, interaction) => {
 
             try {
                 if (!dm_msg) return interaction.reply({ content: data.setjoindm_not_specified_args_on_enable })
-                await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`, dm_msg);
+                // await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`, dm_msg);
+                await DataBaseModel({id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`, value: dm_msg});
                 return interaction.reply({ content: data.setjoindm_confirmation_message_on_enable 
                     .replace(/\${dm_msg}/g, dm_msg) 
                 });
@@ -84,9 +86,11 @@ slashInfo.guildconfig.setjoindm.run = async (client, interaction) => {
             }
 
             try {
-                let already_off = await db.get(`joindm-${interaction.guild.id}`)
+                // let already_off = await db.get(`joindm-${interaction.guild.id}`);
+                let already_off = await DataBaseModel({id: DataBaseModel.Get, key: `joindm-${interaction.guild.id}`});
                 if (already_off === "off") return interaction.reply({ content: data.setjoindm_already_disable })
-                await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`);
+                // await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`);
+                await DataBaseModel({id: DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`});
                 return interaction.reply({ content: data.setjoindm_confirmation_message_on_disable });
 
             } catch (e) {
@@ -94,7 +98,8 @@ slashInfo.guildconfig.setjoindm.run = async (client, interaction) => {
             }
         }
         if (type === "ls") {
-            let already_off = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`)
+            // let already_off = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`)
+            let already_off = await DataBaseModel({id:DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`});
             if (already_off === null) {
                 return interaction.reply({ content: data.setjoindm_not_setup_ls })
             }

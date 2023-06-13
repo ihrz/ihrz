@@ -33,20 +33,21 @@ const {
   ApplicationCommandOptionType
 } = require('discord.js');
 
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 slashInfo.invitemanager.leaderboard.run = async (client, interaction) => {
   const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
   let data = await getLanguageData(interaction.guild.id);
 
   var text = data.leaderboard_default_text;
-  const ownerList = await db.all();
+  // const ownerList = await db.all();
+  const ownerList = await DataBaseModel({id: DataBaseModel.All});
   const foundArray = ownerList.findIndex(ownerList => ownerList.id === interaction.guild.id)
   const char = ownerList[foundArray].value.USER;
 
   for (var i in char) {
-    var a = await db.get(`${interaction.guild.id}.USER.${i}.INVITES.DATA`)
+    // var a = await db.get(`${interaction.guild.id}.USER.${i}.INVITES.DATA`)
+    var a = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${i}.INVITES.DATA`})
     if (a) {
       text += data.leaderboard_text_inline
         .replace(/\${i}/g, i)
