@@ -21,7 +21,7 @@
 
 const { Client, Collection, EmbedBuilder, Permissions } = require('discord.js'),
     getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-    DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
+DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 module.exports = async (client, oldMessage, newMessage) => {
     let data = await getLanguageData(oldMessage.guild.id)
@@ -30,12 +30,13 @@ module.exports = async (client, oldMessage, newMessage) => {
 
         if (newMessage.author.bot) return;
 
+        if (oldMessage.content == ' ' || !oldMessage.content) return;
         const guildId = oldMessage.guildId,
             // someinfo = await db.get(`${guildId}.GUILD.SERVER_LOGS.message`);
-            someinfo = await DataBaseModel({id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.message`});
+            someinfo = await DataBaseModel({ id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.message` });
 
         if (!someinfo || !oldMessage.content || !newMessage.content
-        || oldMessage.content === newMessage.content) return;
+            || oldMessage.content === newMessage.content) return;
 
         let Msgchannel = client.channels.cache.get(someinfo);
         if (!Msgchannel) return;
