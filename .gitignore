@@ -122,3 +122,6 @@ files/giveaways.json
 
 # Not upload backups
 /files/ihorizon-api/backups/*.json
+
+# Not upload testing files
+/test.js

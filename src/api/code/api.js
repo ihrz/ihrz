@@ -22,54 +22,58 @@
 const CryptoJS = require("crypto-js"),
     logger = require(`${process.cwd()}/src/core/logger.js`),
     config = require(`${process.cwd()}/files/config.js`),
-    { QuickDB } = require("quick.db"),
-    db = new QuickDB();
-
+    dbPromise = require(`${process.cwd()}/src/core/database.js`);
 
 module.exports = async (req, res) => {
     const { text } = req.body;
+    const db = await dbPromise;
+
     try {
         var bytes = CryptoJS.AES.decrypt(text, config.api.apiToken);
         var decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-        switch (decryptedData.id) {
+
+        var id = decryptedData.id;
+        var key = decryptedData.key;
+        var values = decryptedData.values || decryptedData.value;
+
+        switch (id) {
             case 1:
-                await db.set(decryptedData.key, decryptedData.values || decryptedData.value);
+                await db.set(key, values);
                 res.sendStatus(200);
                 break;
             case 2:
-                await db.push(decryptedData.key, decryptedData.values || decryptedData.value);
+                await db.push(key, values);
                 res.sendStatus(200);
                 break;
             case 3:
-                await db.sub(decryptedData.key, decryptedData.values || decryptedData.value);
+                await db.sub(key, values);
                 res.sendStatus(200);
                 break;
             case 4:
-                await db.add(decryptedData.key, decryptedData.values || decryptedData.value);
+                await db.add(key, values);
                 res.sendStatus(200);
                 break;
             case 5:
-                res.send({ r: await db.get(decryptedData.key) });
+                res.send({ r: await db.get(key) });
                 break;
             case 6:
-                await db.pull(decryptedData.key, decryptedData.values || decryptedData.value);
+                await db.pull(key, values);
                 res.send(200);
                 break;
             case 7:
                 res.send({ r: await db.all() });
                 break;
             case 8:
-                await db.delete(decryptedData.key, decryptedData.values || decryptedData.value);
+                await db.delete(key, values);
                 break;
             default:
-                console.log(decryptedData.id);
+                console.log(id);
                 logger.warn("-> Bad json request without ip/key");
                 res.sendStatus(403);
                 break;
         };
     } catch (e) {
-        res.sendStatus(403);
-        logger.warn(e);
+        res.sendStatus(403) && logger.warn(e);
         return logger.warn("-> Bad json request without ip/key", e);
     };
 };
