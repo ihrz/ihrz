@@ -26,29 +26,32 @@ const logger = require(`${process.cwd()}/src/core/logger`);
 
 module.exports = async (client, guild) => {
   const channel = await guild.channels.cache.get(guild.systemChannelId);
-  
-  let embed = new EmbedBuilder()
-  .setColor("#f44336")
-  .setTimestamp()
-  .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
-  .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
-  .setDescription(`Dear members of this server,
-We regret to inform you that our bot will be leaving this server. We noticed that this server has less than 10 members, which may suggest that it is not an active and healthy community for our bot to be a part of.
-We value the safety and satisfaction of our users, and we believe that being part of active and thriving communities is essential to achieving this goal. We apologize for any inconvenience this may cause and we hope to have the opportunity to serve you in a more suitable environment in the future.
 
-Thank you for your understanding and have a great day.
-Best regards,
-iHorizon Project`);
+  async function antiPoubelle() {
+    let embed = new EmbedBuilder()
+      .setColor("#f44336")
+      .setTimestamp()
+      .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
+      .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
+      .setDescription(`Dear members of this server,
+  We regret to inform you that our bot will be leaving this server. We noticed that this server has less than 10 members, which may suggest that it is not an active and healthy community for our bot to be a part of.
+  We value the safety and satisfaction of our users, and we believe that being part of active and thriving communities is essential to achieving this goal. We apologize for any inconvenience this may cause and we hope to have the opportunity to serve you in a more suitable environment in the future.
   
-  if(guild.memberCount <= 9) {    
-    if(channel) { channel.send({ embeds: [embed] }).catch(err => { }); };
+  Thank you for your understanding and have a great day.
+  Best regards,
+  iHorizon Project`);
 
-    return guild.leave();
+    if (guild.memberCount <= 9) {
+      if (channel) { channel.send({ embeds: [embed] }).catch(err => { }); };
+      await guild.leave();
+      return false;
+    };
+    return true;
   };
 
   async function messageToServer() {
     const welcomeMessage = [
-      "Welcome to our server! 🎉","Greetings, fellow Discordians! 👋",
+      "Welcome to our server! 🎉", "Greetings, fellow Discordians! 👋",
       "iHorizon has joined the chat! 💬", "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂",
       "Let's give a warm welcome to iHorizon! 🔥",
     ];
@@ -66,7 +69,7 @@ I'm here to make your experience on this server the best it can be.
 
 Thanks for choosing me and let's have some fun together!`);
 
-    if(channel) { channel.send({ embeds: [embed] }).catch(err => { }); };
+    if (channel) { channel.send({ embeds: [embed] }).catch(err => { }); };
   };
 
   async function getInvites() {
@@ -87,11 +90,12 @@ Thanks for choosing me and let's have some fun together!`);
         { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
         { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
         { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
-        { name: "🪝・Vanity URL", value: `\`${'discord.gg/'+guild.vanityURLCode || "None"}\``, inline: true })
+        { name: "🪝・Vanity URL", value: `\`${'discord.gg/' + guild.vanityURLCode || "None"}\``, inline: true })
       .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
       .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
     client.channels.cache.get(config.core.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
   };
 
-  await getInvites(), ownerLogs(), messageToServer();
+  let c = await antiPoubelle();
+  if (c) await getInvites(), ownerLogs(), messageToServer();
 };

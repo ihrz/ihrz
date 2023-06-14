@@ -41,7 +41,7 @@ slashInfo.ticket.remove.run = async (client, interaction) => {
 
 	if (blockQ === true) { return interaction.reply({ content: data.remove_disabled_command }) }
 	if (interaction.channel.name.includes('ticket-')) {
-		const member = interaction.options.getUser("user")
+		const member = interaction.options.getUser("user");
 
 		try {
 			interaction.channel.permissionOverwrites.create(member, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
