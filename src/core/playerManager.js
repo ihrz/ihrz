@@ -22,6 +22,7 @@
 const { Player } = require('discord-player');
 const { playerEvents } = require(__dirname + "/../playerEvents.js");
 const { SpotifyExtractor, SoundCloudExtractor } = require('@discord-player/extractor');
+const { default: DeezerExtractor } = require("discord-player-deezer");
 
 module.exports = async (client) => {
   const player = new Player(client, {
@@ -31,9 +32,12 @@ module.exports = async (client) => {
       highWaterMark: 1 << 25
     }
   });
-  await player.extractors.loadDefault();
+  
+  await player.extractors.register(DeezerExtractor)
   await player.extractors.register(SpotifyExtractor, {});
   await player.extractors.register(SoundCloudExtractor, {});
+
+  await player.extractors.loadDefault();
 
   playerEvents(player);
   client.player = player;

@@ -25,7 +25,9 @@ const yaml = require('js-yaml'),
 
 async function getLanguageData(arg) {
     let fetched = await DataBaseModel({ id: DataBaseModel.Get, key: `${arg}.GUILD.LANG` });
-    if (!fetched) { return yaml.load(fs.readFileSync(`${process.cwd()}/src/lang/en-US.yml`, 'utf-8')); };
+    if (!fetched) {
+        return yaml.load(fs.readFileSync(`${process.cwd()}/src/lang/en-US.yml`, 'utf-8'));
+    };
     return await yaml.load(fs.readFileSync(`${process.cwd()}/src/lang/${fetched.lang}.yml`, 'utf-8'));
 };
 

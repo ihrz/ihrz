@@ -75,6 +75,18 @@ module.exports = {
             }
         ],
     },
+    "lyrics": {
+        name: 'lyrics',
+        description: 'Find the lyrics of a title!',
+        options: [
+            {
+                name: 'title',
+                type: ApplicationCommandOptionType.String,
+                description: 'The track title you want (you can put URL as you want)',
+                required: true
+            }
+        ],
+    },
     "queue": {
         name: 'queue',
         description: 'Get the queue!',
