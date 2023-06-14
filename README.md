@@ -14,9 +14,9 @@ iHorizon is a Discord bot written in [JS](https://nodejs.org) and using the [dis
 ## Contributor's Wall
 
 - [Kisakay](https://github.com/Kisakay) (She/Her)
-- [Yvain](https://github.com/Y-v-a-i-n) (He/him)
-- [Noémie](https://github.com/name-shitty-github-profile) (She/Her)
 - [Wyene](https://github.com/F-r-o-i-d) (He/him)
+- [Noémie](https://github.com/name-shitty-github-profile) (She/Her)
+- [Yvain](https://github.com/Y-v-a-i-n) (He/him)
 
 ## Skids's hall
 There are no skidded scripts in the iHorizon source code, because talent is more important than being dumb. Skidding codes doesn't make you a developper, coding does. Skidding is only to flex and to lie to your friends.
@@ -63,7 +63,7 @@ iHorizon is currently working towards being certified by Discord. We are aiming 
 To join the Official Discord Support Server, please visit our website at [Official Server Link](http://discord.ihorizon.me/) or click on this link: [Other Link](https://discord.gg/ZpBPGNsAsu).<br><br>
 To invite the Discord official bot, please click on this link: [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot).<br><br>
 
-If you have any questions or concerns, you can contact the owner via email at [kisakeyara@gmail.com](mailto:kisakeyara@gmail.com), phone at +33757823957, or on Discord at Kisakay#0001.
+If you have any questions or concerns, you can contact the owner via email at [kisakeyara@gmail.com](mailto:kisakeyara@gmail.com), or on Discord at 2h0#0.
 # About the owner
 
 **Kisakay** (*formerly known as Ezermoz*) has not changed their identity, but has simply embraced who they truly are as a person. She now goes by she/her pronouns.<br><br>
