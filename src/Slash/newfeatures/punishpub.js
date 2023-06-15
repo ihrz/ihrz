@@ -46,7 +46,7 @@ slashInfo.newfeatures.punishpub.run = async (client, interaction) => {
 
     let action = interaction.options.getString("action");
     let amount = interaction.options.getNumber("amount");
-    let punishement = interaction.options.getString("punishement")
+    let punishment = interaction.options.getString("punishement");
 
     if (action == "true") {
         if (amount > 50) { return interaction.reply({ content: data.punishpub_too_hight_enable }) };
@@ -56,7 +56,7 @@ slashInfo.newfeatures.punishpub.run = async (client, interaction) => {
         await DataBaseModel({id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`, values:
             {
                 amountMax: amount - 1,
-                punishementType: punishement,
+                punishementType: punishment,
                 state: action
             }});
         // await db.set(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`,
@@ -70,7 +70,7 @@ slashInfo.newfeatures.punishpub.run = async (client, interaction) => {
             content: data.punishpub_confirmation_message_enable
                 .replace("${interaction.user.id}", interaction.user.id)
                 .replace("${amount}", amount)
-                .replace("${punishement}", punishement)
+                .replace("${punishment}", punishment)
         })
 
         try {
@@ -80,7 +80,7 @@ slashInfo.newfeatures.punishpub.run = async (client, interaction) => {
                 .setDescription(data.punishpub_logs_embed_description
                     .replace("${interaction.user.id}", interaction.user.id)
                     .replace("${amount}", amount)
-                    .replace("${punishement}", punishement)
+                    .replace("${punishment}", punishment)
                 )
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
