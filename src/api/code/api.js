@@ -68,7 +68,7 @@ module.exports = async (req, res) => {
                 res.sendStatus(200);
                 break;
             default:
-                await res.sendStatus(403) && logger.warn(`${id }-> Bad json request without ip/key`);
+                await res.sendStatus(403) && logger.warn(`${id} -> Bad json request without ip/key`);
                 break;
         };
     } catch (e) {
