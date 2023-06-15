@@ -44,14 +44,14 @@ slashInfo.music.nowplaying.run = async (client, interaction) => {
             return interaction.reply({ content: data.nowplaying_no_queue, ephemeral: true });
         }
         const progress = queue.node.createProgressBar();
-        const ts = queue.node.getTimestamp();
         const embed = new EmbedBuilder()
             .setTitle(data.nowplaying_message_embed_title)
             .setDescription(`[${queue.currentTrack.title}](${queue.currentTrack.url})`)
             .setThumbnail(`${queue.currentTrack.thumbnail}`)
             .addFields(
-                { name: '\200', value: progress.replace(/ 0:00/g, 'LIVE') }
+                { name: '  ', value: progress.replace(/ 0:00/g, 'LIVE') }
             );
+
         await interaction.reply({ embeds: [embed] });
     } catch (error) {
         logger.err(error);
