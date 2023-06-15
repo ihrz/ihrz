@@ -74,7 +74,7 @@ slashInfo.music.play.run = async (client, interaction) => {
                 },
                 volume: 60,
                 bufferingTimeout: 3000,
-                leaveOnEnd: true
+                leaveOnEnd: true,
             },
         })
 
