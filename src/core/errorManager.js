@@ -45,20 +45,15 @@ function uncaughtExceptionHandler() {
 };
 
 function exit(driver) {
-    process.on('exit', () => {
-        logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database.useSqlite ? 'SQLite' : 'MongoDB'})!`)
-        return driver.close();
-    });
+    let dbProtocolName = config.database.useSqlite ? 'SQLite' : 'MongoDB';
 
-    process.on('abort', () => {
-        logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database.useSqlite ? 'SQLite' : 'MongoDB'})!`)
-        return driver.close();
-    });
+    const exec = async () => await logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${dbProtocolName})!`) && await driver.close();
 
-    process.on('SIGINT', () => {
-        logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database.useSqlite ? 'SQLite' : 'MongoDB'})!`)
-        return driver.close();
-    });
+    process.on('exit', async () => { await exec(); return process.exit(1); });
+
+    process.on('abort', async () => { await exec(); return process.exit(1); });
+
+    process.on('SIGINT', async () => { await exec(); return process.exit(1); });
 };
 
 module.exports.exit = exit;
