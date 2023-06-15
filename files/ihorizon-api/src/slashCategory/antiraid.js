@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const { QueueRepeatMode, QueryType } = require('discord-player');
 
 const {
     Client,
@@ -32,31 +32,6 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const { QueueRepeatMode } = require('discord-player');
-const logger = require(`${process.cwd()}/src/core/logger`);
-
-slashInfo.music.loop.run = async (client, interaction) => {
-    const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-    let data = await getLanguageData(interaction.guild.id);
-
-    try {
-        const queue = interaction.client.player.nodes.get(interaction.guild);
-        if (!queue || !queue.isPlaying()) {
-            return interaction.reply({ content: data.loop_no_queue });
-        };
-
-        const loopMode = interaction.options.getNumber("select");
-
-        queue.setRepeatMode(loopMode)
-        const mode = loopMode === QueueRepeatMode.TRACK ? `🔂` : loopMode === QueueRepeatMode.QUEUE ? `🔂` : `▶`;
-        return interaction.reply({
-            content: data.loop_command_work
-                .replace("{mode}", mode)
-        });
-    } catch (error) {
-        logger.err(error);
-    }
-    await interaction.reply({ embeds: [embed] });
-};
-
-module.exports = slashInfo.music.loop;
+module.exports = {
+    // Soon
+}

@@ -69,9 +69,7 @@ slashInfo.owner.blacklist.run = async (client, interaction) => {
             member.ban({ reason: "blacklisted !" })
             return interaction.reply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, member.user.username) });
         } else {
-            await DataBaseModel({ id: DataBaseModel.Set, key: `${member.guild.id}.GUILD.GUILD_CONFIG.joindm` });
             await DataBaseModel({ id: DataBaseModel.Set, key: `GLOBAL.BLACKLIST.${member.user.id}`, value: { blacklisted: true } });
-            await DataBaseModel({ id: DataBaseModel.Set, key: `GLOBAL.BLACKLIST.${member.user.id}`, value: { blacklisted: true } })
             return interaction.reply({ content: data.blacklist_blacklisted_but_can_ban_him })
         }
     } else {

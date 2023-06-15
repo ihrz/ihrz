@@ -27,7 +27,7 @@ const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 slashInfo.bot.help.run = async (client, interaction) => {
   let data = await getLanguageData(interaction.guild.id);
-  let CONTENT = await DataBaseModel({id: DataBaseModel.Get, key: "BOT.CONTENT"});
+  let CONTENT = await DataBaseModel({ id: DataBaseModel.Get, key: "BOT.CONTENT" });
 
   const categories = [
     { name: data.help_mod_fields, value: CONTENT.moderation, inline: true, description: data.help_mod_dsc, emoji: "👮‍♀️" },

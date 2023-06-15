@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+module.exports.antiraid = require('./src/slashCategory/antiraid.js');
 module.exports.backup = require('./src/slashCategory/backup.js');
 module.exports.bot = require('./src/slashCategory/bot.js');
 module.exports.economy = require('./src/slashCategory/economy.js');

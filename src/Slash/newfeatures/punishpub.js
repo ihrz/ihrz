@@ -42,7 +42,7 @@ slashInfo.newfeatures.punishpub.run = async (client, interaction) => {
         return interaction.reply({ content: data.punishpub_not_admin });
     }
 
-    
+
 
     let action = interaction.options.getString("action");
     let amount = interaction.options.getNumber("amount");
@@ -53,25 +53,14 @@ slashInfo.newfeatures.punishpub.run = async (client, interaction) => {
         if (amount < 0) { return interaction.reply({ content: data.punishpub_negative_number_enable }) };
         if (amount == 0) { return interaction.reply({ content: data.punishpub_zero_number_enable }) };
 
-        await DataBaseModel({id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`, values:
+        await DataBaseModel({
+            id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`, values:
             {
                 amountMax: amount - 1,
                 punishementType: punishment,
                 state: action
-            }});
-        // await db.set(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`,
-        //     {
-        //         amountMax: amount - 1,
-        //         punishementType: punishement,
-        //         state: action
-        //     });
-
-        interaction.reply({
-            content: data.punishpub_confirmation_message_enable
-                .replace("${interaction.user.id}", interaction.user.id)
-                .replace("${amount}", amount)
-                .replace("${punishment}", punishment)
-        })
+            }
+        });
 
         try {
             logEmbed = new EmbedBuilder()
@@ -86,9 +75,15 @@ slashInfo.newfeatures.punishpub.run = async (client, interaction) => {
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
         } catch (e) { };
 
+        return await interaction.reply({
+            content: data.punishpub_confirmation_message_enable
+                .replace("${interaction.user.id}", interaction.user.id)
+                .replace("${amount}", amount)
+                .replace("${punishment}", punishment)
+        });
     } else {
         // await db.delete(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
-        await DataBaseModel({id: DataBaseModel.Delete, key:`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`});
+        await DataBaseModel({ id: DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB` });
         interaction.reply({ content: data.punishpub_confirmation_disable })
 
         try {

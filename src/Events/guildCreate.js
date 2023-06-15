@@ -49,6 +49,26 @@ module.exports = async (client, guild) => {
     return true;
   };
 
+  async function blacklistLeave() {
+    const channelHr = await guild.channels.cache.get(guild.systemChannelId)
+      || await guild.channels.cache.random();
+
+    let tqtmonreuf = new EmbedBuilder()
+      .setColor('#FF0000')
+      .setDescription(`Dear <@${guild.ownerId}>, I'm sorry, but you have been blacklisted by the bot.\nAs a result, I will be leaving your server. If you have any questions or concerns, please contact my developer.\n\nThank you for your understanding`)
+      .setTimestamp()
+      .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
+
+    let isBL = await DataBaseModel({ id: DataBaseModel.Get, key: `GLOBAL.BLACKLIST.${guild.ownerId}.blacklisted` }) || false;
+    if (isBL) {
+      await channelHr.send({ embeds: [tqtmonreuf] });
+      await guild.leave();
+      return false;
+    } else {
+      return true;
+    };
+  };
+
   async function messageToServer() {
     const welcomeMessage = [
       "Welcome to our server! 🎉", "Greetings, fellow Discordians! 👋",
@@ -97,5 +117,6 @@ Thanks for choosing me and let's have some fun together!`);
   };
 
   let c = await antiPoubelle();
-  if (c) await getInvites(), ownerLogs(), messageToServer();
+  let d = await blacklistLeave();
+  if (c && d) await ownerLogs(), messageToServer(), getInvites();
 };

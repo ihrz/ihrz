@@ -36,7 +36,7 @@ slashInfo.fun.kiss.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
     let data = await getLanguageData(interaction.guild.id);
 
-    const kiss = interaction.options.getUser("user")
+    const kiss = interaction.options.getUser("user");
 
     var kissGif = [
         'https://cdn.discordapp.com/attachments/600751265781252149/613486150002278630/tenor-4.gif',
