@@ -19,19 +19,15 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const wait = require('wait'),
+const wait = require(`${process.cwd()}/src/core/wait`),
     couleurmdr = require('colors'),
-    DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
+    DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`),
     os = require('os-utils'),
     readline = require('readline'),
     fs = require('fs'),
     config = require(`${process.cwd()}/files/config.js`),
-    path = require('path');
-
-let ipify;
-import('ipify').then(module => {
-    ipify = module.default;
-}).catch(error => { console.error(error) });
+    path = require('path'),
+    getIP = require(`${process.cwd()}/files/ihorizon-api/getIP`);
 
 module.exports = async (client) => {
     if (config.core.bash) {
@@ -69,15 +65,15 @@ module.exports = async (client) => {
             createFiles = fs.createWriteStream(filePath, { flags: 'a' });
 
         let dateStr = `${day} ${month} ${year} ${time} 2023`;
-        await DataBaseModel({ id: DataBaseModel.Set, key: `BASH.LAST_LOGIN`, value: dateStr.toString()});
+        await DataBaseModel({ id: DataBaseModel.Set, key: `BASH.LAST_LOGIN`, value: dateStr.toString() });
         console.log(`Welcome to iHorizon Bash
     
     * Documentation:  https://github.com/ihrz/ihrz/
     
      System information as of mar.  ${formattedDate}
      Memory usage:                  ${os.freememPercentage()}%
-     IPv4 address for eth0:         ${await ipify({ useIPv6: false })}
-     IPv6 address for eth0:         ${/*await ipify({ useIPv6: false }) || */"None"}
+     IPv4 address for eth0:         ${await getIP()}
+     IPv6 address for eth0:         ${"None"}
     
     
     Last login: ${LoadFiles} from ${LoadFiles2}`);

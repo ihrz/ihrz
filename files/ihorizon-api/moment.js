@@ -19,17 +19,27 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const wait = require(`${process.cwd()}/src/core/wait`);
+function formatDate(date) {
+    if(!date) return;
+    const months = [
+        "January", "February", "March", "April", "May", "June", "July",
+        "August", "September", "October", "November", "December"
+    ];
 
-module.exports = async function () {
-    console.log(`* Closed session...`.gray.bgBlack);
+    const daySuffixes = ["st", "nd", "rd"];
 
-    await wait(1000);
-    console.log(`\n* Unload all script...`.gray.bgBlack);
+    const formattedMonth = months[date.getMonth()];
+    const formattedDay = date.getDate();
+    const formattedYear = date.getFullYear();
 
-    await wait(1000);
-    console.log(`* All are successfully unloaded`.gray.bgBlack);
+    let daySuffix;
+    if (formattedDay >= 11 && formattedDay <= 13) {
+        daySuffix = "th";
+    } else {
+        daySuffix = daySuffixes[formattedDay % 10 - 1] || "th";
+    }
 
-    console.log(`* Power off...`.red.bgBlack);
-    process.exit(0);
-};
+    return `${formattedMonth} ${formattedDay}${daySuffix} ${formattedYear}`;
+}
+
+module.exports = formatDate;

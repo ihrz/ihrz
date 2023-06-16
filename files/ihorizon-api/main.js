@@ -19,29 +19,29 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const superagent = require('superagent'),
+const axios = require('axios'),
     config = require('../config'),
     CryptoJS = require("crypto-js"),
     dbPromise = require(`${process.cwd()}/src/core/database.js`);
 
-let dbUseApi = async (id) => {
+const dbUseApi = async (id) => {
     return new Promise((resolve, reject) => {
-        let encrypted = CryptoJS.AES.encrypt(JSON.stringify(id), config.api.apiToken);
-        superagent
-            .post(config.api.dbApiUrl)
-            .send({ text: encrypted.toString() })
-            .set('accept', 'json')
-            .end((err, res) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    if (JSON.stringify(res.body) === "{}") {
+        try {
+            const encrypted = CryptoJS.AES.encrypt(JSON.stringify(id), config.api.apiToken).toString();
+            axios.post(config.api.dbApiUrl, { text: encrypted }, { headers: { 'Accept': 'application/json' } })
+                .then(response => {
+                    if (JSON.stringify(response.data) === '{}') {
                         resolve(undefined);
                     } else {
-                        resolve(res.body.r);
+                        resolve(response.data.r);
                     }
-                }
-            });
+                })
+                .catch(error => {
+                    reject(error);
+                });
+        } catch (error) {
+            reject(error);
+        }
     });
 };
 
@@ -78,7 +78,7 @@ async function DataBaseModel(id) {
     if (config.database.useDatabaseAPIOnlyDashboard
         &&
         config.database.useDatabaseAPI) {
-            return await dbUseWrapper(id);
+        return await dbUseWrapper(id);
     } else {
         if (config.database.useDatabaseAPI) return await dbUseApi(id);
     };

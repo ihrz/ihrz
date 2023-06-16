@@ -68,7 +68,7 @@
     <br>
     <br>
     <br>
-    <a id='login-link' href='https://discord.com/api/oauth2/authorize?client_id=1053818045073739817&redirect_uri=http%3A%2F%2Ffrench.myserver.cool%3A25272&response_type=code&scope=identify'>Login with Discord</a><br><br>
+    <a id='login-link' href='https://discord.com/api/oauth2/authorize?client_id=1053818045073739817&redirect_uri=http%3A%2F%2Flocalhost%3A1337&response_type=code&scope=identify'>Login with Discord</a><br><br>
     <p id='welcome_txt'></p>
     <p id='credit_txt'></p>
     <script>
@@ -78,7 +78,7 @@
                 const code = location.href.substring(location.href.indexOf("code") + 5, location.href.length);
                 const req = new XMLHttpRequest();
                 document.getElementById('credit_txt').innerText = `📳・[Portal]\n\n🤖・iHorizon Canary - Created by Kisakay`;
-                req.open("POST", "http://french.myserver.cool:25272/user");
+                req.open("POST", "http://localhost:1337/user");
                 req.send(code);
                 req.onload = () => {
                     if (req.status === 500) {

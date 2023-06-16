@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const {
     Client,
@@ -38,10 +39,6 @@ const {
     ButtonStyle,
     StringSelectMenuOptionBuilder,
 } = require('discord.js');
-
-var generator = require('generate-password');
-
-const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 slashInfo.newfeatures.embed.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
@@ -358,11 +355,7 @@ slashInfo.newfeatures.embed.run = async (client, interaction) => {
     }
 
     async function saveEmbed() {
-        var password = generator.generate({
-            length: 8,
-            numbers: true
-        });
-
+        var password = Math.random().toString(36).slice(-8);
         // await db.set(`EMBED.${password}`,
         //     {
         //         embedOwner: interaction.user.id,

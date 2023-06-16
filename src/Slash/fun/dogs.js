@@ -21,7 +21,6 @@
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
 
-const superagent = require('superagent');
 const {
   Client,
   Intents,
@@ -34,23 +33,22 @@ const {
 } = require('discord.js');
 
 const logger = require(`${process.cwd()}/src/core/logger`);
+const axios = require('axios');
 
 slashInfo.fun.dogs.run = async (client, interaction) => {
-    const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-    let data = await getLanguageData(interaction.guild.id);
+  const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+  let data = await getLanguageData(interaction.guild.id);
 
-    superagent
-      .get('dog.ceo/api/breeds/image/random')
-      .end((err, res) => {
-        if (err) {
-        logger.err(err); interaction.reply(data.dogs_embed_command_error); return;
-        } else {
-          const emb = new EmbedBuilder()
-            .setImage(res.body.message).setTitle(data.dogs_embed_title).setTimestamp();
+  axios.get('https://dog.ceo/api/breeds/image/random')
+    .then(res => {
+      const emb = new EmbedBuilder()
+        .setImage(res.data.message).setTitle(data.dogs_embed_title).setTimestamp();
 
-          interaction.reply({ embeds: [emb] });
-        }
-      });
+      return interaction.reply({ embeds: [emb] });
+    })
+    .catch(err => {
+      logger.err(err); return interaction.reply(data.dogs_embed_command_error);
+    });
 };
 
 module.exports = slashInfo.fun.dogs;

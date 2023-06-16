@@ -23,16 +23,20 @@ const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
 const fs = require('fs');
 const { createCanvas, loadImage } = require('canvas');
 const { EmbedBuilder, AttachmentBuilder } = require('discord.js');
-const request = require('request');
+const axios = require('axios');
 
 const downloadImage = (url, filename) => {
   return new Promise((resolve, reject) => {
-    request.head(url, (err, res, body) => {
-      request(url)
-        .pipe(fs.createWriteStream(filename))
-        .on('finish', resolve)
-        .on('error', reject);
-    });
+    axios.get(url, { responseType: 'stream' })
+      .then(response => {
+        const writer = fs.createWriteStream(filename);
+        response.data.pipe(writer);
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+      })
+      .catch(error => {
+        reject(error);
+      });
   });
 };
 

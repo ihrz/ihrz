@@ -19,7 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const fs = require("fs"), path = require("path"),
+const fs = require("fs"),
+  path = require("path"),
   filePath = path.join(process.cwd(), 'src', 'bash', 'history', '.bash_history'),
   logger = require(`${process.cwd()}/src/core/logger`);
 

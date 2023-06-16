@@ -28,11 +28,11 @@ module.exports = async (client, oldMessage, newMessage) => {
     async function serverLogs() {
         if (!oldMessage || !oldMessage.guild) return;
 
-        if (newMessage.author.bot) return;
+        if (!newMessage.author || newMessage.author.bot) return;
+        if (oldMessage.content == '' || !oldMessage.content) return;
+        if (newMessage.content == '' || !newMessage.content) return;
 
-        if (oldMessage.content == ' ' || !oldMessage.content) return;
         const guildId = oldMessage.guildId,
-            // someinfo = await db.get(`${guildId}.GUILD.SERVER_LOGS.message`);
             someinfo = await DataBaseModel({ id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.message` });
 
         if (!someinfo || !oldMessage.content || !newMessage.content

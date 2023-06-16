@@ -19,17 +19,10 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const wait = require(`${process.cwd()}/src/core/wait`);
-
-module.exports = async function () {
-    console.log(`* Closed session...`.gray.bgBlack);
-
-    await wait(1000);
-    console.log(`\n* Unload all script...`.gray.bgBlack);
-
-    await wait(1000);
-    console.log(`* All are successfully unloaded`.gray.bgBlack);
-
-    console.log(`* Power off...`.red.bgBlack);
-    process.exit(0);
+const wait = (milliseconds) => {
+    return new Promise((resolve) => {
+        setTimeout(resolve, milliseconds);
+    });
 };
+
+module.exports = wait;

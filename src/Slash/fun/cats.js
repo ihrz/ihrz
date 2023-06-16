@@ -20,8 +20,8 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const axios = require('axios');
 
-const superagent = require('superagent');
 const {
   Client,
   Intents,
@@ -36,26 +36,17 @@ const {
 const logger = require(`${process.cwd()}/src/core/logger`);
 
 slashInfo.fun.cats.run = async (client, interaction) => {
-    const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-    let data = await getLanguageData(interaction.guild.id);
+  const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+  let data = await getLanguageData(interaction.guild.id);
 
-    superagent
-      .get('http://edgecats.net/random')
-      .end((err, res) => {
-        if (err) {
-          logger.err(err);
-          interaction.reply('Erreur lors de la récupération de l\'image du chat.');
-          return;
-        } else {
-          const emb = new EmbedBuilder()
-            .setImage(res.text)
-            .setTitle(data.cats_embed_title)
-            .setTimestamp();
+  axios.get('http://edgecats.net/random').then(res => {
+    const emb = new EmbedBuilder()
+      .setImage(res.data)
+      .setTitle(data.cats_embed_title)
+      .setTimestamp();
 
-          interaction.reply({ embeds: [emb] });
-        }
-      });
-
+    return interaction.reply({ embeds: [emb] });
+  });
 };
 
 module.exports = slashInfo.fun.cats;
