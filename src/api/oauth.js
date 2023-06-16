@@ -38,7 +38,7 @@ app.use(Express.urlencoded({ extended: false }));
 app.use(Express.json());
 app.use(bodyParser.text());
 app.post('/api/check/', code);
-app.post('/api/database', api);
+if (config.database.useDatabaseAPI) { app.post('/api/database', api); };
 
 function make_config(authorization_token) {
     data = { headers: { "authorization": `Bearer ${authorization_token}` } }; return data;
