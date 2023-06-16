@@ -36,7 +36,7 @@ module.exports = async (client, interaction) => {
   async function slashExecutor() {
     let potential_blacklisted = await DataBaseModel({ id: DataBaseModel.Get, key: `GLOBAL.BLACKLIST.${interaction.user.id}.blacklisted` });
 
-    if (potential_blacklisted === interaction.user.id) {
+    if (potential_blacklisted) {
       const blacklisted = new EmbedBuilder()
         .setColor("#0827F5").setTitle(":(").setImage(config.core.blacklistPictureInEmbed);
       return interaction.reply({ embeds: [blacklisted] });
