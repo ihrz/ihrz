@@ -38,43 +38,47 @@ slashInfo.owner.blacklist.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
     let data = await getLanguageData(interaction.guild.id);
 
-    // if (await db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
     if (await DataBaseModel({ id: DataBaseModel.Get, key: `GLOBAL.OWNER.${interaction.user.id}.owner` }) !== true) {
         return interaction.reply({ content: data.blacklist_not_owner });
-    }
+    };
 
     var text = ""
     const ownerList = await DataBaseModel({ id: DataBaseModel.All });
-    for (var i in ownerList[0].value.BLACKLIST) {
+
+    for (var i in ownerList.find(item => item.id === 'GLOBAL').value.BLACKLIST) {
         text += `<@${i}>\n`
     }
 
     let embed = new EmbedBuilder()
-        .setColor('#2E2EFE')
-        .setAuthor({ name: 'Blacklist' })
-        .setDescription(text || "No blacklist")
-        .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
-    const member = interaction.options.getMember('member')
-    if (!member) return interaction.reply({ embeds: [embed] });
+        .setColor('#2E2EFE').setAuthor({ name: 'Blacklist' }).setDescription(text || "No blacklist")
+        .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
 
-    if (member.user.id === client.user.id) return interaction.reply({ content: data.blacklist_bot_lol })
+    const member = interaction.options.getMember('member');
+    const force = interaction.options.getString('forceid');
 
-    // let fetched = await db.get(`GLOBAL.BLACKLIST.${member.user.id}`)
-    let fetched = await DataBaseModel({ id: DataBaseModel.Get, key: `GLOBAL.BLACKLIST.${member.user.id}` })
+    if (!member && !force) return interaction.reply({ embeds: [embed] });
 
-    if (!fetched) {
-        // await db.set(`GLOBAL.BLACKLIST.${member.user.id}`, { blacklisted: true })
-        await DataBaseModel({ id: DataBaseModel.Set, key: `GLOBAL.BLACKLIST.${member.user.id}`, value: { blacklisted: true } })
-        if (member.bannable) {
-            member.ban({ reason: "blacklisted !" })
-            return interaction.reply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, member.user.username) });
+    if (member) {
+        if (member.user.id === client.user.id) return interaction.reply({ content: data.blacklist_bot_lol });
+        let fetched = await DataBaseModel({ id: DataBaseModel.Get, key: `GLOBAL.BLACKLIST.${member.user.id}` })
+
+        if (!fetched) {
+            await DataBaseModel({ id: DataBaseModel.Set, key: `GLOBAL.BLACKLIST.${member.user.id}`, value: { blacklisted: true } })
+            if (member.bannable) {
+                member.ban({ reason: "blacklisted !" });
+                return interaction.reply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, member.user.username) });
+            } else {
+                await DataBaseModel({ id: DataBaseModel.Set, key: `GLOBAL.BLACKLIST.${member.user.id}`, value: { blacklisted: true } });
+                return interaction.reply({ content: data.blacklist_blacklisted_but_can_ban_him });
+            }
         } else {
-            await DataBaseModel({ id: DataBaseModel.Set, key: `GLOBAL.BLACKLIST.${member.user.id}`, value: { blacklisted: true } });
-            return interaction.reply({ content: data.blacklist_blacklisted_but_can_ban_him })
+            return interaction.reply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, member.user.username) });
         }
-    } else {
-        return interaction.reply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, member.user.username) });
-    }
+    } else if (force) {
+        if (force === client.user.id) return interaction.reply({ content: data.blacklist_bot_lol });
+        await DataBaseModel({ id: DataBaseModel.Set, key: `GLOBAL.BLACKLIST.${force}`, value: { blacklisted: true } })
+        return interaction.reply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, `<@${force}>`) });
+    };
 };
 
 module.exports = slashInfo.owner.blacklist;

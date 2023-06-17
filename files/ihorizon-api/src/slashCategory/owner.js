@@ -42,6 +42,12 @@ module.exports = {
                 type: ApplicationCommandOptionType.User,
                 description: 'The user you want to blacklist...',
                 required: false
+            },
+            {
+                name: 'forceid',
+                type: ApplicationCommandOptionType.String,
+                description: 'The user you want to blacklist...',
+                required: false
             }
         ],
     },

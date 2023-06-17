@@ -64,7 +64,6 @@ slashInfo.backup.backup.run = async (client, interaction) => {
             await backupData.channels.categories.forEach(category => { i++; category.children.forEach(() => { j++; }); });
             elData =  {guildName: backupData.name, categoryCount: i, channelCount: j};
 
-            // await db.set(`BACKUPS.${interaction.user.id}.${backupData.id}`, elData);
             await DataBaseModel({id: DataBaseModel.Set, key: `BACKUPS.${interaction.user.id}.${backupData.id}`, value: elData});
 
             interaction.channel.send({ content: data.backup_command_work_on_creation });
@@ -118,8 +117,6 @@ slashInfo.backup.backup.run = async (client, interaction) => {
 
     if (backup_options === "see") {
         // If the user provided a backup ID, show the backup's info.
-
-        // if(backupID && !await db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) { 
             
         if(backupID && !await DataBaseModel({id: DataBaseModel.Get, key: `BACKUPS.${interaction.user.id}.${backupID}`})) {
             return interaction.editReply({ content: "❌ | This is not your backup !" });
