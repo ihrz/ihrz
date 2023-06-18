@@ -31,11 +31,12 @@ function uncaughtExceptionHandler() {
             logger.err(`${config.console.emojis.ERROR} >> Error detected`.red),
                 logger.err(`${config.console.emojis.OK} >> Save in the logs`.gray);
 
-            let filesPath = process.cwd() + '/files/logs/crash/' + date.format((new Date()), 'DD.MM.YYYY HH;mm;ss') + '.txt';
+            let filesPath = process.cwd() + '/files/.err_logs';
 
             CreateFiles = fs.createWriteStream(filesPath, { flags: 'a' });
 
-            let i = `${config.core.asciicrash}\n${err.stack || err.message}\r\n`;
+            let i = `[${date.format((new Date()), 'DD/MM/YYYY HH:mm:ss')}]
+            ${config.core.asciicrash}\n${err.stack || err.message}\r\n`;
 
             return CreateFiles.write(i);
         };
@@ -50,9 +51,7 @@ function exit(driver) {
     const exec = async () => await logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${dbProtocolName})!`) && await driver.close();
 
     process.on('exit', async () => { await exec(); return process.exit(1); });
-
     process.on('abort', async () => { await exec(); return process.exit(1); });
-
     process.on('SIGINT', async () => { await exec(); return process.exit(1); });
 };
 

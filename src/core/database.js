@@ -30,7 +30,7 @@ let db;
 
 module.exports = new Promise((resolve, reject) => {
     if (config.database.useSqlite) {
-        db = new QuickDB();
+        db = new QuickDB({ filePath: `${process.cwd()}/src/db.sqlite` });
         logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`.green);
         resolve(db);
     } else {

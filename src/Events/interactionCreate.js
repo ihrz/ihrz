@@ -20,6 +20,7 @@
 */
 
 const fs = require("fs");
+const date = require('date-and-time');
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 const timeout = 1000;
 const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
@@ -43,21 +44,28 @@ module.exports = async (client, interaction) => {
     };
     if (await cooldDown()) {
       let data = await getLanguageData(interaction.guild.id);
-      interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
-      return;
+      return interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
     }
     try {
-      command.run(client, interaction);
+      s = Date.now();
+      await command.run(client, interaction);
+      e = Date.now();
     } catch (error) {
-      logger.err("Not an handler error", error);
+      e = Date.now();
+      logger.err(error);
     }
   };
 
   async function logsCommands() {
-    const now = new Date();
-    const CreateFiles = fs.createWriteStream(`${process.cwd()}/files/logs/commands/${interaction.guild.id}.txt`, { flags: 'a' });
-    let i = `[${interaction.guild.name}] >> ${interaction.user.username}#${interaction.user.discriminator} - ${now}\n#${interaction.channel.name}: /${interaction.commandName}`;
-    CreateFiles.write(i.toString() + '\r\n');
+    let opt = [];
+
+    interaction.options._hoistedOptions.forEach(element => {
+      opt.push(`${element.name}:"${element.value}" `);
+    });
+    if (e - s === 0) { r = `The command are exited by an erorr!` } else { r = `Executed in ${e - s}ms` }
+    fs.createWriteStream(`${process.cwd()}/files/.slash_logs`, { flags: 'a' }).write(`${interaction.guild.name} >> ${date.format(new Date(), 'DD/MM/YYYY HH:mm:ss')}\n#${interaction.channel.name}:
+    ${interaction.user.username}#${interaction.user.discriminator}:
+        /${interaction.commandName} ${opt} | ${r}\n\r`);
   };
 
   async function cooldDown() {
