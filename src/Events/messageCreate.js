@@ -103,6 +103,7 @@ module.exports = async (client, message) => {
   };
 
   async function blockSpam() {
+    
     if (!message.guild || !message.channel || !message.member || message.channel.type !== ChannelType.GuildText || message.author.bot || message.author.id === client.user.id) {
       return;
     }
@@ -113,6 +114,8 @@ module.exports = async (client, message) => {
     if (type === "off" || message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
       return;
     }
+
+    const member = message.guild.members.cache.get(message.author.id);
 
     if (type === "on") {
       const LOG = await DataBaseModel({ id: DataBaseModel.Get, key: `${guildId}.GUILD.PUNISH.PUNISH_PUB` });
@@ -129,7 +132,6 @@ module.exports = async (client, message) => {
           case 'mute':
             const muterole = message.guild.roles.cache.find(role => role.name === 'muted');
             if (muterole) {
-              const member = message.guild.members.cache.get(message.author.id);
               await member.roles.add(muterole.id).catch(err => { });
               setTimeout(async () => {
                 if (member.roles.cache.has(muterole.id)) {

@@ -39,15 +39,21 @@ slashInfo.moderation.tempmute.run = async (client, interaction) => {
 	const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 	let data = await getLanguageData(interaction.guild.id);
 
-	let mutetime = interaction.options.getString("time").split(" ")[0]
-	let tomute = interaction.options.getMember("user")
-	const permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)
-	if (!permission) return interaction.reply({ content: data.tempmute_dont_have_permission });
+	await interaction.reply({content: ':clock:'});
+
+	let mutetime = interaction.options.getString("time").split(" ")[0];
+	let tomute = interaction.options.getMember("user");
+
+	const permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages);
+
+	if (!permission) return interaction.editReply({ content: data.tempmute_dont_have_permission });
+
 	if (!interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.ManageMessages])) {
-		return interaction.reply({ content: data.tempmute_i_dont_have_permission })
-	}
+		return interaction.editReply({ content: data.tempmute_i_dont_have_permission })
+	};
+
 	if (tomute.id === interaction.user.id) {
-		return interaction.reply({ content: data.tempmute_cannot_mute_yourself });
+		return interaction.editReply({ content: data.tempmute_cannot_mute_yourself });
 	}
 	let muterole = interaction.guild.roles.cache.find(role => role.name === 'muted');
 
@@ -58,7 +64,7 @@ slashInfo.moderation.tempmute.run = async (client, interaction) => {
 				reason: data.tempmute_reason_create_roles
 			})
 
-			interaction.guild.channels.cache.forEach(async (channel, id) => {
+			await interaction.guild.channels.cache.forEach(async (channel, id) => {
 				if (channel.permissionOverwrites) {
 					await channel.permissionOverwrites.create(muterole, {
 						SendMessages: false,
@@ -71,18 +77,19 @@ slashInfo.moderation.tempmute.run = async (client, interaction) => {
 		}
 	}
 	if (tomute.roles.cache.has(muterole.id)) {
-		return interaction.reply({ content: data.tempmute_already_muted })
+		return interaction.editReply({ content: data.tempmute_already_muted })
 	}
 	await (tomute.roles.add(muterole.id));
-	interaction.reply(data.tempmute_command_work
+	await interaction.editReply(data.tempmute_command_work
 		.replace("${tomute.id}", tomute.id)
 		.replace("${ms(ms(mutetime))}", ms(ms(mutetime)))
 	);
 
-	setTimeout(function () {
-		if (!tomute.roles.cache.has(muterole.id)) { return }
+	setTimeout(async function () {
+		if (!tomute.roles.cache.has(muterole.id)) { return };
+
 		tomute.roles.remove(muterole.id);
-		interaction.channel.send({
+		await interaction.channel.send({
 			content: data.tempmute_unmuted_by_time
 				.replace("${tomute.id}", tomute.id)
 		});

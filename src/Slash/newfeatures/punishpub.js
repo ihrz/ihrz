@@ -69,7 +69,7 @@ slashInfo.newfeatures.punishpub.run = async (client, interaction) => {
                 .setDescription(data.punishpub_logs_embed_description
                     .replace("${interaction.user.id}", interaction.user.id)
                     .replace("${amount}", amount)
-                    .replace("${punishment}", punishment)
+                    .replace("${punishement}", punishment)
                 )
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
@@ -79,7 +79,7 @@ slashInfo.newfeatures.punishpub.run = async (client, interaction) => {
             content: data.punishpub_confirmation_message_enable
                 .replace("${interaction.user.id}", interaction.user.id)
                 .replace("${amount}", amount)
-                .replace("${punishment}", punishment)
+                .replace("${punishement}", punishment)
         });
     } else {
         // await db.delete(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
