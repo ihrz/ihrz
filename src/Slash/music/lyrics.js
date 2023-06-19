@@ -33,9 +33,8 @@ const {
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const { QueueRepeatMode } = require('discord-player');
 const logger = require(`${process.cwd()}/src/core/logger`);
-const lyricsFinder = lyricsExtractor(/* 'optional genius API key' */);
+const lyricsFinder = lyricsExtractor();
 
 slashInfo.music.lyrics.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);

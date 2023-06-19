@@ -118,7 +118,8 @@ files/giveaways.json
 *.tar.gz
 
 # Not upload logs
-*.txt
+*.err_logs
+*.slash_logs
 
 # Not upload backups
 /files/ihorizon-api/backups/*.json

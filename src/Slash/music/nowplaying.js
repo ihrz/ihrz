@@ -20,6 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const { lyricsExtractor } = require('@discord-player/extractor');
 
 const {
     Client,
@@ -27,34 +28,111 @@ const {
     Collection,
     EmbedBuilder,
     Permissions,
+    ComponentType,
+    ButtonStyle,
+    ButtonBuilder,
+    ActionRowBuilder,
     ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType
 } = require('discord.js');
 
-const logger = require(`${process.cwd()}/src/core/logger`);
+const lyricsFinder = lyricsExtractor();
 
 slashInfo.music.nowplaying.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
     let data = await getLanguageData(interaction.guild.id);
 
-    try {
-        const queue = interaction.client.player.nodes.get(interaction.guild);
-        if (!queue || !queue.isPlaying()) {
-            return interaction.reply({ content: data.nowplaying_no_queue, ephemeral: true });
-        }
-        const progress = queue.node.createProgressBar();
-        const embed = new EmbedBuilder()
-            .setTitle(data.nowplaying_message_embed_title)
-            .setDescription(`[${queue.currentTrack.title}](${queue.currentTrack.url})`)
-            .setThumbnail(`${queue.currentTrack.thumbnail}`)
-            .addFields(
-                { name: '  ', value: progress.replace(/ 0:00/g, 'LIVE') }
-            );
+    const pause = new ButtonBuilder()
+        .setCustomId('pause')
+        .setLabel('⏯')
+        .setStyle(ButtonStyle.Success);
 
-        await interaction.reply({ embeds: [embed] });
-    } catch (error) {
-        logger.err(error);
+    const stop = new ButtonBuilder()
+        .setCustomId('stop')
+        .setLabel('⏹️')
+        .setStyle(ButtonStyle.Primary);
+
+    const lyricsButton = new ButtonBuilder()
+        .setCustomId('lyrics')
+        .setLabel('📝')
+        .setStyle(ButtonStyle.Secondary);
+
+    const btn = new ActionRowBuilder()
+        .addComponents(stop, pause, lyricsButton);
+
+    const queue = interaction.client.player.nodes.get(interaction.guild);
+
+    if (!queue || !queue.isPlaying()) {
+        return interaction.reply({ content: data.nowplaying_no_queue, ephemeral: true });
+    };
+
+    const progress = queue.node.createProgressBar();
+
+    const embed = new EmbedBuilder()
+        .setTitle(data.nowplaying_message_embed_title)
+        .setDescription(`by: <@${queue.currentTrack.requestedBy.id}>\n**[${queue.currentTrack.title}](${queue.currentTrack.url})**, ${queue.currentTrack.author}`)
+        .setThumbnail(`${queue.currentTrack.thumbnail}`)
+        .addFields(
+            { name: '  ', value: progress.replace(/ 0:00/g, 'LIVE') }
+        );
+
+    let response = await interaction.reply({
+        embeds: [embed],
+        components: [btn],
+    });
+
+    paused = false;
+    try {
+        const collector = response.createMessageComponentCollector({ componentType: ComponentType.Button, time: 3_600_000 });
+        collector.on('collect', async i => {
+            if (i.user.id === interaction.user.id) {
+                switch (i.customId) {
+                    case "pause":
+                        i.deferUpdate();
+                        if (paused) {
+                            queue.node.setPaused(false),
+                                paused = false,
+                                queue.metadata.channel.send({ content: `${interaction.user} **resume** the music!` });
+                        }
+                        else {
+                            queue.node.setPaused(true),
+                                paused = true,
+                                queue.metadata.channel.send({ content: `${interaction.user} **pause** the music!` });
+                        }
+                        break;
+                    case "lyrics":
+                        const lyrics = await lyricsFinder.search(queue.currentTrack.title).catch(() => null);
+                        const trimmedLyrics = lyrics.lyrics.substring(0, 1997);
+
+                        const embed = new EmbedBuilder()
+                            .setTitle(lyrics.title)
+                            .setURL(lyrics.url)
+                            .setTimestamp()
+                            .setThumbnail(lyrics.thumbnail)
+                            .setAuthor({
+                                name: lyrics.artist.name,
+                                iconURL: lyrics.artist.image,
+                                url: lyrics.artist.url
+                            })
+                            .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
+                            .setColor('#cd703a')
+                            .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
+                        i.reply({ embeds: [embed], ephemeral: true });
+                        break;
+                    case "stop":
+                        i.deferUpdate();
+                        client.player.nodes.delete(interaction.guild?.id);
+                        queue.metadata.channel.send({ content: `${interaction.user} **stop** the music!` });
+                        break;
+                }
+            } else {
+                await i.reply({ content: ':no_entry_sign:', ephemeral: true });
+            }
+        });
+
+    } catch {
+        return await interaction.channel.send('⏲️');
     }
 };
 
