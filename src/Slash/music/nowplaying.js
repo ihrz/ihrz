@@ -109,22 +109,25 @@ slashInfo.music.nowplaying.run = async (client, interaction) => {
                         break;
                     case "lyrics":
                         const lyrics = await lyricsFinder.search(queue.currentTrack.title).catch(() => null);
-                        const trimmedLyrics = lyrics.lyrics.substring(0, 1997);
-
-                        const embed = new EmbedBuilder()
-                            .setTitle(lyrics.title)
-                            .setURL(lyrics.url)
-                            .setTimestamp()
-                            .setThumbnail(lyrics.thumbnail)
-                            .setAuthor({
-                                name: lyrics.artist.name,
-                                iconURL: lyrics.artist.image,
-                                url: lyrics.artist.url
-                            })
-                            .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
-                            .setColor('#cd703a')
-                            .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
-                        i.reply({ embeds: [embed], ephemeral: true });
+                        if (lyrics) {
+                            const trimmedLyrics = lyrics.lyrics.substring(0, 1997);
+                            const embed = new EmbedBuilder()
+                                .setTitle(lyrics.title)
+                                .setURL(lyrics.url)
+                                .setTimestamp()
+                                .setThumbnail(lyrics.thumbnail)
+                                .setAuthor({
+                                    name: lyrics.artist.name,
+                                    iconURL: lyrics.artist.image,
+                                    url: lyrics.artist.url
+                                })
+                                .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
+                                .setColor('#cd703a')
+                                .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
+                            i.reply({ embeds: [embed], ephemeral: true });
+                        } else {
+                            i.reply({ content: 'The lyrics for this song were not found', ephemeral: true });
+                        };
                         break;
                     case "stop":
                         i.deferUpdate();
