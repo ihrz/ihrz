@@ -109,7 +109,9 @@ slashInfo.music.nowplaying.run = async (client, interaction) => {
                         break;
                     case "lyrics":
                         const lyrics = await lyricsFinder.search(queue.currentTrack.title).catch(() => null);
-                        if (lyrics) {
+                        if (!lyrics) {
+                            i.reply({ content: 'The lyrics for this song were not found', ephemeral: true });
+                        } else {
                             const trimmedLyrics = lyrics.lyrics.substring(0, 1997);
                             const embed = new EmbedBuilder()
                                 .setTitle(lyrics.title)
@@ -125,8 +127,6 @@ slashInfo.music.nowplaying.run = async (client, interaction) => {
                                 .setColor('#cd703a')
                                 .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
                             i.reply({ embeds: [embed], ephemeral: true });
-                        } else {
-                            i.reply({ content: 'The lyrics for this song were not found', ephemeral: true });
                         };
                         break;
                     case "stop":
