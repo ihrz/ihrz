@@ -86,7 +86,13 @@ slashInfo.music.nowplaying.run = async (client, interaction) => {
     try {
         const collector = response.createMessageComponentCollector({ componentType: ComponentType.Button, time: 3_600_000 });
         collector.on('collect', async i => {
-            if (i.user.id === interaction.user.id) {
+            const queue = interaction.client.player.nodes.get(interaction.guild);
+
+            if (!queue || !queue.isPlaying()) {
+                return i.reply({ content: data.nowplaying_no_queue, ephemeral: true });
+            };
+
+            if (i.user.id === queue.currentTrack.requestedBy.id) {
                 switch (i.customId) {
                     case "pause":
                         i.deferUpdate();
