@@ -40,7 +40,6 @@ slashInfo.profil.setprofildescription.run = async (client, interaction) => {
 
     var desc = interaction.options.getString("descriptions")
 
-    // await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.desc`, desc)
     await DataBaseModel({id: DataBaseModel.Set, key: `GLOBAL.USER_PROFIL.${interaction.user.id}.desc`, value: desc})
     return interaction.reply({ content: data.setprofildescriptions_command_work });
 };

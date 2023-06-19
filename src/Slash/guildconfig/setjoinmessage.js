@@ -60,7 +60,6 @@ slashInfo.guildconfig.setjoinmessage.run = async (client, interaction) => {
         .replace("{guild}", "{guild}")
         .replace("{createdat}", "{createdat}")
         .replace("{membercount}", "{membercount}")
-      // await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`, joinmsgreplace)
       await DataBaseModel(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`, joinmsgreplace)
 
       try {
@@ -79,7 +78,6 @@ slashInfo.guildconfig.setjoinmessage.run = async (client, interaction) => {
     }
   } else {
     if (type == "off") {
-      // await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
       await DataBaseModel({id: DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`});
       try {
         logEmbed = new EmbedBuilder()
@@ -97,7 +95,6 @@ slashInfo.guildconfig.setjoinmessage.run = async (client, interaction) => {
     }
   }
   if (type == "ls") {
-    // var ls = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
     var ls = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`});
     return interaction.reply({
       content: data.setjoinmessage_command_work_ls

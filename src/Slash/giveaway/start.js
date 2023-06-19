@@ -43,7 +43,7 @@ slashInfo.giveaway.start.run = async (client, interaction) => {
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
             return interaction.reply({ content: data.start_not_perm });
-        }
+        };
 
         let giveawayChannel = interaction.options.getChannel("channel");
 
@@ -53,7 +53,7 @@ slashInfo.giveaway.start.run = async (client, interaction) => {
 
         if (isNaN(giveawayNumberWinners) || (parseInt(giveawayNumberWinners) <= 0)) {
             return interaction.reply({ content: data.start_is_not_valid });
-        }
+        };
 
         let giveawayPrize = interaction.options.getString("prize");
 
@@ -62,9 +62,6 @@ slashInfo.giveaway.start.run = async (client, interaction) => {
             prize: giveawayPrize,
             winnerCount: parseInt(giveawayNumberWinners),
             hostedBy: config.giveaway.hostedBy ? `<@${interaction.user.id}>` : null,
-        });
-        interaction.reply({ content: data.start_confirmation_command
-            .replace(/\${giveawayChannel}/g, giveawayChannel)
         });
 
         try {
@@ -79,6 +76,10 @@ slashInfo.giveaway.start.run = async (client, interaction) => {
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
         } catch (e) { logger.err(e) };
+
+        return await interaction.reply({ content: data.start_confirmation_command
+            .replace(/\${giveawayChannel}/g, giveawayChannel)
+        });
 };
 
 module.exports = slashInfo.giveaway.start;

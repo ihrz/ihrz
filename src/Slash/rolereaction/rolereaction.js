@@ -134,34 +134,6 @@ slashInfo.rolereaction.rolereaction.run = async (client, interaction) => {
       /*End of Remove roles to users pleasssssssse horisus*/
     }
   }
-  /*if(type == "list"){
-  let reactionLet = interaction.options.getString("reaction")
-  
-  if(!reactionLet) { return interaction.reply({content: `Missing argument: Reaction's Emoji`})}
-  
-  const message = await interaction.channel.messages.fetch(messagei);
-  
-  const fetched = await db.get(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`)
-  
-  if(!fetched) { return interaction.reply({content: "Reaction Roles don't found on my database..."})}
-  
-  const reactionVar = message.reactions.cache.get(fetched.reactionNAME);
-  
-  await reactionVar.users.remove(client.user.id);
-  
-  await interaction.reply({content: `${reaction} has been deleted to the ${messagei}'s message`, ephemeral: true})
-  
-  await db.delete(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`)
-     
-    try{
-      logEmbed = new EmbedBuilder()
-      .setColor("PURPLE")
-      .setTitle("ReactionRoles Logs")
-      .setDescription(`<@${interaction.user.id}> delete a reaction roles: Message: \`${messagei}\` | Reaction: \`${reaction}\``)
-              let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
-              if(logchannel) { logchannel.send({embeds: [logEmbed]}) }
-              }catch(e) { console.error(e) };
-    }*/
 };
 
 module.exports = slashInfo.rolereaction.rolereaction;

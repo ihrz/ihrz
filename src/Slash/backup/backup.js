@@ -124,7 +124,6 @@ slashInfo.backup.backup.run = async (client, interaction) => {
 
         if (backupID) {
             let data = await DataBaseModel({id: DataBaseModel.Get, key: `BACKUPS.${interaction.user.id}.${backupID}`});
-            // let data = await db.get(`BACKUPS.${interaction.user.id}.${backupID}`);
 
             if (!data) return interaction.editReply({ content: "ERROR? Backup don't exist." });
             let v = `:placard:・Category's Count: \`${data.categoryCount}\`\n:hash:・Channel's Count: \`${data.channelCount}\``
@@ -134,11 +133,9 @@ slashInfo.backup.backup.run = async (client, interaction) => {
         // If the user didn't provide a backup ID, show all the backups.
         else {
             let em = new EmbedBuilder().setDescription("**All of your backup:** ").setColor("#bf0bb9").setTimestamp();
-            // let data2 = await db.get(`BACKUPS.${interaction.user.id}`);
             let data2 = await DataBaseModel({id: DataBaseModel.Get, key: `BACKUPS.${interaction.user.id}`});
             b = 1;
             for (i in data2) {
-                // let result = await db.get(`BACKUPS.${interaction.user.id}.${i}`);
                 let result = await DataBaseModel({id: DataBaseModel.Get, key: `BACKUPS.${interaction.user.id}.${i}`});
                 let v = `:placard:・Category's Count: \`${result.categoryCount}\`\n:hash:・Channel's Count: \`${result.channelCount}\``
                 if (result) em.addFields({ name: `${result.guildName} - (||${i}||)`, value: v }) && b++;

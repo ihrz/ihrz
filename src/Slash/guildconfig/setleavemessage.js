@@ -60,7 +60,6 @@ slashInfo.guildconfig.setleavemessage.run = async (client, interaction) => {
         .replace("{user}", "{user}")
         .replace("{guild}", "{guild}")
         .replace("{membercount}", "{membercount}")
-      // await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`, joinmsgreplace)
       await DataBaseModel({id: DataBaseModel.Set, key:`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`, value: joinmsgreplace})
 
       try {
@@ -80,7 +79,6 @@ slashInfo.guildconfig.setleavemessage.run = async (client, interaction) => {
 
   } else {
     if (type == "off") {
-      // await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`);
       await DataBaseModel({id: DataBaseModel.Delete, key:`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`});
       try {
         let ban_embed = new EmbedBuilder()
@@ -96,7 +94,6 @@ slashInfo.guildconfig.setleavemessage.run = async (client, interaction) => {
     }
   }
   if (type == "ls") {
-    // var ls = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`);
     var ls = await DataBaseModel({id: DataBaseModel.Get, key:`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`});
     return interaction.reply({ content: data.setleavemessage_command_work_ls })
   }

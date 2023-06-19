@@ -28,7 +28,6 @@ module.exports = async (client, reaction, user) => {
     try {
       if (user.bot || user.id == client.user.id) return;
       if (!reaction.message.guild) return;
-      // const fetched = await db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`)
       const fetched = await DataBaseModel({id: DataBaseModel.Get, key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`})
   
       if (fetched) {
@@ -39,7 +38,6 @@ module.exports = async (client, reaction, user) => {
         return await member.roles.remove(role);
       };
       
-      // const fetchedForNitro = await db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`)
       const fetchedForNitro = await DataBaseModel({id: DataBaseModel.Get, key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`})
   
       if (fetchedForNitro) {

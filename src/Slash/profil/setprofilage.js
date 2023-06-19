@@ -40,7 +40,6 @@ slashInfo.profil.setprofilage.run = async (client, interaction) => {
 
     var age = interaction.options.getNumber("age");
 
-    // await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.age`, age)
     await DataBaseModel({id: DataBaseModel.Set, key: `GLOBAL.USER_PROFIL.${interaction.user.id}.age`, value: age});
     return interaction.reply({ content: data.setprofilage_command_work });
 };

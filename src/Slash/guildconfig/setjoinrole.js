@@ -64,11 +64,9 @@ slashInfo.guildconfig.setjoinrole.run = async (client, interaction) => {
         } catch (e) { logger.err(e) };
 
         try {
-            // let already = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
-            let already = await DataBaseModel({id: DataBaseModel.Get, key:`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`});
+            let already = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles` });
             if (already === roleid.value) return interaction.reply({ content: data.setjoinroles_already_on_enable })
-            await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`, roleid.value);
-
+            await DataBaseModel({ id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`, value: roleid.value });
             return interaction.reply({
                 content: data.setjoinroles_command_work_enable
                     .replace("${roleid}", roleid.value)
@@ -90,8 +88,7 @@ slashInfo.guildconfig.setjoinrole.run = async (client, interaction) => {
             } catch (e) { }
 
             try {
-                // let already = await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
-                let already = await DataBaseModel({id: DataBaseModel.Delete, key:`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`});
+                let already = await DataBaseModel({ id: DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles` });
                 if (!already) return interaction.reply({ content: data.setjoinroles_dont_need_command_on_disable })
 
                 return interaction.reply({ content: data.setjoinroles_command_work_on_disable });
@@ -101,8 +98,7 @@ slashInfo.guildconfig.setjoinrole.run = async (client, interaction) => {
             }
         } else {
             if (query === "ls") {
-                // let roles = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`)
-                let roles = await DataBaseModel({id: DataBaseModel.Get, key:`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`})
+                let roles = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles` })
                 if (!roles) return interaction.reply({ content: data.setjoinroles_command_any_set_ls })
                 return interaction.reply({
                     content: data.setjoinroles_command_work_ls

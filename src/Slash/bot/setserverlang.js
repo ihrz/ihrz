@@ -58,12 +58,10 @@ slashInfo.bot.setserverlang.run = async (client, interaction) => {
     } catch (e) { logger.err(e) };
 
     try {
-        // let already = await db.get(`${interaction.guild.id}.GUILD.LANG`);
         let already = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.LANG`});
         if (already) {
             if (already.lang === type) return interaction.reply({ content: data.setserverlang_already });
         }
-        // await db.set(`${interaction.guild.id}.GUILD.LANG`, { lang: type });
         await DataBaseModel({id:DataBaseModel.Set, key:`${interaction.guild.id}.GUILD.LANG`,value: { lang: type }});
 
         return interaction.reply({ content: data.setserverlang_command_work_enable.replace(/\${type}/g, type) });

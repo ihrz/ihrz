@@ -30,7 +30,6 @@ module.exports = async (client, oldState, newState) => {
     async function serverLogs() {
         if (!oldState || !oldState.guild) return;
         const guildId = oldState.guild.id;
-        // const someinfo = await db.get(`${guildId}.GUILD.SERVER_LOGS.voice`);
         const someinfo = await DataBaseModel({id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.voice`});
         if (!someinfo) return;
 

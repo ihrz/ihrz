@@ -40,8 +40,6 @@ module.exports = async (client, reaction, user) => {
     async function reactionRole() {
         try {
             if (user.bot || user.id == client.user.id || !reaction.message.guild) return;
-
-            // const fetched = await db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
             const fetched = await DataBaseModel({id: DataBaseModel.Get, key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`});
 
             if (fetched) {
@@ -69,7 +67,6 @@ module.exports = async (client, reaction, user) => {
 
     async function ticketModule() {
         if (user.bot) return;
-        // let result = await db.get(`${reaction.message.guildId}.GUILD.TICKET.${reaction.message.id}`)
         let result = await DataBaseModel({id: DataBaseModel.Get, key: `${reaction.message.guildId}.GUILD.TICKET.${reaction.message.id}`})
         if (!result) return;
         if (result.channel !== reaction.message.channelId) return;

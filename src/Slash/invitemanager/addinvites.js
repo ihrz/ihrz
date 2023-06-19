@@ -47,7 +47,6 @@ slashInfo.invitemanager.addinvites.run = async (client, interaction) => {
         return interaction.reply({ embeds: [a] })
     }
 
-    // await db.add(`${interaction.guild.id}.USER.${user.id}.INVITES.DATA.invites`, amount);
     await DataBaseModel({id: DataBaseModel.Add, key:`${interaction.guild.id}.USER.${user.id}.INVITES.DATA.invites`, value: amount});
 
     const finalEmbed = new EmbedBuilder()
@@ -57,7 +56,6 @@ slashInfo.invitemanager.addinvites.run = async (client, interaction) => {
         )
         .setColor(`#92A8D1`)
         .setFooter({ text: interaction.guild.name, iconURL: interaction.guild.iconURL({ dynamic: true }) });
-    // await db.add(`${interaction.guild.id}.USER.${user.id}.INVITES.DATA.bonus`, amount);
     await DataBaseModel({id: DataBaseModel.Add, key:`${interaction.guild.id}.USER.${user.id}.INVITES.DATA.bonus`, amount});
     interaction.reply({ embeds: [finalEmbed] });
 

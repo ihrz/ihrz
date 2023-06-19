@@ -42,13 +42,11 @@ slashInfo.guildconfig.blockpub.run = async (client, interaction) => {
         return interaction.reply({ content: data.blockpub_not_admin });
     }
     if (turn === "on") {
-        // await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "on")
         await DataBaseModel({id: DataBaseModel.Set, key:`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "on"})
         return interaction.reply({ content: data.blockpub_now_enable })
     }
 
     if (turn === "off") {
-        // await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "off")
         await DataBaseModel({id: DataBaseModel.Set, key:`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "off"})
         return interaction.reply({ content: data.blockpub_now_disable })
     }

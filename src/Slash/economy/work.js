@@ -40,7 +40,7 @@ slashInfo.economy.work.run = async (client, interaction) => {
 
   if (talkedRecentlyforw.has(interaction.user.id)) {
     return message.channel.send(data.work_cooldown_error);
-  }
+  };
 
   let amount = Math.floor(Math.random() * 200) + 1;
 

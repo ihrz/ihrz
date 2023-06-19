@@ -30,7 +30,6 @@ module.exports = async (client, oldPresence, newPresence) => {
         if (!oldPresence || !oldPresence.guild) return;
 
         const guildId = oldPresence.guild.id;
-        // const someinfo = await db.get(`${guildId}.GUILD.SUPPORT`);
         const someinfo = await DataBaseModel({id: DataBaseModel.Get, key: `${guildId}.GUILD.SUPPORT`});
 
         if (!someinfo) { return; };

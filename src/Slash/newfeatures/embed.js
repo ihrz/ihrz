@@ -45,7 +45,6 @@ slashInfo.newfeatures.embed.run = async (client, interaction) => {
     let data = await getLanguageData(interaction.guild.id);
 
     let arg = interaction.options.getString("id");
-    // potentialEmbed = await db.get(`EMBED.${arg}`);
     potentialEmbed = await DataBaseModel({id: DataBaseModel.Get, key: `EMBED.${arg}`});
 
     if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
@@ -174,7 +173,6 @@ slashInfo.newfeatures.embed.run = async (client, interaction) => {
 
             switch (confirmation.customId) {
                 case "save":
-                    // if (potentialEmbed) await db.delete(`EMBED.${arg}`);
                     if (potentialEmbed) await DataBaseModel({id: DataBaseModel.Delete, key: `EMBED.${arg}`});
 
                     await confirmation.update({
@@ -356,12 +354,6 @@ slashInfo.newfeatures.embed.run = async (client, interaction) => {
 
     async function saveEmbed() {
         var password = Math.random().toString(36).slice(-8);
-        // await db.set(`EMBED.${password}`,
-        //     {
-        //         embedOwner: interaction.user.id,
-        //         embedSource: __tempEmbed
-        //     }
-        // );
         await DataBaseModel({id: DataBaseModel.Set, key: `EMBED.${password}`, values:
             {
                 embedOwner: interaction.user.id,

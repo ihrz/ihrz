@@ -40,7 +40,6 @@ slashInfo.profil.setprofilgender.run = async (client, interaction) => {
 
     var gender = interaction.options.getString("gender");
 
-    // await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.gender`, gender)
     await DataBaseModel({id:DataBaseModel.Set, key: `GLOBAL.USER_PROFIL.${interaction.user.id}.gender`, value: gender})
     return interaction.reply({ content: data.setprofildescriptions_command_work });
 };

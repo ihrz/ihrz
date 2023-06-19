@@ -43,8 +43,8 @@ slashInfo.guildconfig.setjoindm.run = async (client, interaction) => {
             return interaction.reply({ content: data.setjoindm_not_admin });
         }
 
-        let type = interaction.options.getString("value")
-        let dm_msg = interaction.options.getString("message")
+        let type = interaction.options.getString("value");
+        let dm_msg = interaction.options.getString("message");
 
         if (type === "on") {
             try {
@@ -61,7 +61,6 @@ slashInfo.guildconfig.setjoindm.run = async (client, interaction) => {
 
             try {
                 if (!dm_msg) return interaction.reply({ content: data.setjoindm_not_specified_args_on_enable })
-                // await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`, dm_msg);
                 await DataBaseModel({id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`, value: dm_msg});
                 return interaction.reply({ content: data.setjoindm_confirmation_message_on_enable 
                     .replace(/\${dm_msg}/g, dm_msg) 
@@ -86,10 +85,8 @@ slashInfo.guildconfig.setjoindm.run = async (client, interaction) => {
             }
 
             try {
-                // let already_off = await db.get(`joindm-${interaction.guild.id}`);
                 let already_off = await DataBaseModel({id: DataBaseModel.Get, key: `joindm-${interaction.guild.id}`});
-                if (already_off === "off") return interaction.reply({ content: data.setjoindm_already_disable })
-                // await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`);
+                if (already_off === "off") return interaction.reply({ content: data.setjoindm_already_disable });
                 await DataBaseModel({id: DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`});
                 return interaction.reply({ content: data.setjoindm_confirmation_message_on_disable });
 
@@ -98,11 +95,11 @@ slashInfo.guildconfig.setjoindm.run = async (client, interaction) => {
             }
         }
         if (type === "ls") {
-            // let already_off = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`)
             let already_off = await DataBaseModel({id:DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`});
             if (already_off === null) {
                 return interaction.reply({ content: data.setjoindm_not_setup_ls })
-            }
+            };
+
             return interaction.reply({
                 content: data.setjoindm_command_work_ls
                     .replace(/\${already_off}/g, already_off)

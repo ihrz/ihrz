@@ -40,9 +40,7 @@ slashInfo.newfeatures.punishpub.run = async (client, interaction) => {
 
     if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
         return interaction.reply({ content: data.punishpub_not_admin });
-    }
-
-
+    };
 
     let action = interaction.options.getString("action");
     let amount = interaction.options.getNumber("amount");
@@ -82,7 +80,6 @@ slashInfo.newfeatures.punishpub.run = async (client, interaction) => {
                 .replace("${punishement}", punishment)
         });
     } else {
-        // await db.delete(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
         await DataBaseModel({ id: DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB` });
         interaction.reply({ content: data.punishpub_confirmation_disable })
 

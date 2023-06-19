@@ -55,7 +55,6 @@ slashInfo.ranks.disablexp.run = async (client, interaction) => {
             let logchannel = interaction.guild.channels.cache.find(channel => channel.name === 'ihorizon-logs');
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
         } catch (e) { logger.err(e) };
-        // await db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.on_or_off`, "off");
         await DataBaseModel({id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.on_or_off`, value: "off"});
         return interaction.reply({ content: data.disablexp_command_work_disable });
     } else {

@@ -156,7 +156,6 @@ slashInfo.newfeatures.setlogschannel.run = async (client, interaction) => {
                     .replace("${interaction.user.id}", interaction.user.id)
                     .replace("${typeOfLogs}", typeOfLogs)
             })
-            // await db.set(`${interaction.guild.id}.GUILD.SERVER_LOGS.voice`, argsid.id);
             await DataBaseModel({ id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.voice`, value: argsid.id });
 
             return interaction.reply({
@@ -191,7 +190,6 @@ slashInfo.newfeatures.setlogschannel.run = async (client, interaction) => {
 
         try {
             
-            // let already = await db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS.message`)
             let already = await DataBaseModel({id:DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.message`})
             if (already === argsid.id) return interaction.reply({ content: data.setlogschannel_already_this_channel });
             client.channels.cache.get(argsid.id).send({
@@ -199,7 +197,6 @@ slashInfo.newfeatures.setlogschannel.run = async (client, interaction) => {
                     .replace("${interaction.user.id}", interaction.user.id)
                     .replace("${typeOfLogs}", typeOfLogs)
             })
-            // await db.set(`${interaction.guild.id}.GUILD.SERVER_LOGS.message`, argsid.id);
             await DataBaseModel({ id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.message`, value: argsid.id });
 
             return interaction.reply({
@@ -226,11 +223,9 @@ slashInfo.newfeatures.setlogschannel.run = async (client, interaction) => {
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
         } catch (e) { logger.err(e) };
 
-        // let checkData = await db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS`)
         let checkData = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS` })
         if (!checkData) return interaction.reply({ content: data.setlogschannel_already_deleted })
 
-        // await db.delete(`${interaction.guild.id}.GUILD.SERVER_LOGS`);
         await DataBaseModel({ id: DataBaseModel.Delete, key: `${interaction.guild.id}.GUILD.SERVER_LOGS` });
         return await interaction.reply({
             content: data.setlogschannel_command_work_on_delete

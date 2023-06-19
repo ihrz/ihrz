@@ -38,9 +38,7 @@ const logger = require(`${process.cwd()}/src/core/logger`),
 slashInfo.moderation.kick.run = async (client, interaction) => {
 
     let data = await getLanguageData(interaction.guild.id);
-
     const member = interaction.options.getMember("member");
-
     const permission = interaction.member.permissions.has([PermissionsBitField.Flags.KickMembers]);
 
     if (!permission) {
@@ -89,4 +87,5 @@ slashInfo.moderation.kick.run = async (client, interaction) => {
         logger.err(e);
     };
 };
+
 module.exports = slashInfo.moderation.kick;

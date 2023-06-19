@@ -58,10 +58,10 @@ slashInfo.economy.weekly.run = async (client, interaction) => {
       .addFields({ name: data.weekly_embed_fields, value: `${amount}🪙` })
 
 
-    await interaction.reply({ embeds: [embed] });
+    await DataBaseModel({ id: DataBaseModel.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: amount }),
+      await DataBaseModel({ id: DataBaseModel.Set, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.weekly`, value: Date.now() });
 
-    return await DataBaseModel({ id: DataBaseModel.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: amount }),
-      await DataBaseModel({ id: DataBaseModel.Set, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.weekly`, value: Date.now()});
+    return interaction.reply({ embeds: [embed] });
   }
 };
 

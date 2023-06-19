@@ -43,7 +43,6 @@ slashInfo.newfeatures.report.run = async (client, interaction) => {
 
   var sentences = interaction.options.getString("message-to-dev")
   let timeout = 18000000
-  // let cooldown = await db.get(`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`);
   let cooldown = await DataBaseModel({id: DataBaseModel.Get, key:`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`});
 
   if (cooldown !== null && timeout - (Date.now() - cooldown) > 0) {

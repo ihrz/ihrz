@@ -44,8 +44,8 @@ slashInfo.economy.rob.run = async (client, interaction) => {
   }
 
   let user = interaction.options.getMember("member");
-  let targetuser = await db.get(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`)
-  let author = await db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`)
+  let targetuser = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${user.id}.ECONOMY.money`});
+  let author = await DataBaseModel({id: DataBaseModel.Get, key:`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`})
   if (author < 250) {
     return interaction.reply({ content: data.rob_dont_enought_error })
   }
@@ -66,10 +66,11 @@ slashInfo.economy.rob.run = async (client, interaction) => {
     )
     .setColor("#a4cb80")
     .setTimestamp()
+
   await interaction.reply({ embeds: [embed] });
 
-  await db.sub(`${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, random)
-  await db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, random)
+  await DataBaseModel({ id: DataBaseModel.Sub, key: `${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, value: random });
+  await DataBaseModel({ id: DataBaseModel.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: random });
 
   talkedRecentlyforr.add(interaction.user.id);
   setTimeout(() => {

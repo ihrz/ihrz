@@ -39,9 +39,6 @@ slashInfo.ranks.level.run = async (client, interaction) => {
   if (!sus) {
     var user = interaction.user;
 
-    // var level = await db.get(`${interaction.guild.id}.USER.${user.id}.XP_LEVELING.level`) || 0;
-    // var currentxp = await db.get(`${interaction.guild.id}.USER.${user.id}.XP_LEVELING.xp`) || 0;
-
     var level = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${user.id}.XP_LEVELING.level`}) || 0;
     var currentxp = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${user.id}.XP_LEVELING.xp` }) || 0;
 
@@ -59,9 +56,6 @@ slashInfo.ranks.level.run = async (client, interaction) => {
 
     return await interaction.reply({ embeds: [nivEmbed] });
   } else {
-
-    // var level = await db.get(`${interaction.guild.id}.USER.${sus.user.id}.XP_LEVELING.level`) || 0;
-    // var currentxp = await db.get(`${interaction.guild.id}.USER.${sus.user.id}.XP_LEVELING.xp`) || 0;
 
     var level = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${sus.user.id}.XP_LEVELING.level`}) || 0;
     var currentxp = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${sus.user.id}.XP_LEVELING.xp`}) || 0;

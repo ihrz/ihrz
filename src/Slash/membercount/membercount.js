@@ -40,7 +40,7 @@ slashInfo.membercount.membercount.run = async (client, interaction) => {
   let data = await getLanguageData(interaction.guild.id);
 
   if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-    return interaction.reply({ content: setmembercount_not_admin });
+    return interaction.reply({ content: data.setmembercount_not_admin });
   }
   let type = interaction.options.getString("action")
   let messagei = interaction.options.getString("name")
@@ -94,7 +94,7 @@ slashInfo.membercount.membercount.run = async (client, interaction) => {
       } catch (e) { logger.err(e) };
       const fetched = interaction.guild.channels.cache.get(channel.id);
 
-      fetched.edit({ name: `${joinmsgreplace}` });
+      await fetched.edit({ name: joinmsgreplace });
       return interaction.reply({ content: data.setmembercount_command_work_on_enable })
     }
   } else {

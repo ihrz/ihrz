@@ -59,11 +59,9 @@ slashInfo.ranks.setxpchannel.run = async (client, interaction) => {
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
             } catch (e) { logger.err(e) };
             try {
-                // let already = await db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`)
                 let already = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`})
                 if (already === argsid.id) return interaction.reply({ content: data.setxpchannels_already_with_this_config })
                 client.channels.cache.get(argsid.id).send({ content: data.setxpchannels_confirmation_message })
-                // await db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`, argsid.id);
                 await DataBaseModel({id: DataBaseModel.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`, value: argsid.id});
 
                 return interaction.reply({ content: data.setxpchannels_command_work_enable.replace(/\${argsid}/g, argsid.id) });
