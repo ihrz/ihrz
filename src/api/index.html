@@ -3,109 +3,183 @@
 <head>
     <meta charset='utf-8' />
     <title>iHorizon PORTAL</title>
-
-    <style>
-        * {
-            text-align: center;
-            margin: 0px auto;
-            background-color: rgb(44, 47, 51);
-        }
-        * :hover{
-            cursor: text;
-        }
-        #top_bar {
-            font-size: 24px;
-            background: linear-gradient(to top, rgb(244, 4, 4), rgb(92, 1, 43));
-            text-shadow: black;
-            color: rgb(44, 47, 51);
-        }
-        #top_bar:hover {
-            cursor: pointer;
-            color:rgb(0, 0, 0)
-        }
-        #welcome_txt {
-            font-size: 24px;
-            background-color: rgb(88, 101, 242);
-            text-shadow: black;
-            color: rgb(44, 47, 51);
-        }
-        #credit_txt {
-            font-size: 24px;
-            background-color: rgb(88, 101, 242);
-            text-shadow: black;
-            color: rgb(44, 47, 51);
-        }
-
-        #credit_txt:hover {
-            cursor: cell;
-            background: linear-gradient(to right, rgb(42, 196, 91), rgb(206, 208, 184));
-        }
-
-        #login-link {
-            background-color: rgb(64, 78, 232);
-            border-radius: 8px;
-            color: rgb(255, 254, 254);
-            padding: 15px 30px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 20px;
-        }
-
-        #login-link:hover {
-            cursor: crosshair;
-            color:rgb(0, 0, 0)
-        }
-
-        
-    </style>
 </head>
 
 
 <body>
-    <br>
-    <p id='top_bar'></p>
-    <br>
-    <br>
-    <br>
-    <a id='login-link' href='https://discord.com/api/oauth2/authorize?client_id=1053818045073739817&redirect_uri=http%3A%2F%2Flocalhost%3A1337&response_type=code&scope=identify'>Login with Discord</a><br><br>
-    <p id='welcome_txt'></p>
-    <p id='credit_txt'></p>
-    <script>
-        window.onload = function () {
-            document.getElementById("top_bar").innerText = `iHorizon | Login Portal`
-            if (location.href.indexOf("code") !== -1) {
-                const code = location.href.substring(location.href.indexOf("code") + 5, location.href.length);
-                const req = new XMLHttpRequest();
-                document.getElementById('credit_txt').innerText = `📳・[Portal]\n\n🤖・iHorizon Canary - Created by Kisakay`;
-                req.open("POST", "http://localhost:1337/user");
-                req.send(code);
-                req.onload = () => {
-                    if (req.status === 500) {
-                        document.getElementById('welcome_txt').innerText = `There was an error with that. Please try logging in again. Error Code: ${req.status}`;
-                    } else if (req.status === 200) {
-                        document.getElementById("welcome_txt").innerText = `Welcome, ${req.responseText}!`
-                    } else {
-                        document.getElementById('welcome_txt').innerText = `An error occured. Please try logging in again. Error Code: ${req.status}`;
-                    }
+    <nav id='top_bar'>iHorizon | Login Portal</nav>
+    <div class="btndiv">
+        <a id='login-link'
+            href='https://discord.com/api/oauth2/authorize?client_id=1053818045073739817&redirect_uri=http%3A%2F%2Flocalhost%3A1337&response_type=code&scope=identify'>Login
+            with Discord</a>
+    </div>
+    <p id='faqtitle' style="text-align: center;">FAQ</p>
 
+    <ul>
+        <li>
+            <p class="question">Is it safe?</p>
+            <p class="answer">Yes it is. By agreeing to connect, you will be redirected to the discord.com servers!</p>
+        </li>
+        <li>
+            <p class="question">Why do you want me to log in?</p>
+            <p class="answer">This unlocks useful features on iHorizon commands</p>
+        </li>
+        <li>
+            <p class="question">How do I disconnect!</p>
+            <p class="answer">It is very simple,</p>
+            <p class="answer">You go to your discord</p>
+            <p class="answer">User Settings > Allowed Apps > Login - iHorizon Project > tap the cross.</p>
+        </li>
+    </ul>
+</body>
+<footer>
+    <p id='credit_txt'>Created with <span class="fancy">the ❤️ by Kisakay</span> </p>
+
+</footer>
+
+</html>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;500&family=Red+Hat+Text:wght@300&display=swap');
+
+    * {
+        padding: 0;
+        margin: 0;
+        font-family: 'Quicksand', sans-serif;
+        color: #fff;
+    }
+
+    nav {
+        background-color: #404EED;
+        font-size: xx-large;
+        border-radius: 15px;
+        padding-top: 5vh;
+        padding-bottom: 5vh;
+        text-align: center;
+        width: 50%;
+        margin: 0 auto;
+        margin-top: 2vh;
+        margin-bottom: 15vh;
+    }
+
+    #login-link {
+        width: 5vw;
+        background-color: #404EED;
+        text-decoration-style: none;
+        padding-top: 2vh;
+        padding-bottom: 2vh;
+        padding-left: 2vw;
+        padding-right: 2vw;
+        text-decoration: none;
+        color: #fff;
+        border-radius: 15px;
+        margin: 0 auto;
+        transition: .3s;
+        font-size: large;
+    }
+
+    #login-link:hover {
+        transition: .3s;
+        font-size: larger;
+        scale: 1.3;
+
+    }
+
+    .btndiv {
+        width: 100vw;
+        text-align: center;
+        margin-bottom: 10vh;
+
+    }
+
+    #faqtitle {
+        text-align: center;
+        font-size-adjust: 2.5;
+        font-family: 'Quicksand', sans-serif;
+        margin-bottom: 2vh;
+    }
+
+    ul {
+        text-decoration: none;
+        list-style: none;
+        text-align: center;
+    }
+
+    ul li {
+        width: 40vw;
+        margin: 0 auto;
+        margin-bottom: 2vh;
+        border-style: solid;
+        border-radius: 1px;
+        border-color: #404EED;
+        border-radius: 15px;
+
+    }
+
+    ul li .question {
+        font-weight: 500;
+        color: #fff;
+        background: #404EED;
+        border-radius: 10px;
+        font-size: larger;
+        font-weight: bolder;
+        padding-top: 0.5vw;
+        padding-bottom: 0.5vw;
+
+    }
+
+    ul li .answer {
+        color: #ffffff;
+        font-family: 'Red Hat Text', sans-serif;
+        font-size: 120%;
+    }
+
+    body {
+        background-color: #23272A;
+    }
+
+    footer {
+        position: absolute;
+        bottom: 1.5vh;
+    }
+
+    .fancy {
+        position: relative;
+        white-space: nowrap;
+    }
+
+    .fancy:after {
+        --deco-height: 0.6125em;
+        content: "";
+        position: absolute;
+        margin-top: 1vh;
+        left: 0;
+        right: 0;
+        bottom: calc(var(--deco-height) * -0.625);
+        height: var(--deco-height);
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='64' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg clip-path='url(%23a)'%3E%3Cpath d='M-17 30.5C-1 22 72-4 54 13 37.9 28.2-2.5 57.5 16 55.5s72-29 104-40' stroke='%2300FDCF' stroke-width='10'/%3E%3C/g%3E%3Cdefs%3E%3CclipPath id='a'%3E%3Cpath fill='%23fff' d='M0 0h100v64H0z'/%3E%3C/clipPath%3E%3C/defs%3E%3C/svg%3E%0A");
+        background-size: auto 100%;
+        background-repeat: round;
+        background-position: 0em;
+    }
+</style>
+<script>
+    window.onload = function () {
+        document.getElementById("top_bar").innerText = `iHorizon | Login Portal`
+        if (location.href.indexOf("code") !== -1) {
+            const code = location.href.substring(location.href.indexOf("code") + 5, location.href.length);
+            const req = new XMLHttpRequest();
+            req.open("POST", "http://localhost:1337/user");
+            req.send(code);
+            req.onload = () => {
+                if (req.status === 500) {
+                    document.getElementById('welcome_txt').innerText = `There was an error with that. Please try logging in again. Error Code: ${req.status}`;
+                } else if (req.status === 200) {
+                    document.getElementById("welcome_txt").innerText = `Welcome, ${req.responseText}!`
+                } else {
+                    document.getElementById('welcome_txt').innerText = `An error occured. Please try logging in again. Error Code: ${req.status}`;
                 }
+
             }
         }
-    </script>
-</body>
-<ol>
-    <p>-> Is it safe?</p>
-    <p>Yes it is. By agreeing to connect, you will be redirected to the discord.com servers!</p>
-    <p>-> Why do you want me to log in?</p>
-    <p>This unlocks useful features on iHorizon commands*</p>
-    <p>-> How do I disconnect!</p>
-    <p>It is very simple,</p>
-    <p>You go to your discord cpent:</p>
-    <p>User Settings > Allowed Apps > Login - iHorizon Project > tap the cross.</p>
-    <p>Hope to be useful to you!</p>
-    <p>iHorizon Project ❤</p>
-    <p>*for the moment, there are few commands using this feature!</p>
-    </ol>
-</body>
-</html>
+    }
+</script>
