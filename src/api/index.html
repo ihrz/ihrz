@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang='en'>
 
 <head>
@@ -9,9 +10,7 @@
 <body>
     <nav id='top_bar'>iHorizon | Login Portal</nav>
     <div class="btndiv">
-        <a id='login-link'
-            href='https://discord.com/api/oauth2/authorize?client_id=1053818045073739817&redirect_uri=http%3A%2F%2Flocalhost%3A1337&response_type=code&scope=identify'>Login
-            with Discord</a>
+        <a id='login-link' href="#">Login with discord </a>
     </div>
     <p id='faqtitle' style="text-align: center;">FAQ</p>
 
@@ -163,7 +162,16 @@
     }
 </style>
 <script>
+    function openloginpopup(){
+        var x = screen.width/2 - 500/2;
+        var y = screen.height/2 - 700/2;
+        window.open("https://discord.com/api/oauth2/authorize?client_id=1053818045073739817&redirect_uri=http%3A%2F%2Flocalhost%3A1337&response_type=code&scope=identify", "newwindow", "width=500,height=700,left="+x+",top="+y)
+    }
+
     window.onload = function () {
+        document.getElementById("login-link").addEventListener("click", (event) => {
+            openloginpopup()
+        });
         document.getElementById("top_bar").innerText = `iHorizon | Login Portal`
         if (location.href.indexOf("code") !== -1) {
             const code = location.href.substring(location.href.indexOf("code") + 5, location.href.length);
