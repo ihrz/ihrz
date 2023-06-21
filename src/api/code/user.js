@@ -42,9 +42,7 @@ module.exports = async (req, res) => {
         data.append('scope', 'identify');
         data.append('code', req.body["auth"]);
         
-        const response = await axios.post('https://discord.com/api/oauth2/token',
-                        data);
-
+        const response = await axios.post('https://discord.com/api/oauth2/token', data);
         const accessToken = response.data.access_token;
         
         const getUserInfo = await axios.get('https://discord.com/api/users/@me', {
@@ -70,8 +68,6 @@ module.exports = async (req, res) => {
 
         return res.status(200).send(userinfo);
     } catch (err) {
-        logger.warn(`${config.console.emojis.ERROR} >> Error Code 500`);
-        logger.warn(`${err}`)
         return res.sendStatus(500);
     };
 };
