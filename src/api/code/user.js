@@ -33,19 +33,20 @@ function make_config(authorization_token) {
 
 module.exports = async (req, res) => {
     const data = new URLSearchParams();
-
     try {
+
         data.append('client_id', config.api.clientID);
         data.append('client_secret', config.api.clientSecret);
         data.append('grant_type', 'authorization_code');
         data.append('redirect_uri', config.api.loginURL);
         data.append('scope', 'identify');
-        data.append('code', req.body);
-
-        const response = await axios.post('https://discord.com/api/oauth2/token', data);
+        data.append('code', req.body["auth"]);
+        
+        const response = await axios.post('https://discord.com/api/oauth2/token',
+                        data);
 
         const accessToken = response.data.access_token;
-
+        
         const getUserInfo = await axios.get('https://discord.com/api/users/@me', {
             headers: {
                 'Authorization': `Bearer ${accessToken}`
@@ -67,9 +68,10 @@ module.exports = async (req, res) => {
             value: { token: `${accessToken}` }
         });
 
-        return res.status(200).send(userinfo.username);
+        return res.status(200).send(userinfo);
     } catch (err) {
         logger.warn(`${config.console.emojis.ERROR} >> Error Code 500`);
+        logger.warn(`${err}`)
         return res.sendStatus(500);
     };
 };

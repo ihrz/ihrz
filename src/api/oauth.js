@@ -33,7 +33,7 @@ const Express = require('express'),
 app.use(Express.urlencoded({ extended: false }));
 app.use(Express.json());
 app.use(bodyParser.text());
-app.post('/api/check/', code);
+app.post('/api/check', code);
 app.post('/user', user);
 
 if (config.database.useDatabaseAPI) { app.post('/api/database', api); };

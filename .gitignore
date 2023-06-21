@@ -126,3 +126,4 @@ files/giveaways.json
 
 # Not upload testing files
 /test.js
+package-lock.json

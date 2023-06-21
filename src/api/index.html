@@ -12,6 +12,13 @@
     <div class="btndiv">
         <a id='login-link' href="#">Login with discord </a>
     </div>
+    <div class="connectedDiv">
+
+    </div>
+    <div class="account hidden">
+        <img id="avatar" src="" alt="">
+        <p id="name"></p>
+    </div>
     <p id='faqtitle' style="text-align: center;">FAQ</p>
 
     <ul>
@@ -46,7 +53,14 @@
         font-family: 'Quicksand', sans-serif;
         color: #fff;
     }
+    .account {
+        margin: 0 auto;
+        text-align: center;
+    }
+    .account img {
+        border-radius: 100%;
 
+    }
     nav {
         background-color: #404EED;
         font-size: xx-large;
@@ -87,7 +101,11 @@
         width: 100vw;
         text-align: center;
         margin-bottom: 10vh;
-
+    }
+    .connectedDiv {
+        width: 100vw;
+        text-align: center;
+        margin-bottom: 3vh;
     }
 
     #faqtitle {
@@ -137,7 +155,7 @@
     }
 
     footer {
-        position: absolute;
+        position: fixed;
         bottom: 1.5vh;
     }
 
@@ -160,34 +178,59 @@
         background-repeat: round;
         background-position: 0em;
     }
+    .hidden {
+        visibility: none;
+    }
+    #connected {
+        color: #fff;
+        font-size: 150%;
+        padding-bottom: -5vh;
+    }
+    @media screen and (max-width:700) {
+        ul li {
+            width: 80vw;
+        }
+    }
 </style>
 <script>
     function openloginpopup(){
         var x = screen.width/2 - 500/2;
         var y = screen.height/2 - 700/2;
-        window.open("https://discord.com/api/oauth2/authorize?client_id=1053818045073739817&redirect_uri=http%3A%2F%2Flocalhost%3A1337&response_type=code&scope=identify", "newwindow", "width=500,height=700,left="+x+",top="+y)
+        window.open("https://discord.com/api/oauth2/authorize?client_id=1112792714988245117&redirect_uri=http%3A%2F%2Flocalhost%3A3000&response_type=code&scope=identify", "newwindow", "width=500,height=700,left="+x+",top="+y)
+        setTimeout(function(){
+            location.reload(false);
+        },5000);
     }
 
     window.onload = function () {
+        let iscookie = document.cookie
+        if (iscookie.split(";").length > 0){
+            cookie = iscookie.split(";")[0]
+            name = iscookie.split("=")[0]
+            value = iscookie.split("=")[1]
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "/user", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    var data = JSON.parse(xhr.response)
+                    document.getElementById("avatar").src = "https://cdn.discordapp.com/avatars/" + data.id + "/" + data.avatar
+                    document.getElementById("name").innerText = ""
+                    document.getElementsByClassName("btndiv")[0].innerHTML = ""
+                    document.getElementsByClassName("connectedDiv")[0].innerHTML = "<p id='connected'>Connected as " + data.username + "</p>"
+                }
+            };
+            xhr.send("auth="+value);
+
+        }
         document.getElementById("login-link").addEventListener("click", (event) => {
             openloginpopup()
         });
         document.getElementById("top_bar").innerText = `iHorizon | Login Portal`
         if (location.href.indexOf("code") !== -1) {
             const code = location.href.substring(location.href.indexOf("code") + 5, location.href.length);
-            const req = new XMLHttpRequest();
-            req.open("POST", "http://localhost:1337/user");
-            req.send(code);
-            req.onload = () => {
-                if (req.status === 500) {
-                    document.getElementById('welcome_txt').innerText = `There was an error with that. Please try logging in again. Error Code: ${req.status}`;
-                } else if (req.status === 200) {
-                    document.getElementById("welcome_txt").innerText = `Welcome, ${req.responseText}!`
-                } else {
-                    document.getElementById('welcome_txt').innerText = `An error occured. Please try logging in again. Error Code: ${req.status}`;
-                }
-
-            }
+            document.cookie = "auth=" + code;
+            window.close();
         }
     }
 </script>
