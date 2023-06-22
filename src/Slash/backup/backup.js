@@ -94,7 +94,7 @@ slashInfo.backup.backup.run = async (client, interaction) => {
             return interaction.editReply({ content: data.backup_unvalid_id_on_load });
         }
 
-        if(backupID && !await db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {
+        if(backupID && !await DataBaseModel({id: DataBaseModel.Get, key: `BACKUPS.${interaction.user.id}.${backupID}`})) {
             return interaction.editReply({ content: "❌ | This is not your backup !" });
         };
 
