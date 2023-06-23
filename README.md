@@ -58,10 +58,10 @@ npm start ## Start the bot (or node index)
 ```
 
 # About the bot
-iHorizon is currently working towards being certified by Discord. We are aiming to reach +75 servers before starting the certification process!<br><br>
+iHorizon is now certified by Discord. We have achieved our goal of +75 servers before starting the certification process!<br><br>
 
 To join the Official Discord Support Server, please visit our website at [Official Server Link](http://discord.ihorizon.me/) or click on this link: [Other Link](https://discord.gg/ZpBPGNsAsu).<br><br>
-To invite the Discord official bot, please click on this link: [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot).<br><br>
+To invite the official Discord bot, please click on this link: [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot).<br><br>
 
 If you have any questions or concerns, you can contact the owner via email at [kisakeyara@gmail.com](mailto:kisakeyara@gmail.com), or on Discord at 2h0#0.
 # About the owner
