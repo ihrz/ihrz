@@ -20,19 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
-
-const {
-  Client,
-  Intents,
-  Collection,
-  ChannelType,
-  EmbedBuilder,
-  Permissions,
-  ApplicationCommandType,
-  PermissionsBitField,
-  ApplicationCommandOptionType
-} = require('discord.js');
-
+const { Client, Intents, Collection, ChannelType, EmbedBuilder, Permissions, ApplicationCommandType, PermissionsBitField, ApplicationCommandOptionType } = require('discord.js');
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 slashInfo.invitemanager.leaderboard.run = async (client, interaction) => {
@@ -40,25 +28,24 @@ slashInfo.invitemanager.leaderboard.run = async (client, interaction) => {
   let data = await getLanguageData(interaction.guild.id);
 
   var text = data.leaderboard_default_text;
-  const ownerList = await DataBaseModel({id: DataBaseModel.All});
-  const foundArray = ownerList.findIndex(ownerList => ownerList.id === interaction.guild.id)
+  const ownerList = await DataBaseModel({ id: DataBaseModel.All });
+  const foundArray = ownerList.findIndex(d => d.id === interaction.guild.id);
+  
   const char = ownerList[foundArray].value.USER;
-
-  for (var i in char) {
-    var a = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${i}.INVITES.DATA`})
-    if (a) {
+  for (const i in char) {
+    const a = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${i}.INVITES.DATA` });
+    if (a && a.invites >= 1) {
       text += data.leaderboard_text_inline
         .replace(/\${i}/g, i)
         .replace(/\${a\.invites\s*\|\|\s*0}/g, a.invites || 0)
         .replace(/\${a\.regular\s*\|\|\s*0}/g, a.regular || 0)
         .replace(/\${a\.bonus\s*\|\|\s*0}/g, a.bonus || 0)
-        .replace(/\${a\.leaves\s*\|\|\s*0}/g, a.leaves || 0)
-    };
-  };
+        .replace(/\${a\.leaves\s*\|\|\s*0}/g, a.leaves || 0);
+    }
+  }
 
-  const embed = new EmbedBuilder().setColor("#FFB6C1").setDescription(`${text}`).setTimestamp()
-
-  return interaction.reply({ embeds: [embed] });
+  const embed = new EmbedBuilder().setColor("#FFB6C1").setDescription(text || '?').setTimestamp();
+  return await interaction.reply({ embeds: [embed] });
 };
 
 module.exports = slashInfo.invitemanager.leaderboard;
