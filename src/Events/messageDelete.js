@@ -71,7 +71,7 @@ module.exports = async (client, message) => {
         if (message.attachments) {
             const attachments = message.attachments;
             const attachment = attachments.first();
-            if (!attachment.contentType) return;
+            if (!attachment || !attachment.contentType) return;
 
             if (attachment && attachment.contentType.startsWith('image/')) {
                 const imageUrl = attachment.attachment;
