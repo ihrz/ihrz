@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const {Client, Collection, EmbedBuilder, PermissionsBitField} = require('discord.js');
+const { Client, Collection, EmbedBuilder, PermissionsBitField } = require('discord.js');
 const hidden = require(`${process.cwd()}/src/core/maskLink`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
@@ -49,7 +49,7 @@ module.exports = async (client, message) => {
         if (message.author.id == client.user.id) return;
 
         const guildId = message.guild.id;
-        const someinfo = await DataBaseModel({id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.message`});
+        const someinfo = await DataBaseModel({ id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.message` });
 
         if (!someinfo) return;
 
@@ -60,7 +60,7 @@ module.exports = async (client, message) => {
             .setColor("#000000")
             .setAuthor({
                 name: message.author.username,
-                iconURL: message.author.avatarURL({format: 'png', dynamic: true, size: 512})
+                iconURL: message.author.avatarURL({ format: 'png', dynamic: true, size: 512 })
             })
             .setDescription(data.event_srvLogs_messageDelete_description
                 .replace("${message.channel.id}", message.channel.id)
@@ -71,6 +71,7 @@ module.exports = async (client, message) => {
         if (message.attachments) {
             const attachments = message.attachments;
             const attachment = attachments.first();
+            if (!attachment.contentType) return;
 
             if (attachment && attachment.contentType.startsWith('image/')) {
                 const imageUrl = attachment.attachment;
@@ -78,7 +79,7 @@ module.exports = async (client, message) => {
             }
         };
 
-        await Msgchannel.send({embeds: [logsEmbed]});
+        await Msgchannel.send({ embeds: [logsEmbed] });
     };
 
     await snipeModules(), serverLogs();
