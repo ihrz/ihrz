@@ -30,6 +30,8 @@ slashInfo.invitemanager.leaderboard.run = async (client, interaction) => {
   var text = data.leaderboard_default_text;
   const ownerList = await DataBaseModel({ id: DataBaseModel.All });
   const foundArray = ownerList.findIndex(d => d.id === interaction.guild.id);
+
+  await interaction.reply({ content: ":clock:" });
   
   const char = ownerList[foundArray].value.USER;
   for (const i in char) {
@@ -45,7 +47,7 @@ slashInfo.invitemanager.leaderboard.run = async (client, interaction) => {
   }
 
   const embed = new EmbedBuilder().setColor("#FFB6C1").setDescription(text || '?').setTimestamp();
-  return await interaction.reply({ embeds: [embed] });
+  return await interaction.editReply({ embeds: [embed], content: ' ' });
 };
 
 module.exports = slashInfo.invitemanager.leaderboard;
