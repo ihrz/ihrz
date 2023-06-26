@@ -24,10 +24,10 @@ const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
 
 module.exports = async (client, invite) => {
     async function inviteManager() {
+        if (!invite.inviter) return;
+
         if (!invite.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
         client.invites.get(invite.guild.id).set(invite.code, invite.uses);
-
-        if (!invite.inviter) return;
 
         await DataBaseModel({
             id: DataBaseModel.Set, key: `${invite.guild.id}.GUILD.INVITES.${invite.code}`, value: {

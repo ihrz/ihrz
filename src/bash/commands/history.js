@@ -27,7 +27,6 @@ const fs = require("fs"),
 module.exports = function () {
   fs.readFile(filePath, 'utf-8', (err, data) => {
     if (err) throw err;
-    console.log("\n" + data + "\n[Press Enter]");
-  }
-  );
+    logger.legacy("\n" + data + "\n[Press Enter]");
+  });
 };

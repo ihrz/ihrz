@@ -19,4 +19,15 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-module.exports = async () => { return (await require('axios').get('https://api6.ipify.org')).data; };
+const axios = require('axios');
+var hostIP;
+
+async function getIP() {
+	axios.get('https://api.ipify.org?format=json').then(r => {
+		hostIP = r.data.ip;
+	});
+
+	return hostIP;
+};
+
+module.exports = getIP;

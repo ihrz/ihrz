@@ -20,31 +20,31 @@
 */
 
 const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
-const fs = require("fs");
-const config = require(`${process.cwd()}/files/config.js`);
-const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
+const config = require(`${process.cwd()}/files/config.js`),
+    DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`),
+    logger = require(`${process.cwd()}/src/core/logger`);
 
 module.exports = async (client, guild) => {
     async function inviteManager() {
-        await DataBaseModel({id: DataBaseModel.Delete, key: `${guild.id}`})
+        await DataBaseModel({ id: DataBaseModel.Delete, key: `${guild.id}` })
         return client.invites.delete(guild.id);
     };
 
     async function ownerLogs() {
         try {
+            if (guild.vanityURLCode) i = 'discord.gg/' + guild.vanityURLCode || 'None';
             let embed = new EmbedBuilder().setColor("#ff0505").setTimestamp(guild.joinedTimestamp).setDescription(`**A guild have deleted iHorizon !**`)
-            .addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
-                { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
-                { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
-                { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
-                { name: "🪝・Vanity URL", value: `\`${'discord.gg/'+ guild.vanityURLCode || "None"}\``, inline: true })
-            .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
-            .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
+                .addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
+                    { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
+                    { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
+                    { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
+                    { name: "🪝・Vanity URL", value: `\`${i}\``, inline: true })
+                .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
+                .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
 
-        return client.channels.cache.get(config.core.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
-
+            return client.channels.cache.get(config.core.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
         } catch (error) {
-            console.log(error);
+            logger.err(error);
         };
     };
 

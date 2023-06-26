@@ -19,8 +19,9 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { EmbedBuilder } = require('discord.js');
-
+const { EmbedBuilder } = require('discord.js'),
+    logger = require(`${process.cwd()}/src/core/logger`);
+    
 module.exports = function (client, args) {
     const args2 = args.split(" ");
     let embed = new EmbedBuilder()
@@ -33,5 +34,5 @@ module.exports = function (client, args) {
         let channel = guild.channels.cache.find(role => role.name === 'ihorizon-logs'); if (channel) { channel.send({ content: "@here", embeds: [embed] }) };
     });
 
-    console.log(`* All are successfully sended`.gray.bgBlack);
+    logger.legacy(`* All are successfully sended`.gray.bgBlack);
 };

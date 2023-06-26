@@ -132,8 +132,8 @@ invites_confirmation_embed_description: "<@${member.user.id}>さんは`${inv || 
 invites_confirmation_embed_title: "招待状統計情報"
 
 # /leaderboard
-leaderboard_text_inline: "<@${i}>さんは**${a.invites || 0}**の招待状を持っています（**${a.regular || 0}**レギュラー、**${a.bonus || 0}**ボーナス、**${a.leaves || 0}**リーブス）\n"
-leaderboard_default_text: "**__リーダーボード:__**\n"
+leaderboard_text_inline: "<@${i}>さんは**${a.invites || 0}**の招待状を持っています（**${a.regular || 0}**レギュラー、**${a.bonus || 0}**ボーナス、**${a.leaves || 0}**リーブス）|n"
+leaderboard_default_text: "**__リーダーボード:__**|n"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "管理者である必要があります！"
@@ -168,7 +168,7 @@ pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 status_be_bot_dev: ":x: | **Botの開発者である必要があります！**"
 
 # /help
-help_tip_embed: "💡 __**ヒント**__: __iHorizonは今や多言語対応で、多くのバグが修正されました__。\n**今すぐiHorizonの言語を変更するには**: ```/setserverlang```iHorizonをご利用いただきありがとうございます！\n作成者に連絡する： `Kisakay`。\n使用可能なコマンドの一覧です。"
+help_tip_embed: "💡 __**ヒント**__: __iHorizonは今や多言語対応で、多くのバグが修正されました__。|n**今すぐiHorizonの言語を変更するには**: ```/setserverlang```iHorizonをご利用いただきありがとうございます！|n作成者に連絡する： `Kisakay`。|n使用可能なコマンドの一覧です。"
 help_mod_fields: "モデレーション"
 help_ranks_fields: "ランク"
 help_fun_fields: "楽しい"
@@ -227,7 +227,7 @@ kiss_embed_description: "<@${interaction.user.id}> が <@${kiss.id}> にキス�
 poll_not_admin: "権限がありません！"
 poll_embed_title: "__**投票**__: `${interaction.user.username}`"
 poll_embed_fields_reaction: "下のリアクションをタップしてください。⬇"
-poll_embed_fields_choice: ":white_check_mark: **はい**\n :x: **いいえ **"
+poll_embed_fields_choice: ":white_check_mark: **はい**|n :x: **いいえ **"
 
 # /question
 question_not_full: "3つ以上の単語で質問を入力してください！"
@@ -387,7 +387,7 @@ blockpub_now_disable: "📌 | アンチ広告機能が無効になりました�
 # /guildprofil
 guildprofil_not_admin: ":x: | このサーバーの管理者である必要があります！"
 guildprofil_not_set_reactionrole: "設定なし！"
-guildprofil_set_reactionrole: "**MessageID**: `${i}` -> ${emoji || key}で<@&${rolesID}>の役割を与えます\n"
+guildprofil_set_reactionrole: "**MessageID**: `${i}` -> ${emoji || key}で<@&${rolesID}>の役割を与えます|n"
 guildprofil_not_set_ticketFetched: "設定なし！"
 guildprofil_set_ticketFetched: ""
 guildprofil_not_set_punishPub: "設定なし！"
@@ -454,21 +454,21 @@ setjoindm_confirmation_message_on_disable: "JoinDmを無効にしました！"
 setjoindm_command_error_on_disable: "エラー：パーミッションが足りないか、チャンネルが存在しません。"
 setjoindm_already_disable: "JoinDmは既に無効です！"
 setjoindm_not_setup_ls: "JoinDmは設定されていません！"
-setjoindm_command_work_ls: "JoinDmメッセージは：\n```${already_off}```"
+setjoindm_command_work_ls: "JoinDmメッセージは：|n```${already_off}```"
 
 # /setjoinmessage
 setjoinmessage_not_admin: ":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！"
 setjoinmessage_help_embed_title: "setjoinmessageのヘルプ！"
 setjoinmessage_help_embed_description: "/setjoinmessage <Power on / Power off / Show the message set> <join message>"
 setjoinmessage_help_embed_fields_name: "使い方"
-setjoinmessage_help_embed_fields_value: "```/setjoinmessage <Power on / Power off / Show the message set> <message>```\n{user} = メンバーのユーザー名\n{membercount} = ギルドのメンバー数\n{createdat} = メンバーアカウントの作成日\n{guild} = ギルドの名前\n{inviter} = 招待者のユーザー名＆識別子\n{invites} = 招待数"
+setjoinmessage_help_embed_fields_value: "```/setjoinmessage <Power on / Power off / Show the message set> <message>```|n{user} = メンバーのユーザー名|n{membercount} = ギルドのメンバー数|n{createdat} = メンバーアカウントの作成日|n{guild} = ギルドの名前|n{inviter} = 招待者のユーザー名＆識別子|n{invites} = 招待数"
 setjoinmessage_logs_embed_title_on_enable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_enable: "<@${interaction.user.id}> が参加メッセージを設定しました！"
 setjoinmessage_command_work_on_enable: "✅ | カスタム参加メッセージの設定に成功しました。"
 setjoinmessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> が参加メッセージを削除しました！"
 setjoinmessage_command_work_on_disable: "✅ | カスタム参加メッセージの削除に成功しました。"
-setjoinmessage_command_work_ls: "参加メッセージは以下の通りです：\n```${ls}```"
+setjoinmessage_command_work_ls: "参加メッセージは以下の通りです：|n```${ls}```"
 
 # /setjoinroles
 setjoinroles_not_admin: ":x: | このコマンドを実行するには、サーバーの管理者である必要があります！"
@@ -492,14 +492,14 @@ setleavemessage_not_admin: ":x: | このコマンドを要求するには、こ�
 setleavemessage_help_embed_title: "/setleavemessage ヘルプ！"
 setleavemessage_help_embed_description: "/setleavemessage <オン/オフ/設定されたメッセージを表示する> <退出メッセージ>"
 setleavemessage_help_embed_fields_name: "使い方？"
-setleavemessage_help_embed_fields_value: "`/setleavemessage <オン/オフ/設定されたメッセージを表示する> <メッセージ>を使用してください。`\n{user} = メンバーのユーザー名\n{membercount} = ギルドのメンバー数\n{guild} = ギルドの名前"
+setleavemessage_help_embed_fields_value: "`/setleavemessage <オン/オフ/設定されたメッセージを表示する> <メッセージ>を使用してください。`|n{user} = メンバーのユーザー名|n{membercount} = ギルドのメンバー数|n{guild} = ギルドの名前"
 setleavemessage_logs_embed_title_on_enable: "SetJoinMessage ログ"
 setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}>が退出メッセージを設定しました！"
 setleavemessage_command_work_on_enable: "✅ | カスタム退出メッセージを正常に設定しました。"
 setleavemessage_logs_embed_title_on_disable: "SetJoinMessage ログ"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}>が退出メッセージを削除しました！"
 setleavemessage_command_work_on_disable: "✅ | カスタム退出メッセージを正常に削除しました。"
-setleavemessage_command_work_ls: "退出メッセージは次のとおりです。\n```${ls}```"
+setleavemessage_command_work_ls: "退出メッセージは次のとおりです。|n```${ls}```"
 
 # /setup
 setup_not_admin: ":x: | このサーバーの管理者である必要があります！"
@@ -529,7 +529,7 @@ setmembercount_not_admin: ":x: | このコマンドを要求するには、こ�
 setmembercount_helpembed_title: "メンバーカウント設定ヘルプ！"
 setmembercount_helpembed_description: "/setmembercount <オン/オフ> <チャンネル名>"
 setmembercount_helpembed_fields_name: "使い方？"
-setmembercount_helpembed_fields_value: "`/setjoinmessage <オン/オフ/設定されたメッセージを表示する> <メッセージ>を使用してください。`\n{membercount} = ギルドのメンバー数\n{rolescount} = 役職の数\n{botcount} = ギルドのボットの数"
+setmembercount_helpembed_fields_value: "`/setjoinmessage <オン/オフ/設定されたメッセージを表示する> <メッセージ>を使用してください。`|n{membercount} = ギルドのメンバー数|n{rolescount} = 役職の数|n{botcount} = ギルドのボットの数"
 setmembercount_logs_embed_title_on_enable: "メンバーカウントログ"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}>さんが <#${channel.id}> チャンネルのメンバーカウントを ${messagei} に設定しました！"
 setmembercount_command_work_on_enable: "✅ | メンバーカウントを設定しました。"
@@ -721,7 +721,7 @@ backup_error_when_fetch_backup_on_load: ":x: | ${backupID} のバックアップ
 
 # /reactionroles
 reactionroles_dont_admin_added: ":x: | このコマンドを使用するには、サーバーの管理者である必要があります！"
-reactionroles_embed_message_description_added: "__使い方__\n/rolesreaction add `<message id>` `<reaction>` `<rolesid>`\n/rolesreaction remove `<message id>` `<reaction>`\n/rolesreaction list `<message id>`"
+reactionroles_embed_message_description_added: "__使い方__|n/rolesreaction add `<message id>` `<reaction>` `<rolesid>`|n/rolesreaction remove `<message id>` `<reaction>`|n/rolesreaction list `<message id>`"
 reactionroles_missing_reaction_added: "引数が足りません：リアクションの絵文字"
 reactionroles_invalid_emote_format_added: "❌ | `<::xxx>` 形式の `CUSTOM_EMOJI` を送信することはできません！ID のみ必要です！"
 reactionroles_logs_embed_title_added: "ReactionRoles ログ"
@@ -757,8 +757,8 @@ report_command_work: "**バグを報告してくれてありがとう！**"
 
 # /support
 support_not_admin: ":x: | このコマンドを使用するには、サーバーの管理者である必要があります！"
-support_command_work: "**${interaction.guild.name}**のサポートモジュールを設定しました。\nユーザーが次のバイオを持っている場合:\n**${input}**。\n彼らに<@&${roles.id}>役割を与えるべきです！"
-support_command_work_on_disable: "**${interaction.guild.name}**のサポートモジュールを設定しました。\n今は誰も役割を持っていません！"
+support_command_work: "**${interaction.guild.name}**のサポートモジュールを設定しました。|nユーザーが次のバイオを持っている場合:|n**${input}**。|n彼らに<@&${roles.id}>役割を与えるべきです！"
+support_command_work_on_disable: "**${interaction.guild.name}**のサポートモジュールを設定しました。|n今は誰も役割を持っていません！"
 support_command_not_role: ":x: | 役割を指定していません！"
 
 # /setserverlang
@@ -785,7 +785,7 @@ event_mp_emptyQueue: "⚠️ - キューにはもう曲がありません！音�
 # Channel Create Events
 
 event_channel_create_message_embed_title: "正常にセットアップされました！"
-event_channel_create_message_embed_description: "ボットは完璧にセットアップされました。もう何もする必要はありません。\n\niHorizonに関連するすべてのモデレーションログがここに表示されます。"
+event_channel_create_message_embed_description: "ボットは完璧にセットアップされました。もう何もする必要はありません。|n|niHorizonに関連するすべてのモデレーションログがここに表示されます。"
 
 # Welcome Message Events
 event_welcomer_inviter: "➕・<@${member.id}>さんがサーバーに参加しました。招待者は **${inviter.tag}** さんで、(**${fetched}** 回招待されました)。アカウント作成日：**${member.user.createdAt.toLocaleDateString()}**。**${member.guild.name}** でお会いできてうれしいです。"
@@ -814,7 +814,7 @@ event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **が${firstE
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **が<@${firstEntry.target.id}>をキックしました**"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> **が${oldMember.user.username}から${removedRoles}役職を削除しました**"
 event_srvLogs_guildMemberUpdate_2_description: "📥 <@${firstEntry.executor.id}> **が${oldMember.user.username}に${addedRoles}役職を追加しました**"
-event_srvLogs_messageDelete_description: "**<#${message.channel.id}>でメッセージが削除されました**\n${message.content}"
+event_srvLogs_messageDelete_description: "**<#${message.channel.id}>でメッセージが削除されました**|n${message.content}"
 event_srvLogs_messageUpdate_description: "**<#${oldMessage.channelId}>でメッセージが編集されました**"
 event_srvLogs_messageUpdate_footer_1: "編集前"
 event_srvLogs_messageUpdate_footer_2: "編集後"

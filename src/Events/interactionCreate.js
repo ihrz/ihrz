@@ -28,41 +28,52 @@ const config = require(`${process.cwd()}/files/config.js`);
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
 const logger = require(`${process.cwd()}/src/core/logger`);
 
+var start;
+var end;
+
 module.exports = async (client, interaction) => {
   if (!interaction.isCommand() || !interaction.guild.channels || interaction.user.bot) return;
 
   const command = client.interactions.get(interaction.commandName);
   if (!command) return interaction.reply({ content: "Connection error.", ephemeral: true });
 
-  async function slashExecutor() {
-    let potential_blacklisted = await DataBaseModel({ id: DataBaseModel.Get, key: `GLOBAL.BLACKLIST.${interaction.user.id}.blacklisted` });
+  let legacyLogs = async () => {
+    fs.createWriteStream(`${process.cwd()}/files/.raw_slash_logs`, { flags: 'a' }).write(`${interaction.guild.name} >> ${date.format(new Date(), 'DD/MM/YYYY HH:mm:ss')}\n#${interaction.channel.name}:
+    ${interaction.user.username}#${interaction.user.discriminator}:
+        /${interaction.commandName}\n\r`);
+  };
 
-    if (potential_blacklisted) {
-      const blacklisted = new EmbedBuilder()
-        .setColor("#0827F5").setTitle(":(").setImage(config.core.blacklistPictureInEmbed);
-      return interaction.reply({ embeds: [blacklisted] });
-    };
-    if (await cooldDown()) {
-      let data = await getLanguageData(interaction.guild.id);
-      return interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
-    }
+  async function slashExecutor() {
     try {
-      s = Date.now();
+      legacyLogs();
+
+      if (await DataBaseModel({ id: DataBaseModel.Get, key: `GLOBAL.BLACKLIST.${interaction.user.id}.blacklisted` })) {
+        return interaction.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setColor("#0827F5").setTitle(":(")
+              .setImage(config.core.blacklistPictureInEmbed)]
+        });
+      };
+      
+      if (await cooldDown()) {
+        const data = await getLanguageData(interaction.guild.id);
+        return interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
+      };
+
+      start = Date.now();
       await command.run(client, interaction);
-      e = Date.now();
-    } catch (error) {
-      e = Date.now();
-      logger.err(error);
+      end = Date.now();
+    } catch (e) {
+      logger.err(e);
     }
   };
 
   async function logsCommands() {
     let opt = [];
-
-    interaction.options._hoistedOptions.forEach(element => {
-      opt.push(`${element.name}:"${element.value}" `);
-    });
-    if (e - s === 0) { r = `The command are exited by an erorr!` } else { r = `Executed in ${e - s}ms` }
+    
+    interaction.options._hoistedOptions.forEach(element => { opt.push(`${element.name}:"${element.value}" `); });
+    if (end - start === 0) { r = `The command are exited by an erorr!` } else { r = `Executed in ${end - start}ms` }
     fs.createWriteStream(`${process.cwd()}/files/.slash_logs`, { flags: 'a' }).write(`${interaction.guild.name} >> ${date.format(new Date(), 'DD/MM/YYYY HH:mm:ss')}\n#${interaction.channel.name}:
     ${interaction.user.username}#${interaction.user.discriminator}:
         /${interaction.commandName} ${opt} | ${r}\n\r`);
@@ -72,10 +83,9 @@ module.exports = async (client, interaction) => {
     let label = `TEMP.COOLDOWN.${interaction.user.id}`;
     let tn = Date.now();
 
-    let fetch = await DataBaseModel({ id: DataBaseModel.Get, key: label });
-    if (fetch !== null && timeout - (tn - fetch) > 0) {
-      return true;
-    }
+    var fetch = await DataBaseModel({ id: DataBaseModel.Get, key: label });
+    if (fetch !== null && timeout - (tn - fetch) > 0) return true;
+
     await DataBaseModel({ id: DataBaseModel.Set, key: label, value: tn });
     return false;
   };

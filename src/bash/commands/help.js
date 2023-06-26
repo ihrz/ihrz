@@ -22,8 +22,7 @@
 const logger = require(`${process.cwd()}/src/core/logger`);
 
 module.exports = function () {
-
-    console.log(`iHorizon bash,
+    logger.legacy(`iHorizon bash,
 These shell commands are defined internally.  Type 'help' to see this list.
 
  help                                         Show this message

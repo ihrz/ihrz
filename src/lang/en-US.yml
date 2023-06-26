@@ -132,8 +132,8 @@ invites_confirmation_embed_description: "<@${member.user.id}> have `${inv || 0}`
 invites_confirmation_embed_title: "Inviter Stats"
 
 # /leaderboard
-leaderboard_text_inline: "<@${i}> Have **${a.invites || 0}** Invites (**${a.regular || 0}** Regular ** ${a.bonus || 0}** Bonus **${a.leaves || 0}** Leaves)\n"
-leaderboard_default_text: "**__Leaderboard :__**\n"
+leaderboard_text_inline: "<@${i}> Have **${a.invites || 0}** Invites (**${a.regular || 0}** Regular ** ${a.bonus || 0}** Bonus **${a.leaves || 0}** Leaves)|n"
+leaderboard_default_text: "**__Leaderboard :__**|n"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "You need admin to use this!"
@@ -168,7 +168,7 @@ pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 status_be_bot_dev: ":x: | **You have to be the bot developer to do this!**"
 
 # /help
-help_tip_embed: "💡 __**Tip**__: __iHorizon is now multilingual, many bugs are fixed__.\n**Change now the iHorizon language with**: ```/setserverlang```Thank you to use iHorizon !\nContact creator: `Kisakay`.\nThis is a list of commands you can use."
+help_tip_embed: "💡 __**Tip**__: __iHorizon is now multilingual, many bugs are fixed__.|n**Change now the iHorizon language with**: ```/setserverlang```Thank you to use iHorizon !|nContact creator: `Kisakay`.|nThis is a list of commands you can use."
 help_mod_fields: "Moderation"
 help_ranks_fields: "Ranks"
 help_fun_fields: "Fun"
@@ -227,7 +227,7 @@ kiss_embed_description: "<@${interaction.user.id}> make a kiss to <@${kiss.id}> 
 poll_not_admin: "You don't have the permissions to do this!"
 poll_embed_title: "__**Poll**__: `${interaction.user.username}`"
 poll_embed_fields_reaction: "Tap the reactions below.⬇"
-poll_embed_fields_choice: ":white_check_mark: **Yes**\n :x: **No** "
+poll_embed_fields_choice: ":white_check_mark: **Yes**|n :x: **No** "
 
 # /question
 question_not_full: "Enter a full question with 3 or more words!"
@@ -387,7 +387,7 @@ blockpub_now_disable: "📌 | The antipub is now deactivated!"
 # /guildprofil
 guildprofil_not_admin: ":x: | You must be an administrator of this server! "
 guildprofil_not_set_reactionrole: "No set!"
-guildprofil_set_reactionrole: "**MessageID**: `${i}` -> ${emoji || key} give <@&${rolesID}> role\n"
+guildprofil_set_reactionrole: "**MessageID**: `${i}` -> ${emoji || key} give <@&${rolesID}> role|n"
 guildprofil_not_set_ticketFetched: "No set!"
 guildprofil_set_ticketFetched: ""
 guildprofil_not_set_punishPub: "No set!"
@@ -454,21 +454,21 @@ setjoindm_confirmation_message_on_disable: "You have successfully disable the jo
 setjoindm_command_error_on_disable: "Error: missing permissions or channel doesn't exist"
 setjoindm_already_disable: "The join dm message is already disable !"
 setjoindm_not_setup_ls: "They are no join dm setup here !"
-setjoindm_command_work_ls: "The join dm message is: \n```${already_off}```"
+setjoindm_command_work_ls: "The join dm message is: |n```${already_off}```"
 
 # /setjoinmessage
 setjoinmessage_not_admin: ":x: | You must be an administrator of this server to request this commands!"
 setjoinmessage_help_embed_title: "setjoinmessage Help !" 
 setjoinmessage_help_embed_description: "/setjoinmessage <Power on /Power off/Show the message set> <join message>"
 setjoinmessage_help_embed_fields_name: "how to use ?"
-setjoinmessage_help_embed_fields_value: "Use ```/setjoinmessage <Power on /Power off/Show the message set> <message>```\n{user} = Username of Member\n{membercount} = guild's member count\n{createdat} = member account creation date\n{guild} = The name of the guild\n{inviter} = The inviter username & discriminator\n{invites} = The invites count of the user"
+setjoinmessage_help_embed_fields_value: "Use ```/setjoinmessage <Power on /Power off/Show the message set> <message>```|n{user} = Username of Member|n{membercount} = guild's member count|n{createdat} = member account creation date|n{guild} = The name of the guild|n{inviter} = The inviter username & discriminator|n{invites} = The invites count of the user"
 setjoinmessage_logs_embed_title_on_enable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_enable: "<@${interaction.user.id}> set the join message !"
 setjoinmessage_command_work_on_enable: "✅ | Succefully set custom join message."
 setjoinmessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deleted the join message !"
 setjoinmessage_command_work_on_disable: "✅ | Succefully deleted custom join message."
-setjoinmessage_command_work_ls: "The join message is:\n```${ls}```"
+setjoinmessage_command_work_ls: "The join message is:|n```${ls}```"
 
 # /setjoinroles
 setjoinroles_not_admin: ":x: | You must be an administrator of this server to request this commands!"
@@ -492,14 +492,14 @@ setleavemessage_not_admin: ":x: | You must be an administrator of this server to
 setleavemessage_help_embed_title: "/setleavemessage Help !"
 setleavemessage_help_embed_description: "/setleavemessage <Power on /Power off/Show the message set> <leave message>"
 setleavemessage_help_embed_fields_name: "how to use ?"
-setleavemessage_help_embed_fields_value: "Use ```/setleavemessage <Power on /Power off/Show the message set> <message>```\n{user} = Username of Member\n{membercount} = guild's member count\n{guild} = The name of the guild"
+setleavemessage_help_embed_fields_value: "Use ```/setleavemessage <Power on /Power off/Show the message set> <message>```|n{user} = Username of Member|n{membercount} = guild's member count|n{guild} = The name of the guild"
 setleavemessage_logs_embed_title_on_enable: "SetJoinMessage Logs"
 setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}> set the leave message !"
 setleavemessage_command_work_on_enable: "✅ | Succefully set custom leave message."
 setleavemessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deleted the leave message !"
 setleavemessage_command_work_on_disable: "✅ | Succefully deleted custom leave message."
-setleavemessage_command_work_ls: "The leave message is:\n```${ls}```"
+setleavemessage_command_work_ls: "The leave message is:|n```${ls}```"
 
 # /setup
 setup_not_admin: ":x: | You must be an administrator of this server !"
@@ -529,7 +529,7 @@ setmembercount_not_admin: ":x: | You must be an administrator of this server to 
 setmembercount_helpembed_title: "Set MemberCount Help !"
 setmembercount_helpembed_description: "/setmembercount <Power on /Power off> <Name of the channel>"
 setmembercount_helpembed_fields_name: "how to use ?"
-setmembercount_helpembed_fields_value: "Use ```/setjoinmessage <Power on /Power off/Show the message set> <message>```\n{membercount} = guild's member count\n{rolescount} = amount of roles\n{botcount} = guild's bot count"
+setmembercount_helpembed_fields_value: "Use ```/setjoinmessage <Power on /Power off/Show the message set> <message>```|n{membercount} = guild's member count|n{rolescount} = amount of roles|n{botcount} = guild's bot count"
 setmembercount_logs_embed_title_on_enable: "Set MemberCount Logs"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> set the MemberCount of <#${channel.id}> to `${messagei}`!"
 setmembercount_command_work_on_enable: "✅ | Succefully set MemberCount."
@@ -721,7 +721,7 @@ backup_error_when_fetch_backup_on_load: ":x: | No backup found for ${backupID} !
 
 # /reactionroles
 reactionroles_dont_admin_added: ":x: | You must be an administrator of this server to request this commands!"
-reactionroles_embed_message_description_added: "__how to use ?__\n/rolesreaction add `<message id>` `<reaction>` `<rolesid>`\n/rolesreaction remove `<message id>` `<reaction>`\n/rolesreaction list `<message id>`"
+reactionroles_embed_message_description_added: "__how to use ?__|n/rolesreaction add `<message id>` `<reaction>` `<rolesid>`|n/rolesreaction remove `<message id>` `<reaction>`|n/rolesreaction list `<message id>`"
 reactionroles_missing_reaction_added: "Missing argument: Reaction's Emoji"
 reactionroles_invalid_emote_format_added: "❌ | You can't sent to me a `CUSTOM_EMOJI` in format `<::xxx>` ! I need only them ID !"
 reactionroles_logs_embed_title_added: "ReactionRoles Logs"
@@ -758,8 +758,8 @@ report_command_work: "**Thanks for submitting a bug!**"
 
 # /support
 support_not_admin: ":x: | You must be an administrator of this server to request this commands!"
-support_command_work: "You have setup the support module for **${interaction.guild.name}**.\nWhen user have on this bio:\n**${input}**.\nI should give the <@&${roles.id}> role to them!"
-support_command_work_on_disable: "You have setup the support module for **${interaction.guild.name}**.\nNobody can have role now!"
+support_command_work: "You have setup the support module for **${interaction.guild.name}**.|nWhen user have on this bio:|n**${input}**.|nI should give the <@&${roles.id}> role to them!"
+support_command_work_on_disable: "You have setup the support module for **${interaction.guild.name}**.|nNobody can have role now!"
 support_command_not_role: ":x: | You have not specified the role !"
 
 # /setserverlang
@@ -785,7 +785,7 @@ event_mp_emptyQueue: "⚠️ - Music stopped as there is no more music in the qu
 # Channel Create Events
 
 event_channel_create_message_embed_title: "Succefully setup !"
-event_channel_create_message_embed_description: "The bot has been set up perfectly. You don't need to do anything (zen) anymore.\n\nAll moderation logs related to iHorizon will be displayed here"
+event_channel_create_message_embed_description: "The bot has been set up perfectly. You don't need to do anything (zen) anymore.|n|nAll moderation logs related to iHorizon will be displayed here"
 
 # Welcome Message Events
 event_welcomer_inviter: "➕・<@${member.id}> join the guild. Invited by **${inviter.tag}** (**${fetched}** invites). Account created at: **${member.user.createdAt.toLocaleDateString()}**. Happy to see you on **${member.guild.name}**"
@@ -814,7 +814,7 @@ event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **revoked the
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **kicked** <@${firstEntry.target.id}>"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> removed the ${removedRoles} role from ${oldMember.user.username}"
 event_srvLogs_guildMemberUpdate_2_description: "📥 <@${firstEntry.executor.id}> added the ${addedRoles} role to ${oldMember.user.username}"
-event_srvLogs_messageDelete_description: "**Message deleted in <#${message.channel.id}>**\n${message.content}"
+event_srvLogs_messageDelete_description: "**Message deleted in <#${message.channel.id}>**|n${message.content}"
 event_srvLogs_messageUpdate_description: "**Message edited in <#${oldMessage.channelId}>**"
 event_srvLogs_messageUpdate_footer_1: "Before"
 event_srvLogs_messageUpdate_footer_2: "After"

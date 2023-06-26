@@ -132,8 +132,8 @@ invites_confirmation_embed_description: "<@${member.user.id}> ha **${inv || 0}**
 invites_confirmation_embed_title: "Statistiche Invitante"
 
 # /leaderboard
-leaderboard_text_inline: "<@${i}> ha **${a.invites || 0}** Inviti (**${a.regular || 0}** Regolari, **${a.bonus || 0}** Bonus, **${a.leaves || 0}** Abbandoni)\n"
-leaderboard_default_text: "__Classifica__:\n"
+leaderboard_text_inline: "<@${i}> ha **${a.invites || 0}** Inviti (**${a.regular || 0}** Regolari, **${a.bonus || 0}** Bonus, **${a.leaves || 0}** Abbandoni)|n"
+leaderboard_default_text: "__Classifica__:|n"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "Devi essere amministratore per utilizzare questo comando!"
@@ -168,7 +168,7 @@ pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 status_be_bot_dev: "**:x: | Devi essere lo sviluppatore del bot per farlo!**"
 
 # /help
-help_tip_embed: "💡 __**Suggerimento**__: __iHorizon è ora multilingue, molti bug sono stati corretti__.\n**Cambia ora la lingua di iHorizon con**: ```/setserverlang``` Grazie per l'uso di iHorizon!\nContatta il creatore: `Kisakay`.\nEcco una lista di comandi che puoi usare."
+help_tip_embed: "💡 __**Suggerimento**__: __iHorizon è ora multilingue, molti bug sono stati corretti__.|n**Cambia ora la lingua di iHorizon con**: ```/setserverlang``` Grazie per l'uso di iHorizon!|nContatta il creatore: `Kisakay`.|nEcco una lista di comandi che puoi usare."
 help_mod_fields: "Moderazione"
 help_ranks_fields: "Ranghi"
 help_fun_fields: "Divertimento"
@@ -227,7 +227,7 @@ kiss_embed_description: "<@${interaction.user.id}> dà un bacio a <@${kiss.id}> 
 poll_not_admin: "Non hai i permessi per farlo!"
 poll_embed_title: "Sondaggio: **`${interaction.user.username}`**"
 poll_embed_fields_reaction: "Clicca sulle reazioni qui sotto.⬇"
-poll_embed_fields_choice: ":white_check_mark: **Sì**\n :x: **No**"
+poll_embed_fields_choice: ":white_check_mark: **Sì**|n :x: **No**"
 
 # /question
 question_not_full: "Inserisci una domanda completa con almeno 3 parole!"
@@ -387,7 +387,7 @@ blockpub_now_disable: "📌 | The antipub is now deactivated!"
 # /guildprofil
 guildprofil_not_admin: ":x: | Devi essere un amministratore di questo server!"
 guildprofil_not_set_reactionrole: "Non impostato!"
-guildprofil_set_reactionrole: "ID Messaggio: ${i} -> ${emoji || key} dà il ruolo <@&${rolesID}>.\n"
+guildprofil_set_reactionrole: "ID Messaggio: ${i} -> ${emoji || key} dà il ruolo <@&${rolesID}>.|n"
 guildprofil_not_set_ticketFetched: "Non impostato!"
 guildprofil_set_ticketFetched: ""
 guildprofil_not_set_punishPub: "Non impostato!"
@@ -454,21 +454,21 @@ setjoindm_confirmation_message_on_disable: "Hai disabilitato con successo il mes
 setjoindm_command_error_on_disable: "Errore: permessi mancanti o il canale non esiste"
 setjoindm_already_disable: "Il messaggio di benvenuto è già disabilitato!"
 setjoindm_not_setup_ls: "Non è stato impostato alcun messaggio di benvenuto qui!"
-setjoindm_command_work_ls: "Il messaggio di benvenuto è: \n${already_off}"
+setjoindm_command_work_ls: "Il messaggio di benvenuto è: |n${already_off}"
 
 # /setjoinmessage
 setjoinmessage_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questo comando per i canali di benvenuto!"
 setjoinmessage_help_embed_title: "Aiuto per setjoinmessage!"
 setjoinmessage_help_embed_description: "/setjoinmessage <Power on /Power off/Mostra il messaggio impostato> <messaggio di benvenuto>"
 setjoinmessage_help_embed_fields_name: "Come usarlo?"
-setjoinmessage_help_embed_fields_value: "Usa /setjoinmessage <Power on /Power off/Mostra il messaggio impostato> <messaggio>\n{user} = Nome utente del membro\n{membercount} = Conteggio membri del server\n{createdat} = Data di creazione dell'account del membro\n{guild} = Il nome del server\n{inviter} = Nome utente e discriminante dell'invitante\n{invites} = Il numero di inviti dell'invitante"
+setjoinmessage_help_embed_fields_value: "Usa /setjoinmessage <Power on /Power off/Mostra il messaggio impostato> <messaggio>|n{user} = Nome utente del membro|n{membercount} = Conteggio membri del server|n{createdat} = Data di creazione dell'account del membro|n{guild} = Il nome del server|n{inviter} = Nome utente e discriminante dell'invitante|n{invites} = Il numero di inviti dell'invitante"
 setjoinmessage_logs_embed_title_on_enable: "Log di setjoinmessage"
 setjoinmessage_logs_embed_description_on_enable: "<@${interaction.user.id}> ha impostato il messaggio di benvenuto!"
 setjoinmessage_command_work_on_enable: "✅ | Messaggio di benvenuto personalizzato impostato con successo."
 setjoinmessage_logs_embed_title_on_disable: "Log di setjoinmessage"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> ha eliminato il messaggio di benvenuto!"
 setjoinmessage_command_work_on_disable: "✅ | Messaggio di benvenuto personalizzato eliminato con successo."
-setjoinmessage_command_work_ls: "Il messaggio di benvenuto impostato è:\n${ls}"
+setjoinmessage_command_work_ls: "Il messaggio di benvenuto impostato è:|n${ls}"
 
 # /setjoinroles
 setjoinroles_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questo comando!"
@@ -492,14 +492,14 @@ setleavemessage_not_admin: ":x: | Devi essere un amministratore di questo server
 setleavemessage_help_embed_title: "/setleavemessage Aiuto!"
 setleavemessage_help_embed_description: "/setleavemessage <Accendi /Spegni/Mostra il messaggio impostato> <messaggio di uscita>"
 setleavemessage_help_embed_fields_name: "come si usa?"
-setleavemessage_help_embed_fields_value: "Usa /setleavemessage <Accendi /Spegni/Mostra il messaggio impostato> <messaggio>\n{user} = Nome utente del membro\n{membercount} = numero di membri del server\n{guild} = Nome del server"
+setleavemessage_help_embed_fields_value: "Usa /setleavemessage <Accendi /Spegni/Mostra il messaggio impostato> <messaggio>|n{user} = Nome utente del membro|n{membercount} = numero di membri del server|n{guild} = Nome del server"
 setleavemessage_logs_embed_title_on_enable: "SetLeaveMessage Logs"
 setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}> ha impostato il messaggio di uscita!"
 setleavemessage_command_work_on_enable: "✅ | Messaggio di uscita personalizzato impostato con successo."
 setleavemessage_logs_embed_title_on_disable: "SetLeaveMessage Logs"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> ha eliminato il messaggio di uscita!"
 setleavemessage_command_work_on_disable: "✅ | Messaggio di uscita personalizzato eliminato con successo."
-setleavemessage_command_work_ls: "Il messaggio di uscita è:\n${ls}"
+setleavemessage_command_work_ls: "Il messaggio di uscita è:|n${ls}"
 
 # /setup
 setup_not_admin: ":x: | Devi essere un amministratore di questo server!"
@@ -529,7 +529,7 @@ setmembercount_not_admin: ":x: | Devi essere un amministratore di questo server 
 setmembercount_helpembed_title: "Aiuto di Set MemberCount!"
 setmembercount_helpembed_description: "/setmembercount <Accendi /Spegni> <Nome del canale>"
 setmembercount_helpembed_fields_name: "Come si usa?"
-setmembercount_helpembed_fields_value: "Usa /setjoinmessage <Accendi /Spegni /Mostra il messaggio impostato> <messaggio>\n{membercount} = numero di membri del server\n{rolescount} = quantità di ruoli\n{botcount} = numero di bot nel server"
+setmembercount_helpembed_fields_value: "Usa /setjoinmessage <Accendi /Spegni /Mostra il messaggio impostato> <messaggio>|n{membercount} = numero di membri del server|n{rolescount} = quantità di ruoli|n{botcount} = numero di bot nel server"
 setmembercount_logs_embed_title_on_enable: "Log di Set MemberCount"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> ha impostato MemberCount di <#${channel.id}> a ${messagei}!"
 setmembercount_command_work_on_enable: "✅ | MemberCount impostato con successo."
@@ -721,7 +721,7 @@ backup_error_when_fetch_backup_on_load: ":x: | Nessun backup trovato per ${backu
 
 # /reactionroles
 reactionroles_dont_admin_added: ":x: | Devi essere un amministratore di questo server per richiedere i comandi dei canali di benvenuto!"
-reactionroles_embed_message_description_added: "come si usa?\n/rolesreaction add <id messaggio> <reazione> <id ruolo>\n/rolesreaction remove <id messaggio> <reazione>\n/rolesreaction list <id messaggio>"
+reactionroles_embed_message_description_added: "come si usa?|n/rolesreaction add <id messaggio> <reazione> <id ruolo>|n/rolesreaction remove <id messaggio> <reazione>|n/rolesreaction list <id messaggio>"
 reactionroles_missing_reaction_added: "Argomento mancante: Emoji della reazione"
 reactionroles_invalid_emote_format_added: "❌ | Non puoi inviarmi un CUSTOM_EMOJI nel formato <::xxx>! Ho bisogno solo del loro ID!"
 reactionroles_logs_embed_title_added: "Log ReactionRoles"
@@ -758,8 +758,8 @@ report_command_work: "**Grazie per aver segnalato un bug**!"
 
 # /support
 support_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questi comandi!"
-support_command_work: "Hai configurato il modulo di supporto per ${interaction.guild.name}.\nQuando un utente ha questa descrizione:\n**${input}**.\nDovrei assegnare loro il ruolo <@&${roles.id}>!"
-support_command_work_on_disable: "Hai configurato il modulo di supporto per ${interaction.guild.name}.\nNessuno può avere il ruolo ora!"
+support_command_work: "Hai configurato il modulo di supporto per ${interaction.guild.name}.|nQuando un utente ha questa descrizione:|n**${input}**.|nDovrei assegnare loro il ruolo <@&${roles.id}>!"
+support_command_work_on_disable: "Hai configurato il modulo di supporto per ${interaction.guild.name}.|nNessuno può avere il ruolo ora!"
 support_command_not_role: ":x: | Non hai specificato il ruolo!"
 
 # /setserverlang
@@ -785,7 +785,7 @@ event_mp_emptyQueue: "⚠️ - La musica si è fermata poiché non ci sono più 
 # Channel Create Events
 
 event_channel_create_message_embed_title: "Setup effettuato con successo!"
-event_channel_create_message_embed_description: "Il bot è stato configurato perfettamente. Non devi fare più niente (zen).\n\nTutti i log relativi alla moderazione di iHorizon saranno mostrati qui."
+event_channel_create_message_embed_description: "Il bot è stato configurato perfettamente. Non devi fare più niente (zen).|n|nTutti i log relativi alla moderazione di iHorizon saranno mostrati qui."
 
 # Welcome Message Events
 event_welcomer_inviter: "➕・<@${member.id}> ha appena joinato il server. Invitato da **${inviter.tag}** (**${fetched}** inviti). Account creato il: **${member.user.createdAt.toLocaleDateString()}**. Siamo felici di vederti su **${member.guild.name}**"
@@ -814,7 +814,7 @@ event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **ha revocato
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **ha cacciato** <@${firstEntry.target.id}>"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> ha rimosso il ruolo ${removedRoles} da ${oldMember.user.username}"
 event_srvLogs_guildMemberUpdate_2_description: "📥 <@${firstEntry.executor.id}> ha aggiunto il ruolo ${addedRoles} a ${oldMember.user.username}"
-event_srvLogs_messageDelete_description: "**Messaggio eliminato in <#${message.channel.id}>**\n${message.content}"
+event_srvLogs_messageDelete_description: "**Messaggio eliminato in <#${message.channel.id}>**|n${message.content}"
 event_srvLogs_messageUpdate_description: "**Messaggio modificato in <#${oldMessage.channelId}>**"
 event_srvLogs_messageUpdate_footer_1: "Prima"
 event_srvLogs_messageUpdate_footer_2: "Dopo"

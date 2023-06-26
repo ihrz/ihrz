@@ -41,7 +41,7 @@ function uncaughtExceptionHandler() {
             return CreateFiles.write(i);
         };
 
-        console.error(err.stack || err.message);
+        logger.err(err.stack || err.message);
     });
 };
 
