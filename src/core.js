@@ -25,13 +25,15 @@ const eventManager = require('./core/eventManager'),
     errorManager = require('./core/errorManager'),
     slashFetcher = require('./core/slashFetcher'),
     bash = require('./bash/bash'),
-    DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
+    DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`),
+    { Collection } = require('discord.js');
 
 module.exports = async (client) => {
     api = require(__dirname + "/api/oauth.js");
-    client.commands = new Map(),
+
+    client.invites = new Collection(),
+        client.commands = new Map(),
         client.voiceManager = new Map(),
-        client.invites = new Map(),
         client.interactions = new Map(),
         client.register_arr = [];
 

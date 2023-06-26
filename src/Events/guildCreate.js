@@ -41,7 +41,7 @@ module.exports = async (client, guild) => {
   Best regards,
   iHorizon Project`);
 
-    if (guild.memberCount <= 9) {
+    if (!guild.memberCount) {
       if (channel) { channel.send({ embeds: [embed] }).catch(err => { }); };
       await guild.leave();
       return false;

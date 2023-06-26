@@ -38,12 +38,12 @@ slashInfo.invitemanager.invites.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
     let data = await getLanguageData(interaction.guild.id);
 
-    const member = interaction.options.getMember("member")
+    const member = interaction.options.getMember("member") || interaction.member;
 
-    let inv = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.invites`});
-    let leaves = await DataBaseModel({id: DataBaseModel.Get,key:`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.leaves`});
-    let Regular = await DataBaseModel({id: DataBaseModel.Get,key:`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.regular`});
-    let bonus = await DataBaseModel({id: DataBaseModel.Get,key:`${interaction.guild.id}.USER.${member.user.id}.INVITES.DATA.bonus`});
+    let inv = await DataBaseModel({id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${member.user.id}.INVITES.invites`});
+    let leaves = await DataBaseModel({id: DataBaseModel.Get,key:`${interaction.guild.id}.USER.${member.user.id}.INVITES.leaves`});
+    let Regular = await DataBaseModel({id: DataBaseModel.Get,key:`${interaction.guild.id}.USER.${member.user.id}.INVITES.regular`});
+    let bonus = await DataBaseModel({id: DataBaseModel.Get,key:`${interaction.guild.id}.USER.${member.user.id}.INVITES.bonus`});
 
     let embed = new EmbedBuilder()
         .setColor("#92A8D1")

@@ -48,7 +48,7 @@ slashInfo.invitemanager.removeinvites.run = async (client, interaction) => {
         return interaction.reply({ embeds: [a] })
     }
 
-    await DataBaseModel({id: DataBaseModel.Sub, key: `${interaction.guild.id}.USER.${user.id}.INVITES.DATA.invites`, value: amount});
+    await DataBaseModel({ id: DataBaseModel.Sub, key: `${interaction.guild.id}.USER.${user.id}.INVITES.invites`, value: amount });
 
     const finalEmbed = new EmbedBuilder()
         .setDescription(data.removeinvites_confirmation_embed_description
@@ -57,7 +57,7 @@ slashInfo.invitemanager.removeinvites.run = async (client, interaction) => {
         )
         .setColor(`#92A8D1`)
         .setFooter({ text: interaction.guild.name, iconURL: interaction.guild.iconURL({ dynamic: true }) });
-    await DataBaseModel({id: DataBaseModel.Sub, key: `${interaction.guild.id}.USER.${user.id}.INVITES.DATA.bonus`, value: amount});
+    await DataBaseModel({ id: DataBaseModel.Sub, key: `${interaction.guild.id}.USER.${user.id}.INVITES.bonus`, value: amount });
 
     interaction.reply({ embeds: [finalEmbed] });
 

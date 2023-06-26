@@ -45,22 +45,24 @@ module.exports = async (client) => {
     };
 
     async function fetchInvites() {
+        await wait(1000);
         client.guilds.cache.forEach(async (guild) => {
             try {
                 if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
-                const firstInvites = await guild.invites.fetch();
+
+                var firstInvites = await guild.invites.fetch();
+
                 client.invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
             } catch (error) {
                 logger.err(`Error fetching invites for guild ${guild.id}: ${error}`);
-            }
+            };
         });
     };
 
     async function refreshDatabaseModel() {
         await DataBaseModel({ id: DataBaseModel.Set, key: `GLOBAL.OWNER.${config.owner.ownerid1}`, value: { owner: true } }),
             await DataBaseModel({ id: DataBaseModel.Set, key: `GLOBAL.OWNER.${config.owner.ownerid2}`, value: { owner: true } }),
-            await DataBaseModel({ id: DataBaseModel.Set, key: `TEMP`, value: {} }),
-            await wait(100);
+            await DataBaseModel({ id: DataBaseModel.Set, key: `TEMP`, value: {} });
     };
 
     async function quotesPresence() {

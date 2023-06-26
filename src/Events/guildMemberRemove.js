@@ -22,9 +22,11 @@
 const { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, Client } = require('discord.js');
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
+const logger = require(`${process.cwd()}/src/core/logger`);
 
 module.exports = async (client, member, members) => {
   let data = await getLanguageData(member.guild.id);
+
   async function memberCount() {
     try {
       const botMembers = member.guild.members.cache.filter(member => member.user.bot);
@@ -32,7 +34,6 @@ module.exports = async (client, member, members) => {
       const rolesCount = rolesCollection.size;
 
       let bot = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.MCOUNT.bot` });
-
       let member_2 = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.MCOUNT.member` });
       let roles = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.MCOUNT.roles` });
 
@@ -67,46 +68,45 @@ module.exports = async (client, member, members) => {
 
   async function goodbyeMessage() {
     try {
-      const newInvites = await member.guild.invites.fetch();
-      const oldInvites = client.invites.get(member.guild.id);
-      const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
+      let base = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.USER.${member.user.id}.INVITES.BY` });
+      let inviter = await client.users.fetch(base.inviter);
 
-      let tempDB = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.INVITES.${invite.code}.creatorUser` });
-      const inviter = await client.users.fetch(tempDB);
+      let check = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.USER.${inviter.id}.INVITES` });
 
-      if (await DataBaseModel({ id: DataBaseModel.Get, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA` })) {
+      if (check) {
+        await DataBaseModel({ id: DataBaseModel.Sub, key: `${member.guild.id}.USER.${inviter.id}.INVITES.invites`, values: 1 });
+        await DataBaseModel({ id: DataBaseModel.Add, key: `${member.guild.id}.USER.${inviter.id}.INVITES.leaves`, values: 1 });
+      };
 
-        await DataBaseModel({ id: DataBaseModel.Sub, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`, values: 1 });
-        await DataBaseModel({ id: DataBaseModel.Add, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.leaves`, values: 1 });
-      }
-    
-      let fetched = await DataBaseModel({ id: DataBaseModel.Get, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites` });
-      let wChan = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.leave` });
-      if (wChan == null || !wChan) return;
+      var invitesAmount = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.USER.${inviter.id}.INVITES.invites` });
+      var lChan = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.leave` });
+      if (!lChan) return;
 
-      let messssssage = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.leavemessage` });
-      if (!messssssage) {
-        return client.channels.cache.get(wChan).send({
+      let joinMessage = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.leavemessage` });
+      if (!joinMessage) {
+        return client.channels.cache.get(lChan).send({
           content: data.event_goodbye_inviter
             .replace("${member.id}", member.id)
             .replace("${member.guild.name}", member.guild.name)
             .replace("${inviter.tag}", inviter.tag)
-            .replace("${fetched}", fetched)
+            .replace("${fetched}", invitesAmount)
         });
       };
 
-      var messssssage4 = messssssage
+      var joinMessageFormated = joinMessage
         .replace("{user}", member.user.tag)
         .replace("{guild}", member.guild.name)
         .replace("{membercount}", member.guild.memberCount)
         .replace("{inviter}", inviter.tag)
-        .replace("{invites}", fetched);
-      client.channels.cache.get(wChan).send({ content: `${messssssage4}` });
-    } catch (e) {
-      let wChan = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.leave` });
-      if (!wChan || !client.channels.cache.get(wChan)) return;
+        .replace("{invites}", invitesAmount);
 
-      return client.channels.cache.get(wChan).send({
+      client.channels.cache.get(lChan).send({ content: joinMessageFormated });
+    } catch (e) {
+      logger.err(e);
+      let lChan = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.leave` });
+      if (!lChan || !client.channels.cache.get(lChan)) return;
+
+      return client.channels.cache.get(lChan).send({
         content: data.event_goodbye_default
           .replace("${member.id}", member.id)
           .replace("${member.guild.name}", member.guild.name)

@@ -44,10 +44,10 @@ slashInfo.invitemanager.addinvites.run = async (client, interaction) => {
     let a = new EmbedBuilder().setColor("#FF0000").setDescription(data.addinvites_not_admin_embed_description)
 
     if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-        return interaction.reply({ embeds: [a] })
+        return interaction.reply({ embeds: [a] });
     }
 
-    await DataBaseModel({id: DataBaseModel.Add, key:`${interaction.guild.id}.USER.${user.id}.INVITES.DATA.invites`, value: amount});
+    await DataBaseModel({id: DataBaseModel.Add, key:`${interaction.guild.id}.USER.${user.id}.INVITES.invites`, value: amount});
 
     const finalEmbed = new EmbedBuilder()
         .setDescription(data.addinvites_confirmation_embed_description
@@ -56,7 +56,7 @@ slashInfo.invitemanager.addinvites.run = async (client, interaction) => {
         )
         .setColor(`#92A8D1`)
         .setFooter({ text: interaction.guild.name, iconURL: interaction.guild.iconURL({ dynamic: true }) });
-    await DataBaseModel({id: DataBaseModel.Add, key:`${interaction.guild.id}.USER.${user.id}.INVITES.DATA.bonus`, amount});
+    await DataBaseModel({id: DataBaseModel.Add, key:`${interaction.guild.id}.USER.${user.id}.INVITES.bonus`, amount});
     interaction.reply({ embeds: [finalEmbed] });
 
     try {

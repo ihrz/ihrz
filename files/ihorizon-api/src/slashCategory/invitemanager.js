@@ -59,7 +59,7 @@ module.exports = {
                 name: 'member',
                 type: ApplicationCommandOptionType.User,
                 description: 'the member you want to show them invites',
-                required: true
+                required: false
             }
         ],
     },

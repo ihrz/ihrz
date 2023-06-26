@@ -35,7 +35,7 @@ slashInfo.invitemanager.leaderboard.run = async (client, interaction) => {
   
   const char = ownerList[foundArray].value.USER;
   for (const i in char) {
-    const a = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${i}.INVITES.DATA` });
+    const a = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${i}.INVITES` });
     if (a && a.invites >= 1) {
       text += data.leaderboard_text_inline
         .replace(/\${i}/g, i)

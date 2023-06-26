@@ -100,58 +100,65 @@ module.exports = async (client, member, members) => {
     } catch (e) { return };
   };
 
+  function isVanity(invite) {
+    return member.guild.features.includes("VANITY_URL") && invite.code == member.guild.vanityURLCode;
+  };
+
   async function welcomeMessage() {
     try {
-      const newInvites = await member.guild.invites.fetch();
       const oldInvites = client.invites.get(member.guild.id);
+      const newInvites = await member.guild.invites.fetch();
 
-      var invitesdb = Object.values(await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.INVITES` }));
+      const invite = newInvites.find(i => i.uses > oldInvites.get(i.code));
+      const inviter = await client.users.fetch(invite.inviter);
 
-      var invite = newInvites.find(i => {
-        let invitedb = invitesdb.find(idb => idb.code == (isVanity(i) ? "vanity" : i.code));
-        return invitedb && i.uses > invitedb.uses;
-      });
+      client.invites.get(member.guild.id).set(invite.code, invite.uses);
 
-      let tempDB = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.INVITES.${invite.code}.creatorUser` });
-      const inviter = await client.users.fetch(tempDB);
-      
-      let check = await DataBaseModel({id: DataBaseModel.Get, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA`});
+      let check = await DataBaseModel({ id: DataBaseModel.Get, key: `${invite.guild.id}.USER.${inviter.id}.INVITES` });
 
       if (check) {
-        await DataBaseModel({id: DataBaseModel.Add, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.regular`, value: 1});
-        await DataBaseModel({id: DataBaseModel.Add, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`, value: 1});
-      }
-      
-      let fetched = await DataBaseModel({id: DataBaseModel.Get, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.DATA.invites`});
+        await DataBaseModel({ id: DataBaseModel.Add, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.regular`, value: 1 });
+        await DataBaseModel({ id: DataBaseModel.Add, key: `${invite.guild.id}.USER.${inviter.id}.INVITES.invites`, value: 1 });
+      };
 
-      let wChan = await DataBaseModel({id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.join`});
+      await DataBaseModel({
+        id: DataBaseModel.Set, key: `${invite.guild.id}.USER.${member.user.id}.INVITES.BY`,
+        value: {
+          inviter: inviter.id,
+          invite: invite.code,
+        }
+      });
+
+      var invitesAmount = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.USER.${inviter.id}.INVITES.invites` });
+
+      let wChan = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.join` });
       if (!wChan) return;
 
-      let messssssage = await DataBaseModel({id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`});
+      let joinMessage = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage` });
 
-      if (!messssssage) {
+      if (!joinMessage) {
         return client.channels.cache.get(wChan).send({
           content: data.event_welcomer_inviter
             .replace("${member.id}", member.id)
             .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
             .replace("${member.guild.name}", member.guild.name)
             .replace("${inviter.tag}", inviter.tag)
-            .replace("${fetched}", fetched)
+            .replace("${fetched}", invitesAmount)
         });
       }
 
-      var messssssage4 = messssssage
+      var joinMessageFormated = joinMessage
         .replace("{user}", member.user.tag)
         .replace("{guild}", member.guild.name)
         .replace("{createdat}", member.user.createdAt.toLocaleDateString())
         .replace("{membercount}", member.guild.memberCount)
         .replace("{inviter}", inviter.tag)
-        .replace("{invites}", fetched);
+        .replace("{invites}", invitesAmount);
 
-      return client.channels.cache.get(wChan).send({ content: `${messssssage4}` });
+      return client.channels.cache.get(wChan).send({ content: joinMessageFormated });
     } catch (e) {
-      let wChan = await DataBaseModel({id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.join`});
-      if (!wChan) return;
+      logger.err(e);
+      let wChan = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.join` });
       return client.channels.cache.get(wChan).send({
         content: data.event_welcomer_default
           .replace("${member.id}", member.id)
@@ -159,10 +166,6 @@ module.exports = async (client, member, members) => {
           .replace("${member.guild.name}", member.guild.name)
       });
     }
-  };
-
-  function isVanity(invite) {
-    return member.guild.features.includes("VANITY_URL") && invite.code == member.guild.vanityURLCode;
   };
 
   await joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage();

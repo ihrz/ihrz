@@ -74,7 +74,7 @@ module.exports = async (client, interaction) => {
     
     interaction.options._hoistedOptions.forEach(element => { opt.push(`${element.name}:"${element.value}" `); });
     if (end - start === 0) { r = `The command are exited by an erorr!` } else { r = `Executed in ${end - start}ms` }
-    fs.createWriteStream(`${process.cwd()}/files/.slash_logs`, { flags: 'a' }).write(`${interaction.guild.name} >> ${date.format(new Date(), 'DD/MM/YYYY HH:mm:ss')}\n#${interaction.channel.name}:
+    fs.createWriteStream(`${process.cwd()}/files/.slash_logs`, { flags: 'a' }).write(`${interaction.guild.name} >> ${date.format(new Date(), 'DD/MM/YYYY HH:mm:ss')}\n#${interaction.channel? interaction.channel.name: 'Unknown Channel'}:
     ${interaction.user.username}#${interaction.user.discriminator}:
         /${interaction.commandName} ${opt} | ${r}\n\r`);
   };
