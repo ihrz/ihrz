@@ -102,7 +102,6 @@ module.exports = async (client, member, members) => {
 
       client.channels.cache.get(lChan).send({ content: joinMessageFormated });
     } catch (e) {
-      logger.err(e);
       let lChan = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.leave` });
       if (!lChan || !client.channels.cache.get(lChan)) return;
 
