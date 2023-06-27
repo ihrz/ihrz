@@ -26,10 +26,13 @@ const eventManager = require('./core/eventManager'),
     slashFetcher = require('./core/slashFetcher'),
     bash = require('./bash/bash'),
     DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`),
-    { Collection } = require('discord.js');
+    { Collection } = require('discord.js'),
+    templateFileCreator = require(`${process.cwd()}/src/core/templateFileCreator`),
+    api = require(`${process.cwd()}/src/api/oauth.js`);
 
 module.exports = async (client) => {
-    api = require(__dirname + "/api/oauth.js");
+    templateFileCreator.html();
+    errorManager.uncaughtExceptionHandler();
 
     client.invites = new Collection(),
         client.commands = new Map(),
@@ -37,13 +40,11 @@ module.exports = async (client) => {
         client.interactions = new Map(),
         client.register_arr = [];
 
-    eventManager(client),
+    slashFetcher(client, async (callback) => {
+        await DataBaseModel({ id: DataBaseModel.Set, key: 'BOT.CONTENT', value: callback });
+    }),
+        eventManager(client),
         playerManager(client),
         bash(client),
-        giveawaysManager(client),
-        slashFetcher(client, async (callback) => {
-            await DataBaseModel({ id: DataBaseModel.Set, key: 'BOT.CONTENT', values: callback });
-        });
-
-    errorManager.uncaughtExceptionHandler();
+        giveawaysManager(client);
 };

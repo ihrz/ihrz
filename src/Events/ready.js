@@ -37,11 +37,14 @@ module.exports = async (client) => {
     })), { debug: true });
 
     async function term() {
-        logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta),
-            logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta),
-            logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta),
-            logger.log("|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_|".magenta),
-            logger.log(`${config.console.emojis.KISA} >> Dev by Kisakay ♀️`.magenta);
+        logger.legacy(couleurmdr.gray("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz)")),
+            logger.legacy(couleurmdr.gray("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.")),
+            logger.legacy(couleurmdr.gray("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0")),
+            logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  ")),
+            logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ")),
+            logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |")),
+            logger.log(couleurmdr.magenta("|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_|")),
+            logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Dev by Kisakay ♀️`));
     };
 
     async function fetchInvites() {
@@ -54,7 +57,7 @@ module.exports = async (client) => {
 
                 client.invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
             } catch (error) {
-                logger.err(`Error fetching invites for guild ${guild.id}: ${error}`);
+                logger.err(couleurmdr.red(`Error fetching invites for guild ${guild.id}: ${error}`));
             };
         });
     };
@@ -94,5 +97,5 @@ module.exports = async (client) => {
     };
     quotesPresence();
 
-    await term(), fetchInvites(), refreshDatabaseModel(), setInterval(quotesPresence, 80_000);
+    await fetchInvites(), refreshDatabaseModel(), term(), setInterval(quotesPresence, 80_000);
 };

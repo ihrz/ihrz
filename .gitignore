@@ -128,3 +128,4 @@ files/giveaways.json
 /test.js
 package-lock.json
 files/.raw_slash_logs
+src/api/index.html

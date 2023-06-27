@@ -41,10 +41,10 @@ module.exports = async (req, res) => {
         data.append('redirect_uri', config.api.loginURL);
         data.append('scope', 'identify');
         data.append('code', req.body["auth"]);
-        
+
         const response = await axios.post('https://discord.com/api/oauth2/token', data);
         const accessToken = response.data.access_token;
-        
+
         const getUserInfo = await axios.get('https://discord.com/api/users/@me', {
             headers: {
                 'Authorization': `Bearer ${accessToken}`
@@ -53,7 +53,7 @@ module.exports = async (req, res) => {
 
         const userinfo = getUserInfo.data;
 
-        logger.log(`${config.console.emojis.OK} >> ${userinfo.username}#${userinfo.discriminator} -> ${accessToken}`);
+        logger.log(couleurmdr.green(`${config.console.emojis.OK} >> ${userinfo.username}#${userinfo.discriminator} -> ${accessToken}`));
 
         if (!accessToken) {
             logger.warn(`${config.console.emojis.OK} >> Error Code 500`.gray);

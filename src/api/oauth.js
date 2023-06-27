@@ -43,5 +43,5 @@ app.get('/', (_req, res) => {
 });
 
 app.listen(config.api.hostPort, async function () {
-    await logger.log(`${config.console.emojis.HOST} >> App listening, link: (${config.api.loginURL})`.green);
+    await logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> App listening, link: (${config.api.loginURL})`));
 });

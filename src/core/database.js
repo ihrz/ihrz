@@ -31,22 +31,22 @@ let db;
 module.exports = new Promise((resolve, reject) => {
     if (config.database.useSqlite) {
         db = new QuickDB({ filePath: `${process.cwd()}/files/db.sqlite` });
-        logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`.green);
+        logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Connected to the database (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`));
         resolve(db);
     } else {
         const driver = new MongoDriver(config.database.mongoDb);
 
         driver.connect()
             .then(() => {
-                logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`.green);
+                logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Connected to the database (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`));
                 db = new QuickDB({ driver });
                 resolve(db), proc.exit(driver);
             })
             .catch(async (error) => {
-                await logger.err(`${config.console.emojis.ERROR} >> ${error.toString().split("\n")[0]}`.red);
-                await logger.err(`${config.console.emojis.ERROR} >> Database is unreachable (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`.red);
-                await logger.err(`${config.console.emojis.ERROR} >> Please use a different database than ${config.database.useSqlite ? 'SQLite' : 'MongoDB'} !`.red);
-                await logger.err(`${config.console.emojis.ERROR} >> in the /files/config.js at: 'database.useSqlite'.`.red);
+                await logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> ${error.toString().split("\n")[0]}`));
+                await logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> Database is unreachable (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`));
+                await logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> Please use a different database than ${config.database.useSqlite ? 'SQLite' : 'MongoDB'} !`));
+                await logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> in the /files/config.js at: 'database.useSqlite'.`));
 
                 await logger.err(`Exiting the code...`.bgRed);
 

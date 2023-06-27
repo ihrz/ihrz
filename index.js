@@ -20,8 +20,8 @@
 */
 
 const { ShardingManager } = require('discord.js'),
-    colors = require("colors"),
+    couleurmdr = require("colors"),
     logger = require(`${process.cwd()}/src/core/logger`);
 manager = new ShardingManager("./src/core/bot.js", { totalShards: "auto", token: require(`${process.cwd()}/files/config`).discord.token });
-manager.on("shardCreate", (shard) => logger.log(`${require(`${process.cwd()}/files/config`).console.emojis.HOST} >> Shard[${shard.id}] launched !`.green));
+manager.on("shardCreate", (shard) => logger.log(couleurmdr.green(`${require(`${process.cwd()}/files/config`).console.emojis.HOST} >> Shard[${shard.id}] launched !`)));
 manager.spawn();
