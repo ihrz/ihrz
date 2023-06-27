@@ -156,15 +156,16 @@ module.exports = async (client, member, members) => {
         .replace("{invites}", invitesAmount);
 
       return client.channels.cache.get(wChan).send({ content: joinMessageFormated });
-    } catch (e) {
-      logger.err(e);
+    } catch {
       let wChan = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.join` });
-      return client.channels.cache.get(wChan).send({
-        content: data.event_welcomer_default
-          .replace("${member.id}", member.id)
-          .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
-          .replace("${member.guild.name}", member.guild.name)
-      });
+      if (!wChan || !client.channels.cache.get(wChan)) return;
+      
+        return client.channels.cache.get(wChan).send({
+          content: data.event_welcomer_default
+            .replace("${member.id}", member.id)
+            .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
+            .replace("${member.guild.name}", member.guild.name)
+        });
     }
   };
 
