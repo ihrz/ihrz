@@ -34,7 +34,7 @@ module.exports = async (client) => {
         description: command.description,
         options: command.options,
         type: ApplicationCommandType.ChatInput
-    })), { debug: true });
+    })), { debug: false });
 
     async function term() {
         logger.legacy(couleurmdr.gray("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz)")),
@@ -86,9 +86,7 @@ module.exports = async (client) => {
             "The greatest wealth is to live content with little. - Plato",
             "Life is a succession of lessons which must be lived to be understood. - Ralph Waldo Emerson",
             "The only way to escape the corruptible effect of praise is to go on working. - Albert Einstein",
-            "The purpose of life is not to be happy. It is to be useful, to be honorable, to be compassionate, to have it make some difference that you have lived and lived well. - Ralph Waldo Emerson",
             "Life is what happens when you're busy making other plans. - John Lennon",
-            "Success is not the key to happiness. Happiness is the key to success. If you love what you are doing, you will be successful. - Albert Schweitzer",
             "The secret of success is to know something nobody else knows. - Aristotle Onassis"
         ];
 

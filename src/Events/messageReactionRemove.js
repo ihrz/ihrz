@@ -26,24 +26,25 @@ const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 module.exports = async (client, reaction, user) => {
   async function reactionRole() {
     try {
-      if (user.bot || user.id == client.user.id) return;
-      if (!reaction.message.guild) return;
-      const fetched = await DataBaseModel({id: DataBaseModel.Get, key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`})
-  
+      if (user.bot || user.id == client.user.id
+        || !reaction.message.guild) return;
+
+      const fetched = await DataBaseModel({ id: DataBaseModel.Get, key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}` })
+
       if (fetched) {
         const role = reaction.message.guild.roles.cache.get(fetched.rolesID);
         if (!role) return;
-  
+
         const member = reaction.message.guild.members.cache.get(user.id);
         return await member.roles.remove(role);
       };
-      
-      const fetchedForNitro = await DataBaseModel({id: DataBaseModel.Get, key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`})
-  
+
+      const fetchedForNitro = await DataBaseModel({ id: DataBaseModel.Get, key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}` })
+
       if (fetchedForNitro) {
         const role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);
         if (!role) return;
-  
+
         const member = reaction.message.guild.members.cache.get(user.id);
         return await member.roles.remove(role);
       };

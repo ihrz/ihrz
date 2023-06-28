@@ -20,34 +20,34 @@
 */
 
 const { Client, Collection, ChannelType, PermissionsBitField, GatewayIntentBits, Partials, EmbedBuilder } = require('discord.js')
-const fs = require("fs")
-const config = require(`${process.cwd()}/files/config.js`);
-const logger = require(`${process.cwd()}/src/core/logger`);
+const config = require(`${process.cwd()}/files/config.js`),
+  logger = require(`${process.cwd()}/src/core/logger`);
 
 module.exports = async (client, guild) => {
-  const channel = await guild.channels.cache.get(guild.systemChannelId);
+  const channel = await guild.channels.cache.get(guild.systemChannelId)
+    || await guild.channels.cache.random();
 
-  async function antiPoubelle() {
-    let embed = new EmbedBuilder()
-      .setColor("#f44336")
-      .setTimestamp()
-      .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
-      .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
-      .setDescription(`Dear members of this server,
-  We regret to inform you that our bot will be leaving this server. We noticed that this server has less than 10 members, which may suggest that it is not an active and healthy community for our bot to be a part of.
-  We value the safety and satisfaction of our users, and we believe that being part of active and thriving communities is essential to achieving this goal. We apologize for any inconvenience this may cause and we hope to have the opportunity to serve you in a more suitable environment in the future.
-  
-  Thank you for your understanding and have a great day.
-  Best regards,
-  iHorizon Project`);
+  // async function antiPoubelle() {
+  //   let embed = new EmbedBuilder()
+  //     .setColor("#f44336")
+  //     .setTimestamp()
+  //     .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
+  //     .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
+  //     .setDescription(`Dear members of this server,
+  // We regret to inform you that our bot will be leaving this server. We noticed that this server has less than 10 members, which may suggest that it is not an active and healthy community for our bot to be a part of.
+  // We value the safety and satisfaction of our users, and we believe that being part of active and thriving communities is essential to achieving this goal. We apologize for any inconvenience this may cause and we hope to have the opportunity to serve you in a more suitable environment in the future.
 
-    if (!guild.memberCount) {
-      if (channel) { channel.send({ embeds: [embed] }).catch(err => { }); };
-      await guild.leave();
-      return false;
-    };
-    return true;
-  };
+  // Thank you for your understanding and have a great day.
+  // Best regards,
+  // iHorizon Project`);
+
+  //   if (!guild.memberCount) {
+  //     if (channel) { channel.send({ embeds: [embed] }).catch(err => { }); };
+  //     await guild.leave();
+  //     return false;
+  //   };
+  //   return true;
+  // };
 
   async function blacklistLeave() {
     const channelHr = await guild.channels.cache.get(guild.systemChannelId)
@@ -116,7 +116,7 @@ Thanks for choosing me and let's have some fun together!`);
     client.channels.cache.get(config.core.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
   };
 
-  let c = await antiPoubelle();
+  // let c = await antiPoubelle();
   let d = await blacklistLeave();
-  if (c && d) await ownerLogs(), messageToServer(), getInvites();
+  if (d) await ownerLogs(), messageToServer(), getInvites();
 };

@@ -28,8 +28,7 @@ module.exports = async (client, oldUser) => {
         newUser = await client.users.fetch(oldUser.id);
         newUsertag = newUser.username + '#' + newUser.discriminator;
 
-        if (oldUsertag === newUsertag) return;
-        if (!oldUser) return;
+        if (oldUsertag === newUsertag || !oldUser) return;
 
         const someinfo = await DataBaseModel({ id: DataBaseModel.Get, key: `DB.PREVNAMES.${oldUser.id}` });
         var char = `${time((new Date()), 'd')} - ${oldUser.username}#${oldUser.discriminator}`;

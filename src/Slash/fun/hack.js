@@ -35,7 +35,6 @@ const {
 slashInfo.fun.hack.run = async (client, interaction) => {
         const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
         let data = await getLanguageData(interaction.guild.id);
-        const wtf = require(`${process.cwd()}/files/ihorizon-api/wtf`);
 
         const victim = interaction.options.getUser("user")
         var ip = [

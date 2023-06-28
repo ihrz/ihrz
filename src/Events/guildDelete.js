@@ -42,7 +42,9 @@ module.exports = async (client, guild) => {
                 .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
                 .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
 
-            return client.channels.cache.get(config.core.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
+            let channel = client.channels.cache.get(config.core.guildLogsChannelID);
+
+            return channel.send({ embeds: [embed] });
         } catch (error) {
             logger.err(error);
         };

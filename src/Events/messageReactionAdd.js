@@ -40,7 +40,7 @@ module.exports = async (client, reaction, user) => {
     async function reactionRole() {
         try {
             if (user.bot || user.id == client.user.id || !reaction.message.guild) return;
-            const fetched = await DataBaseModel({id: DataBaseModel.Get, key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`});
+            const fetched = await DataBaseModel({ id: DataBaseModel.Get, key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}` });
 
             if (fetched) {
                 const role = reaction.message.guild.roles.cache.get(fetched.rolesID);
@@ -67,14 +67,14 @@ module.exports = async (client, reaction, user) => {
 
     async function ticketModule() {
         if (user.bot) return;
-        let result = await DataBaseModel({id: DataBaseModel.Get, key: `${reaction.message.guildId}.GUILD.TICKET.${reaction.message.id}`})
-        if (!result) return;
-        if (result.channel !== reaction.message.channelId) return;
-        if (result.messageID !== reaction.message.id) return;
+        let result = await DataBaseModel({ id: DataBaseModel.Get, key: `${reaction.message.guildId}.GUILD.TICKET.${reaction.message.id}` })
+        if (!result || result.channel !== reaction.message.channelId
+            || result.messageID !== reaction.message.id) return;
 
         if (reaction.message.guild.channels.cache.find(channel => channel.name === `ticket-${user.id}`)) {
             return reaction.users.remove(user);
-        }
+        };
+
         reaction.message.guild.channels.create({
             name: `ticket-${user.id}`,
             type: ChannelType.GuildText,
@@ -89,7 +89,7 @@ module.exports = async (client, reaction, user) => {
                 }
             ],
         }).then(async channel => {
-            reaction.users.remove(user);
+            await reaction.users.remove(user);
             let welcome = new EmbedBuilder()
                 .setTitle(result.panelName)
                 .setColor("#3b8f41")
@@ -98,10 +98,10 @@ module.exports = async (client, reaction, user) => {
                 )
                 .setFooter({
                     text: 'iHorizon',
-                    iconURL: client.user.displayAvatarURL({format: 'png', dynamic: true, size: 4096})
-                })
+                    iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 })
+                });
 
-            return channel.send({content: `<@${user.id}>`, embeds: [welcome]});
+            return channel.send({ content: `<@${user.id}>`, embeds: [welcome] });
         });
     };
 

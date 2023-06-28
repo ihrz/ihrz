@@ -20,17 +20,17 @@
 */
 
 const { Client, Collection, EmbedBuilder, Permissions } = require('discord.js'),
-    getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
+    getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`),
+    DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 module.exports = async (client, oldMessage, newMessage) => {
     let data = await getLanguageData(oldMessage.guild.id)
     async function serverLogs() {
         if (!oldMessage || !oldMessage.guild) return;
 
-        if (!newMessage.author || newMessage.author.bot) return;
-        if (oldMessage.content == '' || !oldMessage.content) return;
-        if (newMessage.content == '' || !newMessage.content) return;
+        if (!newMessage.author || newMessage.author.bot
+            || oldMessage.content == '' || !oldMessage.content
+            || newMessage.content == '' || !newMessage.content) return;
 
         const guildId = oldMessage.guildId,
             someinfo = await DataBaseModel({ id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.message` });

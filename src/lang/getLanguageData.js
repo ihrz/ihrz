@@ -20,7 +20,6 @@
 */
 
 const yaml = require(`${process.cwd()}/src/core/yamlLoader`),
-    fs = require('fs'),
     DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 async function getLanguageData(arg) {

@@ -27,8 +27,7 @@ const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
 
 module.exports = async (client, message) => {
-    if (!message.guild || message.author.bot) return;
-    if (!message.channel) return;
+    if (!message.guild || message.author.bot || !message.channel) return;
 
     let data = await getLanguageData(message.guild.id);
 

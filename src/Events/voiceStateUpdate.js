@@ -21,16 +21,15 @@
 
 const { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client } = require('discord.js');
 
-const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
-
+const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`),
+    DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 module.exports = async (client, oldState, newState) => {
     let data = await getLanguageData(oldState.guild.id);
     async function serverLogs() {
         if (!oldState || !oldState.guild) return;
         const guildId = oldState.guild.id;
-        const someinfo = await DataBaseModel({id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.voice`});
+        const someinfo = await DataBaseModel({ id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.voice` });
         if (!someinfo) return;
 
         let Msgchannel = client.channels.cache.get(someinfo);
@@ -46,8 +45,8 @@ module.exports = async (client, oldState, newState) => {
 
         let targetUser = await client.users.fetch(user);
 
-        if(targetUser.id === client.user.id) return;
-        
+        if (targetUser.id === client.user.id) return;
+
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setAuthor({ name: targetUser.username, iconURL: targetUser.avatarURL({ format: 'png', dynamic: true, size: 512 }) })

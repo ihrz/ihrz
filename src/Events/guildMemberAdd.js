@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
+const { Client, Intents, Collection, EmbedBuilder, PermissionsBitField } = require('discord.js');
 const logger = require(`${process.cwd()}/src/core/logger`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
@@ -27,11 +27,13 @@ const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 module.exports = async (client, member, members) => {
   let data = await getLanguageData(member.guild.id);
   async function joinRoles() {
-    try {
-      let roleid = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.joinroles` });
-      if (!roleid) return;
-      member.roles.add(roleid);
-    } catch (e) { return logger.err(e) }
+    if (!member.guild.members.me.permissions.has(PermissionsBitField.Flags.ManageRoles)) return;
+
+    let roleid = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.joinroles` });
+    let role = member.guild.roles.cache.get(roleid);
+    if (!roleid || !role) return;
+
+    member.roles.add(roleid);
   };
 
   async function joinDm() {
@@ -39,8 +41,8 @@ module.exports = async (client, member, members) => {
       let msg_dm = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.joindm` });
 
       if (!msg_dm || msg_dm === "off") return;
-      member.send({ content: "**This is a Join DM from** \`" + member.guild.id + "\`**!**\n" + msg_dm }).catch(() => { })
-    } catch (e) { return };
+      member.send({ content: "**This is a Join DM from** \`" + member.guild.id + "\`**!**\n" + msg_dm });
+    } catch (e) { return; };
   };
 
   async function blacklistFetch() {
@@ -53,7 +55,7 @@ module.exports = async (client, member, members) => {
 
       let e = await DataBaseModel({ id: DataBaseModel.Get, key: `GLOBAL.BLACKLIST.${members.user.id}.blacklisted` });
 
-      if (e === "yes") {
+      if (e) {
         members.send({ content: "You've been banned, because you are blacklisted" }).catch(members.ban({ reason: 'blacklisted!' }));
         members.ban({ reason: 'blacklisted!' });
       }
@@ -159,13 +161,13 @@ module.exports = async (client, member, members) => {
     } catch {
       let wChan = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.join` });
       if (!wChan || !client.channels.cache.get(wChan)) return;
-      
-        return client.channels.cache.get(wChan).send({
-          content: data.event_welcomer_default
-            .replace("${member.id}", member.id)
-            .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
-            .replace("${member.guild.name}", member.guild.name)
-        });
+
+      return client.channels.cache.get(wChan).send({
+        content: data.event_welcomer_default
+          .replace("${member.id}", member.id)
+          .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
+          .replace("${member.guild.name}", member.guild.name)
+      });
     }
   };
 

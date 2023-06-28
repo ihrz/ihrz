@@ -43,7 +43,7 @@ module.exports.playerEvents = async (player) => {
     });
 
     player.events.on('playerError', async (queue, error) => {
-        let data = await getLanguageData(queue.channel.guildId);
+        let data = await getLanguageData(queue.metadata.channel.guildId);
 
         return logger.err(data.event_mp_playerError
             .replace("${error.message}", error.message)
@@ -51,7 +51,7 @@ module.exports.playerEvents = async (player) => {
     });
 
     player.events.on('error', async (queue, error) => {
-        let data = await getLanguageData(queue.channel.guildId);
+        let data = await getLanguageData(queue.metadata.channel.guildId);
 
         return logger.err(data.event_mp_error
             .replace("${error.message}", error.message)
@@ -59,7 +59,7 @@ module.exports.playerEvents = async (player) => {
     });
 
     player.events.on('emptyChannel', async (queue) => {
-        let data = await getLanguageData(queue.channel.guildId);
+        let data = await getLanguageData(queue.metadata.channel.guildId);
 
         if (queue > 2) player?.nodes.delete(queue.metadata);
         queue.metadata.channel.send({ content: data.event_mp_emptyChannel });
@@ -75,7 +75,7 @@ module.exports.playerEvents = async (player) => {
     });
 
     player.events.on('emptyQueue', async (queue) => {
-        let data = await getLanguageData(queue.channel.guildId);
+        let data = await getLanguageData(queue.metadata.channel.guildId);
 
         queue.metadata.channel.send({ content: data.event_mp_emptyQueue });
     });

@@ -28,9 +28,8 @@ module.exports = async (client, message) => {
     let data = await getLanguageData(message.guild.id);
 
     async function snipeModules() {
-        if (!message.guild) return;
-        if (!message.author) return;
-        if (message.author.id == client.user.id) return;
+        if (!message.guild || !message.author
+            || message.author.id == client.user.id) return;
 
         await DataBaseModel({
             id: DataBaseModel.Set, key: `${message.guild.id}.GUILD.SNIPE.${message.channel.id}`,
@@ -44,9 +43,8 @@ module.exports = async (client, message) => {
     };
 
     async function serverLogs() {
-        if (!message.guild) return;
-        if (!message.author) return;
-        if (message.author.id == client.user.id) return;
+        if (!message.guild || !message.author
+            || message.author.id == client.user.id) return;
 
         const guildId = message.guild.id;
         const someinfo = await DataBaseModel({ id: DataBaseModel.Get, key: `${guildId}.GUILD.SERVER_LOGS.message` });

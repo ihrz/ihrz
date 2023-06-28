@@ -19,14 +19,6 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-/*
-        // "apiURL": "http://localhost:1337/api/check/",
-
-        // "loginURL": "http://localhost:1337",
-
-        // "dbApiUrl": "http://localhost:1337/api/database/",
-*/
-
 const config = require(`${process.cwd()}/files/config`);
 
 function parseLoginURL() {
