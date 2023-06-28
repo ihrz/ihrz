@@ -129,3 +129,6 @@ files/giveaways.json
 package-lock.json
 files/.raw_slash_logs
 src/api/index.html
+
+# Custom discord module
+files/ihorizonjs
