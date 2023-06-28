@@ -37,8 +37,7 @@ const config = require(`${process.cwd()}/files/config.js`),
   DiscordOauth2 = require("discord-oauth2"),
   oauth = new DiscordOauth2(),
   axios = require('axios'),
-  api_login = config.api.loginURL,
-  apiURL = config.api.apiURL;
+  apiUrlParser = require(`${process.cwd()}/src/core/apiUrlParser`);
 
 const badges = {
   Discord_Employee: {
@@ -118,7 +117,7 @@ slashInfo.utils.userinfo.run = async (client, interaction) => {
     if (!response.available) { return };
     //si il n'est pas enregistré dans la db
     if (response.available == "no") {
-      description = `${getBadges(member.flags)}\n**User:** \`${member.username}\#${member.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\`\n[My nitro is not showed](${api_login})`;
+      description = `${getBadges(member.flags)}\n**User:** \`${member.username}\#${member.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\`\n[My nitro is not showed](${apiUrlParser.LoginURL()})`;
       sendMessage(description)
     };
 
@@ -184,7 +183,7 @@ slashInfo.utils.userinfo.run = async (client, interaction) => {
   };
 
   try {
-    const response = await axios.post(apiURL, requestData);
+    const response = await axios.post(apiUrlParser.ApiURL(), requestData);
     getSubscriptions(response.data);
   } catch (error) {
     logger.err(error);
@@ -195,7 +194,7 @@ slashInfo.utils.userinfo.run = async (client, interaction) => {
       footer: { text: `ID: ${member.id}` },
       timestamp: new Date(),
       color: '#0014a8',
-      description: `${getBadges(member.flags)}\n**User:** \`${member.username}\#${member.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\`\n[🔴 API DOWN](${api_login})`
+      description: `${getBadges(member.flags)}\n**User:** \`${member.username}\#${member.discriminator}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\`\n[🔴 API DOWN](${apiUrlParser.LoginURL()})`
     };
 
     await interaction.editReply({ embeds: [embed], content: '🔴 API DOWN' });

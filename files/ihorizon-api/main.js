@@ -22,13 +22,14 @@
 const axios = require('axios'),
     config = require('../config'),
     CryptoJS = require("crypto-js"),
-    dbPromise = require(`${process.cwd()}/src/core/database.js`);
+    dbPromise = require(`${process.cwd()}/src/core/database.js`),
+    apiUrlParser = require(`${process.cwd()}/src/core/apiUrlParser`);
 
 const dbUseApi = async (id) => {
     return new Promise((resolve, reject) => {
         try {
             const encrypted = CryptoJS.AES.encrypt(JSON.stringify(id), config.api.apiToken).toString();
-            axios.post(config.api.dbApiUrl, { text: encrypted }, { headers: { 'Accept': 'application/json' } })
+            axios.post(apiUrlParser.DatabaseURL(), { text: encrypted }, { headers: { 'Accept': 'application/json' } })
                 .then(response => {
                     if (JSON.stringify(response.data) === '{}') {
                         resolve(undefined);

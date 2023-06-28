@@ -27,11 +27,12 @@ const eventManager = require('./core/eventManager'),
     bash = require('./bash/bash'),
     DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`),
     { Collection } = require('discord.js'),
-    templateFileCreator = require(`${process.cwd()}/src/core/templateFileCreator`),
+    checkSys = require(`${process.cwd()}/src/core/checkSys`),
     api = require(`${process.cwd()}/src/api/oauth.js`);
 
 module.exports = async (client) => {
-    templateFileCreator.html();
+    checkSys.Licence();
+    checkSys.Html();
     errorManager.uncaughtExceptionHandler();
 
     client.invites = new Collection(),

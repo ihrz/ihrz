@@ -20,6 +20,8 @@
 */
 
 const Express = require('express'),
+    https = require('https'),
+    fs = require('fs'),
     app = Express(),
     path = require('path'),
     bodyParser = require('body-parser'),
@@ -28,7 +30,8 @@ const Express = require('express'),
     config = require(`${process.cwd()}/files/config`),
     code = require('./code/code'),
     user = require('./code/user'),
-    api = require('./code/api');
+    api = require('./code/api'),
+    apiUrlParser = require(`${process.cwd()}/src/core/apiUrlParser`);
 
 app.use(Express.urlencoded({ extended: false }));
 app.use(Express.json());
@@ -42,6 +45,19 @@ app.get('/', (_req, res) => {
     res.sendFile(path.join(__dirname + '/index.html'));
 });
 
-app.listen(config.api.hostPort, async function () {
-    await logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> App listening, link: (${config.api.loginURL})`));
-});
+if (config.api.useHttps) {
+    const options = {
+        key: fs.readFileSync(`${process.cwd()}/files/certificat.key`),
+        cert: fs.readFileSync(`${process.cwd()}/files/certificat.crt`)
+    };
+
+    const server = https.createServer(options, app);
+
+    server.listen(config.api.port, () => {
+        console.log(`Serveur HTTPS démarré sur le port ${config.api.port}`);
+    });
+} else {
+    app.listen(config.api.port, async function () {
+        await logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> App listening, link: (${apiUrlParser.LoginURL()})`));
+    });
+};

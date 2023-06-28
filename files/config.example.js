@@ -24,57 +24,73 @@ module.exports = {
     discord: {
 
         "token": "The bot token",
+        // The Discord Bot Token
 
     },
 
     giveaway: {
 
         "hostedBy": true,
+        // In the giveaway embed, the hosted name of the user who hosted the giveaway.
 
     },
 
     core: {
 
         "devMode": false,
-        // true => log's ERROR are been in the console OR false => In the crash's folder
+        // true => log's ERROR are been in the console OR false => In the .err_logs folder.
 
         "bash": true,
-        // true => Beautiful iHorizon bash on the console OR false => Disable them    
+        // true => Beautiful iHorizon bash on the console OR false => Disable them.
 
         "blacklistPictureInEmbed": "The image of the blacklist's Embed (When blacklisted user attempt to interact with the bot)",
 
         "guildLogsChannelID": "The Discord Channel's ID for logs when guildCreate/guildRemove",
+        // The channel where the robot informs of the arrival on a server or when it leaves.
 
         "reportChannelID": "The Discord Channel's ID for logs when bugs/message are reported",
-
-        "asciicrash": "    ___              _     _                     \n   / __\\ __ __ _ ___| |__ | | ___   __ _ ___   _ \n  / / | '__/ _` / __| '_ \\| |/ _ \\ / _` / __| (_)\n / /__| | | (_| \\__ \\ | | | | (_) | (_| \\__ \\  _ \n \\____/_|  \\__,_|___/_| |_|_|\\___/ \\__, |___/ (_)\n                                   |___/         \n"
-        // The ASCII ART OF CRASH in the /files/logs/crash/
+        // The channel where the robot informs of a bug reported by a user of the bot.
 
     },
 
     owner: {
 
-        "ownerid1": "The discord User ID of the Owner number one",
+        "ownerid1": "The discord User ID of the Owner number One",
 
-        "ownerid2": "The discord User ID of the Owner number two",
-
+        "ownerid2": "The discord User ID of the Owner number Two",
+        /*
+        This owners have different permissions than the others in the db,
+        
+        * They are allowed to use /eval command everywhere.
+        * They can't be unowner by owner who are in the Database.
+        * They can't be blacklisted by owner who are in the Database.
+        * They can't be banned by owner who are in the Database.
+        */
+       
     },
 
     api: {
 
-        "apiURL": "https://exemple.domain.com:3000/api/check/",
+        "useHttps": false,
+        // If you want to use HTTPS, put true, otherwise leave false.
 
-        "loginURL": "https://login.domain.com:3000",
+        "domain": "login.domain.com",
+        // If you want to use Domain, else put ipv4 address.
 
-        "dbApiUrl": "https://exemple.domain.com:3000/api/database/",
+        "port": "3000",
+        // The port of the API.
 
         "apiToken": "The API's token for create a request (Need to be private for security reason)",
-
-        "hostPort": "3000",
+        // The API token for secure requests, please put a strong token.
 
         "clientSecret": "The client Secret of your application",
+        // The client secret of the Discord Application which is used to login for Oauth2.
 
-        "clientID": "The client ID of your application"
+        "clientID": "The client ID of your application",
+        // The client ID of the Discord Application which is used to login for Oauth2.
+
+        "oauth2Link": "The oauth2Link of your application",
+        // The oauth2Link of the Discord Application which is used to login for Oauth2.
 
     },
 
@@ -91,6 +107,7 @@ module.exports = {
     database: {
 
         "mongoDb": "mongodb://ihrz:1337/iHorizonDB",
+        // If you use MongoDB, put the address of the MongoDB connection.
 
         "useSqlite": true,
         /*
@@ -112,7 +129,7 @@ module.exports = {
 
         Else, if you want to use the database API everywhere, put false.
         */
-       
+
     },
 
 };

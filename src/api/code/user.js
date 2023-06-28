@@ -24,8 +24,8 @@ const { URLSearchParams } = require('url'),
     couleurmdr = require("colors"),
     logger = require(`${process.cwd()}/src/core/logger`),
     config = require(`${process.cwd()}/files/config`),
-    DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
-
+    DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`),
+    apiUrlParser = require(`${process.cwd()}/src/core/apiUrlParser`);
 
 function make_config(authorization_token) {
     data = { headers: { "authorization": `Bearer ${authorization_token}` } }; return data;
@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
         data.append('client_id', config.api.clientID);
         data.append('client_secret', config.api.clientSecret);
         data.append('grant_type', 'authorization_code');
-        data.append('redirect_uri', config.api.loginURL);
+        data.append('redirect_uri', apiUrlParser.LoginURL());
         data.append('scope', 'identify');
         data.append('code', req.body["auth"]);
 

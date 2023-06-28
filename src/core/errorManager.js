@@ -36,7 +36,7 @@ function uncaughtExceptionHandler() {
             CreateFiles = fs.createWriteStream(filesPath, { flags: 'a' });
 
             let i = `[${date.format((new Date()), 'DD/MM/YYYY HH:mm:ss')}]
-            ${config.core.asciicrash}\n${err.stack || err.message}\r\n`;
+            ${err.stack || err.message}\r\n`;
 
             return CreateFiles.write(i);
         };

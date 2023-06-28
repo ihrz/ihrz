@@ -23,9 +23,11 @@ const fs = require('fs'),
     couleurmdr = require('colors'),
     axios = require('axios'),
     config = require(`${process.cwd()}/files/config`),
-    logger = require(`${process.cwd()}/src/core/logger`);
+    logger = require(`${process.cwd()}/src/core/logger`),
+    crypto = require('crypto');
 
-INDEX_HTML_LINK = 'https://raw.githubusercontent.com/ihrz/ihrz/main/src/api/index.template.html'
+INDEX_HTML_LINK = 'https://raw.githubusercontent.com/ihrz/ihrz/main/src/api/index.template.html';
+LICENCE_FILE_LINK = 'https://raw.githubusercontent.com/ihrz/ihrz/main/LICENSE';
 
 async function makeHtmlFile() {
     // check if the file exists
@@ -40,10 +42,29 @@ async function makeHtmlFile() {
             replaced,
             'utf8'
         );
-        
+
         await Promise.all([writeFilePromise]);
         logger.log(couleurmdr.green(`Success: File created! (${process.cwd()}/src/api/index.html)`));
-    }
+    };
 };
 
-module.exports.html = makeHtmlFile;
+async function checkLicence() {
+    const fileBuffer = fs.readFileSync(`${process.cwd()}/LICENSE`),
+        hashSum = crypto.createHash('sha256');
+    hashSum.update(fileBuffer);
+    const hex = hashSum.digest('hex');
+
+    var legitHex = await axios.get('https://raw.githubusercontent.com/ihrz/LegalDocument/main/hash');
+    legitHex = legitHex.data.split('\n')[0];
+
+    if (hex != legitHex) {
+        await logger.warn(couleurmdr.bgRed('Error: License is not valid!'));
+        await logger.warn(couleurmdr.bgRed(('Alert: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.')));
+        await logger.warn(couleurmdr.bgRed(('Official Github: https://github.com/ihrz/ihrz !')));
+
+        process.exit(0);
+    };
+};
+
+module.exports.Licence = checkLicence;
+module.exports.Html = makeHtmlFile;

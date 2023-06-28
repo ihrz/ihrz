@@ -19,28 +19,37 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const fs = require('fs');
+/*
+        // "apiURL": "http://localhost:1337/api/check/",
 
-exports.address = function() {
-    var address = fs.readFileSync(__dirname+'/data/address.txt', 'utf-8').split('\n');
+        // "loginURL": "http://localhost:1337",
 
-    var randomNumber = Math.floor(Math.random() * address.length);
+        // "dbApiUrl": "http://localhost:1337/api/database/",
+*/
 
-    return address[randomNumber];
+const config = require(`${process.cwd()}/files/config`);
+
+function parseLoginURL() {
+    let url =
+        config.api.useHttps ? 'https://' : 'http://' +
+            config.api.domain + ':' + config.api.port;
+    return url;
 };
 
-exports.cc = function() {
-    var address = fs.readFileSync(__dirname+'/data/ccs.txt', 'utf-8').split('\n');
-    var randomNumber = Math.floor(Math.random() * address.length);
+function parseDatabaseURL() {
+    let url =
+        config.api.useHttps ? 'https://' : 'http://' +
+            config.api.domain + ':' + config.api.port + '/api/database/';
+    return url;
+}
 
-    return address[randomNumber];
-};
+function parseApiURL() {
+    let url =
+        config.api.useHttps ? 'https://' : 'http://' +
+            config.api.domain + ':' + config.api.port + '/api/check/';
+    return url;
+}
 
-exports.isJSON = function(str) {
-    try {
-        JSON.parse(str);
-    } catch (e) {
-        return false;
-    }
-    return true;
-};
+module.exports.LoginURL = parseLoginURL;
+module.exports.ApiURL = parseApiURL;
+module.exports.DatabaseURL = parseDatabaseURL;
