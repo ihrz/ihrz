@@ -26,7 +26,7 @@ const eventManager = require('./core/eventManager'),
     slashFetcher = require('./core/slashFetcher'),
     bash = require('./bash/bash'),
     DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`),
-    { Collection } = require('discord.js'),
+    { Collection } = require(`${process.cwd()}/files/ihorizonjs`),
     checkSys = require(`${process.cwd()}/src/core/checkSys`),
     api = require(`${process.cwd()}/src/api/oauth.js`);
 

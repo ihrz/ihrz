@@ -30,7 +30,7 @@ const {
   ApplicationCommandType,
   PermissionsBitField,
   ApplicationCommandOptionType
-} = require('discord.js');
+} = require(`${process.cwd()}/files/ihorizonjs`);
 
 slashInfo.fun.caracteres.run = async (client, interaction) => {
 

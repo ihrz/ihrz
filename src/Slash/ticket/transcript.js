@@ -23,7 +23,7 @@ const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 const sourcebin = require('sourcebin_js');
-const { Client, Intents, Collection, EmbedBuilder, PermissionsBitField } = require('discord.js');
+const { Client, Intents, Collection, EmbedBuilder, PermissionsBitField } = require(`${process.cwd()}/files/ihorizonjs`);
 
 slashInfo.ticket.transcript.run = async (client, interaction) => {
 	const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);

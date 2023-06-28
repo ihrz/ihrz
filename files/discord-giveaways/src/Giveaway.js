@@ -1,7 +1,7 @@
 const { EventEmitter } = require('node:events');
 const { setTimeout, clearTimeout } = require('node:timers');
 
-const Discord = require('discord.js');
+const Discord = require(`${process.cwd()}/files/ihorizonjs`);
 const { deepmerge, deepmergeCustom } = require('deepmerge-ts');
 const serialize = require('serialize-javascript');
 

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { EmbedBuilder } = require('discord.js'),
+const { EmbedBuilder } = require(`${process.cwd()}/files/ihorizonjs`),
     logger = require(`${process.cwd()}/src/core/logger`);
     
 module.exports = function (client, args) {

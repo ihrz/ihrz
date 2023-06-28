@@ -32,7 +32,7 @@ const {
     ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType
-} = require('discord.js');
+} = require(`${process.cwd()}/files/ihorizonjs`);
 
 slashInfo.invitemanager.addinvites.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);

@@ -32,7 +32,7 @@ const {
 	PermissionFlagsBits,
 	PermissionsBitField,
 	ApplicationCommandOptionType
-} = require('discord.js');
+} = require(`${process.cwd()}/files/ihorizonjs`);
 
 slashInfo.ticket.sethereticket.run = async (client, interaction) => {
 	const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);

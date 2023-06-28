@@ -28,7 +28,7 @@ const { Client,
 	ApplicationCommandOptionType,
 	Permissions,
 	PermissionsBitField
-} = require('discord.js');
+} = require(`${process.cwd()}/files/ihorizonjs`);
 
 const logger = require(`${process.cwd()}/src/core/logger`);
 

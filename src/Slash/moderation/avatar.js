@@ -30,7 +30,7 @@ const {
     ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType
-} = require('discord.js');
+} = require(`${process.cwd()}/files/ihorizonjs`);
 
 slashInfo.moderation.avatar.run = async (client, interaction) => {
 

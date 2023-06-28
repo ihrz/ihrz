@@ -30,7 +30,7 @@ const {
   ApplicationCommandType,
   PermissionsBitField,
   ApplicationCommandOptionType
-} = require('discord.js');
+} = require(`${process.cwd()}/files/ihorizonjs`);
 
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`),
   package = require(`${process.cwd()}/package.json`);
@@ -48,7 +48,7 @@ slashInfo.bot.botinfo.run = async (client, interaction) => {
       { name: data.botinfo_embed_fields_mychannels, value: `:green_circle: ${chansize}`, inline: false },
       { name: data.botinfo_embed_fields_myservers, value: `:green_circle: ${servsize}`, inline: false },
       { name: data.botinfo_embed_fields_members, value: `:green_circle: ${usersize}`, inline: false },
-      { name: data.botinfo_embed_fields_libraires, value: `:green_circle: discord.js@${package.dependencies['discord.js']}`, inline: false },
+      { name: data.botinfo_embed_fields_libraires, value: `:green_circle: ihorizonjs@1.0.0`, inline: false },
       { name: data.botinfo_embed_fields_created_at, value: ":green_circle: 14/09/2020", inline: false },
       { name: data.botinfo_embed_fields_created_by, value: ":green_circle: <@171356978310938624>", inline: false },
     )

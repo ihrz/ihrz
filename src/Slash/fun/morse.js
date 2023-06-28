@@ -30,7 +30,7 @@ const {
 	ApplicationCommandType,
 	PermissionsBitField,
 	ApplicationCommandOptionType
-} = require('discord.js');
+} = require(`${process.cwd()}/files/ihorizonjs`);
 
 slashInfo.fun.morse.run = async (client, interaction) => {
 	if (!interaction.options.getString("input")) { return interaction.reply({ content: "You have not enter a input to decrypt/encrypt" }) }

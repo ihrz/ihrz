@@ -31,7 +31,7 @@ const {
   ApplicationCommandType,
   PermissionsBitField,
   ApplicationCommandOptionType
-} = require('discord.js');
+} = require(`${process.cwd()}/files/ihorizonjs`);
 
 slashInfo.ranks.level.run = async (client, interaction) => {
   let sus = interaction.options.getMember("user");

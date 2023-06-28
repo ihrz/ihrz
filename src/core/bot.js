@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { Client } = require('discord.js');
+const { Client } = require(`${process.cwd()}/files/ihorizonjs`);
 const clientIntents = require('./clientIntents.js');
 const clientPartial = require('./clientPartial.js');
 const client = new Client({intents: clientIntents, partials: clientPartial, ws: {properties: {browser: 'Discord iOS'}}});

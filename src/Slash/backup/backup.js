@@ -31,7 +31,7 @@ const {
     ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType
-} = require('discord.js');
+} = require(`${process.cwd()}/files/ihorizonjs`);
 
 const backup = require('discord-backup')
 backup.setStorageFolder(`${process.cwd()}/files/ihorizon-api/backups/`);

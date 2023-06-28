@@ -21,7 +21,7 @@
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
 
-const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
+const { Client, Intents, Collection, EmbedBuilder, Permissions } = require(`${process.cwd()}/files/ihorizonjs`);
 
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 const logger = require(`${process.cwd()}/src/core/logger`);

@@ -31,7 +31,7 @@ const {
     ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType
-} = require('discord.js');
+} = require(`${process.cwd()}/files/ihorizonjs`);
 
 slashInfo.utils.prevnames.run = async (client, interaction) => {
     let user = interaction.options.getUser("user");

@@ -21,7 +21,7 @@
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
 
-const { Client, Intents, Collection, Permissions, PermissionsBitField, ApplicationCommandType, ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
+const { Client, Intents, Collection, Permissions, PermissionsBitField, ApplicationCommandType, ApplicationCommandOptionType, EmbedBuilder } = require(`${process.cwd()}/files/ihorizonjs`);
 const logger = require(`${process.cwd()}/src/core/logger`);
 
 slashInfo.moderation.ban.run = async (client, interaction) => {

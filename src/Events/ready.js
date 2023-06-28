@@ -26,7 +26,7 @@ const couleurmdr = require("colors"),
     logger = require(`${process.cwd()}/src/core/logger`),
     DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
-const { Client, Collection, ApplicationCommandType, PermissionsBitField, ActivityType } = require('discord.js');
+const { Client, Collection, ApplicationCommandType, PermissionsBitField, ActivityType } = require(`${process.cwd()}/files/ihorizonjs`);
 module.exports = async (client) => {
 
     await register(client, client.register_arr.map((command) => ({

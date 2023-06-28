@@ -28,7 +28,7 @@ const {
     PermissionFlagsBits,
     Permissions,
     PermissionsBitField
-} = require('discord.js');
+} = require(`${process.cwd()}/files/ihorizonjs`);
 
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 const logger = require(`${process.cwd()}/src/core/logger`);

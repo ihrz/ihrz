@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { ApplicationCommand } = require('discord.js'),
+const { ApplicationCommand } = require(`${process.cwd()}/files/ihorizonjs`),
     logger = require("../core/logger"),
     couleurmdr = require("colors");
 

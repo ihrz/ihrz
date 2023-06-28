@@ -1,7 +1,7 @@
 {
   "name": "discord-giveaways",
   "version": "6.0.1",
-  "description": "A complete framework to facilitate the creation of giveaways using discord.js",
+  "description": "A complete framework to facilitate the creation of giveaways using ihorizonjs",
   "main": "index.js",
   "types": "typings/index.d.ts",
   "files": [
@@ -19,7 +19,6 @@
   },
   "keywords": [
     "discord",
-    "discord.js",
     "giveaways",
     "winner",
     "framework",
@@ -43,7 +42,6 @@
   },
   "devDependencies": {
     "@types/node": "^18.0.3",
-    "discord.js": "^14.0.3",
     "eslint": "^8.20.0",
     "eslint-plugin-node": "^11.1.0",
     "jsdoc": "^3.6.11",
@@ -51,7 +49,6 @@
     "typescript": "^4.7.4"
   },
   "peerDependencies": {
-    "discord.js": ">=14.0.0"
   },
   "engines": {
     "node": ">=16.9.0"

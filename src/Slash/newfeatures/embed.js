@@ -38,7 +38,7 @@ const {
     ButtonBuilder,
     ButtonStyle,
     StringSelectMenuOptionBuilder,
-} = require('discord.js');
+} = require(`${process.cwd()}/files/ihorizonjs`);
 
 slashInfo.newfeatures.embed.run = async (client, interaction) => {
     const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);

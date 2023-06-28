@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { ShardingManager } = require('discord.js'),
+const { ShardingManager } = require(`${process.cwd()}/files/ihorizonjs`),
     couleurmdr = require("colors"),
     logger = require(`${process.cwd()}/src/core/logger`);
 manager = new ShardingManager("./src/core/bot.js", { totalShards: "auto", token: require(`${process.cwd()}/files/config`).discord.token });

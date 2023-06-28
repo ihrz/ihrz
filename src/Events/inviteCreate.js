@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { Client, Intents, Collection, EmbedBuilder, Permissions, PermissionsBitField } = require('discord.js');
+const { Client, Intents, Collection, EmbedBuilder, Permissions, PermissionsBitField } = require(`${process.cwd()}/files/ihorizonjs`);
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
 
 module.exports = async (client, invite) => {
@@ -28,7 +28,8 @@ module.exports = async (client, invite) => {
         if (!invite.guild || !invite.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
 
         await client.invites.get(invite.guild.id).set(invite.code, invite.uses);
-
+        if (!invite.inviter.id) console.log("inviteCreate.js\n"+invite.inviter)
+        
         let check = await DataBaseModel({
             id: DataBaseModel.Get, key: `${invite.guild.id}.USER.${invite.inviter.id}.INVITES`
         });
