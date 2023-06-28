@@ -42,7 +42,7 @@ module.exports = async (client, member, members) => {
 
       if (!msg_dm || msg_dm === "off") return;
       member.send({ content: "**This is a Join DM from** \`" + member.guild.id + "\`**!**\n" + msg_dm });
-    } catch (e) { return; };
+    } catch { return; };
   };
 
   async function blacklistFetch() {
@@ -56,7 +56,7 @@ module.exports = async (client, member, members) => {
       let e = await DataBaseModel({ id: DataBaseModel.Get, key: `GLOBAL.BLACKLIST.${members.user.id}.blacklisted` });
 
       if (e) {
-        members.send({ content: "You've been banned, because you are blacklisted" }).catch(members.ban({ reason: 'blacklisted!' }));
+        members.send({ content: "You've been banned, because you are blacklisted" }).catch(members.ban({ reason: 'blacklisted!' })).catch(() => { });
         members.ban({ reason: 'blacklisted!' });
       }
     } catch { return; };
@@ -134,7 +134,7 @@ module.exports = async (client, member, members) => {
       var invitesAmount = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.USER.${inviter.id}.INVITES.invites` });
 
       let wChan = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.join` });
-      if (!wChan) return;
+      if (!wChan || !client.channels.cache.get(wChan)) return;
 
       let joinMessage = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage` });
 

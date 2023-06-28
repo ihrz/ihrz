@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, Client } = require('discord.js');
-const getLanguageData = require('../lang/getLanguageData');
-const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
+const { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, Client } = require('discord.js'),
+    getLanguageData = require('../lang/getLanguageData'),
+    DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
 
 module.exports = async (client, ban) => {
     let data = await getLanguageData(ban.guild.id);

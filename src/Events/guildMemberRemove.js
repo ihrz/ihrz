@@ -19,10 +19,10 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, Client } = require('discord.js');
-const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
-const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);
-const logger = require(`${process.cwd()}/src/core/logger`);
+const { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, Client } = require('discord.js'),
+  getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`),
+  DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`),
+  logger = require(`${process.cwd()}/src/core/logger`);
 
 module.exports = async (client, member, members) => {
   let data = await getLanguageData(member.guild.id);
@@ -80,7 +80,7 @@ module.exports = async (client, member, members) => {
 
       var invitesAmount = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.USER.${inviter.id}.INVITES.invites` });
       var lChan = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.leave` });
-      if (!lChan) return;
+      if (!lChan || !client.channels.cache.get(lChan)) return;
 
       let joinMessage = await DataBaseModel({ id: DataBaseModel.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.leavemessage` });
       if (!joinMessage) {
