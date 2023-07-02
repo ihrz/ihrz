@@ -23,18 +23,17 @@ const { time } = require(`${process.cwd()}/files/ihorizonjs`);
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 module.exports = async (client, oldUser) => {
-    async function serverLogs() {
+    async function prevNames() {
+        if (oldUsertag === newUsertag || !oldUser) return;
+        newUser = await client.users.fetch(oldUser.id);
+
         if (newUser.discriminator == '0') {
             oldUsertag = oldUser.username + '#' + oldUser.discriminator;
-            newUser = await client.users.fetch(oldUser.id);
             newUsertag = newUser.username;
         } else if (oldUser.discriminator == '0') {
             oldUsertag = oldUser.username;
-            newUser = await client.users.fetch(oldUser.id);
             newUsertag = newUser.username;
         }
-
-        if (oldUsertag === newUsertag || !oldUser) return;
 
         const someinfo = await DataBaseModel({ id: DataBaseModel.Get, key: `DB.PREVNAMES.${oldUser.id}` });
         var char = `${time((new Date()), 'd')} - ${oldUser.username}#${oldUser.discriminator}`;
@@ -42,5 +41,5 @@ module.exports = async (client, oldUser) => {
         await DataBaseModel({ id: DataBaseModel.Push, key: `DB.PREVNAMES.${oldUser.id}`, value: char });
     };
 
-    await serverLogs();
+    await prevNames();
 };
