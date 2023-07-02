@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const test = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
+const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
 const fs = require("fs");
 const logger = require(`${process.cwd()}/src/core/logger`);
 
@@ -49,7 +49,7 @@ module.exports = async (client, callback) => {
           client.interactions.set(commandName, { name: commandName, ...props });
           client.register_arr.push(props);
 
-          let t = test[category][commandName].description;
+          let t = slashInfo[category][commandName].description;
 
           let entry = {cmd: commandName, desc: t};
           result[category].push(entry);
