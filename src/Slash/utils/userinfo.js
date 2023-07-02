@@ -163,7 +163,7 @@ slashInfo.utils.userinfo.run = async (client, interaction) => {
   };
   async function sendMessage(description) {
     embed = new EmbedBuilder()
-      .setAuthor({ name: `${member.tag}`, iconURL: member.displayAvatarURL({ dynamic: true }) })
+      .setAuthor({ name: `${member.username}`, iconURL: member.displayAvatarURL({ dynamic: true }) })
       .setThumbnail(member.displayAvatarURL({ dynamic: true }))
       .setFooter({ text: `ID: ${member.id}` })
       .setTimestamp()
@@ -189,7 +189,7 @@ slashInfo.utils.userinfo.run = async (client, interaction) => {
     logger.err(error);
 
     const embed = {
-      author: { name: `${member.tag}`, iconURL: member.displayAvatarURL({ dynamic: true }) },
+      author: { name: `${member.username}`, iconURL: member.displayAvatarURL({ dynamic: true }) },
       thumbnail: { url: member.displayAvatarURL({ dynamic: true }) },
       footer: { text: `ID: ${member.id}` },
       timestamp: new Date(),

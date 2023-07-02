@@ -45,7 +45,7 @@ slashInfo.ticket.remove.run = async (client, interaction) => {
 
 		try {
 			interaction.channel.permissionOverwrites.create(member, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
-			interaction.reply({ content: data.remove_command_work.replace(/\${member\.tag}/g, member.tag) });
+			interaction.reply({ content: data.remove_command_work.replace(/\${member\.tag}/g, member.username) });
 		}
 		catch (e) {
 			return interaction.reply(data.remove_command_error);

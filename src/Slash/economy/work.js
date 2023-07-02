@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
 
 const {

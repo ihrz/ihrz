@@ -51,7 +51,7 @@ slashInfo.ticket.close.run = async (client, interaction) => {
 		const member = interaction.guild.members.cache.get(interaction.channel.name.split('ticket-').join(''));
 		if (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.channel.name === `ticket-${interaction.user.id}`) {
 			interaction.channel.messages.fetch().then(async (messages) => {
-				const output = messages.reverse().map(m => `${new Date(m.createdAt).toLocaleString('en-US')} - ${m.author.tag}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`).join('\n');
+				const output = messages.reverse().map(m => `${new Date(m.createdAt).toLocaleString('en-US')} - ${m.author.username}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`).join('\n');
 
 				let response;
 				try {

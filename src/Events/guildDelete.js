@@ -32,13 +32,13 @@ module.exports = async (client, guild) => {
 
     async function ownerLogs() {
         try {
-            if (guild.vanityURLCode) i = 'discord.gg/' + guild.vanityURLCode || 'None';
+            if (guild.vanityURLCode) i = 'discord.gg/' + guild.vanityURLCode;
             let embed = new EmbedBuilder().setColor("#ff0505").setTimestamp(guild.joinedTimestamp).setDescription(`**A guild have deleted iHorizon !**`)
                 .addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
                     { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
                     { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
                     { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
-                    { name: "🪝・Vanity URL", value: `\`${i}\``, inline: true })
+                    { name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true })
                 .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
                 .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
 

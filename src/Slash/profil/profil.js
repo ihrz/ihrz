@@ -55,7 +55,7 @@ slashInfo.profil.profil.run = async (client, interaction) => {
 
     let profil = new EmbedBuilder()
         .setTitle(data.profil_embed_title
-            .replace(/\${member\.tag}/g, member.tag)
+            .replace(/\${member\.tag}/g, member.username)
         )
         .setDescription(`\`${description}\``)
         .addFields(

@@ -47,7 +47,7 @@ slashInfo.ticket.add.run = async (client, interaction) => {
 		}
 		try {
 			interaction.channel.permissionOverwrites.create(member, { ViewChannel: true, SendMessages: true, ReadMessageHistory: true });
-			interaction.reply({ content: data.add_command_work.replace(/\${member\.tag}/g, member.tag) });
+			interaction.reply({ content: data.add_command_work.replace(/\${member\.tag}/g, member.username) });
 		}
 		catch (e) {
 			return interaction.reply(data.add_command_error);

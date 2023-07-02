@@ -144,17 +144,17 @@ module.exports = async (client, member, members) => {
             .replace("${member.id}", member.id)
             .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
             .replace("${member.guild.name}", member.guild.name)
-            .replace("${inviter.tag}", inviter.tag)
+            .replace("${inviter.tag}", inviter.username)
             .replace("${fetched}", invitesAmount)
         });
       }
 
       var joinMessageFormated = joinMessage
-        .replace("{user}", member.user.tag)
+        .replace("{user}", member.user.username)
         .replace("{guild}", member.guild.name)
         .replace("{createdat}", member.user.createdAt.toLocaleDateString())
         .replace("{membercount}", member.guild.memberCount)
-        .replace("{inviter}", inviter.tag)
+        .replace("{inviter}", inviter.username)
         .replace("{invites}", invitesAmount);
 
       return client.channels.cache.get(wChan).send({ content: joinMessageFormated });
