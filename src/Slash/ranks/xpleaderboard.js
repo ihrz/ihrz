@@ -20,7 +20,6 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
-
 const {
     Client,
     Intents,
@@ -29,19 +28,21 @@ const {
     Permissions,
     ApplicationCommandType,
     PermissionsBitField,
-    ApplicationCommandOptionType
+    ApplicationCommandOptionType,
+    AttachmentBuilder
 } = require(`${process.cwd()}/files/ihorizonjs`);
 
 const logger = require(`${process.cwd()}/src/core/logger`);
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
+const fs = require("fs");
 
 slashInfo.ranks.xpleaderboard.run = async (client, interaction) => {
     const ownerList = await DataBaseModel({ id: DataBaseModel.All });
     const foundArray = ownerList.findIndex(d => d.id === interaction.guild.id);
 
     await interaction.reply({ content: ":clock:" });
-    if(!ownerList[foundArray]) return interaction.editReply({ content: 'Not data found in the storage.' });
+    if (!ownerList[foundArray]) return interaction.editReply({ content: 'Not data found in the storage.' });
     const char = ownerList[foundArray].value.USER;
     let tableau = [];
 
@@ -49,23 +50,49 @@ slashInfo.ranks.xpleaderboard.run = async (client, interaction) => {
         const a = await DataBaseModel({ id: DataBaseModel.Get, key: `${interaction.guild.id}.USER.${i}.XP_LEVELING` });
         if (a) {
             let user = await interaction.client.users.cache.get(i);
-            tableau.push({ text: `👤 \`${user.username}\`\n⭐ ➥ **Level**: \`${a.level}\`\n:diamond_shape_with_a_dot_inside: ➥ **XP Total**: \`${a.xptotal}\``, length: a.xptotal })
+            if (user) {
+                tableau.push({
+                    text: `👤 <@${user.id}> \`(${user.username})\`\n⭐ ➥ **Level**: \`${a.level || '0'}\`\n🔱 ➥ **XP Total**: \`${a.xptotal}\``, length: a.xptotal,
+                    rawText: `👤 (${user.username})\n⭐ ➥ Level: ${a.level || '0'}\n🔱 ➥ XP Total: ${a.xptotal}`
+                });
+            };
         }
     };
 
     tableau.sort((a, b) => b.length - a.length);
 
     const embed = new EmbedBuilder().setColor("#1456b6").setTimestamp();
-    let i=1;
+    let i = 1;
+    let o = '';
+
     tableau.forEach(index => {
-        embed.addFields({name: `Top #${i}`, value: index.text});
+        if (i < 4) {
+            embed.addFields({ name: `Top #${i}`, value: index.text });
+        };
+        o += `Top #${i} ${index.rawText}\n`
         i++;
     });
+
+    const writeFilePromise = (file, data) => {
+        return new Promise((resolve, reject) => {
+            fs.writeFile(file, data, error => {
+                if (error) reject(error);
+                resolve("file created successfully with handcrafted Promise!");
+            });
+        });
+    };
+
+    writeFilePromise(
+        `${process.cwd()}/files/temp/${interaction.id}.txt`,
+        o
+    );
+
+    const attachment = new AttachmentBuilder(`${process.cwd()}/files/temp/${interaction.id}.txt`, { name: 'leaderboard.txt' });
 
     embed.setThumbnail(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`);
     embed.setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
     embed.setTitle(`${interaction.guild.name}'s Levels Leaderboard`)
-    return await interaction.editReply({ embeds: [embed], content: ' ' });
+    return await interaction.editReply({ embeds: [embed], content: ' ', files: [attachment] });
 };
 
 module.exports = slashInfo.ranks.xpleaderboard;
