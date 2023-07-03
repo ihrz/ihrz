@@ -95,4 +95,8 @@ module.exports = {
             }
           ],
     },
+    "xpleaderboard": {
+        name: 'xpleaderboard',
+        description: "Get the xp's leaderboard of the guild!",
+    },
 };
