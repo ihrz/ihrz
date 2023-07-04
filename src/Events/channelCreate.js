@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { Client, Intents, Collection, EmbedBuilder, Permissions } = require(`${process.cwd()}/files/ihorizonjs`);
+const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 
 module.exports = async (client, channel) => {

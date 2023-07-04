@@ -20,7 +20,7 @@
 */
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
-const { Client, Intents, Collection, ChannelType, EmbedBuilder, Permissions, ApplicationCommandType, PermissionsBitField, ApplicationCommandOptionType } = require(`${process.cwd()}/files/ihorizonjs`);
+const { Client, Intents, Collection, ChannelType, EmbedBuilder, Permissions, ApplicationCommandType, PermissionsBitField, ApplicationCommandOptionType } = require('discord.js');
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 slashInfo.invitemanager.leaderboard.run = async (client, interaction) => {

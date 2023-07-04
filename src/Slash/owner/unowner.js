@@ -32,7 +32,7 @@ const {
     ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType
-} = require(`${process.cwd()}/files/ihorizonjs`);
+} = require('discord.js');
 const config = require(`${process.cwd()}/files/config.js`);
 
 slashInfo.owner.unowner.run = async (client, interaction) => {

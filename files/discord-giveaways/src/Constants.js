@@ -1,4 +1,4 @@
-const Discord = require(`${process.cwd()}/files/ihorizonjs`);
+const Discord = require('discord.js');
 
 exports.DEFAULT_CHECK_INTERVAL = 15_000;
 exports.DELETE_DROP_DATA_AFTER = 6.048e8; // 1 week

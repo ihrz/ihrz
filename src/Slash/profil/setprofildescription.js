@@ -31,7 +31,7 @@ const {
     ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType
-} = require(`${process.cwd()}/files/ihorizonjs`);
+} = require('discord.js');
 
 
 slashInfo.profil.setprofildescription.run = async (client, interaction) => {

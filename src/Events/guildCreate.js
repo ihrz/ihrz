@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { Client, Collection, ChannelType, PermissionsBitField, GatewayIntentBits, Partials, EmbedBuilder } = require(`${process.cwd()}/files/ihorizonjs`),
+const { Client, Collection, ChannelType, PermissionsBitField, GatewayIntentBits, Partials, EmbedBuilder } = require('discord.js'),
     config = require(`${process.cwd()}/files/config.js`),
     logger = require(`${process.cwd()}/src/core/logger`),
     DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);

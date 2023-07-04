@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { Client, Intents, Collection, EmbedBuilder, PermissionsBitField, ChannelType } = require(`${process.cwd()}/files/ihorizonjs`);
+const { Client, Intents, Collection, EmbedBuilder, PermissionsBitField, ChannelType } = require('discord.js');
 const fs = require("fs")
 const logger = require(`${process.cwd()}/src/core/logger`);
 

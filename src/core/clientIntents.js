@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { GatewayIntentBits } = require(`${process.cwd()}/files/ihorizonjs`);
+const { GatewayIntentBits } = require('discord.js');
 
 module.exports = [
     GatewayIntentBits.AutoModerationConfiguration, 

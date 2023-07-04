@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { Client, Intents, Collection, EmbedBuilder, Permissions } = require(`${process.cwd()}/files/ihorizonjs`);
+const { Client, Intents, Collection, EmbedBuilder, Permissions } = require('discord.js');
 const config = require(`${process.cwd()}/files/config.js`),
     DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`),
     logger = require(`${process.cwd()}/src/core/logger`);

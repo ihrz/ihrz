@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { time } = require(`${process.cwd()}/files/ihorizonjs`);
+const { time } = require('discord.js');
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
 module.exports = async (client, oldUser) => {

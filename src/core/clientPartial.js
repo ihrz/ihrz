@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { Partials } = require(`${process.cwd()}/files/ihorizonjs`);
+const { Partials } = require('discord.js');
 
 module.exports = [
     Partials.Channel,

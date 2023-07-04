@@ -22,7 +22,7 @@
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
 const fs = require('fs');
 const { createCanvas, loadImage } = require('canvas');
-const { EmbedBuilder, AttachmentBuilder } = require(`${process.cwd()}/files/ihorizonjs`);
+const { EmbedBuilder, AttachmentBuilder } = require('discord.js');
 const axios = require('axios');
 
 const downloadImage = (url, filename) => {

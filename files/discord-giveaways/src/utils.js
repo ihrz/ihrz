@@ -1,4 +1,4 @@
-const { resolveColor } = require(`${process.cwd()}/files/ihorizonjs`);
+const { resolveColor } = require('discord.js');
 
 exports.validateEmbedColor = (embedColor) => {
     try {

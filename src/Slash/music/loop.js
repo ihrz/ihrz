@@ -30,7 +30,7 @@ const {
     ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType
-} = require(`${process.cwd()}/files/ihorizonjs`);
+} = require('discord.js');
 
 const { QueueRepeatMode } = require('discord-player');
 const logger = require(`${process.cwd()}/src/core/logger`);

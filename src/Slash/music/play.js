@@ -30,7 +30,7 @@ const {
     ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType
-} = require(`${process.cwd()}/files/ihorizonjs`);
+} = require('discord.js');
 
 const { QueryType, Player } = require('discord-player');
 const checker = require(`${process.cwd()}/src/core/isAllowedLink`);

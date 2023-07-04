@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-const { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent } = require(`${process.cwd()}/files/ihorizonjs`);
+const { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent } = require('discord.js');
 
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main`);

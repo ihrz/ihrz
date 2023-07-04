@@ -30,7 +30,7 @@ const {
   ApplicationCommandType,
   PermissionsBitField,
   ApplicationCommandOptionType
-} = require(`${process.cwd()}/files/ihorizonjs`);
+} = require('discord.js');
 
 const config = require(`${process.cwd()}/files/config.js`),
   moment = require(`${process.cwd()}/files/ihorizon-api/moment`),

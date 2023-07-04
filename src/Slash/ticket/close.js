@@ -33,7 +33,7 @@ const {
 	ApplicationCommandType,
 	PermissionsBitField,
 	ApplicationCommandOptionType
-} = require(`${process.cwd()}/files/ihorizonjs`);
+} = require('discord.js');
 
 const logger = require(`${process.cwd()}/src/core/logger`);
 

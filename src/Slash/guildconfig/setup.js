@@ -31,7 +31,7 @@ const {
   PermissionsBitField,
   PermissionFlagsBits,
   ApplicationCommandOptionType
-} = require(`${process.cwd()}/files/ihorizonjs`);
+} = require('discord.js');
 
 slashInfo.guildconfig.setup.run = async (client, interaction) => {
   const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);

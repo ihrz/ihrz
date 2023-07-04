@@ -30,7 +30,7 @@ const {
     ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType
-} = require(`${process.cwd()}/files/ihorizonjs`);
+} = require('discord.js');
 
 var os = require('os-utils');
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);

@@ -21,7 +21,7 @@
 
 const slashInfo = require(`${process.cwd()}/files/ihorizon-api/slashHandler`);
 
-const { EmbedBuilder, ActionRowBuilder, ComponentType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require(`${process.cwd()}/files/ihorizonjs`);
+const { EmbedBuilder, ActionRowBuilder, ComponentType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
 const getLanguageData = require(`${process.cwd()}/src/lang/getLanguageData`);
 const DataBaseModel = require(`${process.cwd()}/files/ihorizon-api/main.js`);
 
