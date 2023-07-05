@@ -23,7 +23,7 @@ Thank you for your continued support,
 <br>
 # What is iHorizon ?
 Oh, you are new here ?
-See [What is iHorizon](https://github.com/ihrz/ihrz/blob/lastJS/Introduction.md)
+See [What is iHorizon](https://github.com/ihrz/ihrz/blob/main/Introduction.md)
 <br>
 # I want to use iHorizon right now!
 
