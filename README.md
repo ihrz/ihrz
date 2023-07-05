@@ -1,75 +1,36 @@
-# Official iHorizon Repo :o
+# Very big announcement
+<br>
+`Dear iHorizon user,`
+_We have some exciting news to share with you! We are currently undergoing a complete code restructuring for iHorizon, and this major re-code will be done in Typescript instead of JavaScript._
 
-iHorizon is a Discord bot written in [JS](https://nodejs.org) and using the [ihorizonjs](https://github.com/ihrz/ihrz/blob/main/files/ihorizonjs.7z) module. It has a large variety of features, including moderation, invite management, guild configuration, fun commands, music playback, giveaways, backup and lot more!
+What does this mean for you? Let us explain the advantages and improvements that this transition will bring:
 
-## Languages
-* English
-* French
-* Italian
-* German
-* Japanese
-* Spanish
-* And soon more !
+1. **Enhanced reliability and robustness**: TypeScript provides a static typing system that helps detect errors early during the development phase. This means the bot will be more resilient to errors and bugs, resulting in a smoother user experience.
 
-## Contributor's Wall
+2. **Increased developer productivity**: TypeScript offers advanced features such as type inference and auto-completion, enabling developers to work faster and more efficiently. This means we can develop new features and address your needs more quickly than before.
 
-- [Kisakay](https://github.com/Kisakay) (She/Her)
-- [Wyene](https://github.com/F-r-o-i-d) (He/him)
-- [Noémie](https://github.com/name-shitty-github-profile) (She/Her)
-- [Yvain](https://github.com/Y-v-a-i-n) (He/him)
+3. **Simplified maintenance**: By using TypeScript, we will have a clearer and better-organized code structure. This will facilitate ongoing maintenance of the bot, allowing us to resolve issues more rapidly and ensure long-term stability.
 
-## Skids's hall
-There are no skidded scripts in the iHorizon source code, because talent is more important than being dumb. Skidding codes doesn't make you a developper, coding does. Skidding is only to flex and to lie to your friends.
+4. **Rich ecosystem**: TypeScript has gained significant popularity in the developer community, meaning there is a wide range of libraries, modules, and resources available to facilitate development and the addition of new features to iHorizon.
 
-## Origin
-The bot was primarily developed by Kisakay (*formerly known as Ezermoz*) and was first released in **September 2020** using **discord.js v12.**<br>
-Now, It has a strong architecture with separated modules, each with their own owner directory.
+We understand that you may have questions or concerns regarding this transition. Rest assured that we are taking every effort to minimize disruptions and ensure a smooth transition to this new structure.
 
-## Is Free ?
-The iHorizon project is licensed under the  [`Creative Commons Attribution-NonCommercial-ShareAlike 2.0`](https://creativecommons.org/licenses/by-nc-sa/2.0/) license.
+We are excited about this evolution and confident that it will further enhance the experience you have with iHorizon. Stay tuned for more announcements and exciting updates to come!
 
-**Is allowed to :**
--   **Share** — copy and redistribute the material in any medium or format
--   **Adapt** — remix, transform, and build upon the material
+Thank you for your continued support,
+<br>
+# What is iHorizon ?
+Oh, you are new here ?
+See [What is iHorizon](https://github.com/ihrz/ihrz/blob/lastJS/Introduction.md)
+<br>
+# I want to use iHorizon right now!
 
-**Is unallowed to :**
+Are you eager to self-host the Discord Bot? Can't wait for the TypeScript update? Don't worry! I'm here to help. [Anaïs Saraiva](https://github.com/Kisakay), the creator of iHorizon, has prepared the latest available release just for you: [Click Here](https://github.com/ihrz/ihrz/releases/tag/lastJS)
 
--   **Attribution** — You must give [appropriate credit](https://creativecommons.org/licenses/by-nc-sa/2.0/#), provide a link to the license, and [indicate if changes were made](https://creativecommons.org/licenses/by-nc-sa/2.0/#). You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
--   **NonCommercial** — You may not use the material for [commercial purposes](https://creativecommons.org/licenses/by-nc-sa/2.0/#).
--   **ShareAlike** — If you remix, transform, or build upon the material, you must distribute your contributions under the [same license](https://creativecommons.org/licenses/by-nc-sa/2.0/#) as the original.
--   **No additional restrictions** — You may not apply legal terms or [technological measures](https://creativecommons.org/licenses/by-nc-sa/2.0/#) that legally restrict others from doing anything the license permits.
+Please note that the JavaScript development has now concluded. No further updates or contributions will be made to the JavaScript version.
 
-# How to selfhost ?
+**We are all focused on TypeScript now.**
 
-_There are only some few software needed :_
-- [NodeJS](https://nodejs.org) (**16 or higher required**)
-- [Npm](https://npmjs.com) (**With NodeJS**)
+While we encourage you to wait for the update, if you really want to use iHorizon, feel free to utilize the official release!
 
-### How to configure the bot ?
-*Open [config.example.js](https://github.com/ihrz/ihrz/blob/main/files/config.example.js) in file Editor (Notepad, VSCode...)*, enter your informations, and rename to config.js.
-
-After your configuration in the config.js :
-
-## Linux, Microsoft Windows & Mac os
-```bash
-node -v  &&  npm -v ## Checking if NodeJS & NPM are installed on the System
-npm i ## Installing the dependencies for the bot
-npm start ## Start the bot (or node index)
-```
-
-# About the bot
-iHorizon is now certified by Discord. We have achieved our goal of +75 servers before starting the certification process!<br><br>
-
-To join the Official Discord Support Server, please visit our website at [Official Server Link](http://discord.ihorizon.me/) or click on this link: [Other Link](https://discord.gg/ZpBPGNsAsu).<br><br>
-To invite the official Discord bot, please click on this link: [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot).<br><br>
-
-If you have any questions or concerns, you can contact the owner via email at [kisakeyara@gmail.com](mailto:kisakeyara@gmail.com), or on Discord at 2h0#0.
-# About the owner
-
-**Kisakay** (*formerly known as Ezermoz*) has not changed their identity, but has simply embraced who they truly are as a person. She now goes by she/her pronouns.<br><br>
-
-In the `LICENSE` files, the name `Anaïs Saraiva` is the name of the owner.
-## Remarks
-Any sorts of hate trowards any contributor will not be tolerated.
-<br><br>
-Regardless of the type and the level of hate.
+## The iHorizon Team
