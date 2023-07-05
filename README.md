@@ -1,6 +1,8 @@
 # Very big announcement
 <br>
-`Dear iHorizon user,`
+
+Dear iHorizon user,
+
 _We have some exciting news to share with you! We are currently undergoing a complete code restructuring for iHorizon, and this major re-code will be done in Typescript instead of JavaScript._
 
 What does this mean for you? Let us explain the advantages and improvements that this transition will bring:
