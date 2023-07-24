@@ -46,9 +46,9 @@ _There are only some few software needed :_
 - [Npm](https://npmjs.com) (**With NodeJS**)
 
 ### How to configure the bot ?
-*Open [config.example.js](https://github.com/ihrz/ihrz/blob/main/files/config.example.js) in file Editor (Notepad, VSCode...), enter your informations, and rename to config.js.
+* Open [config.example.ts](https://github.com/ihrz/ihrz/blob/main/src/files/config.example.ts) in file Editor (Notepad, VSCode...), enter your informations, and rename to config.ts.
 
-After your configuration in the config.js :
+After your configuration in the config.ts :
 
 ## Linux & Mac os
 ```bash
