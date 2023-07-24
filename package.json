@@ -1,0 +1,76 @@
+{
+  "name": "ihrz",
+  "version": "2.3.0",
+  "description": "iHrz in ts!",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "npx tsc && node ./dist/index.js",
+    "start": "node ./dist/index.js",
+    "build": "npx tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ihrz/ihrz.git"
+  },
+  "keywords": [
+    "discordbot"
+  ],
+  "author": "Kisakay",
+  "license": "Creative Commons Attribution-NonCommercial-ShareAlike 2.0",
+  "bugs": {
+    "url": "https://github.com/ihrz/ihrz/issues"
+  },
+  "homepage": "https://github.com/ihrz/ihrz#readme",
+  "dependencies": {
+    "@discord-player/equalizer": "^0.2.2",
+    "@discord-player/extractor": "^4.3.1",
+    "@discord-player/utils": "^0.2.1",
+    "@discordjs/opus": "^0.9.0",
+    "@discordjs/voice": "^0.16.0",
+    "@types/crypto-js": "^4.1.1",
+    "@types/express": "^4.17.17",
+    "@types/js-yaml": "^4.0.5",
+    "@types/node": "^20.3.3",
+    "axios": "^1.4.0",
+    "better-sqlite3": "^8.4.0",
+    "canvas": "^2.11.2",
+    "colors": "^1.4.0",
+    "crypto-js": "^4.1.1",
+    "date-and-time": "^3.0.2",
+    "date-fns": "^2.30.0",
+    "deepmerge-ts": "^5.1.0",
+    "discord-backup": "^3.3.2",
+    "discord-giveaways": "^6.0.1",
+    "discord-oauth2": "^2.11.0",
+    "discord-player": "^6.6.0",
+    "discord-player-deezer": "^0.0.8",
+    "discord.js": "^14.11.0",
+    "express": "^4.18.2",
+    "fs": "^0.0.1-security",
+    "https": "^1.0.0",
+    "js-yaml": "^4.1.0",
+    "moment": "^2.29.4",
+    "mongoose": "^7.3.1",
+    "ms": "^3.0.0-canary.1",
+    "opusscript": "^0.0.8",
+    "os-utils": "^0.0.14",
+    "ping": "^0.4.4",
+    "play-dl": "^1.9.6",
+    "process": "^0.11.10",
+    "promise-mysql": "^5.2.0",
+    "quick.db": "^9.1.6",
+    "quickmongo": "^5.2.0",
+    "serialize-javascript": "^6.0.1",
+    "soundcloud-scraper": "^5.0.3",
+    "sourcebin": "^5.0.0",
+    "tslib": "^2.6.0",
+    "typescript": "^5.1.6",
+    "wait": "^0.4.2",
+    "yarn": "^1.22.19"
+  },
+  "devDependencies": {
+    "@types/ms": "^0.7.31",
+    "@types/os-utils": "^0.0.1",
+    "@types/ping": "^0.4.1"
+  }
+}

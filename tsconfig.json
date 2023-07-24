@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+      "strict": true,
+      "outDir": "dist",
+      "module": "commonjs",
+      "target": "es2022",
+      "moduleResolution": "Node",
+      "resolveJsonModule": true,
+      "useUnknownInCatchVariables": true,
+      "allowUnreachableCode": false,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "importHelpers": true,
+      "typeRoots": ["node_modules/@types"],
+      "types": ["node"],
+      "strictPropertyInitialization": false
+  },
+  "include": ["./", "./config.json", "./locales/*.json", "./sounds/*.mp3"],
+  "exclude": ["/.github", "./dist", "./node_modules", "src/files/config.example.ts"]
+}

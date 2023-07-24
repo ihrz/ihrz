@@ -109,8 +109,8 @@ dist
 .obsidian
 
 # Can't upload a critical informations
-files/config.js
-files/giveaways.json
+src/files/config.ts
+src/files/giveaways.json
 
 # Can't upload a zip
 *.zip
@@ -118,17 +118,11 @@ files/giveaways.json
 *.tar.gz
 
 # Not upload logs
-*.err_logs
-*.slash_logs
-
-# Not upload backups
-/files/ihorizon-api/backups/*.json
+*.log
 
 # Not upload testing files
 /test.js
 package-lock.json
-files/.raw_slash_logs
 src/api/index.html
 
-# Custom discord module
-files/ihorizonjs
+*.DS_Store

@@ -1,0 +1,167 @@
+/*
+・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+
+    ・   Under the following terms:
+
+        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+        ・ NonCommercial — You may not use the material for commercial purposes.
+
+        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://github.com/Kisakay)
+
+・ Copyright © 2020-2023 iHorizon
+*/
+
+import {
+    Client,
+    Collection,
+    ChannelType,
+    EmbedBuilder,
+    Permissions,
+    ApplicationCommandType,
+    PermissionsBitField,
+    ApplicationCommandOptionType
+} from 'discord.js'
+
+import { Command } from '../../../types/command';
+import * as db from '../../core/functions/DatabaseModel';
+import logger from '../../core/logger';
+import ms from 'ms';
+import config from '../../files/config';
+
+export const command: Command = {
+    name: 'guildconfig',
+    description: 'Get the guild configuration!',
+    category: 'guildconfig',
+    run: async (client: Client, interaction: any) => {
+        let data = await client.functions.getLanguageData(interaction.guild.id);
+
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return interaction.reply({ content: data.guildprofil_not_admin });
+        }
+
+        let setchannelsjoin = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join` })
+        let setchannelsleave = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave` })
+        let joinroles = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles` });
+        let joinDmMessage = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm` })
+        let blockpub = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub` })
+        let joinmessage = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage` })
+        let leavemessage = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage` })
+        let punishPub = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB` })
+        let supportConfig = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.SUPPORT` })
+        let reactionrole;
+        var text2: string = '';
+        var ticketFetched;
+        var text: string = '';
+
+        try {
+            const dbAll = await db.DataBaseModel({ id: db.All });
+            const foundArray = dbAll.findIndex((ticketList: { id: any; }) => ticketList.id === interaction.guild.id)
+
+            const charForTicket = dbAll[foundArray].value.GUILD.TICKET;
+            const charForRr = dbAll[foundArray].value.GUILD.REACTION_ROLES;
+
+            for (var i in charForTicket) {
+                var a = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.${i}` })
+                if (a) {
+                    text += `**${a.panelName}**: <#${a.channel}>\n`;
+                };
+            };
+
+            for (var i in charForRr) {
+                var a = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${i}` })
+
+                if (a) {
+                    const stringContent = Object.keys(a).map((key) => {
+                        const rolesID = a[key].rolesID;
+                        var emoji = interaction.guild.emojis.cache.find((emoji: { id: string; }) => emoji.id === key);
+
+                        return data.guildprofil_set_reactionrole
+                            .replace(/\${rolesID}/g, rolesID)
+                            .replace(/\${emoji\s*\|\|\s*key}/g, emoji || key)
+                            .replace(/\${i}/g, i);
+                    }).join('\n');
+                    text2 = stringContent;
+                };
+            };
+        } catch (e) { };
+
+        if (!text2 || text2 == '') {
+            reactionrole = data.guildprofil_not_set_reactionrole
+        } else { reactionrole = text2 };
+
+        if (!text || text == '') {
+            ticketFetched = data.guildprofil_not_set_ticketFetched
+        } else { ticketFetched = text };
+
+        if (!punishPub || punishPub === null) {
+            punishPub = data.guildprofil_not_set_punishPub
+        } else {
+            punishPub = data.guildprofil_set_punishPub
+                .replace(/\${punishPub\.punishementType}/g, punishPub.punishementType)
+                .replace(/\${punishPub\.amountMax}/g, punishPub.amountMax)
+        }
+
+        if (!supportConfig || supportConfig === null) {
+            supportConfig = data.guildprofil_not_set_supportConfig
+        } else {
+            supportConfig = data.guildprofil_set_supportConfig
+                .replace(/\${supportConfig\.input}/g, supportConfig.input)
+                .replace(/\${supportConfig\.rolesId}/g, supportConfig.rolesId)
+        }
+
+        if (!setchannelsjoin || setchannelsjoin === null) {
+            setchannelsjoin = data.guildprofil_not_set_setchannelsjoin
+        } else { setchannelsjoin = `<#${setchannelsjoin}>` }
+
+        if (!setchannelsleave || setchannelsleave === null) {
+            setchannelsleave = data.guildprofil_not_set_setchannelsleave
+        } else { setchannelsleave = `<#${setchannelsleave}>` }
+
+        if (!joinmessage || joinmessage == null) {
+            joinmessage = data.guildprofil_not_set_joinmessage
+        }
+        if (!leavemessage || leavemessage == null) {
+            leavemessage = data.guildprofil_not_set_leavemessage
+        }
+
+        if (!joinroles || joinroles === null) {
+            joinroles = data.guildprofil_not_set_joinroles
+        } else { joinroles = `<@&${joinroles}>` }
+
+        if (!joinDmMessage || joinDmMessage === null) {
+            joinDmMessage = data.guildprofil_not_set_joinDmMessage
+        }
+
+        if (blockpub != "on") {
+            blockpub = data.guildprofil_not_set_blockpub
+        } else { blockpub = data.guildprofil_set_blockpub }
+
+        let guildc = new EmbedBuilder()
+            .setColor("#016c9a")
+            .setDescription(data.guildprofil_embed_description
+                .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
+            )
+            .addFields(
+                { name: data.guildprofil_embed_fields_joinmessage, value: joinmessage, inline: true },
+                { name: data.guildprofil_embed_fields_leavemessage, value: leavemessage, inline: true },
+                { name: data.guildprofil_embed_fields_setchannelsjoin, value: setchannelsjoin, inline: true },
+                { name: data.guildprofil_embed_fields_setchannelsleave, value: setchannelsleave, inline: true },
+                { name: data.guildprofil_embed_fields_joinroles, value: joinroles, inline: true },
+                { name: data.guildprofil_embed_fields_joinDmMessage, value: joinDmMessage, inline: true },
+                { name: data.guildprofil_embed_fields_blockpub, value: blockpub, inline: true },
+                { name: data.guildprofil_embed_fields_punishPub, value: punishPub, inline: true },
+                { name: data.guildprofil_embed_fields_supportConfig, value: supportConfig, inline: true },
+                { name: data.guildprofil_embed_fields_ticketFetched, value: ticketFetched, inline: true },
+                { name: data.guildprofil_embed_fields_reactionrole, value: reactionrole, inline: true })
+            .setThumbnail(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`)
+        return interaction.reply({ embeds: [guildc] });
+    },
+};
