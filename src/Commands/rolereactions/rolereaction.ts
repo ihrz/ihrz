@@ -82,30 +82,32 @@ export const command: Command = {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.reply({ content: data.reactionroles_dont_admin_added });
         }
-        let type = interaction.options.getString("value")
-        let messagei = interaction.options.getString("messageid")
-        let reaction = interaction.options.getString("reaction")
-        let role = interaction.options.getRole("role")
+        let type = interaction.options.getString("value");
+        let messagei = interaction.options.getString("messageid");
+        let reaction = interaction.options.getString("reaction");
+        let role = interaction.options.getRole("role");
 
         let help_embed = new EmbedBuilder()
             .setColor("#0000FF")
             .setTitle("/reactionroles Help !")
-            .setDescription(data.reactionroles_embed_message_description_added)
+            .setDescription(data.reactionroles_embed_message_description_added);
 
         if (type == "add") {
             if (!role) { interaction.reply({ embeds: [help_embed] }) };
-            if (!reaction) { return interaction.reply({ content: data.reactionroles_missing_reaction_added }) }
+            if (!reaction) { return interaction.reply({ content: data.reactionroles_missing_reaction_added }) };
 
             try {
                 await interaction.channel.messages.fetch(messagei).then((message: { react: (arg0: any) => void; }) => { message.react(reaction) });
             } catch {
                 return interaction.reply({ content: data.reactionroles_dont_message_found });
-            }
-            let check = reaction.toString()
+            };
+
+            let check = reaction.toString();
 
             if (check.includes("<") || check.includes(">") || check.includes(":")) {
                 return interaction.reply({ content: data.reactionroles_invalid_emote_format_added })
-            }
+            };
+
             await db.DataBaseModel({
                 id: db.Set, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`,
                 value: {
@@ -124,7 +126,7 @@ export const command: Command = {
                         .replace("${role}", role)
                     )
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
 
             return await interaction.reply({
@@ -133,12 +135,12 @@ export const command: Command = {
                     .replace("${reaction}", reaction)
                     .replace("${role}", role)
                 , ephemeral: true
-            })
+            });
         } else {
             if (type == "remove") {
-                let reactionLet = interaction.options.getString("reaction")
+                let reactionLet = interaction.options.getString("reaction");
 
-                if (!reactionLet) { return interaction.reply({ content: data.reactionroles_missing_remove }) }
+                if (!reactionLet) { return interaction.reply({ content: data.reactionroles_missing_remove }) };
                 const message = await interaction.channel.messages.fetch(messagei);
 
                 const fetched = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}` });
@@ -146,7 +148,7 @@ export const command: Command = {
                 if (!fetched) { return interaction.reply({ content: data.reactionroles_missing_reaction_remove }) };
                 const reactionVar = message.reactions.cache.get(fetched.reactionNAME);
 
-                if (!reactionVar) { return interaction.reply({ content: data.reactionroles_cant_fetched_reaction_remove }) }
+                if (!reactionVar) { return interaction.reply({ content: data.reactionroles_cant_fetched_reaction_remove }) };
                 await reactionVar.users.remove(client.user?.id).catch((err: string) => { logger.err(err) });
 
                 await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}` });
@@ -159,16 +161,16 @@ export const command: Command = {
                             .replace("${interaction.user.id}", interaction.user.id)
                             .replace("${messagei}", messagei)
                             .replace("${reaction}", reaction)
-                        )
+                        );
                     let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                    if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+                    if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
                 } catch (e: any) { logger.err(e) };
                 await interaction.reply({
                     content: data.reactionroles_command_work_remove
                         .replace("${reaction}", reaction)
                         .replace("${messagei}", messagei)
                     , ephemeral: true
-                })
+                });
                 /*End of Remove roles to users pleasssssssse horisus*/
             }
         }

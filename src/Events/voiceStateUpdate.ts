@@ -60,14 +60,14 @@ export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${OchannelID}", OchannelID)
             );
-            return await Msgchannel.send({ embeds: [logsEmbed] });
+            return await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
         }
         if (Ouser && !OchannelID) {
             logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_2_description
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${channelID}", channelID)
             );
-            return await Msgchannel.send({ embeds: [logsEmbed] });
+            return await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
         };
         // MUTE CASQUE
         if (!Ostatus.selfDeaf && status.selfDeaf) {
@@ -75,14 +75,14 @@ export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${channelID}", channelID)
             );
-            return await Msgchannel.send({ embeds: [logsEmbed] });
+            return await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
         }
         if (Ostatus.selfDeaf && !status.selfDeaf) {
             logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_4_description
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${channelID}", channelID)
             );
-            return await Msgchannel.send({ embeds: [logsEmbed] });
+            return await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
         }
 
         // MUTE MICRO
@@ -91,14 +91,14 @@ export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${channelID}", channelID)
             );
-            return await Msgchannel.send({ embeds: [logsEmbed] });
+            return await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
         }
         if (Ostatus.selfMute && !status.selfMute) {
             logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_6_description
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${channelID}", channelID)
             );
-            return await Msgchannel.send({ embeds: [logsEmbed] });
+            return await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
         }
     };
 

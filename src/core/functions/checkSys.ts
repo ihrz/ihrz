@@ -24,9 +24,8 @@ import couleurmdr from 'colors';
 import axios from 'axios';
 import config from '../../files/config';
 import logger from '../logger';
-import crypto from 'node:crypto';
 
-let INDEX_HTML_LINK: string = 'https://raw.githubusercontent.com/ihrz/ihrz/main/src/api/index.template.html';
+let INDEX_HTML_LINK: string = 'https://raw.githubusercontent.com/ihrz/ihrz/main/src/api/index.example.html';
 
 export async function Html() {
     // check if the file exists

@@ -39,16 +39,16 @@ export = async (req: Request, res: Response) => {
         data.append('scope', 'identify');
         data.append('code', req.body["auth"]);
 
-        const response = await axios.post('https://discord.com/api/oauth2/token', data);
-        const accessToken = response.data.access_token;
+        let response = await axios.post('https://discord.com/api/oauth2/token', data);
+        let accessToken = response.data.access_token;
 
-        const getUserInfo = await axios.get('https://discord.com/api/users/@me', {
+        let getUserInfo = await axios.get('https://discord.com/api/users/@me', {
             headers: {
                 'Authorization': `Bearer ${accessToken}`
             }
         });
 
-        const userinfo = getUserInfo.data;
+        var userinfo = getUserInfo.data;
 
         logger.log(couleurmdr.green(`${config.console.emojis.OK} >> ${userinfo.username} -> ${accessToken}`));
 

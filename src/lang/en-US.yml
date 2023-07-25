@@ -215,6 +215,7 @@ help_invitem_dsc: "Want to check a member's invites? It's here!"
 help_ticket_dsc: "Would you like to create a ticket or use one of my functions within it? Of course!"
 help_memberc_dsc: "Want to set up voice channels for member count? Of course :smile:"
 help_newftrs_dsc: "Here are some new and highly interesting features!"
+help_not_for_you: "This interaction is not for you"
 
 
 # Fun commands
@@ -734,6 +735,11 @@ backup_unvalid_id_on_load: ":x: | You must specify a valid backup ID!"
 backup_waiting_on_load: "✅ - Loading..."
 backup_error_on_load: ":x: | Sorry, an error occurred... Please check that I have administrator permissions!"
 backup_error_when_fetch_backup_on_load: ":x: | No backup found for ${backupID} !"
+backup_this_is_not_your_backup: "❌ | This is not your backup !"
+backup_backup_doesnt_exist: "ERROR? Backup don't exist."
+backup_string_see_v: ":placard:・Category's Count: `${data.categoryCount}`\n:hash:・Channel's Count: `${data.channelCount}`"
+backup_all_of_your_backup: "**All of your backup:**"
+backup_string_see_another_v: ":placard:・Category's Count: `${result.categoryCount}`\n:hash:・Channel's Count: `${result.channelCount}`"
 
 
 # Role Reactions

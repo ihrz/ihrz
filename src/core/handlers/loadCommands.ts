@@ -37,7 +37,7 @@ async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
         }
     }
     return result;
-}
+};
 
 function buildPaths(basePath: string, directoryTree: (string | object)[]): string[] {
     const paths = [];
@@ -56,7 +56,7 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
         }
     }
     return paths;
-}
+};
 
 async function loadCommands(client: Client, path: string = `${process.cwd()}/dist/src/Commands`): Promise<void> {
     await db.DataBaseModel({ id: db.Set, key: `BOT.CONTENT`, value: {} });
@@ -79,6 +79,6 @@ async function loadCommands(client: Client, path: string = `${process.cwd()}/dis
         client.commands.set(command.name, command);
     }
     logger.log(`Loaded ${i} commands`);
-}
+};
 
 export = loadCommands;

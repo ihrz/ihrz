@@ -54,8 +54,10 @@ export const command: Command = {
 
         let user = interaction.options.getUser("user") || interaction.user;
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content: data.prevnames_not_admin })
-
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return interaction.reply({ content: data.prevnames_not_admin });
+        };
+        
         let fetch = await db.DataBaseModel({ id: db.Get, key: `DB.PREVNAMES.${user.id}` });
         if (fetch) fetch = fetch.join('\n');
 

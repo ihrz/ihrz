@@ -122,7 +122,7 @@ export const command: Command = {
             }
 
             if (backupID && !await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${backupID}` })) {
-                return interaction.editReply({ content: "❌ | This is not your backup !" });
+                return interaction.editReply({ content: data.backup_this_is_not_your_backup });
             };
 
             await interaction.channel.send({ content: data.backup_waiting_on_load });
@@ -146,25 +146,31 @@ export const command: Command = {
             // If the user provided a backup ID, show the backup's info.
 
             if (backupID && !await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${backupID}` })) {
-                return interaction.editReply({ content: "❌ | This is not your backup !" });
+                return interaction.editReply({ content: data.backup_this_is_not_your_backup });
             };
 
             if (backupID) {
                 let data = await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${backupID}` });
 
-                if (!data) return interaction.editReply({ content: "ERROR? Backup don't exist." });
-                let v = `:placard:・Category's Count: \`${data.categoryCount}\`\n:hash:・Channel's Count: \`${data.channelCount}\``
+                if (!data) return interaction.editReply({ content: data.backup_backup_doesnt_exist });
+                let v = (data.backup_string_see_v
+                    .replace('${data.categoryCount}', data.categoryCount)
+                    .replace('${data.channelCount}', data.channelCount));
+
                 let em = new EmbedBuilder().setColor("#bf0bb9").setTimestamp().addFields({ name: `${data.guildName} - (||${backupID}||)`, value: v });
                 return interaction.editReply({ content: ' ', embeds: [em] });
             }
             // If the user didn't provide a backup ID, show all the backups.
             else {
-                let em = new EmbedBuilder().setDescription("**All of your backup:** ").setColor("#bf0bb9").setTimestamp();
+                let em = new EmbedBuilder().setDescription(data.backup_all_of_your_backup).setColor("#bf0bb9").setTimestamp();
                 let data2 = await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}` });
                 let b: any = 1;
                 for (const i in data2) {
                     let result = await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${i}` });
-                    let v = `:placard:・Category's Count: \`${result.categoryCount}\`\n:hash:・Channel's Count: \`${result.channelCount}\``
+                    let v = (data.backup_string_see_another_v
+                        .replace('${result.categoryCount}', result.categoryCount)
+                        .replace('${result.channelCount}', result.channelCount));
+
                     if (result) em.addFields({ name: `${result.guildName} - (||${i}||)`, value: v }) && b++;
                 };
 

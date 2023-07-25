@@ -43,7 +43,11 @@ export const command: Command = {
     category: 'utils',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
-        if (!interaction.member.permissions.has([PermissionsBitField.Flags.Administrator])) return interaction.reply({ content: data.renew_not_administrator });
+        
+        if (!interaction.member.permissions.has([PermissionsBitField.Flags.Administrator])) {
+            return interaction.reply({ content: data.renew_not_administrator });
+        };
+
         let channel = interaction.channel;
 
         try {

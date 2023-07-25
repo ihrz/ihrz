@@ -215,6 +215,7 @@ help_invitem_dsc: "メンバーの招待を確認したいですか？こちら�
 help_ticket_dsc: "チケットを作成したり、その中の機能を使用したりしたいですか？もちろんです！"
 help_memberc_dsc: "メンバーのカウントのためにボイスチャンネルを設定したいですか？もちろんです :smile:"
 help_newftrs_dsc: "ここには非常に興味深い新機能があります！"
+help_not_for_you: "このインタラクションはあなたのためではありません"
 
 
 # Fun commands
@@ -734,6 +735,11 @@ backup_unvalid_id_on_load: ":x: | 有効なバックアップIDを指定する�
 backup_waiting_on_load: "✅ - 読み込み中..."
 backup_error_on_load: ":x: | 申し訳ありませんが、エラーが発生しました... 管理者権限を持っているか確認してください！"
 backup_error_when_fetch_backup_on_load: ":x: | ${backupID} のバックアップは見つかりませんでした！"
+backup_this_is_not_your_backup: "❌ | これはあなたのバックアップではありません！"
+backup_backup_doesnt_exist: "ERROR? バックアップが存在しません。"
+backup_string_see_v: ":placard:・カテゴリ数: `${data.categoryCount}`\n:hash:・チャンネル数: `${data.channelCount}`"
+backup_all_of_your_backup: "**すべてのバックアップ:**"
+backup_string_see_another_v: ":placard:・カテゴリ数: `${result.categoryCount}`\n:hash:・チャンネル数: `${result.channelCount}`"
 
 
 # Role Reactions

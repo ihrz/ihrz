@@ -51,7 +51,7 @@ export = async (client: Client, oldMessage: Message, newMessage: Message) => {
                 { name: data.event_srvLogs_messageUpdate_footer_2, value: newMessage.content })
             .setTimestamp();
 
-        await Msgchannel.send({ embeds: [logsEmbed] });
+        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
     };
 
     await serverLogs();

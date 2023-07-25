@@ -73,7 +73,8 @@ export const command: Command = {
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.reply({ content: data.setrankroles_not_admin });
-        }
+        };
+        
         if (type === "on") {
             if (!argsid) return interaction.reply({ content: data.setrankroles_not_roles_typed });
 

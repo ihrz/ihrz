@@ -77,7 +77,7 @@ export = async (client: Client, message: Message) => {
             }
         };
 
-        await Msgchannel.send({ embeds: [logsEmbed] });
+        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
     };
 
     await snipeModules(), serverLogs();

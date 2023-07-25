@@ -26,8 +26,8 @@ import dbPromise from '../../core/database';
 import { Request, Response } from 'express';
 
 export = async (req: Request, res: Response) => {
-    const { text } = req.body;
-    const db: any = await dbPromise;
+    let { text } = req.body;
+    let db: any = await dbPromise;
 
     try {
         var bytes = CryptoJS.AES.decrypt(text, config.api.apiToken);

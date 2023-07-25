@@ -52,7 +52,7 @@ export = async (client: Client, ban: GuildBan) => {
             )
             .setTimestamp();
 
-        await Msgchannel.send({ embeds: [logsEmbed] });
+        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
     };
     await serverLogs();
 };

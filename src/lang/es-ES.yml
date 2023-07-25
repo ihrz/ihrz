@@ -215,6 +215,7 @@ help_invitem_dsc: "¿Quieres consultar las invitaciones de un miembro? ¡Está a
 help_ticket_dsc: "¿Deseas crear un ticket o utilizar una de mis funciones dentro de él? ¡Por supuesto!"
 help_memberc_dsc: "¿Quieres configurar salas de voz para contar los miembros? ¡Por supuesto :smile:"
 help_newftrs_dsc: "¡Aquí tienes nuevas características muy interesantes!"
+help_not_for_you: "Esta interacción no es para ti"
 
 
 # Fun commands
@@ -734,6 +735,11 @@ backup_unvalid_id_on_load: ":x: | ¡Debes especificar un ID de copia de segurida
 backup_waiting_on_load: "✅ - Cargando..."
 backup_error_on_load: ":x: | ¡Lo siento, ocurrió un error... Por favor, asegúrate de que tengo permisos de administrador!"
 backup_error_when_fetch_backup_on_load: ":x: | ¡No se encontró copia de seguridad para ${backupID}!"
+backup_this_is_not_your_backup: "❌ | ¡Esto no es tu respaldo!"
+backup_backup_doesnt_exist: "ERROR? La copia de seguridad no existe."
+backup_string_see_v: ":placard:・Cantidad de categorías: `${data.categoryCount}`\n:hash:・Cantidad de canales: `${data.channelCount}`"
+backup_all_of_your_backup: "**Todas tus copias de seguridad:**"
+backup_string_see_another_v: ":placard:・Cantidad de categorías: `${result.categoryCount}`\n:hash:・Cantidad de canales: `${result.channelCount}`"
 
 
 # Role Reactions

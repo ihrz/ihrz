@@ -87,9 +87,11 @@ export const command: Command = {
             deferUpdate: () => any;
             values: (string | number)[];
         }) => {
+
             if (i.member.id !== interaction.user.id) {
-                return i.reply({ content: `This interaction is not for you`, ephemeral: true });
-            }
+                return i.reply({ content: data.help_not_for_you, ephemeral: true });
+            };
+
             await i.deferUpdate();
 
             embed

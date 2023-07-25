@@ -215,6 +215,7 @@ help_invitem_dsc: "Vuoi consultare gli inviti di un membro? È qui!"
 help_ticket_dsc: "Desideri creare un ticket o utilizzare una delle mie funzioni al suo interno? Certo!"
 help_memberc_dsc: "Vuoi configurare delle stanze vocali per il conteggio dei membri? Certamente :smile:"
 help_newftrs_dsc: "Ecco delle nuove funzionalità molto interessanti!"
+help_not_for_you: "Questa interazione non è per te"
 
 
 # Fun commands
@@ -680,7 +681,6 @@ unlock_dont_have_permission: "❌ | Non hai il permesso di sbloccare il canale."
 unlock_logs_embed_title: "Log di sblocco"
 unlock_logs_embed_description: "<@${interaction.user.id}> ha sbloccato <#${interaction.channel.id}>"
 
-
 # /lockall
 lockall_dont_have_permission: "❌ | Non hai il permesso di bloccare tutti i canali."
 lockall_embed_message_description: "Tutti i canali sono stati bloccati da <@${interaction.user.id}>."
@@ -735,6 +735,12 @@ backup_unvalid_id_on_load: ":x: | Devi specificare un ID backup valido!"
 backup_waiting_on_load: "✅ - Caricamento in corso..."
 backup_error_on_load: ":x: | Spiacenti, si è verificato un errore... Controlla che abbia i permessi di amministratore!"
 backup_error_when_fetch_backup_on_load: ":x: | Nessun backup trovato per ${backupID} !"
+backup_this_is_not_your_backup: "❌ | Questo non è il tuo backup!"
+backup_backup_doesnt_exist: "ERRORE? Il backup non esiste."
+backup_string_see_v: ":placard:・Numero di categorie: `${data.categoryCount}`\n:hash:・Numero di canali: `${data.channelCount}`"
+backup_all_of_your_backup: "**Tutti i tuoi backup:**"
+backup_string_see_another_v: ":placard:・Numero di categorie: `${result.categoryCount}`\n:hash:・Numero di canali: `${result.channelCount}`"
+
 
 # Role Reactions
 # /reactionroles

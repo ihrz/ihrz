@@ -75,7 +75,7 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
                 .replace("${oldMember.user.username}", oldMember.user.username)
             );
         }
-        await Msgchannel.send({ embeds: [logsEmbed] });
+        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
     };
 
     await serverLogs();

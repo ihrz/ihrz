@@ -143,7 +143,7 @@ export = async (client: Client, member: any) => {
             )
             .setTimestamp();
 
-        await Msgchannel.send({ embeds: [logsEmbed] });
+        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
     };
 
     await memberCount(), goodbyeMessage(), serverLogs();
