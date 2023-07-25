@@ -42,7 +42,7 @@ The iHorizon project is licensed under the  [`Creative Commons Attribution-NonCo
 # How to selfhost ?
 
 _There are only some few software needed :_
-- [NodeJS](https://nodejs.org) (**16 or higher required**)
+- [NodeJS](https://nodejs.org) (**18 or higher required**)
 - [Npm](https://npmjs.com) (**With NodeJS**)
 
 ### How to configure the bot ?
