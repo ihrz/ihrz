@@ -53,8 +53,8 @@ After your configuration in the config.ts :
 ## Linux & Mac os
 ```bash
 node -v  &&  npm -v ## Checking if NodeJS & NPM are installed on the System
-npm i ## Installing the dependencies for the bot
-npm start ## Start the bot
+yarn ## Installing the dependencies for the bot
+npm build && npm start ## Build the code & Start the bot
 ```
 
 # About the bot
