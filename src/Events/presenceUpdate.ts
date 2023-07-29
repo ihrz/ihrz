@@ -39,24 +39,26 @@ export = async (client: Client, oldPresence: Presence, newPresence: Presence) =>
         const fetchedUser: any = await oldPresence.guild.members.cache.get(oldPresence.userId);
         const fetchedRoles: any = await newPresence.guild.roles.cache.get(someinfo.rolesId);
 
+        if (!fetchedUser || !fetchedRoles) return;
+        
         if (newPresence.guild.members.me.roles.highest.position < fetchedRoles.rawPosition) {
             return;
         };
 
         if (!bio.state) {
-            if (fetchedUser.roles.cache.has(someinfo.rolesId)) return fetchedUser.roles.remove(someinfo.rolesId);
+            if (fetchedUser?.roles.cache.has(someinfo.rolesId)) return fetchedUser.roles.remove(someinfo.rolesId);
             return;
         };
 
         if (bio.state.toString().toLowerCase().includes(someinfo.input.toString().toLowerCase()) || bio.state.toString().toLowerCase().includes(vanity.toString().toLowerCase())) {
             try {
-                return fetchedUser.roles.add(someinfo.rolesId);
+                return fetchedUser?.roles.add(someinfo.rolesId).catch(() => { });
             } catch (err) { return; };
         };
 
-        if (fetchedUser.roles.cache.has(someinfo.rolesId)) {
+        if (fetchedUser?.roles.cache.has(someinfo.rolesId)) {
             try {
-                fetchedUser.roles.remove(someinfo.rolesId);
+                fetchedUser?.roles.remove(someinfo.rolesId).catch(() => { });
             } catch (err) { return; };
         };
     };
