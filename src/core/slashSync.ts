@@ -27,14 +27,14 @@ import config from "../files/config";
 export = async (client: any, commands: any = {}) => {
     let guildId: any;
 
-    const log = (message: string) => config.core.debug && logger.log(message);
+    const log = (message: any) => config.core.debug && message.number > 0 && logger.log(message?.string.replace('{number}', message.number));
 
     const ready = client.readyAt ? Promise.resolve() : new Promise(resolve => client.once('ready', resolve));
     await ready;
     const currentCommands = await client.application.commands.fetch(guildId ? { guildId } : undefined);
 
-    log(couleurmdr.white(`Synchronizing commands...`));
-    log(couleurmdr.white(`Currently ${currentCommands.size} commands are registered to the bot.`));
+    log({ string: couleurmdr.white(`Synchronizing commands...`), number: 1 });
+    log({ string: couleurmdr.white(`Currently {number} commands are registered to the bot.`), number: currentCommands.size });
 
     const deletedCommands = currentCommands.filter((command: any) => !commands.some((c: any) => c.name === command.name)).toJSON();
 
@@ -42,14 +42,13 @@ export = async (client: any, commands: any = {}) => {
         await deletedCommand.delete();
     };
 
-    log(couleurmdr.white(`Deleted ${deletedCommands.length} commands!`));
+    log({ string: couleurmdr.white(`Deleted {number} commands!`), number: deletedCommands.length });
 
     const newCommands = commands.filter((command: ApplicationCommand) => !currentCommands.some((c: ApplicationCommand) => c.name === command.name));
     for (const newCommand of newCommands) {
         await client.application.commands.create(newCommand, guildId);
     };
-
-    log(couleurmdr.white(`Created ${newCommands.length} commands!`));
+    log({ string: couleurmdr.white(`Created {number} commands!`), number: newCommands.length });
 
     const updatedCommands = commands.filter((command: any) => currentCommands.some((c: any) => c.name === command.name));
     let updatedCommandCount = 0;
@@ -66,8 +65,8 @@ export = async (client: any, commands: any = {}) => {
         }
     };
 
-    log(couleurmdr.white(`Updated ${updatedCommandCount} commands!`));
-    log(couleurmdr.white(`Commands synchronized!`));
+    log({ string: couleurmdr.white(`Updated {number} commands!`), number: updatedCommandCount });
+    log({ string: couleurmdr.white(`Commands synchronized!`), number: 1 });
 
     return {
         currentCommandCount: currentCommands.size,
