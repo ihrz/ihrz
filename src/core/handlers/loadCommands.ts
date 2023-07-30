@@ -70,16 +70,14 @@ async function loadCommands(client: Client, path: string = `${process.cwd()}/dis
         if (!path.endsWith('.js')) return;
         i++;
         const command = require(path).command;
-        command.name = 'dev-'+command.name;
-
         await db.DataBaseModel({ id: db.Push, key: `BOT.CONTENT.${command.category}`, value: { cmd: command.name, desc: command.description } });
-        
+
         client.interactions.set(command.name, { name: command.name, ...command });
         client.register_arr.push(command);
 
         client.commands.set(command.name, command);
     };
-    
+
     logger.log(`${config.console.emojis.OK} >> Loaded ${i} Slash commands.`);
 };
 
