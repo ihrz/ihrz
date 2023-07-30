@@ -37,18 +37,14 @@ export = async (client: Client) => {
     })));
 
     async function term() {
-        logger.legacy(couleurmdr.gray("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz)")),
-            logger.legacy(couleurmdr.gray("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.")),
-            logger.legacy(couleurmdr.gray("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0")),
-            logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  ")),
+        logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  ")),
             logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ")),
             logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |")),
-            logger.log(couleurmdr.magenta("|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_|")),
+            logger.log(couleurmdr.magenta("|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_|"+` (${client.user?.tag}).`)),
             logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`));
     };
 
     async function fetchInvites() {
-        await wait(500);
         client.guilds.cache.forEach(async (guild: any) => {
             try {
                 if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
@@ -91,7 +87,7 @@ export = async (client: Client) => {
         ];
 
         let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Watching }] });
+        client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Listening }] });
     };
     quotesPresence();
 

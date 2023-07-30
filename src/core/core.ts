@@ -19,14 +19,17 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, Collection } from "discord.js";
-import { readdirSync } from "fs";
 import * as checkSys from './functions/checkSys';
 import giveawayManager from './giveawayManager';
 import playerManager from "./playerManager";
 import * as errorManager from './errorManager';
+import logger from "./logger";
+
+import { Client, Collection } from "discord.js";
 import fs from 'fs';
+import { readdirSync } from "fs";
 import path from 'path';
+import couleurmdr from "colors";
 
 function cleanTempDir() {
     const folderPath = `${process.cwd()}/src/temp`;
@@ -48,6 +51,9 @@ function cleanTempDir() {
 };
 
 export = (client: Client) => {
+    logger.legacy(couleurmdr.gray("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz)."));
+    logger.legacy(couleurmdr.gray("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0."));
+    logger.legacy(couleurmdr.gray("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0"));
 
     cleanTempDir();
     checkSys.Html();

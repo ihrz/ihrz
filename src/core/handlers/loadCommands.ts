@@ -25,6 +25,7 @@ import { join as pathJoin } from "node:path";
 import logger from "../logger";
 import { Command } from "../../../types/command";
 import * as db from '../functions/DatabaseModel';
+import config from "../../files/config";
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     const result = [];
@@ -77,8 +78,9 @@ async function loadCommands(client: Client, path: string = `${process.cwd()}/dis
         client.register_arr.push(command);
 
         client.commands.set(command.name, command);
-    }
-    logger.log(`Loaded ${i} commands`);
+    };
+    
+    logger.log(`${config.console.emojis.OK} >> Loaded ${i} Slash commands.`);
 };
 
 export = loadCommands;

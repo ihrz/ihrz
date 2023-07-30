@@ -55,10 +55,10 @@ if (config.api.useHttps) {
     const server = https.createServer(options, app);
 
     server.listen(config.api.port, () => {
-        logger.log(`Serveur HTTPS démarré sur le port ${config.api.port}`);
+        logger.log(`${config.console.emojis.HOST} >> Secure App listening on "${config.api.port}".`);
     });
 } else {
     app.listen(config.api.port, async function () {
-        await logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> App listening, link: (${apiUrlParser.LoginURL()})`));
+        await logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Unsecure App listening on "${apiUrlParser.LoginURL()}".`));
     });
 };

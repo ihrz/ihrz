@@ -25,5 +25,5 @@ import { ShardingManager } from 'discord.js';
 import config from './src/files/config';
 
 const manager = new ShardingManager('./dist/src/core/bot.js', { totalShards: "auto", token: config.discord.token });
-manager.on("shardCreate", (shard) => logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Shard[${shard.id}] launched !`)));
+manager.on("shardCreate", (shard) => logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> The Shard number ${shard.id} is launched !`)));
 manager.spawn();
