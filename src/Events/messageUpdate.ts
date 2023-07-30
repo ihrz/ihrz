@@ -47,11 +47,11 @@ export = async (client: Client, oldMessage: Message, newMessage: Message) => {
             .setDescription(data.event_srvLogs_messageUpdate_description
                 .replace("${oldMessage.channelId}", oldMessage.channelId)
             )
-            .setFields({ name: data.event_srvLogs_messageUpdate_footer_1, value: oldMessage.content },
-                { name: data.event_srvLogs_messageUpdate_footer_2, value: newMessage.content })
+            .setFields({ name: data.event_srvLogs_messageUpdate_footer_1, value: oldMessage.content || '** **' },
+                { name: data.event_srvLogs_messageUpdate_footer_2, value: newMessage.content || '** **' })
             .setTimestamp();
 
-        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
+        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
     };
 
     await serverLogs();
