@@ -27,7 +27,7 @@ import config from "../files/config";
 export = async (client: any, commands: any = {}) => {
     let guildId: any;
 
-    const log = (message: any) => config.core.debug && message.number > 0 && logger.log(message?.string.replace('{number}', message.number));
+    let log = (message: any) => config.core.debug && message.number > 0 && logger.log(message?.string.replace('{number}', message.number));
 
     const ready = client.readyAt ? Promise.resolve() : new Promise(resolve => client.once('ready', resolve));
     await ready;
