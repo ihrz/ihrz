@@ -55,6 +55,7 @@
     "opusscript": "^0.0.8",
     "os-utils": "^0.0.14",
     "ping": "^0.4.4",
+    "play-dl": "^1.9.6",
     "process": "^0.11.10",
     "promise-mysql": "^5.2.0",
     "quick.db": "^9.1.6",
@@ -65,8 +66,7 @@
     "tslib": "^2.6.0",
     "typescript": "^5.1.6",
     "wait": "^0.4.2",
-    "yarn": "^1.22.19",
-    "ytdl-core": "^4.11.5"
+    "yarn": "^1.22.19"
   },
   "devDependencies": {
     "@types/ms": "^0.7.31",
