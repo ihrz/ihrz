@@ -185,7 +185,7 @@ export = async (client: any, member: any) => {
     };
 
     async function blockBot() {
-        if (await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.BLOCK_BOT` })) {
+        if (await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.BLOCK_BOT` }) && member.user.bot) {
             member.ban({ reason: 'The BlockBot function are enable!' });
         };
     };
