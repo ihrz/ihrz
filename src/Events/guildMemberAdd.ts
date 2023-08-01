@@ -184,5 +184,11 @@ export = async (client: any, member: any) => {
         }
     };
 
-    await joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage();
+    async function blockBot() {
+        if (await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.BLOCK_BOT` })) {
+            member.ban({ reason: 'The BlockBot function are enable!' });
+        };
+    };
+
+    await blockBot(), joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage();
 };

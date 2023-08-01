@@ -392,6 +392,15 @@ prevnames_embed_title: "Liste de tous les pseudonymes de ${user.username}"
 prevnames_undetected: "Aucune donnée trouvée !"
 prevnames_not_admin: "Vous n'avez pas la permission `ADMINISTRATOR` pour exécuter cette commande !"
 
+# /blockbot
+blockbot_not_owner: ":x: **Vous n'êtes pas le propriétaire du serveur !**"
+blockbot_logs_enable_title: "Journal BlockBot"
+blockbot_logs_enable_description: "${interaction.user} (Le propriétaire du serveur) a __activé__ `BlockBot`. Maintenant, le bot ne peut **pas** être ajouté à ce serveur !"
+blockbot_command_work_on_enable: "**Vous avez activé `BlockPub`**\nMaintenant, le bot ne peut **pas** être ajouté à ce serveur !"
+blockbot_command_work_on_disable: "**Vous avez désactivé `BlockPub`**\nMaintenant, le bot peut être ajouté à ce serveur !"
+blockbot_logs_disable_commmand_work: "Journal BlockBot"
+blockbot_logs_disable_description: "${interaction.user} (Le propriétaire du serveur) a __désactivé__ `BlockBot`. Maintenant, le bot peut être ajouté à ce serveur !"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

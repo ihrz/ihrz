@@ -392,6 +392,15 @@ prevnames_embed_title: "Elenco di tutti i soprannomi di ${user.username}"
 prevnames_undetected: "Nessun dato trovato!"
 prevnames_not_admin: "Non hai il permesso `ADMINISTRATOR` per eseguire questo comando!"
 
+# /blockbot
+blockbot_not_owner: ":x: **¡No eres el propietario del servidor!**"
+blockbot_logs_enable_title: "Registro de BlockBot"
+blockbot_logs_enable_description: "${interaction.user} (El propietario del servidor) ha __habilitado__ `BlockBot`. ¡Ahora el bot **no** puede ser agregado a este servidor!"
+blockbot_command_work_on_enable: "**Has habilitado `BlockPub`**\nAhora el bot **no** puede ser agregado a este servidor!"
+blockbot_command_work_on_disable: "**Has deshabilitado `BlockPub`**\nAhora el bot puede ser agregado a este servidor!"
+blockbot_logs_disable_commmand_work: "Registro de BlockBot"
+blockbot_logs_disable_description: "${interaction.user} (El propietario del servidor) ha __deshabilitado__ `BlockBot`. Ahora el bot puede ser agregado a este servidor!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

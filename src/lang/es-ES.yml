@@ -392,6 +392,15 @@ prevnames_embed_title: "Lista de todos los apodos de ${user.username}"
 prevnames_undetected: "¡No se encontraron datos!"
 prevnames_not_admin: "¡No tienes el permiso `ADMINISTRATOR` para ejecutar este comando!"
 
+# /blockbot
+blockbot_not_owner: ":x: **Non sei il proprietario del server!**"
+blockbot_logs_enable_title: "Registro BlockBot"
+blockbot_logs_enable_description: "${interaction.user} (Il proprietario del server) ha __abilitato__ `BlockBot`. Ora il bot **non** può essere aggiunto a questo server!"
+blockbot_command_work_on_enable: "**Hai abilitato `BlockPub`**\nOra il bot **non** può essere aggiunto a questo server!"
+blockbot_command_work_on_disable: "**Hai disabilitato `BlockPub`**\nOra il bot può essere aggiunto a questo server!"
+blockbot_logs_disable_commmand_work: "Registro BlockBot"
+blockbot_logs_disable_description: "${interaction.user} (Il proprietario del server) ha __disabilitato__ `BlockBot`. Ora il bot può essere aggiunto a questo server!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
