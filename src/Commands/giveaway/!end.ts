@@ -36,12 +36,8 @@ import {
     StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
-import {Command} from '../../../../types/command';
-import * as db from '../../../core/functions/DatabaseModel';
-import logger from '../../../core/logger';
-import config from '../../../files/config';
+import logger from '../../core/logger';
 
-import ms from 'ms';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {

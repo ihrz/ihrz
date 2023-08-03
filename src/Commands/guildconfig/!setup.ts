@@ -21,45 +21,34 @@
 
 import {
     Client,
-    Collection,
-    EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
     PermissionsBitField,
-    ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
+    ChannelType,
+    PermissionFlagsBits,
 } from 'discord.js';
-
-import {Command} from '../../../../types/command';
-import * as db from '../../../core/functions/DatabaseModel';
-import logger from '../../../core/logger';
-import config from '../../../files/config';
-
-import ms from 'ms';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let turn = interaction.options.getString("action");
-
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({content: data.blockpub_not_admin});
-        }
-        if (turn === "on") {
-            await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "on"})
-            return interaction.reply({content: data.blockpub_now_enable})
-        }
-
-        if (turn === "off") {
-            await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "off"})
-            return interaction.reply({content: data.blockpub_now_disable})
+            return interaction.reply({content: data.setup_not_admin});
         }
         ;
+
+        let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+        if (!logchannel) {
+            interaction.guild.channels.create({
+                name: 'ihorizon-logs',
+                type: ChannelType.GuildText,
+                permissionOverwrites: [
+                    {
+                        id: interaction.guild.roles.everyone,
+                        deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
+                    }
+                ],
+            })
+            return interaction.reply({content: data.setup_command_work})
+        } else {
+            return interaction.reply({content: data.setup_command_error})
+        }
     },
 }

@@ -21,26 +21,10 @@
 
 import {
     Client,
-    Collection,
-    EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
     ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
-import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
-import logger from '../../core/logger';
-import config from '../../files/config';
-import ms from 'ms';
+import {Command} from '../../../types/command';
 
 export const command: Command = {
     name: "profil",
@@ -119,63 +103,14 @@ export const command: Command = {
         let command: any = interaction.options.getSubcommand();
 
         if (command === 'show') {
-
-            let member = interaction.options.getUser('user') || interaction.user;
-
-            var description = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.USER_PROFIL.${member.id}.desc` });
-            if (!description) var description = data.profil_not_description_set;
-
-            var level: Number = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${member.id}.XP_LEVELING.level` });
-            if (!level) var level: Number = 0;
-
-            var balance: Number = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${member.id}.ECONOMY.money` });
-            if (!balance) var balance: Number = 0;
-
-            var age = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.USER_PROFIL.${member.id}.age` });
-            if (!age) var age = data.profil_unknown;
-
-            var gender = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.USER_PROFIL.${member.id}.gender` });
-            if (!gender) var gender = data.profil_unknown;
-
-            let profil = new EmbedBuilder()
-                .setTitle(data.profil_embed_title
-                    .replace(/\${member\.tag}/g, member.username)
-                )
-                .setDescription(`\`${description}\``)
-                .addFields(
-                    { name: data.profil_embed_fields_nickname, value: member.username, inline: false },
-                    { name: data.profil_embed_fields_money, value: balance + data.profil_embed_fields_money_value, inline: false },
-                    { name: data.profil_embed_fields_xplevels, value: level + data.profil_embed_fields_xplevels_value, inline: false },
-                    { name: data.profil_embed_fields_age, value: age + data.profil_embed_fields_age_value, inline: false },
-                    { name: data.profil_embed_fields_gender, value: `${gender}`, inline: false })
-                .setColor("#ffa550")
-                .setThumbnail(member.avatarURL({ format: 'png', dynamic: true, size: 512 }))
-                .setTimestamp()
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
-
-            return interaction.reply({ embeds: [profil] });
-
+            await require('./!' + command).run(client, interaction, data);
         } else if (command === 'set-age') {
-
-            var age = interaction.options.getNumber("age");
-            await db.DataBaseModel({ id: db.Set, key: `GLOBAL.USER_PROFIL.${interaction.user.id}.age`, value: age });
-
-            return interaction.reply({ content: data.setprofilage_command_work });
-
+            await require('./!' + command).run(client, interaction, data);
         } else if (command === 'set-description') {
-
-            var desc = interaction.options.getString("descriptions");
-            await db.DataBaseModel({ id: db.Set, key: `GLOBAL.USER_PROFIL.${interaction.user.id}.desc`, value: desc });
-
-            return interaction.reply({ content: data.setprofildescriptions_command_work });
-
+            await require('./!' + command).run(client, interaction, data);
         } else if (command === 'set-gender') {
-
-            var gender = interaction.options.getString("gender");
-            await db.DataBaseModel({ id: db.Set, key: `GLOBAL.USER_PROFIL.${interaction.user.id}.gender`, value: gender })
-            
-            return interaction.reply({ content: data.setprofildescriptions_command_work });
-    
-        };
+            await require('./!' + command).run(client, interaction, data);
+        }
+        ;
     },
 }

@@ -33,7 +33,6 @@ import ms from 'ms';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
             return interaction.reply({content: data.start_not_perm});
         }
