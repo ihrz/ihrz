@@ -22,60 +22,66 @@
 import {
     Client,
     Collection,
-    ChannelType,
     EmbedBuilder,
     Permissions,
     ApplicationCommandType,
     PermissionsBitField,
-    ApplicationCommandOptionType
-} from 'discord.js'
+    ApplicationCommandOptionType,
+    ActionRowBuilder,
+    SelectMenuBuilder,
+    ComponentType,
+    StringSelectMenuBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    StringSelectMenuOptionBuilder,
+} from 'discord.js';
 
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
+import config from '../../files/config';
+
 import backup from 'discord-backup';
+import ms from 'ms';
 
 export const command: Command = {
     name: "backup",
-    description: "Manage, create and delete a guild backups !",
+    description: "Subcommand for backup category!",
     options: [
         {
-            name: 'action',
-            type: ApplicationCommandOptionType.String,
-            description: 'What you want to do?',
-            required: true,
-            choices: [
+            name: "create",
+            description: "Create a backup!",
+            type: 1,
+        },
+        {
+            name: "load",
+            description: "Load your backup to initialize!",
+            type: 1,
+            options: [
                 {
-                    name: 'Create a backup',
-                    value: "create"
+                    name: 'backup-id',
+                    type: ApplicationCommandOptionType.String,
+                    description: 'Whats is the backup id?',
+                    required: false
                 },
-                {
-                    name: 'Load your backup',
-                    value: "load"
-                },
-                {
-                    name: 'See your backup(s)',
-                    value: "see"
-                }
             ],
         },
         {
-            name: 'backup-id',
-            type: ApplicationCommandOptionType.String,
-            description: 'Whats is the backup id?',
-            required: false
+            name: "list",
+            description: "List your backup(s)!",
+            type: 1,
         }
     ],
     category: 'backup',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
+        let command: any = interaction.options.getSubcommand();
 
-        let backup_options = interaction.options.getString('action');
         let backupID = interaction.options.getString('backup-id');
-
         await interaction.reply({ content: data.backup_wait_please });
 
-        if (backup_options === "create") {
+        if (command === 'create') {
+
             if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
                 return interaction.editReply({ content: data.backup_not_admin });
             }
@@ -107,19 +113,19 @@ export const command: Command = {
                     if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
                 } catch (e: any) { logger.err(e) };
             });
-        }
 
-        if (backup_options === "load") {
+        } else if (command === 'load') {
+
             if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
                 return interaction.editReply({ content: data.backup_dont_have_perm_on_load });
-            }
+            };
             if (!interaction.guild.members.me.permissions.has(PermissionsBitField.Flags.Administrator)) {
                 return interaction.editReply({ content: data.backup_i_dont_have_perm_on_load })
-            }
+            };
 
             if (!backupID) {
                 return interaction.editReply({ content: data.backup_unvalid_id_on_load });
-            }
+            };
 
             if (backupID && !await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${backupID}` })) {
                 return interaction.editReply({ content: data.backup_this_is_not_your_backup });
@@ -140,10 +146,8 @@ export const command: Command = {
             }).catch((err) => {
                 return interaction.channel.send({ content: `❌` });
             });
-        }
 
-        if (backup_options === "see") {
-            // If the user provided a backup ID, show the backup's info.
+        } else if (command === 'list') {
 
             if (backupID && !await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${backupID}` })) {
                 return interaction.editReply({ content: data.backup_this_is_not_your_backup });
@@ -159,9 +163,7 @@ export const command: Command = {
 
                 let em = new EmbedBuilder().setColor("#bf0bb9").setTimestamp().addFields({ name: `${data.guildName} - (||${backupID}||)`, value: v });
                 return interaction.editReply({ content: ' ', embeds: [em] });
-            }
-            // If the user didn't provide a backup ID, show all the backups.
-            else {
+            } else {
                 let em = new EmbedBuilder().setDescription(data.backup_all_of_your_backup).setColor("#bf0bb9").setTimestamp();
                 let data2 = await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}` });
                 let b: any = 1;
@@ -175,7 +177,8 @@ export const command: Command = {
                 };
 
                 return interaction.editReply({ content: ' ', embeds: [em] });
-            }
-        }
+            };
+
+        };
     },
-};
+}
