@@ -77,108 +77,14 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let command: any = interaction.options.getSubcommand();
 
-        let backupID = interaction.options.getString('backup-id');
         await interaction.reply({ content: data.backup_wait_please });
 
         if (command === 'create') {
-
-            if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-                return interaction.editReply({ content: data.backup_not_admin });
-            }
-            if (!interaction.guild.members.me.permissions.has(PermissionsBitField.Flags.Administrator)) {
-                return interaction.editReply({ content: data.backup_i_dont_have_permission })
-            }
-            let i: any = 0; let j: any = 0;
-
-            backup.create(interaction.guild, {
-                maxMessagesPerChannel: 15,
-                jsonBeautify: true
-            }).then(async (backupData) => {
-                await backupData.channels.categories.forEach(category => { i++; category.children.forEach(() => { j++; }); });
-                let elData = { guildName: backupData.name, categoryCount: i, channelCount: j };
-
-                await db.DataBaseModel({ id: db.Set, key: `BACKUPS.${interaction.user.id}.${backupData.id}`, value: elData });
-
-                interaction.channel.send({ content: data.backup_command_work_on_creation });
-                interaction.editReply({
-                    content: data.backup_command_work_info_on_creation
-                        .replace("${backupData.id}", backupData.id)
-                });
-                try {
-                    let logEmbed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
-                        .setTitle(data.backup_logs_embed_title_on_creation)
-                        .setDescription(data.backup_logs_embed_description_on_creation)
-                    let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'iHorizon-logs');
-                    if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-                } catch (e: any) { logger.err(e) };
-            });
-
+            await require('./!sub_command/' + command).run(client, interaction, data);
         } else if (command === 'load') {
-
-            if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-                return interaction.editReply({ content: data.backup_dont_have_perm_on_load });
-            };
-            if (!interaction.guild.members.me.permissions.has(PermissionsBitField.Flags.Administrator)) {
-                return interaction.editReply({ content: data.backup_i_dont_have_perm_on_load })
-            };
-
-            if (!backupID) {
-                return interaction.editReply({ content: data.backup_unvalid_id_on_load });
-            };
-
-            if (backupID && !await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${backupID}` })) {
-                return interaction.editReply({ content: data.backup_this_is_not_your_backup });
-            };
-
-            await interaction.channel.send({ content: data.backup_waiting_on_load });
-
-            backup.fetch(backupID).then(async () => {
-                backup.load(backupID, interaction.guild).then(() => {
-                    backup.remove(backupID);
-                }).catch((err) => {
-                    return interaction.channel.send({
-                        content: data.backup_error_on_load
-                            .replace("${backupID}", backupID)
-                        , ephemeral: true
-                    });
-                });
-            }).catch((err) => {
-                return interaction.channel.send({ content: `❌` });
-            });
-
+            await require('./!sub_command/' + command).run(client, interaction, data);
         } else if (command === 'list') {
-
-            if (backupID && !await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${backupID}` })) {
-                return interaction.editReply({ content: data.backup_this_is_not_your_backup });
-            };
-
-            if (backupID) {
-                let data = await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${backupID}` });
-
-                if (!data) return interaction.editReply({ content: data.backup_backup_doesnt_exist });
-                let v = (data.backup_string_see_v
-                    .replace('${data.categoryCount}', data.categoryCount)
-                    .replace('${data.channelCount}', data.channelCount));
-
-                let em = new EmbedBuilder().setColor("#bf0bb9").setTimestamp().addFields({ name: `${data.guildName} - (||${backupID}||)`, value: v });
-                return interaction.editReply({ content: ' ', embeds: [em] });
-            } else {
-                let em = new EmbedBuilder().setDescription(data.backup_all_of_your_backup).setColor("#bf0bb9").setTimestamp();
-                let data2 = await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}` });
-                let b: any = 1;
-                for (const i in data2) {
-                    let result = await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${i}` });
-                    let v = (data.backup_string_see_another_v
-                        .replace('${result.categoryCount}', result.categoryCount)
-                        .replace('${result.channelCount}', result.channelCount));
-
-                    if (result) em.addFields({ name: `${result.guildName} - (||${i}||)`, value: v }) && b++;
-                };
-
-                return interaction.editReply({ content: ' ', embeds: [em] });
-            };
-
+            await require('./!sub_command/' + command).run(client, interaction, data);
         };
     },
 }

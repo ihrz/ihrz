@@ -31,10 +31,12 @@ async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     const result = [];
     const dir = await opendir(path);
     for await (const dirent of dir) {
-        if (dirent.isDirectory()) {
-            result.push({ name: dirent.name, sub: await buildDirectoryTree(pathJoin(path, dirent.name)) });
-        } else {
-            result.push(dirent.name);
+        if (dirent.name !== '!sub_command') {
+            if (dirent.isDirectory()) {
+                result.push({ name: dirent.name, sub: await buildDirectoryTree(pathJoin(path, dirent.name)) });
+            } else {
+                result.push(dirent.name);
+            }
         }
     }
     return result;
