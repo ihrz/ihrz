@@ -129,3 +129,4 @@ package-lock.json
 src/api/index.html
 
 *.DS_Store
+demo

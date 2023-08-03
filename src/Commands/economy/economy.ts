@@ -36,7 +36,7 @@ import {
     StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
-import { Command } from '../../../types/command';
+import {Command} from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 import config from '../../files/config';
@@ -170,23 +170,24 @@ export const command: Command = {
         let command: any = interaction.options.getSubcommand();
 
         if (command === 'add') {
-            await require('./!sub_command/' + command).run(client, interaction, data);
+            await require('./!' + command).run(client, interaction, data);
         } else if (command === 'wallet') {
-            await require('./!sub_command/' + command).run(client, interaction, data);
+            await require('./!' + command).run(client, interaction, data);
         } else if (command === 'daily') {
-            await require('./!sub_command/' + command).run(client, interaction, data);
+            await require('./!' + command).run(client, interaction, data);
         } else if (command === 'monthly') {
-            await require('./!sub_command/' + command).run(client, interaction, data);
+            await require('./!' + command).run(client, interaction, data);
         } else if (command === 'pay') {
-            await require('./!sub_command/' + command).run(client, interaction, data);
+            await require('./!' + command).run(client, interaction, data);
         } else if (command === 'remove') {
-            await require('./!sub_command/' + command).run(client, interaction, data);
+            await require('./!' + command).run(client, interaction, data);
         } else if (command === 'rob') {
-            await require('./!sub_command/' + command).run(client, interaction, data);
+            await require('./!' + command).run(client, interaction, data);
         } else if (command === 'weekly') {
-            await require('./!sub_command/' + command).run(client, interaction, data);
+            await require('./!' + command).run(client, interaction, data);
         } else if (command === 'work') {
-            await require('./!sub_command/' + command).run(client, interaction, data);
-        };
+            await require('./!' + command).run(client, interaction, data);
+        }
+        ;
     },
 }

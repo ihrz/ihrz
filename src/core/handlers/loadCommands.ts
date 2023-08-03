@@ -19,11 +19,11 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, Collection } from "discord.js";
-import { opendir } from "fs/promises";
-import { join as pathJoin } from "node:path";
+import {Client, Collection} from "discord.js";
+import {opendir} from "fs/promises";
+import {join as pathJoin} from "node:path";
 import logger from "../logger";
-import { Command } from "../../../types/command";
+import {Command} from "../../../types/command";
 import * as db from '../functions/DatabaseModel';
 import config from "../../files/config";
 
@@ -31,9 +31,9 @@ async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     const result = [];
     const dir = await opendir(path);
     for await (const dirent of dir) {
-        if (dirent.name !== '!sub_command') {
+        if (!dirent.name.startsWith('!')) {
             if (dirent.isDirectory()) {
-                result.push({ name: dirent.name, sub: await buildDirectoryTree(pathJoin(path, dirent.name)) });
+                result.push({name: dirent.name, sub: await buildDirectoryTree(pathJoin(path, dirent.name))});
             } else {
                 result.push(dirent.name);
             }
@@ -62,7 +62,7 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
 };
 
 async function loadCommands(client: Client, path: string = `${process.cwd()}/dist/src/Commands`): Promise<void> {
-    await db.DataBaseModel({ id: db.Set, key: `BOT.CONTENT`, value: {} });
+    await db.DataBaseModel({id: db.Set, key: `BOT.CONTENT`, value: {}});
 
     const directoryTree = await buildDirectoryTree(path);
     const paths = buildPaths(path, directoryTree);
@@ -72,13 +72,14 @@ async function loadCommands(client: Client, path: string = `${process.cwd()}/dis
         if (!path.endsWith('.js')) return;
         i++;
         const command = require(path).command;
-        await db.DataBaseModel({ id: db.Push, key: `BOT.CONTENT.${command.category}`, value: { cmd: command.name, desc: command.description } });
+        await db.DataBaseModel({id: db.Push, key: `BOT.CONTENT.${command.category}`, value: {cmd: command.name, desc: command.description}});
 
-        client.interactions.set(command.name, { name: command.name, ...command });
+        client.interactions.set(command.name, {name: command.name, ...command});
         client.register_arr.push(command);
 
         client.commands.set(command.name, command);
-    };
+    }
+    ;
 
     logger.log(`${config.console.emojis.OK} >> Loaded ${i} Slash commands.`);
 };
