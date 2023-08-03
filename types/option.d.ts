@@ -19,15 +19,15 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { QueueRepeatMode } from "discord-player";
-import { Choice } from "./choice";
 import { ApplicationCommandOptionType } from 'discord.js';
+import { Choice } from "./choice";
 
 export interface Option {
     type: ApplicationCommandOptionType,
+    options?: Option[], // Update the type to Option[]
     name: string,
     description: string,
-    required: boolean,
+    required?: boolean,
     autocomplete?: boolean,
     choices?: Choice[]
 };

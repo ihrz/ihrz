@@ -117,6 +117,9 @@ src/files/giveaways.json
 *.rar
 *.tar.gz
 
+# Not upload txt file
+*.txt
+
 # Not upload logs
 *.log
 
