@@ -60,6 +60,8 @@ npm build && npm start
 ```
 
 # About the bot
+trusted by 85 000 users!
+<br>
 iHorizon is now certified by Discord. We have achieved our goal of +75 servers before starting the certification process!<br><br>
 
 To join the Official Discord Support Server, please visit our website at [Official Server Link](http://discord.ihorizon.me/) or click on this link: [Other Link](https://discord.gg/ZpBPGNsAsu).<br><br>
