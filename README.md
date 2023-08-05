@@ -60,7 +60,7 @@ npm build && npm start
 ```
 
 # About the bot
-trusted by 85 000 users!
+trusted by **85 000** users!
 <br>
 iHorizon is now certified by Discord. We have achieved our goal of +75 servers before starting the certification process!<br><br>
 
