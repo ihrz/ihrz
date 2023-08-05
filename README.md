@@ -1,4 +1,4 @@
-#Official iHorizon Repo
+# Official iHorizon Repo
 
 iHorizon is a Discord bot written in [TypeScript](https://www.typescriptlang.org/) and using [discord.js](https://discord.js.org) !
 <br>
