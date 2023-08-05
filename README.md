@@ -1,6 +1,8 @@
-# Official iHorizon Repo :o
+# Official iHorizon Repo
 
-iHorizon is a Discord bot written in [TypeScript](https://www.typescriptlang.org/) and using the [discord.js](https://discord.js.org) module. It has a large variety of features, including moderation, invite management, guild configuration, fun commands, music playback, giveaways, backup and lot more!
+iHorizon is a Discord bot written in [TypeScript](https://www.typescriptlang.org/) and using [discord.js](https://discord.js.org) !
+<br>
+IHorizon have a large variety of features, including moderation, invite management, guild configuration, fun commands, music playback, giveaways, backup and lot more!
 
 ## Languages
 * English
@@ -18,14 +20,11 @@ iHorizon is a Discord bot written in [TypeScript](https://www.typescriptlang.org
 - [Noémie](https://github.com/name-shitty-github-profile) (She/Her)
 - [Wyene](https://github.com/WyeneCloud) (He/him)
 
-## Skids's hall
-There are no skidded scripts in the iHorizon source code, because talent is more important than being dumb. Skidding codes doesn't make you a developper, coding does. Skidding is only to flex and to lie to your friends.
-
 ## Origin
 The bot was primarily developed by Kisakay (*formerly known as Ezermoz*) and was first released in **September 2020** using **discord.js v12.**<br>
 Now, It has a strong architecture with separated modules, each with their own owner directory.
 
-## Is Free ?
+## Is it Free ?
 The iHorizon project is licensed under the  [`Creative Commons Attribution-NonCommercial-ShareAlike 2.0`](https://creativecommons.org/licenses/by-nc-sa/2.0/) license.
 
 **Is allowed to :**
@@ -52,9 +51,12 @@ After your configuration in the config.ts :
 
 ## Linux & Mac os
 ```bash
-node -v  &&  npm -v ## Checking if NodeJS & NPM are installed on the System
-yarn ## Installing the dependencies for the bot
-npm build && npm start ## Build the code & Start the bot
+node -v  &&  npm -v
+```
+If it shows an error please install npm and node.js.
+```bash
+yarn
+npm build && npm start
 ```
 
 # About the bot
