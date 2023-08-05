@@ -30,8 +30,7 @@ export = async (client: Client, message: any) => {
     let data = await client.functions.getLanguageData(message.guild.id);
 
     async function xpFetcher() {
-        if (!message.guild || message.author.bot) return;
-        if (message.channel.type !== ChannelType.GuildText) return;
+        if (!message.guild || message.author.bot || message.channel.type !== ChannelType.GuildText) return;
 
         const randomNumber = Math.floor(Math.random() * 100) + 50;
 
@@ -42,7 +41,6 @@ export = async (client: Client, message: any) => {
         var level = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level` }) || 1;
 
         var xpNeeded = level * 500;
-
         if (xpNeeded < xp) {
 
             await db.DataBaseModel({ id: db.Add, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`, value: 1 });
@@ -83,11 +81,7 @@ export = async (client: Client, message: any) => {
     };
 
     async function EconomyDebug() {
-        if (!message.guild || !message.channel) return;
-        if (message.channel.type !== ChannelType.GuildText) return;
-
-        if (message.author.bot) return;
-        if (message.author.id === client.user?.id) return;
+        if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || message.author.bot || message.author.id === client.user?.id) return;
 
         let d = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.USER.${message.author.id}.ECONOMY.money` });
         if (!d) {
@@ -159,15 +153,7 @@ export = async (client: Client, message: any) => {
     };
 
     async function rankRole() {
-        if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || message.author.bot || message.author.id === client.user?.id) {
-            return;
-        }
-
-        if (!message.channel.permissionsFor(client.user).has(PermissionsBitField.Flags.SendMessages)) return;
-        if (!message.channel.permissionsFor(client.user).has(PermissionsBitField.Flags.ManageRoles)) return;
-
-        if (message.content !== `<@${client.user?.id}>`) return;
-        
+        if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || message.author.bot || message.author.id === client.user?.id || !message.channel.permissionsFor(client.user).has(PermissionsBitField.Flags.SendMessages) || !message.channel.permissionsFor(client.user).has(PermissionsBitField.Flags.ManageRoles) || message.content !== `<@${client.user?.id}>`) return;
         let dbGet = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.GUILD.RANK_ROLES.roles` });
         let fetch = message.guild.roles.cache.find((role: { id: any; }) => role.id === dbGet);
 
