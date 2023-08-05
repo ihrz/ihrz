@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import fs from 'fs'
+import fs from 'fs';
 import { Client, Collection, EmbedBuilder, PermissionsBitField, ChannelType, Message, Role } from 'discord.js';
 import logger from '../core/logger';
 import * as db from '../core/functions/DatabaseModel';
