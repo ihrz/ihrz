@@ -19,11 +19,31 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, IntentsBitField, Partials } from "discord.js";
+import { Client, IntentsBitField, Partials, GatewayIntentBits } from "discord.js";
 import config from "../files/config";
 
-const Clientintents = new IntentsBitField(3276799);
-const client = new Client({ intents: Clientintents, partials: [Partials.Message, Partials.Channel, Partials.Reaction] });
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildBans,
+        GatewayIntentBits.GuildEmojisAndStickers,
+        GatewayIntentBits.GuildIntegrations,
+        GatewayIntentBits.GuildInvites,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildMessageTyping,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildModeration,
+        GatewayIntentBits.GuildScheduledEvents,
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildWebhooks,
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.MessageContent
+    ], partials: [Partials.Message, Partials.Channel, Partials.Reaction]
+});
 require('./core')(client);
-
 client.login(config.discord.token)
