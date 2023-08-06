@@ -36,7 +36,7 @@ import {
     StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
-import {Command} from '../../../types/command';
+import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 import config from '../../files/config';
@@ -169,25 +169,6 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let command: any = interaction.options.getSubcommand();
 
-        if (command === 'add') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'wallet') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'daily') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'monthly') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'pay') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'remove') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'rob') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'weekly') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'work') {
-            await require('./!' + command).run(client, interaction, data);
-        }
-        ;
+        await require('./!' + command).run(client, interaction, data);
     },
 }

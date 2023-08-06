@@ -37,11 +37,11 @@ import {
     ChannelType,
 } from 'discord.js';
 
-import {Command} from '../../../types/command';
+import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 import config from '../../files/config';
-import ms, {StringValue} from 'ms';
+import ms, { StringValue } from 'ms';
 
 export const command: Command = {
     name: "mod",
@@ -171,27 +171,6 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let command: any = interaction.options.getSubcommand();
 
-        if (command === 'avatar') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'ban') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'clear') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'kick') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'lock') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'lock-all') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'tempmute') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'unban') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'unlock') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'unmute') {
-            await require('./!' + command).run(client, interaction, data);
-        }
-        ;
+        await require('./!' + command).run(client, interaction, data);
     },
 }

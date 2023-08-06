@@ -24,7 +24,7 @@ import {
     ApplicationCommandOptionType,
 } from 'discord.js';
 
-import {Command} from '../../../types/command';
+import { Command } from '../../../types/command';
 
 export const command: Command = {
     name: "profil",
@@ -102,15 +102,6 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let command: any = interaction.options.getSubcommand();
 
-        if (command === 'show') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'set-age') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'set-description') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'set-gender') {
-            await require('./!' + command).run(client, interaction, data);
-        }
-        ;
+        await require('./!' + command).run(client, interaction, data);
     },
 }

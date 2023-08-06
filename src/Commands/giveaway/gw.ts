@@ -36,7 +36,7 @@ import {
     StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
-import {Command} from '../../../types/command';
+import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 import config from '../../files/config';
@@ -109,13 +109,6 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let command: any = interaction.options.getSubcommand();
 
-        if (command === 'start') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'end') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'reroll') {
-            await require('./!' + command).run(client, interaction, data);
-        }
-        ;
+        await require('./!' + command).run(client, interaction, data);
     },
 }

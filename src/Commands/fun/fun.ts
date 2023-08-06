@@ -37,11 +37,11 @@ import {
     AttachmentBuilder,
 } from 'discord.js';
 
-import {Command} from '../../../types/command';
+import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 import config from '../../files/config';
-import {createCanvas, loadImage} from 'canvas';
+import { createCanvas, loadImage } from 'canvas';
 
 import axios from 'axios';
 import ms from 'ms';
@@ -190,29 +190,6 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let command: any = interaction.options.getSubcommand();
 
-        if (command === 'caracteres') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'cats') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'dogs') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'hack') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'hug') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'kiss') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'love') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'morse') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'poll') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'question') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'slap') {
-            await require('./!' + command).run(client, interaction, data);
-        }
-        ;
+        await require('./!' + command).run(client, interaction, data);
     },
 }

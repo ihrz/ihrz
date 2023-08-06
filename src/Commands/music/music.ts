@@ -36,10 +36,10 @@ import {
     StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
-import {QueryType, QueueRepeatMode, useQueue} from 'discord-player';
-import {lyricsExtractor} from '@discord-player/extractor';
+import { QueryType, QueueRepeatMode, useQueue } from 'discord-player';
+import { lyricsExtractor } from '@discord-player/extractor';
 
-import {Command} from '../../../types/command';
+import { Command } from '../../../types/command';
 
 export const command: Command = {
     name: "music",
@@ -135,27 +135,6 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let command: any = interaction.options.getSubcommand();
 
-        if (command === 'loop') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'lyrics') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'nowplaying') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'pause') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'play') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'queue') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'resume') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'shuffle') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'skip') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'stop') {
-            await require('./!' + command).run(client, interaction, data);
-        }
-        ;
+        await require('./!' + command).run(client, interaction, data);
     },
 }

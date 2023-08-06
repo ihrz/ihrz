@@ -38,7 +38,7 @@ import {
     ChannelType,
 } from 'discord.js';
 
-import {Command} from '../../../types/command';
+import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 import config from '../../files/config';
@@ -301,25 +301,6 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let command: any = interaction.options.getSubcommand();
 
-        if (command === 'pub') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'bot') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'show') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'channel') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'join-dm') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'join-message') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'join-role') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'leave-message') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'setup') {
-            await require('./!' + command).run(client, interaction, data);
-        }
-        ;
+        await require('./!' + command).run(client, interaction, data);
     },
 };

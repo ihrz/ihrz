@@ -24,7 +24,7 @@ import {
     ApplicationCommandOptionType,
 } from 'discord.js';
 
-import {Command} from '../../../types/command';
+import { Command } from '../../../types/command';
 
 export const command: Command = {
     name: "invites",
@@ -92,15 +92,6 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let command: any = interaction.options.getSubcommand();
 
-        if (command === 'addinvites') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'leaderboard') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'show') {
-            await require('./!' + command).run(client, interaction, data);
-        } else if (command === 'removeinvites') {
-            await require('./!' + command).run(client, interaction, data);
-        }
-        ;
+        await require('./!' + command).run(client, interaction, data);
     },
 }
