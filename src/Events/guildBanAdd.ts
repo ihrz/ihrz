@@ -27,24 +27,19 @@ import * as db from '../core/functions/DatabaseModel';
 export = async (client: Client, ban: GuildBan) => {
     let data = await client.functions.getLanguageData(ban.guild.id);
     async function serverLogs() {
-        if (!ban.guild.members.me) return;
-        if (!ban.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
-
+        if (!ban.guild.members.me || !ban.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
         let fetchedLogs = await ban.guild.fetchAuditLogs({
             type: AuditLogEvent.MemberBanAdd,
             limit: 1,
         });
 
         var firstEntry: any = fetchedLogs.entries.first();
-
-        let guildId = ban.guild.id;
-        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${guildId}.GUILD.SERVER_LOGS.moderation` });
+        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${ban.guild.id}.GUILD.SERVER_LOGS.moderation` });
 
         if (!someinfo) return;
 
         let Msgchannel: any = client.channels.cache.get(someinfo);
         if (!Msgchannel) return;
-
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setDescription(data.event_srvLogs_banAdd_description
