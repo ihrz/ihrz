@@ -43,13 +43,12 @@ export const command: Command = {
     category: 'utils',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
-
-        const verlvl: any = {
-            NONE: data.serverinfo_verlvl_NONE,
-            LOW: data.serverinfo_verlvl_LOW,
-            MEDIUM: data.serverinfo_verlvl_MEDIUM,
-            HIGHT: data.serverinfo_verlvl_HIGHT,
-            VERY_HIGHT: data.serverinfo_verlvl_VERY_HIGHT
+        let verlvl: any = {
+            0: data.serverinfo_verlvl_NONE,
+            1: data.serverinfo_verlvl_LOW,
+            2: data.serverinfo_verlvl_MEDIUM,
+            3: data.serverinfo_verlvl_HIGHT,
+            4: data.serverinfo_verlvl_VERY_HIGHT
         };
 
         let embeds = new EmbedBuilder()
@@ -60,18 +59,18 @@ export const command: Command = {
                 , iconURL: `https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`
             })
             .setDescription(data.serverinfo_embed_description
-                .replace(/\${interaction\.guild\.description}/g, interaction.guild.description))
+                .replace(/\${interaction\.guild\.description}/g, interaction.guild.description||'None'))
             .addFields(
-                { name: data.serverinfo_embed_fields_name, value: `📕\`${interaction.guild.name}\``, inline: true },
-                { name: data.serverinfo_embed_fields_members, value: `📕\`${interaction.guild.memberCount}\``, inline: true },
-                { name: data.serverinfo_embed_fields_id, value: `📕\`${interaction.guild.id}\``, inline: true },
-                { name: data.serverinfo_embed_fields_owner, value: `➡\<@${interaction.guild.ownerId}>`, inline: true },
-                { name: data.serverinfo_embed_fields_verlvl, value: `📕\`${verlvl[interaction.guild.verificationLevel]}\``, inline: true },
-                { name: data.serverinfo_embed_fields_region, value: `📕\`${interaction.guild.preferredLocale}\``, inline: true },
-                { name: data.serverinfo_embed_fields_roles, value: `📕\`${interaction.guild.roles.cache.size}\``, inline: true },
-                { name: data.serverinfo_embed_fields_channels, value: `📕\`${interaction.guild.channels.cache.size}\``, inline: true },
-                { name: data.serverinfo_embed_fields_joinat, value: `📕\`${interaction.member.joinedAt}\``, inline: true },
-                { name: data.serverinfo_embed_fields_createat, value: `📕\`${interaction.guild.createdAt}\``, inline: true }
+                { name: data.serverinfo_embed_fields_name, value: `\`${interaction.guild.name}\``, inline: true },
+                { name: data.serverinfo_embed_fields_members, value: `\`${interaction.guild.memberCount}\``, inline: true },
+                { name: data.serverinfo_embed_fields_id, value: `\`${interaction.guild.id}\``, inline: true },
+                { name: data.serverinfo_embed_fields_owner, value: `\<@${interaction.guild.ownerId}>`, inline: true },
+                { name: data.serverinfo_embed_fields_verlvl, value: `\`${verlvl[interaction.guild.verificationLevel]}\``, inline: true },
+                { name: data.serverinfo_embed_fields_region, value: `\`${interaction.guild.preferredLocale}\``, inline: true },
+                { name: data.serverinfo_embed_fields_roles, value: `\`${interaction.guild.roles.cache.size}\``, inline: true },
+                { name: data.serverinfo_embed_fields_channels, value: `\`${interaction.guild.channels.cache.size}\``, inline: true },
+                { name: data.serverinfo_embed_fields_joinat, value: `\`${interaction.member.joinedAt}\``, inline: true },
+                { name: data.serverinfo_embed_fields_createat, value: `\`${interaction.guild.createdAt}\``, inline: true }
             )
             .setTimestamp()
             .setThumbnail(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`)
