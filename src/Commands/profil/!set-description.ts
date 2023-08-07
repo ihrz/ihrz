@@ -30,6 +30,6 @@ export = {
         var desc = interaction.options.getString("descriptions");
         await db.DataBaseModel({id: db.Set, key: `GLOBAL.USER_PROFIL.${interaction.user.id}.desc`, value: desc});
 
-        return interaction.reply({content: data.setprofildescriptions_command_work});
+        return interaction.editReply({content: data.setprofildescriptions_command_work});
     },
 }

@@ -40,7 +40,6 @@ export const command: Command = {
     category: 'bot',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
-
         let usersize = client.users.cache.size
         let chansize = client.channels.cache.size
         let servsize = client.guilds.cache.size
@@ -62,6 +61,6 @@ export const command: Command = {
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp()
 
-        return interaction.reply({ embeds: [clientembed] });
+        return interaction.editReply({ embeds: [clientembed] });
     },
 };

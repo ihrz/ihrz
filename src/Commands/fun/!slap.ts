@@ -42,6 +42,6 @@ export = {
             )
             .setImage(slapGif[Math.floor(Math.random() * slapGif.length)])
             .setTimestamp()
-        return interaction.reply({embeds: [embed]});
+        return interaction.editReply({embeds: [embed]});
     },
 }

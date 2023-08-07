@@ -40,6 +40,6 @@ export const command: Command = {
     category: 'bot',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
-        return interaction.reply({content: data.kisakay_message});
+        return interaction.editReply({content: data.kisakay_message});
     },
 };

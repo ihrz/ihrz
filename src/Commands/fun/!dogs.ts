@@ -46,11 +46,11 @@ export = {
                 const emb = new EmbedBuilder()
                     .setImage(res.data.message).setTitle(data.dogs_embed_title).setTimestamp();
 
-                return interaction.reply({embeds: [emb]});
+                return interaction.editReply({embeds: [emb]});
             })
             .catch(err => {
                 logger.err(err);
-                return interaction.reply({content: data.dogs_embed_command_error});
+                return interaction.editReply({content: data.dogs_embed_command_error});
             });
     },
 }

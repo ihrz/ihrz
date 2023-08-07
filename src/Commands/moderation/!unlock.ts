@@ -31,7 +31,7 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageChannels);
-        if (!permission) return interaction.reply({content: data.unlock_dont_have_permission});
+        if (!permission) return interaction.editReply({content: data.unlock_dont_have_permission});
         let embed = new EmbedBuilder()
             .setColor("#5b3475")
             .setTimestamp()
@@ -55,6 +55,6 @@ export = {
         }
         ;
 
-        return interaction.reply({embeds: [embed]});
+        return interaction.editReply({embeds: [embed]});
     },
 }

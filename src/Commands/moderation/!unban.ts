@@ -42,12 +42,12 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.BanMembers)) {
-            return interaction.reply({content: data.unban_dont_have_permission});
+            return interaction.editReply({content: data.unban_dont_have_permission});
         }
         ;
 
         if (!interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.BanMembers])) {
-            return interaction.reply({content: data.unban_bot_dont_have_permission})
+            return interaction.editReply({content: data.unban_bot_dont_have_permission})
         }
         ;
 
@@ -58,12 +58,12 @@ export = {
         await interaction.guild.bans.fetch()
             .then(async (bans: { size: number; find: (arg0: (ban: any) => boolean) => any; }) => {
                 if (bans.size == 0) {
-                    return await interaction.reply({content: data.unban_there_is_nobody_banned});
+                    return await interaction.editReply({content: data.unban_there_is_nobody_banned});
                 }
                 let bannedID = bans.find(ban => ban.user.id == userID);
-                if (!bannedID) return await interaction.reply({content: data.unban_the_member_is_not_banned});
+                if (!bannedID) return await interaction.editReply({content: data.unban_the_member_is_not_banned});
                 await interaction.guild.bans.remove(userID, reason).catch((err: string) => logger.err(err));
-                await interaction.reply({
+                await interaction.editReply({
                     content: data.unban_is_now_unbanned
                         .replace(/\${userID}/g, userID)
                 })

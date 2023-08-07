@@ -77,6 +77,6 @@ export const command: Command = {
             .setThumbnail(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`)
             .setImage(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.banner}.png`);
 
-        return interaction.reply({ embeds: [embeds] });
+        return interaction.editReply({ embeds: [embeds] });
     },
 };

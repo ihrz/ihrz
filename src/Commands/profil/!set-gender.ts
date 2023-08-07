@@ -30,6 +30,6 @@ export = {
         var gender = interaction.options.getString("gender");
         await db.DataBaseModel({id: db.Set, key: `GLOBAL.USER_PROFIL.${interaction.user.id}.gender`, value: gender})
 
-        return interaction.reply({content: data.setprofildescriptions_command_work});
+        return interaction.editReply({content: data.setprofildescriptions_command_work});
     },
 }

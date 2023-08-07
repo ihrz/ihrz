@@ -31,9 +31,9 @@ export = {
 
         const queue = useQueue(interaction.guildId);
 
-        if (!queue) return interaction.reply({content: data.queue_iam_not_voicec})
+        if (!queue) return interaction.editReply({content: data.queue_iam_not_voicec})
         if (!queue.tracks || !queue.currentTrack) {
-            return interaction.reply({content: data.queue_no_queue})
+            return interaction.editReply({content: data.queue_no_queue})
         }
 
         const tracks = queue.tracks
@@ -41,7 +41,7 @@ export = {
             .map((track, idx) => `**${++idx})** [${track.title}](${track.url})`)
 
         if (tracks.length === 0) {
-            return interaction.reply({content: data.queue_empty_queue})
+            return interaction.editReply({content: data.queue_empty_queue})
         }
 
         const embeds: any[] = [];
@@ -64,7 +64,7 @@ export = {
             index++;
         }
 
-        const message = await interaction.reply({
+        const message = await interaction.editReply({
             embeds: [embeds[0]],
             fetchReply: true
         })

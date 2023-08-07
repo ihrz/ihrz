@@ -31,23 +31,23 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
         let member = interaction.guild.members.cache.get(interaction.options.get("member").user.id)
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.BanMembers)
-        if (!permission) return interaction.reply({content: data.ban_not_permission});
-        if (!member) return interaction.reply({content: data.ban_dont_found_member});
+        if (!permission) return interaction.editReply({content: data.ban_not_permission});
+        if (!member) return interaction.editReply({content: data.ban_dont_found_member});
 
         if (!interaction.channel.permissionsFor(client.user).has('BAN_MEMBERS')) {
-            return interaction.reply({content: data.ban_dont_have_perm_myself})
+            return interaction.editReply({content: data.ban_dont_have_perm_myself})
         }
 
         if (member.user.id === interaction.member.id) {
-            return interaction.reply({content: data.ban_try_to_ban_yourself})
+            return interaction.editReply({content: data.ban_try_to_ban_yourself})
         }
         ;
         if (interaction.member.roles.highest.position < member.roles.highest.position) {
-            return interaction.reply({content: data.ban_attempt_ban_higter_member});
+            return interaction.editReply({content: data.ban_attempt_ban_higter_member});
         }
 
         if (!member.bannable) {
-            return interaction.reply({content: data.ban_cant_ban_member});
+            return interaction.editReply({content: data.ban_cant_ban_member});
         }
         member.send({
             content: data.ban_message_to_the_banned_member
@@ -59,7 +59,7 @@ export = {
             .then(() => {
                 member.ban({reason: 'banned by ' + interaction.user.username})
                     .then((member: { user: { id: any; }; }) => {
-                        interaction.reply({
+                        interaction.editReply({
                             content: data.ban_command_work
                                 .replace(/\${member\.user\.id}/g, member.user.id)
                                 .replace(/\${interaction\.member\.id}/g, interaction.member.id)

@@ -30,7 +30,7 @@ export = {
 
         let text = question.split(" ");
 
-        if (!text[2]) return interaction.reply({content: data.question_not_full});
+        if (!text[2]) return interaction.editReply({content: data.question_not_full});
 
         let reponse = data.question_s
         let result = Math.floor((Math.random() * reponse.length));
@@ -44,6 +44,6 @@ export = {
                 {name: data.question_fields_output_embed, value: reponse[result]})
             .setTimestamp();
 
-        return interaction.reply({embeds: [embed]});
+        return interaction.editReply({embeds: [embed]});
     },
 }

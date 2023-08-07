@@ -46,7 +46,7 @@ export = {
 
         let blockQ = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable`});
         if (blockQ) {
-            return interaction.reply({content: data.close_disabled_command});
+            return interaction.editReply({content: data.close_disabled_command});
         }
         ;
 
@@ -70,7 +70,7 @@ export = {
                         })
 
                     } catch (e: any) {
-                        return interaction.reply({content: data.close_error_command});
+                        return interaction.editReply({content: data.close_error_command});
                     }
                     ;
 
@@ -78,7 +78,7 @@ export = {
                         const embed = new EmbedBuilder()
                             .setDescription(`[\`View This\`](${response.url})`)
                             .setColor('#5b92e5');
-                        interaction.reply({content: data.close_command_work_channel, embeds: [embed]})
+                        interaction.editReply({content: data.close_command_work_channel, embeds: [embed]})
                     } catch (e: any) {
                         logger.err(e)
                     }
@@ -93,7 +93,7 @@ export = {
                 });
             }
         } else {
-            return interaction.reply({content: data.close_not_in_ticket});
+            return interaction.editReply({content: data.close_not_in_ticket});
         }
         ;
     },

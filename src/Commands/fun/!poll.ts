@@ -30,7 +30,7 @@ export = {
         let pollMessage = interaction.options.getString("message");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({content: data.poll_not_admin});
+            return interaction.editReply({content: data.poll_not_admin});
         }
         ;
 
@@ -44,7 +44,7 @@ export = {
             .setImage("https://cdn.discordapp.com/attachments/610152915063013376/610947097969164310/loading-animation.gif")
             .setTimestamp()
 
-        let msg = await interaction.reply({embeds: [pollEmbed], fetchReply: true});
+        let msg = await interaction.editReply({embeds: [pollEmbed], fetchReply: true});
 
         await msg.react('✅');
         await msg.react('❌');

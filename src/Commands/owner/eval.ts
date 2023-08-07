@@ -50,7 +50,7 @@ export const command: Command = {
     run: async (client: Client, interaction: any) => {
 
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
-            return interaction.reply({ content: "❌", ephemeral: true });
+            return interaction.editReply({ content: "❌", ephemeral: true });
         };
 
         var result = interaction.options.getString("code");
@@ -64,9 +64,9 @@ export const command: Command = {
                 .setDescription(`\`\`\`JS\n${result || "None"}\n\`\`\``)
                 .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL() });
 
-            return interaction.reply({ embeds: [embed], ephemeral: true });
+            return interaction.editReply({ embeds: [embed], ephemeral: true });
         } catch (err: any) {
-            return interaction.reply({ content: err.toString(), ephemeral: true });
+            return interaction.editReply({ content: err.toString(), ephemeral: true });
         };
     }
 };

@@ -74,7 +74,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({ content: data.setmembercount_not_admin });
+            return interaction.editReply({ content: data.setmembercount_not_admin });
         }
         let type = interaction.options.getString("action")
         let messagei = interaction.options.getString("name")
@@ -129,7 +129,7 @@ export const command: Command = {
                 const fetched = interaction.guild.channels.cache.get(channel.id);
 
                 await fetched.edit({ name: joinmsgreplace });
-                return interaction.reply({ content: data.setmembercount_command_work_on_enable })
+                return interaction.editReply({ content: data.setmembercount_command_work_on_enable })
             }
         } else {
             if (type == "off") {
@@ -144,14 +144,14 @@ export const command: Command = {
                     let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                     if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
                 } catch (e: any) { logger.err(e) };
-                return interaction.reply({ content: data.setmembercount_command_work_on_disable });
+                return interaction.editReply({ content: data.setmembercount_command_work_on_disable });
             }
         }
         if (!type) {
-            return interaction.reply({ embeds: [help_embed] });
+            return interaction.editReply({ embeds: [help_embed] });
         }
         if (!messagei) {
-            return interaction.reply({ embeds: [help_embed] });
+            return interaction.editReply({ embeds: [help_embed] });
         }
     },
 };

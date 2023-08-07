@@ -45,6 +45,6 @@ export = {
             .setImage(kissGif[Math.floor(Math.random() * kissGif.length)])
             .setTimestamp()
 
-        return interaction.reply({embeds: [embed]});
+        return interaction.editReply({embeds: [embed]});
     },
 }

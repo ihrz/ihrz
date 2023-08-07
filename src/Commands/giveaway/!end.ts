@@ -44,7 +44,7 @@ export = {
         let inputData = interaction.options.getString("giveaway-id");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-            return interaction.reply({content: data.end_not_admin});
+            return interaction.editReply({content: data.end_not_admin});
         }
         ;
 
@@ -52,7 +52,7 @@ export = {
             client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.prize === inputData) ||
             client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.messageId === inputData);
         if (!giveaway) {
-            return interaction.reply({
+            return interaction.editReply({
                 content: data.end_not_find_giveaway
                     .replace(/\${gw}/g, inputData)
             });
@@ -62,7 +62,7 @@ export = {
         client.giveawaysManager
             .end(giveaway.messageId)
             .then(() => {
-                interaction.reply({
+                interaction.editReply({
                     content: data.end_confirmation_message
                         .replace(/\${timeEstimate}/g, client.giveawaysManager.options.forceUpdateEvery || 0 / 1000)
                 });
@@ -85,7 +85,7 @@ export = {
                 ;
             })
             .catch((error) => {
-                return interaction.reply({content: data.end_command_error});
+                return interaction.editReply({content: data.end_command_error});
             });
     },
 }

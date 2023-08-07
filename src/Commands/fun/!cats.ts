@@ -34,7 +34,7 @@ export = {
                 .setTitle(data.cats_embed_title)
                 .setTimestamp();
 
-            return interaction.reply({embeds: [emb]});
+            return interaction.editReply({embeds: [emb]});
         });
     },
 }

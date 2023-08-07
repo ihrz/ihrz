@@ -36,7 +36,7 @@ export = {
             let title = interaction.options.getString("title");
             let lyrics = await lyricsFinder.search(title).catch(() => null);
 
-            if (!lyrics) return interaction.reply({content: 'No lyrics found', ephemeral: true});
+            if (!lyrics) return interaction.editReply({content: 'No lyrics found', ephemeral: true});
             let trimmedLyrics = lyrics.lyrics.substring(0, 1997);
 
             let embed = new EmbedBuilder()
@@ -53,7 +53,7 @@ export = {
                 .setColor('#cd703a')
                 .setFooter({text: 'iHorizon', iconURL: client.user?.displayAvatarURL()});
 
-            return interaction.reply({embeds: [embed]});
+            return interaction.editReply({embeds: [embed]});
 
         } catch (error: any) {
             logger.err(error);

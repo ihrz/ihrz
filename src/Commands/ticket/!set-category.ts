@@ -34,17 +34,17 @@ export = {
         let category = interaction.options.getChannel("category-name");
 
         if (await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable`})) {
-            return interaction.reply({content: data.setticketcategory_disabled_command});
+            return interaction.editReply({content: data.setticketcategory_disabled_command});
         }
         ;
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({content: data.setticketcategory_not_admin});
+            return interaction.editReply({content: data.setticketcategory_not_admin});
         }
         ;
 
         if (!(category instanceof CategoryChannel)) {
-            return interaction.reply({content: data.setticketcategory_not_a_category});
+            return interaction.editReply({content: data.setticketcategory_not_a_category});
         }
         ;
 
@@ -61,6 +61,6 @@ export = {
                 .replace('${interaction.user.id}', interaction.user.id)
             );
 
-        return interaction.reply({embeds: [embed], ephemeral: false});
+        return interaction.editReply({embeds: [embed], ephemeral: false});
     },
 }

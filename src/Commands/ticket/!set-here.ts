@@ -33,12 +33,12 @@ export = {
         let panelName = interaction.options.getString("name");
 
         if (await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable`})) {
-            return interaction.reply({content: data.sethereticket_disabled_command});
+            return interaction.editReply({content: data.sethereticket_disabled_command});
         }
         ;
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({content: data.sethereticket_not_admin});
+            return interaction.editReply({content: data.sethereticket_not_admin});
         }
         ;
 
@@ -63,6 +63,6 @@ export = {
             });
         });
 
-        return interaction.reply({content: data.sethereticket_command_work, ephemeral: true});
+        return interaction.editReply({content: data.sethereticket_command_work, ephemeral: true});
     },
 }

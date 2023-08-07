@@ -46,7 +46,7 @@ export const command: Command = {
 
         var based = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.SNIPE.${interaction.channel.id}` });
 
-        if (!based) { return interaction.reply({ content: data.snipe_no_previous_message_deleted }) };
+        if (!based) { return interaction.editReply({ content: data.snipe_no_previous_message_deleted }) };
 
         let embed = new EmbedBuilder()
             .setColor("#474749")
@@ -54,6 +54,6 @@ export const command: Command = {
             .setDescription(`\`${based.snipe || 0}\``)
             .setTimestamp(based.snipeTimestamp);
 
-        return interaction.reply({ embeds: [embed] })
+        return interaction.editReply({ embeds: [embed] })
     },
 };

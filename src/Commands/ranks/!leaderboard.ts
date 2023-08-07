@@ -35,7 +35,7 @@ export = {
         const ownerList = await db.DataBaseModel({id: db.All});
         const foundArray = ownerList.findIndex((d: { id: any; }) => d.id === interaction.guild.id);
 
-        await interaction.reply({content: ":clock:"});
+        await interaction.editReply({content: ":clock:"});
         if (!ownerList[foundArray]) return interaction.editReply({content: 'Not data found in the storage.'});
         const char = ownerList[foundArray].value.USER;
         let tableau = [];

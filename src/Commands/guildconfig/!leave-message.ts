@@ -31,7 +31,7 @@ import logger from '../../core/logger';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({content: data.setleavemessage_not_admin});
+            return interaction.editReply({content: data.setleavemessage_not_admin});
         }
         ;
 
@@ -72,7 +72,7 @@ export = {
                 }
                 ;
 
-                return interaction.reply({content: data.setleavemessage_command_work_on_enable})
+                return interaction.editReply({content: data.setleavemessage_command_work_on_enable})
             }
 
         } else {
@@ -90,16 +90,16 @@ export = {
                 } catch (e: any) {
                     logger.err(e)
                 }
-                return interaction.reply({content: data.setleavemessage_command_work_on_disable})
+                return interaction.editReply({content: data.setleavemessage_command_work_on_disable})
             }
         }
         if (type == "ls") {
             var ls = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`});
-            return interaction.reply({content: data.setleavemessage_command_work_ls})
+            return interaction.editReply({content: data.setleavemessage_command_work_ls})
         }
 
         if (!messagei) {
-            return interaction.reply({embeds: [help_embed]})
+            return interaction.editReply({embeds: [help_embed]})
         }
         ;
     },

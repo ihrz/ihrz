@@ -48,6 +48,6 @@ export = {
             }
             text = text.join(" ");
         }
-        return interaction.reply({content: "```" + text + "```"});
+        return interaction.editReply({content: "```" + text + "```"});
     },
 }

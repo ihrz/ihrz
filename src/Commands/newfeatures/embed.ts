@@ -60,7 +60,7 @@ export const command: Command = {
         let potentialEmbed = await db.DataBaseModel({ id: db.Get, key: `EMBED.${arg}` });
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({ content: data.punishpub_not_admin });
+            return interaction.editReply({ content: data.punishpub_not_admin });
         };
 
         let __tempEmbed = new EmbedBuilder().setDescription('** **');
@@ -143,7 +143,7 @@ export const command: Command = {
             .setLabel(data.embed_btn_cancel)
             .setStyle(ButtonStyle.Danger);
 
-        const response = await interaction.reply({
+        const response = await interaction.editReply({
             content: data.embed_first_message,
             embeds: [__tempEmbed],
             components: [

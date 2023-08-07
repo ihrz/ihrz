@@ -58,7 +58,7 @@ export const command: Command = {
             text += `<@${i}>\n`
         }
         if (!text.includes(interaction.user.id)) {
-            return interaction.reply({ content: data.owner_not_owner })
+            return interaction.editReply({ content: data.owner_not_owner })
         };
 
         let iconURL:any = client.user?.displayAvatarURL();
@@ -70,14 +70,14 @@ export const command: Command = {
             .setFooter({ text: 'iHorizon', iconURL: iconURL })
 
         let member = interaction.options.getMember('member')
-        if (!member) return interaction.reply({ embeds: [embed] });
+        if (!member) return interaction.editReply({ embeds: [embed] });
         let checkAx = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER.${member.id}.owner` })
         if (!checkAx != true) {
-            return interaction.reply({ content: data.owner_already_owner })
+            return interaction.editReply({ content: data.owner_already_owner })
         }
 
         await db.DataBaseModel({ id: db.Set, key: `GLOBAL.OWNER.${member.user.id}.owner`, value: true }),
-            interaction.reply({ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.user.username) });
+            interaction.editReply({ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.user.username) });
 
     },
 };

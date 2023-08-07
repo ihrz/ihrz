@@ -59,7 +59,7 @@ export const command: Command = {
 
         if (await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER.${interaction.user.id}.owner` })
             !== true) {
-            return interaction.reply({ content: data.unowner_not_owner });
+            return interaction.editReply({ content: data.unowner_not_owner });
         }
 
         var member = interaction.options.getUser('member');
@@ -67,23 +67,23 @@ export const command: Command = {
 
         if (member) {
             if (member.id === config.owner.ownerid1 || member.id === config.owner.ownerid2) {
-                return interaction.reply({ content: data.unowner_cant_unowner_creator })
+                return interaction.editReply({ content: data.unowner_cant_unowner_creator })
             }
             await db.DataBaseModel({ id: db.Delete, key: `GLOBAL.OWNER.${member.id}` });
 
-            return interaction.reply({ content: data.unowner_command_work.replace(/\${member\.username}/g, member.username) });
+            return interaction.editReply({ content: data.unowner_command_work.replace(/\${member\.username}/g, member.username) });
         } else if (userid) {
             var userid: any = await client.users.fetch(userid);
 
             if (userid.id === config.owner.ownerid1 || userid.id === config.owner.ownerid2) {
-                return interaction.reply({ content: data.unowner_cant_unowner_creator })
+                return interaction.editReply({ content: data.unowner_cant_unowner_creator })
             };
 
             await db.DataBaseModel({ id: db.Delete, key: `GLOBAL.OWNER.${userid.id}` });
 
-            return interaction.reply({ content: data.unowner_command_work.replace(/\${member\.username}/g, userid.username) });
+            return interaction.editReply({ content: data.unowner_command_work.replace(/\${member\.username}/g, userid.username) });
         } else {
-            return interaction.reply({ content: data.unowner_not_owner });
+            return interaction.editReply({ content: data.unowner_not_owner });
         };
     },
 };

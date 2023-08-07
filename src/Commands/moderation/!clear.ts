@@ -32,15 +32,15 @@ export = {
 
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)
         var numberx = interaction.options.getNumber("number") + 1;
-        if (!permission) return interaction.reply({content: data.clear_dont_have_permission});
+        if (!permission) return interaction.editReply({content: data.clear_dont_have_permission});
         if (numberx > 98) {
-            return interaction.reply({content: data.clear_max_message_limit})
+            return interaction.editReply({content: data.clear_max_message_limit})
         }
         ;
 
         interaction.channel.bulkDelete(numberx, true)
             .then((messages: { size: any; }) => {
-                interaction.reply({
+                interaction.editReply({
                     content: data.clear_confirmation_message
                         .replace(/\${messages\.size}/g, messages.size)
                 })

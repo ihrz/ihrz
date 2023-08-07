@@ -30,7 +30,7 @@ import * as db from '../../core/functions/DatabaseModel';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({content: data.guildprofil_not_admin});
+            return interaction.editReply({content: data.guildprofil_not_admin});
         };
 
         let setchannelsjoin = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join`})
@@ -168,6 +168,6 @@ export = {
                 {name: data.guildprofil_embed_fields_ticketFetched, value: ticketFetched, inline: true},
                 {name: data.guildprofil_embed_fields_reactionrole, value: reactionrole, inline: true})
             .setThumbnail(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`)
-        return interaction.reply({embeds: [guildc]});
+        return interaction.editReply({embeds: [guildc]});
     },
 }

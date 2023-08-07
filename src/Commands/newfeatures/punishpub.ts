@@ -93,7 +93,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({ content: data.punishpub_not_admin });
+            return interaction.editReply({ content: data.punishpub_not_admin });
         };
 
         let action = interaction.options.getString("action");
@@ -101,9 +101,9 @@ export const command: Command = {
         let punishment = interaction.options.getString("punishement");
 
         if (action == "true") {
-            if (amount > 50) { return interaction.reply({ content: data.punishpub_too_hight_enable }) };
-            if (amount < 0) { return interaction.reply({ content: data.punishpub_negative_number_enable }) };
-            if (amount == 0) { return interaction.reply({ content: data.punishpub_zero_number_enable }) };
+            if (amount > 50) { return interaction.editReply({ content: data.punishpub_too_hight_enable }) };
+            if (amount < 0) { return interaction.editReply({ content: data.punishpub_negative_number_enable }) };
+            if (amount == 0) { return interaction.editReply({ content: data.punishpub_zero_number_enable }) };
 
             await db.DataBaseModel({
                 id: db.Set, key: `${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`, values:
@@ -127,7 +127,7 @@ export const command: Command = {
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
             } catch (e) { };
 
-            return await interaction.reply({
+            return await interaction.editReply({
                 content: data.punishpub_confirmation_message_enable
                     .replace("${interaction.user.id}", interaction.user.id)
                     .replace("${amount}", amount)
@@ -135,7 +135,7 @@ export const command: Command = {
             });
         } else {
             await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB` });
-            interaction.reply({ content: data.punishpub_confirmation_disable })
+            interaction.editReply({ content: data.punishpub_confirmation_disable })
 
             try {
                 const logEmbed = new EmbedBuilder()

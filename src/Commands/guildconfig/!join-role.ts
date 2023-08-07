@@ -31,7 +31,7 @@ import logger from '../../core/logger';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({content: data.setjoinroles_not_admin});
+            return interaction.editReply({content: data.setjoinroles_not_admin});
         }
         ;
 
@@ -43,7 +43,7 @@ export = {
             .setDescription(data.setjoinroles_help_embed_description)
 
         if (query === "true") {
-            if (!roleid) return interaction.reply({embeds: [help_embed]});
+            if (!roleid) return interaction.editReply({embeds: [help_embed]});
             try {
                 const logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
@@ -63,14 +63,14 @@ export = {
 
             try {
                 let already = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`});
-                if (already === roleid.value) return interaction.reply({content: data.setjoinroles_already_on_enable})
+                if (already === roleid.value) return interaction.editReply({content: data.setjoinroles_already_on_enable})
                 await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`, value: roleid.value});
-                return interaction.reply({
+                return interaction.editReply({
                     content: data.setjoinroles_command_work_enable
                         .replace("${roleid}", roleid.value)
                 });
             } catch (e) {
-                return interaction.reply({content: data.setjoinroles_command_error_on_enable});
+                return interaction.editReply({content: data.setjoinroles_command_error_on_enable});
             }
         } else {
             if (query === "false") {
@@ -88,23 +88,23 @@ export = {
 
                 try {
                     let already = await db.DataBaseModel({id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`});
-                    if (!already) return interaction.reply({content: data.setjoinroles_dont_need_command_on_disable})
+                    if (!already) return interaction.editReply({content: data.setjoinroles_dont_need_command_on_disable})
 
-                    return interaction.reply({content: data.setjoinroles_command_work_on_disable});
+                    return interaction.editReply({content: data.setjoinroles_command_work_on_disable});
 
                 } catch (e) {
-                    return interaction.reply({content: data.setjoinroles_command_error_on_disable});
+                    return interaction.editReply({content: data.setjoinroles_command_error_on_disable});
                 }
             } else {
                 if (query === "ls") {
                     let roles = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`})
-                    if (!roles) return interaction.reply({content: data.setjoinroles_command_any_set_ls})
-                    return interaction.reply({
+                    if (!roles) return interaction.editReply({content: data.setjoinroles_command_any_set_ls})
+                    return interaction.editReply({
                         content: data.setjoinroles_command_work_ls
                             .replace("${roles}", roles)
                     });
                 } else {
-                    interaction.reply({embeds: [help_embed]});
+                    interaction.editReply({embeds: [help_embed]});
                 }
             }
         }

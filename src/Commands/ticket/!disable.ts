@@ -32,7 +32,7 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({content: data.disableticket_not_admin});
+            return interaction.editReply({content: data.disableticket_not_admin});
         }
 
         let type = interaction.options.getString('action');
@@ -54,7 +54,7 @@ export = {
             ;
 
             await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.TICKET.disable`, value: true});
-            return interaction.reply({content: data.disableticket_command_work_disable});
+            return interaction.editReply({content: data.disableticket_command_work_disable});
         }
         if (type === "on") {
             try {
@@ -72,7 +72,7 @@ export = {
             }
             ;
             await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.TICKET.disable`, value: false});
-            return interaction.reply({content: data.disableticket_command_work_enable});
+            return interaction.editReply({content: data.disableticket_command_work_enable});
         }
         ;
 

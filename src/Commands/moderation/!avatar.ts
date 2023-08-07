@@ -38,6 +38,6 @@ export = {
             .setTimestamp()
             .setFooter({text: 'iHorizon', iconURL: client.user?.displayAvatarURL()});
 
-        return interaction.reply({embeds: [embed]});
+        return interaction.editReply({embeds: [embed]});
     },
 }

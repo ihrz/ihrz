@@ -30,6 +30,6 @@ export = {
         var age = interaction.options.getNumber("age");
         await db.DataBaseModel({id: db.Set, key: `GLOBAL.USER_PROFIL.${interaction.user.id}.age`, value: age});
 
-        return interaction.reply({content: data.setprofilage_command_work});
+        return interaction.editReply({content: data.setprofilage_command_work});
     },
 }

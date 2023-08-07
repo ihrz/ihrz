@@ -56,6 +56,6 @@ export = {
             .setThumbnail("https://cdn.discordapp.com/attachments/847484098070970388/850684283655946240/discord-icon-new-2021-logo-09772BF096-seeklogo.com.png")
             .setFooter({text: 'iHorizon', iconURL: client.user?.displayAvatarURL()})
 
-        return await interaction.reply({embeds: [nivEmbed]});
+        return await interaction.editReply({embeds: [nivEmbed]});
     },
 }

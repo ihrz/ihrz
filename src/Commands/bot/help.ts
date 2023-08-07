@@ -78,7 +78,7 @@ export const command: Command = {
             .setThumbnail(pp)
             .setTimestamp();
 
-        const response = await interaction.reply({ embeds: [embed], components: [row] });
+        const response = await interaction.editReply({ embeds: [embed], components: [row] });
         const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 240_000 });
 
         collector.on('collect', async (i: {

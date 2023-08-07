@@ -31,7 +31,7 @@ export = {
         let blockQ = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable`});
 
         if (blockQ) {
-            return interaction.reply({content: data.remove_disabled_command});
+            return interaction.editReply({content: data.remove_disabled_command});
         }
         ;
 
@@ -40,12 +40,12 @@ export = {
 
             try {
                 interaction.channel.permissionOverwrites.create(member, {ViewChannel: false, SendMessages: false, ReadMessageHistory: false});
-                interaction.reply({content: data.remove_command_work.replace(/\${member\.tag}/g, member.username)});
+                interaction.editReply({content: data.remove_command_work.replace(/\${member\.tag}/g, member.username)});
             } catch (e: any) {
-                return interaction.reply({content: data.remove_command_error});
+                return interaction.editReply({content: data.remove_command_error});
             }
         } else {
-            return interaction.reply({content: data.remove_not_in_ticket})
+            return interaction.editReply({content: data.remove_not_in_ticket})
         }
         ;
     },

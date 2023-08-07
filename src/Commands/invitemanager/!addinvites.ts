@@ -35,7 +35,7 @@ export = {
         let a = new EmbedBuilder().setColor("#FF0000").setDescription(data.addinvites_not_admin_embed_description)
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({embeds: [a]});
+            return interaction.editReply({embeds: [a]});
         }
 
         await db.DataBaseModel({id: db.Add, key: `${interaction.guild.id}.USER.${user.id}.INVITES.invites`, value: amount});
@@ -48,7 +48,7 @@ export = {
             .setColor(`#92A8D1`)
             .setFooter({text: interaction.guild.name, iconURL: interaction.guild.iconURL({dynamic: true})});
         await db.DataBaseModel({id: db.Add, key: `${interaction.guild.id}.USER.${user.id}.INVITES.bonus`, value: amount});
-        await interaction.reply({embeds: [finalEmbed]});
+        await interaction.editReply({embeds: [finalEmbed]});
 
         try {
             let logEmbed = new EmbedBuilder()

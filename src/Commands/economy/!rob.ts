@@ -31,18 +31,18 @@ export = {
         let talkedRecentlyforr = new Set();
 
         if (talkedRecentlyforr.has(interaction.user.id)) {
-            return interaction.reply({ content: data.rob_cooldown_error });
+            return interaction.editReply({ content: data.rob_cooldown_error });
         }
 
         let user = interaction.options.getMember("member");
         let targetuser = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${user.id}.ECONOMY.money` });
         let author = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money` })
         if (author < 250) {
-            return interaction.reply({ content: data.rob_dont_enought_error })
+            return interaction.editReply({ content: data.rob_dont_enought_error })
         }
 
         if (targetuser < 250) {
-            return interaction.reply({
+            return interaction.editReply({
                 content: data.rob_him_dont_enought_error
                     .replace(/\${user\.user\.username}/g, user.user.username)
             })
@@ -58,7 +58,7 @@ export = {
             .setColor("#a4cb80")
             .setTimestamp()
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.editReply({ embeds: [embed] });
 
         await db.DataBaseModel({ id: db.Sub, key: `${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, value: random });
         await db.DataBaseModel({ id: db.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: random });

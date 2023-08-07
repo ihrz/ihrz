@@ -31,7 +31,7 @@ export = {
         let talkedRecentlyforw = new Set();
 
         if (talkedRecentlyforw.has(interaction.user.id)) {
-            return interaction.reply({ content: data.work_cooldown_error });
+            return interaction.editReply({ content: data.work_cooldown_error });
         };
 
         let amount = Math.floor(Math.random() * 200) + 1;
@@ -49,7 +49,7 @@ export = {
             )
             .setColor("#f1d488");
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.editReply({ embeds: [embed] });
         await db.DataBaseModel({ id: db.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: amount });
 
         talkedRecentlyforw.add(interaction.user.id);

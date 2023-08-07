@@ -48,6 +48,6 @@ export = {
                     .replace(/\${inv\s*\|\|\s*0}/g, inv || 0)
             );
 
-        return await interaction.reply({embeds: [embed]});
+        return await interaction.editReply({embeds: [embed]});
     },
 }

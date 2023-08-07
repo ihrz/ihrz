@@ -44,26 +44,26 @@ export = {
         let tomute = interaction.options.getMember("user");
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages);
 
-        if (!permission) return interaction.reply({content: data.unmute_dont_have_permission});
+        if (!permission) return interaction.editReply({content: data.unmute_dont_have_permission});
         if (!interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.ManageRoles])) {
-            return interaction.reply({content: data.unmute_i_dont_have_permission});
+            return interaction.editReply({content: data.unmute_i_dont_have_permission});
         }
         ;
-        if (tomute.id === interaction.user.id) return interaction.reply({content: data.unmute_attempt_mute_your_self});
+        if (tomute.id === interaction.user.id) return interaction.editReply({content: data.unmute_attempt_mute_your_self});
         let muterole = interaction.guild.roles.cache.find((role: { name: string; }) => role.name === 'muted');
 
         if (!tomute.roles.cache.has(muterole.id)) {
-            return interaction.reply({content: data.unmute_not_muted})
+            return interaction.editReply({content: data.unmute_not_muted})
         }
         ;
 
         if (!muterole) {
-            return interaction.reply({content: data.unmute_muted_role_doesnt_exist})
+            return interaction.editReply({content: data.unmute_muted_role_doesnt_exist})
         }
         ;
 
         tomute.roles.remove(muterole.id);
-        await interaction.reply({
+        await interaction.editReply({
             content: data.unmute_command_work
                 .replace("${tomute.id}", tomute.id)
         });

@@ -32,13 +32,13 @@ export = {
 
         let member = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${user.id}.ECONOMY.money` });
         if (amount.toString().includes('-')) {
-            return interaction.reply({ content: data.pay_negative_number_error });
+            return interaction.editReply({ content: data.pay_negative_number_error });
         }
         if (member < amount.value) {
-            return interaction.reply({ content: data.pay_dont_have_enought_to_give })
+            return interaction.editReply({ content: data.pay_dont_have_enought_to_give })
         }
 
-        await interaction.reply({
+        await interaction.editReply({
             content: data.pay_command_work
                 .replace(/\${interaction\.user\.username}/g, interaction.user.username)
                 .replace(/\${user\.user\.username}/g, user.user.username)

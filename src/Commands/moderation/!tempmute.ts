@@ -43,7 +43,7 @@ import ms, { StringValue } from 'ms';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        await interaction.reply({content: ':clock:'});
+        await interaction.editReply({content: ':clock:'});
 
         let mutetime: any = interaction.options.getString("time").split(" ")[0];
         let tomute = interaction.options.getMember("user");

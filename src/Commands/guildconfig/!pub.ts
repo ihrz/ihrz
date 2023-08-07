@@ -33,16 +33,16 @@ export = {
         let turn = interaction.options.getString("action");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({content: data.blockpub_not_admin});
+            return interaction.editReply({content: data.blockpub_not_admin});
         }
         if (turn === "on") {
             await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "on"})
-            return interaction.reply({content: data.blockpub_now_enable})
+            return interaction.editReply({content: data.blockpub_now_enable})
         }
 
         if (turn === "off") {
             await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "off"})
-            return interaction.reply({content: data.blockpub_now_disable})
+            return interaction.editReply({content: data.blockpub_now_disable})
         }
         ;
     },

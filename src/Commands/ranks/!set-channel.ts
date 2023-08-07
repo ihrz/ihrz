@@ -35,10 +35,10 @@ export = {
         let argsid = interaction.options.getChannel("channel");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({content: data.setxpchannels_not_admin});
+            return interaction.editReply({content: data.setxpchannels_not_admin});
         }
         if (type === "on") {
-            if (!argsid) return interaction.reply({content: data.setxpchannels_valid_channel_message});
+            if (!argsid) return interaction.editReply({content: data.setxpchannels_valid_channel_message});
 
             try {
                 const logEmbed = new EmbedBuilder()
@@ -57,15 +57,15 @@ export = {
             ;
             try {
                 let already = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`})
-                if (already === argsid.id) return interaction.reply({content: data.setxpchannels_already_with_this_config});
+                if (already === argsid.id) return interaction.editReply({content: data.setxpchannels_already_with_this_config});
 
                 interaction.client.channels.cache.get(argsid.id)?.send({content: data.setxpchannels_confirmation_message})
                 await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`, value: argsid.id});
 
-                return interaction.reply({content: data.setxpchannels_command_work_enable.replace(/\${argsid}/g, argsid.id)});
+                return interaction.editReply({content: data.setxpchannels_command_work_enable.replace(/\${argsid}/g, argsid.id)});
 
             } catch (e) {
-                interaction.reply({content: data.setxpchannels_command_error_enable});
+                interaction.editReply({content: data.setxpchannels_command_error_enable});
             }
 
         }
@@ -89,12 +89,12 @@ export = {
             try {
                 let already2 = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`});
 
-                if (already2 === "off") return interaction.reply({content: data.setxpchannels_already_disabled_disable});
+                if (already2 === "off") return interaction.editReply({content: data.setxpchannels_already_disabled_disable});
 
                 await db.DataBaseModel({id: db.Delete, key: `${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`});
-                return interaction.reply({content: data.setxpchannels_command_work_disable});
+                return interaction.editReply({content: data.setxpchannels_command_work_disable});
             } catch (e) {
-                return await interaction.reply({content: data.setxpchannels_command_error_disable});
+                return await interaction.editReply({content: data.setxpchannels_command_error_disable});
             }
         }
         ;

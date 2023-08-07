@@ -72,11 +72,11 @@ export const command: Command = {
         let argsid = interaction.options.getRole("roles");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({ content: data.setrankroles_not_admin });
+            return interaction.editReply({ content: data.setrankroles_not_admin });
         };
         
         if (type === "on") {
-            if (!argsid) return interaction.reply({ content: data.setrankroles_not_roles_typed });
+            if (!argsid) return interaction.editReply({ content: data.setrankroles_not_roles_typed });
 
             try {
                 const logEmbed = new EmbedBuilder()
@@ -94,17 +94,17 @@ export const command: Command = {
             try {
                 let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.RANK_ROLES.roles` });
 
-                if (already === argsid.id) return interaction.reply({ content: data.setrankroles_already_this_in_db });
+                if (already === argsid.id) return interaction.editReply({ content: data.setrankroles_already_this_in_db });
 
                 await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.RANK_ROLES.roles`, value: argsid.id });
 
                 let e = new EmbedBuilder().setDescription(data.setrankroles_command_work.replace(/\${argsid}/g, argsid.id));
 
-                return interaction.reply({ embeds: [e] });
+                return interaction.editReply({ embeds: [e] });
 
             } catch (e: any) {
                 logger.err(e);
-                return await interaction.reply({ content: data.setrankroles_command_error });
+                return await interaction.editReply({ content: data.setrankroles_command_error });
             }
         }
         if (type == "off") {
@@ -123,14 +123,14 @@ export const command: Command = {
             try {
                 await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.RANK_ROLES.roles` });
 
-                return interaction.reply({
+                return interaction.editReply({
                     content: data.setrankroles_command_work_disable
                         .replace(/\${interaction\.user.id}/g, interaction.user.id)
                 });
 
             } catch (e: any) {
                 logger.err(e)
-                interaction.reply({ content: data.setrankroles_command_error });
+                interaction.editReply({ content: data.setrankroles_command_error });
             }
         }
     },

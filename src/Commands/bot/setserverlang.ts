@@ -78,13 +78,13 @@ export const command: Command = {
         let type = interaction.options.getString("language");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({ content: data.setserverlang_not_admin });
+            return interaction.editReply({ content: data.setserverlang_not_admin });
         };
 
         let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.LANG` });
 
         if (already) {
-            if (already.lang === type) return interaction.reply({ content: data.setserverlang_already });
+            if (already.lang === type) return interaction.editReply({ content: data.setserverlang_already });
         }
         await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.LANG`, value: { lang: type } });
         data = await client.functions.getLanguageData(interaction.guild.id);
@@ -102,6 +102,6 @@ export const command: Command = {
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
         } catch (e: any) { logger.err(e) };
 
-        return interaction.reply({ content: data.setserverlang_command_work_enable.replace(/\${type}/g, type) });
+        return interaction.editReply({ content: data.setserverlang_command_work_enable.replace(/\${type}/g, type) });
     },
 };

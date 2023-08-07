@@ -47,10 +47,10 @@ export = {
             );
 
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages);
-        if (!permission) return interaction.reply({content: data.lock_dont_have_permission});
+        if (!permission) return interaction.editReply({content: data.lock_dont_have_permission});
 
         interaction.channel.permissionOverwrites.create(interaction.guild.id, {SendMessages: false}).then(() => {
-            interaction.reply({embeds: [Lockembed]})
+            interaction.editReply({embeds: [Lockembed]})
         }).catch(() => {
         })
         try {

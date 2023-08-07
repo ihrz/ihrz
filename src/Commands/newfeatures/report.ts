@@ -64,20 +64,20 @@ export const command: Command = {
         if (cooldown !== null && timeout - (Date.now() - cooldown) > 0) {
             let time = ms(timeout - (Date.now() - cooldown));
 
-            return interaction.reply({
+            return interaction.editReply({
                 content: data.report_cooldown_command
                     .replace("${time}", time)
             });
         } else {
             if (interaction.guild.ownerId != interaction.user.id) {
-                return interaction.reply({ content: data.report_owner_need });
+                return interaction.editReply({ content: data.report_owner_need });
             };
 
             if (sentences.split(' ').length < 8) {
-                return interaction.reply({ content: data.report_specify });
+                return interaction.editReply({ content: data.report_specify });
             };
 
-            interaction.reply({ content: data.report_command_work });
+            interaction.editReply({ content: data.report_command_work });
             var embed = new EmbedBuilder()
                 .setColor("#ff0000")
                 .setDescription(`**${interaction.user.username}** (<@${interaction.user.id}>) reported:\n~~--------------------------------~~\n${sentences}\n~~--------------------------------~~\nServer ID: **${interaction.guild.id}**`)

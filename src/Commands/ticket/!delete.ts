@@ -31,13 +31,13 @@ export = {
         let blockQ = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable`});
 
         if (blockQ) {
-            return interaction.reply({content: data.delete_disabled_command});
+            return interaction.editReply({content: data.delete_disabled_command});
         }
         ;
         if (interaction.channel.name.includes('ticket-')) {
             interaction.channel.delete();
         } else {
-            return interaction.reply({content: data.delete_not_in_ticket});
+            return interaction.editReply({content: data.delete_not_in_ticket});
         }
         ;
 

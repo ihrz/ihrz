@@ -44,7 +44,7 @@ export = {
 
 
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.Administrator);
-        if (!permission) return interaction.reply({content: data.lockall_dont_have_permission});
+        if (!permission) return interaction.editReply({content: data.lockall_dont_have_permission});
         interaction.guild.channels.cache.forEach((c: { type: ChannelType; permissionOverwrites: { create: (arg0: any, arg1: { SendMessages: boolean; }) => void; }; }) => {
             if (c.type === ChannelType.GuildText) {
                 c.permissionOverwrites.create(interaction.guild.id, {SendMessages: false})
@@ -75,6 +75,6 @@ export = {
         }
         ;
 
-        return interaction.reply({embeds: [Lockembed]});
+        return interaction.editReply({embeds: [Lockembed]});
     },
 }

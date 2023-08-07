@@ -56,6 +56,6 @@ export = {
         }
         ;
 
-        return interaction.reply({content: n.join("")});
+        return interaction.editReply({content: n.join("")});
     },
 }

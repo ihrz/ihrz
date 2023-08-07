@@ -80,7 +80,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({ content: data.reactionroles_dont_admin_added });
+            return interaction.editReply({ content: data.reactionroles_dont_admin_added });
         }
         let type = interaction.options.getString("value");
         let messagei = interaction.options.getString("messageid");
@@ -93,19 +93,19 @@ export const command: Command = {
             .setDescription(data.reactionroles_embed_message_description_added);
 
         if (type == "add") {
-            if (!role) { interaction.reply({ embeds: [help_embed] }) };
-            if (!reaction) { return interaction.reply({ content: data.reactionroles_missing_reaction_added }) };
+            if (!role) { interaction.editReply({ embeds: [help_embed] }) };
+            if (!reaction) { return interaction.editReply({ content: data.reactionroles_missing_reaction_added }) };
 
             try {
                 await interaction.channel.messages.fetch(messagei).then((message: { react: (arg0: any) => void; }) => { message.react(reaction) });
             } catch {
-                return interaction.reply({ content: data.reactionroles_dont_message_found });
+                return interaction.editReply({ content: data.reactionroles_dont_message_found });
             };
 
             let check = reaction.toString();
 
             if (check.includes("<") || check.includes(">") || check.includes(":")) {
-                return interaction.reply({ content: data.reactionroles_invalid_emote_format_added })
+                return interaction.editReply({ content: data.reactionroles_invalid_emote_format_added })
             };
 
             await db.DataBaseModel({
@@ -129,7 +129,7 @@ export const command: Command = {
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
 
-            return await interaction.reply({
+            return await interaction.editReply({
                 content: data.reactionroles_command_work_added
                     .replace("${messagei}", messagei)
                     .replace("${reaction}", reaction)
@@ -140,15 +140,15 @@ export const command: Command = {
             if (type == "remove") {
                 let reactionLet = interaction.options.getString("reaction");
 
-                if (!reactionLet) { return interaction.reply({ content: data.reactionroles_missing_remove }) };
+                if (!reactionLet) { return interaction.editReply({ content: data.reactionroles_missing_remove }) };
                 const message = await interaction.channel.messages.fetch(messagei);
 
                 const fetched = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}` });
 
-                if (!fetched) { return interaction.reply({ content: data.reactionroles_missing_reaction_remove }) };
+                if (!fetched) { return interaction.editReply({ content: data.reactionroles_missing_reaction_remove }) };
                 const reactionVar = message.reactions.cache.get(fetched.reactionNAME);
 
-                if (!reactionVar) { return interaction.reply({ content: data.reactionroles_cant_fetched_reaction_remove }) };
+                if (!reactionVar) { return interaction.editReply({ content: data.reactionroles_cant_fetched_reaction_remove }) };
                 await reactionVar.users.remove(client.user?.id).catch((err: string) => { logger.err(err) });
 
                 await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}` });
@@ -165,7 +165,7 @@ export const command: Command = {
                     let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                     if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
                 } catch (e: any) { logger.err(e) };
-                await interaction.reply({
+                await interaction.editReply({
                     content: data.reactionroles_command_work_remove
                         .replace("${reaction}", reaction)
                         .replace("${messagei}", messagei)

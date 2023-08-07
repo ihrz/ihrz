@@ -27,57 +27,42 @@ import logger from '../core/logger';
 import fs from 'fs';
 import { format } from 'date-fns';
 
-const timeout = 1000;
-var start: number = 0;
-var end: number = 0;
+var timeout = 1000;
 
 export = async (client: any, interaction: any) => {
 
     if (!interaction.isCommand() || !interaction.guild?.channels || interaction.user.bot) return;
 
     const command = client.interactions.get(interaction.commandName);
-    if (!command) return interaction.reply({ content: "Connection error.", ephemeral: true });
-
-    let legacyLogs = async () => {
-        fs.createWriteStream(`${process.cwd()}/src/files/raw_slash.log`, { flags: 'a' }).write(`${interaction.guild?.name} >> ${date.format(new Date(), 'DD/MM/YYYY HH:mm:ss')}\n#${interaction.channel.name}:
-    ${interaction.user.username}:
-        /${interaction.commandName}\n\r`);
-    };
+    if (!command) return interaction.editReply({ content: "Connection error.", ephemeral: true });
 
     async function slashExecutor() {
+        if (await cooldDown()) {
+            const data = await client.functions.getLanguageData(interaction.guild.id);
+            return interaction.editReply({ content: data.Msg_cooldown, ephemeral: true });
+        };
         try {
-            legacyLogs();
-
             if (await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${interaction.user.id}.blacklisted` })) {
-                return interaction.reply({
+                return interaction.editReply({
                     embeds: [
                         new EmbedBuilder()
                             .setColor("#0827F5").setTitle(":(")
                             .setImage(config.core.blacklistPictureInEmbed)]
                 });
             };
-
-            if (await cooldDown()) {
-                const data = await client.functions.getLanguageData(interaction.guild.id);
-                return interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
-            };
-
-            start = Date.now();
+            await interaction.deferReply();
             await command.run(client, interaction);
-            end = Date.now();
         } catch (e: any) {
-            end = Date.now();
             logger.err(e);
-        }
+        };
     };
 
     async function logsCommands(): Promise<void> {
         const optionsList: string[] = interaction.options._hoistedOptions.map((element: { name: any; value: any; }) => `${element.name}:"${element.value}"`);
-        const executionTime: string = end - start === 0 ? 'The command exited with an error!' : `Executed in ${end - start}ms`;
 
         const logMessage = `${interaction.guild?.name} >> ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')} in: #${interaction.channel ? interaction.channel.name : 'Unknown Channel'}:\n` +
             `${interaction.user.username}:\n` +
-            `/${interaction.commandName} ${optionsList.join(' ')} | ${executionTime}\n\n`;
+            `/${interaction.commandName} ${optionsList.join(' ')}\n\n`;
 
         fs.appendFile(`${process.cwd()}/src/files/slash.log`, logMessage, (err) => {
             if (err) {
@@ -87,13 +72,10 @@ export = async (client: any, interaction: any) => {
     };
 
     async function cooldDown() {
-        let label = `TEMP.COOLDOWN.${interaction.user.id}`;
         let tn = Date.now();
-
-        var fetch = await db.DataBaseModel({ id: db.Get, key: label });
+        var fetch = await db.DataBaseModel({ id: db.Get, key: `TEMP.COOLDOWN.${interaction.user.id}` });
         if (fetch !== null && timeout - (tn - fetch) > 0) return true;
-
-        await db.DataBaseModel({ id: db.Set, key: label, value: tn });
+        await db.DataBaseModel({ id: db.Set, key: `TEMP.COOLDOWN.${interaction.user.id}`, value: tn });
         return false;
     };
 

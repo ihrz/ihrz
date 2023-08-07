@@ -51,14 +51,14 @@ export = {
         if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
             let time = ms(timeout - (Date.now() - monthly));
 
-            return await interaction.reply({ content: data.monthly_cooldown_error.replace(/\${time}/g, time) });
+            return await interaction.editReply({ content: data.monthly_cooldown_error.replace(/\${time}/g, time) });
         } else {
             let embed = new EmbedBuilder()
                 .setAuthor({ name: data.monthly_embed_title, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
                 .setColor("#a4cb80")
                 .setDescription(data.monthly_embed_description)
                 .addFields({ name: data.monthly_embed_fields, value: `${amount}🪙` })
-            await interaction.reply({ embeds: [embed] });
+            await interaction.editReply({ embeds: [embed] });
             await db.DataBaseModel({ id: db.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: amount });
             await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly`, value: Date.now() });
         };

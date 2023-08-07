@@ -50,9 +50,9 @@ export = {
 
             if (!bal) {
                 return await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: 1 }),
-                    interaction.reply({ content: data.balance_dont_have_wallet });
+                    interaction.editReply({ content: data.balance_dont_have_wallet });
             }
-            interaction.reply({
+            interaction.editReply({
                 content: data.balance_have_wallet
                     .replace(/\${bal}/g, bal)
             });
@@ -62,11 +62,11 @@ export = {
 
                 if (!bal) {
                     return await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.USER.${member.value}.ECONOMY.money`, value: 1 }),
-                        interaction.reply({
+                        interaction.editReply({
                             content: data.balance_he_dont_have_wallet
                         });
                 };
-                return await interaction.reply({
+                return await interaction.editReply({
                     content: data.balance_he_have_wallet.replace(/\${bal}/g, bal)
                 });
             }

@@ -34,7 +34,7 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-            return interaction.reply({content: data.start_not_perm});
+            return interaction.editReply({content: data.start_not_perm});
         }
         ;
 
@@ -43,7 +43,7 @@ export = {
         let giveawayNumberWinners = interaction.options.getNumber("winner");
 
         if (isNaN(giveawayNumberWinners) || (parseInt(giveawayNumberWinners) <= 0)) {
-            return interaction.reply({content: data.start_is_not_valid});
+            return interaction.editReply({content: data.start_is_not_valid});
         }
         ;
 
@@ -75,7 +75,7 @@ export = {
         }
         ;
 
-        return await interaction.reply({
+        return await interaction.editReply({
             content: data.start_confirmation_command
                 .replace(/\${giveawayChannel}/g, giveawayChannel)
         });

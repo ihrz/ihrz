@@ -41,13 +41,13 @@ import * as db from '../../core/functions/DatabaseModel';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({ content: data.addmoney_not_admin })
+            return interaction.editReply({ content: data.addmoney_not_admin })
         };
 
         let amount = interaction.options.get("amount");
         let user = interaction.options.get("member");
 
-        await interaction.reply({
+        await interaction.editReply({
             content: data.addmoney_command_work
                 .replace("${user.user.id}", user.user.id)
                 .replace("${amount.value}", amount.value)

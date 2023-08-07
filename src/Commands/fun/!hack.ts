@@ -76,6 +76,6 @@ export = {
                 {name: data.hack_embed_fields_password, value: `\`${generatedPassword}\``})
             .setTimestamp()
 
-        return interaction.reply({embeds: [embed]});
+        return interaction.editReply({embeds: [embed]});
     },
 }

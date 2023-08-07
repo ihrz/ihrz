@@ -30,7 +30,7 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({content: data.setup_not_admin});
+            return interaction.editReply({content: data.setup_not_admin});
         }
         ;
 
@@ -46,9 +46,9 @@ export = {
                     }
                 ],
             })
-            return interaction.reply({content: data.setup_command_work})
+            return interaction.editReply({content: data.setup_command_work})
         } else {
-            return interaction.reply({content: data.setup_command_error})
+            return interaction.editReply({content: data.setup_command_error})
         }
     },
 }

@@ -32,7 +32,7 @@ export = {
         let inputData = interaction.options.getString("giveaway-id");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-            return interaction.reply({content: data.reroll_not_perm});
+            return interaction.editReply({content: data.reroll_not_perm});
         }
         ;
 
@@ -40,7 +40,7 @@ export = {
             client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.prize === inputData) ||
             client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.messageId === inputData);
         if (!giveaway) {
-            return interaction.reply({
+            return interaction.editReply({
                 content: data.reroll_dont_find_giveaway
                     .replace("{args}", inputData)
             });
@@ -50,7 +50,7 @@ export = {
         client.giveawaysManager
             .reroll(giveaway.messageId)
             .then(() => {
-                interaction.reply({content: data.reroll_command_work});
+                interaction.editReply({content: data.reroll_command_work});
                 try {
                     let logEmbed = new EmbedBuilder()
                         .setColor("#bf0bb9")
@@ -71,9 +71,9 @@ export = {
             })
             .catch((error) => {
                 if (error.startsWith(`Giveaway with message Id ${giveaway.messageId} is not ended.`)) {
-                    interaction.reply({content: `This giveaway is not over!`});
+                    interaction.editReply({content: `This giveaway is not over!`});
                 } else {
-                    interaction.reply({content: data.reroll_command_error});
+                    interaction.editReply({content: data.reroll_command_error});
                 }
             });
     },

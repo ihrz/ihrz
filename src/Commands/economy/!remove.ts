@@ -29,7 +29,7 @@ import * as db from '../../core/functions/DatabaseModel';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({ content: data.removemoney_not_admin })
+            return interaction.editReply({ content: data.removemoney_not_admin })
         };
         
         var amount = interaction.options.getNumber("amount");
@@ -59,6 +59,6 @@ export = {
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
         } catch (e) { return; };
         
-        return interaction.reply({ embeds: [embed] });
+        return interaction.editReply({ embeds: [embed] });
     },
 }

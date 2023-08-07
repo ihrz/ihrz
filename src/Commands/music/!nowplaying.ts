@@ -56,7 +56,7 @@ export = {
         let queue = interaction.client.player.nodes.get(interaction.guild);
 
         if (!queue || !queue.isPlaying()) {
-            return interaction.reply({content: data.nowplaying_no_queue, ephemeral: true});
+            return interaction.editReply({content: data.nowplaying_no_queue, ephemeral: true});
         }
         ;
 
@@ -70,7 +70,7 @@ export = {
                 {name: '  ', value: progress.replace(/ 0:00/g, 'LIVE')}
             );
 
-        let response = await interaction.reply({
+        let response = await interaction.editReply({
             embeds: [embed],
             components: [btn],
         });

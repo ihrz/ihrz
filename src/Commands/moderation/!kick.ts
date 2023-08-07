@@ -45,22 +45,22 @@ export = {
         let permission = interaction.member.permissions.has([PermissionsBitField.Flags.KickMembers]);
 
         if (!permission) {
-            return interaction.reply({content: data.kick_not_permission});
+            return interaction.editReply({content: data.kick_not_permission});
         }
         ;
 
         if (!interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.KickMembers])) {
-            return interaction.reply({content: data.kick_dont_have_permission});
+            return interaction.editReply({content: data.kick_dont_have_permission});
         }
         ;
 
         if (member.user.id === interaction.member.id) {
-            return interaction.reply({content: data.kick_attempt_kick_your_self});
+            return interaction.editReply({content: data.kick_attempt_kick_your_self});
         }
         ;
 
         if (interaction.member.roles.highest.position < member.roles.highest.position) {
-            return interaction.reply({content: data.kick_attempt_kick_higter_member});
+            return interaction.editReply({content: data.kick_attempt_kick_higter_member});
         }
         ;
 
@@ -87,7 +87,7 @@ export = {
                 logchannel.send({embeds: [logEmbed]})
             }
 
-            await interaction.reply({
+            await interaction.editReply({
                 content: data.kick_command_work
                     .replace(/\${member\.user}/g, member.user)
                     .replace(/\${interaction\.user}/g, interaction.user)

@@ -44,7 +44,7 @@ export = {
         let blockQ = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable`});
 
         if (blockQ) {
-            return interaction.reply({content: data.open_disabled_command});
+            return interaction.editReply({content: data.open_disabled_command});
         }
         ;
 
@@ -58,17 +58,17 @@ export = {
                     READ_MESSAGE_HISTORY: true,
                 })
                     .then(() => {
-                        return interaction.reply({
+                        return interaction.editReply({
                             content: data.open_command_work
                                 .replace(/\${interaction\.channel}/g, interaction.channel)
                         });
                     });
             } catch (e: any) {
-                return interaction.reply({content: data.open_command_error});
+                return interaction.editReply({content: data.open_command_error});
             }
             ;
         } else {
-            return await interaction.reply({content: data.open_not_in_ticket});
+            return await interaction.editReply({content: data.open_not_in_ticket});
         }
         ;
 

@@ -45,7 +45,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (interaction.user.id != config.owner.ownerid1 && config.owner.ownerid2) {
-            return interaction.reply({ content: data.status_be_bot_dev })
+            return interaction.editReply({ content: data.status_be_bot_dev })
         };
 
         os.cpuUsage(function (c) {
@@ -62,7 +62,7 @@ export const command: Command = {
                 )
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
 
-            return interaction.reply({ embeds: [embed] });
+            return interaction.editReply({ embeds: [embed] });
         })
     },
 };

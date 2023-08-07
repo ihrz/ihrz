@@ -49,6 +49,6 @@ export const command: Command = {
             .setURL('https://discord.com/api/oauth2/authorize?client_id=' + client.user?.id + '&permissions=8&scope=bot')
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setThumbnail(pp)
-        return interaction.reply({ embeds: [invites] })
+        return interaction.editReply({ embeds: [invites] })
     },
 };

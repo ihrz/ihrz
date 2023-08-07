@@ -33,12 +33,10 @@ export = {
         let check = interaction.options.getString("title");
 
         if (!voiceChannel) {
-            return interaction.reply({content: data.p_not_in_voice_channel});
+            return interaction.editReply({content: data.p_not_in_voice_channel});
         }
         ;
-        //if (!client.functions.isLinkAllowed(check)) { return interaction.reply({ content: data.p_not_allowed }) };
-
-        await interaction.deferReply();
+        //if (!client.functions.isLinkAllowed(check)) { return interaction.editReply({ content: data.p_not_allowed }) };
 
         let result = await interaction.client.player.search(check, {
             requestedBy: interaction.user, searchEngine: QueryType.AUTO

@@ -55,7 +55,7 @@ export const command: Command = {
         let user = interaction.options.getUser("user") || interaction.user;
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({ content: data.prevnames_not_admin });
+            return interaction.editReply({ content: data.prevnames_not_admin });
         };
         
         let fetch = await db.DataBaseModel({ id: db.Get, key: `DB.PREVNAMES.${user.id}` });
@@ -66,6 +66,6 @@ export const command: Command = {
         prevEmbed.setDescription(fetch || data.prevnames_undetected);
         prevEmbed.setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
-        return interaction.reply({ embeds: [prevEmbed] });
+        return interaction.editReply({ embeds: [prevEmbed] });
     },
 };

@@ -127,7 +127,7 @@ export const command: Command = {
             return interaction.editReply({ embeds: [embed], content: '✅ Fetched !' });
         };
 
-        await interaction.reply({ content: data.userinfo_wait_please });
+        await interaction.editReply({ content: data.userinfo_wait_please });
 
         let requestData = {
             tokent: 'want',

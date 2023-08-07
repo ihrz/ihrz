@@ -45,7 +45,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         
         if (!interaction.member.permissions.has([PermissionsBitField.Flags.Administrator])) {
-            return interaction.reply({ content: data.renew_not_administrator });
+            return interaction.editReply({ content: data.renew_not_administrator });
         };
 
         let channel = interaction.channel;
@@ -68,7 +68,7 @@ export const command: Command = {
 
             here.send({ content: data.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.user) })
         } catch (error) {
-            return interaction.reply({ content: data.renew_dont_have_permission });
+            return interaction.editReply({ content: data.renew_dont_have_permission });
         }
     },
 };

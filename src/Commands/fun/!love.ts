@@ -140,10 +140,10 @@ export = {
                 .setFooter({text: 'iHorizon', iconURL: client.user?.displayAvatarURL()})
                 .setTimestamp();
 
-            return interaction.reply({embeds: [embed], files: [file]});
+            return interaction.editReply({embeds: [embed], files: [file]});
         } catch (error: any) {
             console.log(error)
-            return interaction.reply({content: data.love_command_error});
+            return interaction.editReply({content: data.love_command_error});
         }
         ;
 

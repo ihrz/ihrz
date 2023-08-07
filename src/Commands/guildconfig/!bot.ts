@@ -32,7 +32,7 @@ export = {
         let action = interaction.options.getString('action');
 
         if (interaction.user.id !== interaction.guild.ownerId) {
-            return interaction.reply({content: data.blockbot_not_owner});
+            return interaction.editReply({content: data.blockbot_not_owner});
         }
         ;
 
@@ -59,7 +59,7 @@ export = {
 
             await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.BLOCK_BOT`, value: true});
 
-            return interaction.reply({content: data.blockbot_command_work_on_enable});
+            return interaction.editReply({content: data.blockbot_command_work_on_enable});
         } else if (action === 'off') {
 
             // ------------------------
@@ -84,7 +84,7 @@ export = {
 
             await db.DataBaseModel({id: db.Delete, key: `${interaction.guild.id}.GUILD.BLOCK_BOT`});
 
-            return interaction.reply({content: data.blockbot_command_work_on_disable});
+            return interaction.editReply({content: data.blockbot_command_work_on_disable});
         }
         ;
 

@@ -77,7 +77,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let command: any = interaction.options.getSubcommand();
 
-        await interaction.reply({ content: data.backup_wait_please });
+        await interaction.editReply({ content: data.backup_wait_please });
 
         await require('./!' + command).run(client, interaction, data);
     },

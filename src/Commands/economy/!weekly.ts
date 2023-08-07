@@ -37,7 +37,7 @@ export = {
         if (weekly !== null && timeout - (Date.now() - weekly) > 0) {
             let time = ms(timeout - (Date.now() - weekly));
 
-            interaction.reply({
+            interaction.editReply({
                 content: data.weekly_cooldown_error
                     .replace(/\${time}/g, time)
             })
@@ -52,7 +52,7 @@ export = {
             await db.DataBaseModel({ id: db.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: amount }),
                 await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.weekly`, value: Date.now() });
 
-            return interaction.reply({ embeds: [embed] });
+            return interaction.editReply({ embeds: [embed] });
         };
     },
 }

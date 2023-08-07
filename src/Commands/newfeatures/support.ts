@@ -79,7 +79,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({ content: data.support_not_admin });
+            return interaction.editReply({ content: data.support_not_admin });
         }
 
         let action = interaction.options.getString("action");
@@ -87,7 +87,7 @@ export const command: Command = {
         let roles = interaction.options.getRole("roles");
 
         if (!roles) {
-            return interaction.reply({ content: data.support_command_not_role });
+            return interaction.editReply({ content: data.support_command_not_role });
         }
         if (action == "true") {
             await db.DataBaseModel({
@@ -99,7 +99,7 @@ export const command: Command = {
                 }
             });
 
-            interaction.reply({
+            interaction.editReply({
                 content: data.support_command_work
                     .replace("${interaction.guild.name}", interaction.guild.name)
                     .replace("${input}", input)
@@ -120,7 +120,7 @@ export const command: Command = {
         } else {
             await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.SUPPORT` });
 
-            await interaction.reply({
+            await interaction.editReply({
                 content: data.support_command_work_on_disable
                     .replace("${interaction.guild.name}", interaction.guild.name)
             })

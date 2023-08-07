@@ -30,7 +30,7 @@ import ms from 'ms';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         if (!interaction.member.voice.channel) {
-            return interaction.reply({content: data.skip_not_in_voice_channel});
+            return interaction.editReply({content: data.skip_not_in_voice_channel});
         }
         ;
 
@@ -38,13 +38,13 @@ export = {
             const queue = interaction.client.player.nodes.get(interaction.guild)
 
             if (!queue || !queue.isPlaying()) {
-                return interaction.reply({content: data.skip_nothing_playing})
+                return interaction.editReply({content: data.skip_nothing_playing})
             }
             ;
 
             let currentTrack = queue.current
             let success = queue.node.skip()
-            return interaction.reply({
+            return interaction.editReply({
                 content: data.skip_command_work
                     .replace("{queue}", queue.currentTrack)
             })

@@ -42,7 +42,7 @@ export const command: Command = {
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
-        await interaction.reply({ content: ':ping_pong:' });
+        await interaction.editReply({ content: ':ping_pong:' });
 
         let network: any = ''
         network = await ping.promise.probe("192.168.0.254").then(result => network = result.time).catch(e => { network = "**DOWN**" });
