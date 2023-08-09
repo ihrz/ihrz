@@ -28,16 +28,15 @@ export = async (client: Client, oldPresence: Presence, newPresence: Presence) =>
         if (!newPresence.guild?.members.me?.permissions.has([PermissionsBitField.Flags.ManageRoles])) return;
         if (!oldPresence || !oldPresence.guild) return;
 
-        const guildId = oldPresence.guild.id;
-        const someinfo = await db.DataBaseModel({ id: db.Get, key: `${guildId}.GUILD.SUPPORT` });
+        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${oldPresence.guild.id}.GUILD.SUPPORT` });
 
         if (!someinfo) { return; };
 
-        const bio = newPresence.activities[0] || 'null';
-        const vanity = oldPresence.guild.vanityURLCode || 'null';
+        let bio = newPresence.activities[0] || 'null';
+        let vanity = oldPresence.guild.vanityURLCode || 'null';
 
-        const fetchedUser: any = await oldPresence.guild.members.cache.get(oldPresence.userId);
-        const fetchedRoles: any = await newPresence.guild.roles.cache.get(someinfo.rolesId);
+        let fetchedUser: any = await oldPresence.guild.members.cache.get(oldPresence.userId);
+        let fetchedRoles: any = await newPresence.guild.roles.cache.get(someinfo.rolesId);
 
         if (!fetchedUser || !fetchedRoles) return;
         

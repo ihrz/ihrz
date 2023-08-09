@@ -32,7 +32,7 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({content: data.disablexp_not_admin});
+            return interaction.editReply({ content: data.disablexp_not_admin });
         }
         ;
 
@@ -47,14 +47,14 @@ export = {
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) {
-                    logchannel.send({embeds: [logEmbed]})
+                    logchannel.send({ embeds: [logEmbed] })
                 }
             } catch (e: any) {
                 logger.err(e)
             }
             ;
-            await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.on_or_off`, value: "off"});
-            return interaction.editReply({content: data.disablexp_command_work_disable});
+            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.disable`, value: false });
+            return interaction.editReply({ content: data.disablexp_command_work_disable });
         } else {
             if (types == "on") {
                 try {
@@ -65,14 +65,14 @@ export = {
 
                     let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                     if (logchannel) {
-                        logchannel.send({embeds: [logEmbed]})
+                        logchannel.send({ embeds: [logEmbed] })
                     }
                 } catch (e: any) {
                     logger.err(e)
                 }
                 ;
-                await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.on_or_off`, value: "on"});
-                return interaction.editReply({content: data.disablexp_command_work_enable});
+                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.disable`, value: true });
+                return interaction.editReply({ content: data.disablexp_command_work_enable });
             }
         }
         ;

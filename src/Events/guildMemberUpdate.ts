@@ -34,15 +34,10 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
         });
         const firstEntry: any = fetchedLogs.entries.first();
 
-        if (!firstEntry) return;
-        if (firstEntry.executor.id == client.user?.id) return;
+        if (!firstEntry || firstEntry.executor.id == client.user?.id
+            || !oldMember || !oldMember.guild) return;
 
-        if (!oldMember) return;
-        if (!oldMember.guild) return;
-
-        const guildId = oldMember.guild.id;
-
-        const someinfo = await db.DataBaseModel({ id: db.Get, key: `${guildId}.GUILD.SERVER_LOGS.roles` });
+        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${oldMember.guild.id}.GUILD.SERVER_LOGS.roles` });
         if (!someinfo) return;
 
         let Msgchannel: any = client.channels.cache.get(someinfo);
@@ -66,8 +61,8 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
                 .replace("${oldMember.user.username}", oldMember.user.username)
             )
         } else {
-            const addedRoles = newMember['_roles'].filter(roleId => !oldMember['_roles'].includes(roleId));
-            
+            let addedRoles = newMember['_roles'].filter(roleId => !oldMember['_roles'].includes(roleId));
+
             if (addedRoles.length == 0) return;
             logsEmbed.setDescription(data.event_srvLogs_guildMemberUpdate_2_description
                 .replace("${firstEntry.executor.id}", firstEntry.executor.id)
@@ -75,7 +70,7 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
                 .replace("${oldMember.user.username}", oldMember.user.username)
             );
         }
-        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
+        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
     };
 
     await serverLogs();

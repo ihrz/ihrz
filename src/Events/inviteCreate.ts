@@ -25,7 +25,7 @@ import * as db from '../core/functions/DatabaseModel';
 export = async (client: Client, invite: any) => {
     async function inviteManager() {
         if (!invite.guild || !invite.guild.members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
-        await client.invites.get(invite.guild?.id)?.set(invite.code, invite.uses);
+        await client.invites.get(invite.guild?.id)?.set(invite.code, invite.uses).catch(() => {});
 
         let check = await db.DataBaseModel({
             id: db.Get, key: `${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`

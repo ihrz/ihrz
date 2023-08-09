@@ -28,8 +28,7 @@ export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
     
     async function serverLogs() {
         if (!oldState || !oldState.guild) return;
-        let guildId = oldState.guild.id;
-        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${guildId}.GUILD.SERVER_LOGS.voice` });
+        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${oldState.guild.id}.GUILD.SERVER_LOGS.voice` });
         if (!someinfo) return;
 
         let Msgchannel: any = client.channels.cache.get(someinfo);

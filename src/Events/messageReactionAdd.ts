@@ -33,28 +33,36 @@ export = async (client: Client, reaction: any, user: User) => {
     async function reactionRole() {
         try {
             if (user.id == client.user?.id || !reaction.message.guild) return;
-            const fetched = await db.DataBaseModel({ id: db.Get, key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}` });
+            let fetched = await db.DataBaseModel({
+                id: db.Get, key:
+                    `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`
+            });
 
             if (fetched) {
-                const role = reaction.message.guild.roles.cache.get(fetched.rolesID);
+                let role = reaction.message.guild.roles.cache.get(fetched.rolesID);
                 if (!role) return;
-                const member: any = reaction.message.guild.members.cache.get(user.id);
-                return await member.roles.add(role);
+
+                let member: any = reaction.message.guild.members.cache.get(user.id);
+                await member.roles.add(role).catch(() => { });
+                return;
             };
 
-            const fetchedForNitro = await db.DataBaseModel({
+            let fetchedForNitro = await db.DataBaseModel({
                 id: db.Get,
                 key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`
             });
 
             if (fetchedForNitro) {
-                const role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);
+                let role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);
                 if (!role) return;
-                const member: any = reaction.message.guild.members.cache.get(user.id);
-                return await member.roles.add(role);
+
+                let member: any = reaction.message.guild.members.cache.get(user.id);
+                await member.roles.add(role).catch(() => { });
+                return;
             };
         } catch (e: any) {
-            console.error(e)
+            console.error(e);
+            return;
         };
     };
 
@@ -67,7 +75,7 @@ export = async (client: Client, reaction: any, user: User) => {
             || result.messageID !== reaction.message.id) return;
 
         if (reaction.message.guild?.channels.cache.find((channel: { name: string; }) => channel.name === `ticket-${user.id}`)) {
-            return reaction.users.remove(user);
+            return reaction.users.remove(user).catch(() => { });
         };
 
         await reaction.message.guild?.channels.create({
@@ -85,7 +93,8 @@ export = async (client: Client, reaction: any, user: User) => {
             ],
             parent: await db.DataBaseModel({ id: db.Get, key: `${reaction.message.guildId}.GUILD.TICKET.category` })
         }).then(async (channel: { send: (arg0: { content: string; embeds: EmbedBuilder[]; }) => any; }) => {
-            await reaction.users.remove(user);
+            
+            await reaction.users.remove(user).catch(() => {});
             let iconURL: any = client.user?.displayAvatarURL();
 
             let welcome = new EmbedBuilder()
@@ -98,8 +107,8 @@ export = async (client: Client, reaction: any, user: User) => {
                     text: 'iHorizon',
                     iconURL: iconURL
                 });
-            return channel.send({ content: `<@${user.id}>`, embeds: [welcome] });
-        });
+            return channel.send({ content: `<@${user.id}>`, embeds: [welcome] }).catch(() => {});
+        }).catch(() => { });
     };
 
     await reactionRole(), ticketModule();

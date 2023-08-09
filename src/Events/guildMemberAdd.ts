@@ -152,14 +152,15 @@ export = async (client: any, member: any) => {
             let joinMessage = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage` });
 
             if (!joinMessage) {
-                return client.channels.cache.get(wChan).send({
+                client.channels.cache.get(wChan).send({
                     content: data.event_welcomer_inviter
                         .replace("${member.id}", member.id)
                         .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
                         .replace("${member.guild.name}", member.guild.name)
                         .replace("${inviter.tag}", inviter.username)
                         .replace("${fetched}", invitesAmount)
-                });
+                }).catch(() => { });
+                return;
             }
 
             var joinMessageFormated = joinMessage
@@ -170,23 +171,25 @@ export = async (client: any, member: any) => {
                 .replace("{inviter}", inviter.username)
                 .replace("{invites}", invitesAmount);
 
-            return client.channels.cache.get(wChan).send({ content: joinMessageFormated });
+            client.channels.cache.get(wChan).send({ content: joinMessageFormated }).catch(() => { });
+            return;
         } catch (e: any) {
             let wChan = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.join` });
             if (!wChan || !client.channels.cache.get(wChan)) return;
 
-            return client.channels.cache.get(wChan).send({
+            client.channels.cache.get(wChan).send({
                 content: data.event_welcomer_default
                     .replace("${member.id}", member.id)
                     .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
                     .replace("${member.guild.name}", member.guild.name)
-            });
+            }).catch(() => { });
+            return;
         }
     };
 
     async function blockBot() {
         if (await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.BLOCK_BOT` }) && member.user.bot) {
-            member.ban({ reason: 'The BlockBot function are enable!' });
+            member.ban({ reason: 'The BlockBot function are enable!' }).catch(() => { });
         };
     };
 

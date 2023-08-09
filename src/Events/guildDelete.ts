@@ -28,7 +28,7 @@ import config from '../files/config';
 export = async (client: Client, guild: Guild) => {
     async function inviteManager() {
         await db.DataBaseModel({ id: db.Delete, key: `${guild.id}` })
-        return client.invites.delete(guild.id);
+        return client.invites.delete(guild.id).catch(() => { });
     };
 
     async function ownerLogs() {

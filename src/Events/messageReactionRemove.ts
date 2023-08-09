@@ -30,24 +30,26 @@ export = async (client: Client, reaction: any, user: User) => {
             if (user.bot || user.id == client.user?.id
                 || !reaction.message.guildId) return;
 
-            const fetched = await db.DataBaseModel({ id: db.Get, key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}` })
+            let fetched = await db.DataBaseModel({ id: db.Get, key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}` })
 
             if (fetched) {
-                const role = reaction.message.guild.roles.cache.get(fetched.rolesID);
+                let role = reaction.message.guild.roles.cache.get(fetched.rolesID);
                 if (!role) return;
 
-                const member = reaction.message.guild.members.cache.get(user.id);
-                return await member?.roles.remove(role);
+                let member = reaction.message.guild.members.cache.get(user.id);
+                await member?.roles.remove(role).catch(() => { });
+                return;
             };
 
             const fetchedForNitro = await db.DataBaseModel({ id: db.Get, key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}` })
 
             if (fetchedForNitro) {
-                const role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);
+                let role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);
                 if (!role) return;
 
-                const member = reaction.message.guild.members.cache.get(user.id);
-                return await member?.roles.remove(role);
+                let member = reaction.message.guild.members.cache.get(user.id);
+                await member?.roles.remove(role).catch(() => { });
+                return;
             };
         } catch (e: any) { return; };
     };

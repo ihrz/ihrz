@@ -102,17 +102,18 @@ export = async (client: Client, member: any) => {
                 .replace("{invites}", invitesAmount);
 
             let lChanManager: any = client.channels.cache.get(lChan)
-            lChanManager.send({ content: joinMessageFormated });
+            lChanManager.send({ content: joinMessageFormated }).catch(() => { });
         } catch (e) {
             let lChan = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.leave` });
             if (!lChan || !client.channels.cache.get(lChan)) return;
             let lChanManager: any = client.channels.cache.get(lChan)
 
-            return lChanManager.send({
+            await lChanManager.send({
                 content: data.event_goodbye_default
                     .replace("${member.id}", member.id)
                     .replace("${member.guild.name}", member.guild.name)
-            });
+            }).catch(() => { });
+            return;
         }
     };
 
@@ -121,15 +122,15 @@ export = async (client: Client, member: any) => {
         if (!member.guild.members.me) return;
         if (!member.guild.members.me.permissions.has([PermissionsBitField.Flags.ViewAuditLog])) return;
 
-        const fetchedLogs = await member.guild.fetchAuditLogs({
+        let fetchedLogs = await member.guild.fetchAuditLogs({
             type: AuditLogEvent.MemberKick,
             limit: 1,
         });
 
-        const firstEntry = fetchedLogs.entries.first();
+        let firstEntry = fetchedLogs.entries.first();
         if (!firstEntry || !firstEntry.target || member.id !== firstEntry.target.id) return;
 
-        const someinfo = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.SERVER_LOGS.moderation` });
+        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.SERVER_LOGS.moderation` });
         if (!someinfo) return;
 
         let Msgchannel: any = client.channels.cache.get(someinfo);

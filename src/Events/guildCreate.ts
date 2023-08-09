@@ -64,9 +64,10 @@ export = async (client: any, guild: any) => {
             .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
 
         let isBL = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${guild.ownerId}.blacklisted` }) || false;
+        
         if (isBL) {
-            await channelHr.send({ embeds: [tqtmonreuf] });
-            await guild.leave();
+            await channelHr.send({ embeds: [tqtmonreuf] }).catch(() => { });
+            guild.leave();
             return false;
         } else {
             return true;
@@ -100,9 +101,9 @@ Thanks for choosing me and let's have some fun together!`);
         if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
         try {
             guild.invites.fetch().then((guildInvites: { map: (arg0: (invite: any) => any[]) => Iterable<readonly [unknown, unknown]> | null | undefined; }) => {
-                client.invites.set(guild.id, new Map(guildInvites.map((invite:any) => [invite.code, invite.uses])));
+                client.invites.set(guild.id, new Map(guildInvites.map((invite: any) => [invite.code, invite.uses])));
             })
-        } catch (error:any) { logger.err(error) };
+        } catch (error: any) { logger.err(error) };
     };
 
     async function ownerLogs() {

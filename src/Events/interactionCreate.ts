@@ -38,17 +38,19 @@ export = async (client: any, interaction: any) => {
 
     async function slashExecutor() {
         if (await cooldDown()) {
-            const data = await client.functions.getLanguageData(interaction.guild.id);
-            return interaction.editReply({ content: data.Msg_cooldown, ephemeral: true });
+            let data = await client.functions.getLanguageData(interaction.guild.id);
+            interaction.editReply({ content: data.Msg_cooldown, ephemeral: true });
+            return;
         };
         try {
             if (await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${interaction.user.id}.blacklisted` })) {
-                return interaction.editReply({
+                await interaction.editReply({
                     embeds: [
                         new EmbedBuilder()
                             .setColor("#0827F5").setTitle(":(")
                             .setImage(config.core.blacklistPictureInEmbed)]
                 });
+                return;
             };
             await interaction.deferReply();
             await command.run(client, interaction);

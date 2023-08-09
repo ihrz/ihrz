@@ -31,14 +31,14 @@ export = async (client: Client, oldMessage: Message, newMessage: Message) => {
             || oldMessage.content == '' || !oldMessage.content
             || newMessage.content == '' || !newMessage.content) return;
 
-        const guildId = oldMessage.guildId,
-            someinfo = await db.DataBaseModel({ id: db.Get, key: `${guildId}.GUILD.SERVER_LOGS.message` });
+        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${oldMessage.guildId}.GUILD.SERVER_LOGS.message` });
 
         if (!someinfo || !oldMessage.content || !newMessage.content
             || oldMessage.content === newMessage.content) return;
 
         let Msgchannel: any = client.channels.cache.get(someinfo);
         if (!Msgchannel) return;
+
         let icon: any = newMessage.author.displayAvatarURL();
 
         let logsEmbed = new EmbedBuilder()

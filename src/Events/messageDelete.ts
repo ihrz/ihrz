@@ -45,14 +45,13 @@ export = async (client: Client, message: Message) => {
         if (!message.guild || !message.author
             || message.author.id == client.user?.id) return;
 
-        const guildId = message.guild.id;
-        const someinfo = await db.DataBaseModel({ id: db.Get, key: `${guildId}.GUILD.SERVER_LOGS.message` });
-
+        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.GUILD.SERVER_LOGS.message` });
         if (!someinfo) return;
 
         let Msgchannel: any = client.channels.cache.get(someinfo);
-        let iconURL: any = message.author.avatarURL();
         if (!Msgchannel) return;
+
+        let iconURL: any = message.author.avatarURL();
 
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
@@ -77,7 +76,7 @@ export = async (client: Client, message: Message) => {
             }
         };
 
-        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
+        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
     };
 
     await snipeModules(), serverLogs();
