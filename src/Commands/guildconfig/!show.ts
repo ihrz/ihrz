@@ -30,41 +30,45 @@ import * as db from '../../core/functions/DatabaseModel';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({content: data.guildprofil_not_admin});
+            return interaction.editReply({ content: data.guildprofil_not_admin });
         };
 
-        let setchannelsjoin = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join`})
-        let setchannelsleave = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`})
-        let joinroles = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`});
-        let joinDmMessage = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`})
-        let blockpub = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`})
-        let joinmessage = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`})
-        let leavemessage = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`})
-        let punishPub = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`})
-        let supportConfig = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.SUPPORT`})
+        let baseData = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD` });
+
+        let setchannelsjoin = baseData['GUILD_CONFIG'].join;
+        let setchannelsleave = baseData['GUILD_CONFIG'].leave;
+        let joinroles = baseData['GUILD_CONFIG'].joinroles;
+        let joinDmMessage = baseData['GUILD_CONFIG'].joindm;
+        let blockpub = baseData['GUILD_CONFIG'].antipub;
+        let joinmessage = baseData['GUILD_CONFIG'].joinmessage;
+        let leavemessage = baseData['GUILD_CONFIG'].leavemessage;
+        let punishPub = baseData['PUNISH']?.PUNISH_PUB;
+        let supportConfig = baseData['SUPPORT'];
+        let xp = baseData['XP_LEVELING'];
+        let logs = baseData['SERVER_LOGS'];
+        let blockBot = baseData['BLOCK_BOT'];
+
         let reactionrole;
+        let xpStats;
+        let logsStat: string = '';
+        let blockBotStat: string = '';
+
         var text2: string = '';
         var ticketFetched;
         var text: string = '';
 
         try {
-            const dbAll = await db.DataBaseModel({id: db.All});
-            const foundArray = dbAll.findIndex((ticketList: { id: any; }) => ticketList.id === interaction.guild.id)
-
-            const charForTicket = dbAll[foundArray].value.GUILD.TICKET;
-            const charForRr = dbAll[foundArray].value.GUILD.REACTION_ROLES;
+            const charForTicket = baseData['TICKET'];
+            const charForRr = baseData['REACTION_ROLES'];
 
             for (var i in charForTicket) {
-                var a = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.${i}`})
-                if (a) {
-                    text += `**${a.panelName}**: <#${a.channel}>\n`;
-                }
-                ;
-            }
-            ;
+                if (baseData['TICKET'][i]) {
+                    text += `**${baseData['TICKET'][i].panelName}**: <#${baseData['TICKET'][i].channel}>\n`;
+                };
+            };
 
             for (var i in charForRr) {
-                var a = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${i}`})
+                var a = baseData['REACTION_ROLES'][i];
 
                 if (a) {
                     const stringContent = Object.keys(a).map((key) => {
@@ -77,27 +81,22 @@ export = {
                             .replace(/\${i}/g, i);
                     }).join('\n');
                     text2 = stringContent;
-                }
-                ;
-            }
-            ;
+                };
+            };
         } catch (e) {
-        }
-        ;
+        };
 
         if (!text2 || text2 == '') {
             reactionrole = data.guildprofil_not_set_reactionrole
         } else {
             reactionrole = text2
-        }
-        ;
+        };
 
         if (!text || text == '') {
             ticketFetched = data.guildprofil_not_set_ticketFetched
         } else {
             ticketFetched = text
-        }
-        ;
+        };
 
         if (!punishPub || punishPub === null) {
             punishPub = data.guildprofil_not_set_punishPub
@@ -105,7 +104,7 @@ export = {
             punishPub = data.guildprofil_set_punishPub
                 .replace(/\${punishPub\.punishementType}/g, punishPub.punishementType)
                 .replace(/\${punishPub\.amountMax}/g, punishPub.amountMax)
-        }
+        };
 
         if (!supportConfig || supportConfig === null) {
             supportConfig = data.guildprofil_not_set_supportConfig
@@ -113,42 +112,67 @@ export = {
             supportConfig = data.guildprofil_set_supportConfig
                 .replace(/\${supportConfig\.input}/g, supportConfig.input)
                 .replace(/\${supportConfig\.rolesId}/g, supportConfig.rolesId)
-        }
+        };
 
         if (!setchannelsjoin || setchannelsjoin === null) {
             setchannelsjoin = data.guildprofil_not_set_setchannelsjoin
         } else {
             setchannelsjoin = `<#${setchannelsjoin}>`
-        }
+        };
 
         if (!setchannelsleave || setchannelsleave === null) {
             setchannelsleave = data.guildprofil_not_set_setchannelsleave
         } else {
             setchannelsleave = `<#${setchannelsleave}>`
-        }
+        };
 
         if (!joinmessage || joinmessage == null) {
             joinmessage = data.guildprofil_not_set_joinmessage
         }
         if (!leavemessage || leavemessage == null) {
             leavemessage = data.guildprofil_not_set_leavemessage
-        }
+        };
 
         if (!joinroles || joinroles === null) {
             joinroles = data.guildprofil_not_set_joinroles
         } else {
             joinroles = `<@&${joinroles}>`
-        }
+        };
 
         if (!joinDmMessage || joinDmMessage === null) {
             joinDmMessage = data.guildprofil_not_set_joinDmMessage
-        }
+        };
 
         if (blockpub != "on") {
             blockpub = data.guildprofil_not_set_blockpub
         } else {
             blockpub = data.guildprofil_set_blockpub
-        }
+        };
+
+        if (xp.disable === false) {
+            xpStats = data.guildprofil_disable_xp;
+        } else {
+            xpStats = data.guildprofil_enable_xp;
+            if (xp.xpchannels) {
+                xpStats = data.guildprofil_another_enable_xp
+                    .replace('${xp.xpchannels}', xp.xpchannels);
+            }
+        };
+
+        if (logs) {
+            if (logs.roles) logsStat += `<#${logs.roles}>,`;
+            if (logs.moderation) logsStat += `<#${logs.moderation}>,`;
+            if (logs.voice) logsStat += `<#${logs.voice}>,`;
+            if (logs.message) logsStat += `<#${logs.message}>`;
+        } else {
+            logsStat = data.guildprofil_not_logs_set;
+        };
+
+        if (blockBot) {
+            blockBotStat = data.guildprofil_blockbot_on;
+        } else {
+            blockBotStat = data.guildprofil_blockbot_off;
+        };
 
         let guildc = new EmbedBuilder()
             .setColor("#016c9a")
@@ -156,18 +180,21 @@ export = {
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
             )
             .addFields(
-                {name: data.guildprofil_embed_fields_joinmessage, value: joinmessage, inline: true},
-                {name: data.guildprofil_embed_fields_leavemessage, value: leavemessage, inline: true},
-                {name: data.guildprofil_embed_fields_setchannelsjoin, value: setchannelsjoin, inline: true},
-                {name: data.guildprofil_embed_fields_setchannelsleave, value: setchannelsleave, inline: true},
-                {name: data.guildprofil_embed_fields_joinroles, value: joinroles, inline: true},
-                {name: data.guildprofil_embed_fields_joinDmMessage, value: joinDmMessage, inline: true},
-                {name: data.guildprofil_embed_fields_blockpub, value: blockpub, inline: true},
-                {name: data.guildprofil_embed_fields_punishPub, value: punishPub, inline: true},
-                {name: data.guildprofil_embed_fields_supportConfig, value: supportConfig, inline: true},
-                {name: data.guildprofil_embed_fields_ticketFetched, value: ticketFetched, inline: true},
-                {name: data.guildprofil_embed_fields_reactionrole, value: reactionrole, inline: true})
+                { name: data.guildprofil_embed_fields_joinmessage, value: joinmessage, inline: true },
+                { name: data.guildprofil_embed_fields_leavemessage, value: leavemessage, inline: true },
+                { name: data.guildprofil_embed_fields_setchannelsjoin, value: setchannelsjoin, inline: true },
+                { name: data.guildprofil_embed_fields_setchannelsleave, value: setchannelsleave, inline: true },
+                { name: data.guildprofil_embed_fields_joinroles, value: joinroles, inline: true },
+                { name: data.guildprofil_embed_fields_joinDmMessage, value: joinDmMessage, inline: true },
+                { name: data.guildprofil_embed_fields_blockpub, value: blockpub, inline: true },
+                { name: data.guildprofil_embed_fields_punishPub, value: punishPub, inline: true },
+                { name: data.guildprofil_embed_fields_supportConfig, value: supportConfig, inline: true },
+                { name: data.guildprofil_embed_fields_ticketFetched, value: ticketFetched, inline: true },
+                { name: data.guildprofil_embed_fields_reactionrole, value: reactionrole, inline: true },
+                { name: data.guildprofil_embed_fields_ranks, value: xpStats, inline: true },
+                { name: data.guildprofil_embed_fields_logs, value: logsStat, inline: true },
+                { name: data.guildprofil_embed_fields_blockbot, value: blockBotStat, inline: true })
             .setThumbnail(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`)
-        return interaction.editReply({embeds: [guildc]});
+        return interaction.editReply({ embeds: [guildc] });
     },
-}
+};
