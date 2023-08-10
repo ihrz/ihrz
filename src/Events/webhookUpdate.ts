@@ -25,37 +25,29 @@ import * as db from '../core/functions/DatabaseModel';
 
 export = async (client: Client, channel: any) => {
 
-    async function ihrzLogs() {
-        if (channel.name !== "ihorizon-logs") return;
-        let data = await client.functions.getLanguageData(channel.guild.id);
-
-        let setup_embed = new EmbedBuilder()
-            .setColor("#1e1d22")
-            .setTitle(data.event_channel_create_message_embed_title)
-            .setDescription(data.event_channel_create_message_embed_description);
-        await channel.send({ embeds: [setup_embed] }).catch(() => { });
-        return;
-    };
-
     async function protect() {
         let data = await db.DataBaseModel({ id: db.Get, key: `${channel.guild.id}.PROTECTION` });
 
-        if (data.createchannel && data.createchannel.mode === 'allowlist') {
+        if (data.webhook && data.webhook.mode === 'allowlist') {
             let fetchedLogs = await channel.guild.fetchAuditLogs({
-                type: AuditLogEvent.ChannelCreate,
+                type: AuditLogEvent.WebhookCreate,
                 limit: 1,
             });
             var firstEntry: any = fetchedLogs.entries.first();
-            if (firstEntry.targetId !== channel.id) return;
+            if (firstEntry.target.channelId !== channel.id) return;
             if (firstEntry.executorId === client.user?.id) return;
-            
+
             let baseData = await db.DataBaseModel({
                 id: db.Get, key:
                     `${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`
             });
 
             if (!baseData) {
-                channel.delete();
+                const webhooks = await channel.fetchWebhooks();
+                const myWebhooks = webhooks.filter((webhook: { id: any; }) => webhook.id === firstEntry.target.id);
+
+                for (let [id, webhook] of myWebhooks) await webhook.delete({ reason: 'Protect!' });
+
                 let user = await channel.guild.members.cache.get(firstEntry.executorId);
 
                 switch (data['SANCTION']) {
@@ -78,5 +70,5 @@ export = async (client: Client, channel: any) => {
         }
     };
 
-    await protect(), ihrzLogs();
+    await protect();
 };

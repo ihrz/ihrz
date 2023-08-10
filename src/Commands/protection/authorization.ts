@@ -68,14 +68,6 @@ export const command: Command = {
                             value: "webhook"
                         },
                         {
-                            name: "Ban Member",
-                            value: "ban"
-                        },
-                        {
-                            name: "Kick Member",
-                            value: "kick"
-                        },
-                        {
                             name: "Create Channel",
                             value: "createchannel",
                         },
@@ -137,6 +129,11 @@ export const command: Command = {
                     ]
                 },
             ],
+        },
+        {
+            name: "config-show",
+            description: "Show the current configuration about protection authorization/rule & allow list!",
+            type: 1,
         },
     ],
     category: 'protection',

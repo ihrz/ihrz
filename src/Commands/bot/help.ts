@@ -60,6 +60,7 @@ export const command: Command = {
             { name: data.help_newftrs_fields, value: CONTENT.newfeatures, inline: true, description: data.help_newftrs_dsc, emoji: "🆕" },
             { name: data.help_owner_fields, value: CONTENT.owner, inline: true, description: data.help_owner_dsc, emoji: "👩‍✈️" },
             { name: data.help_prof_fields, value: CONTENT.profil, inline: true, description: data.help_prof_dsc, emoji: "👩" },
+            { name: data.help_protection_fields, value: CONTENT.protection, inline: true, description: data.help_protection_dsc, emoji: "🛡️" },
             { name: data.help_ranks_fields, value: CONTENT.ranks, inline: true, description: data.help_ranks_dsc, emoji: "🌟" },
             { name: data.help_roler_fields, value: CONTENT.rolereactions, inline: true, description: data.help_roler_dsc, emoji: "📇" },
             { name: data.help_ticket_fields, value: CONTENT.ticket, inline: true, description: data.help_ticket_dsc, emoji: "🎫" },

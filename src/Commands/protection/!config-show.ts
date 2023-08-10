@@ -29,50 +29,59 @@ import * as db from '../../core/functions/DatabaseModel';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
+        if (interaction.user.id !== interaction.guild.ownerId) {
+            await interaction.editReply({ content: 'Only the owner of the server can edit the authorization rule about the protection module!' });
+            return;
+        };
+
         var text = "";
-        
+        var text2 = "";
+
         let baseData = await db.DataBaseModel({
             id: db.Get, key:
                 `${interaction.guild.id}.ALLOWLIST`
         });
 
-        if (!baseData) {
-            let ie = {
-                enable: false,
-                list: {
-                    [`${interaction.guild.ownerId}`]: { allowed: true },
-                },
-            };
-
-            await db.DataBaseModel({
-                id: db.Set, key: `${interaction.guild.id}.ALLOWLIST`,
-                value: ie
-            });
-
-            baseData = await db.DataBaseModel({
-                id: db.Get, key:
-                    `${interaction.guild.id}.ALLOWLIST`
-            });
-        };
+        let baseData4Protection = await db.DataBaseModel({
+            id: db.Get, key:
+                `${interaction.guild.id}.PROTECTION`
+        });
 
         for (var i in baseData.list) {
             text += `<@${i}>\n`
         };
 
-        if (interaction.user.id !== interaction.guild.ownerId && !text.includes(interaction.user.id)) {
-            return interaction.editReply({ content: 'Your not allowed to use this command! You need to be in the allow-list!' })
+        for (var i in baseData4Protection) {
+            if (i !== 'SANCTION') {
+                var a = baseData4Protection[i].mode;
+                text2 += `**${i.toUpperCase()}** -> \`${a}\`\n`
+            }
         };
+
+        let okay = '';
+        if (baseData4Protection.SANCTION === 'simply') okay = 'Simply Cancel Action'
+        if (baseData4Protection.SANCTION === 'simply+ban') okay = 'Simply Cancel Action & Ban'
+        if (baseData4Protection.SANCTION === 'simply+derank') okay = 'Simply Cancel Action & Unrank'
+
+        text2 += `\`\`\`Punishement: ${okay}\`\`\``;
 
         let iconURL: any = client.user?.displayAvatarURL();
 
-        let embed = new EmbedBuilder()
-            .setColor("#000000")
-            .setAuthor({ name: "Allowlist" })
-            .setDescription(`${text}`)
+        let embed1 = new EmbedBuilder()
+            .setColor('#000000')
+            .setAuthor({ name: "Rule List" })
+            .setDescription(text2)
             .setFooter({ text: 'iHorizon', iconURL: iconURL })
             .setTimestamp();
 
-        await interaction.editReply({ embeds: [embed] });
-        return
+        let embed2 = new EmbedBuilder()
+            .setColor("#000000")
+            .setAuthor({ name: "Allowlist" })
+            .setDescription(text)
+            .setFooter({ text: 'iHorizon', iconURL: iconURL })
+            .setTimestamp();
+
+        await interaction.editReply({ embeds: [embed1, embed2] });
+        return;
     },
 };

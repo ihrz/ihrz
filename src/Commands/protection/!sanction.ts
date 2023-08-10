@@ -41,9 +41,9 @@ export = {
                 id: db.Set, key: `${interaction.guild.id}.PROTECTION.SANCTION`,
                 value: choose
             });
-            if (choose === 'simply') choose = 'N/A'
-            if (choose === 'simply+derank') choose = 'UNRANK'
-            if (choose === 'simply+ban') choose = 'BAN'
+            if (choose === 'simply') choose = 'N/A';
+            if (choose === 'simply+derank') choose = 'UNRANK';
+            if (choose === 'simply+ban') choose = 'BAN';
 
             await interaction.editReply({ content: `<@${interaction.user.id}>, rule sanction has been set. When the user breaks the rule, it's **${choose}**. And the bot cancels its action.` });
         };

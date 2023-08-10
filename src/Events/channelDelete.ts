@@ -25,38 +25,38 @@ import * as db from '../core/functions/DatabaseModel';
 
 export = async (client: Client, channel: any) => {
 
-    async function ihrzLogs() {
-        if (channel.name !== "ihorizon-logs") return;
-        let data = await client.functions.getLanguageData(channel.guild.id);
-
-        let setup_embed = new EmbedBuilder()
-            .setColor("#1e1d22")
-            .setTitle(data.event_channel_create_message_embed_title)
-            .setDescription(data.event_channel_create_message_embed_description);
-        await channel.send({ embeds: [setup_embed] }).catch(() => { });
-        return;
-    };
-
     async function protect() {
         let data = await db.DataBaseModel({ id: db.Get, key: `${channel.guild.id}.PROTECTION` });
 
-        if (data.createchannel && data.createchannel.mode === 'allowlist') {
+        if (data.deletechannel && data.deletechannel.mode === 'allowlist') {
             let fetchedLogs = await channel.guild.fetchAuditLogs({
-                type: AuditLogEvent.ChannelCreate,
+                type: AuditLogEvent.ChannelDelete,
                 limit: 1,
             });
             var firstEntry: any = fetchedLogs.entries.first();
             if (firstEntry.targetId !== channel.id) return;
             if (firstEntry.executorId === client.user?.id) return;
-            
+
             let baseData = await db.DataBaseModel({
                 id: db.Get, key:
                     `${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`
             });
 
             if (!baseData) {
-                channel.delete();
-                let user = await channel.guild.members.cache.get(firstEntry.executorId);
+                (await channel.clone({
+                    name: channel.name,
+                    permissions: channel.permissionsOverwrites,
+                    type: channel.type,
+                    topic: channel.withTopic,
+                    nsfw: channel.nsfw,
+                    birate: channel.bitrate,
+                    userLimit: channel.userLimit,
+                    rateLimitPerUser: channel.rateLimitPerUser,
+                    position: channel.rawPosition,
+                    reason: `Channel re-create by Protect (${firstEntry.executorId} break the rule!)`
+                })).send(`**PROTECT MODE ON**\n<@${channel.guild.ownerId}>, the channel are recreated, <@${firstEntry.executorId}> attempt to delete the channel!`)
+
+                let user = await channel.guild.members.cache.get(firstEntry.executorId)
 
                 switch (data['SANCTION']) {
                     case 'simply':
@@ -78,5 +78,5 @@ export = async (client: Client, channel: any) => {
         }
     };
 
-    await protect(), ihrzLogs();
+    await protect();
 };

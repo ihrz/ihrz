@@ -42,7 +42,8 @@ const client = new Client({
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildWebhooks,
         GatewayIntentBits.Guilds,
-        GatewayIntentBits.MessageContent
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildPresences
     ], partials: [Partials.Message, Partials.Channel, Partials.Reaction]
 });
 require('./core')(client);

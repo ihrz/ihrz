@@ -23,40 +23,29 @@ import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent }
 
 import * as db from '../core/functions/DatabaseModel';
 
-export = async (client: Client, channel: any) => {
-
-    async function ihrzLogs() {
-        if (channel.name !== "ihorizon-logs") return;
-        let data = await client.functions.getLanguageData(channel.guild.id);
-
-        let setup_embed = new EmbedBuilder()
-            .setColor("#1e1d22")
-            .setTitle(data.event_channel_create_message_embed_title)
-            .setDescription(data.event_channel_create_message_embed_description);
-        await channel.send({ embeds: [setup_embed] }).catch(() => { });
-        return;
-    };
+export = async (client: Client, role: any) => {
 
     async function protect() {
-        let data = await db.DataBaseModel({ id: db.Get, key: `${channel.guild.id}.PROTECTION` });
+        let data = await db.DataBaseModel({ id: db.Get, key: `${role.guild.id}.PROTECTION` });
 
-        if (data.createchannel && data.createchannel.mode === 'allowlist') {
-            let fetchedLogs = await channel.guild.fetchAuditLogs({
-                type: AuditLogEvent.ChannelCreate,
+        if (data.createrole && data.createrole.mode === 'allowlist') {
+            let fetchedLogs = await role.guild.fetchAuditLogs({
+                type: AuditLogEvent.RoleCreate,
                 limit: 1,
             });
             var firstEntry: any = fetchedLogs.entries.first();
-            if (firstEntry.targetId !== channel.id) return;
+            if (firstEntry.targetId !== role.id) return;
             if (firstEntry.executorId === client.user?.id) return;
-            
+
+
             let baseData = await db.DataBaseModel({
                 id: db.Get, key:
-                    `${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`
+                    `${role.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`
             });
 
             if (!baseData) {
-                channel.delete();
-                let user = await channel.guild.members.cache.get(firstEntry.executorId);
+                role.delete({ reason: 'Protect!' });
+                let user = await role.guild.members.cache.get(firstEntry.executorId);
 
                 switch (data['SANCTION']) {
                     case 'simply':
@@ -78,5 +67,5 @@ export = async (client: Client, channel: any) => {
         }
     };
 
-    await protect(), ihrzLogs();
+    await protect();
 };

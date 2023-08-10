@@ -26,6 +26,7 @@ import * as db from '../core/functions/DatabaseModel';
 
 export = async (client: Client, ban: GuildBan) => {
     let data = await client.functions.getLanguageData(ban.guild.id);
+
     async function serverLogs() {
         if (!ban.guild.members.me || !ban.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
         let fetchedLogs = await ban.guild.fetchAuditLogs({
@@ -49,5 +50,6 @@ export = async (client: Client, ban: GuildBan) => {
 
         await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
     };
+    
     await serverLogs();
 };
