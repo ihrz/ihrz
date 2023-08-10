@@ -28,6 +28,8 @@ export = async (client: Client, channel: any) => {
     async function protect() {
         let data = await db.DataBaseModel({ id: db.Get, key: `${channel.guild.id}.PROTECTION` });
 
+        if (!data) return;
+
         if (data.deletechannel && data.deletechannel.mode === 'allowlist') {
             let fetchedLogs = await channel.guild.fetchAuditLogs({
                 type: AuditLogEvent.ChannelDelete,

@@ -27,6 +27,7 @@ export = async (client: Client, role: any) => {
 
     async function protect() {
         let data = await db.DataBaseModel({ id: db.Get, key: `${role.guild.id}.PROTECTION` });
+        if (!data) return;
 
         if (data.deleterole && data.deleterole.mode === 'allowlist') {
             let fetchedLogs = await role.guild.fetchAuditLogs({

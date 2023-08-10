@@ -39,7 +39,8 @@ export = async (client: Client, channel: any) => {
 
     async function protect() {
         let data = await db.DataBaseModel({ id: db.Get, key: `${channel.guild.id}.PROTECTION` });
-
+        if (!data) return;
+        
         if (data.createchannel && data.createchannel.mode === 'allowlist') {
             let fetchedLogs = await channel.guild.fetchAuditLogs({
                 type: AuditLogEvent.ChannelCreate,
@@ -48,7 +49,7 @@ export = async (client: Client, channel: any) => {
             var firstEntry: any = fetchedLogs.entries.first();
             if (firstEntry.targetId !== channel.id) return;
             if (firstEntry.executorId === client.user?.id) return;
-            
+
             let baseData = await db.DataBaseModel({
                 id: db.Get, key:
                     `${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`

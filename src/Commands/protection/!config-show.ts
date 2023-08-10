@@ -45,9 +45,11 @@ export = {
         let baseData4Protection = await db.DataBaseModel({
             id: db.Get, key:
                 `${interaction.guild.id}.PROTECTION`
-        });
+        }); 
 
-        for (var i in baseData.list) {
+        if (!baseData || !baseData4Protection) return interaction.editReply({ content: "You have not anything!" })
+
+        for (var i in baseData?.list) {
             text += `<@${i}>\n`
         };
 
