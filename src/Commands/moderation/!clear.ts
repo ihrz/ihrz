@@ -32,18 +32,18 @@ export = {
 
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)
         var numberx = interaction.options.getNumber("number") + 1;
-        if (!permission) return interaction.editReply({content: data.clear_dont_have_permission});
+        if (!permission) return interaction.editReply({ content: data.clear_dont_have_permission });
+        
         if (numberx > 98) {
-            return interaction.editReply({content: data.clear_max_message_limit})
-        }
-        ;
+            return interaction.editReply({ content: data.clear_max_message_limit })
+        };
 
         interaction.channel.bulkDelete(numberx, true)
             .then((messages: { size: any; }) => {
-                interaction.editReply({
+                interaction.channel.send({
                     content: data.clear_confirmation_message
                         .replace(/\${messages\.size}/g, messages.size)
-                })
+                });
 
                 try {
                     let logEmbed = new EmbedBuilder()
@@ -56,13 +56,12 @@ export = {
                         )
                     let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                     if (logchannel) {
-                        logchannel.send({embeds: [logEmbed]})
+                        logchannel.send({ embeds: [logEmbed] })
                     }
                     ;
                 } catch (e: any) {
                     logger.err(e)
-                }
-                ;
+                };
             });
     },
 }
