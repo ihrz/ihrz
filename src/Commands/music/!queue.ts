@@ -24,25 +24,25 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import {useQueue} from 'discord-player';
+import { useQueue } from 'discord-player';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let queue = useQueue(interaction.guildId);
 
-        if (!queue) return interaction.editReply({content: data.queue_iam_not_voicec})
+        if (!queue) return interaction.editReply({ content: data.queue_iam_not_voicec })
         if (!queue.tracks || !queue.currentTrack) {
-            return interaction.editReply({content: data.queue_no_queue})
-        }
+            return interaction.editReply({ content: data.queue_no_queue })
+        };
 
         let tracks = queue.tracks
             .toArray()
             .map((track, idx) => `**${++idx})** [${track.title}](${track.url})`)
 
         if (tracks.length === 0) {
-            return interaction.editReply({content: data.queue_empty_queue})
-        }
+            return interaction.editReply({ content: data.queue_empty_queue })
+        };
 
         let embeds: any[] = [];
         let chunkSize = 10;
@@ -62,14 +62,14 @@ export = {
             embeds.push(embed);
             tracks.splice(0, chunkSize);
             index++;
-        }
+        };
 
         let message = await interaction.editReply({
             embeds: [embeds[0]],
             fetchReply: true
         })
 
-        if (embeds.length === 1) return
+        if (embeds.length === 1) return;
 
         message.react('⬅️');
         message.react('➡️');
@@ -99,13 +99,12 @@ export = {
             reaction.users.remove(user.id).catch(() => {
             });
 
-            message.edit({embeds: [embeds[currentIndex]]});
-        })
+            message.edit({ embeds: [embeds[currentIndex]] });
+        });
 
         collector.on('end', () => {
             message.reactions.removeAll().catch(() => {
             });
         });
-
     },
-}
+};

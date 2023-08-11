@@ -32,12 +32,9 @@ export = {
         let action = interaction.options.getString('action');
 
         if (interaction.user.id !== interaction.guild.ownerId) {
-            return interaction.editReply({content: data.blockbot_not_owner});
-        }
-        ;
-
-        if (action === 'on') {
-            // ------------------------
+            await interaction.editReply({ content: data.blockbot_not_owner });
+            return;
+        } else if (action === 'on') {
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
@@ -47,22 +44,19 @@ export = {
                     );
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
                 if (logchannel) {
-                    logchannel.send({embeds: [logEmbed]})
-                }
-                ;
+                    logchannel.send({ embeds: [logEmbed] })
+                };
             } catch (e: any) {
-                logger.err(e)
-            }
-            ;
-            // ------------------------
+                logger.err(e);
+            };
 
-            await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.BLOCK_BOT`, value: true});
+            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.BLOCK_BOT`, value: true });
 
-            return interaction.editReply({content: data.blockbot_command_work_on_enable});
+            await interaction.editReply({ content: data.blockbot_command_work_on_enable });
+            return;
         } else if (action === 'off') {
-
-            // ------------------------
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
@@ -72,21 +66,18 @@ export = {
                     );
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
                 if (logchannel) {
-                    logchannel.send({embeds: [logEmbed]})
-                }
-                ;
+                    logchannel.send({ embeds: [logEmbed] });
+                };
             } catch (e: any) {
-                logger.err(e)
-            }
-            ;
-            // ------------------------
+                logger.err(e);
+            };
 
-            await db.DataBaseModel({id: db.Delete, key: `${interaction.guild.id}.GUILD.BLOCK_BOT`});
+            await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.BLOCK_BOT` });
 
-            return interaction.editReply({content: data.blockbot_command_work_on_disable});
-        }
-        ;
-
+            await interaction.editReply({ content: data.blockbot_command_work_on_disable });
+            return;
+        };
     },
-}
+};

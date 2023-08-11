@@ -32,15 +32,15 @@ export = {
             let queue = interaction.client.player.nodes.get(interaction.guild);
 
             if (!queue || !queue.isPlaying()) {
-                return interaction.editReply({content: data.stop_nothing_playing, ephemeral: true});
-            }
-            ;
+                await interaction.editReply({ content: data.stop_nothing_playing, ephemeral: true });
+                return;
+            };
 
             interaction.client.player.nodes.delete(interaction.guild?.id);
-            await interaction.editReply({content: data.stop_command_work});
+            await interaction.editReply({ content: data.stop_command_work });
+            return;
         } catch (error: any) {
             logger.err(error);
-        }
-        ;
+        };
     },
-}
+};

@@ -21,19 +21,8 @@
 
 import {
     Client,
-    Collection,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
     PermissionsBitField,
-    ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
 import logger from '../../core/logger';
@@ -44,29 +33,32 @@ export = {
         let tomute = interaction.options.getMember("user");
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages);
 
-        if (!permission) return interaction.editReply({content: data.unmute_dont_have_permission});
+        if (!permission) return interaction.editReply({ content: data.unmute_dont_have_permission });
         if (!interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.ManageRoles])) {
-            return interaction.editReply({content: data.unmute_i_dont_have_permission});
-        }
-        ;
-        if (tomute.id === interaction.user.id) return interaction.editReply({content: data.unmute_attempt_mute_your_self});
+            await interaction.editReply({ content: data.unmute_i_dont_have_permission });
+            return;
+        };
+
+        if (tomute.id === interaction.user.id) return interaction.editReply({ content: data.unmute_attempt_mute_your_self });
         let muterole = interaction.guild.roles.cache.find((role: { name: string; }) => role.name === 'muted');
 
         if (!tomute.roles.cache.has(muterole.id)) {
-            return interaction.editReply({content: data.unmute_not_muted})
-        }
-        ;
+            await interaction.editReply({ content: data.unmute_not_muted });
+            return;
+        };
 
         if (!muterole) {
-            return interaction.editReply({content: data.unmute_muted_role_doesnt_exist})
-        }
-        ;
+            await interaction.editReply({ content: data.unmute_muted_role_doesnt_exist });
+            return;
+        };
 
         tomute.roles.remove(muterole.id);
+        
         await interaction.editReply({
             content: data.unmute_command_work
                 .replace("${tomute.id}", tomute.id)
         });
+
         try {
             let logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
@@ -74,16 +66,15 @@ export = {
                 .setDescription(data.unmute_logs_embed_description
                     .replace("${interaction.user.id}", interaction.user.id)
                     .replace("${tomute.id}", tomute.id)
-                )
+                );
 
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
             if (logchannel) {
-                logchannel.send({embeds: [logEmbed]});
-            }
-            ;
+                logchannel.send({ embeds: [logEmbed] });
+            };
         } catch (e: any) {
             logger.err(e)
-        }
-        ;
+        };
     },
-}
+};

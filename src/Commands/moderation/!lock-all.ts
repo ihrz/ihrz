@@ -21,19 +21,8 @@
 
 import {
     Client,
-    Collection,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
     PermissionsBitField,
-    ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
     ChannelType,
 } from 'discord.js';
 
@@ -44,13 +33,13 @@ export = {
 
 
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.Administrator);
-        if (!permission) return interaction.editReply({content: data.lockall_dont_have_permission});
+        if (!permission) return interaction.editReply({ content: data.lockall_dont_have_permission });
         interaction.guild.channels.cache.forEach((c: { type: ChannelType; permissionOverwrites: { create: (arg0: any, arg1: { SendMessages: boolean; }) => void; }; }) => {
             if (c.type === ChannelType.GuildText) {
-                c.permissionOverwrites.create(interaction.guild.id, {SendMessages: false})
-            }
-            ;
-        })
+                c.permissionOverwrites.create(interaction.guild.id, { SendMessages: false })
+            };
+        });
+
         let Lockembed = new EmbedBuilder()
             .setColor("#5b3475")
             .setTimestamp()
@@ -67,14 +56,15 @@ export = {
                 );
 
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
             if (logchannel) {
-                logchannel.send({embeds: [logEmbed]})
-            }
+                logchannel.send({ embeds: [logEmbed] })
+            };
         } catch (e: any) {
             logger.err(e)
-        }
-        ;
+        };
 
-        return interaction.editReply({embeds: [Lockembed]});
+        await interaction.editReply({ embeds: [Lockembed] });
+        return;
     },
-}
+};

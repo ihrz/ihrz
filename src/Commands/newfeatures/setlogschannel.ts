@@ -21,26 +21,14 @@
 
 import {
     Client,
-    Collection,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
-import config from '../../files/config';
-import ms from 'ms';
 
 export let command: Command = {
     name: 'setlogschannel',
@@ -71,7 +59,7 @@ export let command: Command = {
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.editReply({ content: data.setlogschannel_not_admin });
-        }
+        };
 
         let type = interaction.options.getString("type");
         let argsid = interaction.options.getChannel("channel");
@@ -79,8 +67,10 @@ export let command: Command = {
         /*                                        ROLES LOGS                                                */
         if (type === "1") {
             let typeOfLogs = "Roles Logs"
-            if (!argsid) return interaction.editReply({ content: data.setlogschannel_not_specified_args })
-
+            if (!argsid) {
+                await interaction.editReply({ content: data.setlogschannel_not_specified_args });
+                return;
+            };
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
@@ -89,16 +79,20 @@ export let command: Command = {
                         .replace(/\${argsid\.id}/g, argsid.id)
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                         .replace(/\${typeOfLogs}/g, typeOfLogs)
-                    )
+                    );
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
 
             try {
                 let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.roles` });
 
-                if (already === argsid.id) return interaction.editReply({ content: data.setlogschannel_already_this_channel })
+                if (already === argsid.id) {
+                    await interaction.editReply({ content: data.setlogschannel_already_this_channel });
+                    return;
+                };
+
                 interaction.client.channels.cache.get(argsid.id).send({
                     content: data.setlogschannel_confirmation_message
                         .replace("${interaction.user.id}", interaction.user.id)
@@ -106,13 +100,15 @@ export let command: Command = {
                 })
                 await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.roles`, values: argsid.id });
 
-                return interaction.editReply({
+                await interaction.editReply({
                     content: data.setlogschannel_command_work
                         .replace("${argsid.id}", argsid.id)
                         .replace("${typeOfLogs}", typeOfLogs)
                 });
+                return;
             } catch (e) {
-                return await interaction.editReply({ content: data.setlogschannel_command_error });
+                await interaction.editReply({ content: data.setlogschannel_command_error });
+                return;
             }
         };
 
@@ -149,21 +145,25 @@ export let command: Command = {
                     value: argsid.id
                 });
 
-                return interaction.editReply({
+                await interaction.editReply({
                     content: data.setlogschannel_command_work
                         .replace("${argsid.id}", argsid.id)
                         .replace("${typeOfLogs}", typeOfLogs)
                 });
+                return;
             } catch (e) {
-                return await interaction.editReply({ content: data.setlogschannel_command_error });
+                await interaction.editReply({ content: data.setlogschannel_command_error });
+                return;
             }
-        }
+        };
 
         /*                                        VOICES LOGS                                                */
         if (type === "3") {
             let typeOfLogs = "Voice Logs"
-            if (!argsid) return interaction.editReply({ content: data.setlogschannel_not_specified_args })
-
+            if (!argsid) {
+                await interaction.editReply({ content: data.setlogschannel_not_specified_args });
+                return;
+            }
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
@@ -188,21 +188,26 @@ export let command: Command = {
                 })
                 await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.voice`, value: argsid.id });
 
-                return interaction.editReply({
+                await interaction.editReply({
                     content: data.setlogschannel_command_work
                         .replace("${argsid.id}", argsid.id)
                         .replace("${typeOfLogs}", typeOfLogs)
                 });
+                return;
             } catch (e) {
-                return await interaction.editReply({ content: data.setlogschannel_command_error });
+                await interaction.editReply({ content: data.setlogschannel_command_error });
+                return;
             }
-        }
+        };
 
         /*                                        MESSAGES LOGS                                                */
 
         if (type === "4") {
             let typeOfLogs = "Messages Logs"
-            if (!argsid) return interaction.editReply({ content: data.setlogschannel_not_specified_args });
+            if (!argsid) {
+                await interaction.editReply({ content: data.setlogschannel_not_specified_args });
+                return;
+            };
 
             try {
                 let logEmbed = new EmbedBuilder()
@@ -219,7 +224,6 @@ export let command: Command = {
             } catch (e: any) { logger.err(e) };
 
             try {
-
                 let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.message` })
                 if (already === argsid.id) return interaction.editReply({ content: data.setlogschannel_already_this_channel });
                 interaction.client.channels.cache.get(argsid.id).send({
@@ -229,15 +233,17 @@ export let command: Command = {
                 })
                 await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.message`, value: argsid.id });
 
-                return interaction.editReply({
+                await interaction.editReply({
                     content: data.setlogschannel_command_work
                         .replace("${argsid.id}", argsid.id)
                         .replace("${typeOfLogs}", typeOfLogs)
                 });
+                return;
             } catch (e) {
-                return await interaction.editReply({ content: data.setlogschannel_command_error });
+                await interaction.editReply({ content: data.setlogschannel_command_error });
+                return;
             }
-        }
+        };
 
         /*                                        DELETE LOGS                                                */
         if (type === "off") {
@@ -257,10 +263,11 @@ export let command: Command = {
             if (!checkData) return interaction.editReply({ content: data.setlogschannel_already_deleted })
 
             await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.SERVER_LOGS` });
-            return await interaction.editReply({
+            await interaction.editReply({
                 content: data.setlogschannel_command_work_on_delete
                     .replace("${interaction.guild.name}", interaction.guild.name)
             });
+            return;
         }
     },
 };

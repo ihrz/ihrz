@@ -30,13 +30,14 @@ import logger from '../../core/logger';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({content: data.setleavemessage_not_admin});
-        }
-        ;
 
-        let type = interaction.options.getString("value")
-        let messagei = interaction.options.getString("message")
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            await interaction.editReply({ content: data.setleavemessage_not_admin });
+            return;
+        };
+
+        let type = interaction.options.getString("value");
+        let messagei = interaction.options.getString("message");
 
         let help_embed = new EmbedBuilder()
             .setColor("#016c9a")
@@ -45,7 +46,7 @@ export = {
             .addFields({
                 name: data.setleavemessage_help_embed_fields_name,
                 value: data.setleavemessage_help_embed_fields_value
-            })
+            });
 
         if (type == "on") {
             if (messagei) {
@@ -53,7 +54,7 @@ export = {
                     .replace("{user}", "{user}")
                     .replace("{guild}", "{guild}")
                     .replace("{membercount}", "{membercount}")
-                await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`, value: joinmsgreplace})
+                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`, value: joinmsgreplace });
 
                 try {
                     let logEmbed = new EmbedBuilder()
@@ -61,46 +62,49 @@ export = {
                         .setTitle(data.setleavemessage_logs_embed_title_on_enable)
                         .setDescription(data.setleavemessage_logs_embed_description_on_enable
                             .replace("${interaction.user.id}", interaction.user.id)
-                        )
+                        );
 
                     let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
                     if (logchannel) {
-                        logchannel.send({embeds: [logEmbed]})
-                    }
+                        logchannel.send({ embeds: [logEmbed] });
+                    };
                 } catch (e: any) {
-                    logger.err(e)
-                }
-                ;
+                    logger.err(e);
+                };
 
-                return interaction.editReply({content: data.setleavemessage_command_work_on_enable})
+                await interaction.editReply({ content: data.setleavemessage_command_work_on_enable });
+                return
             }
 
-        } else {
-            if (type == "off") {
-                await db.DataBaseModel({id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`});
-                try {
-                    let ban_embed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
-                        .setTitle(data.setleavemessage_logs_embed_title_on_disable)
-                        .setDescription(data.setleavemessage_logs_embed_description_on_disable
-                            .replace("${interaction.user.id}", interaction.user.id)
-                        )
-                    let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                    logchannel.send({embeds: [ban_embed]})
-                } catch (e: any) {
-                    logger.err(e)
-                }
-                return interaction.editReply({content: data.setleavemessage_command_work_on_disable})
-            }
-        }
-        if (type == "ls") {
-            var ls = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`});
-            return interaction.editReply({content: data.setleavemessage_command_work_ls})
-        }
+        } else if (type == "off") {
+            await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage` });
+            try {
+                let logEmbed = new EmbedBuilder()
+                    .setColor("#bf0bb9")
+                    .setTitle(data.setleavemessage_logs_embed_title_on_disable)
+                    .setDescription(data.setleavemessage_logs_embed_description_on_disable
+                        .replace("${interaction.user.id}", interaction.user.id)
+                    );
 
-        if (!messagei) {
-            return interaction.editReply({embeds: [help_embed]})
-        }
-        ;
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
+                if (logchannel) {
+                    logchannel.send({ embeds: [logEmbed] });
+                };
+            } catch (e: any) {
+                logger.err(e)
+            };
+            
+            await interaction.editReply({ content: data.setleavemessage_command_work_on_disable });
+            return;
+        } else if (type == "ls") {
+            var ls = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage` });
+            await interaction.editReply({ content: data.setleavemessage_command_work_ls.replace('${ls}', ls) });
+            return;
+        } else if (!messagei) {
+            await interaction.editReply({ embeds: [help_embed] });
+            return;
+        };
     },
-}
+};

@@ -30,7 +30,8 @@ import * as db from '../../core/functions/DatabaseModel';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({ content: data.guildprofil_not_admin });
+            await interaction.editReply({ content: data.guildprofil_not_admin });
+            return;
         };
 
         let baseData = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD` });
@@ -87,66 +88,66 @@ export = {
         };
 
         if (!text2 || text2 == '') {
-            reactionrole = data.guildprofil_not_set_reactionrole
+            reactionrole = data.guildprofil_not_set_reactionrole;
         } else {
-            reactionrole = text2
+            reactionrole = text2;
         };
 
         if (!text || text == '') {
-            ticketFetched = data.guildprofil_not_set_ticketFetched
+            ticketFetched = data.guildprofil_not_set_ticketFetched;
         } else {
-            ticketFetched = text
+            ticketFetched = text;
         };
 
         if (!punishPub || punishPub === null) {
-            punishPub = data.guildprofil_not_set_punishPub
+            punishPub = data.guildprofil_not_set_punishPub;
         } else {
             punishPub = data.guildprofil_set_punishPub
                 .replace(/\${punishPub\.punishementType}/g, punishPub.punishementType)
-                .replace(/\${punishPub\.amountMax}/g, punishPub.amountMax)
+                .replace(/\${punishPub\.amountMax}/g, punishPub.amountMax);
         };
 
         if (!supportConfig || supportConfig === null) {
-            supportConfig = data.guildprofil_not_set_supportConfig
+            supportConfig = data.guildprofil_not_set_supportConfig;
         } else {
             supportConfig = data.guildprofil_set_supportConfig
                 .replace(/\${supportConfig\.input}/g, supportConfig.input)
-                .replace(/\${supportConfig\.rolesId}/g, supportConfig.rolesId)
+                .replace(/\${supportConfig\.rolesId}/g, supportConfig.rolesId);
         };
 
         if (!setchannelsjoin || setchannelsjoin === null) {
-            setchannelsjoin = data.guildprofil_not_set_setchannelsjoin
+            setchannelsjoin = data.guildprofil_not_set_setchannelsjoin;
         } else {
-            setchannelsjoin = `<#${setchannelsjoin}>`
+            setchannelsjoin = `<#${setchannelsjoin}>`;
         };
 
         if (!setchannelsleave || setchannelsleave === null) {
-            setchannelsleave = data.guildprofil_not_set_setchannelsleave
+            setchannelsleave = data.guildprofil_not_set_setchannelsleave;
         } else {
-            setchannelsleave = `<#${setchannelsleave}>`
+            setchannelsleave = `<#${setchannelsleave}>`;
         };
 
         if (!joinmessage || joinmessage == null) {
-            joinmessage = data.guildprofil_not_set_joinmessage
+            joinmessage = data.guildprofil_not_set_joinmessage;
         }
         if (!leavemessage || leavemessage == null) {
-            leavemessage = data.guildprofil_not_set_leavemessage
+            leavemessage = data.guildprofil_not_set_leavemessage;
         };
 
         if (!joinroles || joinroles === null) {
-            joinroles = data.guildprofil_not_set_joinroles
+            joinroles = data.guildprofil_not_set_joinroles;
         } else {
-            joinroles = `<@&${joinroles}>`
+            joinroles = `<@&${joinroles}>`;
         };
 
         if (!joinDmMessage || joinDmMessage === null) {
-            joinDmMessage = data.guildprofil_not_set_joinDmMessage
+            joinDmMessage = data.guildprofil_not_set_joinDmMessage;
         };
 
         if (blockpub != "on") {
-            blockpub = data.guildprofil_not_set_blockpub
+            blockpub = data.guildprofil_not_set_blockpub;
         } else {
-            blockpub = data.guildprofil_set_blockpub
+            blockpub = data.guildprofil_set_blockpub;
         };
 
         if (xp.disable === false) {
@@ -194,7 +195,9 @@ export = {
                 { name: data.guildprofil_embed_fields_ranks, value: xpStats, inline: true },
                 { name: data.guildprofil_embed_fields_logs, value: logsStat, inline: true },
                 { name: data.guildprofil_embed_fields_blockbot, value: blockBotStat, inline: true })
-            .setThumbnail(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`)
-        return interaction.editReply({ embeds: [guildc] });
+            .setThumbnail(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`);
+
+        await interaction.editReply({ embeds: [guildc] });
+        return;
     },
 };

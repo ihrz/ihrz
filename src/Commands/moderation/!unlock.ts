@@ -47,6 +47,7 @@ export = {
                     .replace(/\${interaction\.channel\.id}/g, interaction.channel.id)
                 )
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            
             if (logchannel) {
                 logchannel.send({embeds: [logEmbed]})
             }

@@ -23,18 +23,18 @@ import {
     Client,
 } from 'discord.js';
 
-import {useQueue} from 'discord-player';
+import { useQueue } from 'discord-player';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         let queue = useQueue(interaction.guild.id);
-        if (!queue) return interaction.editReply({content: data.shuffle_no_queue});
+        if (!queue) return interaction.editReply({ content: data.shuffle_no_queue });
 
-        if (queue.tracks.size < 2) return interaction.editReply({content: data.shuffle_no_enought});
+        if (queue.tracks.size < 2) return interaction.editReply({ content: data.shuffle_no_enought });
 
         await queue.tracks.shuffle();
 
-        return interaction.editReply({content: data.shuffle_command_work});
-
+        await interaction.editReply({ content: data.shuffle_command_work });
+        return;
     },
-}
+};

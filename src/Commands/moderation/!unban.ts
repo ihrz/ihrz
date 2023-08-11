@@ -54,7 +54,7 @@ export = {
         let userID = interaction.options.getString('userid');
         let reason = interaction.options.getString('reason');
 
-        if (!reason) reason = "No reason was provided."
+        if (!reason) reason = "No reason was provided.";
 
         await interaction.guild.bans.fetch()
             .then(async (bans: { size: number; find: (arg0: (ban: any) => boolean) => any; }) => {
@@ -68,7 +68,7 @@ export = {
                 await interaction.editReply({
                     content: data.unban_is_now_unbanned
                         .replace(/\${userID}/g, userID)
-                })
+                });
             })
             .catch((err: string) => logger.err(err));
 
@@ -80,10 +80,10 @@ export = {
                 )
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) {
-                logchannel.send({ embeds: [logEmbed] })
+                logchannel.send({ embeds: [logEmbed] });
             };
         } catch (e: any) {
             logger.err(e);
         };
     },
-}
+};

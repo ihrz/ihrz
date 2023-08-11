@@ -29,16 +29,18 @@ import * as db from '../../core/functions/DatabaseModel';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         let member = interaction.options.getMember("member") || interaction.member;
-        let inv = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.USER.${member.user.id}.INVITES.invites`});
-        let leaves = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.USER.${member.user.id}.INVITES.leaves`});
-        let Regular = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.USER.${member.user.id}.INVITES.regular`});
-        let bonus = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.USER.${member.user.id}.INVITES.bonus`});
+        let baseData = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${member.user.id}.INVITES` });
+
+        let inv = baseData?.invites;
+        let leaves = baseData?.leaves;
+        let Regular = baseData?.regular;
+        let bonus = baseData?.bonus;
 
         let embed = new EmbedBuilder()
             .setColor("#92A8D1")
             .setTitle(data.invites_confirmation_embed_title)
             .setTimestamp()
-            .setThumbnail(member.user.avatarURL({dynamic: true}))
+            .setThumbnail(member.user.avatarURL({ dynamic: true }))
             .setDescription(
                 data.invites_confirmation_embed_description
                     .replace(/\${member\.user\.id}/g, member.user.id)
@@ -48,6 +50,7 @@ export = {
                     .replace(/\${inv\s*\|\|\s*0}/g, inv || 0)
             );
 
-        return await interaction.editReply({embeds: [embed]});
+        await interaction.editReply({ embeds: [embed] });
+        return;
     },
-}
+};

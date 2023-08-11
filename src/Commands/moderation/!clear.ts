@@ -33,9 +33,10 @@ export = {
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)
         var numberx = interaction.options.getNumber("number") + 1;
         if (!permission) return interaction.editReply({ content: data.clear_dont_have_permission });
-        
+
         if (numberx > 98) {
-            return interaction.editReply({ content: data.clear_max_message_limit })
+            await interaction.editReply({ content: data.clear_max_message_limit });
+            return;
         };
 
         interaction.channel.bulkDelete(numberx, true)
@@ -55,13 +56,13 @@ export = {
                             .replace(/\${interaction\.channel\.id}/g, interaction.channel.id)
                         )
                     let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
                     if (logchannel) {
-                        logchannel.send({ embeds: [logEmbed] })
-                    }
-                    ;
+                        logchannel.send({ embeds: [logEmbed] });
+                    };
                 } catch (e: any) {
                     logger.err(e)
                 };
             });
     },
-}
+};

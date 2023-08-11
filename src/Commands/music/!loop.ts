@@ -24,7 +24,7 @@ import {
 } from 'discord.js';
 
 import logger from '../../core/logger';
-import {QueueRepeatMode} from 'discord-player';
+import { QueueRepeatMode } from 'discord-player';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -32,9 +32,8 @@ export = {
         try {
             let queue = interaction.client.player.nodes.get(interaction.guild);
             if (!queue || !queue.isPlaying()) {
-                return interaction.editReply({content: data.loop_no_queue});
-            }
-            ;
+                return interaction.editReply({ content: data.loop_no_queue });
+            };
 
             let loopMode = interaction.options.getNumber("select");
 
@@ -46,7 +45,6 @@ export = {
             });
         } catch (error: any) {
             logger.err(error);
-        }
-        ;
+        };
     },
-}
+};

@@ -25,7 +25,7 @@ import {
 } from 'discord.js';
 
 import logger from '../../core/logger';
-import {lyricsExtractor} from '@discord-player/extractor';
+import { lyricsExtractor } from '@discord-player/extractor';
 
 let lyricsFinder = lyricsExtractor();
 
@@ -36,7 +36,7 @@ export = {
             let title = interaction.options.getString("title");
             let lyrics = await lyricsFinder.search(title).catch(() => null);
 
-            if (!lyrics) return interaction.editReply({content: 'No lyrics found', ephemeral: true});
+            if (!lyrics) return interaction.editReply({ content: 'No lyrics found', ephemeral: true });
             let trimmedLyrics = lyrics.lyrics.substring(0, 1997);
 
             let embed = new EmbedBuilder()
@@ -51,9 +51,9 @@ export = {
                 })
                 .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
                 .setColor('#cd703a')
-                .setFooter({text: 'iHorizon', iconURL: client.user?.displayAvatarURL()});
+                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
-            return interaction.editReply({embeds: [embed]});
+            return interaction.editReply({ embeds: [embed] });
 
         } catch (error: any) {
             logger.err(error);

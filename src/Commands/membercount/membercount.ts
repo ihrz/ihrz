@@ -21,11 +21,7 @@
 
 import {
     Client,
-    Collection,
-    ChannelType,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType
 } from 'discord.js'
@@ -33,8 +29,6 @@ import {
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
-import ms from 'ms';
-import config from '../../files/config';
 
 export let command: Command = {
     name: 'membercount',
@@ -75,16 +69,17 @@ export let command: Command = {
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.editReply({ content: data.setmembercount_not_admin });
-        }
-        let type = interaction.options.getString("action")
-        let messagei = interaction.options.getString("name")
-        let channel = interaction.options.getChannel("channel")
+        };
+
+        let type = interaction.options.getString("action");
+        let messagei = interaction.options.getString("name");
+        let channel = interaction.options.getChannel("channel");
 
         let help_embed = new EmbedBuilder()
             .setColor("#0014a8")
             .setTitle(data.setmembercount_helpembed_title)
             .setDescription(data.setmembercount_helpembed_description)
-            .addFields({ name: data.setmembercount_helpembed_fields_name, value: data.setmembercount_helpembed_fields_value })
+            .addFields({ name: data.setmembercount_helpembed_fields_name, value: data.setmembercount_helpembed_fields_value });
 
         if (type == "on") {
             let botMembers = interaction.guild.members.cache.filter((member: { user: { bot: any; }; }) => member.user.bot);
@@ -102,7 +97,6 @@ export let command: Command = {
                         id: db.Set, key: `${interaction.guild.id}.GUILD.MCOUNT.member`, values:
                             { name: messagei, enable: true, event: "member", channel: channel.id }
                     });
-
                 } else if (messagei.includes("roles")) {
                     await db.DataBaseModel({
                         id: db.Set, key: `${interaction.guild.id}.GUILD.MCOUNT.roles`, values:
@@ -113,7 +107,8 @@ export let command: Command = {
                         id: db.Get, key: `${interaction.guild.id}.GUILD.MCOUNT.bot`, values:
                             { name: messagei, enable: true, event: "bot", channel: channel.id }
                     });
-                }
+                };
+
                 try {
                     let logEmbed = new EmbedBuilder()
                         .setColor("#bf0bb9")
@@ -122,36 +117,38 @@ export let command: Command = {
                             .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                             .replace(/\${channel\.id}/g, channel.id)
                             .replace(/\${messagei}/g, messagei)
-                        )
+                        );
+
                     let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                    if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+                    if (logchannel) { logchannel.send({ embeds: [logEmbed] }); };
                 } catch (e: any) { logger.err(e) };
                 let fetched = interaction.guild.channels.cache.get(channel.id);
 
                 await fetched.edit({ name: joinmsgreplace });
-                return interaction.editReply({ content: data.setmembercount_command_work_on_enable })
-            }
-        } else {
-            if (type == "off") {
-                await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.MCOUNT` });
-                try {
-                    let logEmbed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
-                        .setTitle(data.setmembercount_logs_embed_title_on_disable)
-                        .setDescription(data.setmembercount_logs_embed_description_on_disable
-                            .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                        )
-                    let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                    if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
-                } catch (e: any) { logger.err(e) };
-                return interaction.editReply({ content: data.setmembercount_command_work_on_disable });
-            }
-        }
-        if (!type) {
-            return interaction.editReply({ embeds: [help_embed] });
-        }
-        if (!messagei) {
-            return interaction.editReply({ embeds: [help_embed] });
-        }
+                await interaction.editReply({ content: data.setmembercount_command_work_on_enable });
+                return;
+            };
+        } else if (type == "off") {
+            await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.MCOUNT` });
+            try {
+                let logEmbed = new EmbedBuilder()
+                    .setColor("#bf0bb9")
+                    .setTitle(data.setmembercount_logs_embed_title_on_disable)
+                    .setDescription(data.setmembercount_logs_embed_description_on_disable
+                        .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                    )
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+            } catch (e: any) { logger.err(e) };
+
+            await interaction.editReply({ content: data.setmembercount_command_work_on_disable });
+            return;
+        } else if (!type) {
+            await interaction.editReply({ embeds: [help_embed] });
+            return;
+        } else if (!messagei) {
+            await interaction.editReply({ embeds: [help_embed] });
+            return;
+        };
     },
 };

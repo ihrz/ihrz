@@ -29,15 +29,16 @@ export = {
         let mentionedUser = interaction.options.getUser("user") || interaction.user;
 
         let embed = new EmbedBuilder()
-            .setImage(mentionedUser.avatarURL({format: 'png', dynamic: true, size: 512}))
+            .setImage(mentionedUser.avatarURL({ format: 'png', dynamic: true, size: 512 }))
             .setColor("#add5ff")
             .setTitle(data.avatar_embed_title
                 .replace('${mentionedUser.username}', mentionedUser.username)
             )
             .setDescription(data.avatar_embed_description)
             .setTimestamp()
-            .setFooter({text: 'iHorizon', iconURL: client.user?.displayAvatarURL()});
+            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
-        return interaction.editReply({embeds: [embed]});
+        await interaction.editReply({ embeds: [embed] });
+        return;
     },
-}
+};

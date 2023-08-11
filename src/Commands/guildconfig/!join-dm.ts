@@ -30,10 +30,11 @@ import logger from '../../core/logger';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
+
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({content: data.setjoindm_not_admin});
-        }
-        ;
+            await interaction.editReply({ content: data.setjoindm_not_admin });
+            return;
+        };
 
         let type = interaction.options.getString("value");
         let dm_msg = interaction.options.getString("message");
@@ -48,62 +49,64 @@ export = {
                     );
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
                 if (logchannel) {
-                    logchannel.send({embeds: [logEmbed]})
-                }
+                    logchannel.send({ embeds: [logEmbed] })
+                };
             } catch (e: any) {
                 logger.err(e)
-            }
-            ;
+            };
 
             try {
-                if (!dm_msg) return interaction.editReply({content: data.setjoindm_not_specified_args_on_enable})
-                await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`, value: dm_msg});
+                if (!dm_msg) return interaction.editReply({ content: data.setjoindm_not_specified_args_on_enable })
+                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`, value: dm_msg });
                 return interaction.editReply({
                     content: data.setjoindm_confirmation_message_on_enable
                         .replace(/\${dm_msg}/g, dm_msg)
                 });
             } catch (e) {
-                interaction.editReply({content: data.setjoindm_command_error_on_enable});
-            }
-        }
+                await interaction.editReply({ content: data.setjoindm_command_error_on_enable });
+                return;
+            };
 
-        if (type === "off") {
+        } else if (type === "off") {
             try {
-                let ban_embed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.setjoindm_logs_embed_title_on_disable)
                     .setDescription(data.setjoindm_logs_embed_description_on_disable
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     )
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                logchannel.send({embeds: [ban_embed]})
+                logchannel.send({ embeds: [logEmbed] })
             } catch (e) {
                 return;
-            }
+            };
 
             try {
-                let already_off = await db.DataBaseModel({id: db.Get, key: `joindm-${interaction.guild.id}`});
-                if (already_off === "off") return interaction.editReply({content: data.setjoindm_already_disable});
-                await db.DataBaseModel({id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`});
-                return interaction.editReply({content: data.setjoindm_confirmation_message_on_disable});
+                let already_off = await db.DataBaseModel({ id: db.Get, key: `joindm-${interaction.guild.id}` });
+                if (already_off === "off") return interaction.editReply({ content: data.setjoindm_already_disable });
+                await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm` });
+                await interaction.editReply({ content: data.setjoindm_confirmation_message_on_disable });
+                return;
 
             } catch (e) {
-                interaction.editReply({content: data.setjoindm_command_error_on_disable});
-            }
-        }
-        if (type === "ls") {
-            let already_off = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`});
-            if (already_off === null) {
-                return interaction.editReply({content: data.setjoindm_not_setup_ls})
-            }
-            ;
+                await interaction.editReply({ content: data.setjoindm_command_error_on_disable });
+                return;
+            };
 
-            return interaction.editReply({
+        } else if (type === "ls") {
+            let already_off = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm` });
+            if (!already_off) {
+                await interaction.editReply({ content: data.setjoindm_not_setup_ls });
+                return;
+            };
+
+            await interaction.editReply({
                 content: data.setjoindm_command_work_ls
                     .replace(/\${already_off}/g, already_off)
-            })
-        }
-        ;
+            });
+            return;
+        };
     },
-}
+};

@@ -21,19 +21,8 @@
 
 import {
     Client,
-    Collection,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
     PermissionsBitField,
-    ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
 import logger from '../../core/logger';
@@ -45,34 +34,33 @@ export = {
         let permission = interaction.member.permissions.has([PermissionsBitField.Flags.KickMembers]);
 
         if (!permission) {
-            return interaction.editReply({content: data.kick_not_permission});
-        }
-        ;
+            await interaction.editReply({ content: data.kick_not_permission });
+            return;
+        };
 
         if (!interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.KickMembers])) {
-            return interaction.editReply({content: data.kick_dont_have_permission});
-        }
-        ;
+            await interaction.editReply({ content: data.kick_dont_have_permission });
+            return;
+        };
 
         if (member.user.id === interaction.member.id) {
-            return interaction.editReply({content: data.kick_attempt_kick_your_self});
-        }
-        ;
+            await interaction.editReply({ content: data.kick_attempt_kick_your_self });
+            return;
+        };
 
         if (interaction.member.roles.highest.position < member.roles.highest.position) {
-            return interaction.editReply({content: data.kick_attempt_kick_higter_member});
-        }
-        ;
+            await interaction.editReply({ content: data.kick_attempt_kick_higter_member });
+            return;
+        };
 
         member.send({
             content: data.kick_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
                 .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.username)
-        }).catch(() => {
-        });
+        }).catch(() => { });
 
         try {
-            await member.kick({reason: 'kicked by ' + interaction.user.username});
+            await member.kick({ reason: 'kicked by ' + interaction.user.username });
 
             let logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
@@ -83,9 +71,10 @@ export = {
                 );
 
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            
             if (logchannel) {
-                logchannel.send({embeds: [logEmbed]})
-            }
+                logchannel.send({ embeds: [logEmbed] })
+            };
 
             await interaction.editReply({
                 content: data.kick_command_work
@@ -94,7 +83,6 @@ export = {
             });
         } catch (e: any) {
             logger.err(e);
-        }
-        ;
+        };
     },
-}
+};

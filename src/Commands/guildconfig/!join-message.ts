@@ -29,10 +29,11 @@ import * as db from '../../core/functions/DatabaseModel';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
+
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({content: data.setjoinmessage_not_admin});
-        }
-        ;
+            await interaction.editReply({ content: data.setjoinmessage_not_admin });
+            return;
+        };
 
         let type = interaction.options.getString("value");
         let messagei = interaction.options.getString("message");
@@ -44,7 +45,7 @@ export = {
             .addFields({
                 name: data.setjoinmessage_help_embed_fields_name,
                 value: data.setjoinmessage_help_embed_fields_value
-            })
+            });
 
         if (type == "on") {
             if (messagei) {
@@ -53,7 +54,7 @@ export = {
                     .replace("{guild}", "{guild}")
                     .replace("{createdat}", "{createdat}")
                     .replace("{membercount}", "{membercount}")
-                await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`, value: joinmsgreplace});
+                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`, value: joinmsgreplace });
 
                 try {
                     let logEmbed = new EmbedBuilder()
@@ -65,47 +66,47 @@ export = {
 
                     let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                     if (logchannel) {
-                        logchannel.send({embeds: [logEmbed]})
+                        logchannel.send({ embeds: [logEmbed] })
                     }
                 } catch (e) {
-                }
-                ;
+                };
 
-                return interaction.editReply({content: data.setjoinmessage_command_work_on_enable});
+                await interaction.editReply({ content: data.setjoinmessage_command_work_on_enable });
+                return;
             }
-        } else {
-            if (type == "off") {
-                await db.DataBaseModel({id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`});
-                try {
-                    let logEmbed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
-                        .setTitle(data.setjoinmessage_logs_embed_title_on_disable)
-                        .setDescription(data.setjoinmessage_logs_embed_description_on_disable
-                            .replace("${interaction.user.id}", interaction.user.id)
-                        )
+        } else if (type == "off") {
+            await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage` });
+            try {
+                let logEmbed = new EmbedBuilder()
+                    .setColor("#bf0bb9")
+                    .setTitle(data.setjoinmessage_logs_embed_title_on_disable)
+                    .setDescription(data.setjoinmessage_logs_embed_description_on_disable
+                        .replace("${interaction.user.id}", interaction.user.id)
+                    );
 
-                    let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                    if (logchannel) {
-                        logchannel.send({embeds: [logEmbed]})
-                    }
-                } catch (e) {
-                }
-                ;
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
-                return interaction.editReply({content: data.setjoinmessage_command_work_on_disable})
-            }
-        }
-        if (type == "ls") {
-            var ls = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`});
-            return interaction.editReply({
+                if (logchannel) {
+                    logchannel.send({ embeds: [logEmbed] })
+                };
+            } catch (e) {
+            };
+
+            await interaction.editReply({ content: data.setjoinmessage_command_work_on_disable });
+            return;
+        } else if (type == "ls") {
+            var ls = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage` });
+
+            await interaction.editReply({
                 content: data.setjoinmessage_command_work_ls
                     .replace("${ls}", ls)
-            })
+            });
+            return;
         }
-        if (!messagei) {
-            return interaction.editReply({embeds: [help_embed]});
-        }
-        ;
 
+        if (!messagei) {
+            await interaction.editReply({ embeds: [help_embed] });
+            return;
+        };
     },
-}
+};

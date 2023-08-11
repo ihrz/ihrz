@@ -21,24 +21,10 @@
 
 import {
     Client,
-    Collection,
-    EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
     ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
-import { QueryType, QueueRepeatMode, useQueue } from 'discord-player';
-import { lyricsExtractor } from '@discord-player/extractor';
-
+import { QueueRepeatMode } from 'discord-player';
 import { Command } from '../../../types/command';
 
 export let command: Command = {
@@ -137,4 +123,4 @@ export let command: Command = {
 
         await require('./!' + command).run(client, interaction, data);
     },
-}
+};

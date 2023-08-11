@@ -30,20 +30,23 @@ import logger from '../../core/logger';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
+        
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({content: data.setjoinroles_not_admin});
-        }
-        ;
+            await interaction.editReply({ content: data.setjoinroles_not_admin });
+            return;
+        };
 
-        let query = interaction.options.getString("value")
-        var roleid = interaction.options.get("roles")
+        let query = interaction.options.getString("value");
+        var roleid = interaction.options.get("roles");
+
         let help_embed = new EmbedBuilder()
             .setColor("#016c9a")
             .setTitle(data.setjoinroles_help_embed_title)
-            .setDescription(data.setjoinroles_help_embed_description)
+            .setDescription(data.setjoinroles_help_embed_description);
 
         if (query === "true") {
-            if (!roleid) return interaction.editReply({embeds: [help_embed]});
+            if (!roleid) return interaction.editReply({ embeds: [help_embed] });
+
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
@@ -53,62 +56,67 @@ export = {
                     );
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
                 if (logchannel) {
-                    logchannel.send({embeds: [logEmbed]})
-                }
+                    logchannel.send({ embeds: [logEmbed] });
+                };
             } catch (e: any) {
                 logger.err(e)
-            }
-            ;
+            };
 
             try {
-                let already = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`});
-                if (already === roleid.value) return interaction.editReply({content: data.setjoinroles_already_on_enable})
-                await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`, value: roleid.value});
-                return interaction.editReply({
+                let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles` });
+                if (already === roleid.value) return interaction.editReply({ content: data.setjoinroles_already_on_enable })
+                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`, value: roleid.value });
+
+                await interaction.editReply({
                     content: data.setjoinroles_command_work_enable
                         .replace("${roleid}", roleid.value)
                 });
+                return;
             } catch (e) {
-                return interaction.editReply({content: data.setjoinroles_command_error_on_enable});
+                await interaction.editReply({ content: data.setjoinroles_command_error_on_enable });
+                return;
             }
+        } else if (query === "false") {
+            try {
+                let logEmbed = new EmbedBuilder()
+                    .setColor("#bf0bb9")
+                    .setTitle(data.setjoinroles_logs_embed_title_on_disable)
+                    .setDescription(data.setjoinroles_logs_embed_description_on_disable
+                        .replace("${interaction.user.id}", interaction.user.id)
+                    );
+
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
+                if (logchannel) {
+                    logchannel.send({ embeds: [logEmbed] });
+                };
+            } catch (e) {
+            }
+
+            try {
+                let already = await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles` });
+                if (!already) return interaction.editReply({ content: data.setjoinroles_dont_need_command_on_disable });
+
+                await interaction.editReply({ content: data.setjoinroles_command_work_on_disable });
+                return;
+            } catch (e) {
+                await interaction.editReply({ content: data.setjoinroles_command_error_on_disable });
+                return;
+            };
+        } else if (query === "ls") {
+            let roles = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles` });
+            if (!roles) return interaction.editReply({ content: data.setjoinroles_command_any_set_ls });
+
+            await interaction.editReply({
+                content: data.setjoinroles_command_work_ls
+                    .replace("${roles}", roles)
+            });
+            return;
         } else {
-            if (query === "false") {
-                try {
-                    let ban_embed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
-                        .setTitle(data.setjoinroles_logs_embed_title_on_disable)
-                        .setDescription(data.setjoinroles_logs_embed_description_on_disable
-                            .replace("${interaction.user.id}", interaction.user.id)
-                        );
-                    let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                    logchannel.send({embeds: [ban_embed]});
-                } catch (e) {
-                }
-
-                try {
-                    let already = await db.DataBaseModel({id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`});
-                    if (!already) return interaction.editReply({content: data.setjoinroles_dont_need_command_on_disable})
-
-                    return interaction.editReply({content: data.setjoinroles_command_work_on_disable});
-
-                } catch (e) {
-                    return interaction.editReply({content: data.setjoinroles_command_error_on_disable});
-                }
-            } else {
-                if (query === "ls") {
-                    let roles = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`})
-                    if (!roles) return interaction.editReply({content: data.setjoinroles_command_any_set_ls})
-                    return interaction.editReply({
-                        content: data.setjoinroles_command_work_ls
-                            .replace("${roles}", roles)
-                    });
-                } else {
-                    interaction.editReply({embeds: [help_embed]});
-                }
-            }
-        }
-        ;
-
+            await interaction.editReply({ embeds: [help_embed] });
+            return;
+        };
     },
-}
+};

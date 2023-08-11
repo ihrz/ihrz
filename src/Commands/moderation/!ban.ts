@@ -31,24 +31,29 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
         let member = interaction.guild.members.cache.get(interaction.options.get("member").user.id)
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.BanMembers)
-        if (!permission) return interaction.editReply({content: data.ban_not_permission});
-        if (!member) return interaction.editReply({content: data.ban_dont_found_member});
+        if (!permission) return interaction.editReply({ content: data.ban_not_permission });
+        if (!member) return interaction.editReply({ content: data.ban_dont_found_member });
 
         if (!interaction.channel.permissionsFor(client.user).has('BAN_MEMBERS')) {
-            return interaction.editReply({content: data.ban_dont_have_perm_myself})
-        }
+            await interaction.editReply({ content: data.ban_dont_have_perm_myself });
+            return;
+        };
 
         if (member.user.id === interaction.member.id) {
-            return interaction.editReply({content: data.ban_try_to_ban_yourself})
-        }
-        ;
+            await interaction.editReply({ content: data.ban_try_to_ban_yourself });
+            return;
+        };
+
         if (interaction.member.roles.highest.position < member.roles.highest.position) {
-            return interaction.editReply({content: data.ban_attempt_ban_higter_member});
-        }
+            await interaction.editReply({ content: data.ban_attempt_ban_higter_member });
+            return;
+        };
 
         if (!member.bannable) {
-            return interaction.editReply({content: data.ban_cant_ban_member});
-        }
+            await interaction.editReply({ content: data.ban_cant_ban_member });
+            return;
+        };
+
         member.send({
             content: data.ban_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
@@ -57,15 +62,13 @@ export = {
             .catch(() => {
             })
             .then(() => {
-                member.ban({reason: 'banned by ' + interaction.user.username})
+                member.ban({ reason: 'banned by ' + interaction.user.username })
                     .then((member: { user: { id: any; }; }) => {
                         interaction.editReply({
                             content: data.ban_command_work
                                 .replace(/\${member\.user\.id}/g, member.user.id)
                                 .replace(/\${interaction\.member\.id}/g, interaction.member.id)
-                        })
-                            .catch(() => {
-                            });
+                        }).catch(() => { });
 
                         try {
                             let logEmbed = new EmbedBuilder()
@@ -76,14 +79,14 @@ export = {
                                     .replace(/\${interaction\.member\.id}/g, interaction.member.id)
                                 )
                             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
                             if (logchannel) {
-                                logchannel.send({embeds: [logEmbed]})
-                            }
+                                logchannel.send({ embeds: [logEmbed] })
+                            };
                         } catch (e: any) {
-                            logger.err(e)
-                        }
-                        ;
+                            logger.err(e);
+                        };
                     })
             });
     },
-}
+};

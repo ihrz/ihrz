@@ -30,17 +30,15 @@ import ms from 'ms';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         if (!interaction.member.voice.channel) {
-            return interaction.editReply({content: data.skip_not_in_voice_channel});
-        }
-        ;
+            return interaction.editReply({ content: data.skip_not_in_voice_channel });
+        };
 
         try {
-            let queue = interaction.client.player.nodes.get(interaction.guild)
+            let queue = interaction.client.player.nodes.get(interaction.guild);
 
             if (!queue || !queue.isPlaying()) {
-                return interaction.editReply({content: data.skip_nothing_playing})
-            }
-            ;
+                return interaction.editReply({ content: data.skip_nothing_playing })
+            };
 
             let currentTrack = queue.current
             let success = queue.node.skip()
@@ -50,7 +48,6 @@ export = {
             })
         } catch (error: any) {
             logger.err(error)
-        }
-        ;
+        };
     },
-}
+};

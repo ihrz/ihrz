@@ -30,9 +30,9 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({content: data.setup_not_admin});
-        }
-        ;
+            await interaction.editReply({ content: data.setup_not_admin });
+            return;
+        };
 
         let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
         if (!logchannel) {
@@ -45,10 +45,13 @@ export = {
                         deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
                     }
                 ],
-            })
-            return interaction.editReply({content: data.setup_command_work})
+            });
+
+            await interaction.editReply({ content: data.setup_command_work });
+            return;
         } else {
-            return interaction.editReply({content: data.setup_command_error})
-        }
+            await interaction.editReply({ content: data.setup_command_error });
+            return;
+        };
     },
-}
+};

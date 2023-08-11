@@ -27,14 +27,14 @@ import logger from '../../core/logger';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
-        if (!interaction.member.voice.channel) return interaction.editReply({content: data.pause_no_queue});
+        if (!interaction.member.voice.channel) return interaction.editReply({ content: data.pause_no_queue });
         try {
             let queue = interaction.client.player.nodes.get(interaction.guild);
             if (!queue || !queue.isPlaying()) {
-                return interaction.editReply({content: data.pause_nothing_playing, ephemeral: true});
+                return interaction.editReply({ content: data.pause_nothing_playing, ephemeral: true });
             }
             let paused = queue.node.setPaused(true);
-            interaction.editReply({content: paused ? 'paused' : "something went wrong"});
+            await interaction.editReply({ content: paused ? 'paused' : "something went wrong" });
             return;
         } catch (error: any) {
             logger.err(error);

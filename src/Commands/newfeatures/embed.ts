@@ -388,4 +388,4 @@ export let command: Command = {
             return password;
         };
     },
-}
+};

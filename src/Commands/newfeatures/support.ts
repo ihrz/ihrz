@@ -21,19 +21,9 @@
 
 import {
     Client,
-    Collection,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
@@ -80,7 +70,7 @@ export let command: Command = {
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.editReply({ content: data.support_not_admin });
-        }
+        };
 
         let action = interaction.options.getString("action");
         let input = interaction.options.getString("input");
@@ -115,7 +105,7 @@ export let command: Command = {
                     )
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
         } else {
             await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.SUPPORT` });
@@ -136,6 +126,8 @@ export let command: Command = {
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
             } catch (e: any) { logger.err(e) };
+
+            return;
         };
     },
 };

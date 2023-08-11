@@ -24,7 +24,7 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import {QueryType} from 'discord-player';
+import { QueryType } from 'discord-player';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -33,9 +33,8 @@ export = {
         let check = interaction.options.getString("title");
 
         if (!voiceChannel) {
-            return interaction.editReply({content: data.p_not_in_voice_channel});
-        }
-        ;
+            return interaction.editReply({ content: data.p_not_in_voice_channel });
+        };
         //if (!client.functions.isLinkAllowed(check)) { return interaction.editReply({ content: data.p_not_allowed }) };
 
         let result = await interaction.client.player.search(check, {
@@ -48,9 +47,8 @@ export = {
             .setTimestamp()
 
         if (!result.hasTracks()) {
-            return await interaction.editReply({embeds: [results]});
-        }
-        ;
+            return await interaction.editReply({ embeds: [results] });
+        };
 
         let yes = await interaction.client.player.play(interaction.member.voice.channel?.id, result, {
             nodeOptions: {
@@ -79,7 +77,7 @@ export = {
             .setDescription(`${yes.track.playlist ? `**multiple tracks** from: **${yes.track.playlist.title}**` : `**${yes.track.title}**`}`)
             .setColor('#00cc1a')
             .setTimestamp()
-            .setFooter({text: data.p_duration + `${yes.track.playlist ? `${yess()}` : `${yes.track.duration}`}`});
+            .setFooter({ text: data.p_duration + `${yes.track.playlist ? `${yess()}` : `${yes.track.duration}`}` });
 
         embed
             .setThumbnail(`${yes.track.playlist ? `${yes.track.playlist.thumbnail}` : `${yes.track.thumbnail}`}`)
@@ -88,6 +86,5 @@ export = {
             content: data.p_loading_message
                 .replace("{result}", result.playlist ? 'playlist' : 'track'), embeds: [embed]
         });
-
     },
-}
+};

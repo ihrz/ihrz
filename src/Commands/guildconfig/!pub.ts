@@ -26,24 +26,22 @@ import {
 
 import * as db from '../../core/functions/DatabaseModel';
 
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let turn = interaction.options.getString("action");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({content: data.blockpub_not_admin});
-        }
-        if (turn === "on") {
-            await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "on"})
-            return interaction.editReply({content: data.blockpub_now_enable})
-        }
-
-        if (turn === "off") {
-            await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "off"})
-            return interaction.editReply({content: data.blockpub_now_disable})
-        }
-        ;
+            await interaction.editReply({ content: data.blockpub_not_admin });
+            return;
+        } else if (turn === "on") {
+            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "on" });
+            await interaction.editReply({ content: data.blockpub_now_enable });
+            return;
+        } else if (turn === "off") {
+            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "off" });
+            await interaction.editReply({ content: data.blockpub_now_disable });
+            return;
+        };
     },
-}
+};

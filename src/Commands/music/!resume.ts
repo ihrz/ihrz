@@ -32,13 +32,14 @@ export = {
             let queue = interaction.client.player.nodes.get(interaction.guild)
 
             if (!queue || !queue.isPlaying()) {
-                return interaction.editReply({content: data.resume_nothing_playing});
+                await interaction.editReply({ content: data.resume_nothing_playing });
+                return;
             }
             queue.node.setPaused(false);
-            return interaction.editReply({content: data.resume_command_work});
+            await interaction.editReply({ content: data.resume_command_work });
+            return;
         } catch (error: any) {
             logger.err(error);
-        }
-        ;
+        };
     },
 }
