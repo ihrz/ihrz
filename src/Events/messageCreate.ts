@@ -32,27 +32,25 @@ export = async (client: Client, message: any) => {
     async function xpFetcher() {
         if (!message.guild || message.author.bot || message.channel.type !== ChannelType.GuildText) return;
 
-        const randomNumber = Math.floor(Math.random() * 100) + 50;
+        var randomNumber = Math.floor(Math.random() * 100) + 50;
 
         await db.DataBaseModel({ id: db.Add, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, value: randomNumber });
         await db.DataBaseModel({ id: db.Add, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xptotal`, value: randomNumber });
 
-        var xp = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp` });
-        var level = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level` }) || 1;
+        var baseData = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING` });
+        var xp = baseData?.xp;
+        var level = baseData?.level || 1;
 
-        var xpNeeded = level * 500;
-        if (xpNeeded < xp) {
-
+        if ((level * 500) < xp) {
             await db.DataBaseModel({ id: db.Add, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`, value: 1 });
-            await db.DataBaseModel({ id: db.Sub, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, value: xpNeeded });
+            await db.DataBaseModel({ id: db.Sub, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, value: (level * 500) });
 
             let newLevel = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level` });
 
-            let xpTurn = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.GUILD.XP_LEVELING.disable` });
+            let xpTurn = baseData?.disable;
 
-            if (xpTurn === false) { return };
-
-            if (!message.channel.permissionsFor(client.user).has(PermissionsBitField.Flags.SendMessages)) return;
+            if (xpTurn === false
+                || !message.channel.permissionsFor(client.user).has(PermissionsBitField.Flags.SendMessages)) return;
 
             let xpChan = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.GUILD.XP_LEVELING.xpchannels` });
 
@@ -67,27 +65,30 @@ export = async (client: Client, message: any) => {
                     .replace("${message.author.id}", message.author.id)
                     .replace("${newLevel}", newLevel)
             }).catch(() => { });
+
+            return;
         }
     };
 
     async function blockSpam() {
 
-        if (!message.guild || !message.channel || !message.member || message.channel.type !== ChannelType.GuildText || message.author.bot || message.author.id === client.user?.id) {
+        if (!message.guild || !message.channel || !message.member
+            || message.channel.type !== ChannelType.GuildText || message.author.bot
+            || message.author.id === client.user?.id) {
             return;
-        }
+        };
 
-        const guildId = message.guild.id;
-        const type = await db.DataBaseModel({ id: db.Get, key: `${guildId}.GUILD.GUILD_CONFIG.antipub` });
+        let type = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.GUILD.GUILD_CONFIG.antipub` });
 
         if (type === "off" || message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return;
-        }
+        };
 
         const member = message.guild.members.cache.get(message.author.id);
 
         if (type === "on") {
-            const LOG = await db.DataBaseModel({ id: db.Get, key: `${guildId}.GUILD.PUNISH.PUNISH_PUB` });
-            const LOGfetched = await db.DataBaseModel({ id: db.Get, key: `TEMP.${guildId}.PUNISH_DATA.${message.author.id}` });
+            const LOG = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.GUILD.PUNISH.PUNISH_PUB` });
+            const LOGfetched = await db.DataBaseModel({ id: db.Get, key: `TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}` });
 
             if (LOGfetched && LOG && LOG.amountMax === LOGfetched.flags && LOG.state === "true") {
                 switch (LOG.punishementType) {
@@ -105,12 +106,12 @@ export = async (client: Client, message: any) => {
                                 if (member.roles.cache.has(muterole.id)) {
                                     member.roles.remove(muterole.id);
                                 }
-                                await db.DataBaseModel({ id: db.Set, key: `TEMP.${guildId}.PUNISH_DATA.${message.author.id}`, value: {} });
+                                await db.DataBaseModel({ id: db.Set, key: `TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`, value: {} });
                             }, 40000);
                         }
                         break;
                 }
-            }
+            };
 
             try {
                 const blacklist = ["https://", "http://", "://", ".com", ".xyz", ".fr", "www.", ".gg", "g/", ".gg/", "youtube.be", "/?"];
@@ -118,11 +119,11 @@ export = async (client: Client, message: any) => {
 
                 for (const word of blacklist) {
                     if (contentLower.includes(word)) {
-                        await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.joindm` });
-
-                        let FLAGS_FETCH = await db.DataBaseModel({ id: db.Get, key: `TEMP.${guildId}.PUNISH_DATA.${message.author.id}.flags` });
+                        let FLAGS_FETCH = await db.DataBaseModel({ id: db.Get, key: `TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}.flags` });
                         FLAGS_FETCH = FLAGS_FETCH || 0;
-                        await db.DataBaseModel({ id: db.Set, key: `TEMP.${guildId}.PUNISH_DATA.${message.author.id}`, value: { flags: FLAGS_FETCH + 1 } });
+                        
+                        await db.DataBaseModel({ id: db.Set, key: `TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`, value: { flags: FLAGS_FETCH + 1 } });
+                        
                         await message.delete();
                         break;
                     }
@@ -156,8 +157,24 @@ export = async (client: Client, message: any) => {
             message.member.roles.add(fetch).catch(() => { });
             message.channel.send({ embeds: [embed] }).catch(() => { });
         };
-
     };
 
-    await xpFetcher(), blockSpam(), rankRole();
-}
+    async function createAllowList() {
+        let baseData = await db.DataBaseModel({
+            id: db.Get, key:
+                `${message.guild.id}.ALLOWLIST`
+        });
+
+        if (!baseData) {
+            await db.DataBaseModel({
+                id: db.Set, key: `${message.guild.id}.ALLOWLIST`,
+                value: {
+                    enable: false,
+                    list: { [`${message.guild.ownerId}`]: { allowed: true } },
+                }
+            });
+        };
+    };
+
+    await xpFetcher(), blockSpam(), rankRole(), createAllowList();
+};
