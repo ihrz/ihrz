@@ -47,7 +47,7 @@ export = async (client: Client, message: any) => {
 
             let newLevel = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level` });
 
-            let xpTurn = baseData?.disable;
+            let xpTurn = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.GUILD.XP_LEVELING.disable` });
 
             if (xpTurn === false
                 || !message.channel.permissionsFor(client.user).has(PermissionsBitField.Flags.SendMessages)) return;
