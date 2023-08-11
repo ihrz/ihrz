@@ -27,7 +27,7 @@ import {
 import logger from '../../core/logger';
 import {lyricsExtractor} from '@discord-player/extractor';
 
-const lyricsFinder = lyricsExtractor();
+let lyricsFinder = lyricsExtractor();
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {

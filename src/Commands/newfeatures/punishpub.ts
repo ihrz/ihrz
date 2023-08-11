@@ -41,7 +41,7 @@ import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 import config from '../../files/config';
 
-export const command: Command = {
+export let command: Command = {
     name: 'punishpub',
     description: 'Punish user when he send too much advertisement!',
     options: [
@@ -115,7 +115,7 @@ export const command: Command = {
             });
 
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.punishpub_logs_embed_title)
                     .setDescription(data.punishpub_logs_embed_description
@@ -138,7 +138,7 @@ export const command: Command = {
             interaction.editReply({ content: data.punishpub_confirmation_disable })
 
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.punishpub_logs_embed_title_disable)
                     .setDescription(data.punishpub_logs_embed_description_disable

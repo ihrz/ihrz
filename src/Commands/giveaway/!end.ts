@@ -44,25 +44,25 @@ export = {
         let inputData = interaction.options.getString("giveaway-id");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-            return interaction.editReply({content: data.end_not_admin});
-        }
-        ;
+            await interaction.editReply({ content: data.end_not_admin });
+            return;
+        };
 
-        const giveaway =
+        let giveaway =
             client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.prize === inputData) ||
             client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.messageId === inputData);
         if (!giveaway) {
-            return interaction.editReply({
+            await interaction.editReply({
                 content: data.end_not_find_giveaway
                     .replace(/\${gw}/g, inputData)
             });
-        }
-        ;
+            return;
+        };
 
         client.giveawaysManager
             .end(giveaway.messageId)
-            .then(() => {
-                interaction.editReply({
+            .then(async () => {
+                await interaction.editReply({
                     content: data.end_confirmation_message
                         .replace(/\${timeEstimate}/g, client.giveawaysManager.options.forceUpdateEvery || 0 / 1000)
                 });
@@ -73,19 +73,20 @@ export = {
                         .setTitle(data.end_logs_embed_title)
                         .setDescription(data.end_logs_embed_description
                             .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                            .replace(/\${giveaway\.messageID}/g, giveaway.messageId)
+                            .replace(/\${giveaway\.messageID}/g, giveaway?.messageId)
                         )
                     let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                     if (logchannel) {
-                        logchannel.send({embeds: [logEmbed]})
-                    }
+                        logchannel.send({ embeds: [logEmbed] })
+                    };
+
                 } catch (e: any) {
                     logger.err(e)
-                }
-                ;
+                };
             })
             .catch((error) => {
-                return interaction.editReply({content: data.end_command_error});
+                interaction.editReply({ content: data.end_command_error });
+                return;
             });
     },
-}
+};

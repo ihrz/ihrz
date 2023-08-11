@@ -28,9 +28,9 @@ import * as db from '../functions/DatabaseModel';
 import config from "../../files/config";
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
-    const result = [];
-    const dir = await opendir(path);
-    for await (const dirent of dir) {
+    let result = [];
+    let dir = await opendir(path);
+    for await (let dirent of dir) {
         if (!dirent.name.startsWith('!')) {
             if (dirent.isDirectory()) {
                 result.push({name: dirent.name, sub: await buildDirectoryTree(pathJoin(path, dirent.name))});
@@ -43,11 +43,11 @@ async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
 };
 
 function buildPaths(basePath: string, directoryTree: (string | object)[]): string[] {
-    const paths = [];
-    for (const elt of directoryTree) {
+    let paths = [];
+    for (let elt of directoryTree) {
         switch (typeof elt) {
             case "object":
-                for (const subElt of buildPaths((elt as any).name, (elt as any).sub)) {
+                for (let subElt of buildPaths((elt as any).name, (elt as any).sub)) {
                     paths.push(pathJoin(basePath, subElt));
                 }
                 break;
@@ -64,14 +64,14 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
 async function loadCommands(client: Client, path: string = `${process.cwd()}/dist/src/Commands`): Promise<void> {
     await db.DataBaseModel({id: db.Set, key: `BOT.CONTENT`, value: {}});
 
-    const directoryTree = await buildDirectoryTree(path);
-    const paths = buildPaths(path, directoryTree);
+    let directoryTree = await buildDirectoryTree(path);
+    let paths = buildPaths(path, directoryTree);
     client.commands = new Collection<string, Command>();
     var i = 0;
-    for (const path of paths) {
+    for (let path of paths) {
         if (!path.endsWith('.js')) return;
         i++;
-        const command = require(path).command;
+        let command = require(path).command;
         await db.DataBaseModel({id: db.Push, key: `BOT.CONTENT.${command.category}`, value: {cmd: command.name, desc: command.description}});
 
         client.interactions.set(command.name, {name: command.name, ...command});

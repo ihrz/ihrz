@@ -41,7 +41,7 @@ export = async (client: Client, reaction: any, user: User) => {
                 return;
             };
 
-            const fetchedForNitro = await db.DataBaseModel({ id: db.Get, key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}` })
+            let fetchedForNitro = await db.DataBaseModel({ id: db.Get, key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}` })
 
             if (fetchedForNitro) {
                 let role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);

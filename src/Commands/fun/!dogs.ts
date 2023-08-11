@@ -43,7 +43,7 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
         axios.get('https://dog.ceo/api/breeds/image/random')
             .then(res => {
-                const emb = new EmbedBuilder()
+                let emb = new EmbedBuilder()
                     .setImage(res.data.message).setTitle(data.dogs_embed_title).setTimestamp();
 
                 return interaction.editReply({embeds: [emb]});

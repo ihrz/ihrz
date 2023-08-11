@@ -27,7 +27,7 @@ import logger from './logger';
 
 export = async (client: Client) => {
 
-    const player = new Player(client, {
+    let player = new Player(client, {
         ytdlOptions: {
             quality: "highestaudio",
             highWaterMark: 1 << 25

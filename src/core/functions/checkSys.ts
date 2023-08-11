@@ -31,11 +31,11 @@ export async function Html() {
     // check if the file exists
     if (!fs.existsSync(`${process.cwd()}/src/api/index.html`)) {
         logger.warn(couleurmdr.red(`Error: File not found! (${process.cwd()}/src/api/index.html)`));
-        const response = await axios.get(INDEX_HTML_LINK);
-        const regex = /\/\*\*\/\"(.*)\"\/\*\*\//;
-        const replaced = response.data.replace(regex, `/**/\"${config.api.oauth2Link}\"/**/`);
+        let response = await axios.get(INDEX_HTML_LINK);
+        let regex = /\/\*\*\/\"(.*)\"\/\*\*\//;
+        let replaced = response.data.replace(regex, `/**/\"${config.api.oauth2Link}\"/**/`);
 
-        const writeFilePromise = fs.promises.writeFile(
+        let writeFilePromise = fs.promises.writeFile(
             `${process.cwd()}/src/api/index.html`,
             replaced,
             'utf8'

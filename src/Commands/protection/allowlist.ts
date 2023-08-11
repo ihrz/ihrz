@@ -44,7 +44,7 @@ import config from '../../files/config';
 import backup from 'discord-backup';
 import ms from 'ms';
 
-export const command: Command = {
+export let command: Command = {
     name: "allowlist",
     description: "Subcommand for protection category!",
     options: [

@@ -32,7 +32,7 @@ import user from './Routes/user';
 import code from './Routes/code';
 import api from './Routes/api';
 
-const app = express();
+let app = express();
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -47,12 +47,12 @@ app.get('/', (_req, res) => {
 });
 
 if (config.api.useHttps) {
-    const options = {
+    let options = {
         key: fs.readFileSync(`${process.cwd()}/files/certificat.key`),
         cert: fs.readFileSync(`${process.cwd()}/files/certificat.crt`)
     };
 
-    const server = https.createServer(options, app);
+    let server = https.createServer(options, app);
 
     server.listen(config.api.port, () => {
         logger.log(`${config.console.emojis.HOST} >> Secure App listening on "${config.api.port}".`);

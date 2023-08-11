@@ -26,9 +26,9 @@ import logger from "../logger";
 import config from "../../files/config";
 
 async function buildDirectoryTree(path: string): Promise<(string|object)[]> {
-    const result = [];
-    const dir = await opendir(path);
-    for await (const dirent of dir) {
+    let result = [];
+    let dir = await opendir(path);
+    for await (let dirent of dir) {
         if (dirent.isDirectory()) {
             result.push({ name: dirent.name, sub: await buildDirectoryTree(pathJoin(path, dirent.name)) });
         } else  {
@@ -39,11 +39,11 @@ async function buildDirectoryTree(path: string): Promise<(string|object)[]> {
 }
 
 function buildPaths(basePath: string, directoryTree: (string|object)[]): string[] {
-    const paths = [];
-    for (const elt of directoryTree) {
+    let paths = [];
+    for (let elt of directoryTree) {
         switch (typeof elt) {
             case "object":
-                for (const subElt of buildPaths((elt as any).name, (elt as any).sub)) {
+                for (let subElt of buildPaths((elt as any).name, (elt as any).sub)) {
                     paths.push(pathJoin(basePath, subElt));
                 }
                 break;
@@ -58,13 +58,13 @@ function buildPaths(basePath: string, directoryTree: (string|object)[]): string[
 }
 
 async function loadEvents(client: Client, path: string = `${process.cwd()}/dist/src/Events`): Promise<void> {
-    const directoryTree = await buildDirectoryTree(path);
-    const paths = buildPaths(path, directoryTree);
+    let directoryTree = await buildDirectoryTree(path);
+    let paths = buildPaths(path, directoryTree);
     var i = 0;
-    for (const path of paths) {
+    for (let path of paths) {
         if (!path.endsWith('.js')) return;
         i++;
-        const eevent = require(path);
+        let eevent = require(path);
         let patharray = path.split("/");
         client.on(`${patharray[patharray.length - 1].replace('.js', '')}`, eevent.bind(null, client));
     }

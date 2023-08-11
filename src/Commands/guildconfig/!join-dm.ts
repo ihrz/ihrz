@@ -40,7 +40,7 @@ export = {
 
         if (type === "on") {
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.setjoindm_logs_embed_title_on_enable)
                     .setDescription(data.setjoindm_logs_embed_description_on_enable

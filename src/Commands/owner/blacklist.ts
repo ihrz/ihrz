@@ -33,7 +33,7 @@ import {
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 
-export const command: Command = {
+export let command: Command = {
     name: 'blacklist',
     description: 'Add a user to the blacklist!',
     options: [
@@ -49,15 +49,16 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER.${interaction.user.id}.owner` }) !== true) {
-            return interaction.editReply({ content: data.blacklist_not_owner });
+            await interaction.editReply({ content: data.blacklist_not_owner });
+            return;
         };
 
         var text = "";
-        const ownerList = await db.DataBaseModel({ id: db.All });
+        let char = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST` });
 
-        for (var i in ownerList.find((item: { id: string; }) => item.id === 'GLOBAL').value.BLACKLIST) {
+        for (var i in char) {
             text += `<@${i}>\n`;
-        }
+        };
 
         let embed = new EmbedBuilder()
             .setColor('#2E2EFE').setAuthor({ name: 'Blacklist' }).setDescription(text || "No blacklist")

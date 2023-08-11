@@ -25,13 +25,13 @@ import { Request, Response } from 'express';
 import * as db from '../../core/functions/DatabaseModel';
 import config from '../../files/config';
 
-const oauth = new DiscordOauth2();
+let oauth = new DiscordOauth2();
 
 export = async (req: Request, res: Response) => {
-    const { userid, tor, adminKey } = req.body;
+    let { userid, tor, adminKey } = req.body;
     if (!userid || !adminKey) return logger.warn("-> Bad json request without ip/key");
     if (tor == "CHECK_IN_SYSTEM") {
-        const { userid, adminKey } = req.body;
+        let { userid, adminKey } = req.body;
         if (!userid || !adminKey) return logger.warn("-> Bad json request without ip/key");
         if (adminKey != config.api.apiToken) return;
         let value = await db.DataBaseModel({ id: db.Get, key: `API.TOKEN.${userid}` });

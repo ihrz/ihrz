@@ -30,7 +30,7 @@ import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
-export const command: Command = {
+export let command: Command = {
     name: 'rolereaction',
     description: 'Set a roles when user react to a message with specific emoji',
     options: [

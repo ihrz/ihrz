@@ -35,7 +35,7 @@ import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 import ping from 'ping';
 
-export const command: Command = {
+export let command: Command = {
     name: 'ping',
     description: 'Get the bot latency!',
     category: 'bot',

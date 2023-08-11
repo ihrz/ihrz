@@ -62,7 +62,7 @@ export = {
             i++;
         });
 
-        const writeFilePromise = (file: string, data: string) => {
+        let writeFilePromise = (file: string, data: string) => {
             return new Promise((resolve, reject) => {
                 fs.writeFile(file, data, (error: any) => {
                     if (error) reject(error);

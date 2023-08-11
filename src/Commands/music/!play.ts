@@ -42,7 +42,7 @@ export = {
             requestedBy: interaction.user, searchEngine: QueryType.AUTO
         });
 
-        const results = new EmbedBuilder()
+        let results = new EmbedBuilder()
             .setTitle(data.p_embed_title)
             .setColor('#ff0000')
             .setTimestamp()

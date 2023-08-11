@@ -28,7 +28,7 @@ import { Command } from '../../../types/command';
 
 import * as db from '../../core/functions/DatabaseModel';
 
-export const command: Command = {
+export let command: Command = {
     name: 'snipe',
     description: 'Get the last message deleted in this channel!',
     category: 'utils',

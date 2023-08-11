@@ -26,7 +26,7 @@ import {
 
 import { Command } from '../../../types/command';
 
-export const command: Command = {
+export let command: Command = {
     name: 'renew',
     description: 'Re-created a channels (cloning permission and all configurations). nuke equivalent',
     category: 'utils',

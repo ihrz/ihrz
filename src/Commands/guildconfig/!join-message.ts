@@ -77,7 +77,7 @@ export = {
             if (type == "off") {
                 await db.DataBaseModel({id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`});
                 try {
-                    const logEmbed = new EmbedBuilder()
+                    let logEmbed = new EmbedBuilder()
                         .setColor("#bf0bb9")
                         .setTitle(data.setjoinmessage_logs_embed_title_on_disable)
                         .setDescription(data.setjoinmessage_logs_embed_description_on_disable

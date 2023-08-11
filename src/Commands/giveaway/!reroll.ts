@@ -32,11 +32,11 @@ export = {
         let inputData = interaction.options.getString("giveaway-id");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-            return interaction.editReply({content: data.reroll_not_perm});
+            return interaction.editReply({ content: data.reroll_not_perm });
         }
         ;
 
-        const giveaway =
+        let giveaway =
             client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.prize === inputData) ||
             client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.messageId === inputData);
         if (!giveaway) {
@@ -44,36 +44,37 @@ export = {
                 content: data.reroll_dont_find_giveaway
                     .replace("{args}", inputData)
             });
-        }
-        ;
+        };
 
         client.giveawaysManager
             .reroll(giveaway.messageId)
             .then(() => {
-                interaction.editReply({content: data.reroll_command_work});
+                interaction.editReply({ content: data.reroll_command_work });
                 try {
                     let logEmbed = new EmbedBuilder()
                         .setColor("#bf0bb9")
                         .setTitle(data.reroll_logs_embed_title)
                         .setDescription(data.reroll_logs_embed_description
                             .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                            .replace(/\${giveaway\.messageID}/g, giveaway.messageId)
+                            .replace(/\${giveaway\.messageID}/g, giveaway?.messageId)
                         )
 
                     let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                     if (logchannel) {
-                        logchannel.send({embeds: [logEmbed]})
+                        logchannel.send({ embeds: [logEmbed] })
                     }
                 } catch (e: any) {
                     logger.err(e)
-                }
-                ;
+                };
+
             })
             .catch((error) => {
-                if (error.startsWith(`Giveaway with message Id ${giveaway.messageId} is not ended.`)) {
-                    interaction.editReply({content: `This giveaway is not over!`});
+                if (error.startsWith(`Giveaway with message Id ${giveaway?.messageId} is not ended.`)) {
+                    interaction.editReply({ content: `This giveaway is not over!` });
+                    return;
                 } else {
-                    interaction.editReply({content: data.reroll_command_error});
+                    interaction.editReply({ content: data.reroll_command_error });
+                    return;
                 }
             });
     },

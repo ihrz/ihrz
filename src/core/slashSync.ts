@@ -37,7 +37,7 @@ export = async (client: any, commands: any = {}) => {
     log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Synchronizing commands...`), number: 1 });
     log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Currently {number} Slash commands are registered.`), number: currentCommands.size });
 
-    const deletedCommands = currentCommands.filter((command: any) => !commands.some((c: any) => c.name === command.name)).toJSON();
+    let deletedCommands = currentCommands.filter((command: any) => !commands.some((c: any) => c.name === command.name)).toJSON();
 
     for (let deletedCommand of deletedCommands) {
         await deletedCommand.delete();
@@ -45,18 +45,18 @@ export = async (client: any, commands: any = {}) => {
 
     log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Deleted {number} Slash commands!`), number: deletedCommands.length });
 
-    const newCommands = commands.filter((command: ApplicationCommand) => !currentCommands.some((c: ApplicationCommand) => c.name === command.name));
-    for (const newCommand of newCommands) {
+    let newCommands = commands.filter((command: ApplicationCommand) => !currentCommands.some((c: ApplicationCommand) => c.name === command.name));
+    for (let newCommand of newCommands) {
         await client.application.commands.create(newCommand, guildId);
     };
 
     log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Created {number} Slash commands!`), number: newCommands.length });
 
-    const updatedCommands = commands.filter((command: any) => currentCommands.some((c: any) => c.name === command.name));
+    let updatedCommands = commands.filter((command: any) => currentCommands.some((c: any) => c.name === command.name));
     let updatedCommandCount = 0;
     for (let updatedCommand of updatedCommands) {
-        const newCommand = updatedCommand;
-        const previousCommand = currentCommands.find((c: any) => c.name === updatedCommand.name);
+        let newCommand = updatedCommand;
+        let previousCommand = currentCommands.find((c: any) => c.name === updatedCommand.name);
         let modified = false;
         if (!previousCommand.description === newCommand.description) { modified = true; };
 

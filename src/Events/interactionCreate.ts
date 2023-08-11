@@ -33,7 +33,7 @@ export = async (client: any, interaction: any) => {
 
     if (!interaction.isCommand() || !interaction.guild?.channels || interaction.user.bot) return;
 
-    const command = client.interactions.get(interaction.commandName);
+    let command = client.interactions.get(interaction.commandName);
     if (!command) return interaction.editReply({ content: "Connection error.", ephemeral: true });
 
     async function slashExecutor() {
@@ -60,9 +60,9 @@ export = async (client: any, interaction: any) => {
     };
 
     async function logsCommands(): Promise<void> {
-        const optionsList: string[] = interaction.options._hoistedOptions.map((element: { name: any; value: any; }) => `${element.name}:"${element.value}"`);
+        let optionsList: string[] = interaction.options._hoistedOptions.map((element: { name: any; value: any; }) => `${element.name}:"${element.value}"`);
 
-        const logMessage = `${interaction.guild?.name} >> ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')} in: #${interaction.channel ? interaction.channel.name : 'Unknown Channel'}:\n` +
+        let logMessage = `${interaction.guild?.name} >> ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')} in: #${interaction.channel ? interaction.channel.name : 'Unknown Channel'}:\n` +
             `${interaction.user.username}:\n` +
             `/${interaction.commandName} ${optionsList.join(' ')}\n\n`;
 

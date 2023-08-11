@@ -28,7 +28,7 @@ import * as db from '../../core/functions/DatabaseModel';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
-        const member = interaction.options.getMember("member") || interaction.member;
+        let member = interaction.options.getMember("member") || interaction.member;
         let inv = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.USER.${member.user.id}.INVITES.invites`});
         let leaves = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.USER.${member.user.id}.INVITES.leaves`});
         let Regular = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.USER.${member.user.id}.INVITES.regular`});

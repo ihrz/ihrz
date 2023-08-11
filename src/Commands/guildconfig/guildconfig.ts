@@ -44,7 +44,7 @@ import logger from '../../core/logger';
 import config from '../../files/config';
 import ms from 'ms';
 
-export const command: Command = {
+export let command: Command = {
     name: "guildconfig",
     description: "Subcommand for guildconfig category!",
     options: [

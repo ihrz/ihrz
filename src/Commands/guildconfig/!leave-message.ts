@@ -56,7 +56,7 @@ export = {
                 await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`, value: joinmsgreplace})
 
                 try {
-                    const logEmbed = new EmbedBuilder()
+                    let logEmbed = new EmbedBuilder()
                         .setColor("#bf0bb9")
                         .setTitle(data.setleavemessage_logs_embed_title_on_enable)
                         .setDescription(data.setleavemessage_logs_embed_description_on_enable

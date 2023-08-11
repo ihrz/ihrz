@@ -23,7 +23,7 @@ import { GiveawaysManager } from 'discord-giveaways'
 import { Client } from 'discord.js';
 
 function gwManager(client: Client) {
-    const manager = new GiveawaysManager(client, {
+    let manager = new GiveawaysManager(client, {
         storage: `${process.cwd()}/src/files/giveaways.json`,
         default: {
             botsCanWin: false,

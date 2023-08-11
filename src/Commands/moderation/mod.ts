@@ -43,7 +43,7 @@ import logger from '../../core/logger';
 import config from '../../files/config';
 import ms, { StringValue } from 'ms';
 
-export const command: Command = {
+export let command: Command = {
     name: "mod",
     description: "Subcommand for moderation category!",
     options: [

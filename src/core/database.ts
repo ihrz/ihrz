@@ -28,13 +28,13 @@ import * as proc from './errorManager';
 
 let db;
 
-const f = new Promise((resolve, reject) => {
+let f = new Promise((resolve, reject) => {
     if (config.database.useSqlite) {
         db = new QuickDB({ filePath: `${process.cwd()}/src/files/db.sqlite` });
         logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Connected to the database (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`));
         resolve(db);
     } else {
-        const driver = new MongoDriver(config.database.mongoDb);
+        let driver = new MongoDriver(config.database.mongoDb);
 
         driver.connect()
             .then(() => {

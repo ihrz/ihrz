@@ -44,8 +44,8 @@ export = async (client: Client, channel: any) => {
             });
 
             if (!baseData) {
-                const webhooks = await channel.fetchWebhooks();
-                const myWebhooks = webhooks.filter((webhook: { id: any; }) => webhook.id === firstEntry.target.id);
+                let webhooks = await channel.fetchWebhooks();
+                let myWebhooks = webhooks.filter((webhook: { id: any; }) => webhook.id === firstEntry.target.id);
 
                 for (let [id, webhook] of myWebhooks) await webhook.delete({ reason: 'Protect!' });
 

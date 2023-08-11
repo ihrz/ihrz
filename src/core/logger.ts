@@ -26,7 +26,7 @@ function getCurrentTime(): string {
     return (new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })
 };
 
-const logger: Logger = {
+let logger: Logger = {
     warn(message) {
         console.log(`[${getCurrentTime()} WRN]: `.red + message);
     },

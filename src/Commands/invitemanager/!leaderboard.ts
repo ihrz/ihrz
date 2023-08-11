@@ -29,12 +29,10 @@ import * as db from '../../core/functions/DatabaseModel';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         var text = data.leaderboard_default_text;
-        let ownerList = await db.DataBaseModel({id: db.All});
-        let foundArray = ownerList.findIndex((d: { id: any; }) => d.id === interaction.guild.id);
+        let char = db.DataBaseModel({ id: db.Get, key: `${interaction.user.id}.USER` });
 
-        let char = ownerList[foundArray].value.USER;
         for (let i in char) {
-            let a = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.USER.${i}.INVITES`});
+            let a = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${i}.INVITES` });
             if (a && a.invites >= 1) {
                 text += data.leaderboard_text_inline
                     .replace(/\${i}/g, i)
@@ -43,11 +41,11 @@ export = {
                     .replace(/\${a\.bonus\s*\|\|\s*0}/g, a.bonus || 0)
                     .replace(/\${a\.leaves\s*\|\|\s*0}/g, a.leaves || 0);
             }
-        }
-        ;
+        };
 
         let embed = new EmbedBuilder().setColor("#FFB6C1").setDescription(text || '?').setTimestamp();
 
-        return await interaction.editReply({embeds: [embed], content: ' '});
+        await interaction.editReply({ embeds: [embed] });
+        return;
     },
-}
+};

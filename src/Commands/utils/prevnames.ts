@@ -29,7 +29,7 @@ import {
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 
-export const command: Command = {
+export let command: Command = {
     name: 'prevnames',
     description: 'Lookup an Discord User, and see this previous username !',
     options: [

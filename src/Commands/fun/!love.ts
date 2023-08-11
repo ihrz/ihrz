@@ -31,11 +31,11 @@ import axios from 'axios';
 import fs from 'fs';
 import {createCanvas, loadImage} from "canvas";
 
-const downloadImage = (url: string, filename: string) => {
+let downloadImage = (url: string, filename: string) => {
     return new Promise((resolve, reject) => {
         axios.get(url, {responseType: 'stream'})
             .then(response => {
-                const writer = fs.createWriteStream(filename);
+                let writer = fs.createWriteStream(filename);
                 response.data.pipe(writer);
                 writer.on('finish', resolve);
                 writer.on('error', reject);
@@ -71,8 +71,8 @@ export = {
             downloadImage(profileImage2URL, `${process.cwd()}/src/temp/profileImage2_${user2.id}.png`)
         ]);
 
-        const downloadAndLoadImages = async () => {
-            const [profileImage1, profileImage2, heartEmoji] = await Promise.all([
+        let downloadAndLoadImages = async () => {
+            let [profileImage1, profileImage2, heartEmoji] = await Promise.all([
                 loadImage(`${process.cwd()}/src/temp/profileImage1_${user1.id}.png`),
                 loadImage(`${process.cwd()}/src/temp/profileImage2_${user2.id}.png`),
                 loadImage(heartEmojiPath)

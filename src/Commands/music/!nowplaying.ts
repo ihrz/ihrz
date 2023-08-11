@@ -30,7 +30,7 @@ import {
 
 import {lyricsExtractor} from '@discord-player/extractor';
 
-const lyricsFinder = lyricsExtractor();
+let lyricsFinder = lyricsExtractor();
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -77,9 +77,9 @@ export = {
 
         var paused: boolean = false;
         try {
-            const collector = response.createMessageComponentCollector({componentType: ComponentType.Button, time: 3_600_000});
+            let collector = response.createMessageComponentCollector({componentType: ComponentType.Button, time: 3_600_000});
             collector.on('collect', async (i: { reply: (arg0: { content?: any; ephemeral: boolean; embeds?: EmbedBuilder[]; }) => void; user: { id: any; }; customId: any; deferUpdate: () => void; }) => {
-                const queue = interaction.client.player.nodes.get(interaction.guild);
+                let queue = interaction.client.player.nodes.get(interaction.guild);
 
                 if (!queue || !queue.isPlaying()) {
                     return i.reply({content: data.nowplaying_no_queue, ephemeral: true});

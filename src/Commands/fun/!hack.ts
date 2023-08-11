@@ -26,7 +26,7 @@ import {
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
-        const victim = interaction.options.getUser("user")
+        let victim = interaction.options.getUser("user")
         var ip = [
             '1', '100', '168', '254', '345', '128', '256', '255', '0', '144',
             '38', '67', '97', '32', '64', '192', '10', '172', '12', '200', '87',
@@ -65,7 +65,7 @@ export = {
         var generatedEmail = `${generatedUsername}@${hackerDomains[Math.floor(Math.random() * hackerDomains.length)]}`;
         var generatedPassword = hackerPasswords[Math.floor(Math.random() * hackerPasswords.length)];
 
-        const embed = new EmbedBuilder()
+        let embed = new EmbedBuilder()
             .setColor("#800000")
             .setDescription(data.hack_embed_description
                 .replace(/\${victim\.id}/g, victim.id)

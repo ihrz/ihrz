@@ -36,7 +36,7 @@ import logger from '../../core/logger';
 import ms from 'ms';
 import config from '../../files/config';
 
-export const command: Command = {
+export let command: Command = {
     name: 'membercount',
     description: 'Set a member count channels!',
     options: [
@@ -87,9 +87,9 @@ export const command: Command = {
             .addFields({ name: data.setmembercount_helpembed_fields_name, value: data.setmembercount_helpembed_fields_value })
 
         if (type == "on") {
-            const botMembers = interaction.guild.members.cache.filter((member: { user: { bot: any; }; }) => member.user.bot);
-            const rolesCollection = interaction.guild.roles.cache;
-            const rolesCount = rolesCollection.size;
+            let botMembers = interaction.guild.members.cache.filter((member: { user: { bot: any; }; }) => member.user.bot);
+            let rolesCollection = interaction.guild.roles.cache;
+            let rolesCount = rolesCollection.size;
 
             if (messagei) {
                 let joinmsgreplace = messagei
@@ -115,7 +115,7 @@ export const command: Command = {
                     });
                 }
                 try {
-                    const logEmbed = new EmbedBuilder()
+                    let logEmbed = new EmbedBuilder()
                         .setColor("#bf0bb9")
                         .setTitle(data.setmembercount_logs_embed_title_on_enable)
                         .setDescription(data.setmembercount_logs_embed_description_on_enable
@@ -126,7 +126,7 @@ export const command: Command = {
                     let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                     if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
                 } catch (e: any) { logger.err(e) };
-                const fetched = interaction.guild.channels.cache.get(channel.id);
+                let fetched = interaction.guild.channels.cache.get(channel.id);
 
                 await fetched.edit({ name: joinmsgreplace });
                 return interaction.editReply({ content: data.setmembercount_command_work_on_enable })
@@ -135,7 +135,7 @@ export const command: Command = {
             if (type == "off") {
                 await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.MCOUNT` });
                 try {
-                    const logEmbed = new EmbedBuilder()
+                    let logEmbed = new EmbedBuilder()
                         .setColor("#bf0bb9")
                         .setTitle(data.setmembercount_logs_embed_title_on_disable)
                         .setDescription(data.setmembercount_logs_embed_description_on_disable

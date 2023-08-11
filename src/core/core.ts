@@ -32,13 +32,13 @@ import path from 'path';
 import couleurmdr from "colors";
 
 function cleanTempDir() {
-    const folderPath = `${process.cwd()}/src/temp`;
+    let folderPath = `${process.cwd()}/src/temp`;
 
     fs.readdir(folderPath, (err, files) => {
         if (err) return;
 
         files.forEach((file) => {
-            const filePath = path.join(folderPath, file);
+            let filePath = path.join(folderPath, file);
 
             if (file !== 'here') {
                 fs.unlink(filePath, (err) => {

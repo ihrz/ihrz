@@ -47,7 +47,7 @@ import axios from 'axios';
 import ms from 'ms';
 import fs from 'fs';
 
-export const command: Command = {
+export let command: Command = {
     name: "fun",
     description: "Subcommand for fun category!",
     options: [

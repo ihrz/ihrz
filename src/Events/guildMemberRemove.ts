@@ -29,9 +29,9 @@ export = async (client: Client, member: any) => {
 
     async function memberCount() {
         try {
-            const botMembers = member.guild.members.cache.filter((member: { user: { bot: any; }; }) => member.user.bot);
-            const rolesCollection = member.guild.roles.cache;
-            const rolesCount = rolesCollection.size;
+            let botMembers = member.guild.members.cache.filter((member: { user: { bot: any; }; }) => member.user.bot);
+            let rolesCollection = member.guild.roles.cache;
+            let rolesCount = rolesCollection.size;
 
             let bot = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.MCOUNT.bot` });
             let member_2 = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.MCOUNT.member` });
@@ -42,7 +42,7 @@ export = async (client: Client, member: any) => {
                     .replace("{rolescount}", rolesCount)
                     .replace("{membercount}", member.guild.memberCount)
                     .replace("{botcount}", botMembers.size);
-                const fetched = member.guild.channels.cache.get(bot.channel);
+                let fetched = member.guild.channels.cache.get(bot.channel);
                 await fetched.edit({ name: joinmsgreplace }).then(() => { });
             }
 
@@ -51,7 +51,7 @@ export = async (client: Client, member: any) => {
                     .replace("{rolescount}", rolesCount)
                     .replace("{membercount}", member.guild.memberCount)
                     .replace("{botcount}", botMembers.size);
-                const fetched = member.guild.channels.cache.get(member_2.channel);
+                let fetched = member.guild.channels.cache.get(member_2.channel);
                 await fetched.edit({ name: joinmsgreplace });
             }
 
@@ -60,7 +60,7 @@ export = async (client: Client, member: any) => {
                     .replace("{rolescount}", rolesCount)
                     .replace("{membercount}", member.guild.memberCount)
                     .replace("{botcount}", botMembers.size);
-                const fetched = member.guild.channels.cache.get(roles.channel);
+                let fetched = member.guild.channels.cache.get(roles.channel);
                 await fetched.edit({ name: joinmsgreplace });
             }
         } catch (e) { return };

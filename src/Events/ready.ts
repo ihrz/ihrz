@@ -65,7 +65,7 @@ export = async (client: Client) => {
     };
 
     async function quotesPresence() {
-        const quotes = [
+        let quotes = [
             "The only true wisdom is in knowing you know nothing. - Socrates",
             "Life is really simple, but we insist on making it complicated. - Confucius",
             "The unexamined life is not worth living. - Socrates",

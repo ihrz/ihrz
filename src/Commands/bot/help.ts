@@ -38,7 +38,7 @@ import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
-export const command: Command = {
+export let command: Command = {
     name: 'help',
     description: 'Get a list of all the commands!',
     category: 'bot',
@@ -46,7 +46,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let CONTENT = await db.DataBaseModel({ id: db.Get, key: "BOT.CONTENT" });
 
-        const categories = [
+        let categories = [
             { name: data.help_backup_fields, value: CONTENT.backup, inline: true, description: data.help_backup_dsc, emoji: "🔁" },
             { name: data.help_bot_fields, value: CONTENT.bot, inline: true, description: data.help_bot_dsc, emoji: "🤖" },
             { name: data.help_economy_fields, value: CONTENT.economy, inline: true, description: data.help_economy_dsc, emoji: "👩‍💼" },
@@ -67,20 +67,20 @@ export const command: Command = {
             { name: data.help_utils_fields, value: CONTENT.utils, inline: true, description: data.help_utils_dsc, emoji: "🧰" },
         ];
 
-        const select = new StringSelectMenuBuilder().setCustomId('starter').setPlaceholder('Make a selection!');
+        let select = new StringSelectMenuBuilder().setCustomId('starter').setPlaceholder('Make a selection!');
         categories.forEach((category, index) => { select.addOptions(new StringSelectMenuOptionBuilder().setLabel(category.name).setValue(index.toString()).setEmoji(category.emoji)); });
-        const row = new ActionRowBuilder().addComponents(select);
+        let row = new ActionRowBuilder().addComponents(select);
         let pp: any = client.user?.displayAvatarURL();
 
-        const embed = new EmbedBuilder()
+        let embed = new EmbedBuilder()
             .setColor('#001eff')
             .setDescription(data.help_tip_embed)
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setThumbnail(pp)
             .setTimestamp();
 
-        const response = await interaction.editReply({ embeds: [embed], components: [row] });
-        const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 240_000 });
+        let response = await interaction.editReply({ embeds: [embed], components: [row] });
+        let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 240_000 });
 
         collector.on('collect', async (i: {
             member: { id: any };

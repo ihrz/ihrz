@@ -99,7 +99,7 @@ export = async (client: Client, message: any) => {
                         message.guild.members.kick(message.author.id, { reason: "Kick by PUNISHPUB" }).catch(() => { });
                         break;
                     case 'mute':
-                        const muterole = message.guild.roles.cache.find((role: { name: string; }) => role.name === 'muted');
+                        let muterole = message.guild.roles.cache.find((role: { name: string; }) => role.name === 'muted');
                         if (muterole) {
                             await member.roles.add(muterole.id).catch();
                             setTimeout(async () => {
@@ -114,10 +114,10 @@ export = async (client: Client, message: any) => {
             };
 
             try {
-                const blacklist = ["https://", "http://", "://", ".com", ".xyz", ".fr", "www.", ".gg", "g/", ".gg/", "youtube.be", "/?"];
-                const contentLower = message.content.toLowerCase();
+                let blacklist = ["https://", "http://", "://", ".com", ".xyz", ".fr", "www.", ".gg", "g/", ".gg/", "youtube.be", "/?"];
+                let contentLower = message.content.toLowerCase();
 
-                for (const word of blacklist) {
+                for (let word of blacklist) {
                     if (contentLower.includes(word)) {
                         let FLAGS_FETCH = await db.DataBaseModel({ id: db.Get, key: `TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}.flags` });
                         FLAGS_FETCH = FLAGS_FETCH || 0;

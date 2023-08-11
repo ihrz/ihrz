@@ -30,16 +30,16 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         try {
-            const queue = interaction.client.player.nodes.get(interaction.guild);
+            let queue = interaction.client.player.nodes.get(interaction.guild);
             if (!queue || !queue.isPlaying()) {
                 return interaction.editReply({content: data.loop_no_queue});
             }
             ;
 
-            const loopMode = interaction.options.getNumber("select");
+            let loopMode = interaction.options.getNumber("select");
 
             queue.setRepeatMode(loopMode)
-            const mode = loopMode === QueueRepeatMode.TRACK ? `🔂` : loopMode === QueueRepeatMode.QUEUE ? `🔂` : `▶`;
+            let mode = loopMode === QueueRepeatMode.TRACK ? `🔂` : loopMode === QueueRepeatMode.QUEUE ? `🔂` : `▶`;
             return interaction.editReply({
                 content: data.loop_command_work
                     .replace("{mode}", mode)

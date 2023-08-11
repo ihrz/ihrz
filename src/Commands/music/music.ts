@@ -41,7 +41,7 @@ import { lyricsExtractor } from '@discord-player/extractor';
 
 import { Command } from '../../../types/command';
 
-export const command: Command = {
+export let command: Command = {
     name: "music",
     description: "Subcommand for music category!",
     options: [

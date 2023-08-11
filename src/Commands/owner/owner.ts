@@ -35,7 +35,7 @@ import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 import config from '../../files/config';
 
-export const command: Command = {
+export let command: Command = {
     name: 'owner',
     description: 'add user to owner list (can\'t be used by normal member)!',
     options: [

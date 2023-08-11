@@ -28,7 +28,7 @@ import logger from "../core/logger";
 import config from '../files/config';
 
 export = async (client: any, guild: any) => {
-    const channel = await guild.channels.cache.get(guild.systemChannelId)
+    let channel = await guild.channels.cache.get(guild.systemChannelId)
         || await guild.channels.cache.random();
 
     // async function antiPoubelle() {
@@ -75,7 +75,7 @@ export = async (client: any, guild: any) => {
     };
 
     async function messageToServer() {
-        const welcomeMessage = [
+        let welcomeMessage = [
             "Welcome to our server! 🎉", "Greetings, fellow Discordians! 👋",
             "iHorizon has joined the chat! 💬", "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂",
             "Let's give a warm welcome to iHorizon! 🔥",

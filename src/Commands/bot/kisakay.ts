@@ -34,7 +34,7 @@ import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
-export const command: Command = {
+export let command: Command = {
     name: 'kisakay',
     description: 'Get necessary information about my developer, Kisakay',
     category: 'bot',

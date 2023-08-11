@@ -29,14 +29,14 @@ import {useQueue} from 'discord-player';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        const queue = useQueue(interaction.guildId);
+        let queue = useQueue(interaction.guildId);
 
         if (!queue) return interaction.editReply({content: data.queue_iam_not_voicec})
         if (!queue.tracks || !queue.currentTrack) {
             return interaction.editReply({content: data.queue_no_queue})
         }
 
-        const tracks = queue.tracks
+        let tracks = queue.tracks
             .toArray()
             .map((track, idx) => `**${++idx})** [${track.title}](${track.url})`)
 
@@ -44,12 +44,12 @@ export = {
             return interaction.editReply({content: data.queue_empty_queue})
         }
 
-        const embeds: any[] = [];
-        const chunkSize = 10;
+        let embeds: any[] = [];
+        let chunkSize = 10;
         let index = 0;
         while (tracks.length > 0) {
-            const chunk = tracks.slice(0, chunkSize);
-            const embed = new EmbedBuilder()
+            let chunk = tracks.slice(0, chunkSize);
+            let embed = new EmbedBuilder()
                 .setColor('#ff0000')
                 .setTitle(data.queue_embed_title)
                 .setDescription(chunk.join('\n') || data.queue_embed_description_empty)
@@ -64,7 +64,7 @@ export = {
             index++;
         }
 
-        const message = await interaction.editReply({
+        let message = await interaction.editReply({
             embeds: [embeds[0]],
             fetchReply: true
         })
@@ -74,7 +74,7 @@ export = {
         message.react('⬅️');
         message.react('➡️');
 
-        const collector = message.createReactionCollector({
+        let collector = message.createReactionCollector({
             filter: (reaction: { emoji: { name: string; }; }, user: { id: any; }) =>
                 ['⬅️', '➡️'].includes(reaction.emoji.name) &&
                 user.id === interaction.user.id,

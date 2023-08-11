@@ -37,7 +37,7 @@ import ping from 'ping';
 import os from 'os-utils';
 import config from '../../files/config';
 
-export const command: Command = {
+export let command: Command = {
     name: 'status',
     description: 'Get the bot status! (Only for the bot owner)',
     category: 'bot',
@@ -49,7 +49,7 @@ export const command: Command = {
         };
 
         os.cpuUsage(function (c) {
-            const embed = new EmbedBuilder()
+            let embed = new EmbedBuilder()
                 .setColor("#42ff08")
                 .addFields(
                     { name: "=====================", value: '**Consumed in real time** :', inline: false },

@@ -42,7 +42,7 @@ import logger from '../../core/logger';
 import config from '../../files/config';
 import ms from 'ms';
 
-export const command: Command = {
+export let command: Command = {
     name: 'setlogschannel',
     description: 'Set a logs channels for Audits Logs!',
     options: [
@@ -82,7 +82,7 @@ export const command: Command = {
             if (!argsid) return interaction.editReply({ content: data.setlogschannel_not_specified_args })
 
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.setlogschannel_logs_embed_title)
                     .setDescription(data.setlogschannel_logs_embed_description_on_enable
@@ -122,7 +122,7 @@ export const command: Command = {
             if (!argsid) return interaction.editReply({ content: data.setlogschannel_not_specified_args })
 
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.setlogschannel_logs_embed_title)
                     .setDescription(data.setlogschannel_logs_embed_description_on_enable
@@ -165,7 +165,7 @@ export const command: Command = {
             if (!argsid) return interaction.editReply({ content: data.setlogschannel_not_specified_args })
 
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.setlogschannel_logs_embed_title)
                     .setDescription(data.setlogschannel_logs_embed_description_on_enable
@@ -205,7 +205,7 @@ export const command: Command = {
             if (!argsid) return interaction.editReply({ content: data.setlogschannel_not_specified_args });
 
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.setlogschannel_logs_embed_title)
                     .setDescription(data.setlogschannel_logs_embed_description_on_enable
@@ -242,7 +242,7 @@ export const command: Command = {
         /*                                        DELETE LOGS                                                */
         if (type === "off") {
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.setlogschannel_logs_embed_title)
                     .setDescription(data.setlogschannel_logs_embed_description_on_off

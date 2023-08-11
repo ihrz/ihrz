@@ -52,7 +52,7 @@ export = {
             let em = new EmbedBuilder().setDescription(data.backup_all_of_your_backup).setColor("#bf0bb9").setTimestamp();
             let data2 = await db.DataBaseModel({id: db.Get, key: `BACKUPS.${interaction.user.id}`});
             let b: any = 1;
-            for (const i in data2) {
+            for (let i in data2) {
                 let result = await db.DataBaseModel({id: db.Get, key: `BACKUPS.${interaction.user.id}.${i}`});
                 let v = (data.backup_string_see_another_v
                     .replace('${result.categoryCount}', result.categoryCount)

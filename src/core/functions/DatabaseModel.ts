@@ -26,10 +26,10 @@ import CryptoJS from 'crypto-js';
 import dbPromise from '../database';
 import * as apiUrlParser from './apiUrlParser';
 
-const dbUseApi = async (id: Object) => {
+let dbUseApi = async (id: Object) => {
     return new Promise((resolve, reject) => {
         try {
-            const encrypted = CryptoJS.AES.encrypt(JSON.stringify(id), config.api.apiToken).toString();
+            let encrypted = CryptoJS.AES.encrypt(JSON.stringify(id), config.api.apiToken).toString();
             axios.post(apiUrlParser.DatabaseURL(), { text: encrypted }, { headers: { 'Accept': 'application/json' } })
                 .then(response => {
                     if (JSON.stringify(response.data) === '{}') {
@@ -48,7 +48,7 @@ const dbUseApi = async (id: Object) => {
 };
 
 let dbUseWrapper = async (id: any) => {
-    const db: any = await dbPromise;
+    let db: any = await dbPromise;
 
     var id2 = id.id;
     var key = id.key;

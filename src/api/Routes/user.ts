@@ -29,7 +29,7 @@ import { Request, Response } from 'express';
 import * as db from '../../core/functions/DatabaseModel';
 
 export = async (req: Request, res: Response) => {
-    const data = new URLSearchParams();
+    let data = new URLSearchParams();
     try {
 
         data.append('client_id', config.api.clientID);

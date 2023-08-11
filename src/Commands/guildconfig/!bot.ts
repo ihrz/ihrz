@@ -39,7 +39,7 @@ export = {
         if (action === 'on') {
             // ------------------------
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.blockbot_logs_enable_title)
                     .setDescription(data.blockbot_logs_enable_description
@@ -64,7 +64,7 @@ export = {
 
             // ------------------------
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.blockbot_logs_disable_commmand_work)
                     .setDescription(data.blockbot_logs_disable_description

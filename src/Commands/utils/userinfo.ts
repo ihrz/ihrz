@@ -28,7 +28,7 @@ import logger from '../../core/logger';
 import moment from 'moment';
 import axios from 'axios';
 
-const oauth = new DiscordOauth2();
+let oauth = new DiscordOauth2();
 
 interface Badge {
     Value: number;
@@ -92,14 +92,14 @@ let badges: { [key: string]: Badge } = {
 
 // Fonction pour obtenir les badges de l'utilisateur
 function getBadges(flags: number) {
-    const badgeValues = Object.values(badges);
+    let badgeValues = Object.values(badges);
     return badgeValues
         .filter(badge => (flags & badge.Value) === badge.Value)
         .map(badge => badge.Emoji)
         .join('');
 };
 
-export const command: Command = {
+export let command: Command = {
     name: 'userinfo',
     description: 'Get information about a user!',
     options: [
@@ -112,11 +112,11 @@ export const command: Command = {
     ],
     category: 'utils',
     run: async (client: Client, interaction: any) => {
-        const data = await client.functions.getLanguageData(interaction.guild.id);
-        const member = interaction.options.getUser('user') || interaction.user;
+        let data = await client.functions.getLanguageData(interaction.guild.id);
+        let member = interaction.options.getUser('user') || interaction.user;
 
         async function sendMessage(description: string) {
-            const embed = new EmbedBuilder()
+            let embed = new EmbedBuilder()
                 .setAuthor({ name: `${member.username}`, iconURL: member.displayAvatarURL({ dynamic: true }) })
                 .setThumbnail(member.displayAvatarURL({ dynamic: true }))
                 .setFooter({ text: `ID: ${member.id}` })

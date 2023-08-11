@@ -41,7 +41,7 @@ import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 import config from '../../files/config';
 
-export const command: Command = {
+export let command: Command = {
     name: 'support',
     description: 'Give a roles when guild\'s member have something about your server on them bio!',
     options: [
@@ -107,7 +107,7 @@ export const command: Command = {
             });
 
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.setjoinroles_logs_embed_title_on_enable)
                     .setDescription(data.setjoinroles_logs_embed_description_on_enable
@@ -126,7 +126,7 @@ export const command: Command = {
             })
 
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.setjoinroles_logs_embed_title_on_enable)
                     .setDescription(data.setjoinroles_logs_embed_description_on_enable

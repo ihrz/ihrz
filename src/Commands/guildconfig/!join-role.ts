@@ -45,7 +45,7 @@ export = {
         if (query === "true") {
             if (!roleid) return interaction.editReply({embeds: [help_embed]});
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.setjoinroles_logs_embed_title_on_enable)
                     .setDescription(data.setjoinroles_logs_embed_description_on_enable

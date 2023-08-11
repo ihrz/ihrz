@@ -65,9 +65,9 @@ export = async (client: any, member: any) => {
 
     async function memberCount() {
         try {
-            const botMembers = member.guild.members.cache.filter((member: { user: { bot: any; }; }) => member.user.bot);
-            const rolesCollection = member.guild.roles.cache;
-            const rolesCount = rolesCollection.size;
+            let botMembers = member.guild.members.cache.filter((member: { user: { bot: any; }; }) => member.user.bot);
+            let rolesCollection = member.guild.roles.cache;
+            let rolesCount = rolesCollection.size;
 
             let bot = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.MCOUNT.bot` });
             let member_2 = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.MCOUNT.member` });
@@ -78,7 +78,7 @@ export = async (client: any, member: any) => {
                     .replace("{rolescount}", rolesCount)
                     .replace("{membercount}", member.guild.memberCount)
                     .replace("{botcount}", botMembers.size);
-                const fetched = member.guild.channels.cache.get(bot.channel);
+                let fetched = member.guild.channels.cache.get(bot.channel);
                 await fetched.edit({ name: joinmsgreplace });
             }
 
@@ -87,7 +87,7 @@ export = async (client: any, member: any) => {
                     .replace("{rolescount}", rolesCount)
                     .replace("{membercount}", member.guild.memberCount)
                     .replace("{botcount}", botMembers.size);
-                const fetched = member.guild.channels.cache.get(member_2.channel);
+                let fetched = member.guild.channels.cache.get(member_2.channel);
                 await fetched.edit({ name: joinmsgreplace })
             }
 
@@ -97,7 +97,7 @@ export = async (client: any, member: any) => {
                     .replace("{membercount}", member.guild.memberCount)
                     .replace("{botcount}", botMembers.size);
 
-                const fetched = member.guild.channels.cache.get(roles.channel);
+                let fetched = member.guild.channels.cache.get(roles.channel);
                 await fetched.edit({ name: joinmsgreplace });
             }
         } catch (e) { return };
@@ -109,13 +109,13 @@ export = async (client: any, member: any) => {
 
     async function welcomeMessage() {
         try {
-            const oldInvites = client.invites.get(member.guild.id);
-            const newInvites = await member.guild.invites.fetch();
+            let oldInvites = client.invites.get(member.guild.id);
+            let newInvites = await member.guild.invites.fetch();
 
-            const invite = newInvites.find((i: { uses: number; code: any; }) => i.uses > oldInvites.get(i.code));
+            let invite = newInvites.find((i: { uses: number; code: any; }) => i.uses > oldInvites.get(i.code));
             // if(invite.code == isVanity(invite.code)) { };
 
-            const inviter = await client.users.fetch(invite.inviterId);
+            let inviter = await client.users.fetch(invite.inviterId);
             client.invites.get(member.guild.id).set(invite.code, invite.uses);
 
             let check = await db.DataBaseModel({ id: db.Get, key: `${invite.guild.id}.USER.${inviter.id}.INVITES` });

@@ -58,8 +58,8 @@ export = {
         var text: string = '';
 
         try {
-            const charForTicket = baseData['TICKET'];
-            const charForRr = baseData['REACTION_ROLES'];
+            let charForTicket = baseData['TICKET'];
+            let charForRr = baseData['REACTION_ROLES'];
 
             for (var i in charForTicket) {
                 if (baseData['TICKET'][i]) {
@@ -71,8 +71,8 @@ export = {
                 var a = baseData['REACTION_ROLES'][i];
 
                 if (a) {
-                    const stringContent = Object.keys(a).map((key) => {
-                        const rolesID = a[key].rolesID;
+                    let stringContent = Object.keys(a).map((key) => {
+                        let rolesID = a[key].rolesID;
                         var emoji = interaction.guild.emojis.cache.find((emoji: { id: string; }) => emoji.id === key);
 
                         return data.guildprofil_set_reactionrole

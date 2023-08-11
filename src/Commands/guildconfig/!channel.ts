@@ -111,7 +111,7 @@ export = {
         }
         if (type === "off") {
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.setchannels_logs_embed_title_on_off)
                     .setDescription(data.setchannels_logs_embed_description_on_off

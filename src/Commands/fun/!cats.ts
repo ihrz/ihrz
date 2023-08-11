@@ -29,7 +29,7 @@ import axios from 'axios';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         axios.get('http://edgecats.net/random').then(res => {
-            const emb = new EmbedBuilder()
+            let emb = new EmbedBuilder()
                 .setImage(res.data)
                 .setTitle(data.cats_embed_title)
                 .setTimestamp();

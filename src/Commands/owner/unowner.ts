@@ -36,7 +36,7 @@ import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 import config from '../../files/config';
 
-export const command: Command = {
+export let command: Command = {
     name: 'unowner',
     description: 'The member who wants to delete of the owner list (Only Owner of ihorizon)!',
     options: [

@@ -22,7 +22,7 @@
 import { Client, IntentsBitField, Partials, GatewayIntentBits } from "discord.js";
 import config from "../files/config";
 
-const client = new Client({
+let client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,

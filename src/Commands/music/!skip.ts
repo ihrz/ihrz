@@ -35,7 +35,7 @@ export = {
         ;
 
         try {
-            const queue = interaction.client.player.nodes.get(interaction.guild)
+            let queue = interaction.client.player.nodes.get(interaction.guild)
 
             if (!queue || !queue.isPlaying()) {
                 return interaction.editReply({content: data.skip_nothing_playing})

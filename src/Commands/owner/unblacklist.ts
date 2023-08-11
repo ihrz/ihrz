@@ -35,7 +35,7 @@ import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 import config from '../../files/config';
 
-export const command: Command = {
+export let command: Command = {
     name: 'unblacklist',
     description: 'The user you want to unblacklist (Only Owner of ihorizon)!',
     options: [
@@ -73,6 +73,7 @@ export const command: Command = {
             await interaction.editReply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member.id) });
             return;
         } catch (e) {
+            await db.DataBaseModel({ id: db.Delete, key: `GLOBAL.BLACKLIST.${member.id}` });
             await interaction.editReply({ content: data.unblacklist_unblacklisted_but_can_unban_him });
             return;
         };

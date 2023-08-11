@@ -28,11 +28,11 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
     async function serverLogs() {
         if (!oldMember.guild.members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
 
-        const fetchedLogs = await oldMember.guild.fetchAuditLogs({
+        let fetchedLogs = await oldMember.guild.fetchAuditLogs({
             type: AuditLogEvent.MemberRoleUpdate,
             limit: 1,
         });
-        const firstEntry: any = fetchedLogs.entries.first();
+        let firstEntry: any = fetchedLogs.entries.first();
 
         if (!firstEntry || firstEntry.executor.id == client.user?.id
             || !oldMember || !oldMember.guild) return;

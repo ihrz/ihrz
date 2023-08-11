@@ -35,7 +35,7 @@ import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 import config from '../../files/config';
 
-export const command: Command = {
+export let command: Command = {
     name: 'eval',
     description: 'Run Javascript program (only for developers)!',
     options: [
