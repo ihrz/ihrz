@@ -84,4 +84,4 @@ export = {
         await interaction.editReply({ embeds: [embed], content: ' ', files: [attachment] });
         return;
     },
-}
+};

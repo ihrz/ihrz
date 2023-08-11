@@ -32,6 +32,7 @@ export let command: Command = {
     category: 'utils',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
+        
         let verlvl: any = {
             0: data.serverinfo_verlvl_NONE,
             1: data.serverinfo_verlvl_LOW,

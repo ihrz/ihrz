@@ -35,7 +35,8 @@ export = {
         let argsid = interaction.options.getChannel("channel");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({ content: data.setxpchannels_not_admin });
+            await interaction.editReply({ content: data.setxpchannels_not_admin });
+            return;
         };
 
         if (type === "on") {
@@ -43,7 +44,7 @@ export = {
                 await interaction.editReply({ content: data.setxpchannels_valid_channel_message });
                 return;
             };
-            
+
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
@@ -106,4 +107,4 @@ export = {
             }
         };
     },
-}
+};

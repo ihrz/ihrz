@@ -73,6 +73,6 @@ export = {
             .setTimestamp();
 
         await interaction.editReply({ embeds: [embed] });
-        return
+        return;
     },
 };

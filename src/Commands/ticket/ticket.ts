@@ -133,4 +133,4 @@ export let command: Command = {
 
         await require('./!' + command).run(client, interaction, data);
     },
-}
+};

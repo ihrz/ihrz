@@ -170,7 +170,6 @@ export let command: Command = {
                 , ephemeral: true
             });
             return;
-            /*End of Remove roles to users pleasssssssse horisus*/
-        }
+        };
     },
 };

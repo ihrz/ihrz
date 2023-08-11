@@ -46,6 +46,7 @@ export = {
             if (choose === 'simply+ban') choose = 'BAN';
 
             await interaction.editReply({ content: `<@${interaction.user.id}>, rule sanction has been set. When the user breaks the rule, it's **${choose}**. And the bot cancels its action.` });
+            return;
         };
     },
 };

@@ -47,6 +47,7 @@ export = {
             if (allow === 'allowlist') allow = 'Member(s) of allowlist'
 
             await interaction.editReply({ content: `<@${interaction.user.id}>, the rule for \`${rule.toUpperCase()}\` are been set. **${allow}** are allowed to bypass-it!` });
+            return;
         } else if (rule === 'cls') {
             await db.DataBaseModel({
                 id: db.Set, key: `${interaction.guild.id}.PROTECTION`,
@@ -54,6 +55,7 @@ export = {
             });
 
             await interaction.editReply({ content: `<@${interaction.user.id}>, all of the rule for \`${interaction.guild.name}\` are been deleted. Protection module is now disabled!` });
+            return;
         };
     },
 };

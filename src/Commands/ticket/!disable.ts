@@ -32,7 +32,8 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({ content: data.disableticket_not_admin });
+            await interaction.editReply({ content: data.disableticket_not_admin });
+            return;
         };
 
         let type = interaction.options.getString('action');

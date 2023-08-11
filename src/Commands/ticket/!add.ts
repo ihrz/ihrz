@@ -31,7 +31,8 @@ export = {
         let blockQ = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable` });
 
         if (blockQ) {
-            return interaction.editReply({ content: data.add_disabled_command });
+            await interaction.editReply({ content: data.add_disabled_command });
+            return;
         };
 
         if (interaction.channel.name.includes('ticket-')) {
@@ -39,7 +40,8 @@ export = {
             let member = interaction.options.getUser("user");
 
             if (!member) {
-                return interaction.editReply({ content: data.add_incorect_syntax });
+                await interaction.editReply({ content: data.add_incorect_syntax });
+                return;
             };
 
             try {

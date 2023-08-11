@@ -32,9 +32,10 @@ export let command: Command = {
     category: 'utils',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
-        
+
         if (!interaction.member.permissions.has([PermissionsBitField.Flags.Administrator])) {
-            return interaction.editReply({ content: data.renew_not_administrator });
+            await interaction.editReply({ content: data.renew_not_administrator });
+            return;
         };
 
         let channel = interaction.channel;
@@ -55,9 +56,11 @@ export let command: Command = {
                 reason: `Channel re-create by ${interaction.user} (${interaction.user.id})`
             });
 
-            here.send({ content: data.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.user) })
+            here.send({ content: data.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.user) });
+            return;
         } catch (error) {
-            return interaction.editReply({ content: data.renew_dont_have_permission });
+            await interaction.editReply({ content: data.renew_dont_have_permission });
+            return;
         }
     },
 };
