@@ -31,17 +31,12 @@ import fs from 'fs';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let sus = interaction.options.getMember("user");
-        const ownerList = await db.DataBaseModel({id: db.All});
-        const foundArray = ownerList.findIndex((d: { id: any; }) => d.id === interaction.guild.id);
-
-        await interaction.editReply({content: ":clock:"});
-        if (!ownerList[foundArray]) return interaction.editReply({content: 'Not data found in the storage.'});
-        const char = ownerList[foundArray].value.USER;
+        let char = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER` });
         let tableau = [];
 
-        for (const i in char) {
-            const a = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.USER.${i}.XP_LEVELING`});
+        for (let i in char) {
+            var a = char[i]?.XP_LEVELING
+
             if (a) {
                 let user = await interaction.client.users.cache.get(i);
                 if (user) {
@@ -49,23 +44,20 @@ export = {
                         text: `👤 <@${user.id}> \`(${user.username})\`\n⭐ ➥ **Level**: \`${a.level || '0'}\`\n🔱 ➥ **XP Total**: \`${a.xptotal}\``, length: a.xptotal,
                         rawText: `👤 (${user.username})\n⭐ ➥ Level: ${a.level || '0'}\n🔱 ➥ XP Total: ${a.xptotal}`
                     });
-                }
-                ;
+                };
             }
-        }
-        ;
+        };
 
         tableau.sort((a, b) => b.length - a.length);
 
-        const embed = new EmbedBuilder().setColor("#1456b6").setTimestamp();
+        let embed = new EmbedBuilder().setColor("#1456b6").setTimestamp();
         let i = 1;
         let o = '';
 
         tableau.forEach(index => {
             if (i < 4) {
-                embed.addFields({name: `Top #${i}`, value: index.text});
-            }
-            ;
+                embed.addFields({ name: `Top #${i}`, value: index.text });
+            };
             o += `Top #${i} ${index.rawText}\n`
             i++;
         });
@@ -84,11 +76,12 @@ export = {
             o
         );
 
-        const attachment = new AttachmentBuilder(`${process.cwd()}/src/temp/${interaction.id}.txt`, {name: 'leaderboard.txt'});
+        let attachment = new AttachmentBuilder(`${process.cwd()}/src/temp/${interaction.id}.txt`, { name: 'leaderboard.txt' });
 
         embed.setThumbnail(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`);
-        embed.setFooter({text: 'iHorizon', iconURL: client.user?.displayAvatarURL()});
+        embed.setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
         embed.setTitle(`${interaction.guild.name}'s Levels Leaderboard`)
-        return await interaction.editReply({embeds: [embed], content: ' ', files: [attachment]});
+        await interaction.editReply({ embeds: [embed], content: ' ', files: [attachment] });
+        return;
     },
 }

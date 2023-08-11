@@ -32,49 +32,52 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({ content: data.disablexp_not_admin });
-        }
-        ;
+            await interaction.editReply({ content: data.disablexp_not_admin });
+            return;
+        };
 
-        let types = interaction.options.get("action").value
+        let types = interaction.options.get("action").value;
 
         if (types == "off") {
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.disablexp_logs_embed_title_disable)
                     .setDescription(data.disablexp_logs_embed_description_disable.replace(/\${interaction\.user\.id}/g, interaction.user.id))
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                
                 if (logchannel) {
                     logchannel.send({ embeds: [logEmbed] })
-                }
+                };
             } catch (e: any) {
                 logger.err(e)
-            }
-            ;
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.disable`, value: false });
-            return interaction.editReply({ content: data.disablexp_command_work_disable });
-        } else {
-            if (types == "on") {
-                try {
-                    const logEmbed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
-                        .setTitle(data.disablexp_logs_embed_title_enable)
-                        .setDescription(data.disablexp_logs_embed_description_enable.replace(/\${interaction\.user\.id}/g, interaction.user.id))
+            };
 
-                    let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                    if (logchannel) {
-                        logchannel.send({ embeds: [logEmbed] })
-                    }
-                } catch (e: any) {
-                    logger.err(e)
-                }
-                ;
-                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.disable`, value: true });
-                return interaction.editReply({ content: data.disablexp_command_work_enable });
-            }
-        }
-        ;
+            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.disable`, value: false });
+            
+            await interaction.editReply({ content: data.disablexp_command_work_disable });
+            return;
+        } else if (types == "on") {
+            try {
+                let logEmbed = new EmbedBuilder()
+                    .setColor("#bf0bb9")
+                    .setTitle(data.disablexp_logs_embed_title_enable)
+                    .setDescription(data.disablexp_logs_embed_description_enable.replace(/\${interaction\.user\.id}/g, interaction.user.id))
+
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                
+                if (logchannel) {
+                    logchannel.send({ embeds: [logEmbed] })
+                };
+            } catch (e: any) {
+                logger.err(e)
+            };
+
+            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.disable`, value: true });
+            
+            await interaction.editReply({ content: data.disablexp_command_work_enable });
+            return;
+        };
     },
 }

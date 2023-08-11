@@ -28,8 +28,10 @@ import * as db from '../../core/functions/DatabaseModel';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         var age = interaction.options.getNumber("age");
-        await db.DataBaseModel({id: db.Set, key: `GLOBAL.USER_PROFIL.${interaction.user.id}.age`, value: age});
 
-        return interaction.editReply({content: data.setprofilage_command_work});
+        await db.DataBaseModel({ id: db.Set, key: `GLOBAL.USER_PROFIL.${interaction.user.id}.age`, value: age });
+
+        await interaction.editReply({ content: data.setprofilage_command_work });
+        return;
     },
-}
+};

@@ -21,19 +21,6 @@
 
 import {
     Client,
-    Collection,
-    EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
-    ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
 import * as db from '../../core/functions/DatabaseModel';
@@ -41,27 +28,28 @@ import * as db from '../../core/functions/DatabaseModel';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let blockQ = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable`});
+        let blockQ = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable` });
 
         if (blockQ) {
-            return interaction.editReply({content: data.add_disabled_command});
-        }
-        ;
+            return interaction.editReply({ content: data.add_disabled_command });
+        };
+
         if (interaction.channel.name.includes('ticket-')) {
 
-            const member = interaction.options.getUser("user");
+            let member = interaction.options.getUser("user");
 
             if (!member) {
-                return interaction.editReply({content: data.add_incorect_syntax});
-            }
+                return interaction.editReply({ content: data.add_incorect_syntax });
+            };
 
             try {
-                interaction.channel.permissionOverwrites.create(member, {ViewChannel: true, SendMessages: true, ReadMessageHistory: true});
-                interaction.editReply({content: data.add_command_work.replace(/\${member\.tag}/g, member.username)});
+                interaction.channel.permissionOverwrites.create(member, { ViewChannel: true, SendMessages: true, ReadMessageHistory: true });
+                await interaction.editReply({ content: data.add_command_work.replace(/\${member\.tag}/g, member.username) });
+                return;
             } catch (e) {
-                return interaction.editReply({content: data.add_command_error});
+                await interaction.editReply({ content: data.add_command_error });
+                return;
             }
-        }
-        ;
+        };
     },
-}
+};

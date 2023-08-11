@@ -30,21 +30,23 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let user = interaction.options.getUser("user") || interaction.user;
-        var level = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.USER.${user.id}.XP_LEVELING.level`}) || 0;
-        var currentxp = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.USER.${user.id}.XP_LEVELING.xp`}) || 0;
+        let baseData = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${user.id}.XP_LEVELING` })
+        var level = baseData?.level || 0;
+        var currentxp = baseData?.xp || 0;
 
-        var xpNeeded = level * 500 + 500
-        var expNeededForLevelUp = xpNeeded - currentxp
+        var xpNeeded = level * 500 + 500;
+        var expNeededForLevelUp = xpNeeded - currentxp;
+
         let nivEmbed = new EmbedBuilder()
             .setTitle(data.level_embed_title
                 .replace('${user.username}', user.username)
             )
             .setColor('#0014a8')
             .addFields({
-                    name: data.level_embed_fields1_name, value: data.level_embed_fields1_value
-                        .replace('${currentxp}', currentxp)
-                        .replace('${xpNeeded}', xpNeeded), inline: true
-                },
+                name: data.level_embed_fields1_name, value: data.level_embed_fields1_value
+                    .replace('${currentxp}', currentxp)
+                    .replace('${xpNeeded}', xpNeeded), inline: true
+            },
                 {
                     name: data.level_embed_fields2_name, value: data.level_embed_fields2_value
                         .replace('${level}', level), inline: true
@@ -54,8 +56,9 @@ export = {
             )
             .setTimestamp()
             .setThumbnail("https://cdn.discordapp.com/attachments/847484098070970388/850684283655946240/discord-icon-new-2021-logo-09772BF096-seeklogo.com.png")
-            .setFooter({text: 'iHorizon', iconURL: client.user?.displayAvatarURL()})
+            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
-        return await interaction.editReply({embeds: [nivEmbed]});
+        await interaction.editReply({ embeds: [nivEmbed] });
+        return;
     },
-}
+};

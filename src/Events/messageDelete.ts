@@ -66,14 +66,14 @@ export = async (client: Client, message: Message) => {
             .setTimestamp();
 
         if (message.attachments.size >= 1) {
-            const attachments = message.attachments;
-            const attachment = attachments.first();
+            let attachments = message.attachments;
+            let attachment = attachments.first();
             if (!attachment || !attachment.contentType) return;
 
             if (attachment && attachment.contentType.startsWith('image/')) {
-                const imageUrl: any = attachment['attachment'];
+                let imageUrl: any = attachment['attachment'];
                 logsEmbed.setImage(imageUrl)
-            }
+            };
         };
 
         await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });

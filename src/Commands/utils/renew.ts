@@ -21,21 +21,10 @@
 
 import {
     Client,
-    Collection,
-    ChannelType,
-    EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
     PermissionsBitField,
-    ApplicationCommandOptionType
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import logger from '../../core/logger';
-import ms from 'ms';
-import config from '../../files/config';
-
-import * as db from '../../core/functions/DatabaseModel';
 
 export const command: Command = {
     name: 'renew',

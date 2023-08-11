@@ -33,20 +33,20 @@ export = {
 
         let category = interaction.options.getChannel("category-name");
 
-        if (await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable`})) {
-            return interaction.editReply({content: data.setticketcategory_disabled_command});
-        }
-        ;
+        if (await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable` })) {
+            await interaction.editReply({ content: data.setticketcategory_disabled_command });
+            return;
+        };
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({content: data.setticketcategory_not_admin});
-        }
-        ;
+            await interaction.editReply({ content: data.setticketcategory_not_admin });
+            return;
+        };
 
         if (!(category instanceof CategoryChannel)) {
-            return interaction.editReply({content: data.setticketcategory_not_a_category});
-        }
-        ;
+            await interaction.editReply({ content: data.setticketcategory_not_a_category });
+            return;
+        };
 
         await db.DataBaseModel({
             id: db.Set, key: `${interaction.guild.id}.GUILD.TICKET.category`,
@@ -54,13 +54,14 @@ export = {
         });
 
         let embed = new EmbedBuilder()
-            .setFooter({text: 'iHorizon', iconURL: client.user?.displayAvatarURL()})
+            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setColor('#00FFFF')
             .setDescription(data.setticketcategory_command_work
                 .replace('${category.name}', category.name)
                 .replace('${interaction.user.id}', interaction.user.id)
             );
 
-        return interaction.editReply({embeds: [embed], ephemeral: false});
+        await interaction.editReply({ embeds: [embed], ephemeral: false });
+        return;
     },
-}
+};

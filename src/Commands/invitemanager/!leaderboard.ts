@@ -32,8 +32,6 @@ export = {
         let ownerList = await db.DataBaseModel({id: db.All});
         let foundArray = ownerList.findIndex((d: { id: any; }) => d.id === interaction.guild.id);
 
-        await interaction.editReply({content: ":clock:"});
-
         let char = ownerList[foundArray].value.USER;
         for (let i in char) {
             let a = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.USER.${i}.INVITES`});

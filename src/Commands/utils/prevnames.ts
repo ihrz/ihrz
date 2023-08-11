@@ -21,20 +21,12 @@
 
 import {
     Client,
-    Collection,
-    ChannelType,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import logger from '../../core/logger';
-import ms from 'ms';
-import config from '../../files/config';
-
 import * as db from '../../core/functions/DatabaseModel';
 
 export const command: Command = {
@@ -51,13 +43,13 @@ export const command: Command = {
     category: 'utils',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
-
         let user = interaction.options.getUser("user") || interaction.user;
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({ content: data.prevnames_not_admin });
+            await interaction.editReply({ content: data.prevnames_not_admin });
+            return;
         };
-        
+
         let fetch = await db.DataBaseModel({ id: db.Get, key: `DB.PREVNAMES.${user.id}` });
         if (fetch) fetch = fetch.join('\n');
 
@@ -66,6 +58,7 @@ export const command: Command = {
         prevEmbed.setDescription(fetch || data.prevnames_undetected);
         prevEmbed.setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
-        return interaction.editReply({ embeds: [prevEmbed] });
+        await interaction.editReply({ embeds: [prevEmbed] });
+        return;
     },
 };

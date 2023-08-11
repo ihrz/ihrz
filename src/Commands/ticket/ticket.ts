@@ -21,28 +21,10 @@
 
 import {
     Client,
-    Collection,
-    EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
     ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
-    CategoryChannel,
 } from 'discord.js';
-import * as sourcebin from 'sourcebin';
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
-import logger from '../../core/logger';
-import config from '../../files/config';
-import ms from 'ms';
 
 export const command: Command = {
     name: "ticket",

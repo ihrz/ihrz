@@ -84,13 +84,13 @@ export = async (client: Client, message: any) => {
             return;
         };
 
-        const member = message.guild.members.cache.get(message.author.id);
+        let member = message.guild.members.cache.get(message.author.id);
 
         if (type === "on") {
-            const LOG = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.GUILD.PUNISH.PUNISH_PUB` });
-            const LOGfetched = await db.DataBaseModel({ id: db.Get, key: `TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}` });
+            let LOG = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.GUILD.PUNISH.PUNISH_PUB` });
+            let LOGfetched = await db.DataBaseModel({ id: db.Get, key: `TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}` });
 
-            if (LOGfetched && LOG && LOG.amountMax === LOGfetched.flags && LOG.state === "true") {
+            if (LOG?.amountMax === LOGfetched?.flags && LOG.state === "true") {
                 switch (LOG.punishementType) {
                     case 'ban':
                         message.guild.members.ban(message.author.id, { reason: "Ban by PUNISHPUB" }).catch(() => { });
@@ -121,9 +121,9 @@ export = async (client: Client, message: any) => {
                     if (contentLower.includes(word)) {
                         let FLAGS_FETCH = await db.DataBaseModel({ id: db.Get, key: `TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}.flags` });
                         FLAGS_FETCH = FLAGS_FETCH || 0;
-                        
+
                         await db.DataBaseModel({ id: db.Set, key: `TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`, value: { flags: FLAGS_FETCH + 1 } });
-                        
+
                         await message.delete();
                         break;
                     }

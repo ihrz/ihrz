@@ -21,19 +21,10 @@
 
 import {
     Client,
-    Collection,
-    ChannelType,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
-    ApplicationCommandOptionType
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import logger from '../../core/logger';
-import ms from 'ms';
-import config from '../../files/config';
 
 import * as db from '../../core/functions/DatabaseModel';
 
@@ -46,7 +37,10 @@ export const command: Command = {
 
         var based = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.SNIPE.${interaction.channel.id}` });
 
-        if (!based) { return interaction.editReply({ content: data.snipe_no_previous_message_deleted }) };
+        if (!based) {
+            await interaction.editReply({ content: data.snipe_no_previous_message_deleted });
+            return;
+        };
 
         let embed = new EmbedBuilder()
             .setColor("#474749")
@@ -54,6 +48,7 @@ export const command: Command = {
             .setDescription(`\`${based.snipe || 0}\``)
             .setTimestamp(based.snipeTimestamp);
 
-        return interaction.editReply({ embeds: [embed] })
+        await interaction.editReply({ embeds: [embed] });
+        return;
     },
 };

@@ -21,21 +21,10 @@
 
 import {
     Client,
-    Collection,
-    ChannelType,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
-    ApplicationCommandOptionType
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import logger from '../../core/logger';
-import ms from 'ms';
-import config from '../../files/config';
-
-import * as db from '../../core/functions/DatabaseModel';
 
 export const command: Command = {
     name: 'guildinfo',
@@ -76,6 +65,7 @@ export const command: Command = {
             .setThumbnail(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`)
             .setImage(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.banner}.png`);
 
-        return interaction.editReply({ embeds: [embeds] });
+        await interaction.editReply({ embeds: [embeds] });
+        return;
     },
 };

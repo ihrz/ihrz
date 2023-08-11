@@ -21,19 +21,6 @@
 
 import {
     Client,
-    Collection,
-    EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
-    ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
 import * as db from '../../core/functions/DatabaseModel';
@@ -41,15 +28,15 @@ import * as db from '../../core/functions/DatabaseModel';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let blockQ = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable`});
+        let blockQ = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable` });
 
         if (blockQ) {
-            return interaction.editReply({content: data.open_disabled_command});
-        }
-        ;
+            await interaction.editReply({ content: data.open_disabled_command });
+            return;
+        };
 
         if (interaction.channel.name.includes('ticket-')) {
-            const member = interaction.guild.members.cache.get(interaction.channel.name.split('ticket-').join(''));
+            let member = interaction.guild.members.cache.get(interaction.channel.name.split('ticket-').join(''));
             try {
                 interaction.channel.permissionOverwrites.edit(member.id, {
                     VIEW_CHANNEL: true,
@@ -58,19 +45,19 @@ export = {
                     READ_MESSAGE_HISTORY: true,
                 })
                     .then(() => {
-                        return interaction.editReply({
+                        interaction.editReply({
                             content: data.open_command_work
                                 .replace(/\${interaction\.channel}/g, interaction.channel)
                         });
+                        return;
                     });
             } catch (e: any) {
-                return interaction.editReply({content: data.open_command_error});
-            }
-            ;
+                await interaction.editReply({ content: data.open_command_error });
+                return;
+            };
         } else {
-            return await interaction.editReply({content: data.open_not_in_ticket});
-        }
-        ;
-
+            await interaction.editReply({ content: data.open_not_in_ticket });
+            return;
+        };
     },
-}
+};

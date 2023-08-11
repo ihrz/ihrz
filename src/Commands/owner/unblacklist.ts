@@ -52,23 +52,29 @@ export const command: Command = {
 
         if (await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER.${interaction.user.id}.owner` }) !== true) {
             return interaction.editReply({ content: data.unblacklist_not_owner });
-        }
+        };
 
-        const member = interaction.options.getUser('member')
-        let fetched = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${member.id}` })
+        let member = interaction.options.getUser('member');
+        let fetched = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${member.id}` });
 
         if (!fetched) { return interaction.editReply({ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member.id) }) }
 
         try {
-            let bannedMember = await client.users.fetch(member.user.id)
-            if (!bannedMember) { return interaction.editReply({ content: data.unblacklist_user_is_not_exist }) }
-            interaction.guild.members.unban(bannedMember)
-            await db.DataBaseModel({ id: db.Delete, key: `GLOBAL.BLACKLIST.${member.id}` });
+            let bannedMember = await client.users.fetch(member.user.id);
 
-            return interaction.editReply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member.id) })
-        } catch (e) {
+            if (!bannedMember) {
+                await interaction.editReply({ content: data.unblacklist_user_is_not_exist });
+                return;
+            };
+
             await db.DataBaseModel({ id: db.Delete, key: `GLOBAL.BLACKLIST.${member.id}` });
-            return interaction.editReply({ content: data.unblacklist_unblacklisted_but_can_unban_him })
-        }
+            await interaction.guild.members.unban(bannedMember);
+
+            await interaction.editReply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member.id) });
+            return;
+        } catch (e) {
+            await interaction.editReply({ content: data.unblacklist_unblacklisted_but_can_unban_him });
+            return;
+        };
     },
 };

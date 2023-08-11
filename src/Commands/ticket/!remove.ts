@@ -28,25 +28,27 @@ import * as db from '../../core/functions/DatabaseModel';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let blockQ = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable`});
+        let blockQ = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable` });
 
         if (blockQ) {
-            return interaction.editReply({content: data.remove_disabled_command});
-        }
-        ;
+            await interaction.editReply({ content: data.remove_disabled_command });
+            return;
+        };
 
         if (interaction.channel.name.includes('ticket-')) {
-            const member = interaction.options.getUser("user");
+            let member = interaction.options.getUser("user");
 
             try {
-                interaction.channel.permissionOverwrites.create(member, {ViewChannel: false, SendMessages: false, ReadMessageHistory: false});
-                interaction.editReply({content: data.remove_command_work.replace(/\${member\.tag}/g, member.username)});
+                interaction.channel.permissionOverwrites.create(member, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
+                interaction.editReply({ content: data.remove_command_work.replace(/\${member\.tag}/g, member.username) });
             } catch (e: any) {
-                return interaction.editReply({content: data.remove_command_error});
-            }
+                await interaction.editReply({ content: data.remove_command_error });
+                return;
+            };
+            
         } else {
-            return interaction.editReply({content: data.remove_not_in_ticket})
-        }
-        ;
+            await interaction.editReply({ content: data.remove_not_in_ticket });
+            return;
+        };
     },
-}
+};

@@ -21,19 +21,8 @@
 
 import {
     Client,
-    Collection,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
     PermissionsBitField,
-    ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
 import * as db from '../../core/functions/DatabaseModel';
@@ -44,17 +33,16 @@ import sourcebin from 'sourcebin';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let blockQ = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable`});
+        let blockQ = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable` });
         if (blockQ) {
-            return interaction.editReply({content: data.close_disabled_command});
-        }
-        ;
+            return interaction.editReply({ content: data.close_disabled_command });
+        };
 
         if (interaction.channel.name.includes('ticket-')) {
-            const member = interaction.guild.members.cache.get(interaction.channel.name.split('ticket-').join(''));
+            let member = interaction.guild.members.cache.get(interaction.channel.name.split('ticket-').join(''));
             if (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.channel.name === `ticket-${interaction.user.id}`) {
                 interaction.channel.messages.fetch().then(async (messages: any[]) => {
-                    const output = messages.reverse().map(m => `${new Date(m.createdAt).toLocaleString('en-US')} - ${m.author.username}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`).join('\n');
+                    let output = messages.reverse().map(m => `${new Date(m.createdAt).toLocaleString('en-US')} - ${m.author.username}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`).join('\n');
 
                     let response;
                     try {
@@ -70,31 +58,30 @@ export = {
                         })
 
                     } catch (e: any) {
-                        return interaction.editReply({content: data.close_error_command});
-                    }
-                    ;
+                        return interaction.editReply({ content: data.close_error_command });
+                    };
 
                     try {
-                        const embed = new EmbedBuilder()
+                        let embed = new EmbedBuilder()
                             .setDescription(`[\`View This\`](${response.url})`)
                             .setColor('#5b92e5');
-                        interaction.editReply({content: data.close_command_work_channel, embeds: [embed]})
+                        await interaction.editReply({ content: data.close_command_work_channel, embeds: [embed] })
                     } catch (e: any) {
-                        logger.err(e)
-                    }
-                    ;
+                        logger.err(e);
+                    };
 
                     try {
-                        interaction.channel.permissionOverwrites.create(member.user, {ViewChannel: false, SendMessages: false, ReadMessageHistory: false});
-                        interaction.channel.send({content: data.close_command_work_notify_channel});
+                        interaction.channel.permissionOverwrites.create(member.user, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
+                        interaction.channel.send({ content: data.close_command_work_notify_channel });
                     } catch (e: any) {
-                        return interaction.channel.send(data.close_command_error);
-                    }
+                        await interaction.channel.send(data.close_command_error);
+                        return;
+                    };
                 });
             }
         } else {
-            return interaction.editReply({content: data.close_not_in_ticket});
-        }
-        ;
+            await interaction.editReply({ content: data.close_not_in_ticket });
+            return;
+        };
     },
-}
+};

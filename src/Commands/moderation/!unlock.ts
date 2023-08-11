@@ -52,9 +52,9 @@ export = {
             }
         } catch (e: any) {
             logger.err(e)
-        }
-        ;
+        };
 
-        return interaction.editReply({embeds: [embed]});
+        await interaction.editReply({embeds: [embed]});
+        return;
     },
-}
+};

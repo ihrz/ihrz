@@ -21,16 +21,10 @@
 
 import {
     Client,
-    EmbedBuilder,
-    PermissionsBitField,
     ApplicationCommandOptionType,
-    AttachmentBuilder,
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
-import logger from '../../core/logger';
-import fs from 'fs';
 
 export const command: Command = {
     name: "ranks",

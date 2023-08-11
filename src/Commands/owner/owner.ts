@@ -51,17 +51,17 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         var text = "";
-        const ownerList = await db.DataBaseModel({ id: db.All });
-        const foundArray = ownerList.findIndex((ownerList: { id: string; }) => ownerList.id === "GLOBAL");
-        const char = ownerList[foundArray].value.OWNER;
+        var char = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER` });
+
         for (var i in char) {
             text += `<@${i}>\n`
-        }
+        };
+        
         if (!text.includes(interaction.user.id)) {
             return interaction.editReply({ content: data.owner_not_owner })
         };
 
-        let iconURL:any = client.user?.displayAvatarURL();
+        let iconURL: any = client.user?.displayAvatarURL();
 
         let embed = new EmbedBuilder()
             .setColor("#2E2EFE")
@@ -69,15 +69,18 @@ export const command: Command = {
             .setDescription(`${text}`)
             .setFooter({ text: 'iHorizon', iconURL: iconURL })
 
-        let member = interaction.options.getMember('member')
+        let member = interaction.options.getMember('member');
         if (!member) return interaction.editReply({ embeds: [embed] });
-        let checkAx = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER.${member.id}.owner` })
-        if (!checkAx != true) {
-            return interaction.editReply({ content: data.owner_already_owner })
-        }
 
-        await db.DataBaseModel({ id: db.Set, key: `GLOBAL.OWNER.${member.user.id}.owner`, value: true }),
-            interaction.editReply({ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.user.username) });
+        let checkAx = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER.${member.id}.owner` });
 
+        if (checkAx) {
+            await interaction.editReply({ content: data.owner_already_owner });
+            return;
+        };
+
+        await db.DataBaseModel({ id: db.Set, key: `GLOBAL.OWNER.${member.user.id}.owner`, value: true });
+        await interaction.editReply({ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.user.username) });
+        return;
     },
 };

@@ -21,11 +21,7 @@
 
 import {
     Client,
-    Collection,
-    ChannelType,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType
 } from 'discord.js'
@@ -33,8 +29,6 @@ import {
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
-import ms from 'ms';
-import config from '../../files/config';
 
 export const command: Command = {
     name: 'rolereaction',
@@ -80,8 +74,10 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({ content: data.reactionroles_dont_admin_added });
-        }
+            await interaction.editReply({ content: data.reactionroles_dont_admin_added });
+            return;
+        };
+
         let type = interaction.options.getString("value");
         let messagei = interaction.options.getString("messageid");
         let reaction = interaction.options.getString("reaction");
@@ -99,13 +95,15 @@ export const command: Command = {
             try {
                 await interaction.channel.messages.fetch(messagei).then((message: { react: (arg0: any) => void; }) => { message.react(reaction) });
             } catch {
-                return interaction.editReply({ content: data.reactionroles_dont_message_found });
+                await interaction.editReply({ content: data.reactionroles_dont_message_found });
+                return;
             };
 
             let check = reaction.toString();
 
             if (check.includes("<") || check.includes(">") || check.includes(":")) {
-                return interaction.editReply({ content: data.reactionroles_invalid_emote_format_added })
+                await interaction.editReply({ content: data.reactionroles_invalid_emote_format_added })
+                return;
             };
 
             await db.DataBaseModel({
@@ -129,50 +127,50 @@ export const command: Command = {
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
 
-            return await interaction.editReply({
+            await interaction.editReply({
                 content: data.reactionroles_command_work_added
                     .replace("${messagei}", messagei)
                     .replace("${reaction}", reaction)
                     .replace("${role}", role)
                 , ephemeral: true
             });
-        } else {
-            if (type == "remove") {
-                let reactionLet = interaction.options.getString("reaction");
+            return;
+        } else if (type == "remove") {
+            let reactionLet = interaction.options.getString("reaction");
 
-                if (!reactionLet) { return interaction.editReply({ content: data.reactionroles_missing_remove }) };
-                const message = await interaction.channel.messages.fetch(messagei);
+            if (!reactionLet) { return interaction.editReply({ content: data.reactionroles_missing_remove }) };
+            let message = await interaction.channel.messages.fetch(messagei);
 
-                const fetched = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}` });
+            let fetched = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}` });
 
-                if (!fetched) { return interaction.editReply({ content: data.reactionroles_missing_reaction_remove }) };
-                const reactionVar = message.reactions.cache.get(fetched.reactionNAME);
+            if (!fetched) { return interaction.editReply({ content: data.reactionroles_missing_reaction_remove }) };
+            let reactionVar = message.reactions.cache.get(fetched.reactionNAME);
 
-                if (!reactionVar) { return interaction.editReply({ content: data.reactionroles_cant_fetched_reaction_remove }) };
-                await reactionVar.users.remove(client.user?.id).catch((err: string) => { logger.err(err) });
+            if (!reactionVar) { return interaction.editReply({ content: data.reactionroles_cant_fetched_reaction_remove }) };
+            await reactionVar.users.remove(client.user?.id).catch((err: string) => { logger.err(err) });
 
-                await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}` });
+            await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}` });
 
-                try {
-                    let logEmbed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
-                        .setTitle(data.reactionroles_logs_embed_title_remove)
-                        .setDescription(data.reactionroles_logs_embed_description_remove
-                            .replace("${interaction.user.id}", interaction.user.id)
-                            .replace("${messagei}", messagei)
-                            .replace("${reaction}", reaction)
-                        );
-                    let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                    if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
-                } catch (e: any) { logger.err(e) };
-                await interaction.editReply({
-                    content: data.reactionroles_command_work_remove
-                        .replace("${reaction}", reaction)
+            try {
+                let logEmbed = new EmbedBuilder()
+                    .setColor("#bf0bb9")
+                    .setTitle(data.reactionroles_logs_embed_title_remove)
+                    .setDescription(data.reactionroles_logs_embed_description_remove
+                        .replace("${interaction.user.id}", interaction.user.id)
                         .replace("${messagei}", messagei)
-                    , ephemeral: true
-                });
-                /*End of Remove roles to users pleasssssssse horisus*/
-            }
+                        .replace("${reaction}", reaction)
+                    );
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
+            } catch (e: any) { logger.err(e) };
+            await interaction.editReply({
+                content: data.reactionroles_command_work_remove
+                    .replace("${reaction}", reaction)
+                    .replace("${messagei}", messagei)
+                , ephemeral: true
+            });
+            return;
+            /*End of Remove roles to users pleasssssssse horisus*/
         }
     },
 };

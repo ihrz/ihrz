@@ -32,23 +32,23 @@ export = {
 
         let panelName = interaction.options.getString("name");
 
-        if (await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable`})) {
-            return interaction.editReply({content: data.sethereticket_disabled_command});
-        }
-        ;
+        if (await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable` })) {
+            await interaction.editReply({ content: data.sethereticket_disabled_command });
+            return;
+        };
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({content: data.sethereticket_not_admin});
-        }
-        ;
+            await interaction.editReply({ content: data.sethereticket_not_admin });
+            return;
+        };
 
         let panel = new EmbedBuilder()
             .setTitle(`${panelName}`)
             .setColor("#3b8f41")
             .setDescription(data.sethereticket_description_embed)
-            .setFooter({text: 'iHorizon', iconURL: client.user?.displayAvatarURL()})
+            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
 
-        interaction.channel.send({embeds: [panel]}).then(async (message: { react: (arg0: string) => void; guild: { id: any; }; id: any; channel: { id: any; }; }) => {
+        interaction.channel.send({ embeds: [panel] }).then(async (message: { react: (arg0: string) => void; guild: { id: any; }; id: any; channel: { id: any; }; }) => {
             message.react("📩");
 
             await db.DataBaseModel({
@@ -63,6 +63,7 @@ export = {
             });
         });
 
-        return interaction.editReply({content: data.sethereticket_command_work, ephemeral: true});
+        await interaction.editReply({ content: data.sethereticket_command_work, ephemeral: true });
+        return;
     },
-}
+};

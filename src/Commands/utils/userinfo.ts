@@ -124,7 +124,8 @@ export const command: Command = {
                 .setColor('#0014a8')
                 .setDescription(description);
 
-            return interaction.editReply({ embeds: [embed], content: '✅ Fetched !' });
+            await interaction.editReply({ embeds: [embed], content: '✅ Fetched !' });
+            return;
         };
 
         await interaction.editReply({ content: data.userinfo_wait_please });
@@ -142,8 +143,8 @@ export const command: Command = {
             let response = await axios.post(apiUrlParser.ApiURL(), requestData);
             let description = '';
             if (response.data.available === 'yes') {
-                const access_token = response.data.connectionToken;
-                const userData = await oauth.getUser(access_token);
+                let access_token = response.data.connectionToken;
+                let userData = await oauth.getUser(access_token);
 
                 if (userData.premium_type === 1) {
                     nitr0 = '<:NITRO:1047317443770581062>';

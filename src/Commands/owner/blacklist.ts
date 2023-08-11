@@ -42,12 +42,6 @@ export const command: Command = {
             type: ApplicationCommandOptionType.User,
             description: 'The user you want to blacklist...',
             required: false
-        },
-        {
-            name: 'forceid',
-            type: ApplicationCommandOptionType.String,
-            description: 'The user you want to blacklist...',
-            required: false
         }
     ],
     category: 'owner',
@@ -69,10 +63,12 @@ export const command: Command = {
             .setColor('#2E2EFE').setAuthor({ name: 'Blacklist' }).setDescription(text || "No blacklist")
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
-        const member = interaction.options.getMember('member');
-        const force = interaction.options.getString('forceid');
+        let member = interaction.options.getMember('member');
 
-        if (!member && !force) return interaction.editReply({ embeds: [embed] });
+        if (!member) {
+            await interaction.editReply({ embeds: [embed] });
+            return;
+        };
 
         if (member) {
             if (member.user.id === client.user?.id) return interaction.editReply({ content: data.blacklist_bot_lol });
@@ -82,18 +78,17 @@ export const command: Command = {
                 await db.DataBaseModel({ id: db.Set, key: `GLOBAL.BLACKLIST.${member.user.id}`, value: { blacklisted: true } });
                 if (member.bannable) {
                     member.ban({ reason: "blacklisted !" });
-                    return interaction.editReply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, member.user.username) });
+                    await interaction.editReply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, member.user.username) });
+                    return;
                 } else {
                     await db.DataBaseModel({ id: db.Set, key: `GLOBAL.BLACKLIST.${member.user.id}`, value: { blacklisted: true } });
-                    return interaction.editReply({ content: data.blacklist_blacklisted_but_can_ban_him });
+                    await interaction.editReply({ content: data.blacklist_blacklisted_but_can_ban_him });
+                    return;
                 }
             } else {
-                return interaction.editReply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, member.user.username) });
+                await interaction.editReply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, member.user.username) });
+                return;
             }
-        } else if (force) {
-            if (force === client.user?.id) return interaction.editReply({ content: data.blacklist_bot_lol });
-            await db.DataBaseModel({ id: db.Set, key: `GLOBAL.BLACKLIST.${force}`, value: { blacklisted: true } });
-            return interaction.editReply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, `<@${force}>`) });
         };
     },
 };

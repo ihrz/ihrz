@@ -28,18 +28,17 @@ import * as db from '../../core/functions/DatabaseModel';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let blockQ = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable`});
+        let blockQ = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable` });
 
         if (blockQ) {
-            return interaction.editReply({content: data.delete_disabled_command});
-        }
-        ;
+            return interaction.editReply({ content: data.delete_disabled_command });
+        };
+
         if (interaction.channel.name.includes('ticket-')) {
             interaction.channel.delete();
         } else {
-            return interaction.editReply({content: data.delete_not_in_ticket});
-        }
-        ;
-
+            await interaction.editReply({ content: data.delete_not_in_ticket });
+            return;
+        };
     },
-}
+};

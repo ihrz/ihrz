@@ -31,19 +31,19 @@ export = {
 
         let member = interaction.options.getUser('user') || interaction.user;
 
-        var description = await db.DataBaseModel({id: db.Get, key: `GLOBAL.USER_PROFIL.${member.id}.desc`});
+        var description = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.USER_PROFIL.${member.id}.desc` });
         if (!description) var description = data.profil_not_description_set;
 
-        var level: Number = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.USER.${member.id}.XP_LEVELING.level`});
+        var level: Number = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${member.id}.XP_LEVELING.level` });
         if (!level) var level: Number = 0;
 
-        var balance: Number = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.USER.${member.id}.ECONOMY.money`});
+        var balance: Number = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${member.id}.ECONOMY.money` });
         if (!balance) var balance: Number = 0;
 
-        var age = await db.DataBaseModel({id: db.Get, key: `GLOBAL.USER_PROFIL.${member.id}.age`});
+        var age = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.USER_PROFIL.${member.id}.age` });
         if (!age) var age = data.profil_unknown;
 
-        var gender = await db.DataBaseModel({id: db.Get, key: `GLOBAL.USER_PROFIL.${member.id}.gender`});
+        var gender = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.USER_PROFIL.${member.id}.gender` });
         if (!gender) var gender = data.profil_unknown;
 
         let profil = new EmbedBuilder()
@@ -52,16 +52,17 @@ export = {
             )
             .setDescription(`\`${description}\``)
             .addFields(
-                {name: data.profil_embed_fields_nickname, value: member.username, inline: false},
-                {name: data.profil_embed_fields_money, value: balance + data.profil_embed_fields_money_value, inline: false},
-                {name: data.profil_embed_fields_xplevels, value: level + data.profil_embed_fields_xplevels_value, inline: false},
-                {name: data.profil_embed_fields_age, value: age + data.profil_embed_fields_age_value, inline: false},
-                {name: data.profil_embed_fields_gender, value: `${gender}`, inline: false})
+                { name: data.profil_embed_fields_nickname, value: member.username, inline: false },
+                { name: data.profil_embed_fields_money, value: balance + data.profil_embed_fields_money_value, inline: false },
+                { name: data.profil_embed_fields_xplevels, value: level + data.profil_embed_fields_xplevels_value, inline: false },
+                { name: data.profil_embed_fields_age, value: age + data.profil_embed_fields_age_value, inline: false },
+                { name: data.profil_embed_fields_gender, value: `${gender}`, inline: false })
             .setColor("#ffa550")
-            .setThumbnail(member.avatarURL({format: 'png', dynamic: true, size: 512}))
+            .setThumbnail(member.avatarURL({ format: 'png', dynamic: true, size: 512 }))
             .setTimestamp()
-            .setFooter({text: 'iHorizon', iconURL: client.user?.displayAvatarURL()})
+            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
 
-        return interaction.editReply({embeds: [profil]});
+        await interaction.editReply({ embeds: [profil] });
+        return;
     },
 }

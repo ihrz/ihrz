@@ -21,19 +21,13 @@
 
 import {
     Client,
-    Collection,
-    ChannelType,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
 import logger from '../../core/logger';
-import ms from 'ms';
-import config from '../../files/config';
 
 import * as db from '../../core/functions/DatabaseModel';
 
@@ -72,14 +66,15 @@ export const command: Command = {
         let argsid = interaction.options.getRole("roles");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({ content: data.setrankroles_not_admin });
+            await interaction.editReply({ content: data.setrankroles_not_admin });
+            return;
         };
-        
+
         if (type === "on") {
             if (!argsid) return interaction.editReply({ content: data.setrankroles_not_roles_typed });
 
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.setrankroles_logs_embed_title_enable)
                     .setDescription(data.setrankroles_logs_embed_description_enable
@@ -100,16 +95,17 @@ export const command: Command = {
 
                 let e = new EmbedBuilder().setDescription(data.setrankroles_command_work.replace(/\${argsid}/g, argsid.id));
 
-                return interaction.editReply({ embeds: [e] });
+                await interaction.editReply({ embeds: [e] });
+                return;
 
             } catch (e: any) {
                 logger.err(e);
-                return await interaction.editReply({ content: data.setrankroles_command_error });
+                await interaction.editReply({ content: data.setrankroles_command_error });
+                return;
             }
-        }
-        if (type == "off") {
+        } else if (type == "off") {
             try {
-                const logEmbed = new EmbedBuilder()
+                let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.setrankroles_logs_embed_title_disable)
                     .setDescription(data.setrankroles_logs_embed_description_disable
@@ -123,14 +119,15 @@ export const command: Command = {
             try {
                 await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.RANK_ROLES.roles` });
 
-                return interaction.editReply({
+                await interaction.editReply({
                     content: data.setrankroles_command_work_disable
                         .replace(/\${interaction\.user.id}/g, interaction.user.id)
                 });
-
+                return;
             } catch (e: any) {
                 logger.err(e)
-                interaction.editReply({ content: data.setrankroles_command_error });
+                await interaction.editReply({ content: data.setrankroles_command_error });
+                return;
             }
         }
     },

@@ -43,23 +43,26 @@ import ms, { StringValue } from 'ms';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        await interaction.editReply({content: ':clock:'});
-
         let mutetime: any = interaction.options.getString("time").split(" ")[0];
         let tomute = interaction.options.getMember("user");
 
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages);
 
-        if (!permission) return interaction.editReply({content: data.tempmute_dont_have_permission});
+        if (!permission) {
+            await interaction.editReply({ content: data.tempmute_dont_have_permission });
+            return;
+        };
 
         if (!interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.ManageMessages])) {
-            return interaction.editReply({content: data.tempmute_i_dont_have_permission})
-        }
-        ;
+            await interaction.editReply({ content: data.tempmute_i_dont_have_permission });
+            return;
+        };
 
         if (tomute.id === interaction.user.id) {
-            return interaction.editReply({content: data.tempmute_cannot_mute_yourself});
+            await interaction.editReply({ content: data.tempmute_cannot_mute_yourself });
+            return;
         }
+
         let muterole = interaction.guild.roles.cache.find((role: { name: string; }) => role.name === 'muted');
 
         if (!muterole) {
@@ -79,12 +82,13 @@ export = {
                     }
                 });
             } catch (e) {
-            }
-            ;
+            };
         }
         if (tomute.roles.cache.has(muterole.id)) {
-            return interaction.editReply({content: data.tempmute_already_muted})
-        }
+            await interaction.editReply({ content: data.tempmute_already_muted });
+            return;
+        };
+
         await (tomute.roles.add(muterole.id));
         await interaction.editReply(data.tempmute_command_work
             .replace("${tomute.id}", tomute.id)
@@ -94,7 +98,7 @@ export = {
         setTimeout(async () => {
             if (!tomute.roles.cache.has(muterole.id)) {
                 return;
-            }
+            };
 
             tomute.roles.remove(muterole.id);
             await interaction.channel.send({
@@ -113,12 +117,10 @@ export = {
 
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) {
-                logchannel.send({embeds: [logEmbed]})
-            }
+                logchannel.send({ embeds: [logEmbed] })
+            };
         } catch (e: any) {
             logger.err(e)
-        }
-        ;
-
+        };
     },
-}
+};

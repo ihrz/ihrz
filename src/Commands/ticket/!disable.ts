@@ -32,8 +32,8 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({content: data.disableticket_not_admin});
-        }
+            return interaction.editReply({ content: data.disableticket_not_admin });
+        };
 
         let type = interaction.options.getString('action');
 
@@ -46,17 +46,16 @@ export = {
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) {
-                    logchannel.send({embeds: [logEmbed]})
+                    logchannel.send({ embeds: [logEmbed] })
                 }
             } catch (e: any) {
                 logger.err(e)
-            }
-            ;
+            };
 
-            await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.TICKET.disable`, value: true});
-            return interaction.editReply({content: data.disableticket_command_work_disable});
-        }
-        if (type === "on") {
+            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.TICKET.disable`, value: true });
+            await interaction.editReply({ content: data.disableticket_command_work_disable });
+            return;
+        } else if (type === "on") {
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
@@ -65,16 +64,15 @@ export = {
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) {
-                    logchannel.send({embeds: [logEmbed]})
+                    logchannel.send({ embeds: [logEmbed] })
                 }
             } catch (e: any) {
                 logger.err(e)
-            }
-            ;
-            await db.DataBaseModel({id: db.Set, key: `${interaction.guild.id}.GUILD.TICKET.disable`, value: false});
-            return interaction.editReply({content: data.disableticket_command_work_enable});
-        }
-        ;
+            };
 
+            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.TICKET.disable`, value: false });
+            await interaction.editReply({ content: data.disableticket_command_work_enable });
+            return;
+        };
     },
-}
+};

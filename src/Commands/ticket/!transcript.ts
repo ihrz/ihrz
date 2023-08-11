@@ -31,12 +31,12 @@ import sourcebin from 'sourcebin';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let blockQ = await db.DataBaseModel({id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable`});
+        let blockQ = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable` });
 
         if (blockQ) {
-            return interaction.editReply({content: data.transript_disabled_command})
-        }
-        ;
+            await interaction.editReply({ content: data.transript_disabled_command });
+            return;
+        };
 
         let channel = interaction.channel;
 
@@ -59,19 +59,20 @@ export = {
                         })
 
                     } catch (e: any) {
-                        return interaction.editReply({content: data.transript_command_error});
-                    }
-                    ;
+                        await interaction.editReply({ content: data.transript_command_error });
+                        return;
+                    };
 
                     let embed = new EmbedBuilder()
                         .setDescription(`[\`View this\`](${response.url})`)
                         .setColor('#0014a8');
-                    return interaction.editReply({embeds: [embed], content: data.transript_command_work});
+                    await interaction.editReply({ embeds: [embed], content: data.transript_command_work });
+                    return;
                 });
             }
         } else {
-            return interaction.editReply({content: data.transript_not_in_ticket});
-        }
-        ;
+            await interaction.editReply({ content: data.transript_not_in_ticket });
+            return;
+        };
     },
-}
+};
