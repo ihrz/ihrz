@@ -62,7 +62,7 @@ export = {
             .catch((err: string) => logger.err(err));
 
         try {
-            let logEmbed = new EmbedBuilder().setColor("#bf0bb9").setTitle("")
+            let logEmbed = new EmbedBuilder().setColor("#bf0bb9").setTitle(data.unban_logs_embed_title)
                 .setDescription(data.unban_logs_embed_description
                     .replace(/\${userID}/g, userID)
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
