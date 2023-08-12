@@ -39,7 +39,8 @@ export = {
         if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
             let time = ms(timeout - (Date.now() - monthly));
 
-            return await interaction.editReply({ content: data.monthly_cooldown_error.replace(/\${time}/g, time) });
+            await interaction.editReply({ content: data.monthly_cooldown_error.replace(/\${time}/g, time) });
+            return;
         } else {
             let embed = new EmbedBuilder()
                 .setAuthor({ name: data.monthly_embed_title, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
