@@ -130,3 +130,4 @@ src/api/index.html
 
 *.DS_Store
 demo
+yarn.lock
