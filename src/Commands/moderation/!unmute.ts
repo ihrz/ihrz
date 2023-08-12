@@ -33,13 +33,21 @@ export = {
         let tomute = interaction.options.getMember("user");
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages);
 
-        if (!permission) return interaction.editReply({ content: data.unmute_dont_have_permission });
+        if (!permission) {
+            await interaction.editReply({ content: data.unmute_dont_have_permission });
+            return;
+        };
+
         if (!interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.ManageRoles])) {
             await interaction.editReply({ content: data.unmute_i_dont_have_permission });
             return;
         };
 
-        if (tomute.id === interaction.user.id) return interaction.editReply({ content: data.unmute_attempt_mute_your_self });
+        if (tomute.id === interaction.user.id) {
+            await interaction.editReply({ content: data.unmute_attempt_mute_your_self });
+            return;
+        };
+        
         let muterole = interaction.guild.roles.cache.find((role: { name: string; }) => role.name === 'muted');
 
         if (!tomute.roles.cache.has(muterole.id)) {
@@ -53,7 +61,7 @@ export = {
         };
 
         tomute.roles.remove(muterole.id);
-        
+
         await interaction.editReply({
             content: data.unmute_command_work
                 .replace("${tomute.id}", tomute.id)

@@ -49,9 +49,10 @@ export let command: Command = {
         for (var i in char) {
             text += `<@${i}>\n`
         };
-        
+
         if (!text.includes(interaction.user.id)) {
-            return interaction.editReply({ content: data.owner_not_owner })
+            await interaction.editReply({ content: data.owner_not_owner });
+            return;
         };
 
         let iconURL: any = client.user?.displayAvatarURL();
@@ -60,10 +61,13 @@ export let command: Command = {
             .setColor("#2E2EFE")
             .setAuthor({ name: "Owners" })
             .setDescription(`${text}`)
-            .setFooter({ text: 'iHorizon', iconURL: iconURL })
+            .setFooter({ text: 'iHorizon', iconURL: iconURL });
 
         let member = interaction.options.getMember('member');
-        if (!member) return interaction.editReply({ embeds: [embed] });
+        if (!member) {
+            await interaction.editReply({ embeds: [embed] });
+            return;
+        };
 
         let checkAx = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER.${member.id}.owner` });
 

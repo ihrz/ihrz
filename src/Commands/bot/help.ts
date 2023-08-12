@@ -83,7 +83,8 @@ export let command: Command = {
         }) => {
 
             if (i.member.id !== interaction.user.id) {
-                return i.reply({ content: data.help_not_for_you, ephemeral: true });
+                await i.reply({ content: data.help_not_for_you, ephemeral: true });
+                return;
             };
 
             await i.deferUpdate();

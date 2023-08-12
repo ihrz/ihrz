@@ -71,7 +71,10 @@ export let command: Command = {
         };
 
         if (type === "on") {
-            if (!argsid) return interaction.editReply({ content: data.setrankroles_not_roles_typed });
+            if (!argsid) {
+                await interaction.editReply({ content: data.setrankroles_not_roles_typed });
+                return;
+            };
 
             try {
                 let logEmbed = new EmbedBuilder()
@@ -89,7 +92,10 @@ export let command: Command = {
             try {
                 let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.RANK_ROLES.roles` });
 
-                if (already === argsid.id) return interaction.editReply({ content: data.setrankroles_already_this_in_db });
+                if (already === argsid.id) {
+                    await interaction.editReply({ content: data.setrankroles_already_this_in_db });
+                    return;
+                };
 
                 await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.RANK_ROLES.roles`, value: argsid.id });
 

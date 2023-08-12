@@ -74,6 +74,7 @@ export = async (req: Request, res: Response) => {
         };
     } catch (e: any) {
         res.sendStatus(403) && logger.warn(e);
-        return logger.warn("-> Bad json request without ip/key" + e);
+        logger.warn("-> Bad json request without ip/key" + e);
+        return;
     };
 };

@@ -31,6 +31,7 @@ export = {
 
         try {
             let queue = interaction.client.player.nodes.get(interaction.guild);
+
             if (!queue || !queue.isPlaying()) {
                 return interaction.editReply({ content: data.loop_no_queue });
             };
@@ -39,10 +40,12 @@ export = {
 
             queue.setRepeatMode(loopMode)
             let mode = loopMode === QueueRepeatMode.TRACK ? `🔂` : loopMode === QueueRepeatMode.QUEUE ? `🔂` : `▶`;
-            return interaction.editReply({
+
+            await interaction.editReply({
                 content: data.loop_command_work
                     .replace("{mode}", mode)
             });
+            return;
         } catch (error: any) {
             logger.err(error);
         };

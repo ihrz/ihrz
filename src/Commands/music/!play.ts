@@ -33,7 +33,8 @@ export = {
         let check = interaction.options.getString("title");
 
         if (!voiceChannel) {
-            return interaction.editReply({ content: data.p_not_in_voice_channel });
+            await interaction.editReply({ content: data.p_not_in_voice_channel });
+            return;
         };
         //if (!client.functions.isLinkAllowed(check)) { return interaction.editReply({ content: data.p_not_allowed }) };
 
@@ -47,7 +48,8 @@ export = {
             .setTimestamp()
 
         if (!result.hasTracks()) {
-            return await interaction.editReply({ embeds: [results] });
+            await interaction.editReply({ embeds: [results] });
+            return;
         };
 
         let yes = await interaction.client.player.play(interaction.member.voice.channel?.id, result, {

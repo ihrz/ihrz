@@ -91,11 +91,11 @@ export = {
         collector.on('collect', (reaction: { emoji: { name: any; }; users: { remove: (arg0: any) => Promise<any>; }; }, user: { id: any; }) => {
             switch (reaction.emoji.name) {
                 case '⬅️':
-                    if (currentIndex === 0) return
+                    if (currentIndex === 0) return;
                     currentIndex--;
                     break;
                 case '➡️':
-                    if (currentIndex === embeds.length - 1) return
+                    if (currentIndex === embeds.length - 1) return;
                     currentIndex++;
                     break;
                 default:

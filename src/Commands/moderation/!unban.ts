@@ -52,7 +52,11 @@ export = {
                     return;
                 }
                 let bannedID = bans.find(ban => ban.user.id == userID);
-                if (!bannedID) return await interaction.editReply({ content: data.unban_the_member_is_not_banned });
+                if (!bannedID) {
+                    await interaction.editReply({ content: data.unban_the_member_is_not_banned });
+                    return;
+                };
+                
                 await interaction.guild.bans.remove(userID, reason).catch((err: string) => logger.err(err));
                 await interaction.editReply({
                     content: data.unban_is_now_unbanned

@@ -58,12 +58,17 @@ export = {
             };
 
             try {
-                if (!dm_msg) return interaction.editReply({ content: data.setjoindm_not_specified_args_on_enable })
+                if (!dm_msg) {
+                    await interaction.editReply({ content: data.setjoindm_not_specified_args_on_enable });
+                    return;
+                };
+
                 await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`, value: dm_msg });
-                return interaction.editReply({
+                await interaction.editReply({
                     content: data.setjoindm_confirmation_message_on_enable
                         .replace(/\${dm_msg}/g, dm_msg)
                 });
+                return;
             } catch (e) {
                 await interaction.editReply({ content: data.setjoindm_command_error_on_enable });
                 return;
@@ -85,7 +90,11 @@ export = {
 
             try {
                 let already_off = await db.DataBaseModel({ id: db.Get, key: `joindm-${interaction.guild.id}` });
-                if (already_off === "off") return interaction.editReply({ content: data.setjoindm_already_disable });
+                if (already_off === "off") {
+                    await interaction.editReply({ content: data.setjoindm_already_disable });
+                    return;
+                };
+                
                 await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm` });
                 await interaction.editReply({ content: data.setjoindm_confirmation_message_on_disable });
                 return;

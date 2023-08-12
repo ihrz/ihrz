@@ -29,13 +29,24 @@ let oauth = new DiscordOauth2();
 
 export = async (req: Request, res: Response) => {
     let { userid, tor, adminKey } = req.body;
-    if (!userid || !adminKey) return logger.warn("-> Bad json request without ip/key");
+    if (!userid || !adminKey) {
+        logger.warn("-> Bad json request without ip/key");
+        return;
+    };
+    
     if (tor == "CHECK_IN_SYSTEM") {
         let { userid, adminKey } = req.body;
-        if (!userid || !adminKey) return logger.warn("-> Bad json request without ip/key");
+        if (!userid || !adminKey) {
+            logger.warn("-> Bad json request without ip/key");
+            return;
+        };
+
         if (adminKey != config.api.apiToken) return;
         let value = await db.DataBaseModel({ id: db.Get, key: `API.TOKEN.${userid}` });
-        if (!value) { return res.json({ available: "no", id: userid, adminKey: "ok" }); };
+        if (!value) {
+            res.json({ available: "no", id: userid, adminKey: "ok" });
+            return;
+        };
 
         try {
             await oauth.getUser(value.token); res.json({ connectionToken: value.token, available: "yes", id: userid, adminKey: "ok" });
@@ -47,5 +58,6 @@ export = async (req: Request, res: Response) => {
         return;
     };
     logger.warn('-> Bad json requests without options');
-    return res.send('-> Bad json requests without options');
+    res.send('-> Bad json requests without options');
+    return;
 };

@@ -27,7 +27,11 @@ import logger from '../../core/logger';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
-        if (!interaction.member.voice.channel) return interaction.editReply({ content: data.pause_no_queue });
+        if (!interaction.member.voice.channel) {
+            await interaction.editReply({ content: data.pause_no_queue });
+            return;
+        };
+        
         try {
             let queue = interaction.client.player.nodes.get(interaction.guild);
             if (!queue || !queue.isPlaying()) {

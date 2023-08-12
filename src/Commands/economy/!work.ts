@@ -31,7 +31,8 @@ export = {
         let talkedRecentlyforw = new Set();
 
         if (talkedRecentlyforw.has(interaction.user.id)) {
-            return interaction.editReply({ content: data.work_cooldown_error });
+            await interaction.editReply({ content: data.work_cooldown_error });
+            return;
         };
 
         let amount = Math.floor(Math.random() * 200) + 1;

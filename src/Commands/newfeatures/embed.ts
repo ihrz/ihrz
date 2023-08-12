@@ -154,7 +154,8 @@ export let command: Command = {
 
         collector.on('collect', async (i: { member: { id: any; }; reply: (arg0: { content: string; ephemeral: boolean; }) => any; }) => {
             if (i.member.id !== interaction.user.id) {
-                return i.reply({ content: data.embed_interaction_not_for_you, ephemeral: true })
+                await i.reply({ content: data.embed_interaction_not_for_you, ephemeral: true })
+                return;
             }
             getButton();
             await chooseAction(i);
@@ -190,10 +191,11 @@ export let command: Command = {
                         return;
                 }
             } catch (e) {
-                return interaction.channel.send({
+                await interaction.channel.send({
                     content: data.embed_timeout_getbtn
                         .replace('${interaction.user.id}', interaction.user.id)
                 });
+                return;
             };
         }; getButton();
 

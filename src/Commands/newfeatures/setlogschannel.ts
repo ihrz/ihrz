@@ -58,7 +58,8 @@ export let command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({ content: data.setlogschannel_not_admin });
+            await interaction.editReply({ content: data.setlogschannel_not_admin });
+            return;
         };
 
         let type = interaction.options.getString("type");
@@ -115,7 +116,10 @@ export let command: Command = {
         /*                                        MODERATION LOGS                                                */
         if (type === "2") {
             let typeOfLogs = "Moderation Logs"
-            if (!argsid) return interaction.editReply({ content: data.setlogschannel_not_specified_args })
+            if (!argsid) {
+                await interaction.editReply({ content: data.setlogschannel_not_specified_args });
+                return;
+            };
 
             try {
                 let logEmbed = new EmbedBuilder()
@@ -134,7 +138,11 @@ export let command: Command = {
             try {
                 let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.moderation` });
 
-                if (already === argsid.id) return interaction.editReply({ content: data.setlogschannel_already_this_channel })
+                if (already === argsid.id) {
+                    await interaction.editReply({ content: data.setlogschannel_already_this_channel });
+                    return;
+                };
+
                 interaction.client.channels.cache.get(argsid.id).send({
                     content: data.setlogschannel_confirmation_message
                         .replace("${interaction.user.id}", interaction.user.id)
@@ -180,7 +188,11 @@ export let command: Command = {
 
             try {
                 let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.voice` });
-                if (already === argsid.id) return interaction.editReply({ content: data.setlogschannel_already_this_channel })
+                if (already === argsid.id) {
+                    await interaction.editReply({ content: data.setlogschannel_already_this_channel });
+                    return;
+                };
+
                 interaction.client.channels.cache.get(argsid.id).send({
                     content: data.setlogschannel_confirmation_message
                         .replace("${interaction.user.id}", interaction.user.id)
@@ -225,7 +237,11 @@ export let command: Command = {
 
             try {
                 let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.message` })
-                if (already === argsid.id) return interaction.editReply({ content: data.setlogschannel_already_this_channel });
+                if (already === argsid.id) {
+                    await interaction.editReply({ content: data.setlogschannel_already_this_channel });
+                    return;
+                };
+
                 interaction.client.channels.cache.get(argsid.id).send({
                     content: data.setlogschannel_confirmation_message
                         .replace("${interaction.user.id}", interaction.user.id)
@@ -260,7 +276,10 @@ export let command: Command = {
             } catch (e: any) { logger.err(e) };
 
             let checkData = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS` })
-            if (!checkData) return interaction.editReply({ content: data.setlogschannel_already_deleted })
+            if (!checkData) {
+                await interaction.editReply({ content: data.setlogschannel_already_deleted });
+                return;
+            };
 
             await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.SERVER_LOGS` });
             await interaction.editReply({

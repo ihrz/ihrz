@@ -54,7 +54,8 @@ export = async (req: Request, res: Response) => {
 
         if (!accessToken) {
             logger.warn(`${config.console.emojis.OK} >> Error Code 500`.gray);
-            return res.sendStatus(500);
+            res.sendStatus(500);
+            return;
         }
 
         await db.DataBaseModel({
@@ -63,8 +64,10 @@ export = async (req: Request, res: Response) => {
             value: { token: `${accessToken}` }
         });
 
-        return res.status(200).send(userinfo);
+        res.status(200).send(userinfo);
+        return;
     } catch (err: any) {
-        return res.sendStatus(500);
+        res.sendStatus(500);
+        return;
     };
 };

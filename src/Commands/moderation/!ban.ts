@@ -31,8 +31,15 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
         let member = interaction.guild.members.cache.get(interaction.options.get("member").user.id)
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.BanMembers)
-        if (!permission) return interaction.editReply({ content: data.ban_not_permission });
-        if (!member) return interaction.editReply({ content: data.ban_dont_found_member });
+        if (!permission) {
+            await interaction.editReply({ content: data.ban_not_permission });
+            return;
+        };
+
+        if (!member) {
+            await interaction.editReply({ content: data.ban_dont_found_member });
+            return;
+        };
 
         if (!interaction.channel.permissionsFor(client.user).has('BAN_MEMBERS')) {
             await interaction.editReply({ content: data.ban_dont_have_perm_myself });

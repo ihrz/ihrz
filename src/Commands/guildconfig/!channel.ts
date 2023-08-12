@@ -63,7 +63,10 @@ export = {
 
             try {
                 let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join` });
-                if (already === argsid.id) return interaction.editReply({ content: data.setchannels_already_this_channel_on_join });
+                if (already === argsid.id) {
+                    await interaction.editReply({ content: data.setchannels_already_this_channel_on_join });
+                    return;
+                };
                 interaction.client.channels.cache.get(argsid.id).send({ content: data.setchannels_confirmation_message_on_join });
                 await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join`, value: argsid.id });
 
@@ -78,10 +81,18 @@ export = {
 
         } else if (type === "leave") {
             try {
-                if (!argsid) return interaction.editReply({ content: data.setchannels_not_specified_args });
+                if (!argsid) {
+                    await interaction.editReply({ content: data.setchannels_not_specified_args });
+                    return;
+                };
+
                 let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave` });
 
-                if (already === argsid.id) return interaction.editReply({ content: data.setchannels_already_this_channel_on_leave });
+                if (already === argsid.id) {
+                    await interaction.editReply({ content: data.setchannels_already_this_channel_on_leave });
+                    return;
+                };
+
                 interaction.client.channels.cache.get(argsid.id)?.send({ content: data.setchannels_confirmation_message_on_leave });
                 await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`, value: argsid.id });
 
@@ -132,7 +143,10 @@ export = {
 
             let leavec: string = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join` });
             let joinc: string = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave` });
-            if (!joinc && !leavec) return interaction.editReply({ content: data.setchannels_already_on_off });
+            if (!joinc && !leavec) {
+                await interaction.editReply({ content: data.setchannels_already_on_off });
+                return;
+            };
 
             await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join` });
             await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave` });

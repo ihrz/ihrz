@@ -67,7 +67,11 @@ export let command: Command = {
         };
 
         if (member) {
-            if (member.user.id === client.user?.id) return interaction.editReply({ content: data.blacklist_bot_lol });
+            if (member.user.id === client.user?.id) {
+                await interaction.editReply({ content: data.blacklist_bot_lol });
+                return;
+            };
+            
             let fetched = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${member.user.id}` });
 
             if (!fetched) {

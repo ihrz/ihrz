@@ -90,9 +90,18 @@ export let command: Command = {
         let punishment = interaction.options.getString("punishement");
 
         if (action == "true") {
-            if (amount > 50) { return interaction.editReply({ content: data.punishpub_too_hight_enable }) };
-            if (amount < 0) { return interaction.editReply({ content: data.punishpub_negative_number_enable }) };
-            if (amount == 0) { return interaction.editReply({ content: data.punishpub_zero_number_enable }) };
+            if (amount > 50) {
+                await interaction.editReply({ content: data.punishpub_too_hight_enable })
+                return;
+            };
+            if (amount < 0) {
+                await interaction.editReply({ content: data.punishpub_negative_number_enable });
+                return;
+            };
+            if (amount == 0) {
+                await interaction.editReply({ content: data.punishpub_zero_number_enable });
+                return;
+            };
 
             await db.DataBaseModel({
                 id: db.Set, key: `${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`, values:

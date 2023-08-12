@@ -56,7 +56,8 @@ export = {
         let queue = interaction.client.player.nodes.get(interaction.guild);
 
         if (!queue || !queue.isPlaying()) {
-            return interaction.editReply({ content: data.nowplaying_no_queue, ephemeral: true });
+            await interaction.editReply({ content: data.nowplaying_no_queue, ephemeral: true });
+            return;
         };
 
         let progress = queue.node.createProgressBar();

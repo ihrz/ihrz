@@ -138,15 +138,26 @@ export let command: Command = {
         } else if (type == "remove") {
             let reactionLet = interaction.options.getString("reaction");
 
-            if (!reactionLet) { return interaction.editReply({ content: data.reactionroles_missing_remove }) };
+            if (!reactionLet) {
+                await interaction.editReply({ content: data.reactionroles_missing_remove });
+                return;
+            };
+
             let message = await interaction.channel.messages.fetch(messagei);
 
             let fetched = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}` });
 
-            if (!fetched) { return interaction.editReply({ content: data.reactionroles_missing_reaction_remove }) };
+            if (!fetched) {
+                await interaction.editReply({ content: data.reactionroles_missing_reaction_remove });
+                return
+            };
+
             let reactionVar = message.reactions.cache.get(fetched.reactionNAME);
 
-            if (!reactionVar) { return interaction.editReply({ content: data.reactionroles_cant_fetched_reaction_remove }) };
+            if (!reactionVar) {
+                await interaction.editReply({ content: data.reactionroles_cant_fetched_reaction_remove })
+                return;
+            };
             await reactionVar.users.remove(client.user?.id).catch((err: string) => { logger.err(err) });
 
             await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}` });

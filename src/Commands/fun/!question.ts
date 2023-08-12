@@ -30,7 +30,10 @@ export = {
 
         let text = question.split(" ");
 
-        if (!text[2]) return interaction.editReply({ content: data.question_not_full });
+        if (!text[2]) {
+            await interaction.editReply({ content: data.question_not_full });
+            return;
+        }
 
         let reponse = data.question_s
         let result = Math.floor((Math.random() * reponse.length));
