@@ -33,7 +33,8 @@ export = {
             let queue = interaction.client.player.nodes.get(interaction.guild);
 
             if (!queue || !queue.isPlaying()) {
-                return interaction.editReply({ content: data.loop_no_queue });
+                await interaction.editReply({ content: data.loop_no_queue });
+                return;
             };
 
             let loopMode = interaction.options.getNumber("select");

@@ -31,12 +31,15 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageChannels);
-        if (!permission) return interaction.editReply({content: data.unlock_dont_have_permission});
+        if (!permission) {
+            await interaction.editReply({ content: data.unlock_dont_have_permission });
+            return;
+        }
         let embed = new EmbedBuilder()
             .setColor("#5b3475")
             .setTimestamp()
             .setDescription(data.unlock_embed_message_description);
-        await interaction.channel.permissionOverwrites.create(interaction.guild.id, {SendMessages: true});
+        await interaction.channel.permissionOverwrites.create(interaction.guild.id, { SendMessages: true });
 
         try {
             let logEmbed = new EmbedBuilder()
@@ -47,15 +50,15 @@ export = {
                     .replace(/\${interaction\.channel\.id}/g, interaction.channel.id)
                 )
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-            
+
             if (logchannel) {
-                logchannel.send({embeds: [logEmbed]})
+                logchannel.send({ embeds: [logEmbed] })
             }
         } catch (e: any) {
             logger.err(e)
         };
 
-        await interaction.editReply({embeds: [embed]});
+        await interaction.editReply({ embeds: [embed] });
         return;
     },
 };
