@@ -46,5 +46,6 @@ let client = new Client({
         GatewayIntentBits.GuildPresences
     ], partials: [Partials.Message, Partials.Channel, Partials.Reaction]
 });
+
 require('./core')(client);
-client.login(config.discord.token)
+client.login(config.discord.token);

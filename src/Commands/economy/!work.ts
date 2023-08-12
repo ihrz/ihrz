@@ -57,4 +57,4 @@ export = {
             talkedRecentlyforw.delete(interaction.user.id);
         }, 3600000);
     },
-}
+};

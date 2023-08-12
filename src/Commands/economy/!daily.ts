@@ -37,7 +37,7 @@ import {
 } from 'discord.js';
 
 import * as db from '../../core/functions/DatabaseModel';
-import ms from 'ms'; 
+import ms from 'ms';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -48,7 +48,8 @@ export = {
         if (daily !== null && timeout - (Date.now() - daily) > 0) {
             let time = ms(timeout - (Date.now() - daily));
 
-            return await interaction.editReply({ content: data.daily_cooldown_error.replace(/\${time}/g, time) });
+            await interaction.editReply({ content: data.daily_cooldown_error.replace(/\${time}/g, time) });
+            return;
         } else {
             let embed = new EmbedBuilder()
                 .setAuthor({ name: data.daily_embed_title, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
@@ -59,6 +60,7 @@ export = {
             await interaction.editReply({ embeds: [embed] });
             await db.DataBaseModel({ id: db.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: amount });
             await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.daily`, value: Date.now() });
+            return;
         };
     },
-}
+};

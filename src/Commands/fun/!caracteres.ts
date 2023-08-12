@@ -53,9 +53,9 @@ export = {
                     n.push(nw[x].replace(w[i], r[i]));
                 }
             }
-        }
-        ;
+        };
 
-        return interaction.editReply({content: n.join("")});
+        await interaction.editReply({ content: n.join("") });
+        return;
     },
-}
+};

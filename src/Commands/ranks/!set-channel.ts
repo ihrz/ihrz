@@ -104,7 +104,7 @@ export = {
             } catch (e) {
                 await interaction.editReply({ content: data.setxpchannels_command_error_disable });
                 return;
-            }
+            };
         };
     },
 };

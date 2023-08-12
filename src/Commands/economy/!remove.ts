@@ -29,22 +29,23 @@ import * as db from '../../core/functions/DatabaseModel';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({ content: data.removemoney_not_admin })
+            await interaction.editReply({ content: data.removemoney_not_admin });
+            return;
         };
-        
+
         var amount = interaction.options.getNumber("amount");
-        let user = interaction.options.get("member");
-        
-        await db.DataBaseModel({ id: db.Sub, key: `${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, value: amount });
-        let bal = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money` });
-        
+        let user = interaction.options.getUser("member");
+
+        await db.DataBaseModel({ id: db.Sub, key: `${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, value: amount });
+        let bal = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${user.id}.ECONOMY.money` });
+
         let embed = new EmbedBuilder()
             .setAuthor({ name: data.removemoney_embed_title, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
             .addFields({ name: data.removemoney_embed_fields, value: `${amount}$` },
                 { name: data.removemoney_embed_second_fields, value: `${bal}$` })
             .setColor("#bc0116")
             .setTimestamp()
-        
+
         try {
             let logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
@@ -52,13 +53,14 @@ export = {
                 .setDescription(data.removemoney_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     .replace(/\${amount}/g, amount)
-                    .replace(/\${user\.user\.id}/g, user.user.id)
-                )
-        
+                    .replace(/\${user\.user\.id}/g, user.id)
+                );
+
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
         } catch (e) { return; };
-        
-        return interaction.editReply({ embeds: [embed] });
+
+        await interaction.editReply({ embeds: [embed] });
+        return;
     },
-}
+};

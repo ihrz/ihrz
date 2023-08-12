@@ -21,11 +21,7 @@
 
 import {
     Client,
-    Collection,
-    ChannelType,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType
 } from 'discord.js'
@@ -33,7 +29,6 @@ import {
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
-import ping from 'ping';
 
 export let command: Command = {
     name: 'setserverlang',
@@ -78,14 +73,17 @@ export let command: Command = {
         let type = interaction.options.getString("language");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({ content: data.setserverlang_not_admin });
+            await interaction.editReply({ content: data.setserverlang_not_admin });
+            return;
         };
 
         let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.LANG` });
 
-        if (already) {
-            if (already.lang === type) return interaction.editReply({ content: data.setserverlang_already });
+        if (already?.lang === type) {
+            await interaction.editReply({ content: data.setserverlang_already });
+            return;
         }
+
         await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.LANG`, value: { lang: type } });
         data = await client.functions.getLanguageData(interaction.guild.id);
 
@@ -96,12 +94,13 @@ export let command: Command = {
                 .setDescription(data.setserverlang_logs_embed_description_on_enable
                     .replace(/\${type}/g, type)
                     .replace(/\${interaction\.user.id}/g, interaction.user.id)
-                )
+                );
 
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
         } catch (e: any) { logger.err(e) };
 
-        return interaction.editReply({ content: data.setserverlang_command_work_enable.replace(/\${type}/g, type) });
+        await interaction.editReply({ content: data.setserverlang_command_work_enable.replace(/\${type}/g, type) });
+        return;
     },
 };

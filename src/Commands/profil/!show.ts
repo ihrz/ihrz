@@ -65,4 +65,4 @@ export = {
         await interaction.editReply({ embeds: [profil] });
         return;
     },
-}
+};

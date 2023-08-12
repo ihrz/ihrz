@@ -43,6 +43,7 @@ export let command: Command = {
     ],
     category: 'newfeatures',
     run: async (client: Client, interaction: any) => {
+        
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         var sentences = interaction.options.getString("message-to-dev")
@@ -52,17 +53,20 @@ export let command: Command = {
         if (cooldown !== null && timeout - (Date.now() - cooldown) > 0) {
             let time = ms(timeout - (Date.now() - cooldown));
 
-            return interaction.editReply({
+            await interaction.editReply({
                 content: data.report_cooldown_command
                     .replace("${time}", time)
             });
+            return;
         } else {
             if (interaction.guild.ownerId != interaction.user.id) {
-                return interaction.editReply({ content: data.report_owner_need });
+                await interaction.editReply({ content: data.report_owner_need });
+                return;
             };
 
             if (sentences.split(' ').length < 8) {
-                return interaction.editReply({ content: data.report_specify });
+                await interaction.editReply({ content: data.report_specify });
+                return;
             };
 
             interaction.editReply({ content: data.report_command_work });
@@ -76,4 +80,4 @@ export let command: Command = {
             return;
         }
     },
-}
+};

@@ -21,18 +21,10 @@
 
 import {
     Client,
-    Collection,
-    ChannelType,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
-    ApplicationCommandOptionType
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
-import logger from '../../core/logger';
 
 export let command: Command = {
     name: 'botinfo',
@@ -61,6 +53,7 @@ export let command: Command = {
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp()
 
-        return interaction.editReply({ embeds: [clientembed] });
+        await interaction.editReply({ embeds: [clientembed] });
+        return;
     },
 };

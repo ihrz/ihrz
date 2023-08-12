@@ -21,31 +21,10 @@
 
 import {
     Client,
-    Collection,
-    EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
     ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
-    AttachmentBuilder,
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
-import logger from '../../core/logger';
-import config from '../../files/config';
-import { createCanvas, loadImage } from 'canvas';
-
-import axios from 'axios';
-import ms from 'ms';
-import fs from 'fs';
 
 export let command: Command = {
     name: "fun",
@@ -192,4 +171,4 @@ export let command: Command = {
 
         await require('./!' + command).run(client, interaction, data);
     },
-}
+};

@@ -21,19 +21,12 @@
 
 import {
     Client,
-    Collection,
-    ChannelType,
-    EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
     ApplicationCommandOptionType,
     User
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
-import logger from '../../core/logger';
 import config from '../../files/config';
 
 export let command: Command = {
@@ -53,7 +46,8 @@ export let command: Command = {
 
         if (await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER.${interaction.user.id}.owner` })
             !== true) {
-            return interaction.editReply({ content: data.unowner_not_owner });
+            await interaction.editReply({ content: data.unowner_not_owner });
+            return;
         };
 
         var member = interaction.options.getUser('member');

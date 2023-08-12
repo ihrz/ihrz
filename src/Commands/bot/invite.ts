@@ -21,18 +21,10 @@
 
 import {
     Client,
-    Collection,
-    ChannelType,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
-    ApplicationCommandOptionType
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
-import logger from '../../core/logger';
 
 export let command: Command = {
     name: 'invite',
@@ -40,7 +32,7 @@ export let command: Command = {
     category: 'bot',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
-        let pp:any = client.user?.displayAvatarURL();
+        let pp: any = client.user?.displayAvatarURL();
 
         let invites = new EmbedBuilder()
             .setColor("#416fec")
@@ -48,7 +40,9 @@ export let command: Command = {
             .setDescription(data.invite_embed_description)
             .setURL('https://discord.com/api/oauth2/authorize?client_id=' + client.user?.id + '&permissions=8&scope=bot')
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
-            .setThumbnail(pp)
-        return interaction.editReply({ embeds: [invites] })
+            .setThumbnail(pp);
+            
+        await interaction.editReply({ embeds: [invites] });
+        return;
     },
 };

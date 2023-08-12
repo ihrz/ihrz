@@ -90,7 +90,7 @@ export = async (client: Client, message: any) => {
             let LOG = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.GUILD.PUNISH.PUNISH_PUB` });
             let LOGfetched = await db.DataBaseModel({ id: db.Get, key: `TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}` });
 
-            if (LOG?.amountMax === LOGfetched?.flags && LOG.state === "true") {
+            if (LOG?.amountMax === LOGfetched?.flags && LOG?.state === "true") {
                 switch (LOG.punishementType) {
                     case 'ban':
                         message.guild.members.ban(message.author.id, { reason: "Ban by PUNISHPUB" }).catch(() => { });
@@ -148,7 +148,7 @@ export = async (client: Client, message: any) => {
 
             let embed = new EmbedBuilder()
                 .setDescription(data.event_rank_role
-                    .replace("${message.author.id}", message.author.id)
+                    .replace("${message.autuhor.id}", message.author.id)
                     .replace("${fetch.id}", fetch.id)
                 )
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
@@ -156,6 +156,7 @@ export = async (client: Client, message: any) => {
 
             message.member.roles.add(fetch).catch(() => { });
             message.channel.send({ embeds: [embed] }).catch(() => { });
+            return;
         };
     };
 
@@ -173,6 +174,7 @@ export = async (client: Client, message: any) => {
                     list: { [`${message.guild.ownerId}`]: { allowed: true } },
                 }
             });
+            return;
         };
     };
 

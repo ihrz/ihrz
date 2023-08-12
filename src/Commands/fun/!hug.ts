@@ -45,6 +45,7 @@ export = {
             )
             .setImage(hugGif[Math.floor(Math.random() * hugGif.length)])
             .setTimestamp()
-        return interaction.editReply({embeds: [embed]});
+        await interaction.editReply({ embeds: [embed] });
+        return;
     },
-}
+};

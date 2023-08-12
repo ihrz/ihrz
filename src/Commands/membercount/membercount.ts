@@ -68,7 +68,8 @@ export let command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({ content: data.setmembercount_not_admin });
+            await interaction.editReply({ content: data.setmembercount_not_admin });
+            return;
         };
 
         let type = interaction.options.getString("action");

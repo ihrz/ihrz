@@ -34,4 +34,4 @@ export = {
         await interaction.editReply({ content: data.setprofildescriptions_command_work });
         return;
     },
-}
+};

@@ -21,28 +21,10 @@
 
 import {
     Client,
-    Collection,
-    EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
     ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
-import logger from '../../core/logger';
-import config from '../../files/config';
-
-import backup from 'discord-backup';
-import ms from 'ms';
 
 export let command: Command = {
     name: "backup",
@@ -77,8 +59,6 @@ export let command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let command: any = interaction.options.getSubcommand();
 
-        await interaction.editReply({ content: data.backup_wait_please });
-
         await require('./!' + command).run(client, interaction, data);
     },
-}
+};

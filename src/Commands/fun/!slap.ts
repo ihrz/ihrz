@@ -26,6 +26,7 @@ import {
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
+        
         var slapGif = [
             'https://cdn.discordapp.com/attachments/717813924203855882/717982041899139152/slap1.gif',
             'https://cdn.discordapp.com/attachments/717813924203855882/717982255661711381/slap2.gif',
@@ -42,6 +43,7 @@ export = {
             )
             .setImage(slapGif[Math.floor(Math.random() * slapGif.length)])
             .setTimestamp()
-        return interaction.editReply({embeds: [embed]});
+        await interaction.editReply({ embeds: [embed] });
+        return;
     },
-}
+};

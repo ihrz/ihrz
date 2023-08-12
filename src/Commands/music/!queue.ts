@@ -31,17 +31,23 @@ export = {
 
         let queue = useQueue(interaction.guildId);
 
-        if (!queue) return interaction.editReply({ content: data.queue_iam_not_voicec })
+        if (!queue) {
+            await interaction.editReply({ content: data.queue_iam_not_voicec });
+            return;
+        };
+
         if (!queue.tracks || !queue.currentTrack) {
-            return interaction.editReply({ content: data.queue_no_queue })
+            await interaction.editReply({ content: data.queue_no_queue });
+            return;
         };
 
         let tracks = queue.tracks
             .toArray()
-            .map((track, idx) => `**${++idx})** [${track.title}](${track.url})`)
+            .map((track, idx) => `**${++idx})** [${track.title}](${track.url})`);
 
         if (tracks.length === 0) {
-            return interaction.editReply({ content: data.queue_empty_queue })
+            await interaction.editReply({ content: data.queue_empty_queue });
+            return;
         };
 
         let embeds: any[] = [];

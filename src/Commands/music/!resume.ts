@@ -42,4 +42,4 @@ export = {
             logger.err(error);
         };
     },
-}
+};

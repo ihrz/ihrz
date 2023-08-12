@@ -68,7 +68,7 @@ export = {
                 logchannel.send({ embeds: [logEmbed] })
             };
         } catch (e: any) {
-            return
+            return;
         };
     },
 };

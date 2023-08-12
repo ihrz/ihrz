@@ -57,7 +57,6 @@ export = {
 
         } catch (error: any) {
             logger.err(error);
-        }
-        ;
+        };
     },
-}
+};

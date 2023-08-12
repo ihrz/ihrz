@@ -74,7 +74,7 @@ export = {
                 };
 
                 await interaction.editReply({ content: data.setleavemessage_command_work_on_enable });
-                return
+                return;
             }
 
         } else if (type == "off") {

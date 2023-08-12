@@ -26,7 +26,8 @@ import {
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
-        let victim = interaction.options.getUser("user")
+        let victim = interaction.options.getUser("user");
+
         var ip = [
             '1', '100', '168', '254', '345', '128', '256', '255', '0', '144',
             '38', '67', '97', '32', '64', '192', '10', '172', '12', '200', '87',
@@ -71,11 +72,12 @@ export = {
                 .replace(/\${victim\.id}/g, victim.id)
                 .replace(/\${interaction\.user\.id}/g, interaction.user.id)
             )
-            .addFields({name: data.hack_embed_fields_ip, value: `\`${generatedIp}\``},
-                {name: data.hack_embed_fields_email, value: `\`${generatedEmail}\``},
-                {name: data.hack_embed_fields_password, value: `\`${generatedPassword}\``})
+            .addFields({ name: data.hack_embed_fields_ip, value: `\`${generatedIp}\`` },
+                { name: data.hack_embed_fields_email, value: `\`${generatedEmail}\`` },
+                { name: data.hack_embed_fields_password, value: `\`${generatedPassword}\`` })
             .setTimestamp()
 
-        return interaction.editReply({embeds: [embed]});
+        await interaction.editReply({ embeds: [embed] });
+        return;
     },
-}
+};

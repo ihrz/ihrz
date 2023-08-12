@@ -33,38 +33,41 @@ export = {
         let backupID = interaction.options.getString('backup-id');
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({content: data.backup_dont_have_perm_on_load});
-        }
-        ;
+            await interaction.editReply({ content: data.backup_dont_have_perm_on_load });
+            return;
+        };
+
         if (!interaction.guild.members.me.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({content: data.backup_i_dont_have_perm_on_load})
-        }
-        ;
+            await interaction.editReply({ content: data.backup_i_dont_have_perm_on_load });
+            return;
+        };
 
         if (!backupID) {
-            return interaction.editReply({content: data.backup_unvalid_id_on_load});
-        }
-        ;
+            await interaction.editReply({ content: data.backup_unvalid_id_on_load });
+            return;
+        };
 
-        if (backupID && !await db.DataBaseModel({id: db.Get, key: `BACKUPS.${interaction.user.id}.${backupID}`})) {
-            return interaction.editReply({content: data.backup_this_is_not_your_backup});
-        }
-        ;
+        if (backupID && !await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${backupID}` })) {
+            await interaction.editReply({ content: data.backup_this_is_not_your_backup });
+            return;
+        };
 
-        await interaction.channel.send({content: data.backup_waiting_on_load});
+        await interaction.channel.send({ content: data.backup_waiting_on_load });
 
         backup.fetch(backupID).then(async () => {
             backup.load(backupID, interaction.guild).then(() => {
                 backup.remove(backupID);
             }).catch((err) => {
-                return interaction.channel.send({
+                interaction.channel.send({
                     content: data.backup_error_on_load
                         .replace("${backupID}", backupID)
                     , ephemeral: true
                 });
+                return;
             });
         }).catch((err) => {
-            return interaction.channel.send({content: `❌`});
+            interaction.channel.send({ content: `❌` });
+            return;
         });
     },
-}
+};

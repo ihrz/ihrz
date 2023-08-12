@@ -82,9 +82,10 @@ export = {
         embed
             .setThumbnail(`${yes.track.playlist ? `${yes.track.playlist.thumbnail}` : `${yes.track.thumbnail}`}`)
 
-        return await interaction.editReply({
+        await interaction.editReply({
             content: data.p_loading_message
                 .replace("{result}", result.playlist ? 'playlist' : 'track'), embeds: [embed]
         });
+        return;
     },
 };

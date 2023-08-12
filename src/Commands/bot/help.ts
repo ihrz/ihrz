@@ -21,13 +21,7 @@
 
 import {
     Client,
-    Collection,
-    ChannelType,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
-    ApplicationCommandOptionType,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
     ActionRowBuilder,
@@ -36,7 +30,6 @@ import {
 
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
-import logger from '../../core/logger';
 
 export let command: Command = {
     name: 'help',
@@ -107,6 +100,5 @@ export let command: Command = {
 
             await response.edit({ embeds: [embed] });
         });
-
     },
 };

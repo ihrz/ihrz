@@ -31,7 +31,8 @@ export = {
         try {
             let queue = interaction.client.player.nodes.get(interaction.guild);
             if (!queue || !queue.isPlaying()) {
-                return interaction.editReply({ content: data.pause_nothing_playing, ephemeral: true });
+                await interaction.editReply({ content: data.pause_nothing_playing, ephemeral: true });
+                return;
             }
             let paused = queue.node.setPaused(true);
             await interaction.editReply({ content: paused ? 'paused' : "something went wrong" });
@@ -40,4 +41,4 @@ export = {
             logger.err(error);
         };
     },
-}
+};

@@ -26,6 +26,7 @@ import {
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
+        
         let kiss = interaction.options.getUser("user");
 
         var kissGif = [
@@ -45,6 +46,7 @@ export = {
             .setImage(kissGif[Math.floor(Math.random() * kissGif.length)])
             .setTimestamp()
 
-        return interaction.editReply({embeds: [embed]});
+        await interaction.editReply({ embeds: [embed] });
+        return;
     },
-}
+};

@@ -30,7 +30,7 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         var text = "";
-        
+
         let baseData = await db.DataBaseModel({
             id: db.Get, key:
                 `${interaction.guild.id}.ALLOWLIST`
@@ -60,7 +60,8 @@ export = {
         };
 
         if (interaction.user.id !== interaction.guild.ownerId && !text.includes(interaction.user.id)) {
-            return interaction.editReply({ content: 'Your not allowed to use this command! You need to be in the allow-list!' })
+            await interaction.editReply({ content: 'Your not allowed to use this command! You need to be in the allow-list!' });
+            return;
         };
 
         let iconURL: any = client.user?.displayAvatarURL();

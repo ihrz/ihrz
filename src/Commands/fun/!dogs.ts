@@ -41,16 +41,19 @@ import axios from 'axios'
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
+
         axios.get('https://dog.ceo/api/breeds/image/random')
-            .then(res => {
+            .then(async res => {
                 let emb = new EmbedBuilder()
                     .setImage(res.data.message).setTitle(data.dogs_embed_title).setTimestamp();
 
-                return interaction.editReply({embeds: [emb]});
+                await interaction.editReply({ embeds: [emb] });
+                return;
             })
-            .catch(err => {
+            .catch(async err => {
                 logger.err(err);
-                return interaction.editReply({content: data.dogs_embed_command_error});
+                await interaction.editReply({ content: data.dogs_embed_command_error });
+                return;
             });
     },
-}
+};

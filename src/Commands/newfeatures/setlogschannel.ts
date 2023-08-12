@@ -109,7 +109,7 @@ export let command: Command = {
             } catch (e) {
                 await interaction.editReply({ content: data.setlogschannel_command_error });
                 return;
-            }
+            };
         };
 
         /*                                        MODERATION LOGS                                                */
@@ -154,7 +154,7 @@ export let command: Command = {
             } catch (e) {
                 await interaction.editReply({ content: data.setlogschannel_command_error });
                 return;
-            }
+            };
         };
 
         /*                                        VOICES LOGS                                                */
@@ -197,7 +197,7 @@ export let command: Command = {
             } catch (e) {
                 await interaction.editReply({ content: data.setlogschannel_command_error });
                 return;
-            }
+            };
         };
 
         /*                                        MESSAGES LOGS                                                */
@@ -242,7 +242,7 @@ export let command: Command = {
             } catch (e) {
                 await interaction.editReply({ content: data.setlogschannel_command_error });
                 return;
-            }
+            };
         };
 
         /*                                        DELETE LOGS                                                */

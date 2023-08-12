@@ -21,30 +21,18 @@
 
 import {
     Client,
-    Collection,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
-    ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
 import * as db from '../../core/functions/DatabaseModel';
 
-import ms from 'ms'; 
+import ms from 'ms';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
-        
-        let timeout = 2592000000;
-        let amount = 5000;
+
+        let timeout: number = 2592000000;
+        let amount: number = 5000;
 
         let monthly = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly` });
 
@@ -61,6 +49,7 @@ export = {
             await interaction.editReply({ embeds: [embed] });
             await db.DataBaseModel({ id: db.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: amount });
             await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly`, value: Date.now() });
+            return;
         };
     },
-}
+};

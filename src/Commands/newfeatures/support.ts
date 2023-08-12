@@ -29,7 +29,6 @@ import {
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
-import config from '../../files/config';
 
 export let command: Command = {
     name: 'support',
@@ -77,7 +76,8 @@ export let command: Command = {
         let roles = interaction.options.getRole("roles");
 
         if (!roles) {
-            return interaction.editReply({ content: data.support_command_not_role });
+            await interaction.editReply({ content: data.support_command_not_role });
+            return;
         }
         if (action == "true") {
             await db.DataBaseModel({
@@ -89,7 +89,7 @@ export let command: Command = {
                 }
             });
 
-            interaction.editReply({
+            await interaction.editReply({
                 content: data.support_command_work
                     .replace("${interaction.guild.name}", interaction.guild.name)
                     .replace("${input}", input)
@@ -126,7 +126,6 @@ export let command: Command = {
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
             } catch (e: any) { logger.err(e) };
-
             return;
         };
     },

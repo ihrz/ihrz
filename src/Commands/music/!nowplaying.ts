@@ -57,8 +57,7 @@ export = {
 
         if (!queue || !queue.isPlaying()) {
             return interaction.editReply({ content: data.nowplaying_no_queue, ephemeral: true });
-        }
-        ;
+        };
 
         let progress = queue.node.createProgressBar();
 
@@ -82,9 +81,9 @@ export = {
                 let queue = interaction.client.player.nodes.get(interaction.guild);
 
                 if (!queue || !queue.isPlaying()) {
-                    return i.reply({ content: data.nowplaying_no_queue, ephemeral: true });
-                }
-                ;
+                    await i.reply({ content: data.nowplaying_no_queue, ephemeral: true });
+                    return;
+                };
 
                 if (i.user.id === queue.currentTrack.requestedBy.id) {
                     switch (i.customId) {
@@ -135,9 +134,8 @@ export = {
             });
 
         } catch {
-            return await interaction.channel.send('⏲️');
-        }
-        ;
-
+            await interaction.channel.send('⏲️');
+            return;
+        };
     },
-}
+};

@@ -31,14 +31,18 @@ import logger from '../../core/logger';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({ content: data.setchannels_not_admin });
+            await interaction.editReply({ content: data.setchannels_not_admin });
+            return;
         };
 
         let type = interaction.options.getString("type");
         let argsid = interaction.options.getChannel("channel");
 
         if (type === "join") {
-            if (!argsid) return interaction.editReply({ content: data.setchannels_not_specified_args })
+            if (!argsid) {
+                await interaction.editReply({ content: data.setchannels_not_specified_args });
+                return;
+            };
 
             try {
                 let logEmbed = new EmbedBuilder()
@@ -58,25 +62,27 @@ export = {
             };
 
             try {
-                let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join` })
-                if (already === argsid.id) return interaction.editReply({ content: data.setchannels_already_this_channel_on_join })
-                interaction.client.channels.cache.get(argsid.id).send({ content: data.setchannels_confirmation_message_on_join })
-                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join`, value: argsid.id })
+                let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join` });
+                if (already === argsid.id) return interaction.editReply({ content: data.setchannels_already_this_channel_on_join });
+                interaction.client.channels.cache.get(argsid.id).send({ content: data.setchannels_confirmation_message_on_join });
+                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join`, value: argsid.id });
 
-                return interaction.editReply({
+                await interaction.editReply({
                     content: data.setchannels_command_work_on_join
                         .replace(/\${argsid\.id}/g, argsid.id)
                 });
+                return;
             } catch (e) {
                 interaction.editReply({ content: data.setchannels_command_error_on_join });
-            }
+            };
+
         } else if (type === "leave") {
             try {
                 if (!argsid) return interaction.editReply({ content: data.setchannels_not_specified_args });
                 let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave` });
 
-                if (already === argsid.id) return interaction.editReply({ content: data.setchannels_already_this_channel_on_leave })
-                interaction.client.channels.cache.get(argsid.id)?.send({ content: data.setchannels_confirmation_message_on_leave })
+                if (already === argsid.id) return interaction.editReply({ content: data.setchannels_already_this_channel_on_leave });
+                interaction.client.channels.cache.get(argsid.id)?.send({ content: data.setchannels_confirmation_message_on_leave });
                 await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`, value: argsid.id });
 
                 try {
@@ -86,7 +92,7 @@ export = {
                         .setDescription(data.setchannels_logs_embed_description_on_leave
                             .replace(/\${argsid\.id}/g, argsid.id)
                             .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                        )
+                        );
 
                     let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                     if (logchannel) {
@@ -130,7 +136,8 @@ export = {
 
             await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join` });
             await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave` });
-            return interaction.editReply({ content: data.setchannels_command_work_on_off });
+            await interaction.editReply({ content: data.setchannels_command_work_on_off });
+            return;
         };
     },
-}
+};

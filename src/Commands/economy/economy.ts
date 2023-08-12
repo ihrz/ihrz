@@ -21,26 +21,10 @@
 
 import {
     Client,
-    Collection,
-    EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
     ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
-import logger from '../../core/logger';
-import config from '../../files/config';
-import ms from 'ms';
 
 export let command: Command = {
     name: "economy",
@@ -171,4 +155,4 @@ export let command: Command = {
 
         await require('./!' + command).run(client, interaction, data);
     },
-}
+};

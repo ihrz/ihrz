@@ -21,14 +21,10 @@
 
 import {
     Client,
-    Collection,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
     PermissionsBitField,
     ApplicationCommandOptionType,
     ActionRowBuilder,
-    SelectMenuBuilder,
     ComponentType,
     StringSelectMenuBuilder,
     ButtonBuilder,
@@ -38,8 +34,6 @@ import {
 
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
-import logger from '../../core/logger';
-import config from '../../files/config';
 
 export let command: Command = {
     name: 'embed',
@@ -60,7 +54,8 @@ export let command: Command = {
         let potentialEmbed = await db.DataBaseModel({ id: db.Get, key: `EMBED.${arg}` });
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({ content: data.punishpub_not_admin });
+            await interaction.editReply({ content: data.punishpub_not_admin });
+            return;
         };
 
         let __tempEmbed = new EmbedBuilder().setDescription('** **');

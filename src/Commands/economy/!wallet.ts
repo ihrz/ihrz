@@ -21,55 +21,25 @@
 
 import {
     Client,
-    Collection,
-    EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
-    ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
 import * as db from '../../core/functions/DatabaseModel';
 
-import ms from 'ms'; 
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
-        
-        let member = interaction.options.get('user');
 
-        if (!member) {
-            var bal = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money` });
+        let member = interaction.options.getUser('user') || interaction.user;
+        var bal = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${member.id}.ECONOMY.money` });
 
-            if (!bal) {
-                return await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: 1 }),
-                    interaction.editReply({ content: data.balance_dont_have_wallet });
-            }
-            interaction.editReply({
-                content: data.balance_have_wallet
-                    .replace(/\${bal}/g, bal)
-            });
-        } else {
-            if (member) {
-                var bal = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${member.value}.ECONOMY.money` });
-
-                if (!bal) {
-                    return await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.USER.${member.value}.ECONOMY.money`, value: 1 }),
-                        interaction.editReply({
-                            content: data.balance_he_dont_have_wallet
-                        });
-                };
-                return await interaction.editReply({
-                    content: data.balance_he_have_wallet.replace(/\${bal}/g, bal)
-                });
-            }
+        if (!bal) {
+            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.USER.${member.value}.ECONOMY.money`, value: 1 });
+            await interaction.editReply({ content: data.balance_he_dont_have_wallet });
+            return;
         };
+
+        await interaction.editReply({
+            content: data.balance_he_have_wallet.replace(/\${bal}/g, bal)
+        });
+        return;
     },
-}
+};

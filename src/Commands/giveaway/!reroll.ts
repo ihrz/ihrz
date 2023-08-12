@@ -32,18 +32,19 @@ export = {
         let inputData = interaction.options.getString("giveaway-id");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-            return interaction.editReply({ content: data.reroll_not_perm });
-        }
-        ;
+            await interaction.editReply({ content: data.reroll_not_perm });
+            return;
+        };
 
         let giveaway =
             client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.prize === inputData) ||
             client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.messageId === inputData);
         if (!giveaway) {
-            return interaction.editReply({
+            await interaction.editReply({
                 content: data.reroll_dont_find_giveaway
                     .replace("{args}", inputData)
             });
+            return;
         };
 
         client.giveawaysManager
@@ -60,13 +61,13 @@ export = {
                         )
 
                     let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                    
                     if (logchannel) {
                         logchannel.send({ embeds: [logEmbed] })
-                    }
+                    };
                 } catch (e: any) {
                     logger.err(e)
                 };
-
             })
             .catch((error) => {
                 if (error.startsWith(`Giveaway with message Id ${giveaway?.messageId} is not ended.`)) {
@@ -78,4 +79,4 @@ export = {
                 }
             });
     },
-}
+};

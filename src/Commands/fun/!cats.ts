@@ -28,13 +28,15 @@ import axios from 'axios';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
-        axios.get('http://edgecats.net/random').then(res => {
+        
+        axios.get('http://edgecats.net/random').then(async res => {
             let emb = new EmbedBuilder()
                 .setImage(res.data)
                 .setTitle(data.cats_embed_title)
                 .setTimestamp();
 
-            return interaction.editReply({embeds: [emb]});
+            await interaction.editReply({ embeds: [emb] });
+            return;
         });
     },
-}
+};

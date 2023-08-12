@@ -31,22 +31,27 @@ export = {
         let talkedRecentlyforr = new Set();
 
         if (talkedRecentlyforr.has(interaction.user.id)) {
-            return interaction.editReply({ content: data.rob_cooldown_error });
-        }
+            await interaction.editReply({ content: data.rob_cooldown_error });
+            return;
+        };
 
         let user = interaction.options.getMember("member");
         let targetuser = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${user.id}.ECONOMY.money` });
         let author = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money` })
+
         if (author < 250) {
-            return interaction.editReply({ content: data.rob_dont_enought_error })
-        }
+            await interaction.editReply({ content: data.rob_dont_enought_error });
+            return;
+        };
 
         if (targetuser < 250) {
-            return interaction.editReply({
+            await interaction.editReply({
                 content: data.rob_him_dont_enought_error
                     .replace(/\${user\.user\.username}/g, user.user.username)
-            })
-        }
+            });
+            return;
+        };
+
         let random = Math.floor(Math.random() * 200) + 1;
 
         let embed = new EmbedBuilder()
@@ -68,4 +73,4 @@ export = {
             talkedRecentlyforr.delete(interaction.user.id);
         }, 3000000);
     },
-}
+};

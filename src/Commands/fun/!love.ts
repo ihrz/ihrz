@@ -29,11 +29,11 @@ import config from '../../files/config';
 
 import axios from 'axios';
 import fs from 'fs';
-import {createCanvas, loadImage} from "canvas";
+import { createCanvas, loadImage } from "canvas";
 
 let downloadImage = (url: string, filename: string) => {
     return new Promise((resolve, reject) => {
-        axios.get(url, {responseType: 'stream'})
+        axios.get(url, { responseType: 'stream' })
             .then(response => {
                 let writer = fs.createWriteStream(filename);
                 response.data.pipe(writer);
@@ -48,11 +48,8 @@ let downloadImage = (url: string, filename: string) => {
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
-        var user1 = interaction.options.getUser("user1");
-        var user2 = interaction.options.getUser("user2");
-
-        if (!user1) user1 = interaction.user;
-        if (!user2) user2 = interaction.guild.members.cache.random().user;
+        var user1 = interaction.options.getUser("user1") || interaction.user;
+        var user2 = interaction.options.getUser("user2") || interaction.guild.members.cache.random().user;
 
         let profileImageSize = 512;
         let canvasWidth = profileImageSize * 3;
@@ -125,8 +122,7 @@ export = {
                 randomNumber = 100;
             } else {
                 randomNumber = Math.floor(Math.random() * 101);
-            }
-            ;
+            };
 
             var embed = new EmbedBuilder()
                 .setColor("#FFC0CB")
@@ -137,15 +133,15 @@ export = {
                     .replace('${user2.username}', user2.username)
                     .replace('${randomNumber}', randomNumber)
                 )
-                .setFooter({text: 'iHorizon', iconURL: client.user?.displayAvatarURL()})
+                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                 .setTimestamp();
 
-            return interaction.editReply({embeds: [embed], files: [file]});
+            await interaction.editReply({ embeds: [embed], files: [file] });
+            return;
         } catch (error: any) {
             console.log(error)
-            return interaction.editReply({content: data.love_command_error});
-        }
-        ;
-
+            await interaction.editReply({ content: data.love_command_error });
+            return;
+        };
     },
-}
+};

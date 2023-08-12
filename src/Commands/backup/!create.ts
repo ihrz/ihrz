@@ -32,21 +32,22 @@ import backup from 'discord-backup';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
+
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({content: data.backup_not_admin});
-        }
-        ;
+            await interaction.editReply({ content: data.backup_not_admin });
+            return;
+        };
 
         if (!interaction.guild.members.me.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({content: data.backup_i_dont_have_permission})
-        }
-        ;
+            await interaction.editReply({ content: data.backup_i_dont_have_permission });
+            return;
+        };
 
-        let i: any = 0;
-        let j: any = 0;
+        let i: number = 0;
+        let j: number = 0;
 
         backup.create(interaction.guild, {
-            maxMessagesPerChannel: 15,
+            maxMessagesPerChannel: 10,
             jsonBeautify: true
         }).then(async (backupData) => {
 
@@ -57,11 +58,11 @@ export = {
                 });
             });
 
-            let elData = {guildName: backupData.name, categoryCount: i, channelCount: j};
+            let elData = { guildName: backupData.name, categoryCount: i, channelCount: j };
 
-            await db.DataBaseModel({id: db.Set, key: `BACKUPS.${interaction.user.id}.${backupData.id}`, value: elData});
+            await db.DataBaseModel({ id: db.Set, key: `BACKUPS.${interaction.user.id}.${backupData.id}`, value: elData });
 
-            interaction.channel.send({content: data.backup_command_work_on_creation});
+            interaction.channel.send({ content: data.backup_command_work_on_creation });
             interaction.editReply({
                 content: data.backup_command_work_info_on_creation
                     .replace("${backupData.id}", backupData.id)
@@ -74,14 +75,14 @@ export = {
                     .setDescription(data.backup_logs_embed_description_on_creation)
                 let logchannel = interaction.guild.channels.cache.find((channel: {
                     name: string;
-                }) => channel.name === 'iHorizon-logs');
+                }) => channel.name === 'ihorizon-logs');
+
                 if (logchannel) {
-                    logchannel.send({embeds: [logEmbed]})
-                }
+                    logchannel.send({ embeds: [logEmbed] })
+                };
             } catch (e: any) {
                 logger.err(e)
-            }
-            ;
+            };
         });
     },
-}
+};

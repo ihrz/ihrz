@@ -30,9 +30,9 @@ export = {
         let pollMessage = interaction.options.getString("message");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.editReply({content: data.poll_not_admin});
-        }
-        ;
+            await interaction.editReply({ content: data.poll_not_admin });
+            return;
+        };
 
         let pollEmbed = new EmbedBuilder()
             .setTitle(data.poll_embed_title
@@ -40,13 +40,15 @@ export = {
             )
             .setColor("#ddd98b")
             .setDescription(pollMessage)
-            .addFields({name: data.poll_embed_fields_reaction, value: data.poll_embed_fields_choice})
+            .addFields({ name: data.poll_embed_fields_reaction, value: data.poll_embed_fields_choice })
             .setImage("https://cdn.discordapp.com/attachments/610152915063013376/610947097969164310/loading-animation.gif")
             .setTimestamp()
 
-        let msg = await interaction.editReply({embeds: [pollEmbed], fetchReply: true});
+        let msg = await interaction.editReply({ embeds: [pollEmbed], fetchReply: true });
 
         await msg.react('✅');
         await msg.react('❌');
+
+        return;
     },
-}
+};

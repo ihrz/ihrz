@@ -21,19 +21,11 @@
 
 import {
     Client,
-    Collection,
-    ChannelType,
-    EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
     ApplicationCommandOptionType
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
-import logger from '../../core/logger';
-import config from '../../files/config';
 
 export let command: Command = {
     name: 'unblacklist',
@@ -51,13 +43,17 @@ export let command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER.${interaction.user.id}.owner` }) !== true) {
-            return interaction.editReply({ content: data.unblacklist_not_owner });
+            await interaction.editReply({ content: data.unblacklist_not_owner });
+            return;
         };
 
         let member = interaction.options.getUser('member');
         let fetched = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${member.id}` });
 
-        if (!fetched) { return interaction.editReply({ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member.id) }) }
+        if (!fetched) {
+            await interaction.editReply({ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member.id) });
+            return;
+        };
 
         try {
             let bannedMember = await client.users.fetch(member.user.id);

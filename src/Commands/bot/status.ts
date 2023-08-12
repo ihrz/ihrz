@@ -31,9 +31,6 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
-import logger from '../../core/logger';
-import ping from 'ping';
 import os from 'os-utils';
 import config from '../../files/config';
 
@@ -45,7 +42,8 @@ export let command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (interaction.user.id != config.owner.ownerid1 && config.owner.ownerid2) {
-            return interaction.editReply({ content: data.status_be_bot_dev })
+            await interaction.editReply({ content: data.status_be_bot_dev });
+            return;
         };
 
         os.cpuUsage(function (c) {
@@ -62,7 +60,8 @@ export let command: Command = {
                 )
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
 
-            return interaction.editReply({ embeds: [embed] });
+            interaction.editReply({ embeds: [embed] });
+            return;
         })
     },
 };

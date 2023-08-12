@@ -166,6 +166,6 @@ export let command: Command = {
             let description = `${getBadges(member.flags)}\n**User:** \`${member.username}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\`\n[🔴 API DOWN](${apiUrlParser.LoginURL()})`;
 
             await sendMessage(description);
-        }
+        };
     },
 };
