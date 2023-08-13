@@ -216,6 +216,8 @@ help_ticket_dsc: "チケットを作成したり、その中の機能を使用�
 help_memberc_dsc: "メンバーのカウントのためにボイスチャンネルを設定したいですか？もちろんです :smile:"
 help_newftrs_dsc: "ここには非常に興味深い新機能があります！"
 help_not_for_you: "このインタラクションはあなたのためではありません"
+help_protection_fields: "保護"
+help_protection_dsc: "サーバーを保護するために、ホワイトリストに登録されていないユーザーが特定の操作を行わないようにします。"
 
 
 # Fun commands

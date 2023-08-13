@@ -216,6 +216,8 @@ help_ticket_dsc: "Desideri creare un ticket o utilizzare una delle mie funzioni 
 help_memberc_dsc: "Vuoi configurare delle stanze vocali per il conteggio dei membri? Certamente :smile:"
 help_newftrs_dsc: "Ecco delle nuove funzionalità molto interessanti!"
 help_not_for_you: "Questa interazione non è per te"
+help_protection_fields: "Protezione"
+help_protection_dsc: "Impedisci agli utenti non autorizzati di compiere determinate azioni al fine di proteggere il server."
 
 
 # Fun commands
