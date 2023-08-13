@@ -21,19 +21,7 @@
 
 import {
     Client,
-    Collection,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
-    ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
 import logger from '../../core/logger';
