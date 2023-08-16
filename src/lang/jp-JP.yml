@@ -220,6 +220,8 @@ help_protection_fields: "保護"
 help_protection_dsc: "サーバーを保護するために、ホワイトリストに登録されていないユーザーが特定の操作を行わないようにします。"
 help_suggestion_fields: "提案"
 help_suggestion_dsc: "ユーザーに自己表現の機会を与え、専用のチャンネルで提案を送信する力を与えましょう！"
+help_security_fields: "セキュリティ"
+help_security_dsc: "新メンバーにキャプチャテストを実施して、サーバーへのアクセスを保護します。"
 
 
 # Fun commands
@@ -913,6 +915,23 @@ setsuggest_channel_embed_title: "提案モジュールがここに設定され�
 setsuggest_channel_embed_desc: "これで、ここにメッセージを送信する許可があるすべてのユーザーは、メッセージを送信するだけで提案できます！"
 setsuggest_channel_command_work: "${interaction.user}、提案モジュールのチャンネルを ${channel} に設定しました！"
 
+
+# セキュリティコマンド
+# /セキュリティ
+
+# /セキュリティ 無効化
+security_disable_not_admin: "管理者ではありません！"
+security_disable_pw_on: "${interaction.user} さん、セキュリティモジュールをオンにしました！"
+security_disable_pw_off: "${interaction.user} さん、セキュリティモジュールをオフにしました。"
+
+# /セキュリティ ロール割り当て
+security_role_to_give_not_admin: "管理者ではありません！"
+security_role_to_give_command_work: "${interaction.user} さん、セキュリティモジュールのロールを ${role} に設定しました！"
+
+# /セキュリティ チャンネル
+security_channel_not_admin: "管理者ではありません！"
+security_channel_command_work: "${interaction.user} さん、セキュリティモジュールのチャンネルを ${channel} に設定しました！"
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
@@ -971,5 +990,8 @@ event_rank_role: "<@${message.author.id}>さん、あなたは今、役職 <@&${
 
 # 提案イベント
 event_suggestion_embed_author: "${message.author.username} からの新しい提案"
+
+# セキュリティイベント
+event_security: "${member} さん、このメッセージに送信されたキャプチャを入力してください。\nあなたの回答は正しい構文である必要があります！\n__回答するための時間は30秒です。__"
 
 # -----------------------------\ /-----------------------------

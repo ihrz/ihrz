@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import express from 'express';
+import express, { Request, Response } from 'express';
 import https from 'https';
 import bodyParser from 'body-parser';
 import couleurmdr from 'colors';
@@ -31,6 +31,7 @@ import * as apiUrlParser from '../core/functions/apiUrlParser';
 import user from './Routes/user';
 import code from './Routes/code';
 import api from './Routes/api';
+import captcha from '../core/captcha';
 
 let app = express();
 
@@ -39,6 +40,13 @@ app.use(express.json());
 app.use(bodyParser.text());
 app.post('/api/check', code);
 app.post('/user', user);
+
+app.get("/captcha/:width?/:height?/", (req: Request, res: Response) => {
+    let width = parseInt(req.params.width) || 200;
+    let height = parseInt(req.params.height) || 100;
+    let { image, text } = captcha(width, height);
+    res.send({ image, text });
+});
 
 if (config.database.useDatabaseAPI) { app.post('/api/database', api); };
 

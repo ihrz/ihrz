@@ -19,9 +19,12 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, Guild, GuildChannel, GuildChannelManager, Message, MessageManager } from "discord.js";
+import { AttachmentBuilder, Client, Guild, GuildChannel, GuildChannelManager, Message, MessageManager } from "discord.js";
 
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
+import axios from 'axios';
+
+import * as apiUrlParser from '../core/functions/apiUrlParser';
 import * as db from '../core/functions/DatabaseModel';
 import logger from "../core/logger";
 import config from '../files/config';
@@ -193,5 +196,54 @@ export = async (client: any, member: any) => {
         };
     };
 
-    await blockBot(), joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage();
+    async function securityCheck() {
+        let baseData = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.SECURITY` });
+        if (!baseData
+            || baseData?.disable === true) return;
+
+        let data = await client.functions.getLanguageData(member.guild.id);
+        let channel = member.guild.channels.cache.get(baseData?.channel);
+        let request = (await axios.get(apiUrlParser.CaptchaURL()))?.data;
+
+        let sfbuff = Buffer.from((request?.image).split(",")[1], "base64");
+        let sfattach = new AttachmentBuilder(sfbuff);
+
+        channel.send({
+            content: data.event_security
+                .replace('${member}', member),
+            files: [sfattach]
+        }).then(async (msg: any) => {
+            let filter = (m: Message) => m.author.id === member.id;
+            let collector = msg.channel.createMessageCollector({ filter: filter, time: 30000 });
+            let passedtest = false;
+
+            collector.on('collect', (m: any) => {
+
+                m.delete().catch(() => { });
+                if (request.text === m.content) {
+                    member.roles.add(baseData?.role).catch(() => { });
+                    msg.delete().catch(() => { });
+                    passedtest = true;
+                    collector.stop();
+                    return;
+                } else {
+                    // the member has failed the captcha 
+                    msg.delete().catch(() => { });
+                    member.kick().catch(() => { });
+                    return;
+                }
+            });
+
+            collector.on('end', (collected: { size: any; }) => {
+                if (passedtest) return;
+                msg.delete().catch(() => { });
+                member.kick().catch(() => { });
+            });
+
+        }).catch((error: any) => {
+            logger.err(error);
+        });
+    };
+
+    await blockBot(), joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage(), securityCheck();
 };

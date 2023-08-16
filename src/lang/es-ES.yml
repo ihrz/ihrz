@@ -220,6 +220,8 @@ help_protection_fields: "Protección"
 help_protection_dsc: "Evite que los usuarios no autorizados realicen ciertas acciones para proteger el servidor."
 help_suggestion_fields: "Sugerencia"
 help_suggestion_dsc: "Concede a tus usuarios la capacidad de expresarse, permíteles enviar sugerencias en un canal dedicado."
+help_security_fields: "Seguridad"
+help_security_dsc: "Administre pruebas de captcha a sus nuevos miembros para asegurar el acceso a su servidor."
 
 
 # Fun commands
@@ -913,6 +915,23 @@ setsuggest_channel_embed_title: "Se ha establecido el módulo de sugerencias aqu
 setsuggest_channel_embed_desc: "Ahora, todos los usuarios que tienen permiso para enviar mensajes aquí pueden sugerir simplemente enviando un mensaje."
 setsuggest_channel_command_work: "${interaction.user}, has establecido el canal del módulo de sugerencias en ${channel}."
 
+
+# Comando de seguridad
+# /seguridad
+
+# /seguridad desactivar
+security_disable_not_admin: "¡No eres administrador!"
+security_disable_pw_on: "${interaction.user}, ¡has activado el módulo de seguridad!"
+security_disable_pw_off: "${interaction.user}, ¡has desactivado el módulo de seguridad!"
+
+# /seguridad rol-a-asignar
+security_role_to_give_not_admin: "¡No eres administrador!"
+security_role_to_give_command_work: "${interaction.user}, has establecido el rol ${role} para el módulo de seguridad."
+
+# /seguridad canal
+security_channel_not_admin: "¡No eres administrador!"
+security_channel_command_work: "${interaction.user}, has establecido el canal ${channel} para el módulo de seguridad."
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
@@ -971,5 +990,8 @@ event_rank_role: "<@${message.author.id}>, ahora tienes el rol <@&${fetch.id}>"
 
 # Evento de sugerencia
 event_suggestion_embed_author: "Nueva sugerencia de ${message.author.username}"
+
+# Evento de seguridad
+event_security: "${member}, por favor escribe el captcha enviado en este mensaje.\nTu respuesta debe tener la sintaxis correcta.\n__Tienes 30 segundos para responder.__"
 
 # -----------------------------\ /-----------------------------

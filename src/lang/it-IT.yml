@@ -220,6 +220,8 @@ help_protection_fields: "Protezione"
 help_protection_dsc: "Impedisci agli utenti non autorizzati di compiere determinate azioni al fine di proteggere il server."
 help_suggestion_fields: "Suggerimento"
 help_suggestion_dsc: "Concedi ai tuoi utenti la possibilità di esprimersi, permettendo loro di inviare suggerimenti in un canale dedicato!"
+help_security_fields: "Sicurezza"
+help_security_dsc: "Amministra test captcha ai tuoi nuovi membri per garantire l'accesso sicuro al tuo server."
 
 
 # Fun commands
@@ -913,6 +915,23 @@ setsuggest_channel_embed_title: "Il modulo suggerimenti è stato impostato qui !
 setsuggest_channel_embed_desc: "Ora, tutti gli utenti autorizzati ad inviare messaggi qui possono suggerire semplicemente inviando un messaggio!"
 setsuggest_channel_command_work: "${interaction.user}, hai impostato il canale del modulo suggerimenti su ${channel}!"
 
+
+# Comando di sicurezza
+# /sicurezza
+
+# /sicurezza disattiva
+security_disable_not_admin: "Non sei un amministratore!"
+security_disable_pw_on: "${interaction.user}, hai attivato il modulo di sicurezza!"
+security_disable_pw_off: "${interaction.user}, hai disattivato il modulo di sicurezza."
+
+# /sicurezza ruolo-da-assegnare
+security_role_to_give_not_admin: "Non sei un amministratore!"
+security_role_to_give_command_work: "${interaction.user}, hai impostato il ruolo ${role} per il modulo di sicurezza!"
+
+# /sicurezza canale
+security_channel_not_admin: "Non sei un amministratore!"
+security_channel_command_work: "${interaction.user}, hai impostato il canale ${channel} per il modulo di sicurezza!"
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
@@ -971,5 +990,8 @@ event_rank_role: "<@${message.author.id}>, ora hai il ruolo <@&${fetch.id}>"
 
 # Evento suggerimento
 event_suggestion_embed_author: "Nuovo suggerimento da ${message.author.username}"
+
+# Evento di sicurezza
+event_security: "${member}, per favore digita il captcha inviato in questo messaggio.\nLa tua risposta deve essere nella sintassi corretta!\n__Hai 30 secondi per rispondere.__"
 
 # -----------------------------\ /-----------------------------

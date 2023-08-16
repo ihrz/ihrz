@@ -220,6 +220,8 @@ help_protection_fields: "Protection"
 help_protection_dsc: "Prevent non-whitelisted users from doing certain actions in order to protect the server."
 help_suggestion_fields: "Suggestion"
 help_suggestion_dsc: "Grant your users the ability to express themselves, empower them to submit suggestions in a dedicated channel!"
+help_security_fields: "Security"
+help_security_dsc: "Administer captcha tests to your new members to secure access to your server."
 
 
 # Fun commands
@@ -913,6 +915,23 @@ setsuggest_channel_embed_title: "Suggestion Module has been set here !"
 setsuggest_channel_embed_desc: "Now, all of the user who are permitted to send message here, can now suggest with just sending a message!"
 setsuggest_channel_command_work: "${interaction.user}, you have been set the Suggestion Module's channel to ${channel}!"
 
+
+# Security Command
+# /security
+
+# /security disable
+security_disable_not_admin: "You are not admin!"
+security_disable_pw_on: "${interaction.user}, you have turned on the Security Module!"
+security_disable_pw_off: "${interaction.user}, you have turned off the Security Module"
+
+# /security role-to-give
+security_role_to_give_not_admin: "You are not admin!"
+security_role_to_give_command_work: "${interaction.user}, you have set the role to ${role} for the Security Module !"
+
+# /security channel
+security_channel_not_admin: "You are not admin!"
+security_channel_command_work: "${interaction.user}, you have set the channel to ${channel} for the Security Module !"
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
@@ -971,5 +990,8 @@ event_rank_role: "<@${message.author.id}>, you now have the role <@&${fetch.id}>
 
 # Suggestion Event
 event_suggestion_embed_author: "New suggestion from ${message.author.username}"
+
+# Security Event
+event_security: "${member}, please type the captcha sended in this message.\nYou response need to be in the correct syntax!\n__You have 30 seconds to answer.__"
 
 # -----------------------------\ /-----------------------------

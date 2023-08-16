@@ -68,8 +68,8 @@ export = async (client: any, interaction: any) => {
 
         fs.appendFile(`${process.cwd()}/src/files/slash.log`, logMessage, (err) => {
             if (err) {
-                console.error('Error writing to slash.log:', err);
-            }
+                logger.warn('Error writing to slash.log');
+            };
         });
     };
 

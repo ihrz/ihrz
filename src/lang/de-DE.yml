@@ -220,6 +220,8 @@ help_protection_fields: "Schutz"
 help_protection_dsc: "Verhindern Sie, dass nicht autorisierte Benutzer bestimmte Aktionen ausführen, um den Server zu schützen."
 help_suggestion_fields: "Vorschlag"
 help_suggestion_dsc: "Geben Sie Ihren Benutzern die Möglichkeit, sich auszudrücken, und ermächtigen Sie sie, Vorschläge in einem dedizierten Kanal einzureichen!"
+help_security_fields: "Sicherheit"
+help_security_dsc: "Verwalten Sie Captcha-Tests für Ihre neuen Mitglieder, um den Zugriff auf Ihren Server abzusichern."
 
 
 # Fun commands
@@ -913,6 +915,23 @@ setsuggest_channel_embed_title: "Das Vorschlagsmodul wurde hier festgelegt!"
 setsuggest_channel_embed_desc: "Jetzt können alle Benutzer, die hier Nachrichten senden dürfen, einfach eine Nachricht senden, um einen Vorschlag zu machen!"
 setsuggest_channel_command_work: "${interaction.user}, Sie haben den Kanal des Vorschlagsmoduls auf ${channel} eingestellt!"
 
+
+# Sicherheitsbefehl
+# /sicherheit
+
+# /sicherheit deaktivieren
+security_disable_not_admin: "Du bist kein Administrator!"
+security_disable_pw_on: "${interaction.user}, du hast das Sicherheitsmodul aktiviert!"
+security_disable_pw_off: "${interaction.user}, du hast das Sicherheitsmodul deaktiviert."
+
+# /sicherheit rolle-zuweisen
+security_role_to_give_not_admin: "Du bist kein Administrator!"
+security_role_to_give_command_work: "${interaction.user}, du hast die Rolle ${role} für das Sicherheitsmodul festgelegt!"
+
+# /sicherheit kanal
+security_channel_not_admin: "Du bist kein Administrator!"
+security_channel_command_work: "${interaction.user}, du hast den Kanal ${channel} für das Sicherheitsmodul festgelegt!"
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
@@ -971,5 +990,8 @@ event_rank_role: "<@${message.author.id}>, du hast jetzt die Rolle <@&${fetch.id
 
 # Vorschlagsereignis
 event_suggestion_embed_author: "Neuer Vorschlag von ${message.author.username}"
+
+# Sicherheitsereignis
+event_security: "${member}, tippe bitte das gesendete Captcha in diese Nachricht ein.\nDeine Antwort muss die richtige Syntax haben!\n__Du hast 30 Sekunden Zeit, um zu antworten.__"
 
 # -----------------------------\ /-----------------------------

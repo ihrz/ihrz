@@ -19,32 +19,31 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import config from "../../files/config";
+import {
+    Client,
+    EmbedBuilder,
+    PermissionsBitField
+} from 'discord.js';
 
-export function LoginURL() {
-    let url =
-        config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port;
-    return url;
-};
+import * as db from '../../core/functions/DatabaseModel';
 
-export function ApiURL() {
-    let url =
-        config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port + '/api/check/';
-    return url;
-};
+export = {
+    run: async (client: Client, interaction: any, data: any) => {
 
-export function DatabaseURL() {
-    let url =
-        config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port + '/api/database/';
-    return url;
-};
+        let role = interaction.options.getRole("role");
 
-export function CaptchaURL() {
-    let url =
-        config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port + '/captcha/';
-    return url;
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            await interaction.editReply({ content: data.security_role_to_give_not_admin });
+            return;
+        };
+
+        await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.SECURITY.role`, value: role.id });
+
+        await interaction.editReply({
+            content: data.security_role_to_give_command_work
+                .replace('${interaction.user}', interaction.user)
+        });
+
+        return;
+    },
 };

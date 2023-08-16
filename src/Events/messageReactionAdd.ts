@@ -61,7 +61,7 @@ export = async (client: Client, reaction: any, user: User) => {
                 return;
             };
         } catch (e: any) {
-            console.error(e);
+            logger.err(e);
             return;
         };
     };
