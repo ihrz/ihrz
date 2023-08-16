@@ -178,5 +178,55 @@ export = async (client: Client, message: any) => {
         };
     };
 
-    await xpFetcher(), blockSpam(), rankRole(), createAllowList();
+    async function suggestion() {
+        let baseData = await db.DataBaseModel({
+            id: db.Get, key:
+                `${message.guild.id}.SUGGEST`
+        });
+
+        if (!baseData
+            || baseData?.channel !== message.channel.id
+            || baseData?.disable) return;
+
+        let suggestionContent = '```' + message.content + '```';
+        var suggestCode = Math.random().toString(36).slice(-8);
+
+        let suggestionEmbed = new EmbedBuilder()
+            .setColor('#4000ff')
+            .setTitle(`#${suggestCode}`)
+            .setAuthor({
+                name: data.event_suggestion_embed_author
+                    .replace('${message.author.username}', message.author.username),
+                iconURL: message.author.avatarURL({ format: 'png', dynamic: true, size: 512 })
+            })
+            .setDescription(suggestionContent.toString())
+            .setThumbnail(`https://cdn.discordapp.com/icons/${message.guild.id}/${message.guild.icon}.png`)
+            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setTimestamp();
+
+        message.delete()
+
+        let args = message.content.split(' ');
+        if (args.length < 5) return;
+
+        let msg = await message.channel.send({
+            content: `<@${message.author.id}>`,
+            embeds: [suggestionEmbed]
+        });
+
+        await msg.react('✅');
+        await msg.react('❌');
+
+        await db.DataBaseModel({
+            id: db.Set, key: `${message.guild.id}.SUGGESTION.${suggestCode}`, values:
+            {
+                author: message.author.id,
+                msgId: msg.id
+            }
+        });
+
+        return;
+    };
+
+    await xpFetcher(), blockSpam(), rankRole(), createAllowList(), suggestion();
 };

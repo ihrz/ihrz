@@ -218,6 +218,8 @@ help_newftrs_dsc: "ここには非常に興味深い新機能があります！"
 help_not_for_you: "このインタラクションはあなたのためではありません"
 help_protection_fields: "保護"
 help_protection_dsc: "サーバーを保護するために、ホワイトリストに登録されていないユーザーが特定の操作を行わないようにします。"
+help_suggestion_fields: "提案"
+help_suggestion_dsc: "ユーザーに自己表現の機会を与え、専用のチャンネルで提案を送信する力を与えましょう！"
 
 
 # Fun commands
@@ -859,6 +861,58 @@ embed_choose_13: "埋め込みの色が正常に削除されました！"
 embed_send_embed_work: "<@${interaction.user.id}>さん、**埋め込みを正常に<#${message.content}>チャンネルに送信しました！**"
 
 
+# 提案コマンド
+# /setsuggest, /suggest
+
+# /suggest accept
+suggest_accept_not_admin: "あなたは管理者ではありません！"
+suggest_acceptnot_good_channel: "このコマンドは提案モジュールのチャンネルで実行する必要があります (<#${baseData?.channel}>)！\n提案モジュールが無効になっていないか確認してください！"
+suggest_accept_not_found_db: "提案はデータベースで見つかりませんでした！"
+suggest_accept_already_replied: "この提案はすでに回答されています！"
+suggest_accept_embed_fields_to_put: "${interaction.user.username} の応答（承諾）"
+suggest_acceptembed_title_to_put: "[承諾] ${msg.embeds[0].data?.title}"
+suggest_accept_command_work: "提案を受け入れました！\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_accept_command_error: "提案はDiscordのチャンネルで見つかりませんでした！"
+
+# /suggest deny
+suggest_deny_not_admin: "あなたは管理者ではありません！"
+suggest_deny_not_good_channel: "このコマンドは提案モジュールのチャンネルで実行する必要があります (<#${baseData?.channel}>)！\n提案モジュールが無効になっていないか確認してください！"
+suggest_deny_not_found_db: "提案はデータベースで見つかりませんでした！"
+suggest_deny_already_replied: "この提案はすでに回答されています！"
+suggest_deny_embed_fields_to_put: "${interaction.user.username} の応答（拒否）"
+suggest_deny_embed_title_to_put: "[拒否] ${msg.embeds[0].data?.title}"
+suggest_deny_command_work: "提案を拒否しました！\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_deny_command_error: "提案はDiscordのチャンネルで見つかりませんでした！"
+
+# /suggest reply
+suggest_reply_not_admin: "あなたは管理者ではありません！"
+suggest_reply_not_good_channel: "このコマンドは提案モジュールのチャンネルで実行する必要があります (<#${baseData?.channel}>)！\n提案モジュールが無効になっていないか確認してください！"
+suggest_replynot_found_db: "提案はデータベースで見つかりませんでした！"
+suggest_reply_already_replied: "この提案はすでに回答されています！"
+suggest_reply_embed_fields_to_put: "${interaction.user.username} の応答"
+suggest_reply_embed_title_to_put: "[回答済み] ${msg.embeds[0].data?.title}"
+suggest_reply_command_work: "提案に対する応答を送信しました！\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_reply_command_error: "提案はDiscordのチャンネルで見つかりませんでした！"
+
+# /suggest delete
+suggest_delete_not_delete: "あなたは管理者ではありません！"
+suggest_delete_not_good_channel: "このコマンドは提案モジュールのチャンネルで実行する必要があります (<#${baseData?.channel}>)！\n提案モジュールが無効になっていないか確認してください！"
+suggest_delete_not_found_db: "提案はデータベースで見つかりませんでした！"
+suggest_delete_command_work: "提案を削除しました！"
+suggest_delete_command_error: "提案はDiscordのチャンネルで見つかりませんでした！"
+
+# /setsuggest disable
+setsuggest_disable_not_admin: "あなたは管理者ではありません！"
+setsuggest_disable_pw_on: "${interaction.user}、提案モジュールを有効にしました！"
+setsuggest_disable_pw_off: "${interaction.user}、提案モジュールを無効にしました！"
+
+# /setsuggest channel
+setsuggest_channel_not_admin: "あなたは管理者ではありません！"
+setsuggest_channel_already_set_with_that: "${interaction.user}、提案モジュールのチャンネルは既に ${channel} に設定されています！"
+setsuggest_channel_embed_title: "提案モジュールがここに設定されました！"
+setsuggest_channel_embed_desc: "これで、ここにメッセージを送信する許可があるすべてのユーザーは、メッセージを送信するだけで提案できます！"
+setsuggest_channel_command_work: "${interaction.user}、提案モジュールのチャンネルを ${channel} に設定しました！"
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
@@ -915,5 +969,7 @@ event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> **が<#${chan
 # ランクアップイベント
 event_rank_role: "<@${message.author.id}>さん、あなたは今、役職 <@&${fetch.id}> を持っています"
 
+# 提案イベント
+event_suggestion_embed_author: "${message.author.username} からの新しい提案"
 
 # -----------------------------\ /-----------------------------

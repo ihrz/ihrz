@@ -218,6 +218,8 @@ help_newftrs_dsc: "Here are some new and highly interesting features!"
 help_not_for_you: "This interaction is not for you"
 help_protection_fields: "Protection"
 help_protection_dsc: "Prevent non-whitelisted users from doing certain actions in order to protect the server."
+help_suggestion_fields: "Suggestion"
+help_suggestion_dsc: "Grant your users the ability to express themselves, empower them to submit suggestions in a dedicated channel!"
 
 
 # Fun commands
@@ -859,6 +861,58 @@ embed_choose_13: "The color of the Embed has been successfully deleted!"
 embed_send_embed_work: "<@${interaction.user.id}>, **You have successfully sent the Embed to the <#${message.content}> channel!**"
 
 
+# Suggestion commands
+# /setsuggest, /suggest
+
+# /suggest accept
+suggest_accept_not_admin: "You are not admin!"
+suggest_acceptnot_good_channel: "This command need to be runned in the Suggestion Module's channel (<#${baseData?.channel}>)!\nPlease verify the Suggestion Module are not disable!"
+suggest_accept_not_found_db: "The suggestion are not found in my db!"
+suggest_accept_already_replied: "This suggestion has already replied!"
+suggest_accept_embed_fields_to_put: "Response of ${interaction.user.username} (Accepting)"
+suggest_acceptembed_title_to_put: "[Accepting] ${msg.embeds[0].data?.title}"
+suggest_accept_command_work: "You have been accepting the suggestion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_accept_command_error: "The suggestion are not found in the discord channel!"
+
+# /suggest deny
+suggest_deny_not_admin: "You are not admin!"
+suggest_deny_not_good_channel: "This command need to be runned in the Suggestion Module's channel (<#${baseData?.channel}>)!\nPlease verify the Suggestion Module are not disable!"
+suggest_deny_not_found_db: "The suggestion are not found in my db!"
+suggest_deny_already_replied: "This suggestion has already replied!"
+suggest_deny_embed_fields_to_put: "Response of ${interaction.user.username} (Denying)"
+suggest_deny_embed_title_to_put: "[Denying] ${msg.embeds[0].data?.title}"
+suggest_deny_command_work: "You have been denying the suggestion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_deny_command_error: "The suggestion are not found in the discord channel!"
+
+# /suggest reply
+suggest_reply_not_admin: "You are not admin!"
+suggest_reply_not_good_channel: "This command need to be runned in the Suggestion Module's channel (<#${baseData?.channel}>)!\nPlease verify the Suggestion Module are not disable!"
+suggest_replynot_found_db: "The suggestion are not found in my db!"
+suggest_reply_already_replied: "This suggestion has already replied!"
+suggest_reply_embed_fields_to_put: "Response of ${interaction.user.username}"
+suggest_reply_embed_title_to_put: "[Replied] ${msg.embeds[0].data?.title}"
+suggest_reply_command_work: "You have send a response to the suggestion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_reply_command_error: "The suggestion are not found in the discord channel!"
+
+# /suggest delete
+suggest_delete_not_delete: "You are not admin!"
+suggest_delete_not_good_channel: "This command need to be runned in the Suggestion Module's channel (<#${baseData?.channel}>)!\nPlease verify the Suggestion Module are not disable!"
+suggest_delete_not_found_db: "The suggestion are not found in my db!"
+suggest_delete_command_work: "You have been deleting the suggestion !"
+suggest_delete_command_error: "The suggestion are not found in the discord channel!"
+
+# /setsuggest disable
+setsuggest_disable_not_admin: "You are not admin!"
+setsuggest_disable_pw_on: "${interaction.user}, you have been enable the Suggestion Module!"
+setsuggest_disable_pw_off: "${interaction.user}, you have been disable the Suggestion Module!"
+
+# /setsuggest channel
+setsuggest_channel_not_admin: "You are not admin!"
+setsuggest_channel_already_set_with_that: "${interaction.user}, the Suggestion Module's channel are already set in ${channel} !"
+setsuggest_channel_embed_title: "Suggestion Module has been set here !"
+setsuggest_channel_embed_desc: "Now, all of the user who are permitted to send message here, can now suggest with just sending a message!"
+setsuggest_channel_command_work: "${interaction.user}, you have been set the Suggestion Module's channel to ${channel}!"
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
@@ -915,5 +969,7 @@ event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> unmuted thems
 # RankUp event
 event_rank_role: "<@${message.author.id}>, you now have the role <@&${fetch.id}>"
 
+# Suggestion Event
+event_suggestion_embed_author: "New suggestion from ${message.author.username}"
 
 # -----------------------------\ /-----------------------------

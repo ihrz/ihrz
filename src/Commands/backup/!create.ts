@@ -72,7 +72,10 @@ export = {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.backup_logs_embed_title_on_creation)
-                    .setDescription(data.backup_logs_embed_description_on_creation)
+                    .setDescription(data.backup_logs_embed_description_on_creation
+                        .replace('${interaction.user.id}', interaction.user.id)
+                    );
+
                 let logchannel = interaction.guild.channels.cache.find((channel: {
                     name: string;
                 }) => channel.name === 'ihorizon-logs');

@@ -218,6 +218,8 @@ help_newftrs_dsc: "Voici de nouvelles fonctionnalités très intéressantes !"
 help_not_for_you: "Cette interaction ne vous concerne pas"
 help_protection_fields: "Protection"
 help_protection_dsc: "Empêchez les utilisateurs non autorisés de réaliser certaines actions afin de protéger le serveur."
+help_suggestion_fields: "Suggestion"
+help_suggestion_dsc: "Accordez à vos utilisateurs la possibilité de s'exprimer, permettez-leur de soumettre des suggestions dans un canal dédié !"
 
 
 # Fun commands
@@ -859,6 +861,58 @@ embed_choose_13: "La couleur de l'Embed à correctement été Supprimer !"
 embed_send_embed_work: "<@${interaction.user.id}>, **Vous avez parfaitement envoyé l'Embed dans le salon <#${message.content}> !**"
 
 
+# Commandes de suggestion
+# /setsuggest, /suggest
+
+# /suggest accept
+suggest_accept_not_admin: "Vous n'êtes pas administrateur !"
+suggest_acceptnot_good_channel: "Cette commande doit être exécutée dans le canal du module de suggestions (<#${baseData?.channel}>) !\nVeuillez vérifier que le module de suggestions n'est pas désactivé !"
+suggest_accept_not_found_db: "La suggestion n'a pas été trouvée dans ma base de données !"
+suggest_accept_already_replied: "Cette suggestion a déjà reçu une réponse !"
+suggest_accept_embed_fields_to_put: "Réponse de ${interaction.user.username} (Acceptation)"
+suggest_acceptembed_title_to_put: "[Acceptation] ${msg.embeds[0].data?.title}"
+suggest_accept_command_work: "Vous avez accepté la suggestion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_accept_command_error: "La suggestion n'a pas été trouvée dans le canal Discord !"
+
+# /suggest deny
+suggest_deny_not_admin: "Vous n'êtes pas administrateur !"
+suggest_deny_not_good_channel: "Cette commande doit être exécutée dans le canal du module de suggestions (<#${baseData?.channel}>) !\nVeuillez vérifier que le module de suggestions n'est pas désactivé !"
+suggest_deny_not_found_db: "La suggestion n'a pas été trouvée dans ma base de données !"
+suggest_deny_already_replied: "Cette suggestion a déjà reçu une réponse !"
+suggest_deny_embed_fields_to_put: "Réponse de ${interaction.user.username} (Refus)"
+suggest_deny_embed_title_to_put: "[Refus] ${msg.embeds[0].data?.title}"
+suggest_deny_command_work: "Vous avez refusé la suggestion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_deny_command_error: "La suggestion n'a pas été trouvée dans le canal Discord !"
+
+# /suggest reply
+suggest_reply_not_admin: "Vous n'êtes pas administrateur !"
+suggest_reply_not_good_channel: "Cette commande doit être exécutée dans le canal du module de suggestions (<#${baseData?.channel}>) !\nVeuillez vérifier que le module de suggestions n'est pas désactivé !"
+suggest_replynot_found_db: "La suggestion n'a pas été trouvée dans ma base de données !"
+suggest_reply_already_replied: "Cette suggestion a déjà reçu une réponse !"
+suggest_reply_embed_fields_to_put: "Réponse de ${interaction.user.username}"
+suggest_reply_embed_title_to_put: "[Réponse] ${msg.embeds[0].data?.title}"
+suggest_reply_command_work: "Vous avez envoyé une réponse à la suggestion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_reply_command_error: "La suggestion n'a pas été trouvée dans le canal Discord !"
+
+# /suggest delete
+suggest_delete_not_delete: "Vous n'êtes pas administrateur !"
+suggest_delete_not_good_channel: "Cette commande doit être exécutée dans le canal du module de suggestions (<#${baseData?.channel}>) !\nVeuillez vérifier que le module de suggestions n'est pas désactivé !"
+suggest_delete_not_found_db: "La suggestion n'a pas été trouvée dans ma base de données !"
+suggest_delete_command_work: "Vous avez supprimé la suggestion !"
+suggest_delete_command_error: "La suggestion n'a pas été trouvée dans le canal Discord !"
+
+# /setsuggest disable
+setsuggest_disable_not_admin: "Vous n'êtes pas administrateur !"
+setsuggest_disable_pw_on: "${interaction.user}, vous avez activé le module de suggestions !"
+setsuggest_disable_pw_off: "${interaction.user}, vous avez désactivé le module de suggestions !"
+
+# /setsuggest channel
+setsuggest_channel_not_admin: "Vous n'êtes pas administrateur !"
+setsuggest_channel_already_set_with_that: "${interaction.user}, le canal du module de suggestions est déjà configuré dans ${channel} !"
+setsuggest_channel_embed_title: "Le module de suggestions a été configuré ici !"
+setsuggest_channel_embed_desc: "Désormais, tous les utilisateurs autorisés à envoyer des messages ici peuvent soumettre des suggestions en envoyant simplement un message !"
+setsuggest_channel_command_work: "${interaction.user}, vous avez configuré le canal du module de suggestions à ${channel} !"
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
@@ -915,5 +969,7 @@ event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> s'est demute 
 # Événement de Promotion de Rang
 event_rank_role: "<@${message.author.id}>, tu as maintenant le rôle <@&${fetch.id}>"
 
+# Événement de suggestion
+event_suggestion_embed_author: "Nouvelle suggestion de ${message.author.username}"
 
 # -----------------------------\ /-----------------------------

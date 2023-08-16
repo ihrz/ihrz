@@ -218,6 +218,8 @@ help_newftrs_dsc: "Hier sind einige brandneue und äußerst interessante Funktio
 help_not_for_you: "Diese Interaktion ist nicht für dich"
 help_protection_fields: "Schutz"
 help_protection_dsc: "Verhindern Sie, dass nicht autorisierte Benutzer bestimmte Aktionen ausführen, um den Server zu schützen."
+help_suggestion_fields: "Vorschlag"
+help_suggestion_dsc: "Geben Sie Ihren Benutzern die Möglichkeit, sich auszudrücken, und ermächtigen Sie sie, Vorschläge in einem dedizierten Kanal einzureichen!"
 
 
 # Fun commands
@@ -859,6 +861,58 @@ embed_choose_13: "Die Farbe der Einbettung wurde erfolgreich gelöscht!"
 embed_send_embed_work: "<@${interaction.user.id}>, **Du hast die Einbettung erfolgreich in den Kanal <#${message.content}> gesendet!**"
 
 
+# Vorschlagsbefehle
+# /setsuggest, /suggest
+
+# /suggest akzeptieren
+suggest_accept_not_admin: "Sie sind kein Administrator!"
+suggest_acceptnot_good_channel: "Dieser Befehl muss im Kanal des Vorschlagsmoduls ausgeführt werden (<#${baseData?.channel}>)!\nBitte überprüfen Sie, ob das Vorschlagsmodul nicht deaktiviert ist!"
+suggest_accept_not_found_db: "Der Vorschlag wurde nicht in meiner Datenbank gefunden!"
+suggest_accept_already_replied: "Dieser Vorschlag wurde bereits beantwortet!"
+suggest_accept_embed_fields_to_put: "Antwort von ${interaction.user.username} (Akzeptieren)"
+suggest_acceptembed_title_to_put: "[Akzeptieren] ${msg.embeds[0].data?.title}"
+suggest_accept_command_work: "Sie haben den Vorschlag akzeptiert!\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_accept_command_error: "Der Vorschlag wurde nicht im Discord-Kanal gefunden!"
+
+# /suggest ablehnen
+suggest_deny_not_admin: "Sie sind kein Administrator!"
+suggest_deny_not_good_channel: "Dieser Befehl muss im Kanal des Vorschlagsmoduls ausgeführt werden (<#${baseData?.channel}>)!\nBitte überprüfen Sie, ob das Vorschlagsmodul nicht deaktiviert ist!"
+suggest_deny_not_found_db: "Der Vorschlag wurde nicht in meiner Datenbank gefunden!"
+suggest_deny_already_replied: "Dieser Vorschlag wurde bereits beantwortet!"
+suggest_deny_embed_fields_to_put: "Antwort von ${interaction.user.username} (Abweisen)"
+suggest_deny_embed_title_to_put: "[Abweisen] ${msg.embeds[0].data?.title}"
+suggest_deny_command_work: "Sie haben den Vorschlag abgelehnt!\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_deny_command_error: "Der Vorschlag wurde nicht im Discord-Kanal gefunden!"
+
+# /suggest antworten
+suggest_reply_not_admin: "Sie sind kein Administrator!"
+suggest_reply_not_good_channel: "Dieser Befehl muss im Kanal des Vorschlagsmoduls ausgeführt werden (<#${baseData?.channel}>)!\nBitte überprüfen Sie, ob das Vorschlagsmodul nicht deaktiviert ist!"
+suggest_replynot_found_db: "Der Vorschlag wurde nicht in meiner Datenbank gefunden!"
+suggest_reply_already_replied: "Dieser Vorschlag wurde bereits beantwortet!"
+suggest_reply_embed_fields_to_put: "Antwort von ${interaction.user.username}"
+suggest_reply_embed_title_to_put: "[Beantwortet] ${msg.embeds[0].data?.title}"
+suggest_reply_command_work: "Sie haben eine Antwort auf den Vorschlag gesendet!\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_reply_command_error: "Der Vorschlag wurde nicht im Discord-Kanal gefunden!"
+
+# /suggest löschen
+suggest_delete_not_delete: "Sie sind kein Administrator!"
+suggest_delete_not_good_channel: "Dieser Befehl muss im Kanal des Vorschlagsmoduls ausgeführt werden (<#${baseData?.channel}>)!\nBitte überprüfen Sie, ob das Vorschlagsmodul nicht deaktiviert ist!"
+suggest_delete_not_found_db: "Der Vorschlag wurde nicht in meiner Datenbank gefunden!"
+suggest_delete_command_work: "Sie haben den Vorschlag gelöscht!"
+suggest_delete_command_error: "Der Vorschlag wurde nicht im Discord-Kanal gefunden!"
+
+# /setsuggest deaktivieren
+setsuggest_disable_not_admin: "Sie sind kein Administrator!"
+setsuggest_disable_pw_on: "${interaction.user}, Sie haben das Vorschlagsmodul aktiviert!"
+setsuggest_disable_pw_off: "${interaction.user}, Sie haben das Vorschlagsmodul deaktiviert!"
+
+# /setsuggest kanal
+setsuggest_channel_not_admin: "Sie sind kein Administrator!"
+setsuggest_channel_already_set_with_that: "${interaction.user}, der Kanal des Vorschlagsmoduls ist bereits auf ${channel} eingestellt!"
+setsuggest_channel_embed_title: "Das Vorschlagsmodul wurde hier festgelegt!"
+setsuggest_channel_embed_desc: "Jetzt können alle Benutzer, die hier Nachrichten senden dürfen, einfach eine Nachricht senden, um einen Vorschlag zu machen!"
+setsuggest_channel_command_work: "${interaction.user}, Sie haben den Kanal des Vorschlagsmoduls auf ${channel} eingestellt!"
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
@@ -915,5 +969,7 @@ event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> **hat sich im
 # Rang-Erhöhung Ereignis
 event_rank_role: "<@${message.author.id}>, du hast jetzt die Rolle <@&${fetch.id}>"
 
+# Vorschlagsereignis
+event_suggestion_embed_author: "Neuer Vorschlag von ${message.author.username}"
 
 # -----------------------------\ /-----------------------------
