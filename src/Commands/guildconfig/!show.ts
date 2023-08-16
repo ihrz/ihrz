@@ -36,13 +36,13 @@ export = {
 
         let baseData = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD` });
 
-        let setchannelsjoin = baseData['GUILD_CONFIG'].join;
-        let setchannelsleave = baseData['GUILD_CONFIG'].leave;
-        let joinroles = baseData['GUILD_CONFIG'].joinroles;
-        let joinDmMessage = baseData['GUILD_CONFIG'].joindm;
-        let blockpub = baseData['GUILD_CONFIG'].antipub;
-        let joinmessage = baseData['GUILD_CONFIG'].joinmessage;
-        let leavemessage = baseData['GUILD_CONFIG'].leavemessage;
+        let setchannelsjoin = baseData['GUILD_CONFIG']?.join;
+        let setchannelsleave = baseData['GUILD_CONFIG']?.leave;
+        let joinroles = baseData['GUILD_CONFIG']?.joinroles;
+        let joinDmMessage = baseData['GUILD_CONFIG']?.joindm;
+        let blockpub = baseData['GUILD_CONFIG']?.antipub;
+        let joinmessage = baseData['GUILD_CONFIG']?.joinmessage;
+        let leavemessage = baseData['GUILD_CONFIG']?.leavemessage;
         let punishPub = baseData['PUNISH']?.PUNISH_PUB;
         let supportConfig = baseData['SUPPORT'];
         let xp = baseData['XP_LEVELING'];
