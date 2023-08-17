@@ -31,6 +31,10 @@ import * as apiUrlParser from '../core/functions/apiUrlParser';
 import user from './Routes/user';
 import code from './Routes/code';
 import api from './Routes/api';
+import slap from './Routes/slap'
+import hug from './Routes/hug'
+import kiss from './Routes/kiss'
+
 import captcha from '../core/captcha';
 
 let app = express();
@@ -38,21 +42,31 @@ let app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(bodyParser.text());
-app.post('/api/check', code);
-app.post('/user', user);
 
-app.get("/captcha/:width?/:height?/", (req: Request, res: Response) => {
+app.use('/assets/slap', express.static(`${process.cwd()}/src/assets/slap/`));
+app.use('/assets/hug', express.static(`${process.cwd()}/src/assets/hug/`));
+app.use('/assets/kiss', express.static(`${process.cwd()}/src/assets/kiss/`));
+
+app.post('/api/check', code);
+app.post('/api/user', user);
+if (config.database.useDatabaseAPI) { app.post('/api/database', api); };
+
+app.get('/api/slap', slap);
+app.get('/api/hug', hug);
+app.get('/api/kiss', kiss);
+
+app.get("/api/captcha/:width?/:height?/", (req: Request, res: Response) => {
     let width = parseInt(req.params.width) || 200;
     let height = parseInt(req.params.height) || 100;
     let { image, text } = captcha(width, height);
+
     res.send({ image, text });
 });
-
-if (config.database.useDatabaseAPI) { app.post('/api/database', api); };
 
 app.get('/', (_req, res) => {
     res.sendFile(`${process.cwd()}/src/api/index.html`)
 });
+
 
 if (config.api.useHttps) {
     let options = {
@@ -67,6 +81,6 @@ if (config.api.useHttps) {
     });
 } else {
     app.listen(config.api.port, async function () {
-        await logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Unsecure App listening on "${apiUrlParser.LoginURL()}".`));
+        await logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Unsecure App listening on "${apiUrlParser.LoginURL}".`));
     });
 };

@@ -23,29 +23,28 @@ import {
     Client,
     EmbedBuilder,
 } from 'discord.js';
+import axios from 'axios';
+import * as apiUrlParser from '../../core/functions/apiUrlParser';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let hug = interaction.options.getUser("user");
 
-        var hugGif = [
-            'https://cdn.discordapp.com/attachments/975288553787494450/1053838033373368350/hug.gif',
-            'https://cdn.discordapp.com/attachments/975288553787494450/1053838033675366461/hug2.gif',
-            'https://cdn.discordapp.com/attachments/975288553787494450/1053838033994129448/hug3.jpg',
-            "https://cdn.discordapp.com/attachments/975288553787494450/1053838034191257650/hug4.jpg",
-            "https://cdn.discordapp.com/attachments/975288553787494450/1053838034375815339/hug5.jpg"
-        ];
-
-        let embed = new EmbedBuilder()
-            .setColor("#FFB6C1")
-            .setDescription(data.hug_embed_title
-                .replace(/\${hug\.id}/g, hug.id)
-                .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-            )
-            .setImage(hugGif[Math.floor(Math.random() * hugGif.length)])
-            .setTimestamp()
-        await interaction.editReply({ embeds: [embed] });
-        return;
+        axios.get(apiUrlParser.HugURL)
+            .then(async (res) => {
+                let embed = new EmbedBuilder()
+                    .setColor("#FFB6C1")
+                    .setDescription(data.hug_embed_title
+                        .replace(/\${hug\.id}/g, hug.id)
+                        .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                    )
+                    .setImage(res.data)
+                    .setTimestamp()
+                await interaction.editReply({ embeds: [embed] });
+                return;
+            }).catch(async (err) => {
+                await interaction.editReply({ content: 'Error: The API is down!' });
+            });
     },
 };

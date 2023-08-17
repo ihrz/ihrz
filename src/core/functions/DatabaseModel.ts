@@ -30,7 +30,7 @@ let dbUseApi = async (id: Object) => {
     return new Promise((resolve, reject) => {
         try {
             let encrypted = CryptoJS.AES.encrypt(JSON.stringify(id), config.api.apiToken).toString();
-            axios.post(apiUrlParser.DatabaseURL(), { text: encrypted }, { headers: { 'Accept': 'application/json' } })
+            axios.post(apiUrlParser.DatabaseURL, { text: encrypted }, { headers: { 'Accept': 'application/json' } })
                 .then(response => {
                     if (JSON.stringify(response.data) === '{}') {
                         resolve(undefined);

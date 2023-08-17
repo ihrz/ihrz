@@ -23,27 +23,28 @@ import {
     Client,
     EmbedBuilder,
 } from 'discord.js';
+import axios from 'axios';
+import * as apiUrlParser from '../../core/functions/apiUrlParser';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
-        
-        var slapGif = [
-            'https://cdn.discordapp.com/attachments/717813924203855882/717982041899139152/slap1.gif',
-            'https://cdn.discordapp.com/attachments/717813924203855882/717982255661711381/slap2.gif',
-            'https://cdn.discordapp.com/attachments/717813924203855882/717982464299106314/slap3.gif'
 
-        ];
         let slap = interaction.options.getUser("user");
 
-        let embed = new EmbedBuilder()
-            .setColor("#42ff08")
-            .setDescription(data.slap_embed_description
-                .replace(/\${slap\.id}/g, slap.id)
-                .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-            )
-            .setImage(slapGif[Math.floor(Math.random() * slapGif.length)])
-            .setTimestamp()
-        await interaction.editReply({ embeds: [embed] });
-        return;
+        axios.get(apiUrlParser.SlapURL)
+            .then(async (res: any) => {
+                let embed = new EmbedBuilder()
+                    .setColor("#42ff08")
+                    .setDescription(data.slap_embed_description
+                        .replace(/\${slap\.id}/g, slap.id)
+                        .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                    )
+                    .setImage(res.data)
+                    .setTimestamp()
+                await interaction.editReply({ embeds: [embed] });
+                return;
+            }).catch(async (err) => {
+                await interaction.editReply({ content: 'Error: The API is down!' });
+            });
     },
 };

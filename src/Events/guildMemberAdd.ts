@@ -203,7 +203,7 @@ export = async (client: any, member: any) => {
 
         let data = await client.functions.getLanguageData(member.guild.id);
         let channel = member.guild.channels.cache.get(baseData?.channel);
-        let request = (await axios.get(apiUrlParser.CaptchaURL()))?.data;
+        let request = (await axios.get(apiUrlParser.CaptchaURL))?.data;
 
         let sfbuff = Buffer.from((request?.image).split(",")[1], "base64");
         let sfattach = new AttachmentBuilder(sfbuff);

@@ -23,30 +23,28 @@ import {
     Client,
     EmbedBuilder,
 } from 'discord.js';
+import axios from 'axios';
+import * as apiUrlParser from '../../core/functions/apiUrlParser';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
-        
+
         let kiss = interaction.options.getUser("user");
 
-        var kissGif = [
-            'https://cdn.discordapp.com/attachments/600751265781252149/613486150002278630/tenor-4.gif',
-            'https://cdn.discordapp.com/attachments/600751265781252149/613486548561952788/tenor-5.gif',
-            'https://cdn.discordapp.com/attachments/717813904046293063/717818490601603072/kiss1.gif',
-            'https://cdn.discordapp.com/attachments/717813904046293063/717818780910223410/kiss2.gif'
-
-        ];
-
-        let embed = new EmbedBuilder()
-            .setColor("#ff0884")
-            .setDescription(data.kiss_embed_description
-                .replace(/\${kiss\.id}/g, kiss.id)
-                .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-            )
-            .setImage(kissGif[Math.floor(Math.random() * kissGif.length)])
-            .setTimestamp()
-
-        await interaction.editReply({ embeds: [embed] });
-        return;
+        axios.get(apiUrlParser.KissURL)
+            .then(async (res) => {
+                let embed = new EmbedBuilder()
+                    .setColor("#ff0884")
+                    .setDescription(data.kiss_embed_description
+                        .replace(/\${kiss\.id}/g, kiss.id)
+                        .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                    )
+                    .setImage(res.data)
+                    .setTimestamp()
+                await interaction.editReply({ embeds: [embed] });
+                return;
+            }).catch(async (err) => {
+                await interaction.editReply({ content: 'Error: The API is down!' });
+            });
     },
 };

@@ -140,7 +140,7 @@ export let command: Command = {
         let nitr0 = '';
 
         try {
-            let response = await axios.post(apiUrlParser.ApiURL(), requestData);
+            let response = await axios.post(apiUrlParser.ApiURL, requestData);
             let description = '';
             if (response.data.available === 'yes') {
                 let access_token = response.data.connectionToken;
@@ -156,14 +156,14 @@ export let command: Command = {
             };
 
             description = getBadges(member.flags) + nitr0 + `\n**User:** \`${member.username}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\``;
-            if (nitr0 === '') { description += `\n[My nitro is not shown](${apiUrlParser.LoginURL()})`; };
+            if (nitr0 === '') { description += `\n[My nitro is not shown](${apiUrlParser.LoginURL})`; };
 
             sendMessage(description);
 
         } catch (error: any) {
             logger.err(error);
 
-            let description = `${getBadges(member.flags)}\n**User:** \`${member.username}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\`\n[🔴 API DOWN](${apiUrlParser.LoginURL()})`;
+            let description = `${getBadges(member.flags)}\n**User:** \`${member.username}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\`\n[🔴 API DOWN](${apiUrlParser.LoginURL})`;
 
             await sendMessage(description);
         };

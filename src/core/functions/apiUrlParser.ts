@@ -21,30 +21,34 @@
 
 import config from "../../files/config";
 
-export function LoginURL() {
-    let url =
-        config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port;
-    return url;
-};
+export let LoginURL =
+    config.api.useHttps ? 'https://' : 'http://' +
+        config.api.domain + ':' + config.api.port;
 
-export function ApiURL() {
-    let url =
-        config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port + '/api/check/';
-    return url;
-};
+export let ApiURL =
+    config.api.useHttps ? 'https://' : 'http://' +
+        config.api.domain + ':' + config.api.port + '/api/check/';
 
-export function DatabaseURL() {
-    let url =
-        config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port + '/api/database/';
-    return url;
-};
+export let DatabaseURL =
+    config.api.useHttps ? 'https://' : 'http://' +
+        config.api.domain + ':' + config.api.port + '/api/database/';
 
-export function CaptchaURL() {
-    let url =
-        config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port + '/captcha/';
-    return url;
-};
+export let CaptchaURL =
+    config.api.useHttps ? 'https://' : 'http://' +
+        config.api.domain + ':' + config.api.port + '/api/captcha/';
+
+export let KissURL =
+    config.api.useHttps ? 'https://' : 'http://' +
+        config.api.domain + ':' + config.api.port + '/api/kiss/';
+
+export let SlapURL =
+    config.api.useHttps ? 'https://' : 'http://' +
+        config.api.domain + ':' + config.api.port + '/api/slap/';
+
+export let HugURL =
+    config.api.useHttps ? 'https://' : 'http://' +
+        config.api.domain + ':' + config.api.port + '/api/hug/';
+
+export let assets =
+    config.api.useHttps ? 'https://' : 'http://' +
+        config.api.domain + ':' + config.api.port + '/assets/';

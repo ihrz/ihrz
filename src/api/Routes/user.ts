@@ -35,7 +35,7 @@ export = async (req: Request, res: Response) => {
         data.append('client_id', config.api.clientID);
         data.append('client_secret', config.api.clientSecret);
         data.append('grant_type', 'authorization_code');
-        data.append('redirect_uri', apiUrlParser.LoginURL());
+        data.append('redirect_uri', apiUrlParser.LoginURL);
         data.append('scope', 'identify');
         data.append('code', req.body["auth"]);
 
