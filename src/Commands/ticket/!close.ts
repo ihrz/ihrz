@@ -28,7 +28,7 @@ import {
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
-import sourcebin from 'sourcebin';
+import { create, get, url } from 'sourcebin';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -47,7 +47,7 @@ export = {
 
                     let response;
                     try {
-                        response = await sourcebin.create({
+                        response = await create({
                             title: data.close_title_sourcebin,
                             description: data.close_description_sourcebin,
                             files: [
