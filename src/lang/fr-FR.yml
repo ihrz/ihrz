@@ -70,7 +70,7 @@ setticketcategory_command_work: "<@${interaction.user.id}>, vous avez défini la
 # /xp, /setxpchannels, /disablexp
 
 # /disablexp
-désactiverxp_not_admin: ":x: | Vous devez être administrateur de ce serveur pour utiliser cette commande!"
+disablexp_not_admin: ":x: | Vous devez être administrateur de ce serveur pour utiliser cette commande!"
 disablexp_logs_embed_title_disable: "Logs de désactivation XP"
 disablexp_logs_embed_description_disable: "<@${interaction.user.id}> a désactivé XP!"
 disablexp_command_work_disable: "Vous avez réussi à désactiver le message de niveau (XP)"

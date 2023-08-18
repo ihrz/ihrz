@@ -40,7 +40,7 @@ export = async (client: Client) => {
         logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  ")),
             logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ")),
             logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |")),
-            logger.log(couleurmdr.magenta("|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_|"+` (${client.user?.tag}).`)),
+            logger.log(couleurmdr.magenta("|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_|" + ` (${client.user?.tag}).`)),
             logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`));
     };
 
@@ -87,9 +87,8 @@ export = async (client: Client) => {
         ];
 
         let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Listening }] });
+        client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Playing }] });
     };
-    quotesPresence();
 
-    await fetchInvites(), refreshDatabaseModel(), term(), setInterval(quotesPresence, 80_000);
+    await fetchInvites(), refreshDatabaseModel(), term(), quotesPresence(), setInterval(quotesPresence, 80_000);
 };
