@@ -36,18 +36,18 @@ export = {
 
         let baseData = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD` });
 
-        let setchannelsjoin = baseData['GUILD_CONFIG']?.join;
-        let setchannelsleave = baseData['GUILD_CONFIG']?.leave;
-        let joinroles = baseData['GUILD_CONFIG']?.joinroles;
-        let joinDmMessage = baseData['GUILD_CONFIG']?.joindm;
-        let blockpub = baseData['GUILD_CONFIG']?.antipub;
-        let joinmessage = baseData['GUILD_CONFIG']?.joinmessage;
-        let leavemessage = baseData['GUILD_CONFIG']?.leavemessage;
-        let punishPub = baseData['PUNISH']?.PUNISH_PUB;
-        let supportConfig = baseData['SUPPORT'];
-        let xp = baseData['XP_LEVELING'];
-        let logs = baseData['SERVER_LOGS'];
-        let blockBot = baseData['BLOCK_BOT'];
+        let setchannelsjoin = (baseData?.['GUILD_CONFIG'])?.join;
+        let setchannelsleave = (baseData?.['GUILD_CONFIG'])?.leave;
+        let joinroles = (baseData?.['GUILD_CONFIG'])?.joinroles;
+        let joinDmMessage = (baseData?.['GUILD_CONFIG'])?.joindm;
+        let blockpub = (baseData?.['GUILD_CONFIG'])?.antipub;
+        let joinmessage = (baseData?.['GUILD_CONFIG'])?.joinmessage;
+        let leavemessage = (baseData?.['GUILD_CONFIG'])?.leavemessage;
+        let punishPub = (baseData?.['PUNISH'])?.PUNISH_PUB;
+        let supportConfig = baseData?.['SUPPORT'];
+        let xp = baseData?.['XP_LEVELING'];
+        let logs = baseData?.['SERVER_LOGS'];
+        let blockBot = baseData?.['BLOCK_BOT'];
 
         let reactionrole;
         let xpStats;
@@ -59,21 +59,21 @@ export = {
         var text: string = '';
 
         try {
-            let charForTicket = baseData['TICKET'];
-            let charForRr = baseData['REACTION_ROLES'];
+            let charForTicket = baseData?.['TICKET'];
+            let charForRr = baseData?.['REACTION_ROLES'];
 
             for (var i in charForTicket) {
-                if (baseData['TICKET'][i]) {
-                    text += `**${baseData['TICKET'][i].panelName}**: <#${baseData['TICKET'][i].channel}>\n`;
+                if (baseData?.['TICKET'][i]) {
+                    text += `**${baseData?.['TICKET'][i].panelName}**: <#${baseData['TICKET'][i].channel}>\n`;
                 };
             };
 
             for (var i in charForRr) {
-                var a = baseData['REACTION_ROLES'][i];
+                var a = baseData?.['REACTION_ROLES'][i];
 
                 if (a) {
                     let stringContent = Object.keys(a).map((key) => {
-                        let rolesID = a[key].rolesID;
+                        let rolesID = a?.[key].rolesID;
                         var emoji = interaction.guild.emojis.cache.find((emoji: { id: string; }) => emoji.id === key);
 
                         return data.guildprofil_set_reactionrole
@@ -150,21 +150,21 @@ export = {
             blockpub = data.guildprofil_set_blockpub;
         };
 
-        if (xp.disable === false) {
+        if (xp?.disable === false) {
             xpStats = data.guildprofil_disable_xp;
         } else {
             xpStats = data.guildprofil_enable_xp;
-            if (xp.xpchannels) {
+            if (xp?.xpchannels) {
                 xpStats = data.guildprofil_another_enable_xp
                     .replace('${xp.xpchannels}', xp.xpchannels);
             }
         };
 
         if (logs) {
-            if (logs.roles) logsStat += `<#${logs.roles}>,`;
-            if (logs.moderation) logsStat += `<#${logs.moderation}>,`;
-            if (logs.voice) logsStat += `<#${logs.voice}>,`;
-            if (logs.message) logsStat += `<#${logs.message}>`;
+            if (logs?.roles) logsStat += `<#${logs.roles}>,`;
+            if (logs?.moderation) logsStat += `<#${logs.moderation}>,`;
+            if (logs?.voice) logsStat += `<#${logs.voice}>,`;
+            if (logs?.message) logsStat += `<#${logs.message}>`;
         } else {
             logsStat = data.guildprofil_not_logs_set;
         };

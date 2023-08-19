@@ -43,8 +43,8 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
         let Msgchannel: any = client.channels.cache.get(someinfo);
         if (!Msgchannel) return;
 
-        let oldRoles = oldMember['_roles'].length;
-        let newRoles = newMember['_roles'].length;
+        let oldRoles = oldMember?.['_roles'].length;
+        let newRoles = newMember?.['_roles'].length;
 
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
@@ -52,7 +52,7 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
             .setTimestamp();
 
         if (oldRoles > newRoles) {
-            var removedRoles = oldMember['_roles'].filter(roleId => !newMember['_roles'].includes(roleId));
+            var removedRoles = oldMember?.['_roles'].filter(roleId => !newMember?.['_roles'].includes(roleId));
 
             if (removedRoles.length == 0) return;
             logsEmbed.setDescription(data.event_srvLogs_guildMemberUpdate_description
@@ -61,7 +61,7 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
                 .replace("${oldMember.user.username}", oldMember.user.username)
             )
         } else {
-            let addedRoles = newMember['_roles'].filter(roleId => !oldMember['_roles'].includes(roleId));
+            let addedRoles = newMember?.['_roles'].filter(roleId => !oldMember?.['_roles'].includes(roleId));
 
             if (addedRoles.length == 0) return;
             logsEmbed.setDescription(data.event_srvLogs_guildMemberUpdate_2_description

@@ -71,7 +71,7 @@ export = async (client: Client, message: Message) => {
             if (!attachment || !attachment.contentType) return;
 
             if (attachment && attachment.contentType.startsWith('image/')) {
-                let imageUrl: any = attachment['attachment'];
+                let imageUrl: any = attachment?.['attachment'];
                 logsEmbed.setImage(imageUrl)
             };
         };

@@ -59,7 +59,7 @@ export = async (client: Client, channel: any) => {
                 channel.delete();
                 let user = await channel.guild.members.cache.get(firstEntry.executorId);
 
-                switch (data['SANCTION']) {
+                switch (data?.['SANCTION']) {
                     case 'simply':
                         break;
                     case 'simply+derank':

@@ -59,7 +59,7 @@ export = async (client: Client, role: any) => {
                 });
                 let user = await role.guild.members.cache.get(firstEntry.executorId);
 
-                switch (data['SANCTION']) {
+                switch (data?.['SANCTION']) {
                     case 'simply':
                         break;
                     case 'simply+derank':
