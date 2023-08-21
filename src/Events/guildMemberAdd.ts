@@ -39,7 +39,7 @@ export = async (client: any, member: any) => {
         let role = member.guild.roles.cache.get(roleid);
         if (!roleid || !role) return;
 
-        member.roles.add(roleid);
+        member.roles.add(roleid).catch(() => { });
     };
 
     async function joinDm() {

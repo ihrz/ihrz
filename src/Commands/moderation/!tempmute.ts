@@ -78,7 +78,7 @@ export = {
             return;
         };
 
-        await (tomute.roles.add(muterole.id));
+        await (tomute.roles.add(muterole.id).catch(() => { }));
         await interaction.editReply(data.tempmute_command_work
             .replace("${tomute.id}", tomute.id)
             .replace("${ms(ms(mutetime))}", ms(ms(mutetime)))
