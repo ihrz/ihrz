@@ -35,7 +35,7 @@ export = {
         let tableau = [];
 
         for (let i in char) {
-            var a = char[i]?.XP_LEVELING
+            var a = char?.[i]?.XP_LEVELING
 
             if (a) {
                 let user = await interaction.client.users.cache.get(i);
@@ -78,7 +78,7 @@ export = {
 
         let attachment = new AttachmentBuilder(`${process.cwd()}/src/temp/${interaction.id}.txt`, { name: 'leaderboard.txt' });
 
-        embed.setThumbnail(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`);
+        embed.setThumbnail(interaction.guild.iconURL({ dynamic: true }));
         embed.setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
         embed.setTitle(`${interaction.guild.name}'s Levels Leaderboard`)
         await interaction.editReply({ embeds: [embed], content: ' ', files: [attachment] });

@@ -28,22 +28,39 @@ import * as db from '../../core/functions/DatabaseModel';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
-        var text = data.leaderboard_default_text;
+        var text: string = data.leaderboard_default_text;
         let char = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER` });
+        let tableau: Array<any> = [];
+        let i: number = 1;
 
         for (let i in char) {
-            let a = char[i]?.INVITES;
-            if (a && a.invites >= 1) {
-                text += data.leaderboard_text_inline
-                    .replace(/\${i}/g, i)
-                    .replace(/\${a\.invites\s*\|\|\s*0}/g, a.invites || 0)
-                    .replace(/\${a\.regular\s*\|\|\s*0}/g, a.regular || 0)
-                    .replace(/\${a\.bonus\s*\|\|\s*0}/g, a.bonus || 0)
-                    .replace(/\${a\.leaves\s*\|\|\s*0}/g, a.leaves || 0);
+            let a = char?.[i]?.INVITES;
+            if (a?.invites >= 1) {
+                tableau.push({
+                    invCount: a.invites,
+                    text: data.leaderboard_text_inline
+                        .replace(/\${i}/g, i)
+                        .replace(/\${a\.invites\s*\|\|\s*0}/g, a.invites || 0)
+                        .replace(/\${a\.regular\s*\|\|\s*0}/g, a.regular || 0)
+                        .replace(/\${a\.bonus\s*\|\|\s*0}/g, a.bonus || 0)
+                        .replace(/\${a\.leaves\s*\|\|\s*0}/g, a.leaves || 0)
+                });
             };
         };
 
-        let embed = new EmbedBuilder().setColor("#FFB6C1").setDescription(text || '?').setTimestamp();
+        tableau.sort((a: { invCount: number; }, b: { invCount: number; }) => b.invCount - a.invCount);
+
+        tableau.forEach((index: { text: any; }) => {
+            text += `Top #${i} - ${index.text}`;
+            i++;
+        });
+
+        let embed = new EmbedBuilder()
+            .setColor("#FFB6C1")
+            .setDescription(text)
+            .setTimestamp()
+            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setThumbnail(interaction.guild?.iconURL());
 
         await interaction.editReply({ embeds: [embed] });
         return;

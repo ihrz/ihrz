@@ -40,7 +40,7 @@ export = {
         let bal = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${user.id}.ECONOMY.money` });
 
         let embed = new EmbedBuilder()
-            .setAuthor({ name: data.removemoney_embed_title, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
+            .setAuthor({ name: data.removemoney_embed_title, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
             .addFields({ name: data.removemoney_embed_fields, value: `${amount}$` },
                 { name: data.removemoney_embed_second_fields, value: `${bal}$` })
             .setColor("#bc0116")

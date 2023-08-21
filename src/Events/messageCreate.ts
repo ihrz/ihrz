@@ -197,10 +197,10 @@ export = async (client: Client, message: any) => {
             .setAuthor({
                 name: data.event_suggestion_embed_author
                     .replace('${message.author.username}', message.author.username),
-                iconURL: message.author.avatarURL({ format: 'png', dynamic: true, size: 512 })
+                iconURL: message.author.avatarURL({ format: 'png', dynamic: true })
             })
             .setDescription(suggestionContent.toString())
-            .setThumbnail(`https://cdn.discordapp.com/icons/${message.guild.id}/${message.guild.icon}.png`)
+            .setThumbnail(message.guild.iconURL())
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp();
 

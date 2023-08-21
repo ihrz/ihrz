@@ -131,3 +131,4 @@ src/api/index.html
 *.DS_Store
 demo
 yarn.lock
+.vscode/extensions.json

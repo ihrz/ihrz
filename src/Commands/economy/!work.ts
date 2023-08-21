@@ -40,9 +40,8 @@ export = {
         let embed = new EmbedBuilder()
             .setAuthor({
                 name: data.work_embed_author
-                    .replace(/\${interaction\.user\.username}/g, interaction.user.username)
-
-                , iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png`
+                    .replace(/\${interaction\.user\.username}/g, interaction.user.username),
+                iconURL: interaction.user.displayAvatarURL({ dynamic: true })
             })
             .setDescription(data.work_embed_description
                 .replace(/\${interaction\.user\.username}/g, interaction.user.username)

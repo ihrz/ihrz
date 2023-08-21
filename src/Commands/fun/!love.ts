@@ -59,9 +59,9 @@ export = {
         let ctx = canvas.getContext('2d');
 
         let heartEmojiPath = `${process.cwd()}/src/assets/heart.png`;
-
-        let profileImage1URL = `https://cdn.discordapp.com/avatars/${user1.id}/${user1.avatar}.png`;
-        let profileImage2URL = `https://cdn.discordapp.com/avatars/${user2.id}/${user2.avatar}.png`;
+        
+        let profileImage1URL = user1.displayAvatarURL({ extension: 'png', size: 512 });
+        let profileImage2URL = user2.displayAvatarURL({ extension: 'png', size: 512 });
 
         await Promise.all([
             downloadImage(profileImage1URL, `${process.cwd()}/src/temp/profileImage1_${user1.id}.png`),

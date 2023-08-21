@@ -64,7 +64,7 @@ export = async (client: any, guild: any) => {
             .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
 
         let isBL = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${guild.ownerId}.blacklisted` }) || false;
-        
+
         if (isBL) {
             await channelHr.send({ embeds: [tqtmonreuf] }).catch(() => { });
             guild.leave();
@@ -83,7 +83,7 @@ export = async (client: any, guild: any) => {
         let embed = new EmbedBuilder()
             .setColor("#00FF00").setTimestamp()
             .setTitle(welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)])
-            .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
+            .setThumbnail(guild.iconURL({ dynamic: true }))
             .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
             .setDescription(`Hi there! I'm excited to join your server and be a part of your community. 
       
@@ -116,8 +116,8 @@ Thanks for choosing me and let's have some fun together!`);
                 { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
                 { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
                 { name: "🪝・Vanity URL", value: `\`${'discord.gg/' + guild.vanityURLCode || "None"}\``, inline: true })
-            .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
-            .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
+            .setThumbnail(guild.iconURL())
+            .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL() });
         client.channels.cache.get(config.core.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
     };
 

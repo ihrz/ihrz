@@ -32,7 +32,7 @@ export let command: Command = {
     category: 'utils',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
-        
+
         let verlvl: any = {
             0: data.serverinfo_verlvl_NONE,
             1: data.serverinfo_verlvl_LOW,
@@ -46,10 +46,10 @@ export let command: Command = {
             .setAuthor({
                 name: data.serverinfo_embed_author
                     .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-                , iconURL: `https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`
+                , iconURL: interaction.guild.iconURL({ dynamic: true })
             })
             .setDescription(data.serverinfo_embed_description
-                .replace(/\${interaction\.guild\.description}/g, interaction.guild.description||'None'))
+                .replace(/\${interaction\.guild\.description}/g, interaction.guild.description || 'None'))
             .addFields(
                 { name: data.serverinfo_embed_fields_name, value: `\`${interaction.guild.name}\``, inline: true },
                 { name: data.serverinfo_embed_fields_members, value: `\`${interaction.guild.memberCount}\``, inline: true },
@@ -63,7 +63,7 @@ export let command: Command = {
                 { name: data.serverinfo_embed_fields_createat, value: `\`${interaction.guild.createdAt}\``, inline: true }
             )
             .setTimestamp()
-            .setThumbnail(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`)
+            .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
             .setImage(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.banner}.png`);
 
         await interaction.editReply({ embeds: [embeds] });

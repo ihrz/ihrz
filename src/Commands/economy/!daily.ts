@@ -52,7 +52,7 @@ export = {
             return;
         } else {
             let embed = new EmbedBuilder()
-                .setAuthor({ name: data.daily_embed_title, iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png` })
+                .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
                 .setColor("#a4cb80")
                 .setDescription(data.daily_embed_description)
                 .addFields({ name: data.daily_embed_fields, value: `${amount}🪙` })

@@ -33,7 +33,7 @@ let arbitraryRandom = (min: number, max: number) => Math.random() * (max - min) 
 let randomRotation = (degrees = 15) => (arbitraryRandom(-degrees, degrees) * Math.PI) / 180;
 
 let alternateCapitals = (str: string) =>
-  [...str].map((char, i) => char[`to${i % 2 ? "Upper" : "Lower"}Case`]()).join("");
+  [...str].map((char, i) => char?.[`to${i % 2 ? "Upper" : "Lower"}Case`]()).join("");
 
 // Get a random string of alphanumeric characters
 let randomText = () =>

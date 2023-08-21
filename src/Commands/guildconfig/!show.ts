@@ -195,7 +195,7 @@ export = {
                 { name: data.guildprofil_embed_fields_ranks, value: xpStats, inline: true },
                 { name: data.guildprofil_embed_fields_logs, value: logsStat, inline: true },
                 { name: data.guildprofil_embed_fields_blockbot, value: blockBotStat, inline: true })
-            .setThumbnail(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.png`);
+            .setThumbnail(interaction.guild.iconURL({ dynamic: true }));
 
         await interaction.editReply({ embeds: [guildc] });
         return;

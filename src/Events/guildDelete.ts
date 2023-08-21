@@ -41,7 +41,7 @@ export = async (client: Client, guild: Guild) => {
                     { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
                     { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
                     { name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true })
-                .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
+                .setThumbnail(guild.iconURL())
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
             let channel: any = client.channels.cache.get(config.core.guildLogsChannelID);
