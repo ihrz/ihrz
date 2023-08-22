@@ -61,7 +61,7 @@ export = async (client: any, member: any) => {
 
             if (e) {
                 member.send({ content: "You've been banned, because you are blacklisted" }).catch(member.ban({ reason: 'blacklisted!' })).catch(() => { });
-                member.ban({ reason: 'blacklisted!' });
+                member.ban({ reason: 'blacklisted!' }).catch(() => { });
             }
         } catch { return; };
     };

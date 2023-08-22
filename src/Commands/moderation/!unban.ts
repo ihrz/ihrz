@@ -56,8 +56,8 @@ export = {
                     await interaction.editReply({ content: data.unban_the_member_is_not_banned });
                     return;
                 };
-                
-                await interaction.guild.bans.remove(userID, reason).catch((err: string) => logger.err(err));
+
+                await interaction.guild.bans.remove(userID, reason).catch((err: any) => { });
                 await interaction.editReply({
                     content: data.unban_is_now_unbanned
                         .replace(/\${userID}/g, userID)

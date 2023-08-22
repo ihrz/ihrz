@@ -71,7 +71,7 @@ export let command: Command = {
                 await interaction.editReply({ content: data.blacklist_bot_lol });
                 return;
             };
-            
+
             let fetched = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${member.id}` });
 
             if (!fetched) {

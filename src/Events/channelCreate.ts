@@ -40,7 +40,7 @@ export = async (client: Client, channel: any) => {
     async function protect() {
         let data = await db.DataBaseModel({ id: db.Get, key: `${channel.guild.id}.PROTECTION` });
         if (!data) return;
-        
+
         if (data.createchannel && data.createchannel.mode === 'allowlist') {
             let fetchedLogs = await channel.guild.fetchAuditLogs({
                 type: AuditLogEvent.ChannelCreate,
@@ -70,7 +70,7 @@ export = async (client: Client, channel: any) => {
                         });
                         break;
                     case 'simply+ban':
-                        user.ban({ reason: 'Protect!' });
+                        user.ban({ reason: 'Protect!' }).catch(() => { });
                         break;
                     default:
                         return;
