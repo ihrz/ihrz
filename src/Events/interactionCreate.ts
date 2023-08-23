@@ -48,7 +48,8 @@ export = async (client: any, interaction: any) => {
                     embeds: [
                         new EmbedBuilder()
                             .setColor("#0827F5").setTitle(":(")
-                            .setImage(config.core.blacklistPictureInEmbed)]
+                            .setImage(config.core.blacklistPictureInEmbed)
+                    ]
                 });
                 return;
             };
@@ -61,10 +62,15 @@ export = async (client: any, interaction: any) => {
 
     async function logsCommands(): Promise<void> {
         let optionsList: string[] = interaction.options._hoistedOptions.map((element: { name: any; value: any; }) => `${element.name}:"${element.value}"`);
+        let subCmd: string = '';
 
-        let logMessage = `${interaction.guild?.name} >> ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')} in: #${interaction.channel ? interaction.channel.name : 'Unknown Channel'}:\n` +
+        if (interaction.options['_subcommand']) {
+            subCmd = interaction.options.getSubcommand();
+        };
+
+        let logMessage = `[${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}] "${interaction.guild?.name}" #${interaction.channel ? interaction.channel.name : 'Unknown Channel'}:\n` +
             `${interaction.user.username}:\n` +
-            `/${interaction.commandName} ${optionsList.join(' ')}\n\n`;
+            `/${interaction.commandName} ${subCmd} ${optionsList.join(' ')}\n\n`;
 
         fs.appendFile(`${process.cwd()}/src/files/slash.log`, logMessage, (err) => {
             if (err) {
