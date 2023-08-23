@@ -222,6 +222,8 @@ help_suggestion_fields: "Vorschlag"
 help_suggestion_dsc: "Geben Sie Ihren Benutzern die Möglichkeit, sich auszudrücken, und ermächtigen Sie sie, Vorschläge in einem dedizierten Kanal einzureichen!"
 help_security_fields: "Sicherheit"
 help_security_dsc: "Verwalten Sie Captcha-Tests für Ihre neuen Mitglieder, um den Zugriff auf Ihren Server abzusichern."
+help_schedule_fields: "Zeitplan"
+help_schedule_dsc: "Erstelle Erinnerungen mit vorprogrammierten Nachrichten, die der Bot dir in einer privaten Nachricht sendet"
 
 
 # Fun commands
@@ -931,6 +933,39 @@ security_role_to_give_command_work: "${interaction.user}, du hast die Rolle ${ro
 # /sicherheit kanal
 security_channel_not_admin: "Du bist kein Administrator!"
 security_channel_command_work: "${interaction.user}, du hast den Kanal ${channel} für das Sicherheitsmodul festgelegt!"
+
+
+# Zeitplan-Befehl
+# /zeitplan
+
+# /zeitplan
+schedule_menu_placeholder: "Was möchten Sie tun?"
+schedule_menu_choice_0: "Zeitplan erstellen"
+schedule_menu_choice_1: "Zeitplan löschen"
+schedule_menu_choice_2: "Alle Zeitpläne löschen"
+schedule_menu_choice_3: "Alle Zeitpläne auflisten"
+schedule_modal_title: "Zeitplan-Manager"
+schedule_modal_fields_1_label: "Der Name des Zeitplans?"
+schedule_modal_fields_2_label: "Die Beschreibung des Zeitplans?"
+schedule_delete_question: "Was ist die ID des Zeitplans, den Sie löschen möchten?"
+schedule_deleteall_question: "Sind Sie sicher, dass Sie alle Ihre Zeitpläne löschen möchten? (J/n)"
+schedule_delete_not_found: "Es gibt keinen ZEITPLAN (${arg0}) für dieses Mitglied!"
+schedule_delete_title_embed: "Löschen eines Zeitplans (${arg0})"
+schedule_delete_confirm: "Zeitplan gelöscht!"
+schedule_deleteall_title_embed: "Alle Zeitpläne löschen"
+schedule_deleteall_desc_embed: "Alle Ihre Zeitpläne wurden gelöscht!"
+schedule_deleteall_confirm: "Alle Ihre Zeitpläne wurden gelöscht!"
+schedule_deleteall_cancel: "Die Aktion `ALLE_LOESCHEN` wurde abgebrochen!"
+schedule_list_not_schedule: "Es gibt keinen ZEITPLAN für dieses Mitglied!"
+schedule_list_title_embed: "Auflisten aller Zeitpläne"
+schedule_list_fields_embed: "**Beendet am**: ${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}```${fetched[i]?.title}`````${fetched[i]?.description}```\n"
+schedule_list_content_message: "Hier ist Ihre Liste aller Zeitpläne!"
+schedule_create_title_embed: "Erstellen eines Zeitplans"
+schedule_create_when_question: "Wann möchten Sie über diesen Zeitplan benachrichtigt werden? (Beispiel: 6t = 6 Tage, 2s = 2 Stunden, 10m = 10 Minuten, 10s = 10 Sekunden)"
+schedule_create_not_number_time: "${interaction.user}, Ihre Antwort (die Zeit, zu der Sie über diesen Zeitplan benachrichtigt werden möchten) ist keine Zahl!"
+schedule_create_embed_fields_name_confirm: "Benachrichtigungsdatum"
+schedule_create_embed_title_confirm: "Zeitplan #${scheduleCode} erstellt!"
+schedule_create_confirm_msg: "${interaction.user}, Ihr Zeitplan wurde erstellt!\nCode: `${scheduleCode}`"
 
 # -----------------------------/ \-----------------------------
 # Music Player Events

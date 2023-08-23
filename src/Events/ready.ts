@@ -23,10 +23,10 @@ import logger from "../core/logger";
 import couleurmdr from 'colors';
 import config from "../files/config";
 import * as db from '../core/functions/DatabaseModel';
-import wait from 'wait';
 import register from '../core/slashSync';
+import date from 'date-and-time';
 
-import { Client, Collection, ApplicationCommandType, PermissionsBitField, ActivityType, Guild } from 'discord.js';
+import { Client, Collection, ApplicationCommandType, PermissionsBitField, ActivityType, Guild, Embed, EmbedBuilder } from 'discord.js';
 
 export = async (client: Client) => {
     await register(client, client.register_arr.map((command: { name: string; description: string; options: JSON }) => ({
@@ -90,5 +90,40 @@ export = async (client: Client) => {
         client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Playing }] });
     };
 
-    await fetchInvites(), refreshDatabaseModel(), term(), quotesPresence(), setInterval(quotesPresence, 80_000);
+    async function refreshSchedule() {
+        let listAll = await db.DataBaseModel({ id: db.Get, key: `SCHEDULE` });
+        let dateNow = Date.now();
+        let desc: string = '';
+
+        for (let user in listAll) {
+            let member = client.users.cache.get(user);
+
+            for (let code in listAll[user]) {
+                if (listAll[user][code]?.expired <= dateNow) {
+                    desc += `${date.format(new Date(listAll[user][code]?.expired), 'YYYY/MM/DD HH:mm:ss')}`;
+                    desc += `\`\`\`${listAll[user][code]?.title}\`\`\``;
+                    desc += `\`\`\`${listAll[user][code]?.description}\`\`\``;
+
+                    let embed = new EmbedBuilder()
+                        .setColor('#56a0d3')
+                        .setTitle(`#${code} Schedule has been expired!`)
+                        .setDescription(desc)
+                        .setThumbnail((member?.avatarURL() as any))
+                        .setTimestamp()
+                        .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
+
+                    member?.send({
+                        content: `<@${member.id}>`,
+                        embeds: [embed]
+                    }).catch(() => { });
+
+                    await db.DataBaseModel({ id: db.Delete, key: `SCHEDULE.${user}.${code}` });
+                };
+            };
+        };
+    };
+
+    setInterval(quotesPresence, 80_000), setInterval(refreshSchedule, 15_000);
+
+    await fetchInvites(), refreshDatabaseModel(), term(), quotesPresence(), refreshSchedule();
 };

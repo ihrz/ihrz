@@ -222,6 +222,8 @@ help_suggestion_fields: "提案"
 help_suggestion_dsc: "ユーザーに自己表現の機会を与え、専用のチャンネルで提案を送信する力を与えましょう！"
 help_security_fields: "セキュリティ"
 help_security_dsc: "新メンバーにキャプチャテストを実施して、サーバーへのアクセスを保護します。"
+help_schedule_fields: "スケジュール"
+help_schedule_dsc: "プリプログラムされたメッセージを使用してリマインダーを作成し、ボットがプライベートメッセージで送信する"
 
 
 # Fun commands
@@ -931,6 +933,39 @@ security_role_to_give_command_work: "${interaction.user} さん、セキュリ�
 # /セキュリティ チャンネル
 security_channel_not_admin: "管理者ではありません！"
 security_channel_command_work: "${interaction.user} さん、セキュリティモジュールのチャンネルを ${channel} に設定しました！"
+
+
+# スケジュールコマンド
+# /schedule
+
+# /schedule
+schedule_menu_placeholder: "何を行いたいですか？"
+schedule_menu_choice_0: "スケジュールを作成"
+schedule_menu_choice_1: "スケジュールを削除"
+schedule_menu_choice_2: "すべてのスケジュールを削除"
+schedule_menu_choice_3: "すべてのスケジュールをリスト"
+schedule_modal_title: "スケジュールマネージャー"
+schedule_modal_fields_1_label: "スケジュールの名前？"
+schedule_modal_fields_2_label: "スケジュールの説明？"
+schedule_delete_question: "削除したいスケジュールのIDは何ですか？"
+schedule_deleteall_question: "すべてのスケジュールを削除してもよろしいですか？ (Y/n)"
+schedule_delete_not_found: "このメンバーのSCHEDULE (${arg0}) は存在しません！"
+schedule_delete_title_embed: "スケジュールの削除 (${arg0})"
+schedule_delete_confirm: "スケジュールが削除されました！"
+schedule_deleteall_title_embed: "すべてのスケジュールの削除"
+schedule_deleteall_desc_embed: "すべてのスケジュールが削除されました！"
+schedule_deleteall_confirm: "すべてのスケジュールが削除されました！"
+schedule_deleteall_cancel: "`DELETE_ALL` アクションはキャンセルされました！"
+schedule_list_not_schedule: "このメンバーのスケジュールはありません！"
+schedule_list_title_embed: "すべてのスケジュールのリスト"
+schedule_list_fields_embed: "**終了時刻**: ${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}```${fetched[i]?.title}`````${fetched[i]?.description}```\n"
+schedule_list_content_message: "これがすべてのスケジュールのリストです！"
+schedule_create_title_embed: "スケジュールの作成"
+schedule_create_when_question: "このスケジュールについて通知を受けるタイミングはいつですか？ (例: 6d = 6日間、2h = 2時間、10m = 10分、10s = 10秒)"
+schedule_create_not_number_time: "${interaction.user}、あなたの回答（このスケジュールの通知タイミング）は数値ではありません！"
+schedule_create_embed_fields_name_confirm: "通知日時"
+schedule_create_embed_title_confirm: "#${scheduleCode} スケジュールが作成されました！"
+schedule_create_confirm_msg: "${interaction.user}、スケジュールが作成されました！\nコード: `${scheduleCode}`"
 
 # -----------------------------/ \-----------------------------
 # Music Player Events

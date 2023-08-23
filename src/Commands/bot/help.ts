@@ -56,6 +56,7 @@ export let command: Command = {
             { name: data.help_protection_fields, value: CONTENT.protection, inline: true, description: data.help_protection_dsc, emoji: "🛡️" },
             { name: data.help_ranks_fields, value: CONTENT.ranks, inline: true, description: data.help_ranks_dsc, emoji: "🌟" },
             { name: data.help_roler_fields, value: CONTENT.rolereactions, inline: true, description: data.help_roler_dsc, emoji: "📇" },
+            { name: data.help_schedule_fields, value: CONTENT.schedule, inline: true, description: data.help_schedule_dsc, emoji: "🗒" },
             { name: data.help_security_fields, value: CONTENT.security, inline: true, description: data.help_security_dsc, emoji: "🔐" },
             { name: data.help_suggestion_fields, value: CONTENT.suggestion, inline: true, description: data.help_suggestion_dsc, emoji: "❓" },
             { name: data.help_ticket_fields, value: CONTENT.ticket, inline: true, description: data.help_ticket_dsc, emoji: "🎫" },

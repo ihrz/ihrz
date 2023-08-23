@@ -222,6 +222,8 @@ help_suggestion_fields: "Sugerencia"
 help_suggestion_dsc: "Concede a tus usuarios la capacidad de expresarse, permíteles enviar sugerencias en un canal dedicado."
 help_security_fields: "Seguridad"
 help_security_dsc: "Administre pruebas de captcha a sus nuevos miembros para asegurar el acceso a su servidor."
+help_schedule_fields: "Programación"
+help_schedule_dsc: "Crea recordatorios con mensajes preprogramados que el bot te enviará en un mensaje privado"
 
 
 # Fun commands
@@ -931,6 +933,39 @@ security_role_to_give_command_work: "${interaction.user}, has establecido el rol
 # /seguridad canal
 security_channel_not_admin: "¡No eres administrador!"
 security_channel_command_work: "${interaction.user}, has establecido el canal ${channel} para el módulo de seguridad."
+
+
+# Comando de Programación
+# /programar
+
+# /programar
+schedule_menu_placeholder: "¿Qué deseas hacer?"
+schedule_menu_choice_0: "Crear Programación"
+schedule_menu_choice_1: "Eliminar Programación"
+schedule_menu_choice_2: "Eliminar Todas las Programaciones"
+schedule_menu_choice_3: "Listar Todas las Programaciones"
+schedule_modal_title: "Gestor de Programaciones"
+schedule_modal_fields_1_label: "¿El nombre de la Programación?"
+schedule_modal_fields_2_label: "¿La descripción de la Programación?"
+schedule_delete_question: "¿Cuál es el ID de la Programación que deseas eliminar?"
+schedule_deleteall_question: "¿Estás seguro de eliminar todas tus programaciones? (S/n)"
+schedule_delete_not_found: "No hay una PROGRAMACIÓN (${arg0}) para este miembro."
+schedule_delete_title_embed: "Eliminando una Programación (${arg0})"
+schedule_delete_confirm: "¡Programación eliminada!"
+schedule_deleteall_title_embed: "Eliminando todas las Programaciones"
+schedule_deleteall_desc_embed: "¡Todas tus Programaciones han sido eliminadas!"
+schedule_deleteall_confirm: "¡Todas tus programaciones han sido eliminadas!"
+schedule_deleteall_cancel: "¡La acción `ELIMINAR_TODAS` ha sido cancelada!"
+schedule_list_not_schedule: "No hay una PROGRAMACIÓN para este miembro."
+schedule_list_title_embed: "Listando todas las Programaciones"
+schedule_list_fields_embed: "**Finalizado a**: ${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}```${fetched[i]?.title}`````${fetched[i]?.description}```\n"
+schedule_list_content_message: "¡Esta es la lista de todas tus programaciones!"
+schedule_create_title_embed: "Creando una Programación"
+schedule_create_when_question: "¿Cuándo deseas ser notificado acerca de esta programación? (Ejemplo: 6d = 6 días, 2h = 2 horas, 10m = 10 minutos, 10s = 10 segundos)"
+schedule_create_not_number_time: "${interaction.user}, tu respuesta (el tiempo en el que deseas ser notificado acerca de esta programación) no es un número."
+schedule_create_embed_fields_name_confirm: "Fecha de Notificación"
+schedule_create_embed_title_confirm: "#${scheduleCode} ¡Programación Creada!"
+schedule_create_confirm_msg: "${interaction.user}, ¡tu programación ha sido creada!\nCódigo: `${scheduleCode}`"
 
 # -----------------------------/ \-----------------------------
 # Music Player Events

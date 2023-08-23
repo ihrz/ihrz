@@ -222,6 +222,8 @@ help_suggestion_fields: "Suggerimento"
 help_suggestion_dsc: "Concedi ai tuoi utenti la possibilità di esprimersi, permettendo loro di inviare suggerimenti in un canale dedicato!"
 help_security_fields: "Sicurezza"
 help_security_dsc: "Amministra test captcha ai tuoi nuovi membri per garantire l'accesso sicuro al tuo server."
+help_schedule_fields: "Programma"
+help_schedule_dsc: "Crea promemoria con messaggi pre-programmati che il bot ti invierà in un messaggio privato"
 
 
 # Fun commands
@@ -931,6 +933,39 @@ security_role_to_give_command_work: "${interaction.user}, hai impostato il ruolo
 # /sicurezza canale
 security_channel_not_admin: "Non sei un amministratore!"
 security_channel_command_work: "${interaction.user}, hai impostato il canale ${channel} per il modulo di sicurezza!"
+
+
+# Comando di Pianificazione
+# /pianifica
+
+# /pianifica
+schedule_menu_placeholder: "Cosa vuoi fare?"
+schedule_menu_choice_0: "Crea Pianificazione"
+schedule_menu_choice_1: "Elimina Pianificazione"
+schedule_menu_choice_2: "Elimina Tutte le Pianificazioni"
+schedule_menu_choice_3: "Elenca Tutte le Pianificazioni"
+schedule_modal_title: "Gestore Pianificazioni"
+schedule_modal_fields_1_label: "Nome della Pianificazione?"
+schedule_modal_fields_2_label: "Descrizione della Pianificazione?"
+schedule_delete_question: "Qual è l'ID della Pianificazione che vuoi eliminare?"
+schedule_deleteall_question: "Sei sicuro di voler eliminare tutte le tue pianificazioni? (S/n)"
+schedule_delete_not_found: "Non esiste una PIANIFICAZIONE (${arg0}) per questo membro!"
+schedule_delete_title_embed: "Eliminazione di una Pianificazione (${arg0})"
+schedule_delete_confirm: "Pianificazione eliminata!"
+schedule_deleteall_title_embed: "Eliminazione di Tutte le Pianificazioni"
+schedule_deleteall_desc_embed: "Tutte le tue Pianificazioni sono state eliminate!"
+schedule_deleteall_confirm: "Tutte le tue pianificazioni sono state eliminate!"
+schedule_deleteall_cancel: "L'azione `ELIMINA_TUTTE` è stata annullata!"
+schedule_list_not_schedule: "Non esiste una PIANIFICAZIONE per questo membro!"
+schedule_list_title_embed: "Elenca tutte le Pianificazioni"
+schedule_list_fields_embed: "**Terminato il**: ${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}```${fetched[i]?.title}`````${fetched[i]?.description}```\n"
+schedule_list_content_message: "Questa è la lista di tutte le tue pianificazioni!"
+schedule_create_title_embed: "Creazione di una Pianificazione"
+schedule_create_when_question: "Quando desideri ricevere una notifica per questa pianificazione? (Esempio: 6g = 6 giorni, 2h = 2 ore, 10m = 10 minuti, 10s = 10 secondi)"
+schedule_create_not_number_time: "${interaction.user}, la tua risposta (il tempo in cui desideri ricevere la notifica per questa pianificazione) non è un numero!"
+schedule_create_embed_fields_name_confirm: "Data di Notifica"
+schedule_create_embed_title_confirm: "Pianificazione #${scheduleCode} creata!"
+schedule_create_confirm_msg: "${interaction.user}, la tua pianificazione è stata creata!\nCodice: `${scheduleCode}`"
 
 # -----------------------------/ \-----------------------------
 # Music Player Events

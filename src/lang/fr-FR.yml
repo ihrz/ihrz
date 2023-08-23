@@ -222,6 +222,8 @@ help_suggestion_fields: "Suggestion"
 help_suggestion_dsc: "Accordez à vos utilisateurs la possibilité de s'exprimer, permettez-leur de soumettre des suggestions dans un canal dédié !"
 help_security_fields: "Sécurité"
 help_security_dsc: "Administrez des tests de captcha à vos nouveaux membres pour sécuriser l'accès à votre serveur."
+help_schedule_fields: "Planning"
+help_schedule_dsc: "Créez des rappels avec des messages préprogrammés que le bot vous enverra dans un message privé"
 
 
 # Fun commands
@@ -931,6 +933,39 @@ security_role_to_give_command_work: "${interaction.user}, vous avez défini le r
 # /securite canal
 security_channel_not_admin: "Vous n'êtes pas administrateur !"
 security_channel_command_work: "${interaction.user}, vous avez défini le canal ${channel} pour le module de sécurité !"
+
+
+# Commande de Planification
+# /planifier
+
+# /planifier
+schedule_menu_placeholder: "Que souhaitez-vous faire ?"
+schedule_menu_choice_0: "Créer une planification"
+schedule_menu_choice_1: "Supprimer une planification"
+schedule_menu_choice_2: "Supprimer toutes les planifications"
+schedule_menu_choice_3: "Lister toutes les planifications"
+schedule_modal_title: "Gestionnaire de Planification"
+schedule_modal_fields_1_label: "Le nom de la planification ?"
+schedule_modal_fields_2_label: "La description de la planification ?"
+schedule_delete_question: "Quel est l'identifiant de la planification que vous souhaitez supprimer ?"
+schedule_deleteall_question: "Êtes-vous sûr de vouloir supprimer toutes vos planifications ? (O/n)"
+schedule_delete_not_found: "Il n'y a pas de PLANIFICATION (${arg0}) pour ce membre !"
+schedule_delete_title_embed: "Suppression d'une planification (${arg0})"
+schedule_delete_confirm: "Planification supprimée !"
+schedule_deleteall_title_embed: "Suppression de toutes les planifications"
+schedule_deleteall_desc_embed: "Toutes vos planifications ont été supprimées !"
+schedule_deleteall_confirm: "Toutes vos planifications ont été supprimées !"
+schedule_deleteall_cancel: "L'action `SUPPRIMER_TOUT` a été annulée !"
+schedule_list_not_schedule: "Il n'y a pas de PLANIFICATION pour ce membre !"
+schedule_list_title_embed: "Liste de toutes les planifications"
+schedule_list_fields_embed: "**Terminé à** : ${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}```${fetched[i]?.title}`````${fetched[i]?.description}```\n"
+schedule_list_content_message: "Voici la liste de toutes vos planifications !"
+schedule_create_title_embed: "Création d'une planification"
+schedule_create_when_question: "Quand souhaitez-vous être notifié de cette planification ? (Exemple : 6j = 6 jours, 2h = 2 heures, 10m = 10 minutes, 10s = 10 secondes)"
+schedule_create_not_number_time: "${interaction.user}, votre réponse (le temps pour lequel vous souhaitez être notifié de cette planification) n'est pas un nombre !"
+schedule_create_embed_fields_name_confirm: "Date de Notification"
+schedule_create_embed_title_confirm: "Planification #${scheduleCode} créée !"
+schedule_create_confirm_msg: "${interaction.user}, votre planification a été créée !\nCode : `${scheduleCode}`"
 
 # -----------------------------/ \-----------------------------
 # Music Player Events

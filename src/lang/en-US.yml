@@ -222,6 +222,8 @@ help_suggestion_fields: "Suggestion"
 help_suggestion_dsc: "Grant your users the ability to express themselves, empower them to submit suggestions in a dedicated channel!"
 help_security_fields: "Security"
 help_security_dsc: "Administer captcha tests to your new members to secure access to your server."
+help_schedule_fields: "Schedule"
+help_schedule_dsc: "Create reminders with pre-programmed messages that the bot will send to you in a private message"
 
 
 # Fun commands
@@ -931,6 +933,39 @@ security_role_to_give_command_work: "${interaction.user}, you have set the role 
 # /security channel
 security_channel_not_admin: "You are not admin!"
 security_channel_command_work: "${interaction.user}, you have set the channel to ${channel} for the Security Module !"
+
+
+# Schedule Command
+# /schedule
+
+# /schedule
+schedule_menu_placeholder: "What do you want to do?"
+schedule_menu_choice_0: "Create Schedule"
+schedule_menu_choice_1: "Delete Schedule"
+schedule_menu_choice_2: "Delete All Schedules"
+schedule_menu_choice_3: "List All Schedules"
+schedule_modal_title: "Schedule Manager"
+schedule_modal_fields_1_label: "The Schedule name ?"
+schedule_modal_fields_2_label: "The Schedule description ?"
+schedule_delete_question: "What is the id of the Schedule you want to delete ?"
+schedule_deleteall_question: "Are you sure to deleting all of your schedule ? (Y/n)"
+schedule_delete_not_found: "There are not SCHEDULE (${arg0}) for this member!"
+schedule_delete_title_embed: "Deleting an Schedule (${arg0})"
+schedule_delete_confirm: "Schedule deleted!"
+schedule_deleteall_title_embed: "Deleting all Schedule"
+schedule_deleteall_desc_embed: "All of your Schedule has been deleted!"
+schedule_deleteall_confirm: "All of your schedule deleted!"
+schedule_deleteall_cancel: "The `DELETE_ALL` action has been cancelled!"
+schedule_list_not_schedule: "There are not SCHEDULE for this member!"
+schedule_list_title_embed: "Listing all Schedule"
+schedule_list_fields_embed: "**Endedt at**: ${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}```${fetched[i]?.title}``````${fetched[i]?.description}```\n"
+schedule_list_content_message: "This is all of your schedule list!"
+schedule_create_title_embed: "Creating an Schedule"
+schedule_create_when_question: "When you want to be notified about this schedule ? (Example: 6d = 6days, 2h = 2hours, 10m = 10minutes, 10s = 10seconds)"
+schedule_create_not_number_time: "${interaction.user}, your reponse (the time you want to be notified about this schedule) is not a number!"
+schedule_create_embed_fields_name_confirm: "Notified Date"
+schedule_create_embed_title_confirm: "#${scheduleCode} Schedule Created!"
+schedule_create_confirm_msg: "${interaction.user}, your schedule has been created!\nCode: `${scheduleCode}`"
 
 # -----------------------------/ \-----------------------------
 # Music Player Events
