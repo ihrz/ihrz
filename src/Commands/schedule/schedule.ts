@@ -101,7 +101,12 @@ export let command: Command = {
 
         modal.addComponents(firstActionRow, secondActionRow);
 
+        let collectorFilter = (member: any) => {
+            return member.user.id === interaction.user.id;
+        };
+
         let collector = response.createMessageComponentCollector({
+            filter: collectorFilter,
             componentType: ComponentType.StringSelect,
             time: 420_000
         });
@@ -113,6 +118,8 @@ export let command: Command = {
             }
             await chooseAction(i);
         });
+
+        collector.on('end', () => { return; });
 
         async function chooseAction(i: {
             deferUpdate?: any; member?: { id: any; }; reply: (arg0: { content: string; ephemeral: boolean; }) => any; values?: any; showModal?: any; awaitModalSubmit?: any;
@@ -188,7 +195,7 @@ export let command: Command = {
                     await db.DataBaseModel({ id: db.Delete, key: `SCHEDULE.${interaction.user.id}.${arg0}` });
                     await response.edit({ content: data.schedule_delete_confirm, embeds: [embed], ephemeral: true });
                     return;
-                }
+                };
             };
 
             async function __2(arg0: boolean) {
