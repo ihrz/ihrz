@@ -54,7 +54,7 @@ export = {
                     .replace("{user}", "{user}")
                     .replace("{guild}", "{guild}")
                     .replace("{membercount}", "{membercount}")
-                    .replace("\\n", '\n');
+                    .replaceAll("\\n", '\n')
 
                 await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`, value: joinmsgreplace });
 
