@@ -42,6 +42,7 @@ export = {
         await interaction.editReply({
             content: data.security_role_to_give_command_work
                 .replace('${interaction.user}', interaction.user)
+                .replace('${role}', role)
         });
 
         return;

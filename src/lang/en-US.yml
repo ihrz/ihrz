@@ -511,7 +511,7 @@ setjoinmessage_command_work_on_enable: "✅ | Succefully set custom join message
 setjoinmessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deleted the join message !"
 setjoinmessage_command_work_on_disable: "✅ | Succefully deleted custom join message."
-setjoinmessage_command_work_ls: "The join message is:\n```${ls}```"
+setjoinmessage_command_work_ls: "The join message is:"
 
 # /setjoinroles
 setjoinroles_not_admin: ":x: | You must be an administrator of this server to request this commands!"
@@ -542,7 +542,7 @@ setleavemessage_command_work_on_enable: "✅ | Succefully set custom leave messa
 setleavemessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deleted the leave message !"
 setleavemessage_command_work_on_disable: "✅ | Succefully deleted custom leave message."
-setleavemessage_command_work_ls: "The leave message is:\n```${ls}```"
+setleavemessage_command_work_ls: "The leave message is:"
 
 # /setup
 setup_not_admin: ":x: | You must be an administrator of this server !"

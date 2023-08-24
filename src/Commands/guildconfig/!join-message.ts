@@ -54,6 +54,8 @@ export = {
                     .replace("{guild}", "{guild}")
                     .replace("{createdat}", "{createdat}")
                     .replace("{membercount}", "{membercount}")
+                    .replace("\\n", '\n')
+
                 await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`, value: joinmsgreplace });
 
                 try {
@@ -97,12 +99,20 @@ export = {
         } else if (type == "ls") {
             var ls = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage` });
 
+            let embed = new EmbedBuilder()
+                .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
+                .setColor('#1481c1')
+                .setDescription(ls || 'None')
+                .setTimestamp()
+                .setTitle(data.setjoinmessage_command_work_ls)
+                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+                .setThumbnail(interaction.guild.iconURL({ dynamic: true }));
+
             await interaction.editReply({
-                content: data.setjoinmessage_command_work_ls
-                    .replace("${ls}", ls)
+                embeds: [embed]
             });
             return;
-        }
+        };
 
         if (!messagei) {
             await interaction.editReply({ embeds: [help_embed] });

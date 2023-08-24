@@ -511,7 +511,7 @@ setjoinmessage_command_work_on_enable: "✅ | Benutzerdefinierte Join-Nachricht 
 setjoinmessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> hat die Join-Nachricht gelöscht!"
 setjoinmessage_command_work_on_disable: "✅ | Benutzerdefinierte Join-Nachricht erfolgreich gelöscht."
-setjoinmessage_command_work_ls: "Die Join-Nachricht lautet:\n```${ls}```"
+setjoinmessage_command_work_ls: "Die Join-Nachricht lautet:"
 
 # /setjoinroles
 setjoinroles_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
@@ -542,7 +542,7 @@ setleavemessage_command_work_on_enable: "✅ | Benutzerdefinierte Austrittsnachr
 setleavemessage_logs_embed_title_on_disable: "SetJoinMessage-Protokolle"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> hat die Austrittsnachricht gelöscht!"
 setleavemessage_command_work_on_disable: "✅ | Benutzerdefinierte Austrittsnachricht erfolgreich gelöscht."
-setleavemessage_command_work_ls: "Die Austrittsnachricht lautet:\n```${ls}```"
+setleavemessage_command_work_ls: "Die Austrittsnachricht lautet:"
 
 # /setup
 setup_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"

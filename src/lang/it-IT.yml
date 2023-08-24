@@ -511,7 +511,7 @@ setjoinmessage_command_work_on_enable: "✅ | Messaggio di benvenuto personalizz
 setjoinmessage_logs_embed_title_on_disable: "Log di setjoinmessage"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> ha eliminato il messaggio di benvenuto!"
 setjoinmessage_command_work_on_disable: "✅ | Messaggio di benvenuto personalizzato eliminato con successo."
-setjoinmessage_command_work_ls: "Il messaggio di benvenuto impostato è:\n${ls}"
+setjoinmessage_command_work_ls: "Il messaggio di benvenuto impostato è:"
 
 # /setjoinroles
 setjoinroles_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questo comando!"
@@ -542,7 +542,7 @@ setleavemessage_command_work_on_enable: "✅ | Messaggio di uscita personalizzat
 setleavemessage_logs_embed_title_on_disable: "SetLeaveMessage Logs"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> ha eliminato il messaggio di uscita!"
 setleavemessage_command_work_on_disable: "✅ | Messaggio di uscita personalizzato eliminato con successo."
-setleavemessage_command_work_ls: "Il messaggio di uscita è:\n${ls}"
+setleavemessage_command_work_ls: "Il messaggio di uscita è:"
 
 # /setup
 setup_not_admin: ":x: | Devi essere un amministratore di questo server!"

@@ -511,7 +511,7 @@ setjoinmessage_command_work_on_enable: "✅ | カスタム参加メッセージ�
 setjoinmessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> が参加メッセージを削除しました！"
 setjoinmessage_command_work_on_disable: "✅ | カスタム参加メッセージの削除に成功しました。"
-setjoinmessage_command_work_ls: "参加メッセージは以下の通りです：\n```${ls}```"
+setjoinmessage_command_work_ls: "参加メッセージは以下の通りです："
 
 # /setjoinroles
 setjoinroles_not_admin: ":x: | このコマンドを実行するには、サーバーの管理者である必要があります！"
@@ -542,7 +542,7 @@ setleavemessage_command_work_on_enable: "✅ | カスタム退出メッセージ
 setleavemessage_logs_embed_title_on_disable: "SetJoinMessage ログ"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}>が退出メッセージを削除しました！"
 setleavemessage_command_work_on_disable: "✅ | カスタム退出メッセージを正常に削除しました。"
-setleavemessage_command_work_ls: "退出メッセージは次のとおりです。\n```${ls}```"
+setleavemessage_command_work_ls: "退出メッセージは次のとおりです。"
 
 # /setup
 setup_not_admin: ":x: | このサーバーの管理者である必要があります！"

@@ -54,6 +54,8 @@ export = {
                     .replace("{user}", "{user}")
                     .replace("{guild}", "{guild}")
                     .replace("{membercount}", "{membercount}")
+                    .replace("\\n", '\n');
+
                 await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`, value: joinmsgreplace });
 
                 try {
@@ -95,12 +97,25 @@ export = {
             } catch (e: any) {
                 logger.err(e)
             };
-            
+
             await interaction.editReply({ content: data.setleavemessage_command_work_on_disable });
             return;
         } else if (type == "ls") {
             var ls = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage` });
-            await interaction.editReply({ content: data.setleavemessage_command_work_ls.replace('${ls}', ls) });
+
+            let embed = new EmbedBuilder()
+                .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
+                .setColor('#1481c1')
+                .setDescription(ls || 'None')
+                .setTimestamp()
+                .setTitle(data.setleavemessage_command_work_ls)
+                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+                .setThumbnail(interaction.guild.iconURL({ dynamic: true }));
+
+            await interaction.editReply({
+                embeds: [embed]
+            });
+
             return;
         } else if (!messagei) {
             await interaction.editReply({ embeds: [help_embed] });
