@@ -41,7 +41,8 @@ export = {
 
         await interaction.editReply({
             content: data.security_channel_command_work
-                .replace('${interaction.user}', interaction.users)
+                .replace('${interaction.user}', interaction.user)
+                .replace('${channel}', channel)
         });
 
         return;
