@@ -105,22 +105,26 @@ export let command: Command = {
             return member.user.id === interaction.user.id;
         };
 
-        let collector = response.createMessageComponentCollector({
-            filter: collectorFilter,
-            componentType: ComponentType.StringSelect,
-            time: 420_000
-        });
+        try {
 
-        collector.on('collect', async (i: { member: { id: any; }; reply: (arg0: { content: string; ephemeral: boolean; }) => any; }) => {
-            if (i.member.id !== interaction.user.id) {
-                await i.reply({ content: data.embed_interaction_not_for_you, ephemeral: true })
-                return;
-            }
-            await chooseAction(i);
-        });
+            let collector = response.createMessageComponentCollector({
+                filter: collectorFilter,
+                componentType: ComponentType.StringSelect,
+                time: 420_000
+            });
 
-        collector.on('end', () => { return; });
+            collector.on('collect', async (i: { member: { id: any; }; reply: (arg0: { content: string; ephemeral: boolean; }) => any; }) => {
+                if (i.member.id !== interaction.user.id) {
+                    await i.reply({ content: data.embed_interaction_not_for_you, ephemeral: true })
+                    return;
+                }
+                await chooseAction(i);
+            });
 
+        } catch (e) {
+            return interaction.reply({ content: data.embed_timeout_getbtn });
+        };
+        
         async function chooseAction(i: {
             deferUpdate?: any; member?: { id: any; }; reply: (arg0: { content: string; ephemeral: boolean; }) => any; values?: any; showModal?: any; awaitModalSubmit?: any;
         }) {
