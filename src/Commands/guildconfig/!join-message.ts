@@ -50,10 +50,10 @@ export = {
         if (type == "on") {
             if (messagei) {
                 let joinmsgreplace = messagei
-                    .replace("{user}", "{user}")
-                    .replace("{guild}", "{guild}")
-                    .replace("{createdat}", "{createdat}")
-                    .replace("{membercount}", "{membercount}")
+                    .replaceAll("{user}", "{user}")
+                    .replaceAll("{guild}", "{guild}")
+                    .replaceAll("{createdat}", "{createdat}")
+                    .replaceAll("{membercount}", "{membercount}")
                     .replaceAll("\\n", '\n')
 
                 await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`, value: joinmsgreplace });
