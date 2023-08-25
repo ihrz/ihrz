@@ -50,7 +50,7 @@ let f = new Promise((resolve, reject) => {
 
                 logger.err(couleurmdr.bgRed(`Exiting the code...`));
 
-                return process.exit(0);
+                return process.exit(1);
             });
     };
 });

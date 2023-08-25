@@ -22,6 +22,8 @@
 import * as checkSys from './functions/checkSys';
 import giveawayManager from './giveawayManager';
 import playerManager from "./playerManager";
+import bash from './bash/bash';
+
 import * as errorManager from './errorManager';
 import logger from "./logger";
 
@@ -67,6 +69,7 @@ export = (client: Client) => {
         client.register_arr = [];
 
     require('../api/server'),
+        bash(client),
         giveawayManager(client),
         playerManager(client),
         errorManager.uncaughtExceptionHandler();
