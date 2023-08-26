@@ -20,22 +20,13 @@
 */
 
 export async function maskLink(input: string) {
-    let isLink = false;
-
-    let blacklistContent = [
+    const blacklistContent = [
         "http://",
         "https://",
-        "discord.gg/",
         ".gg/"
     ];
-
-    await blacklistContent.forEach(content => {
-        if (input.includes(content)) { isLink = true };
-    });
-
-    if (isLink) {
-        return `[Hidden Link] ${input.replace(/./g, "*")}`;
-    };
-
+    for (const content of blacklistContent) {
+       if (input.includes(content) return `[Hidden Link] ${input.replace(/./g, "*")}`;
+    }
     return input;
 };
