@@ -39,14 +39,9 @@ exports.allowedDomains = allowedDomains;
 
 export function isLinkAllowed(link: string) {
     if (link !== null) {
-        let parsedUrl = url.parse(link);
-
+        const parsedUrl = url.parse(link);
         if (parsedUrl !== null && parsedUrl.hostname !== null) {
             return !link.includes("://") || allowedDomains.includes(parsedUrl.hostname);
-        } else {
-            return false;
         }
-    } else {
-        return false;
-    }
+    return false;
 };
