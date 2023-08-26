@@ -23,11 +23,16 @@ import yaml from 'js-yaml';
 import * as db from '../functions/DatabaseModel';
 import fs from 'fs';
 
-let LangsData: any = {};
+interface LangsData {
+    [lang: string]: any;
+}
+
+let LangsData: LangsData = {};
 let lang: string = '';
 
 async function getLanguageData(arg: string): Promise<any> {
     let fetched = await db.DataBaseModel({ id: db.Get, key: `${arg}.GUILD.LANG` });
+
     if (!fetched) {
         lang = "en-US";
     } else {
@@ -35,13 +40,12 @@ async function getLanguageData(arg: string): Promise<any> {
     };
 
     let dat = LangsData[lang];
-    
+
     if (!dat) {
-        dat = await yaml.load(fs.readFileSync(`${process.cwd()}/src/lang/${lang}.yml`, 'utf8'));
+        dat = yaml.load(fs.readFileSync(`${process.cwd()}/src/lang/${lang}.yml`, 'utf8'));
         LangsData[lang] = dat;
     };
-
     return dat;
-};
+}
 
-module.exports = getLanguageData;
+export = getLanguageData;
