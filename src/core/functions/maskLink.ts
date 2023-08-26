@@ -26,7 +26,7 @@ export async function maskLink(input: string) {
         ".gg/"
     ];
     for (const content of blacklistContent) {
-       if (input.includes(content) return `[Hidden Link] ${input.replace(/./g, "*")}`;
+       if (input.includes(content)) return `[Hidden Link] ${input.replace(/./g, "*")}`;
     }
     return input;
 };
