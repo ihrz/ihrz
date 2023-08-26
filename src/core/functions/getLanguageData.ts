@@ -44,4 +44,4 @@ async function getLanguageData(arg: string): Promise<any> {
     return dat;
 };
 
-module.exports = getLanguageData;
+export getLanguageData;
