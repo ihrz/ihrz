@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import url from 'url';
+import * as url from 'url';
 
-let allowedDomains = [
+let allowedDomains: string[] = [
     'open.spotify.com', 'play.spotify.com', 'spotify.com',
     'www.spotify.com', 'www.deezer.com', 'deezer.com',
     'www.youtube.com', 'youtube.com', 'youtu.be',
@@ -35,13 +35,14 @@ let allowedDomains = [
     'cdn.discordapp.com'
 ];
 
-exports.allowedDomains = allowedDomains;
+export { allowedDomains };
 
-export function isLinkAllowed(link: string) {
+export function isLinkAllowed(link: string): boolean {
     if (link !== null) {
-        const parsedUrl = url.parse(link);
-        if (parsedUrl !== null && parsedUrl.hostname !== null) {
+        let parsedUrl = url.parse(link);
+        if (parsedUrl.hostname !== null) {
             return !link.includes("://") || allowedDomains.includes(parsedUrl.hostname);
         }
+    };
     return false;
 };

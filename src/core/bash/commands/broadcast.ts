@@ -23,7 +23,7 @@ import { EmbedBuilder } from 'discord.js';
 import logger from "../../logger";
 
 export = function (client: any, args: string) {
-    const args2 = args.split(" ");
+    let args2 = args.split(" ");
     let embed = new EmbedBuilder()
         .setColor('#4dff00')
         .setTitle('@Broadcast message')

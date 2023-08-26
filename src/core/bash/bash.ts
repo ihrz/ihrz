@@ -32,12 +32,12 @@ import path from 'path';
 export = async (client: any) => {
     if (config.core.bash) {
 
-        const rl = readline.createInterface({
+        let rl = readline.createInterface({
             input: process.stdin,
             output: process.stdout
         });
 
-        const now2 = new Date(),
+        let now2 = new Date(),
             year = now2.getFullYear().toString().substr(-2),
             month = now2.toLocaleString('default', { month: 'short' }),
             day = now2.toLocaleString('default', { day: '2-digit' }),
@@ -51,17 +51,17 @@ export = async (client: any) => {
         await wait(1000);
         logger.legacy(`* iHorizon has been loaded !`.gray.bgBlack);
 
-        const now = new Date();
-        const options: any = {
+        let now = new Date();
+        let options: any = {
             day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit',
             minute: '2-digit', second: '2-digit', timeZone: 'UTC'
         };
 
-        const formattedDate = now.toLocaleDateString('fr-FR', options),
+        let formattedDate = now.toLocaleDateString('fr-FR', options),
             LoadFiles = await db.DataBaseModel({ id: db.Get, key: `BASH.LAST_LOGIN` }) || "None",
             LoadFiles2 = "127.0.0.1";
 
-        const filePath = path.join(process.cwd(), 'src', 'core', 'bash', 'history', '.bash_history'),
+        let filePath = path.join(process.cwd(), 'src', 'core', 'bash', 'history', '.bash_history'),
             createFiles = fs.createWriteStream(filePath, { flags: 'a' });
 
         let dateStr = `${day} ${month} ${year} ${time} 2023`;
@@ -81,10 +81,10 @@ export = async (client: any) => {
         rl.setPrompt('kisakay@ihorizon'.green + ":".white + "~".blue + "$ ".white);
         rl.prompt();
         rl.on('line', (line: { trim: () => { (): any; new(): any; split: { (arg0: string): [any, ...any[]]; new(): any; }; }; }) => {
-            const [commandName, ...args] = line.trim().split(' '),
+            let [commandName, ...args] = line.trim().split(' '),
                 commandPath = `${process.cwd()}/dist/src/core/bash/commands/${commandName}.js`;
             if (fs.existsSync(commandPath)) {
-                const command = require(commandPath);
+                let command = require(commandPath);
                 command(client, args.join(' '));
 
                 var data = fs.readFileSync(filePath);

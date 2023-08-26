@@ -23,7 +23,7 @@ import fs from 'fs';
 import path from 'path';
 import logger from '../../logger';
 
-const filePath = path.join(process.cwd(), 'src', 'core', 'bash', 'history', '.bash_history')
+let filePath = path.join(process.cwd(), 'src', 'core', 'bash', 'history', '.bash_history')
 
 export = function () {
   fs.readFile(filePath, 'utf-8', (err, data) => {
