@@ -26,16 +26,16 @@ let LangsData = {};
 async function getLanguageData(arg: string):Promise<any>{
     let fetched = await db.DataBaseModel({ id: db.Get, key: `${arg}.GUILD.LANG` });
     if (!fetched) {
-        if (!LangsData["en-US"]) {
-           LangsData["en-US"] = yaml.load(fs.readFileSync(`${process.cwd()}/src/lang/en-US.yml`, 'utf8'));
-        }
-        return LangsData["en-US"];
-    };
-    
-    if (!LangsData[fetched.lang]) {
-       LangsData[fetched.lang] = await yaml.load(fs.readFileSync(`${process.cwd()}/src/lang/${fetched.lang}.yml`, 'utf8'));
+        const lang = "en-US";
+    } else {
+        const lang = fetched.lang;
     }
-    return LangsData[fetched.lang];
+    let dat = LangsData[lang];
+    if (!dat) {
+       dat = await yaml.load(fs.readFileSync(`${process.cwd()}/src/lang/${lang}.yml`, 'utf8'));
+       LangsData[lang] = dat;
+    }
+    return dat;
 };
 
 module.exports = getLanguageData;
