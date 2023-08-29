@@ -45,10 +45,10 @@ export let command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let user = interaction.options.getUser("user") || interaction.user;
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.prevnames_not_admin });
-            return;
-        };
+        // if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        //     await interaction.editReply({ content: data.prevnames_not_admin });
+        //     return;
+        // };
 
         let fetch = await db.DataBaseModel({ id: db.Get, key: `DB.PREVNAMES.${user.id}` });
         if (fetch) fetch = fetch.join('\n');
