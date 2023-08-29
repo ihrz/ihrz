@@ -958,7 +958,7 @@ schedule_deleteall_confirm: "すべてのスケジュールが削除されまし
 schedule_deleteall_cancel: "`DELETE_ALL` アクションはキャンセルされました！"
 schedule_list_not_schedule: "このメンバーのスケジュールはありません！"
 schedule_list_title_embed: "すべてのスケジュールのリスト"
-schedule_list_fields_embed: "**終了時刻**: ${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}```${fetched[i]?.title}`````${fetched[i]?.description}```\n"
+schedule_list_fields_embed: "**終了時刻**: ${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}```${fetched[i]?.title}``````${fetched[i]?.description}```\n"
 schedule_list_content_message: "これがすべてのスケジュールのリストです！"
 schedule_create_title_embed: "スケジュールの作成"
 schedule_create_when_question: "このスケジュールについて通知を受けるタイミングはいつですか？ (例: 6d = 6日間、2h = 2時間、10m = 10分、10s = 10秒)"
