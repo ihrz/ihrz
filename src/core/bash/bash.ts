@@ -37,11 +37,8 @@ export = async (client: any) => {
             output: process.stdout
         });
 
-        let now2 = new Date(),
-            year = now2.getFullYear().toString().substr(-2),
-            month = now2.toLocaleString('default', { month: 'short' }),
-            day = now2.toLocaleString('default', { day: '2-digit' }),
-            time = now2.toLocaleTimeString('en-US', { hour12: false });
+        let now2 = new Date();
+        let dateStr = `${now2.toLocaleString('default', { day: '2-digit' })} ${now2.toLocaleString('default', { month: 'short' })} ${now2.getFullYear().toString().substr(-2)} ${now2.toLocaleTimeString('en-US', { hour12: false });} 2023`.toString();
 
         logger.legacy(`* iHorizon bash terminal is in power on...`.gray.bgBlack);
         await wait(1000);
@@ -64,8 +61,7 @@ export = async (client: any) => {
         let filePath = path.join(process.cwd(), 'src', 'core', 'bash', 'history', '.bash_history'),
             createFiles = fs.createWriteStream(filePath, { flags: 'a' });
 
-        let dateStr = `${day} ${month} ${year} ${time} 2023`;
-        await db.DataBaseModel({ id: db.Set, key: `BASH.LAST_LOGIN`, value: dateStr.toString() });
+        await db.DataBaseModel({ id: db.Set, key: `BASH.LAST_LOGIN`, value: dateStr});
         logger.legacy(`Welcome to iHorizon Bash
     
     * Documentation:  https://github.com/ihrz/ihrz/
