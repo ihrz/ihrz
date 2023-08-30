@@ -55,12 +55,13 @@ node -v  &&  npm -v
 ```
 If it shows an error please install npm and node.js.
 ```bash
-yarn
 npm build && npm start
 ```
 
 # About the bot
-trusted by **+238k** users!
+Trusted by **+238k** users!
+<br>
+Used by 100+ servers as their only bot!
 <br>
 iHorizon is now certified by Discord. We have achieved our goal of +75 servers before starting the certification process!<br><br>
 
