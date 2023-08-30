@@ -28,11 +28,10 @@ interface LangsData {
 }
 
 let LangsData: LangsData = {};
-let lang: string = '';
 
 async function getLanguageData(arg: string): Promise<any> {
     let fetched = await db.DataBaseModel({ id: db.Get, key: `${arg}.GUILD.LANG` });
-
+    let lang: string = '';
     if (!fetched) {
         lang = "en-US";
     } else {
