@@ -234,7 +234,15 @@ export = async (client: Client, message: any) => {
             || !message.channel) return;
 
         let arg0: string = message.content.split(' ')[0];
-        let recognizeItem: Array<string> = ['hey', 'salut', 'coucou'];
+        let recognizeItem: Array<string> = [
+            'hey',
+            'salut',
+            'coucou',
+            'bonjour',
+            'salem',
+            'wesh',
+            'hello',
+        ];
 
         recognizeItem.forEach(content => {
             if (arg0.toLocaleLowerCase().startsWith(content.toLocaleLowerCase())) {
