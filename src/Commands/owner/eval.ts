@@ -28,7 +28,7 @@ import {
 import { Command } from '../../../types/command';
 import config from '../../files/config';
 
-export let command: Command = {
+export const command: Command = {
     name: 'eval',
     description: 'Run Javascript program (only for developers)!',
     options: [

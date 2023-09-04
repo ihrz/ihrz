@@ -28,7 +28,7 @@ import {
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 
-export let command: Command = {
+export const command: Command = {
     name: 'owner',
     description: 'add user to owner list (can\'t be used by normal member)!',
     options: [

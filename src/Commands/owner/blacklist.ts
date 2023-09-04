@@ -28,7 +28,7 @@ import {
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 
-export let command: Command = {
+export const command: Command = {
     name: 'blacklist',
     description: 'Add a user to the blacklist!',
     options: [

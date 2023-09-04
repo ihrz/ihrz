@@ -31,7 +31,7 @@ import logger from '../../core/logger';
 
 import * as db from '../../core/functions/DatabaseModel';
 
-export let command: Command = {
+export const command: Command = {
     name: 'setmentionrole',
     description: 'Give a specific role to the user who pings me!',
     options: [

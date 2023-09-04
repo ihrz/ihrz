@@ -41,7 +41,7 @@ import * as db from '../../core/functions/DatabaseModel';
 import date from 'date-and-time';
 import ms from 'ms';
 
-export let command: Command = {
+export const command: Command = {
     name: "schedule",
     description: "Manager for schedule category!",
     category: 'schedule',

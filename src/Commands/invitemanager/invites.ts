@@ -26,7 +26,7 @@ import {
 
 import { Command } from '../../../types/command';
 
-export let command: Command = {
+export const command: Command = {
     name: "invites",
     description: "Subcommand for invites manager category!",
     options: [

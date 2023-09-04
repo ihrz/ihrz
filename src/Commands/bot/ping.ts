@@ -27,7 +27,7 @@ import {
 import { Command } from '../../../types/command';
 import ping from 'ping';
 
-export let command: Command = {
+export const command: Command = {
     name: 'ping',
     description: 'Get the bot latency!',
     category: 'bot',

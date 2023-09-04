@@ -26,7 +26,7 @@ import {
 
 import { Command } from '../../../types/command';
 
-export let command: Command = {
+export const command: Command = {
     name: "backup",
     description: "Subcommand for backup category!",
     options: [

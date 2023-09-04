@@ -30,7 +30,7 @@ import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
-export let command: Command = {
+export const command: Command = {
     name: 'membercount',
     description: 'Set a member count channels!',
     options: [

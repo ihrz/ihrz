@@ -34,7 +34,7 @@ import { Command } from '../../../types/command';
 import os from 'os-utils';
 import config from '../../files/config';
 
-export let command: Command = {
+export const command: Command = {
     name: 'status',
     description: 'Get the bot status! (Only for the bot owner)',
     category: 'bot',

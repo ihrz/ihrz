@@ -38,7 +38,7 @@ export = async (client: any) => {
         });
 
         let now2 = new Date();
-        let dateStr = `${now2.toLocaleString('default', { day: '2-digit' })} ${now2.toLocaleString('default', { month: 'short' })} ${now2.getFullYear().toString().substr(-2)} ${now2.toLocaleTimeString('en-US', { hour12: false });} 2023`.toString();
+        let dateStr = `${now2.toLocaleString('default', { day: '2-digit' })} ${now2.toLocaleString('default', { month: 'short' })} ${now2.getFullYear().toString().substr(-2)} ${now2.toLocaleTimeString('en-US', { hour12: false })} 2023`.toString();
 
         logger.legacy(`* iHorizon bash terminal is in power on...`.gray.bgBlack);
         await wait(1000);

@@ -37,11 +37,13 @@ export = async (client: any, interaction: any) => {
     if (!command) return interaction.editReply({ content: "Connection error.", ephemeral: true });
 
     async function slashExecutor() {
+        
         if (await cooldDown()) {
             let data = await client.functions.getLanguageData(interaction.guild.id);
-            interaction.editReply({ content: data.Msg_cooldown, ephemeral: true });
+            await interaction.editReply({ content: data.Msg_cooldown, ephemeral: true });
             return;
         };
+
         try {
             if (await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${interaction.user.id}.blacklisted` })) {
                 await interaction.editReply({

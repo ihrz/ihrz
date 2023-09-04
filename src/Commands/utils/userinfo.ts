@@ -99,7 +99,7 @@ function getBadges(flags: number) {
         .join('');
 };
 
-export let command: Command = {
+export const command: Command = {
     name: 'userinfo',
     description: 'Get information about a user!',
     options: [

@@ -30,7 +30,7 @@ import * as db from '../../core/functions/DatabaseModel';
 import config from '../../files/config';
 import ms from 'ms';
 
-export let command: Command = {
+export const command: Command = {
     name: 'report',
     description: 'Report a bug, error, spell error to the iHorizon\'s dev!',
     options: [

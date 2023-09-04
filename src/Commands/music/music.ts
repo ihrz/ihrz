@@ -27,7 +27,7 @@ import {
 import { QueueRepeatMode } from 'discord-player';
 import { Command } from '../../../types/command';
 
-export let command: Command = {
+export const command: Command = {
     name: "music",
     description: "Subcommand for music category!",
     options: [

@@ -228,5 +228,26 @@ export = async (client: Client, message: any) => {
         return;
     };
 
-    await xpFetcher(), blockSpam(), rankRole(), createAllowList(), suggestion();
+    async function reactToHeyMSG() {
+        if (!message.guild
+            || message.author.bot
+            || !message.channel) return;
+
+        let arg0: string = message.content.split(' ')[0];
+        let recognizeItem: Array<string> = ['hey', 'salut', 'coucou'];
+
+        recognizeItem.forEach(content => {
+            if (arg0.toLocaleLowerCase().startsWith(content.toLocaleLowerCase())) {
+                try {
+                    message.react('👋');
+                    return;
+                } catch (e) {
+                    return;
+                };
+            }
+        });
+        return;
+    };
+
+    await xpFetcher(), blockSpam(), rankRole(), createAllowList(), suggestion(), reactToHeyMSG();
 };

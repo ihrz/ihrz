@@ -30,7 +30,7 @@ import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
-export let command: Command = {
+export const command: Command = {
     name: 'support',
     description: 'Give a roles when guild\'s member have something about your server on them bio!',
     options: [

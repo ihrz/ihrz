@@ -29,7 +29,7 @@ import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import config from '../../files/config';
 
-export let command: Command = {
+export const command: Command = {
     name: 'unowner',
     description: 'The member who wants to delete of the owner list (Only Owner of ihorizon)!',
     options: [

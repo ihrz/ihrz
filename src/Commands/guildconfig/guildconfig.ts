@@ -26,7 +26,7 @@ import {
 
 import { Command } from '../../../types/command';
 
-export let command: Command = {
+export const command: Command = {
     name: "guildconfig",
     description: "Subcommand for guildconfig category!",
     options: [

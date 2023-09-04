@@ -30,7 +30,7 @@ import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
-export let command: Command = {
+export const command: Command = {
     name: 'setlogschannel',
     description: 'Set a logs channels for Audits Logs!',
     options: [

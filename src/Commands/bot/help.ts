@@ -31,7 +31,7 @@ import {
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 
-export let command: Command = {
+export const command: Command = {
     name: 'help',
     description: 'Get a list of all the commands!',
     category: 'bot',

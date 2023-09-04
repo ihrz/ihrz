@@ -27,7 +27,7 @@ import {
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 
-export let command: Command = {
+export const command: Command = {
     name: 'unblacklist',
     description: 'The user you want to unblacklist (Only Owner of ihorizon)!',
     options: [

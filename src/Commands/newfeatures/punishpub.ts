@@ -29,7 +29,7 @@ import {
 import { Command } from '../../../types/command';
 import * as db from '../../core/functions/DatabaseModel';
 
-export let command: Command = {
+export const command: Command = {
     name: 'punishpub',
     description: 'Punish user when he send too much advertisement!',
     options: [
