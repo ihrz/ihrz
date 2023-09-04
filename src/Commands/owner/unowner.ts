@@ -37,7 +37,7 @@ export const command: Command = {
             name: 'member',
             type: ApplicationCommandOptionType.User,
             description: 'The member who wants to delete of the owner list',
-            required: false
+            required: true
         },
     ],
     category: 'owner',
@@ -52,18 +52,14 @@ export const command: Command = {
 
         var member = interaction.options.getUser('member');
 
-        if (member) {
-            if ((member.id !== config.owner.ownerid1) && (member.id !== config.owner.ownerid2)) {
-                await interaction.editReply({ content: data.unowner_cant_unowner_creator });
-                return;
-            };
-            await db.DataBaseModel({ id: db.Delete, key: `GLOBAL.OWNER.${member.id}` });
-
-            await interaction.editReply({ content: data.unowner_command_work.replace(/\${member\.username}/g, member.username) });
-            return;
-        } else {
-            await interaction.editReply({ content: data.unowner_not_owner });
+        if ((member.id === config.owner.ownerid1) || (member.id === config.owner.ownerid2)) {
+            await interaction.editReply({ content: data.unowner_cant_unowner_creator });
             return;
         };
+
+        await db.DataBaseModel({ id: db.Delete, key: `GLOBAL.OWNER.${member.id}` });
+
+        await interaction.editReply({ content: data.unowner_command_work.replace(/\${member\.username}/g, member.username) });
+        return;
     },
 };

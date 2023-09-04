@@ -81,7 +81,7 @@ export = {
                 }) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] })
+                    logchannel.send({ embeds: [logEmbed] });
                 };
             } catch (e: any) {
                 logger.err(e)
