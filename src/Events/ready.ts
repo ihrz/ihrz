@@ -87,7 +87,7 @@ export = async (client: Client) => {
         ];
 
         let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Playing }] });
+        client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Custom }] });
     };
 
     async function refreshSchedule() {
