@@ -38,55 +38,55 @@ interface Badge {
 let badges: { [key: string]: Badge } = {
     Discord_Employee: {
         Value: 1,
-        Emoji: "<:STAFF:1047264630109642802>",
+        Emoji: "<:STAFF:1139545238340374548>",
     },
     Partnered_Server_Owner: {
         Value: 2,
-        Emoji: "<:PARTENAIRE:1047264628704559164>",
+        Emoji: "<:PARTENAIRE:1139545259920068669>",
     },
     HypeSquad_Events: {
         Value: 4,
-        Emoji: "<:HYPESQUAD_EVENTS:1047264625156169778>",
+        Emoji: "<:HYPESQUAD_EVENTS:1139545244476657665>",
     },
     Bug_Hunter_Level_1: {
         Value: 8,
-        Emoji: "<:BUG1:1047264619686789170>",
+        Emoji: "<:BUG1:1139545246246649926>",
     },
     Early_Supporter: {
         Value: 512,
-        Emoji: "<:EARLY:1047264622249521212>",
+        Emoji: "<:EARLY:1139545250394820628>",
     },
     Bug_Hunter_Level_2: {
         Value: 16384,
-        Emoji: "<:BUG2:1047264620873797702>",
+        Emoji: "<:BUG2:1139545241104425072>",
     },
     Early_Verified_Bot_Developer: {
         Value: 131072,
-        Emoji: "<:EARLY_CERTIFIED_DISCORD_BOT_DEVE:1047264623805595758>",
+        Emoji: "<:EARLY_CERTIFIED_DISCORD_BOT_DEVE:1139545239925833860>",
     },
     House_Bravery: {
         Value: 64,
-        Emoji: "<:BRAVERY:1047264617317011556>",
+        Emoji: "<:BRAVERY:1139545256350715924>",
     },
     House_Brilliance: {
         Value: 128,
-        Emoji: "<:BRILLANCE:1047264618554331157>",
+        Emoji: "<:BRILLANCE:1139545266710655176>",
     },
     House_Balance: {
         Value: 256,
-        Emoji: "<:BALANCE:1047264615509270579>",
+        Emoji: "<:BALANCE:1139545247735611564>",
     },
     Active_Developers: {
         Value: 4194304,
-        Emoji: "<:VERIFIED_DEV:1047266396725334078>",
+        Emoji: "<:VERIFIED_DEV:1139545271127253152>",
     },
     Discord_Moderators: {
         Value: 262144,
-        Emoji: "<:MODERATORS:1047264626695483453>",
+        Emoji: "<:MODERATORS:1139545261165781034>",
     },
     Slash_Bot: {
         Value: 524288,
-        Emoji: "<:SLASH_BOTS:1116790067365683251>",
+        Emoji: "<:SLASH_BOTS:1139545263254548631>",
     },
 };
 
