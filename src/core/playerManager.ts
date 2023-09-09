@@ -48,6 +48,7 @@ export = async (client: Client) => {
                 .replace("${track.title}", track.title)
                 .replace("${queue.channel.name}", queue.channel?.name)
         });
+        return;
     });
 
     player.events.on('audioTrackAdd', async (queue: GuildQueue, track: Track) => {
@@ -57,22 +58,25 @@ export = async (client: Client) => {
             content: data.event_mp_audioTrackAdd
                 .replace("${track.title}", track.title)
         });
+        return;
     });
 
     player.events.on('playerError', async (queue: GuildQueue, error: Error) => {
         let data = await client.functions.getLanguageData(queue.channel?.guildId);
 
-        return logger.err(data.event_mp_playerError
+        logger.err(data.event_mp_playerError
             .replace("${error.message}", error.message)
         );
+        return;
     });
 
     player.events.on('error', async (queue: GuildQueue, error: Error) => {
         let data = await client.functions.getLanguageData(queue.channel?.guildId);
 
-        return logger.err(data.event_mp_error
+        logger.err(data.event_mp_error
             .replace("${error.message}", error.message)
         );
+        return;
     });
 
     player.events.on('emptyChannel', async (queue: GuildQueue) => {
@@ -80,6 +84,7 @@ export = async (client: Client) => {
 
         player?.nodes.delete(queue);
         (queue.metadata as any).channel.send({ content: data.event_mp_emptyChannel });
+        return;
     });
 
     player.events.on('playerSkip', async (queue: GuildQueue, track: Track) => {
@@ -89,12 +94,14 @@ export = async (client: Client) => {
             content: data.event_mp_playerSkip
                 .replace("${track.title}", track.title)
         });
+        return;
     });
 
     player.events.on('emptyQueue', async (queue: GuildQueue) => {
         let data = await client.functions.getLanguageData(queue.channel?.guildId);
 
         (queue.metadata as any).channel.send({ content: data.event_mp_emptyQueue });
+        return;
     });
 
     client.player = player;

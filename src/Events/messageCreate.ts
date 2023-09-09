@@ -233,7 +233,6 @@ export = async (client: Client, message: any) => {
             || message.author.bot
             || !message.channel) return;
 
-        let arg0: string = message.content.split(' ')[0];
         let recognizeItem: Array<string> = [
             'hey',
             'salut',
@@ -242,17 +241,21 @@ export = async (client: Client, message: any) => {
             'salem',
             'wesh',
             'hello',
+            'bienvenue',
+            'welcome',
         ];
 
         recognizeItem.forEach(content => {
-            if (arg0.toLocaleLowerCase().startsWith(content.toLocaleLowerCase())) {
+            if (message.content.split(' ')[0]?.toLocaleLowerCase()
+                .startsWith(content.toLocaleLowerCase())) {
+
                 try {
                     message.react('👋');
                     return;
                 } catch (e) {
                     return;
                 };
-            }
+            };
         });
         return;
     };

@@ -45,7 +45,7 @@ export = {
         let results = new EmbedBuilder()
             .setTitle(data.p_embed_title)
             .setColor('#ff0000')
-            .setTimestamp()
+            .setTimestamp();
 
         if (!result.hasTracks()) {
             await interaction.editReply({ embeds: [results] });
@@ -62,6 +62,11 @@ export = {
                 volume: 60,
                 bufferingTimeout: 3000,
                 leaveOnEnd: true,
+                leaveOnEndCooldown: 150000,
+                leaveOnStop: true,
+                leaveOnStopCooldown: 30000,
+                leaveOnEmpty: true,
+                leaveOnEmptyCooldown: 300000,
             },
         });
 

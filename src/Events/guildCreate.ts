@@ -107,6 +107,9 @@ Thanks for choosing me and let's have some fun together!`);
     };
 
     async function ownerLogs() {
+        let i: string = '';
+        if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; };
+
         let embed = new EmbedBuilder()
             .setColor("#00FF00")
             .setTimestamp(guild.joinedTimestamp)
@@ -115,7 +118,7 @@ Thanks for choosing me and let's have some fun together!`);
                 { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
                 { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
                 { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
-                { name: "🪝・Vanity URL", value: `\`${'discord.gg/' + guild.vanityURLCode || "None"}\``, inline: true })
+                { name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true })
             .setThumbnail(guild.iconURL())
             .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL() });
         client.channels.cache.get(config.core.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
