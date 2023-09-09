@@ -35,7 +35,7 @@ export = async (client: Client) => {
         options: command.options,
         type: ApplicationCommandType.ChatInput
     })));
-
+    
     async function term() {
         logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  ")),
             logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ")),

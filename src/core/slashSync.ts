@@ -24,7 +24,7 @@ import logger from "./logger";
 import couleurmdr from 'colors';
 import config from "../files/config";
 
-export = async (client: any, commands: any = {}) => {
+export = async (client: any, commands: any) => {
 
     let log = (message: any) => config.core.debug && message.number > 0 && logger.log(message?.string.replace('{number}', message.number));
 
@@ -36,7 +36,7 @@ export = async (client: any, commands: any = {}) => {
     log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Synchronizing commands...`), number: 1 });
     log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Currently {number} Slash commands are registered.`), number: currentCommands.size });
 
-    let deletedCommands = currentCommands.filter((command: any) => !commands.some((c: any) => c.name === command.name)).toJSON();
+    let deletedCommands = currentCommands.filter((command: any) => !(commands as any).some((c: any) => c.name === command.name)).toJSON();
 
     for (let deletedCommand of deletedCommands) {
         await deletedCommand.delete();
@@ -44,14 +44,14 @@ export = async (client: any, commands: any = {}) => {
 
     log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Deleted {number} Slash commands!`), number: deletedCommands.length });
 
-    let newCommands = commands.filter((command: ApplicationCommand) => !currentCommands.some((c: ApplicationCommand) => c.name === command.name));
+    let newCommands = (commands as any).filter((command: ApplicationCommand) => !currentCommands.some((c: ApplicationCommand) => c.name === command.name));
     for (let newCommand of newCommands) {
         await client.application.commands.create(newCommand);
     };
 
     log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Created {number} Slash commands!`), number: newCommands.length });
 
-    let updatedCommands = commands.filter((command: any) => currentCommands.some((c: any) => c.name === command.name));
+    let updatedCommands = (commands as any).filter((command: any) => currentCommands.some((c: any) => c.name === command.name));
     let updatedCommandCount = 0;
     for (let updatedCommand of updatedCommands) {
         let newCommand = updatedCommand;
@@ -69,10 +69,4 @@ export = async (client: any, commands: any = {}) => {
     log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Updated {number} Slash commands!`), number: updatedCommandCount });
     log({ string: couleurmdr.white(`${config.console.emojis.OK} >> Slash commands are now synchronized with Discord!`), number: 1 });
 
-    return {
-        currentCommandCount: currentCommands.size,
-        newCommandCount: newCommands.length,
-        deletedCommandCount: deletedCommands.length,
-        updatedCommandCount
-    };
 };

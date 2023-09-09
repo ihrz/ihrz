@@ -62,16 +62,20 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
 };
 
 async function loadCommands(client: Client, path: string = `${process.cwd()}/dist/src/Commands`): Promise<void> {
+    
     await db.DataBaseModel({ id: db.Set, key: `BOT.CONTENT`, value: {} });
 
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
+
     client.commands = new Collection<string, Command>();
+
     var i = 0;
     for (let path of paths) {
         if (!path.endsWith('.js')) return;
         i++;
         let command = require(path).command;
+
         await db.DataBaseModel({ id: db.Push, key: `BOT.CONTENT.${command.category}`, value: { cmd: command.name, desc: command.description } });
 
         client.interactions.set(command.name, { name: command.name, ...command });

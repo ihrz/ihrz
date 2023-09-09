@@ -21,12 +21,9 @@
 
 import {
     Client,
-    ApplicationCommandOptionType,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
     EmbedBuilder,
-    ButtonStyle,
-    ButtonBuilder,
     ActionRowBuilder,
     ComponentType,
     ModalBuilder,
