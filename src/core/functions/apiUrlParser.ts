@@ -22,33 +22,41 @@
 import config from "../../files/config";
 
 export let LoginURL =
-    config.api.useHttps ? 'https://' : 'http://' +
-        config.api.domain + ':' + config.api.port;
+    config.api.useProxy ? config.api.proxyUrl :
+        config.api.useHttps ? 'https://' : 'http://' +
+            config.api.domain + ':' + config.api.port;
 
 export let ApiURL =
-    config.api.useHttps ? 'https://' : 'http://' +
-        config.api.domain + ':' + config.api.port + '/api/check/';
+    config.api.useProxy ? config.api.proxyUrl + '/api/check/' :
+        config.api.useHttps ? 'https://' : 'http://' +
+            config.api.domain + ':' + config.api.port + '/api/check/';
 
 export let DatabaseURL =
-    config.api.useHttps ? 'https://' : 'http://' +
-        config.api.domain + ':' + config.api.port + '/api/database/';
+    config.api.useProxy ? config.api.proxyUrl + '/api/database/' :
+        config.api.useHttps ? 'https://' : 'http://' +
+            config.api.domain + ':' + config.api.port + '/api/database/';
 
 export let CaptchaURL =
-    config.api.useHttps ? 'https://' : 'http://' +
-        config.api.domain + ':' + config.api.port + '/api/captcha/';
+    config.api.useProxy ? config.api.proxyUrl + '/api/captcha/' :
+        config.api.useHttps ? 'https://' : 'http://' +
+            config.api.domain + ':' + config.api.port + '/api/captcha/';
 
 export let KissURL =
-    config.api.useHttps ? 'https://' : 'http://' +
-        config.api.domain + ':' + config.api.port + '/api/kiss/';
+    config.api.useProxy ? config.api.proxyUrl + '/api/kiss/' :
+        config.api.useHttps ? 'https://' : 'http://' +
+            config.api.domain + ':' + config.api.port + '/api/kiss/';
 
 export let SlapURL =
-    config.api.useHttps ? 'https://' : 'http://' +
-        config.api.domain + ':' + config.api.port + '/api/slap/';
+    config.api.useProxy ? config.api.proxyUrl + '/api/slap/' :
+        config.api.useHttps ? 'https://' : 'http://' +
+            config.api.domain + ':' + config.api.port + '/api/slap/';
 
 export let HugURL =
-    config.api.useHttps ? 'https://' : 'http://' +
-        config.api.domain + ':' + config.api.port + '/api/hug/';
+    config.api.useProxy ? config.api.proxyUrl + '/api/hug/' :
+        config.api.useHttps ? 'https://' : 'http://' +
+            config.api.domain + ':' + config.api.port + '/api/hug/';
 
 export let assets =
-    config.api.useHttps ? 'https://' : 'http://' +
-        config.api.domain + ':' + config.api.port + '/assets/';
+    config.api.useProxy ? config.api.proxyUrl + '/assets/' :
+        config.api.useHttps ? 'https://' : 'http://' +
+            config.api.domain + ':' + config.api.port + '/assets/';

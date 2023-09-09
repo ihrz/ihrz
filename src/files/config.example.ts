@@ -94,6 +94,12 @@ export default {
         "port": "3000",
         // The port of the API.
 
+        "useProxy": false,
+        // For example you use nginx&certbot to make the Front-end
+
+        "proxyUrl": "https://login.example.com",
+        // You need the entire URL of the proxy!
+
         "apiToken": "The API's token for create a request (Need to be private for security reason)",
         // The API token for secure requests, please put a strong token.
 

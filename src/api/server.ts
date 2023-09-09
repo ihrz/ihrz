@@ -70,8 +70,8 @@ app.get('/', (_req, res) => {
 
 if (config.api.useHttps) {
     let options = {
-        key: fs.readFileSync(`${process.cwd()}/files/certificat.key`),
-        cert: fs.readFileSync(`${process.cwd()}/files/certificat.crt`)
+        key: fs.readFileSync(`${process.cwd()}/src/files/certificat.key`),
+        cert: fs.readFileSync(`${process.cwd()}/src/files/certificat.crt`)
     };
 
     let server = https.createServer(options, app);

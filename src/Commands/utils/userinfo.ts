@@ -142,16 +142,17 @@ export const command: Command = {
         try {
             let response = await axios.post(apiUrlParser.ApiURL, requestData);
             let description = '';
+
             if (response.data.available === 'yes') {
                 let access_token = response.data.connectionToken;
                 let userData = await oauth.getUser(access_token);
 
                 if (userData.premium_type === 1) {
-                    nitr0 = '<:NITRO:1047317443770581062>';
+                    nitr0 = '<:NITRO:1139545249086181488>';
                 } else if (userData.premium_type === 2) {
-                    nitr0 = '<:NITRO:1047317443770581062><:BOOST:1047322188493099038>';
+                    nitr0 = '<:NITRO:1139545249086181488><:BOOST:1139545269743141014>';
                 } else if (userData.premium_type === 3) {
-                    nitr0 = '<:NITRO:1047317443770581062>';
+                    nitr0 = '<:NITRO:1139545249086181488>';
                 };
             };
 
