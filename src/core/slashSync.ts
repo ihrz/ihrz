@@ -24,7 +24,9 @@ import logger from "./logger";
 import couleurmdr from 'colors';
 import config from "../files/config";
 
-export = async (client: any, commands: any) => {
+import { Command } from '../../types/command';
+
+export = async (client: any, commands: Command) => {
 
     let log = (message: any) => config.core.debug && message.number > 0 && logger.log(message?.string.replace('{number}', message.number));
 
