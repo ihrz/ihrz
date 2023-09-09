@@ -23,7 +23,8 @@ export default {
 
     discord: {
 
-        "token": "The bot token",
+        "token": process.env.BOT_TOKEN
+            || "The bot token",
         // The Discord Bot Token
 
     },
@@ -64,12 +65,13 @@ export default {
         always show 100% for their love, adding it to the array
         Format: {USER_ID_ONE}x{USER_ID_TWO}
         */
-       
+
     },
 
     owner: {
 
-        "ownerid1": "The discord User ID of the Owner number One",
+        "ownerid1": process.env.OWNER_ONE ||
+            "The discord User ID of the Owner number One",
 
         "ownerid2": "The discord User ID of the Owner number Two",
         /*
@@ -80,7 +82,7 @@ export default {
         * They can't be blacklisted by owner who are in the Database.
         * They can't be banned by owner who are in the Database.
         */
-       
+
     },
 
     api: {
@@ -88,10 +90,12 @@ export default {
         "useHttps": false,
         // If you want to use HTTPS, put true, otherwise leave false.
 
-        "domain": "login.domain.com",
+        "domain": process.env.HOST ||
+            "login.domain.com",
         // If you want to use Domain, else put ipv4 address.
 
-        "port": "3000",
+        "port": process.env.PORT ||
+            "3000",
         // The port of the API.
 
         "useProxy": false,
@@ -106,7 +110,8 @@ export default {
         "clientSecret": "The client Secret of your application",
         // The client secret of the Discord Application which is used to login for Oauth2.
 
-        "clientID": "The client ID of your application",
+        "clientID": process.env.CLIENT_ID ||
+            "The client ID of your application",
         // The client ID of the Discord Application which is used to login for Oauth2.
 
         "oauth2Link": "The oauth2Link of your application",
@@ -135,7 +140,7 @@ export default {
         if you want to use MongoDB, put false.
         */
 
-        "useDatabaseAPI": true,
+        "useDatabaseAPI": false,
         /*
         If you want to use the database API before the QuickDB, put true,
         If you want to use direclty the QuickDB wrapper, put false.
