@@ -43,7 +43,6 @@ let client = new Client({
         GatewayIntentBits.GuildWebhooks,
         GatewayIntentBits.Guilds,
         GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildPresences
     ], partials: [Partials.Message, Partials.Channel, Partials.Reaction]
 });
 

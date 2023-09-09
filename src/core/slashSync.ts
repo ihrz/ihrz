@@ -26,13 +26,12 @@ import config from "../files/config";
 
 export = async (client: any, commands: any = {}) => {
 
-    let guildId: any;
     let log = (message: any) => config.core.debug && message.number > 0 && logger.log(message?.string.replace('{number}', message.number));
 
     let ready = client.readyAt ? Promise.resolve() : new Promise(resolve => client.once('ready', resolve));
     await ready;
 
-    let currentCommands = await client.application.commands.fetch(guildId ? { guildId } : undefined);
+    let currentCommands = await client.application.commands.fetch();
 
     log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Synchronizing commands...`), number: 1 });
     log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Currently {number} Slash commands are registered.`), number: currentCommands.size });
@@ -47,7 +46,7 @@ export = async (client: any, commands: any = {}) => {
 
     let newCommands = commands.filter((command: ApplicationCommand) => !currentCommands.some((c: ApplicationCommand) => c.name === command.name));
     for (let newCommand of newCommands) {
-        await client.application.commands.create(newCommand, guildId);
+        await client.application.commands.create(newCommand);
     };
 
     log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Created {number} Slash commands!`), number: newCommands.length });

@@ -25,20 +25,20 @@ import { join as pathJoin } from "node:path";
 import logger from "../logger";
 import config from "../../files/config";
 
-async function buildDirectoryTree(path: string): Promise<(string|object)[]> {
+async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     let result = [];
     let dir = await opendir(path);
     for await (let dirent of dir) {
         if (dirent.isDirectory()) {
             result.push({ name: dirent.name, sub: await buildDirectoryTree(pathJoin(path, dirent.name)) });
-        } else  {
+        } else {
             result.push(dirent.name);
         }
     }
     return result;
-}
+};
 
-function buildPaths(basePath: string, directoryTree: (string|object)[]): string[] {
+function buildPaths(basePath: string, directoryTree: (string | object)[]): string[] {
     let paths = [];
     for (let elt of directoryTree) {
         switch (typeof elt) {
@@ -55,7 +55,7 @@ function buildPaths(basePath: string, directoryTree: (string|object)[]): string[
         }
     }
     return paths;
-}
+};
 
 async function loadEvents(client: Client, path: string = `${process.cwd()}/dist/src/Events`): Promise<void> {
     let directoryTree = await buildDirectoryTree(path);
@@ -69,6 +69,6 @@ async function loadEvents(client: Client, path: string = `${process.cwd()}/dist/
         client.on(`${patharray[patharray.length - 1].replace('.js', '')}`, eevent.bind(null, client));
     }
     logger.log(`${config.console.emojis.OK} >> Loaded ${i} events.`);
-}
+};
 
 export = loadEvents;

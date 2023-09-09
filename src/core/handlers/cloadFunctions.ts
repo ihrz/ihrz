@@ -22,7 +22,7 @@
 import { Client } from "discord.js";
 import { readdirSync } from "fs";
 
-export = async(client: Client) => {
+export = async (client: Client) => {
     client.functions = {};
     readdirSync(`${process.cwd()}/dist/src/core/functions`).filter(file => file.endsWith(".js")).forEach(file => {
         client.functions[file.split('.js')[0]] = require(`${process.cwd()}/dist/src/core/functions/${file}`);
