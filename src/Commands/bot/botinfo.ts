@@ -25,6 +25,7 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
+import * as pkg from '../../../package.json';
 
 export const command: Command = {
     name: 'botinfo',
@@ -32,9 +33,9 @@ export const command: Command = {
     category: 'bot',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
-        let usersize = client.users.cache.size
-        let chansize = client.channels.cache.size
-        let servsize = client.guilds.cache.size
+        let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
+        let chansize = client.channels.cache.size;
+        let servsize = client.guilds.cache.size;
         let pp: any = client.user?.displayAvatarURL();
 
         let clientembed = new EmbedBuilder()
@@ -45,8 +46,8 @@ export const command: Command = {
                 { name: data.botinfo_embed_fields_mychannels, value: `:green_circle: ${chansize}`, inline: false },
                 { name: data.botinfo_embed_fields_myservers, value: `:green_circle: ${servsize}`, inline: false },
                 { name: data.botinfo_embed_fields_members, value: `:green_circle: ${usersize}`, inline: false },
-                { name: data.botinfo_embed_fields_libraires, value: `:green_circle: discord.js@^14.11.0`, inline: false },
-                { name: data.botinfo_embed_fields_created_at, value: ":green_circle: 14/09/2020", inline: false },
+                { name: data.botinfo_embed_fields_libraires, value: `:green_circle: discord.js@${pkg.dependencies['discord.js']}`, inline: false },
+                { name: data.botinfo_embed_fields_created_at, value: ":green_circle: <t:1600042320:R>", inline: false },
                 { name: data.botinfo_embed_fields_created_by, value: ":green_circle: <@171356978310938624>", inline: false },
             )
             .setTimestamp()
