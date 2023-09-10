@@ -13,10 +13,13 @@ FROM node:20
 WORKDIR /app
 
 # Clone the Github repo
-RUN git clone https://github.com/ihrz/ihrz .
+RUN git clone https://github.com/ihrz/ihrz ./
 
 # Install ffmpeg for Music Module
 RUN apt update && apt install -y ffmpeg
+
+# COPY . .
+COPY ./src/files/config.example.ts ./src/files/config.ts
 
 # Install the dependecies with npm
 RUN npm install

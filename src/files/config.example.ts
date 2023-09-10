@@ -41,10 +41,10 @@ export default {
         "debug": true,
         // Debug information about the slash command when he create/remove/update
 
-        "devMode": false,
+        "devMode": true,
         // true => log's ERROR are been in the console OR false => In the .err_logs folder.
 
-        "bash": true,
+        "bash": false,
         // true => Beautiful iHorizon bash on the console OR false => Disable them.
 
         "blacklistPictureInEmbed": "The image of the blacklist's Embed (When blacklisted user attempt to interact with the bot)",
