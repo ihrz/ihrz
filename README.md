@@ -1,7 +1,6 @@
 # Official iHorizon Repo
 
 iHorizon is a Discord bot written in [TypeScript](https://www.typescriptlang.org/) and using [discord.js](https://discord.js.org) !
-`<br>`
 IHorizon have a large variety of features, including moderation, invite management, guild configuration, fun commands, music playback, giveaways, backup and lot more!
 
 ## Languages
@@ -74,24 +73,21 @@ npm build && npm start
 # About the bot
 
 Trusted by **+238k** users!
-`<br>`
 Used by 100+ servers as their only bot!
-`<br>`
-iHorizon is now certified by Discord. We have achieved our goal of +75 servers before starting the certification process!`<br><br>`
+iHorizon is now certified by Discord. We have achieved our goal of +75 servers before starting the certification process!
 
-To join the Official Discord Support Server, please visit our website at [Official Server Link](http://discord.ihorizon.me/) or click on this link: [Other Link](https://discord.gg/ZpBPGNsAsu).`<br><br>`
-To invite the official Discord bot, please click on this link: [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot).`<br><br>`
+To join the Official Discord Support Server, please visit our website at [Official Server Link](http://discord.ihorizon.me/) or click on this link: [Other Link](https://discord.gg/ZpBPGNsAsu).
+To invite the official Discord bot, please click on this link: [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot).
 
 If you have any questions or concerns, you can contact the owner via Discord at 2h0.
 
 # About the owner
 
-**Kisakay** (*formerly known as Ezermoz*) has not changed their identity, but has simply embraced who they truly are as a person. She now goes by she/her pronouns.`<br><br>`
+**Kisakay** (*formerly known as Ezermoz*) has not changed their identity, but has simply embraced who they truly are as a person. She now goes by she/her pronouns.
 
 In the `LICENSE` files, the name `Anaïs Saraiva` is the name of the owner.
 
 ## Remarks
 
 Any sorts of hate trowards any contributor will not be tolerated.
-`<br><br>`
 Regardless of the type and the level of hate.
