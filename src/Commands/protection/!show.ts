@@ -37,16 +37,15 @@ export = {
         });
 
         if (!baseData) {
-            let ie = {
-                enable: false,
-                list: {
-                    [`${interaction.guild.ownerId}`]: { allowed: true },
-                },
-            };
 
             await db.DataBaseModel({
                 id: db.Set, key: `${interaction.guild.id}.ALLOWLIST`,
-                value: ie
+                value: {
+                    enable: false,
+                    list: {
+                        [`${interaction.guild.ownerId}`]: { allowed: true },
+                    },
+                }
             });
 
             baseData = await db.DataBaseModel({

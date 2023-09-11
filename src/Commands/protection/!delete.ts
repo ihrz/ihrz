@@ -34,7 +34,7 @@ export = {
                 `${interaction.guild.id}.ALLOWLIST`
         });
 
-        if (baseData.list[interaction.user.id]?.allowed !== true) {
+        if (interaction.user.id !== interaction.guild.ownerId && baseData.list[interaction.user.id]?.allowed !== true) {
             await interaction.editReply({ content: 'You are not authorized to use this command! You must be in the allowlist!' });
             return;
         };

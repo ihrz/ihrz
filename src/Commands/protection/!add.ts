@@ -34,7 +34,7 @@ export = {
                 `${interaction.guild.id}.ALLOWLIST`
         });
 
-        if (baseData.list[interaction.user.id]?.allowed !== true) {
+        if (interaction.user.id !== interaction.guild.ownerId && baseData.list[interaction.user.id]?.allowed !== true) {
             await interaction.editReply({ content: 'You are not authorized to use this command! You must be in the allowlist!' });
             return;
         };
@@ -51,8 +51,8 @@ export = {
             return;
         };
 
-        if (baseData.list[member.user.id]?.allowed == true) {
-            await interaction.editReply({ content: "The member you want to add from the allowlist isn't in it!" });
+        if (baseData?.list[member.user.id]?.allowed == true) {
+            await interaction.editReply({ content: "The member you want to add from the allowlist is already in!" });
             return;
         };
 
