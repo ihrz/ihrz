@@ -148,7 +148,7 @@ export = async (client: Client, message: any) => {
 
             let embed = new EmbedBuilder()
                 .setDescription(data.event_rank_role
-                    .replace("${message.autuhor.id}", message.author.id)
+                    .replace("${message.author.id}", message.author.id)
                     .replace("${fetch.id}", fetch.id)
                 )
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
