@@ -41,16 +41,17 @@ export = {
             }
         };
 
-        let user_1 = (await axios.get(`https://discord.com/api/v8/users/${user?.id}`, config))?.data
-        
-        if (user_1?.['banner'].substring(0, 2) === 'a_') {
+        let user_1 = (await axios.get(`https://discord.com/api/v8/users/${user?.id}`, config))?.data;
+        let banner = user_1?.['banner'];
+
+        if (banner !== null && banner?.substring(0, 2) === 'a_') {
             format = 'gif'
         };
 
         let embed = new EmbedBuilder()
             .setColor('#c4afed')
             .setTitle(data.banner_user_embed.replace('${user?.username}', user?.username))
-            .setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${user_1?.['banner']}.${format}?size=4096`)
+            .setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=4096`)
             .setThumbnail((user?.displayAvatarURL({ size: 4096 }) as string))
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL({ size: 4096 }) })
 

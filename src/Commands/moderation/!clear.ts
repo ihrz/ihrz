@@ -31,13 +31,14 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)
-        var numberx = interaction.options.getNumber("number") + 1;
+        var numberx = interaction.options.getNumber("number");
+        
         if (!permission) {
             await interaction.editReply({ content: data.clear_dont_have_permission });
             return;
         }
 
-        if (numberx > 98) {
+        if (numberx > 100) {
             await interaction.editReply({ content: data.clear_max_message_limit });
             return;
         };
