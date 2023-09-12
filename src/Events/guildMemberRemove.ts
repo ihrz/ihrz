@@ -30,39 +30,36 @@ export = async (client: Client, member: any) => {
     async function memberCount() {
         try {
             let botMembers = member.guild.members.cache.filter((member: { user: { bot: any; }; }) => member.user.bot);
-            let rolesCollection = member.guild.roles.cache;
-            let rolesCount = rolesCollection.size;
+            let rolesCount = member.guild.roles.cache.size;
 
-            let bot = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.MCOUNT.bot` });
-            let member_2 = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.MCOUNT.member` });
-            let roles = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.MCOUNT.roles` });
+            let baseData = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.MCOUNT` });
+            let bot = baseData?.bot;
+            let member_2 = baseData?.member;
+            let roles = baseData?.roles;
 
             if (bot) {
                 let joinmsgreplace = bot.name
-                    .replace("{rolescount}", rolesCount)
-                    .replace("{membercount}", member.guild.memberCount)
                     .replace("{botcount}", botMembers.size);
-                let fetched = member.guild.channels.cache.get(bot.channel);
-                await fetched.edit({ name: joinmsgreplace }).then(() => { });
-            }
 
-            if (member_2) {
+                let Fetched = member.guild.channels.cache.get(bot.channel);
+                Fetched.edit({ name: joinmsgreplace });
+                return;
+            } else if (member_2) {
                 let joinmsgreplace = member_2.name
-                    .replace("{rolescount}", rolesCount)
-                    .replace("{membercount}", member.guild.memberCount)
-                    .replace("{botcount}", botMembers.size);
-                let fetched = member.guild.channels.cache.get(member_2.channel);
-                await fetched.edit({ name: joinmsgreplace });
-            }
+                    .replace("{membercount}", member.guild.memberCount);
 
-            if (roles) {
+                let Fetched = member.guild.channels.cache.get(member_2.channel);
+                Fetched.edit({ name: joinmsgreplace });
+                return;
+            } else if (roles) {
                 let joinmsgreplace = roles.name
-                    .replace("{rolescount}", rolesCount)
-                    .replace("{membercount}", member.guild.memberCount)
-                    .replace("{botcount}", botMembers.size);
-                let fetched = member.guild.channels.cache.get(roles.channel);
-                await fetched.edit({ name: joinmsgreplace });
-            }
+                    .replace("{rolescount}", rolesCount);
+
+                let Fetched = member.guild.channels.cache.get(roles.channel);
+                Fetched.edit({ name: joinmsgreplace });
+                return;
+            };
+
         } catch (e) { return };
     };
 
@@ -144,7 +141,7 @@ export = async (client: Client, member: any) => {
             )
             .setTimestamp();
 
-        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
+        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
     };
 
     await memberCount(), goodbyeMessage(), serverLogs();

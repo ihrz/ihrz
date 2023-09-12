@@ -125,7 +125,7 @@ export const command: Command = {
                 } catch (e: any) { logger.err(e) };
                 let fetched = interaction.guild.channels.cache.get(channel.id);
 
-                await fetched.edit({ name: joinmsgreplace });
+                fetched.edit({ name: joinmsgreplace });
                 await interaction.editReply({ content: data.setmembercount_command_work_on_enable });
                 return;
             };
