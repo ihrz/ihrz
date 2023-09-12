@@ -409,6 +409,10 @@ blockbot_command_work_on_disable: "**`BlockPub` を無効にしました**\nボ�
 blockbot_logs_disable_commmand_work: "BlockBot ログ"
 blockbot_logs_disable_description: "${interaction.user}（サーバーのオーナー）が `BlockBot` を __無効化__ しました。ボットはこのサーバーに追加できるようになります！"
 
+# /banner
+banner_guild_embed: "**これはギルドサーバーバナーです！**"
+banner_user_embed: "**これは${user?.username}のバナーです！**"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

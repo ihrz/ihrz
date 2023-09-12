@@ -409,6 +409,10 @@ blockbot_command_work_on_disable: "**Du hast `BlockPub` deaktiviert**\nJetzt kan
 blockbot_logs_disable_commmand_work: "BlockBot-Protokoll"
 blockbot_logs_disable_description: "${interaction.user} (Der Besitzer des Servers) hat `BlockBot` __deaktiviert__. Jetzt kann der Bot zu diesem Server hinzugefügt werden!"
 
+# /banner
+banner_guild_embed: "**Dies ist das Banner des Gildenservers!**"
+banner_user_embed: "**Dies ist das Banner von ${user?.username}!**"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
