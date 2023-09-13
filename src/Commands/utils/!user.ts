@@ -51,9 +51,11 @@ export = {
         let embed = new EmbedBuilder()
             .setColor('#c4afed')
             .setTitle(data.banner_user_embed.replace('${user?.username}', user?.username))
-            .setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=4096`)
-            .setThumbnail((user?.displayAvatarURL({ size: 4096 }) as string))
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL({ size: 4096 }) })
+            .setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
+            .setThumbnail((user?.displayAvatarURL() as string))
+            .setFooter({
+                text: 'iHorizon', iconURL: client.user?.displayAvatarURL()
+            });
 
         await interaction.editReply({ embeds: [embed] });
         return;
