@@ -27,12 +27,25 @@ import {
 
 import * as db from '../../core/functions/DatabaseModel';
 
+interface Action {
+    type: number;
+    metadata: Record<string, any>;
+}
+
+interface CustomMessageMetadata {
+    customMessage: string;
+}
+
+interface ChannelMetadata {
+    channel: string;
+}
+
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let turn = interaction.options.getString("action");
         let max_mention = interaction.options.getNumber('max-mention-allowed') || 3;
-        let logs_channel = interaction.options.getChannel('logs-channel') || 'None';
+        let logs_channel = interaction.options.getChannel('logs-channel');
 
         let automodRules = await interaction.guild.autoModerationRules.fetch();
 
@@ -44,10 +57,27 @@ export = {
             return;
 
         } else if (turn === "on") {
+            let arrayActionsForRule: Action[] = [
+                {
+                    type: 1,
+                    metadata: {
+                        customMessage: "This message was prevented by iHorizon"
+                    }
+                },
+            ];
+
+            if (logs_channel) {
+                arrayActionsForRule.push({
+                    type: 2,
+                    metadata: {
+                        channel: logs_channel,
+                    }
+                });
+            };
 
             if (!mentionSpamRule) {
 
-                let rule = await interaction.guild.autoModerationRules.create({
+                await interaction.guild.autoModerationRules.create({
                     name: 'Block mass-mention spam by iHorizon',
                     creatorId: client.user?.id,
                     enabled: true,
@@ -58,21 +88,9 @@ export = {
                         mentionTotalLimit: max_mention,
                         presets: [1, 2, 3]
                     },
-                    actions: [
-                        {
-                            type: 1,
-                            metadata: {
-                                customMessage: "This message was prevented by iHorizon"
-                            }
-                        },
-                        {
-                            type: 2,
-                            metadata: {
-                                channel: logs_channel,
-                            }
-                        },
-                    ]
+                    actions: arrayActionsForRule
                 });
+
                 console.log('Règle créer !')
 
             } else if (mentionSpamRule) {
@@ -83,30 +101,17 @@ export = {
                         mentionTotalLimit: max_mention,
                         presets: [1, 2, 3]
                     },
-                    actions: [
-                        {
-                            type: 1,
-                            metadata: {
-                                customMessage: "This message was prevented by iHorizon"
-                            }
-                        },
-                        {
-                            type: 2,
-                            metadata: {
-                                channel: logs_channel,
-                            }
-                        },
-                    ]
+                    actions: arrayActionsForRule
                 });
 
                 console.log('Règle modifié !')
-            }
+            };
 
             await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.mass_mention`, value: "on" });
             await interaction.editReply({
                 content: data.automod_block_massmention_command_on
                     .replace('${interaction.user}', interaction.user)
-                    .replace('${logs_channel}', logs_channel)
+                    .replace('${logs_channel}', logs_channel || 'None')
                     .replace('${max_mention}', max_mention)
             });
             return;
@@ -118,8 +123,6 @@ export = {
             await interaction.editReply({
                 content: data.automod_block_massmention_command_off
                     .replace('${interaction.user}', interaction.user)
-                    .replace('${logs_channel}', logs_channel)
-                    .replace('${max_mention}', max_mention)
             });
             return;
         };

@@ -27,6 +27,19 @@ import {
 
 import * as db from '../../core/functions/DatabaseModel';
 
+interface Action {
+    type: number;
+    metadata: Record<string, any>;
+}
+
+interface CustomMessageMetadata {
+    customMessage: string;
+}
+
+interface ChannelMetadata {
+    channel: string;
+}
+
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
@@ -42,6 +55,23 @@ export = {
             await interaction.editReply({ content: data.blockpub_not_admin });
             return;
         } else if (turn === "on") {
+            let arrayActionsForRule: Action[] = [
+                {
+                    type: 1,
+                    metadata: {
+                        customMessage: "This message was prevented by iHorizon"
+                    }
+                },
+            ];
+
+            if (logs_channel) {
+                arrayActionsForRule.push({
+                    type: 2,
+                    metadata: {
+                        channel: logs_channel,
+                    }
+                });
+            };
 
             if (!spamRule) {
                 await interaction.guild.autoModerationRules.create({
@@ -54,20 +84,7 @@ export = {
                     {
                         presets: [1, 2, 3]
                     },
-                    actions: [
-                        {
-                            type: 1,
-                            metadata: {
-                                customMessage: "This message was prevented by iHorizon"
-                            }
-                        },
-                        {
-                            type: 2,
-                            metadata: {
-                                channel: logs_channel,
-                            }
-                        }
-                    ]
+                    actions: arrayActionsForRule
                 });
 
                 console.log('Règles (spam) créer!')
@@ -82,31 +99,17 @@ export = {
                     {
                         presets: [1, 2, 3]
                     },
-                    actions: [
-                        {
-                            type: 1,
-                            metadata: {
-                                customMessage: "This message was prevented by iHorizon"
-                            }
-                        },
-                        {
-                            type: 2,
-                            metadata: {
-                                channel: logs_channel,
-                            }
-                        }
-                    ]
+                    actions: arrayActionsForRule
                 });
 
                 console.log('Règles (spam) modifié!')
-
             };
 
             await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.spam`, value: "on" });
             await interaction.editReply({
                 content: data.automod_block_spam_command_on
                     .replace('${interaction.user}', interaction.user)
-                    .replace('${logs_channel}', logs_channel)
+                    .replace('${logs_channel}', logs_channel || 'None')
             });
             return;
         } else if (turn === "off") {
@@ -117,7 +120,6 @@ export = {
             await interaction.editReply({
                 content: data.automod_block_spam_command_off
                     .replace('${interaction.user}', interaction.user)
-                    .replace('${logs_channel}', logs_channel)
             });
             return;
         };

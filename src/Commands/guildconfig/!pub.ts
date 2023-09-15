@@ -27,6 +27,19 @@ import {
 
 import * as db from '../../core/functions/DatabaseModel';
 
+interface Action {
+    type: number;
+    metadata: Record<string, any>;
+}
+
+interface CustomMessageMetadata {
+    customMessage: string;
+}
+
+interface ChannelMetadata {
+    channel: string;
+}
+
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
@@ -44,6 +57,24 @@ export = {
         } else if (turn === "on") {
 
             if (!KeywordPresetRule) {
+                let arrayActionsForRule: Action[] = [
+                    {
+                        type: 1,
+                        metadata: {
+                            customMessage: "This message was prevented by iHorizon"
+                        }
+                    },
+                ];
+
+                if (logs_channel) {
+                    arrayActionsForRule.push({
+                        type: 2,
+                        metadata: {
+                            channel: logs_channel,
+                        }
+                    });
+                };
+
                 await interaction.guild.autoModerationRules.create({
                     name: 'Block advertissement message by iHorizon',
                     creatorId: client.user?.id,
@@ -58,20 +89,7 @@ export = {
                             '\b(https?:\/\/)?\S+\.\S+\b'
                         ]
                     },
-                    actions: [
-                        {
-                            type: 1,
-                            metadata: {
-                                customMessage: "This message was prevented by iHorizon"
-                            }
-                        },
-                        {
-                            type: 2,
-                            metadata: {
-                                channel: logs_channel,
-                            }
-                        },
-                    ]
+                    actions: arrayActionsForRule
                 });
 
                 console.log('Règles (pub) créer!')
@@ -111,7 +129,7 @@ export = {
             await interaction.editReply({
                 content: data.automod_block_pub_command_on
                     .replace('${interaction.user}', interaction.user)
-                    .replace('${logs_channel}', logs_channel)
+                    .replace('${logs_channel}', logs_channel || 'None')
             });
 
             return;
