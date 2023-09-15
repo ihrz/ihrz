@@ -22,7 +22,8 @@
 import {
     Client,
     ApplicationCommandOptionType,
-    EmbedBuilder
+    EmbedBuilder,
+    PermissionsBitField
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -44,6 +45,13 @@ export const command: Command = {
         let str = interaction.options.getString('emojis').split(' ')
         let cnt: number = 0;
         let nemj: string = '';
+
+
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            await interaction.editReply({ content: data.punishpub_not_admin });
+            return;
+        };
+
         for (let emoji of str) {
             let match = emoji.match(/:(\w+):(\d+)>/);
             if (match) {
