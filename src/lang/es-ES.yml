@@ -567,6 +567,18 @@ setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> conf
 setlogschannel_logs_embed_title_on_off: "Configuración de registros del servidor"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> eliminó todos los `SERVER_LOGS` en el servidor!"
 
+# /automod block mass-mention
+automod_block_massmention_command_off: "${interaction.user}, has desactivado la regla de `AutoModeración de Menciones Masivas` a **falso**.\nAhora los usuarios pueden enviar menciones en sus mensajes.\nAutoModeración x iHorizon ha sido desactivada en tu servidor."
+automod_block_massmention_command_on: "${interaction.user}, has activado la regla de `AutoModeración de Menciones Masivas` a **verdadero**.\nAhora los usuarios no pueden enviar más de **${max_mention}** mención(es) en sus mensajes.\nAutoModeración __enviando registros__ en ${logs_channel}.\nAutoModeración x iHorizon protege tu servidor!"
+
+# /automod block pub
+automod_block_pub_command_on: "${interaction.user}, has activado la regla de `AutoModeración de Publicidad` a **verdadero**.\nAhora los usuarios no pueden enviar publicidad en sus mensajes.\nAutoModeración __enviando registros__ en ${logs_channel}.\nAutoModeración x iHorizon protege tu servidor!"
+automod_block_pub_command_off: "${interaction.user}, has desactivado la regla de `AutoModeración de Publicidad` a **falso**.\nAhora los usuarios pueden enviar publicidad en sus mensajes.\nAutoModeración x iHorizon ha sido desactivada en tu servidor!"
+
+# /automod block spam
+automod_block_spam_command_on: "${interaction.user}, has activado la regla de `AutoModeración de Spam` a **verdadero**.\nAhora los usuarios no pueden hacer spam.\nAutoModeración __enviando registros__ en ${logs_channel}.\nAutoModeración x iHorizon protege tu servidor!"
+automod_block_spam_command_off: "${interaction.user}, has desactivado la regla de `AutoModeración de Spam` a **falso**.\nAhora los usuarios pueden hacer spam.\nAutoModeración x iHorizon ha sido desactivada en tu servidor!"
+
 
 # Member Count commands
 # /setmembercount

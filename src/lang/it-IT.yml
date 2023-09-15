@@ -567,6 +567,18 @@ setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> ha i
 setlogschannel_logs_embed_title_on_off: "Impostazione ServerLogs"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> ha eliminato tutti i `SERVER_LOGS` nel server!"
 
+# /automod block mass-mention
+automod_block_massmention_command_off: "${interaction.user}, hai impostato la regola `AutoMod Mass Mention` su **false**.\nOra gli utenti possono inviare menzioni nei loro messaggi.\nAutoMod x iHorizon è stato disattivato nel tuo server!"
+automod_block_massmention_command_on: "${interaction.user}, hai impostato la regola `AutoMod Mass Mention` su **true**.\nOra gli utenti non possono inviare più di **${max_mention}** menzioni nei loro messaggi.\nAutoMod __invia registri__ in ${logs_channel}.\nAutoMod x iHorizon protegge il tuo server!"
+
+# /automod block pub
+automod_block_pub_command_on: "${interaction.user}, hai impostato la regola `AutoMod Pubblicità` su **true**.\nOra gli utenti non possono inviare pubblicità nei loro messaggi.\nAutoMod __invia registri__ in ${logs_channel}.\nAutoMod x iHorizon protegge il tuo server!"
+automod_block_pub_command_off: "${interaction.user}, hai impostato la regola `AutoMod Pubblicità` su **false**.\nOra gli utenti possono inviare pubblicità nei loro messaggi.\nAutoMod x iHorizon è stato disattivato nel tuo server!"
+
+# /automod block spam
+automod_block_spam_command_on: "${interaction.user}, hai impostato la regola `AutoMod Spam` su **true**.\nOra gli utenti non possono fare spam.\nAutoMod __invia registri__ in ${logs_channel}.\nAutoMod x iHorizon protegge il tuo server!"
+automod_block_spam_command_off: "${interaction.user}, hai impostato la regola `AutoMod Spam` su **false**.\nOra gli utenti possono fare spam.\nAutoMod x iHorizon è stato disattivato nel tuo server!"
+
 
 # Member Count commands
 # /setmembercount

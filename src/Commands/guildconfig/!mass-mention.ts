@@ -31,11 +31,13 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let turn = interaction.options.getString("action");
-        let logs_channel = interaction.options.getChannel('logs-channel');
+        let max_mention = interaction.options.getNumber('max-mention-allowed') || 3;
+        let logs_channel = interaction.options.getChannel('logs-channel') || 'None';
 
         let automodRules = await interaction.guild.autoModerationRules.fetch();
-        let KeywordPresetRule = automodRules
-            .find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
+
+        let mentionSpamRule = automodRules
+            .find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.MentionSpam);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.blockpub_not_admin });
@@ -43,20 +45,18 @@ export = {
 
         } else if (turn === "on") {
 
-            if (!KeywordPresetRule) {
-                await interaction.guild.autoModerationRules.create({
-                    name: 'Block advertissement message by iHorizon',
+            if (!mentionSpamRule) {
+
+                let rule = await interaction.guild.autoModerationRules.create({
+                    name: 'Block mass-mention spam by iHorizon',
                     creatorId: client.user?.id,
                     enabled: true,
                     eventType: 1,
-                    triggerType: 1,
+                    triggerType: 5,
                     triggerMetadata:
                     {
-                        regexPatterns: [
-                            '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
-                            '\bhttps?:\/\/\S+\b',
-                            '\b(https?:\/\/)?\S+\.\S+\b'
-                        ]
+                        mentionTotalLimit: max_mention,
+                        presets: [1, 2, 3]
                     },
                     actions: [
                         {
@@ -73,20 +73,15 @@ export = {
                         },
                     ]
                 });
+                console.log('Règle créer !')
 
-                console.log('Règles (pub) créer!')
-            } else if (KeywordPresetRule) {
-
-                KeywordPresetRule.edit({
+            } else if (mentionSpamRule) {
+                await mentionSpamRule.edit({
                     creatorId: client.user?.id,
-                    enabled: true,
                     triggerMetadata:
                     {
-                        regexPatterns: [
-                            '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
-                            '\bhttps?:\/\/\S+\b',
-                            '\b(https?:\/\/)?\S+\.\S+\b'
-                        ]
+                        mentionTotalLimit: max_mention,
+                        presets: [1, 2, 3]
                     },
                     actions: [
                         {
@@ -104,26 +99,28 @@ export = {
                     ]
                 });
 
-                console.log('Règle (pub) modifié !')
+                console.log('Règle modifié !')
             }
 
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "on" });
+            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.mass_mention`, value: "on" });
             await interaction.editReply({
-                content: data.automod_block_pub_command_on
+                content: data.automod_block_massmention_command_on
                     .replace('${interaction.user}', interaction.user)
                     .replace('${logs_channel}', logs_channel)
+                    .replace('${max_mention}', max_mention)
             });
-
             return;
         } else if (turn === "off") {
-            await KeywordPresetRule.setEnabled(false);
 
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "off" });
+            await mentionSpamRule.setEnabled(false);
+
+            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.mass_mention`, value: "off" });
             await interaction.editReply({
-                content: data.automod_block_pub_command_off
+                content: data.automod_block_massmention_command_off
                     .replace('${interaction.user}', interaction.user)
+                    .replace('${logs_channel}', logs_channel)
+                    .replace('${max_mention}', max_mention)
             });
-
             return;
         };
     },

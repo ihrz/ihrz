@@ -567,6 +567,18 @@ setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> a co
 setlogschannel_logs_embed_title_on_off: "Configuration des logs du serveur"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> a supprimé tous les `SERVER_LOGS` dans le serveur !"
 
+# /automod block mass-mention
+automod_block_massmention_command_off: "${interaction.user}, vous avez désactivé la règle `AutoModération de Mention Massive` à **false**.\nMaintenant, les utilisateurs peuvent envoyer des mentions dans leurs messages.\nAutoMod x iHorizon a été désactivé sur votre serveur !"
+automod_block_massmention_command_on: "${interaction.user}, vous avez activé la règle `AutoModération de Mention Massive` à **true**.\nMaintenant, les utilisateurs ne peuvent pas envoyer plus de **${max_mention}** mention(s) dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur !"
+
+# /automod block pub
+automod_block_pub_command_on: "${interaction.user}, vous avez activé la règle `AutoModération de Publicité` à **true**.\nMaintenant, les utilisateurs ne peuvent pas envoyer de publicité dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur !"
+automod_block_pub_command_off: "${interaction.user}, vous avez désactivé la règle `AutoModération de Publicité` à **false**.\nMaintenant, les utilisateurs peuvent envoyer de la publicité dans leurs messages.\nAutoMod x iHorizon a été désactivé sur votre serveur !"
+
+# /automod block spam
+automod_block_spam_command_on: "${interaction.user}, vous avez activé la règle `AutoModération de Spam` à **true**.\nMaintenant, les utilisateurs ne peuvent pas spammer.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur !"
+automod_block_spam_command_off: "${interaction.user}, vous avez désactivé la règle `AutoModération de Spam` à **false**.\nMaintenant, les utilisateurs peuvent spammer.\nAutoMod x iHorizon a été désactivé sur votre serveur !"
+
 
 # Member Count commands
 # /setmembercount

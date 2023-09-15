@@ -41,29 +41,6 @@ export const command: Command = {
             type: 2,
             options: [
                 {
-                    name: 'pub',
-                    description: 'Allow/Unallow the user to send a advertisement into them messages!',
-                    type: 1,
-                    options: [
-                        {
-                            name: 'action',
-                            type: ApplicationCommandOptionType.String,
-                            description: 'What you want to do?',
-                            required: true,
-                            choices: [
-                                {
-                                    name: "Disable the spam protection",
-                                    value: "off"
-                                },
-                                {
-                                    name: 'Enable the spam protection',
-                                    value: "on"
-                                },
-                            ],
-                        },
-                    ],
-                },
-                {
                     name: 'bot',
                     description: 'Block the ability to add new bots into this server',
                     type: 1,
@@ -85,7 +62,7 @@ export const command: Command = {
                             ],
                         }
                     ],
-                }
+                },
             ],
         },
         {

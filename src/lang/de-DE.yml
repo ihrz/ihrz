@@ -567,6 +567,18 @@ setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> hat 
 setlogschannel_logs_embed_title_on_off: "Setze ServerLogs"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> hat alle `SERVER_LOGS` in der Gilde gelöscht!"
 
+# /automod block mass-mention
+automod_block_massmention_command_off: "${interaction.user}, du hast die `Massen-Erwähnungs-AutoMod-Regel` auf **false** gesetzt.\nJetzt können Benutzer Erwähnungen in ihren Nachrichten senden.\nAutoMod x iHorizon wurde auf deinem Server deaktiviert!"
+automod_block_massmention_command_on: "${interaction.user}, du hast die `Massen-Erwähnungs-AutoMod-Regel` auf **true** gesetzt.\nJetzt können Benutzer nicht mehr als **${max_mention}** Erwähnungen in ihren Nachrichten senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt deinen Server!"
+
+# /automod block pub
+automod_block_pub_command_on: "${interaction.user}, du hast die `Werbe-AutoMod-Regel` auf **true** gesetzt.\nJetzt können Benutzer keine Werbung in ihren Nachrichten senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt deinen Server!"
+automod_block_pub_command_off: "${interaction.user}, du hast die `Werbe-AutoMod-Regel` auf **false** gesetzt.\nJetzt können Benutzer Werbung in ihren Nachrichten senden.\nAutoMod x iHorizon wurde auf deinem Server deaktiviert!"
+
+# /automod block spam
+automod_block_spam_command_on: "${interaction.user}, du hast die `Spam-AutoMod-Regel` auf **true** gesetzt.\nJetzt können Benutzer keinen Spam mehr senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt deinen Server!"
+automod_block_spam_command_off: "${interaction.user}, du hast die `Spam-AutoMod-Regel` auf **false** gesetzt.\nJetzt können Benutzer Spam senden.\nAutoMod x iHorizon wurde auf deinem Server deaktiviert!"
+
 
 # Member Count commands
 # /setmembercount

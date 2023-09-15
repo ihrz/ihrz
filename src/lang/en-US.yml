@@ -567,6 +567,18 @@ setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> set 
 setlogschannel_logs_embed_title_on_off: "Set ServerLogs"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> delete all `SERVER_LOGS` in the guild !"
 
+# /automod block mass-mention
+automod_block_massmention_command_off: "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **false**.\nNow user can send mentions in their message.\nAutoMod x iHorizon have been disabled on your server!"
+automod_block_massmention_command_on: "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **true**.\nNow user can't send more than **${max_mention}** mention(s) in their message.\nAutoMod __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
+
+# /automod block pub
+automod_block_pub_command_on: "${interaction.user}, you have set the `Pub AutoMod Rule` to **true**.\nNow user can't send advertissment in their message.\nAutoMod __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server! "
+automod_block_pub_command_off: "${interaction.user}, you have set the `Pub AutoMod Rule` to **false**.\nNow user can send advertissment in their message.\nAutoMod x iHorizon have been disabled on your server!"
+
+# /automod block spam
+automod_block_spam_command_on: "${interaction.user}, you have set the `Spam AutoMod Rule` to **true**.\nNow user can't spam.\nAutoMod __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
+automod_block_spam_command_off: "${interaction.user}, you have set the `Spam AutoMod Rule` to **false**.\nNow user can spam.\nAutoMod x iHorizon have been disabled on your server!"
+
 
 # Member Count commands
 # /setmembercount

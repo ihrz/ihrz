@@ -34,29 +34,25 @@ export = {
         let logs_channel = interaction.options.getChannel('logs-channel');
 
         let automodRules = await interaction.guild.autoModerationRules.fetch();
-        let KeywordPresetRule = automodRules
-            .find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
+
+        let spamRule = automodRules
+            .find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Spam);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.blockpub_not_admin });
             return;
-
         } else if (turn === "on") {
 
-            if (!KeywordPresetRule) {
+            if (!spamRule) {
                 await interaction.guild.autoModerationRules.create({
-                    name: 'Block advertissement message by iHorizon',
+                    name: 'Block spam by iHorizon',
                     creatorId: client.user?.id,
                     enabled: true,
                     eventType: 1,
-                    triggerType: 1,
+                    triggerType: 3,
                     triggerMetadata:
                     {
-                        regexPatterns: [
-                            '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
-                            '\bhttps?:\/\/\S+\b',
-                            '\b(https?:\/\/)?\S+\.\S+\b'
-                        ]
+                        presets: [1, 2, 3]
                     },
                     actions: [
                         {
@@ -70,23 +66,21 @@ export = {
                             metadata: {
                                 channel: logs_channel,
                             }
-                        },
+                        }
                     ]
                 });
 
-                console.log('Règles (pub) créer!')
-            } else if (KeywordPresetRule) {
+                console.log('Règles (spam) créer!')
 
-                KeywordPresetRule.edit({
+            } else if (spamRule) {
+
+                await spamRule.edit({
+                    name: 'Block spam by iHorizon',
                     creatorId: client.user?.id,
                     enabled: true,
                     triggerMetadata:
                     {
-                        regexPatterns: [
-                            '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
-                            '\bhttps?:\/\/\S+\b',
-                            '\b(https?:\/\/)?\S+\.\S+\b'
-                        ]
+                        presets: [1, 2, 3]
                     },
                     actions: [
                         {
@@ -100,30 +94,31 @@ export = {
                             metadata: {
                                 channel: logs_channel,
                             }
-                        },
+                        }
                     ]
                 });
 
-                console.log('Règle (pub) modifié !')
-            }
+                console.log('Règles (spam) modifié!')
 
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "on" });
+            };
+
+            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.spam`, value: "on" });
             await interaction.editReply({
-                content: data.automod_block_pub_command_on
+                content: data.automod_block_spam_command_on
                     .replace('${interaction.user}', interaction.user)
                     .replace('${logs_channel}', logs_channel)
             });
-
             return;
         } else if (turn === "off") {
-            await KeywordPresetRule.setEnabled(false);
 
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "off" });
+            await spamRule.setEnabled(false);
+
+            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.spam`, value: "off" });
             await interaction.editReply({
-                content: data.automod_block_pub_command_off
+                content: data.automod_block_spam_command_off
                     .replace('${interaction.user}', interaction.user)
+                    .replace('${logs_channel}', logs_channel)
             });
-
             return;
         };
     },
