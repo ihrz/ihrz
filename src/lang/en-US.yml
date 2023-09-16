@@ -413,6 +413,11 @@ blockbot_logs_disable_description: "${interaction.user} (The owner of the server
 banner_guild_embed: "**This is the guild server banner!**"
 banner_user_embed: "**This is the ${user?.username}'s banner!**"
 
+# /massiverole
+massiverole_add_command_work: "${interaction.user}, iHorizon has executed the massiverole command.\n\n**${a}** User(s) __received__ the ${role} role\n**${s}** User(s) __already had__ the ${role} role\niHorizon __failed__ to add the role to **${e}** User(s)."
+massiverole_sub_command_work: "${interaction.user}, iHorizon has executed the massiverole command.\n\n**${a}** User(s) __lost__ the ${role} role\n**${s}** User(s) __no longer had__ the ${role} role\niHorizon __failed__ to remove the role from **${e}** User(s)."
+massiverole_too_much_member: "Too many members, can't do it due to possible rate limiting!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

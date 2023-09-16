@@ -413,6 +413,11 @@ blockbot_logs_disable_description: "${interaction.user} (Il proprietario del ser
 banner_guild_embed: "**¡Este es el banner del servidor del gremio!**"
 banner_user_embed: "**¡Este es el banner de ${user?.username}!**"
 
+# /massiverole
+massiverole_add_command_work: "${interaction.user}, iHorizon ha ejecutado el comando massiverole.\n\n**${a}** Usuario(s) __han recibido__ el rol ${role}\n**${s}** Usuario(s) __ya tenían__ el rol ${role}\niHorizon __no pudo__ agregar el rol a **${e}** Usuario(s)."
+massiverole_sub_command_work: "${interaction.user}, iHorizon ha ejecutado el comando massiverole.\n\n**${a}** Usuario(s) __han perdido__ el rol ${role}\n**${s}** Usuario(s) __ya no tenían__ el rol ${role}\niHorizon __no pudo__ quitar el rol a **${e}** Usuario(s)."
+massiverole_too_much_member: "Demasiados miembros, no puedo hacerlo debido a posibles limitaciones de velocidad."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
