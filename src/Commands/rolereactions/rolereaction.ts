@@ -127,7 +127,8 @@ export const command: Command = {
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
 
-            await interaction.editReply({
+            await interaction.deleteReply();
+            await interaction.followUp({
                 content: data.reactionroles_command_work_added
                     .replace("${messagei}", messagei)
                     .replace("${reaction}", reaction)
@@ -174,7 +175,8 @@ export const command: Command = {
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
-            await interaction.editReply({
+            await interaction.deleteReply();
+            await interaction.followUp({
                 content: data.reactionroles_command_work_remove
                     .replace("${reaction}", reaction)
                     .replace("${messagei}", messagei)

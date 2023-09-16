@@ -31,16 +31,21 @@ var timeout = 1000;
 
 export = async (client: any, interaction: any) => {
 
-    if (!interaction.isCommand() || !interaction.guild?.channels || interaction.user.bot) return;
-
-    let command = client.interactions.get(interaction.commandName);
-    if (!command) return interaction.editReply({ content: "Connection error.", ephemeral: true });
-
     async function slashExecutor() {
-        
+        if (!interaction.isCommand()
+            || !interaction.guild?.channels
+            || interaction.user.bot) return;
+
+        let command = client.interactions.get(interaction.commandName);
+        if (!command) {
+            await interaction.deleteReply();
+            return interaction.followUp({ content: "Connection error.", ephemeral: true });
+        }
         if (await cooldDown()) {
             let data = await client.functions.getLanguageData(interaction.guild.id);
-            await interaction.editReply({ content: data.Msg_cooldown, ephemeral: true });
+            
+            await interaction.deleteReply();
+            await interaction.followUp({ content: data.Msg_cooldown, ephemeral: true });
             return;
         };
 
@@ -55,6 +60,7 @@ export = async (client: any, interaction: any) => {
                 });
                 return;
             };
+
             await interaction.deferReply();
             await command.run(client, interaction);
         } catch (e: any) {
@@ -63,6 +69,10 @@ export = async (client: any, interaction: any) => {
     };
 
     async function logsCommands(): Promise<void> {
+        if (!interaction.isCommand()
+            || !interaction.guild?.channels
+            || interaction.user.bot) return;
+
         let optionsList: string[] = interaction.options._hoistedOptions.map((element: { name: any; value: any; }) => `${element.name}:"${element.value}"`);
         let subCmd: string = '';
 
@@ -82,9 +92,17 @@ export = async (client: any, interaction: any) => {
     };
 
     async function cooldDown() {
+        if (!interaction.isCommand()
+            || !interaction.guild?.channels
+            || interaction.user.bot) return;
+
         let tn = Date.now();
         var fetch = await db.DataBaseModel({ id: db.Get, key: `TEMP.COOLDOWN.${interaction.user.id}` });
-        if (fetch !== null && timeout - (tn - fetch) > 0) return true;
+
+        if (fetch !== null && timeout - (tn - fetch) > 0) {
+            return true;
+        };
+
         await db.DataBaseModel({ id: db.Set, key: `TEMP.COOLDOWN.${interaction.user.id}`, value: tn });
         return false;
     };

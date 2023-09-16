@@ -37,7 +37,8 @@ export = {
             let lyrics = await lyricsFinder.search(title).catch(() => null);
 
             if (!lyrics) {
-                await interaction.editReply({ content: 'No lyrics found', ephemeral: true });
+                await interaction.deleteReply();    
+                await interaction.followUp({ content: 'No lyrics found', ephemeral: true });
                 return;
             }
             let trimmedLyrics = lyrics.lyrics.substring(0, 1997);

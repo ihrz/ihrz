@@ -62,8 +62,8 @@ export = {
                 }
             });
         });
-
-        await interaction.editReply({ content: data.sethereticket_command_work, ephemeral: true });
+        await interaction.deleteReply();
+        await interaction.followUp({ content: data.sethereticket_command_work, ephemeral: true });
         return;
     },
 };

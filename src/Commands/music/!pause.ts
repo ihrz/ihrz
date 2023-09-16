@@ -35,7 +35,8 @@ export = {
         try {
             let queue = interaction.client.player.nodes.get(interaction.guild);
             if (!queue || !queue.isPlaying()) {
-                await interaction.editReply({ content: data.pause_nothing_playing, ephemeral: true });
+                await interaction.deleteReply();    
+                await interaction.followUp({ content: data.pause_nothing_playing, ephemeral: true });
                 return;
             }
             let paused = queue.node.setPaused(true);

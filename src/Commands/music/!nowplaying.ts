@@ -56,7 +56,8 @@ export = {
         let queue = interaction.client.player.nodes.get(interaction.guild);
 
         if (!queue || !queue.isPlaying()) {
-            await interaction.editReply({ content: data.nowplaying_no_queue, ephemeral: true });
+            await interaction.deleteReply();    
+            await interaction.followUp({ content: data.nowplaying_no_queue, ephemeral: true });
             return;
         };
 

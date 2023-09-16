@@ -40,10 +40,11 @@ export = {
         let baseData = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.SUGGEST` });
         let fetchId = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.SUGGESTION.${id}` });
 
-        if (!baseData 
+        if (!baseData
             || baseData?.channel !== interaction.channel.id
             || baseData?.disable === true) {
-            await interaction.editReply({
+            await interaction.deleteReply();
+            await interaction.followUp({
                 content: data.suggest_delete_not_good_channel
                     .replace('${baseData?.channel}', baseData?.channel),
                 ephemeral: true
@@ -53,7 +54,8 @@ export = {
         };
 
         if (!fetchId) {
-            await interaction.editReply({ content: data.suggest_delete_not_found_db, ephemeral: true });
+            await interaction.deleteReply();
+            await interaction.followUp({ content: data.suggest_delete_not_found_db, ephemeral: true });
             return;
         };
 
@@ -63,13 +65,15 @@ export = {
             msg.delete();
             await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.SUGGESTION.${id}` });
 
-            await interaction.editReply({
+            await interaction.deleteReply();
+            await interaction.followUp({
                 content: data.suggest_delete_command_work,
                 ephemeral: true
             });
             return;
         }).catch(async (err: any) => {
-            await interaction.editReply({ content: data.suggest_delete_command_error, ephemeral: true });
+            await interaction.deleteReply();
+            await interaction.followUp({ content: data.suggest_delete_command_error, ephemeral: true });
             return;
         });
     },

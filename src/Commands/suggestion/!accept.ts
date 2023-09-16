@@ -44,7 +44,8 @@ export = {
         if (!baseData
             || baseData?.channel !== interaction.channel.id
             || baseData?.disable === true) {
-            await interaction.editReply({
+            await interaction.deleteReply();
+            await interaction.followUp({
                 content: data.suggest_acceptnot_good_channel
                     .replace('${baseData?.channel}', baseData?.channel),
                 ephemeral: true
@@ -54,10 +55,12 @@ export = {
         };
 
         if (!fetchId) {
-            await interaction.editReply({ content: data.suggest_accept_not_found_db, ephemeral: true });
+            await interaction.deleteReply();
+            await interaction.followUp({ content: data.suggest_accept_not_found_db, ephemeral: true });
             return;
         } else if (fetchId.replied) {
-            await interaction.editReply({ content: data.suggest_accept_already_replied, ephemeral: true });
+            await interaction.deleteReply();
+            await interaction.followUp({ content: data.suggest_accept_already_replied, ephemeral: true });
             return;
         };
 
@@ -80,7 +83,8 @@ export = {
             await msg.edit({ embeds: [embed] });
             await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.SUGGESTION.${id}.replied`, value: true });
 
-            await interaction.editReply({
+            await interaction.deleteReply();
+            await interaction.followUp({
                 content: data.suggest_accept_command_work
                     .replace('${interaction.guild.id}', interaction.guild.id)
                     .replace('${interaction.channel.id}', interaction.channel.id)
@@ -89,7 +93,8 @@ export = {
             });
             return;
         }).catch(async (err: any) => {
-            await interaction.editReply({ content: data.suggest_accept_command_error, ephemeral: true });
+            await interaction.deleteReply();
+            await interaction.followUp({ content: data.suggest_accept_command_error, ephemeral: true });
             return;
         });
     },
