@@ -68,7 +68,7 @@ export = async (req: Request, res: Response) => {
 
     let cliArray = [
         {
-            l: 'git clone --branch withoutGif --depth 1 https://github.com/ihrz/ihrz.git .',
+            l: 'git clone --branch ownihrz --depth 1 https://github.com/ihrz/ihrz.git .',
             cwd: path.resolve(process.cwd(), 'ownihrz', code)
         },
         {
