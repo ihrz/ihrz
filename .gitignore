@@ -132,3 +132,6 @@ src/api/index.html
 demo
 yarn.lock
 .vscode/extensions.json
+
+# OwnIHRZ
+/ownihrz
