@@ -31,7 +31,7 @@ import * as db from '../../core/functions/DatabaseModel';
 
 export const command: Command = {
     name: 'nickrole',
-    description: 'Lookup an Discord User, and see this previous username !',
+    description: 'Give a roles to all user who have specified char in their username!',
     options: [
         {
             name: 'action',
