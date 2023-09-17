@@ -41,6 +41,14 @@ export = {
             key: `OWNIHRZ.TEMP.${interaction.user.id}.${id_1}`,
         });
 
+        for (let i in id_2) {
+            for (let j in id_2[i]) {
+                if (id_1 === j) {
+                    id_2 = id_2?.[i]?.[j];
+                }
+            }
+        };
+
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
             await interaction.deleteReply();
             await interaction.followUp({ content: "❌", ephemeral: true });
