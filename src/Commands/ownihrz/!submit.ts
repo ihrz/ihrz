@@ -55,7 +55,7 @@ export = {
         let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, config)
             .catch((e: any) => { }))?.data || 404;
 
-        if (!bot_1) {
+        if (bot_1 === 404) {
             await interaction.deleteReply();
             await interaction.followUp({ content: 'Le token saisie est invalide. Nous ne pouvons pas procéder à la suite.' });
             return;
