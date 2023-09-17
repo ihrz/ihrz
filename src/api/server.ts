@@ -32,6 +32,7 @@ import user from './Routes/user';
 import code from './Routes/code';
 import api from './Routes/api';
 import slap from './Routes/slap'
+import publish from './Routes/publish'
 import hug from './Routes/hug'
 import kiss from './Routes/kiss'
 
@@ -49,6 +50,8 @@ app.use('/assets/kiss', express.static(`${process.cwd()}/src/assets/kiss/`));
 
 app.post('/api/check', code);
 app.post('/api/user', user);
+app.post('/api/publish', publish);
+
 if (config.database.useDatabaseAPI) { app.post('/api/database', api); };
 
 app.get('/api/slap', slap);

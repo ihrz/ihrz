@@ -23,10 +23,12 @@ import logger from "../core/logger";
 import couleurmdr from 'colors';
 import config from "../files/config";
 import * as db from '../core/functions/DatabaseModel';
+
 import register from '../core/slashSync';
 import date from 'date-and-time';
 
 import { Client, Collection, ApplicationCommandType, PermissionsBitField, ActivityType, Guild, Embed, EmbedBuilder } from 'discord.js';
+import { execSync } from 'child_process';
 
 export = async (client: Client) => {
     await register(client, client.register_arr.map((command: { name: string; description: string; options: JSON }) => ({
@@ -35,7 +37,7 @@ export = async (client: Client) => {
         options: command.options,
         type: ApplicationCommandType.ChatInput
     })));
-    
+
     async function term() {
         logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  ")),
             logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ")),
@@ -122,6 +124,30 @@ export = async (client: Client) => {
             };
         };
     };
+
+    async function otherBotPowerOn() {
+
+        let result = await db.DataBaseModel({
+            id: db.Get,
+            key: `OWNIHRZ`
+        });
+
+        for (let i in result) {
+            for (let c in result[i]) {
+                if (i !== 'TEMP') {
+                    execSync(`git pull`, {
+                        stdio: [0, 1, 2],
+                        cwd: result?.[i]?.[c]?.path,
+                    });
+                    execSync(`pm2 start dist/${result?.[i]?.[c]?.code}.js -f`, {
+                        stdio: [0, 1, 2],
+                        cwd: result?.[i]?.[c]?.path,
+                    });
+                };
+            }
+        }
+    };
+    otherBotPowerOn();
 
     setInterval(quotesPresence, 80_000), setInterval(refreshSchedule, 15_000);
 
