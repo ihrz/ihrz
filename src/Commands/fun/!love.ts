@@ -30,6 +30,7 @@ import config from '../../files/config';
 import axios from 'axios';
 import fs from 'fs';
 import { createCanvas, loadImage } from "canvas";
+import logger from '../../core/logger';
 
 let downloadImage = (url: string, filename: string) => {
     return new Promise((resolve, reject) => {
@@ -139,7 +140,7 @@ export = {
             await interaction.editReply({ embeds: [embed], files: [file] });
             return;
         } catch (error: any) {
-            console.log(error)
+            logger.err(error)
             await interaction.editReply({ content: data.love_command_error });
             return;
         };
