@@ -57,7 +57,7 @@ export = {
 
                 let embed = new EmbedBuilder()
                     .setColor('#ff7f50')
-                    .setThumbnail(`https://cdn.discordapp.com/avatars/${data_2[i].bot.id}/${bot_1.bot.avatar}.png`)
+                    .setThumbnail(`https://cdn.discordapp.com/avatars/${data_2[i].bot.id}/${bot_1?.bot.avatar}.png`)
                     .setTitle(`Votre propre iHorizon : ${data_2[i].bot.username}`)
                     .setDescription(`Votre code de bot: ||**${data_2[i].code}**|| ⚠️ **Ne le partager à personne** !
                         **Expire dans**: \`${expire}\`

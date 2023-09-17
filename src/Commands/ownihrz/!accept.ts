@@ -64,7 +64,7 @@ export = {
         let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, config_2)
             .catch((e: any) => { }))?.data || 404;
 
-        if (!bot_1) {
+        if (bot_1 === 404) {
             await interaction.editReply({ content: 'Le token dans la DB est invalide. Nous ne pouvons pas procéder à la suite.' });
             return;
         } else {
