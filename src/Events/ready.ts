@@ -35,7 +35,7 @@ export = async (client: Client) => {
         options: command.options,
         type: ApplicationCommandType.ChatInput
     })));
-    
+
     async function term() {
         logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  ")),
             logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ")),
@@ -85,9 +85,17 @@ export = async (client: Client) => {
             "Life is what happens when you're busy making other plans. - John Lennon",
             "The secret of success is to know something nobody else knows. - Aristotle Onassis"
         ];
+        let e = await db.DataBaseModel({
+            id: db.Get,
+            key: `BOT.PRESENCE`,
+        });
 
-        let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Custom }] });
+        if (e) {
+            client.user?.setPresence({ activities: [{ name: e.name, type: e.type, url: e.url }] });
+        } else {
+            let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Playing }] });
+        };
     };
 
     async function refreshSchedule() {
