@@ -418,6 +418,11 @@ massiverole_add_command_work: "${interaction.user}, iHorizon hat den massiverole
 massiverole_sub_command_work: "${interaction.user}, iHorizon hat den massiverole-Befehl ausgeführt.\n\n**${a}** Benutzer haben die Rolle ${role} __verloren__\n**${s}** Benutzer hatten die Rolle ${role} __nicht mehr__\niHorizon konnte die Rolle nicht von **${e}** Benutzern entfernen."
 massiverole_too_much_member: "Zu viele Mitglieder, kann nicht ausgeführt werden, da eine Begrenzung möglich ist!"
 
+# /nickrole
+nickrole_add_command_work: "${interaction.user}, iHorizon hat den massiverole-Befehl ausgeführt.\n\n**${a}** Benutzer haben die ${role}-Rolle erhalten\n**${s}** Benutzer hatten die ${role}-Rolle bereits\niHorizon konnte die Rolle nicht zu **${e}** Benutzern hinzufügen."
+nickrole_sub_command_work: "${interaction.user}, iHorizon hat den massiverole-Befehl ausgeführt.\n\n**${a}** Benutzer haben die ${role}-Rolle verloren\n**${s}** Benutzer hatten die ${role}-Rolle nicht mehr\niHorizon konnte die Rolle nicht von **${e}** Benutzern entfernen."
+nickrole_too_much_member: "Zu viele Mitglieder, kann aufgrund einer möglichen Rate-Limitierung nicht fortgesetzt werden!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -807,6 +812,7 @@ reactionroles_logs_embed_title_remove: "ReactionRoles-Protokolle"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> hat eine Reaktionsrolle gelöscht: Nachricht: `${messagei}` | Reaktion: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} wurde aus der Nachricht von ${messagei} gelöscht"
 reactionroles_dont_message_found: "Ich kann die Nachricht mit Ihrer aktuellen Nachrichten-ID nicht abrufen!"
+
 
 # Neue Funktionenbefehle
 # /punishpub, /report, /support

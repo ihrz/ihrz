@@ -32,7 +32,6 @@ import backup from 'discord-backup';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
-
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.backup_not_admin });
             return;
@@ -46,8 +45,10 @@ export = {
         let i: number = 0;
         let j: number = 0;
 
+        let svMsg = interaction.options.getBoolean('save-message');
+
         backup.create(interaction.guild, {
-            maxMessagesPerChannel: 10,
+            maxMessagesPerChannel: svMsg ? 10 : 0,
             jsonBeautify: true
         }).then(async (backupData) => {
 
@@ -63,7 +64,7 @@ export = {
             await db.DataBaseModel({ id: db.Set, key: `BACKUPS.${interaction.user.id}.${backupData.id}`, value: elData });
 
             interaction.channel.send({ content: data.backup_command_work_on_creation });
-            interaction.editReply({
+            await interaction.editReply({
                 content: data.backup_command_work_info_on_creation
                     .replace("${backupData.id}", backupData.id)
             });

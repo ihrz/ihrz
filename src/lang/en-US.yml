@@ -418,6 +418,11 @@ massiverole_add_command_work: "${interaction.user}, iHorizon has executed the ma
 massiverole_sub_command_work: "${interaction.user}, iHorizon has executed the massiverole command.\n\n**${a}** User(s) __lost__ the ${role} role\n**${s}** User(s) __no longer had__ the ${role} role\niHorizon __failed__ to remove the role from **${e}** User(s)."
 massiverole_too_much_member: "Too many members, can't do it due to possible rate limiting!"
 
+# /nickrole
+nickrole_add_command_work: "${interaction.user}, iHorizon has executed the massiverole command.\n\n**${a}** user(s) received the ${role} role\n**${s}** user(s) already had the ${role} role\niHorizon failed to add the role to **${e}** user(s)."
+nickrole_sub_command_work: "${interaction.user}, iHorizon has executed the massiverole command.\n\n**${a}** user(s) lost the ${role} role\n**${s}** user(s) no longer had the ${role} role\niHorizon failed to remove the role from **${e}** user(s)."
+nickrole_too_much_member: "Too many members, cannot proceed due to possible rate limit!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -807,6 +812,7 @@ reactionroles_logs_embed_title_remove: "ReactionRoles Logs"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> delete a reaction roles: Message: `${messagei}` | Reaction: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} has been deleted to the ${messagei}'s message"
 reactionroles_dont_message_found: "I can't get the message with you'r current message's ID !"
+
 
 # New feature commands
 # /punishpub, /report, /support

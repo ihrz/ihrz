@@ -91,8 +91,6 @@ export = {
                     },
                     actions: arrayActionsForRule
                 });
-
-                console.log('Règles (pub) créer!')
             } else if (KeywordPresetRule) {
 
                 KeywordPresetRule.edit({
@@ -121,9 +119,7 @@ export = {
                         },
                     ]
                 });
-
-                console.log('Règle (pub) modifié !')
-            }
+            };
 
             await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "on" });
             await interaction.editReply({

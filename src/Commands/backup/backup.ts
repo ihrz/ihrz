@@ -34,6 +34,24 @@ export const command: Command = {
             name: "create",
             description: "Create a backup!",
             type: 1,
+            options: [
+                {
+                    name: 'save-message',
+                    type: ApplicationCommandOptionType.Boolean,
+                    description: 'Do you want to save message(s) ?',
+                    required: true,
+                    choices: [
+                        {
+                            name: "Yes",
+                            value: true
+                        },
+                        {
+                            name: "No",
+                            value: false
+                        },
+                    ]
+                },
+            ],
         },
         {
             name: "load",

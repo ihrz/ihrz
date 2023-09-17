@@ -418,6 +418,11 @@ massiverole_add_command_work: "${interaction.user}、iHorizonはmassiveroleコ�
 massiverole_sub_command_work: "${interaction.user}、iHorizonはmassiveroleコマンドを実行しました。\n\n**${a}** ユーザーが${role}役職を__失いました__\n**${s}** ユーザーがすでに${role}役職を__持っていませんでした__\niHorizonは**${e}** ユーザーから役職を削除できませんでした。"
 massiverole_too_much_member: "メンバーが多すぎて、実行できません。レート制限の可能性があります！"
 
+# /nickrole
+nickrole_add_command_work: "${interaction.user}さん、iHorizonがmassiveroleコマンドを実行しました。\n\n**${a}**人のユーザーが${role}ロールを受け取りました\n**${s}**人のユーザーはすでに${role}ロールを持っています\niHorizonは**${e}**人のユーザーにロールを追加できませんでした。"
+nickrole_sub_command_work: "${interaction.user}さん、iHorizonがmassiveroleコマンドを実行しました。\n\n**${a}**人のユーザーが${role}ロールを失いました\n**${s}**人のユーザーはすでに${role}ロールを持っていません\niHorizonは**${e}**人のユーザーからロールを削除できませんでした。"
+nickrole_too_much_member: "メンバーが多すぎるため、実行できません。レート制限の可能性があります！"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -807,6 +812,7 @@ reactionroles_logs_embed_title_remove: "ReactionRoles ログ"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> がリアクションロールを削除しました：メッセージ： `${messagei}` | リアクション： `${reaction}`"
 reactionroles_command_work_remove: "${reaction} が ${messagei} のメッセージから削除されました"
 reactionroles_dont_message_found: "現在のメッセージ ID でメッセージを取得できません！"
+
 
 # New feature commands
 # /punishpub, /report, /support

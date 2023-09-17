@@ -87,8 +87,6 @@ export = {
                     actions: arrayActionsForRule
                 });
 
-                console.log('Règles (spam) créer!')
-
             } else if (spamRule) {
 
                 await spamRule.edit({
@@ -101,8 +99,6 @@ export = {
                     },
                     actions: arrayActionsForRule
                 });
-
-                console.log('Règles (spam) modifié!')
             };
 
             await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.spam`, value: "on" });

@@ -27,7 +27,7 @@ import logger from '../core/logger';
 import fs from 'fs';
 import { format } from 'date-fns';
 
-var timeout = 1000;
+var timeout: number = 1000;
 
 export = async (client: any, interaction: any) => {
 
@@ -43,7 +43,7 @@ export = async (client: any, interaction: any) => {
         }
         if (await cooldDown()) {
             let data = await client.functions.getLanguageData(interaction.guild.id);
-            
+
             await interaction.deleteReply();
             await interaction.followUp({ content: data.Msg_cooldown, ephemeral: true });
             return;
@@ -92,20 +92,12 @@ export = async (client: any, interaction: any) => {
     };
 
     async function cooldDown() {
-        if (!interaction.isCommand()
-            || !interaction.guild?.channels
-            || interaction.user.bot) return;
-
         let tn = Date.now();
         var fetch = await db.DataBaseModel({ id: db.Get, key: `TEMP.COOLDOWN.${interaction.user.id}` });
-
-        if (fetch !== null && timeout - (tn - fetch) > 0) {
-            return true;
-        };
+        if (fetch !== null && timeout - (tn - fetch) > 0) return true;
 
         await db.DataBaseModel({ id: db.Set, key: `TEMP.COOLDOWN.${interaction.user.id}`, value: tn });
         return false;
     };
-
     await slashExecutor(), logsCommands();
 };

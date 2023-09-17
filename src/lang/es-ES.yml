@@ -418,6 +418,11 @@ massiverole_add_command_work: "${interaction.user}, iHorizon ha ejecutado el com
 massiverole_sub_command_work: "${interaction.user}, iHorizon ha ejecutado el comando massiverole.\n\n**${a}** Usuario(s) __han perdido__ el rol ${role}\n**${s}** Usuario(s) __ya no tenían__ el rol ${role}\niHorizon __no pudo__ quitar el rol a **${e}** Usuario(s)."
 massiverole_too_much_member: "Demasiados miembros, no puedo hacerlo debido a posibles limitaciones de velocidad."
 
+# /nickrole
+nickrole_add_command_work: "${interaction.user}, iHorizon ha ejecutado el comando massiverole.\n\n**${a}** usuario(s) recibieron el rol ${role}\n**${s}** usuario(s) ya tenían el rol ${role}\niHorizon no pudo agregar el rol a **${e}** usuario(s)."
+nickrole_sub_command_work: "${interaction.user}, iHorizon ha ejecutado el comando massiverole.\n\n**${a}** usuario(s) perdieron el rol ${role}\n**${s}** usuario(s) ya no tenían el rol ${role}\niHorizon no pudo quitar el rol de **${e}** usuario(s)."
+nickrole_too_much_member: "Demasiados miembros, no se puede continuar debido a un posible límite de velocidad."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -807,6 +812,7 @@ reactionroles_logs_embed_title_remove: "Registros de ReactionRoles"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> ha eliminado un rol de reacción: Mensaje: `${messagei}` | Reacción: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} se ha eliminado del mensaje de ${messagei}"
 reactionroles_dont_message_found: "¡No puedo obtener el mensaje con tu ID de mensaje actual!"
+
 
 # New feature commands
 # /punishpub, /report, /support
