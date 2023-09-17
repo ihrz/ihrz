@@ -91,7 +91,10 @@ export = async (client: Client) => {
         });
 
         if (e) {
-            client.user?.setPresence({ activities: [{ name: e.name, type: e.type, url: e.url }] });
+            client.user?.setActivity(e.name, {
+                type: e.type,
+                url: "https://www.twitch.tv/anaissaraiva"
+            });
         } else {
             let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
             client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Playing }] });
