@@ -40,18 +40,13 @@ export const command: Command = {
                     type: ApplicationCommandOptionType.Boolean,
                     description: 'Do you want to save message(s) ?',
                     required: true,
-                    choices: [
-                        {
-                            name: "Yes",
-                            value: true
-                        },
-                        {
-                            name: "No",
-                            value: false
-                        },
-                    ]
                 },
             ],
+        },
+        {
+            name: "list",
+            description: "List your backup(s)!",
+            type: 1,
         },
         {
             name: "load",
@@ -66,11 +61,6 @@ export const command: Command = {
                 },
             ],
         },
-        {
-            "name": "list",
-            "description": "List your backup(s)!",
-            "type": 1,
-        }
     ],
     category: 'backup',
     run: async (client: Client, interaction: any) => {
