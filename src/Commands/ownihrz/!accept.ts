@@ -38,15 +38,23 @@ export = {
 
         let id_2 = await db.DataBaseModel({
             id: db.Get,
-            key: `OWNIHRZ.TEMP.${interaction.user.id}.${id_1}`,
+            key: `OWNIHRZ.TEMP`,
         });
+
+        for (let i in id_2) {
+            for (let j in id_2[i]) {
+                if (id_1 === j) {
+                    id_2 = id_2?.[i]?.[j];
+                }
+            }
+        };
 
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
             await interaction.deleteReply();
             await interaction.followUp({ content: "❌", ephemeral: true });
             return;
         };
-        
+
         if (!id_2) {
             await interaction.editReply({ content: 'Le bot dans la DB est introuvable. Nous ne pouvons pas procéder à la suite.' });
             return;
