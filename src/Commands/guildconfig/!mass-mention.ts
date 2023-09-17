@@ -93,9 +93,6 @@ export = {
                         },
                         actions: arrayActionsForRule
                     });
-
-                    console.log('Règle créer !')
-
                 } else if (mentionSpamRule) {
                     await mentionSpamRule.edit({
                         creatorId: client.user?.id,
@@ -106,8 +103,6 @@ export = {
                         },
                         actions: arrayActionsForRule
                     });
-
-                    console.log('Règle modifié !')
                 };
 
                 await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.mass_mention`, value: "on" });

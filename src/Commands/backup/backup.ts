@@ -34,6 +34,19 @@ export const command: Command = {
             name: "create",
             description: "Create a backup!",
             type: 1,
+            options: [
+                {
+                    name: 'save-message',
+                    type: ApplicationCommandOptionType.Boolean,
+                    description: 'Do you want to save message(s) ?',
+                    required: true,
+                },
+            ],
+        },
+        {
+            name: "list",
+            description: "List your backup(s)!",
+            type: 1,
         },
         {
             name: "load",
@@ -48,11 +61,6 @@ export const command: Command = {
                 },
             ],
         },
-        {
-            "name": "list",
-            "description": "List your backup(s)!",
-            "type": 1,
-        }
     ],
     category: 'backup',
     run: async (client: Client, interaction: any) => {

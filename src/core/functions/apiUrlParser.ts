@@ -60,3 +60,8 @@ export let assets =
     config.api.useProxy ? config.api.proxyUrl + '/assets/' :
         config.api.useHttps ? 'https://' : 'http://' +
             config.api.domain + ':' + config.api.port + '/assets/';
+
+export let PublishURL =
+    config.api.useProxy ? config.api.proxyUrl + '/api/publish' :
+        config.api.useHttps ? 'https://' : 'http://' +
+            config.api.domain + ':' + config.api.port + '/api/publish';

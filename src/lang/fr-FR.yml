@@ -418,6 +418,11 @@ massiverole_add_command_work: "${interaction.user}, iHorizon à effectué la com
 massiverole_sub_command_work: "${interaction.user}, iHorizon à effectué la commande massiverole.\n\n**${a}** Utilisateur(s) ont __perdu__ le rôle ${role}\n**${s}** Utilisateur(s) __avait déjà plus__ le role ${role}\niHorizon __n'a pas réussi__ à retirer le rôle à **${e}** Utilisateur(s)."
 massiverole_too_much_member: "Trop de membres, je le ferais pas, car rate-limite possible!"
 
+# /nickrole
+nickrole_add_command_work: "${interaction.user}, iHorizon à effectué la commande nickrole.\n\n**${a}** Utilisateur(s) ont __reçue__ le rôle ${role}\n**${s}** Utilisateur(s) __n'avait pas__ le pseudo ${part_of_nickname}\niHorizon __n'a pas réussi__ à ajoutez le rôle à **${e}** Utilisateur(s)."
+nickrole_sub_command_work: "${interaction.user}, iHorizon à effectué la commande nickrole.\n\n**${a}** Utilisateur(s) ont __perdu__ le rôle ${role}\n**${s}** Utilisateur(s) __n'avait déjà plus__ le pseudo ${part_of_nickname}\niHorizon __n'a pas réussi__ à retirer le rôle à **${e}** Utilisateur(s)."
+nickrole_too_much_member: "Trop de membres, je le ferais pas, car rate-limite possible!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -806,7 +811,8 @@ reactionroles_cant_fetched_reaction_remove: "Impossible de récupérer la réact
 reactionroles_logs_embed_title_remove: "Logs des ReactionRoles"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> a supprimé un ReactionRole: Message: `${messagei}` | Réaction: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} a été supprimé du message ${messagei}"
-reactionroles_dont_message_found: ""
+reactionroles_dont_message_found: "Je ne peux pas obtenir le message avec l'ID de votre message actuel !"
+
 
 # New feature commands
 # /punishpub, /report, /support

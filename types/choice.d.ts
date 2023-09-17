@@ -23,5 +23,5 @@ import { QueueRepeatMode } from "discord-player";
 
 export interface Choice {
     name: string,
-    value: string | QueueRepeatMode
+    value: string | QueueRepeatMode | boolean
 }
