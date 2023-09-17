@@ -76,7 +76,7 @@ export const command: Command = {
             .setTimestamp();
 
         let response = await interaction.editReply({ embeds: [embed], components: [row] });
-        let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 240_000 });
+        let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840_000 });
 
         collector.on('collect', async (i: {
             member: { id: any };
