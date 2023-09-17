@@ -135,7 +135,19 @@ export = async (client: Client) => {
         for (let i in result) {
             for (let c in result[i]) {
                 if (i !== 'TEMP') {
+                    execSync(`rm -r dist`, {
+                        stdio: [0, 1, 2],
+                        cwd: result?.[i]?.[c]?.path,
+                    });
                     execSync(`git pull`, {
+                        stdio: [0, 1, 2],
+                        cwd: result?.[i]?.[c]?.path,
+                    });
+                    execSync(`npx tsc`, {
+                        stdio: [0, 1, 2],
+                        cwd: result?.[i]?.[c]?.path,
+                    });
+                    execSync(`mv dist/index.js dist/${result?.[i]?.[c]?.code}.js`, {
                         stdio: [0, 1, 2],
                         cwd: result?.[i]?.[c]?.path,
                     });
