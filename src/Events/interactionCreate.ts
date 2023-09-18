@@ -41,7 +41,7 @@ export = async (client: any, interaction: any) => {
         if (interaction.customId === 'confirm-entry-giveaway') {
             if (await db.DataBaseModel({
                 id: db.Get,
-                key: `GIVEAWAYS.${interaction.guild.id}.${interaction.message.id}`
+                key: `GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}`
             }))  AddEntries(interaction);
             return;
         };

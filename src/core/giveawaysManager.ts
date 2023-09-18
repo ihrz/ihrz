@@ -24,7 +24,8 @@ import {
     time,
     ButtonBuilder,
     ButtonStyle,
-    ActionRowBuilder
+    ActionRowBuilder,
+    Client
 } from 'discord.js';
 
 import { Giveaway } from '../../types/giveaways';
@@ -53,7 +54,7 @@ async function Create(channel: any, data: Giveaway) {
 
     await db.DataBaseModel({
         id: db.Set,
-        key: `GIVEAWAYS.${channel.guild.id}.${response.id}`,
+        key: `GIVEAWAYS.${channel.guild.id}.${channel.id}.${response.id}`,
         value: {
             winnerCount: data.winnerCount,
             prize: data.prize,
@@ -70,7 +71,7 @@ async function AddEntries(interaction: any) {
 
     let members = await db.DataBaseModel({
         id: db.Get,
-        key: `GIVEAWAYS.${interaction.guild.id}.${interaction.message.id}.members`,
+        key: `GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`,
     });
 
     if (members.includes(interaction.user.id)) {
@@ -80,7 +81,7 @@ async function AddEntries(interaction: any) {
 
         await db.DataBaseModel({
             id: db.Push,
-            key: `GIVEAWAYS.${interaction.guild.id}.${interaction.message.id}.members`,
+            key: `GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`,
             value: interaction.user.id
         });
 
@@ -102,18 +103,18 @@ async function RemoveEntries(interaction: any) {
 
     let members: Array<string> = await db.DataBaseModel({
         id: db.Get,
-        key: `GIVEAWAYS.${interaction.guild.id}.${interaction.message.id}.members`,
+        key: `GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`,
     });
 
     function arraySub(arr: Array<any>, value: string) {
-        return arr.filter(function (geeks) {
-            return geeks != value;
+        return arr.filter(function (toSub) {
+            return toSub != value;
         });
     };
 
     await db.DataBaseModel({
         id: db.Set,
-        key: `GIVEAWAYS.${interaction.guild.id}.${interaction.message.id}.members`,
+        key: `GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`,
         value: arraySub(members, interaction.user.id)
     });
 
@@ -135,8 +136,32 @@ async function End(interaction: any) {
 
 };
 
-async function Finnish(client: any, data: Giveaway) {
-    console.log(client, data)
+async function Finnish(client: Client, messageId: any, guildId: any, channelId: any) {
+    // console.log(client, messageId, guildId)
+
+    let fetch = await db.DataBaseModel({
+        id: db.Get,
+        key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}`
+    });
+
+    let guild = await client.guilds.fetch(guildId);
+    let channel = await guild.channels.fetch(channelId);
+
+    let message = await (channel as any).messages.fetch(messageId);
+    let winner = fetch.members[(Math.floor(Math.random() * fetch.members.length))];
+
+    if (winner) {
+        winner = '<@' + winner + '>';
+    } else { winner = 'None' };
+
+    let embeds = new EmbedBuilder()
+        .setColor('#2f3136')
+        .setTitle(fetch.prize)
+        .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winner}`)
+        .setTimestamp()
+
+    await message.edit({ embeds: [embeds] });
+    return;
 };
 
 async function Reroll(interaction: any) {
@@ -153,18 +178,24 @@ async function Refresh(client: any) {
         key: `GIVEAWAYS`
     });
 
-    for (let a in drop_all_db) {
-        // a: Server Guild ID
+    for (let guildId in drop_all_db) {
+        // guildId: Server Guild ID
         // b: Giveaway's Message ID
         // drop_all_db[a][b] : Giveaway Object
+        for (let channelId in drop_all_db[guildId]) {
+            for (let messageId in drop_all_db[guildId][channelId]) {
+                let now = new Date().getTime();
+                let gwExp = new Date(drop_all_db[guildId][channelId][messageId]?.expireIn).getTime();
 
-        for (let b in drop_all_db[a]) {
-            let now = new Date().getTime();
-            let gwExp = new Date(drop_all_db[a][b]?.expireIn).getTime();
-
-            if (now >= gwExp) {
-                Finnish(client, drop_all_db[a][b]);
-            };
+                if (now >= gwExp) {
+                    Finnish(
+                        client,
+                        messageId,
+                        guildId,
+                        channelId
+                    );
+                };
+            }
         }
     }
 };
