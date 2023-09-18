@@ -132,8 +132,7 @@ async function RemoveEntries(interaction: any) {
     return;
 };
 
-async function End(client: any, data: any) {
-    // console.log(data)
+async function End(client: Client, data: any) {
 
     let fetch = await db.DataBaseModel({
         id: db.Get,
@@ -262,7 +261,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
     return;
 };
 
-async function Reroll(interaction: any) {
+async function Reroll(client: Client, data: any) {
 
 };
 
@@ -296,6 +295,27 @@ async function isValid(giveawayId: number, data: any) {
     return false;
 };
 
+async function isEnded(giveawayId: number, data: any) {
+    let fetch = await db.DataBaseModel({
+        id: db.Get,
+        key: `GIVEAWAYS.${data.guildId}`
+    });
+
+    let dataDict: any = {};
+
+    for (let channelId in fetch) {
+        for (let messageId in fetch[channelId]) {
+            dataDict[messageId] = fetch[channelId][messageId].ended;
+        }
+    };
+
+    if (dataDict[giveawayId]) {
+        return true;
+    };
+
+    return false;
+};
+
 async function Refresh(client: Client) {
     let drop_all_db = await db.DataBaseModel({
         id: db.Get,
@@ -306,6 +326,7 @@ async function Refresh(client: Client) {
         // guildId: Server Guild ID
         // b: Giveaway's Message ID
         // drop_all_db[a][b] : Giveaway Object
+
         for (let channelId in drop_all_db[guildId]) {
             for (let messageId in drop_all_db[guildId][channelId]) {
                 let now = new Date().getTime();
@@ -327,6 +348,7 @@ async function Refresh(client: Client) {
 export {
     Init,
     isValid,
+    isEnded,
 
     Create,
     Reroll,

@@ -39,6 +39,7 @@ export = {
         let giveaway =
             client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.prize === inputData) ||
             client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.messageId === inputData);
+            
         if (!giveaway) {
             await interaction.editReply({
                 content: data.end_not_find_giveaway
