@@ -132,7 +132,7 @@ async function RemoveEntries(interaction: any) {
     return;
 };
 
-async function End(interaction: any, data: any) {
+async function End(client: any, data: any) {
     // console.log(data)
 
     let fetch = await db.DataBaseModel({
@@ -158,13 +158,11 @@ async function End(interaction: any, data: any) {
                     });
 
                     Finnish(
-                        interaction,
+                        client,
                         messageId,
                         data.guildId,
                         channelId
                     );
-
-                    console.log('do somethings..')
                 }
             };
 
@@ -180,7 +178,6 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
     });
 
     if (!fetch.ended === true) {
-
         let guild = await client.guilds.fetch(guildId);
         let channel = await guild.channels.fetch(channelId);
 
@@ -222,7 +219,45 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         });
 
     } else if (fetch?.ended === 'End()') {
-        console.log('okay !')
+        let guild = await client.guilds.fetch(guildId);
+        let channel = await guild.channels.fetch(channelId);
+
+        let message = await (channel as any).messages.fetch(messageId);
+        let winner = fetch.members[(Math.floor(Math.random() * fetch.members.length))];
+
+        if (winner) {
+            winner = '<@' + winner + '>';
+        } else { winner = 'None' };
+
+        let Finnish = new ButtonBuilder()
+            .setLabel('Giveaway Finnished')
+            .setURL('https://media.tenor.com/uO4u0ib3oK0AAAAC/done-and-done-spongebob.gif')
+            .setStyle(ButtonStyle.Link);
+
+        let embeds = new EmbedBuilder()
+            .setColor('#2f3136')
+            .setTitle(fetch.prize)
+            .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winner}`)
+            .setTimestamp()
+
+        await message.edit({
+            embeds: [embeds], components: [new ActionRowBuilder()
+                .addComponents(Finnish)]
+        });
+
+        if (winner !== 'None') {
+            await message.reply({ content: `Congratulations ${winner}! You won the **${fetch.prize}**!` })
+        } else {
+            await message.reply({
+                content: 'No valid entrants, so a winner could not be determined!'
+            });
+        };
+
+        await db.DataBaseModel({
+            id: db.Set,
+            key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.ended`,
+            value: true
+        });
     }
     return;
 };
@@ -234,7 +269,9 @@ async function Reroll(interaction: any) {
 function Init(client: any) {
     Refresh(client);
 
-    setInterval(Refresh, 4500);
+    setInterval(() => {
+        Refresh(client);
+    }, 4500);
 };
 
 
@@ -259,7 +296,7 @@ async function isValid(giveawayId: number, data: any) {
     return false;
 };
 
-async function Refresh(client: any) {
+async function Refresh(client: Client) {
     let drop_all_db = await db.DataBaseModel({
         id: db.Get,
         key: `GIVEAWAYS`

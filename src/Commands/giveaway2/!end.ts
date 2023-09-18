@@ -52,14 +52,14 @@ export = {
         };
 
 
-        await End(interaction, {
+        await End(client, {
             guildId: interaction.guild.id,
             messageId: inputData,
         });
 
         await interaction.editReply({
             content: data.end_confirmation_message
-                .replace(/\${timeEstimate}/g, client.giveawaysManager.options.forceUpdateEvery || 0 / 1000)
+                .replace(/\${timeEstimate}/g, 0)
         });
 
         try {
@@ -68,8 +68,9 @@ export = {
                 .setTitle(data.end_logs_embed_title)
                 .setDescription(data.end_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    // .replace(/\${giveaway\.messageID}/g, giveaway?.messageId)
-                )
+                    .replace(/\${giveaway\.messageID}/g, inputData)
+                );
+                
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) {
                 logchannel.send({ embeds: [logEmbed] })
