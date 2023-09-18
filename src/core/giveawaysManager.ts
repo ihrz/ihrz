@@ -137,30 +137,54 @@ async function End(interaction: any) {
 };
 
 async function Finnish(client: Client, messageId: any, guildId: any, channelId: any) {
-    // console.log(client, messageId, guildId)
 
     let fetch = await db.DataBaseModel({
         id: db.Get,
         key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}`
     });
 
-    let guild = await client.guilds.fetch(guildId);
-    let channel = await guild.channels.fetch(channelId);
+    if (fetch?.ended !== true) {
 
-    let message = await (channel as any).messages.fetch(messageId);
-    let winner = fetch.members[(Math.floor(Math.random() * fetch.members.length))];
+        let guild = await client.guilds.fetch(guildId);
+        let channel = await guild.channels.fetch(channelId);
 
-    if (winner) {
-        winner = '<@' + winner + '>';
-    } else { winner = 'None' };
+        let message = await (channel as any).messages.fetch(messageId);
+        let winner = fetch.members[(Math.floor(Math.random() * fetch.members.length))];
 
-    let embeds = new EmbedBuilder()
-        .setColor('#2f3136')
-        .setTitle(fetch.prize)
-        .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winner}`)
-        .setTimestamp()
+        if (winner) {
+            winner = '<@' + winner + '>';
+        } else { winner = 'None' };
 
-    await message.edit({ embeds: [embeds] });
+        let Finnish = new ButtonBuilder()
+            .setLabel('Giveaway Finnished')
+            .setURL('https://media.tenor.com/uO4u0ib3oK0AAAAC/done-and-done-spongebob.gif')
+            .setStyle(ButtonStyle.Link);
+
+        let embeds = new EmbedBuilder()
+            .setColor('#2f3136')
+            .setTitle(fetch.prize)
+            .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winner}`)
+            .setTimestamp()
+
+        await message.edit({
+            embeds: [embeds], components: [new ActionRowBuilder()
+                .addComponents(Finnish)]
+        });
+
+        if (winner !== 'None') {
+            await message.reply({ content: `Congratulations ${winner}! You won the **${fetch.prize}**!` })
+        } else {
+            await message.reply({
+                content: 'No valid entrants, so a winner could not be determined!'
+            });
+        };
+
+        await db.DataBaseModel({
+            id: db.Set,
+            key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.ended`,
+            value: true
+        });
+    }
     return;
 };
 
