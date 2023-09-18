@@ -182,10 +182,11 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
 
         let message = await (channel as any).messages.fetch(messageId);
         let winner = fetch.members[(Math.floor(Math.random() * fetch.members.length))];
+        let winner_2 = '';
 
         if (winner) {
-            winner = '<@' + winner + '>';
-        } else { winner = 'None' };
+            winner_2 = '<@' + winner + '>';
+        } else { winner_2 = 'None' };
 
         let Finnish = new ButtonBuilder()
             .setLabel('Giveaway Finnished')
@@ -195,7 +196,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         let embeds = new EmbedBuilder()
             .setColor('#2f3136')
             .setTitle(fetch.prize)
-            .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winner}`)
+            .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winner_2}`)
             .setTimestamp()
 
         await message.edit({
@@ -204,7 +205,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         });
 
         if (winner !== 'None') {
-            await message.reply({ content: `Congratulations ${winner}! You won the **${fetch.prize}**!` })
+            await message.reply({ content: `Congratulations ${winner_2}! You won the **${fetch.prize}**!` })
         } else {
             await message.reply({
                 content: 'No valid entrants, so a winner could not be determined!'
@@ -214,7 +215,12 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         await db.DataBaseModel({
             id: db.Set,
             key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.ended`,
-            value: true
+            value: true,
+        });
+        await db.DataBaseModel({
+            id: db.Set,
+            key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.winner`,
+            value: winner
         });
 
     } else if (fetch?.ended === 'End()') {
@@ -223,10 +229,11 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
 
         let message = await (channel as any).messages.fetch(messageId);
         let winner = fetch.members[(Math.floor(Math.random() * fetch.members.length))];
+        let winner_2 = '';
 
         if (winner) {
-            winner = '<@' + winner + '>';
-        } else { winner = 'None' };
+            winner_2 = '<@' + winner + '>';
+        } else { winner_2 = 'None' };
 
         let Finnish = new ButtonBuilder()
             .setLabel('Giveaway Finnished')
@@ -236,7 +243,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         let embeds = new EmbedBuilder()
             .setColor('#2f3136')
             .setTitle(fetch.prize)
-            .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winner}`)
+            .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winner_2}`)
             .setTimestamp()
 
         await message.edit({
@@ -245,7 +252,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         });
 
         if (winner !== 'None') {
-            await message.reply({ content: `Congratulations ${winner}! You won the **${fetch.prize}**!` })
+            await message.reply({ content: `Congratulations ${winner_2}! You won the **${fetch.prize}**!` })
         } else {
             await message.reply({
                 content: 'No valid entrants, so a winner could not be determined!'
@@ -257,11 +264,53 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
             key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.ended`,
             value: true
         });
+        await db.DataBaseModel({
+            id: db.Set,
+            key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.winner`,
+            value: winner
+        });
     }
     return;
 };
 
 async function Reroll(client: Client, data: any) {
+
+    let fetch = await db.DataBaseModel({
+        id: db.Get,
+        key: `GIVEAWAYS.${data.guildId}`
+    });
+
+    for (let channelId in fetch) {
+        for (let messageId in fetch[channelId]) {
+            if (messageId === data.messageId) {
+
+                let guild = await client.guilds.fetch(data.guildId);
+                let channel = await guild.channels.fetch(channelId);
+
+                let message = await (channel as any).messages.fetch(messageId);
+
+                let winner = fetch[channelId][messageId].members[(Math.floor(Math.random() * fetch[channelId][messageId].members.length))];
+
+                let embeds = new EmbedBuilder()
+                    .setColor('#2f3136')
+                    .setTitle(fetch[channelId][messageId].prize)
+                    .setDescription(`Ended: ${time(new Date(fetch[channelId][messageId].expireIn), 'R')} (${time(new Date(fetch[channelId][messageId].expireIn), 'D')})\nHosted by: <@${fetch[channelId][messageId].hostedBy}>\nEntries **${fetch[channelId][messageId].members.length}**\nWinners: <@${winner}>`)
+                    .setTimestamp()
+
+                await message.edit({
+                    embeds: [embeds]
+                });
+
+                if (winner !== 'None') {
+                    await message.reply({ content: `Congratulations <@${winner}>! You won the **${fetch[channelId][messageId].prize}**!` })
+                } else {
+                    await message.reply({
+                        content: 'No valid entrants, so a winner could not be determined!'
+                    });
+                };
+            };
+        };
+    };
 
 };
 

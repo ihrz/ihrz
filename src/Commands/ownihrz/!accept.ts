@@ -95,7 +95,7 @@ export = {
                 let encrypted = CryptoJS.AES.encrypt(JSON.stringify(id_2), config.api.apiToken).toString();
 
                 axios.post(apiUrlParser.PublishURL, { cryptedJSON: encrypted }, { headers: { 'Accept': 'application/json' } })
-                    .then((response: any) => { });
+                    .then((response: any) => { })
                     .catch(error => {
                         logger.err(error)
                     });
