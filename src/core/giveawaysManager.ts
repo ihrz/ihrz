@@ -204,7 +204,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
                 .addComponents(Finnish)]
         });
 
-        if (winner !== 'None') {
+        if (winner_2 !== 'None') {
             await message.reply({ content: `Congratulations ${winner_2}! You won the **${fetch.prize}**!` })
         } else {
             await message.reply({
@@ -217,10 +217,11 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
             key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.ended`,
             value: true,
         });
+
         await db.DataBaseModel({
             id: db.Set,
             key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.winner`,
-            value: winner
+            value: winner || 'None'
         });
 
     } else if (fetch?.ended === 'End()') {
@@ -251,7 +252,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
                 .addComponents(Finnish)]
         });
 
-        if (winner !== 'None') {
+        if (winner_2 !== 'None') {
             await message.reply({ content: `Congratulations ${winner_2}! You won the **${fetch.prize}**!` })
         } else {
             await message.reply({
@@ -264,10 +265,11 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
             key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.ended`,
             value: true
         });
+        console.log(winner || 'None')
         await db.DataBaseModel({
             id: db.Set,
             key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.winner`,
-            value: winner
+            value: winner || 'None'
         });
     }
     return;
@@ -319,7 +321,7 @@ async function Reroll(client: Client, data: any) {
                 await db.DataBaseModel({
                     id: db.Set,
                     key: `GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.winner`,
-                    value: winner
+                    value: winner || 'None'
                 });
             };
         };
