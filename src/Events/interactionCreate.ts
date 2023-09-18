@@ -19,17 +19,33 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import date from 'date-and-time';
-import { BaseInteraction, Client, Collection, EmbedBuilder, Interaction, InteractionResponse, Permissions } from 'discord.js';
-import config from '../files/config';
+import { RemoveEntries, AddEntries } from '../core/giveawaysManager';
 import * as db from '../core/functions/DatabaseModel';
+import config from '../files/config';
 import logger from '../core/logger';
-import fs from 'fs';
+
+import { BaseInteraction, Client, Collection, EmbedBuilder, Interaction, InteractionResponse, Permissions } from 'discord.js';
 import { format } from 'date-fns';
+import date from 'date-and-time';
+import fs from 'fs';
 
 var timeout: number = 1000;
 
 export = async (client: any, interaction: any) => {
+
+    async function buttonExecutor() {
+        if (!interaction.isButton()
+            || !interaction.guild?.channels
+            || interaction.user.bot) return;
+
+        if (interaction.customId === 'confirm-entry-giveaway') {
+            if (await db.DataBaseModel({
+                id: db.Get,
+                key: `${interaction.guild.id}.GIVEAWAYS.${interaction.message.id}`
+            }))  AddEntries(interaction);
+            return;
+        };
+    };
 
     async function slashExecutor() {
         if (!interaction.isCommand()
@@ -99,5 +115,5 @@ export = async (client: any, interaction: any) => {
         await db.DataBaseModel({ id: db.Set, key: `TEMP.COOLDOWN.${interaction.user.id}`, value: tn });
         return false;
     };
-    await slashExecutor(), logsCommands();
+    await slashExecutor(), buttonExecutor(), logsCommands();
 };
