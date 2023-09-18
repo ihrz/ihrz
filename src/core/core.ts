@@ -28,6 +28,7 @@ import * as errorManager from './errorManager';
 import logger from "./logger";
 
 import { Client, Collection } from "discord.js";
+import { Init } from './giveawaysManager';
 import { execSync } from 'child_process';
 
 import { readdirSync } from "fs";
@@ -35,7 +36,6 @@ import couleurmdr from "colors";
 import path from 'path';
 import fs from 'fs';
 import * as db from './functions/DatabaseModel';
-
 function cleanTempDir() {
     let folderPath = `${process.cwd()}/src/temp`;
 
@@ -94,6 +94,7 @@ export = (client: Client) => {
 
     require('../api/server'),
         bash(client),
+        Init(client),
         giveawayManager(client),
         playerManager(client),
         errorManager.uncaughtExceptionHandler();

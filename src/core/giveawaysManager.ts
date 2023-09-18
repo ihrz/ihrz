@@ -27,11 +27,11 @@ import {
     ActionRowBuilder
 } from 'discord.js';
 
-import { Create } from '../../types/giveaways';
+import { Giveaway } from '../../types/giveaways';
 import date from 'date-and-time';
 import * as db from './functions/DatabaseModel';
 
-async function Create(channel: any, data: Create) {
+async function Create(channel: any, data: Giveaway) {
 
     let confirm = new ButtonBuilder()
         .setCustomId('confirm-entry-giveaway')
@@ -41,13 +41,11 @@ async function Create(channel: any, data: Create) {
     let gw = new EmbedBuilder()
         .setColor('#9a5af2')
         .setTitle(data.prize)
-        .setDescription(`Click with 🎉 to participate!!\n__Duration:__ ${time((date.addMilliseconds(new Date(), data.duration)), 'd')}\nHosted by ${data.hostedBy}\n**Entries** __0__`)
-        .setFooter({ text: `${data.winnerCount} Winner(s)` })
+        .setDescription(`Ends: ${time((date.addMilliseconds(new Date(), data.duration)), 'R')} (${time((date.addMilliseconds(new Date(), data.duration)), 'D')})\nHosted by: ${data.hostedBy}\nEntries: **0**\nWinners: **${data.winnerCount}**`)
         .setTimestamp((date.addMilliseconds(new Date(), data.duration)));
 
 
     let response = await channel.send({
-        content: ':tada::tada: **GIVEAWAY** :tada::tada:',
         embeds: [gw],
         components: [new ActionRowBuilder()
             .addComponents(confirm)]
@@ -55,7 +53,7 @@ async function Create(channel: any, data: Create) {
 
     await db.DataBaseModel({
         id: db.Set,
-        key: `${channel.guild.id}.GIVEAWAYS.${response.id}`,
+        key: `GIVEAWAYS.${channel.guild.id}.${response.id}`,
         value: {
             winnerCount: data.winnerCount,
             prize: data.prize,
@@ -72,7 +70,7 @@ async function AddEntries(interaction: any) {
 
     let members = await db.DataBaseModel({
         id: db.Get,
-        key: `${interaction.guild.id}.GIVEAWAYS.${interaction.message.id}.members`,
+        key: `GIVEAWAYS.${interaction.guild.id}.${interaction.message.id}.members`,
     });
 
     if (members.includes(interaction.user.id)) {
@@ -82,23 +80,17 @@ async function AddEntries(interaction: any) {
 
         await db.DataBaseModel({
             id: db.Push,
-            key: `${interaction.guild.id}.GIVEAWAYS.${interaction.message.id}.members`,
+            key: `GIVEAWAYS.${interaction.guild.id}.${interaction.message.id}.members`,
             value: interaction.user.id
         });
 
-        let giveaway_entries_accepted = new EmbedBuilder()
-            .setColor('#9a5af2')
-            .setTitle('Giveaway entries accepted !')
-            .setDescription(`${interaction.user}, your entries **are accepted** for this giveaway!`)
-            .setTimestamp()
+        await interaction.deferUpdate();
 
-        await interaction.reply({ embeds: [giveaway_entries_accepted], ephemeral: true });
-
-        let regex = /\*\*Entries\*\* __\d+__/;
+        let regex = /Entries: \*\*\d+\*\*/;
 
         let embedsToEdit = new EmbedBuilder(interaction.message.embeds[0])
             .setDescription(interaction.message.embeds[0].description
-                .replace(regex, `**Entries** __${members.length}__`)
+                .replace(regex, `Entries: **${members.length + 1}**`)
             );
 
         await interaction.message.edit({ embeds: [embedsToEdit] });
@@ -107,20 +99,74 @@ async function AddEntries(interaction: any) {
 };
 
 async function RemoveEntries(interaction: any) {
-    let embeds = new EmbedBuilder()
-        .setColor('#cb2121')
-        .setTitle('⚠️ Leaving the giveaways ?')
-        .setDescription(`${interaction.user}, are you sure about leave this giveaways ?`);
 
-    await interaction.reply({ embeds: [embeds], ephemeral: true });
+    let members: Array<string> = await db.DataBaseModel({
+        id: db.Get,
+        key: `GIVEAWAYS.${interaction.guild.id}.${interaction.message.id}.members`,
+    });
+
+    function arraySub(arr: Array<any>, value: string) {
+        return arr.filter(function (geeks) {
+            return geeks != value;
+        });
+    };
+
+    await db.DataBaseModel({
+        id: db.Set,
+        key: `GIVEAWAYS.${interaction.guild.id}.${interaction.message.id}.members`,
+        value: arraySub(members, interaction.user.id)
+    });
+
+    await interaction.reply({ content: `${interaction.user} you have leave this giveaways !`, ephemeral: true });
+
+    let regex = /Entries: \*\*\d+\*\*/;
+
+    let embedsToEdit = new EmbedBuilder(interaction.message.embeds[0])
+        .setDescription(interaction.message.embeds[0].description
+            .replace(regex, `Entries: **${arraySub(members, interaction.user.id).length}**`)
+        );
+
+    await interaction.message.edit({ embeds: [embedsToEdit] });
+
+    return;
 };
 
 async function End(interaction: any) {
 
 };
 
+async function Finnish(client: any, data: Giveaway) {
+    console.log(client, data)
+};
+
 async function Reroll(interaction: any) {
 
+};
+
+function Init(client: any) {
+    Refresh(client);
+};
+
+async function Refresh(client: any) {
+    let drop_all_db = await db.DataBaseModel({
+        id: db.Get,
+        key: `GIVEAWAYS`
+    });
+
+    for (let a in drop_all_db) {
+        // a: Server Guild ID
+        // b: Giveaway's Message ID
+        // drop_all_db[a][b] : Giveaway Object
+
+        for (let b in drop_all_db[a]) {
+            let now = new Date().getTime();
+            let gwExp = new Date(drop_all_db[a][b]?.expireIn).getTime();
+
+            if (now >= gwExp) {
+                Finnish(client, drop_all_db[a][b]);
+            };
+        }
+    }
 };
 
 export {
@@ -128,5 +174,6 @@ export {
     End,
     Reroll,
     AddEntries,
-    RemoveEntries
+    RemoveEntries,
+    Init
 };

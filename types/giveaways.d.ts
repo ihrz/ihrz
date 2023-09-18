@@ -21,7 +21,7 @@
 
 import { User } from "discord.js";
 
-export interface Create {
+export interface Giveaway {
     duration: number;
     prize: string;
     winnerCount: number;
