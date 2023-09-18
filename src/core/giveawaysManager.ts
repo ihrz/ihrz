@@ -132,8 +132,44 @@ async function RemoveEntries(interaction: any) {
     return;
 };
 
-async function End(interaction: any) {
+async function End(interaction: any, data: any) {
+    // console.log(data)
 
+    let fetch = await db.DataBaseModel({
+        id: db.Get,
+        key: `GIVEAWAYS.${data.guildId}`
+    });
+
+    for (let channelId in fetch) {
+        for (let messageId in fetch[channelId]) {
+
+            if (messageId === data.messageId) {
+
+                let ended = await db.DataBaseModel({
+                    id: db.Get,
+                    key: `GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.ended`
+                });
+
+                if (ended !== true) {
+                    await db.DataBaseModel({
+                        id: db.Set,
+                        key: `GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.ended`,
+                        value: 'End()'
+                    });
+
+                    Finnish(
+                        interaction,
+                        messageId,
+                        data.guildId,
+                        channelId
+                    );
+
+                    console.log('do somethings..')
+                }
+            };
+
+        };
+    };
 };
 
 async function Finnish(client: Client, messageId: any, guildId: any, channelId: any) {
@@ -143,7 +179,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}`
     });
 
-    if (fetch?.ended !== true) {
+    if (!fetch.ended === true) {
 
         let guild = await client.guilds.fetch(guildId);
         let channel = await guild.channels.fetch(channelId);
@@ -184,6 +220,9 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
             key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.ended`,
             value: true
         });
+
+    } else if (fetch?.ended === 'End()') {
+        console.log('okay !')
     }
     return;
 };
@@ -194,6 +233,30 @@ async function Reroll(interaction: any) {
 
 function Init(client: any) {
     Refresh(client);
+
+    setInterval(Refresh, 4500);
+};
+
+
+async function isValid(giveawayId: number, data: any) {
+    let fetch = await db.DataBaseModel({
+        id: db.Get,
+        key: `GIVEAWAYS.${data.guildId}`
+    });
+
+    let dataDict: any = {};
+
+    for (let channelId in fetch) {
+        for (let messageId in fetch[channelId]) {
+            dataDict[messageId] = true;
+        }
+    };
+
+    if (dataDict[giveawayId]) {
+        return true;
+    };
+
+    return false;
 };
 
 async function Refresh(client: any) {
@@ -225,10 +288,13 @@ async function Refresh(client: any) {
 };
 
 export {
+    Init,
+    isValid,
+
     Create,
-    End,
     Reroll,
+    End,
+
     AddEntries,
-    RemoveEntries,
-    Init
+    RemoveEntries
 };
