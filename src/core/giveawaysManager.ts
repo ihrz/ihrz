@@ -291,6 +291,13 @@ async function Reroll(client: Client, data: any) {
 
                 let winner = fetch[channelId][messageId].members[(Math.floor(Math.random() * fetch[channelId][messageId].members.length))];
 
+                if (fetch[channelId][messageId].members.length > 1) {
+
+                    while (winner === fetch[channelId][messageId].winner) {
+                        winner = fetch[channelId][messageId].members[(Math.floor(Math.random() * fetch[channelId][messageId].members.length))];
+                    };
+                };
+
                 let embeds = new EmbedBuilder()
                     .setColor('#2f3136')
                     .setTitle(fetch[channelId][messageId].prize)
@@ -308,6 +315,12 @@ async function Reroll(client: Client, data: any) {
                         content: 'No valid entrants, so a winner could not be determined!'
                     });
                 };
+
+                await db.DataBaseModel({
+                    id: db.Set,
+                    key: `GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.winner`,
+                    value: winner
+                });
             };
         };
     };
