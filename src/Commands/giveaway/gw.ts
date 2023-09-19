@@ -31,16 +31,10 @@ export const command: Command = {
     description: "Subcommand for giveaway category!",
     options: [
         {
-            name: "start",
+            name: "create",
             description: "Start a giveaway!",
             type: 1,
             options: [
-                {
-                    name: 'channel',
-                    type: ApplicationCommandOptionType.Channel,
-                    description: 'The channels where the giveaways is sent',
-                    required: true
-                },
                 {
                     name: 'winner',
                     type: ApplicationCommandOptionType.Number,
@@ -88,7 +82,7 @@ export const command: Command = {
             ],
         }
     ],
-    category: 'giveaway',
+    category: 'giveaway2',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let command: any = interaction.options.getSubcommand();

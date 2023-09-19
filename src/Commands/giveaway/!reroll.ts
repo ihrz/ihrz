@@ -25,6 +25,7 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
+import { isValid, isEnded, Reroll } from '../../core/giveawaysManager';
 import logger from '../../core/logger';
 
 export = {
@@ -36,9 +37,10 @@ export = {
             return;
         };
 
-        let giveaway =
-            client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.prize === inputData) ||
-            client.giveawaysManager.giveaways.find((g) => g.guildId === interaction.guild.id && g.messageId === inputData);
+        let giveaway = await isValid(inputData, {
+            guildId: interaction.guild.id
+        });
+
         if (!giveaway) {
             await interaction.editReply({
                 content: data.reroll_dont_find_giveaway
@@ -47,36 +49,38 @@ export = {
             return;
         };
 
-        client.giveawaysManager
-            .reroll(giveaway.messageId)
-            .then(() => {
-                interaction.editReply({ content: data.reroll_command_work });
-                try {
-                    let logEmbed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
-                        .setTitle(data.reroll_logs_embed_title)
-                        .setDescription(data.reroll_logs_embed_description
-                            .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                            .replace(/\${giveaway\.messageID}/g, giveaway?.messageId)
-                        )
+        let ended = await isEnded(inputData, {
+            guildId: interaction.guild.id
+        });
 
-                    let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                    
-                    if (logchannel) {
-                        logchannel.send({ embeds: [logEmbed] })
-                    };
-                } catch (e: any) {
-                    logger.err(e)
-                };
-            })
-            .catch((error) => {
-                if (error.startsWith(`Giveaway with message Id ${giveaway?.messageId} is not ended.`)) {
-                    interaction.editReply({ content: `This giveaway is not over!` });
-                    return;
-                } else {
-                    interaction.editReply({ content: data.reroll_command_error });
-                    return;
-                }
-            });
+        if (!ended) {
+            await interaction.editReply({ content: `This giveaway is not over!` });
+            return;
+        };
+        
+        await Reroll(client, {
+            guildId: interaction.guild.id,
+            messageId: inputData,
+        });
+
+        await interaction.editReply({ content: data.reroll_command_work });
+
+        try {
+            let logEmbed = new EmbedBuilder()
+                .setColor("#bf0bb9")
+                .setTitle(data.reroll_logs_embed_title)
+                .setDescription(data.reroll_logs_embed_description
+                    .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                    .replace(/\${giveaway\.messageID}/g, inputData)
+                )
+
+            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
+            if (logchannel) {
+                logchannel.send({ embeds: [logEmbed] })
+            };
+        } catch (e: any) {
+            logger.err(e)
+        };
     },
 };

@@ -25,59 +25,61 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import { isValid, End } from '../../core/giveawaysManager';
+import { Create } from '../../core/giveawaysManager';
 
 import logger from '../../core/logger';
+import config from '../../files/config';
+
+import ms from 'ms';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let inputData = interaction.options.getString("giveaway-id");
-
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-            await interaction.editReply({ content: data.end_not_admin });
+            await interaction.editReply({ content: data.start_not_perm });
             return;
         };
 
-        let giveaway = await isValid(inputData, {
-            guildId: interaction.guild.id
-        });
+        let giveawayChannel = interaction.channel;
+        var giveawayDuration: any = interaction.options.getString("time");
+        let giveawayNumberWinners = interaction.options.getNumber("winner");
 
-        if (!giveaway) {
-            await interaction.editReply({
-                content: data.end_not_find_giveaway
-                    .replace(/\${gw}/g, inputData)
-            });
+        if (isNaN(giveawayNumberWinners) || (parseInt(giveawayNumberWinners) <= 0)) {
+            await interaction.editReply({ content: data.start_is_not_valid });
             return;
         };
 
+        let giveawayPrize = interaction.options.getString("prize");
+        giveawayDuration = ms(giveawayDuration);
 
-        await End(client, {
-            guildId: interaction.guild.id,
-            messageId: inputData,
-        });
-
-        await interaction.editReply({
-            content: data.end_confirmation_message
-                .replace(/\${timeEstimate}/g, 0)
+        Create(giveawayChannel, {
+            duration: giveawayDuration,
+            prize: giveawayPrize,
+            winnerCount: parseInt(giveawayNumberWinners),
+            hostedBy: interaction.user,
         });
 
         try {
             let logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
-                .setTitle(data.end_logs_embed_title)
-                .setDescription(data.end_logs_embed_description
+                .setTitle(data.reroll_logs_embed_title)
+                .setDescription(data.start_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace(/\${giveaway\.messageID}/g, inputData)
+                    .replace(/\${giveawayChannel}/g, giveawayChannel)
                 );
-                
+
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) {
                 logchannel.send({ embeds: [logEmbed] })
             };
-
         } catch (e: any) {
             logger.err(e)
         };
+
+        await interaction.editReply({
+            content: data.start_confirmation_command
+                .replace(/\${giveawayChannel}/g, giveawayChannel)
+        });
+        return;
     },
 };
