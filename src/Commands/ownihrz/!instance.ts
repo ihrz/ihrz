@@ -27,6 +27,7 @@ import {
 import * as db from '../../core/functions/DatabaseModel';
 import { execSync } from 'child_process';
 
+import config from '../../files/config';
 import date from 'date-and-time';
 import axios from 'axios';
 
@@ -35,6 +36,13 @@ export = {
 
         let action_to_do = interaction.options.getString('action');
         let id_to_bot = interaction.options.getString('id');
+
+
+        if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
+            await interaction.deleteReply();
+            await interaction.followUp({ content: "❌", ephemeral: true });
+            return;
+        };
 
         let data_2 = await db.DataBaseModel({
             id: db.Get,
