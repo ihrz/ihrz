@@ -99,8 +99,8 @@ export = {
                     .catch(error => {
                         logger.err(error)
                     });
-            } catch (error) {
-                console.error(error)
+            } catch (error: any) {
+                logger.err(error)
             };
 
             await db.DataBaseModel({

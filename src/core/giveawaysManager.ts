@@ -442,8 +442,6 @@ async function Refresh(client: Client) {
                         id: db.Delete,
                         key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}`
                     });
-
-                    console.log('suppression de la db tqt', messageId)
                 };
             }
         }
