@@ -52,6 +52,14 @@ export = {
         let giveawayPrize = interaction.options.getString("prize");
         giveawayDuration = ms(giveawayDuration);
 
+        if (Number.isNaN(giveawayDuration)) {
+            await interaction.editReply({
+                content: data.start_time_not_valid
+                    .replace('${interaction.user}', interaction.user)
+            });
+            return;
+        };
+
         Create(giveawayChannel, {
             duration: giveawayDuration,
             prize: giveawayPrize,
@@ -80,7 +88,7 @@ export = {
             content: data.start_confirmation_command
                 .replace(/\${giveawayChannel}/g, giveawayChannel)
         });
-        
+
         return;
     },
 };
