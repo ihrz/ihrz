@@ -37,11 +37,9 @@ export = {
             return;
         };
 
-        let giveaway = await isValid(inputData, {
+        if (!await isValid(inputData, {
             guildId: interaction.guild.id
-        });
-
-        if (!giveaway) {
+        })) {
             await interaction.editReply({
                 content: data.reroll_dont_find_giveaway
                     .replace("{args}", inputData)
@@ -49,15 +47,13 @@ export = {
             return;
         };
 
-        let ended = await isEnded(inputData, {
+        if (!await isEnded(inputData, {
             guildId: interaction.guild.id
-        });
-
-        if (!ended) {
+        })) {
             await interaction.editReply({ content: `This giveaway is not over!` });
             return;
         };
-        
+
         await Reroll(client, {
             guildId: interaction.guild.id,
             messageId: inputData,
@@ -82,5 +78,7 @@ export = {
         } catch (e: any) {
             logger.err(e)
         };
+
+        return;
     },
 };

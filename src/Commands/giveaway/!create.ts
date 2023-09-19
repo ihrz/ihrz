@@ -80,6 +80,7 @@ export = {
             content: data.start_confirmation_command
                 .replace(/\${giveawayChannel}/g, giveawayChannel)
         });
+        
         return;
     },
 };

@@ -39,11 +39,9 @@ export = {
             return;
         };
 
-        let giveaway = await isValid(inputData, {
+        if (!await isValid(inputData, {
             guildId: interaction.guild.id
-        });
-
-        if (!giveaway) {
+        })) {
             await interaction.editReply({
                 content: data.end_not_find_giveaway
                     .replace(/\${gw}/g, inputData)
@@ -51,6 +49,12 @@ export = {
             return;
         };
 
+        if (!await isEnded(inputData, {
+            guildId: interaction.guild.id
+        })) {
+            await interaction.editReply({ content: `This giveaway is already over!` });
+            return;
+        };
 
         await End(client, {
             guildId: interaction.guild.id,
@@ -70,7 +74,7 @@ export = {
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     .replace(/\${giveaway\.messageID}/g, inputData)
                 );
-                
+
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) {
                 logchannel.send({ embeds: [logEmbed] })
@@ -79,5 +83,7 @@ export = {
         } catch (e: any) {
             logger.err(e)
         };
+
+        return;
     },
 };
