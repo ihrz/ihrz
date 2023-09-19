@@ -673,6 +673,7 @@ start_is_not_valid: "Devi specificare un numero valido di vincitori!"
 start_confirmation_command: "Il giveaway è stato avviato in ${giveawayChannel}!"
 start_logs_embed_title: "Registri Giveaway"
 start_logs_embed_description: "<@${interaction.user.id}> ha avviato un giveaway in: ${giveawayChannel}"
+start_time_not_valid: "${interaction.user}, la durata del giveaway che hai specificato non è valida, riprova!"
 
 # /reroll
 reroll_not_perm: "Devi avere i permessi per gestire i messaggi per eseguire nuovamente questo giveaway."

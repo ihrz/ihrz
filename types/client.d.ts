@@ -24,14 +24,12 @@ import { clientFunction } from "./clientFunction";
 import { Command } from "./command";
 import { QuickDB } from "quick.db";
 import { Player } from 'discord-player';
-import { GiveawaysManager } from "discord-giveaways";
 
 declare module 'discord.js' {
     export interface Client {
         functions: clientFunction,
         commands: Collection<string, Command>,
         player: Player,
-        giveawaysManager: GiveawaysManager
         invites: Collection,
         voiceManager: Map,
         interactions: Map,
