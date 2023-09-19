@@ -68,7 +68,7 @@ export = (client: Client) => {
 
         for (let i in result) {
             for (let c in result[i]) {
-                if (i !== 'TEMP') {
+                if (i !== 'TEMP' && !result[i][c].power_off) {
                     execSync(`pm2 stop ${result?.[i]?.[c]?.code}`, {
                         stdio: [0, 1, 2],
                         cwd: result?.[i]?.[c]?.path,

@@ -55,31 +55,75 @@ export const command: Command = {
             type: 1,
         },
         {
-            name: "accept",
+            name: "manage",
             description: "Only for owner",
-            type: 1,
+            type: 2,
             options: [
                 {
-                    name: 'id',
-                    type: ApplicationCommandOptionType.String,
-                    description: 'The id of the bot to accept their host!',
-                    required: true
-                }
+                    name: "accept",
+                    description: "Only for owner",
+                    type: 1,
+                    options: [
+                        {
+                            name: 'id',
+                            type: ApplicationCommandOptionType.String,
+                            description: 'The id of the bot to accept their host!',
+                            required: true
+                        }
+                    ],
+                },
+                {
+                    name: "deny",
+                    description: "Only for owner",
+                    type: 1,
+                    options: [
+                        {
+                            name: 'id',
+                            type: ApplicationCommandOptionType.String,
+                            description: 'The id of the bot to deny their host!',
+                            required: true
+                        }
+                    ],
+                },
+                {
+                    name: 'instance',
+                    type: 1,
+                    description: 'Only for owner',
+                    options: [
+                        {
+                            name: 'action',
+                            type: ApplicationCommandOptionType.String,
+                            description: 'What do you want to do',
+                            choices: [
+                                {
+                                    name: 'Shutdown',
+                                    value: 'shutdown'
+                                },
+                                {
+                                    name: 'Power On',
+                                    value: 'poweron'
+                                },
+                                {
+                                    name: 'Delete',
+                                    value: 'delete'
+                                },
+                                {
+                                    name: 'List All',
+                                    value: 'ls'
+                                }
+                            ],
+                            required: true
+                        },
+                        {
+                            name: 'id',
+                            type: ApplicationCommandOptionType.String,
+                            description: 'The id of the bot to manage !',
+                            required: false
+                        }
+                    ]
+                },
             ],
         },
-        {
-            name: "deny",
-            description: "Only for owner",
-            type: 1,
-            options: [
-                {
-                    name: 'id',
-                    type: ApplicationCommandOptionType.String,
-                    description: 'The id of the bot to deny their host!',
-                    required: true
-                }
-            ],
-        }
     ],
     category: 'ownihrz',
     run: async (client: Client, interaction: any) => {

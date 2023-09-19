@@ -26,6 +26,8 @@ import * as db from '../core/functions/DatabaseModel';
 
 import register from '../core/slashSync';
 import date from 'date-and-time';
+import path from 'path';
+import fs from 'fs';
 
 import { Client, Collection, ApplicationCommandType, PermissionsBitField, ActivityType, Guild, Embed, EmbedBuilder } from 'discord.js';
 import { execSync } from 'child_process';
@@ -134,11 +136,17 @@ export = async (client: Client) => {
 
         for (let i in result) {
             for (let c in result[i]) {
+                if (result[i][c].power_off) break;
+
                 if (i !== 'TEMP') {
-                    execSync(`rm -r dist`, {
-                        stdio: [0, 1, 2],
-                        cwd: result?.[i]?.[c]?.path,
-                    });
+
+                    if (fs.existsSync(path.join(result?.[i]?.[c]?.path, 'dist'))) {
+                        execSync(`rm -r dist`, {
+                            stdio: [0, 1, 2],
+                            cwd: result?.[i]?.[c]?.path,
+                        });
+                    };
+                    
                     execSync(`git pull`, {
                         stdio: [0, 1, 2],
                         cwd: result?.[i]?.[c]?.path,
