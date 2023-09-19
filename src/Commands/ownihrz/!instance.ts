@@ -181,7 +181,7 @@ export = {
 {
     owner: ${i},
     id_bot: '${j}',
-    bot_name: '${data_2[i][j].bot.username}'
+    bot_name: '${data_2[i][j].bot?.username}'
     expireIn: '${expire}'
 },
 \`\`\`\n`
