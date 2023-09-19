@@ -88,8 +88,8 @@ export = {
                 .setDescription(`Le bot as bien été accepté\n\n${utils_msg}`)
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
-            // await interaction.deleteReply();
-            await interaction.editReply({ embeds: [embed], ephemeral: false });
+            await interaction.deleteReply();
+            await interaction.followUp({ embeds: [embed], ephemeral: false });
 
             try {
                 let encrypted = CryptoJS.AES.encrypt(JSON.stringify(id_2), config.api.apiToken).toString();
