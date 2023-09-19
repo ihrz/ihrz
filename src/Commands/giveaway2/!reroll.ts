@@ -53,10 +53,10 @@ export = {
             guildId: interaction.guild.id
         });
 
-        // if (!ended) {
-        //     await interaction.editReply({ content: `This giveaway is not over!` });
-        //     return;
-        // };
+        if (!ended) {
+            await interaction.editReply({ content: `This giveaway is not over!` });
+            return;
+        };
         
         await Reroll(client, {
             guildId: interaction.guild.id,

@@ -169,6 +169,39 @@ async function End(client: Client, data: any) {
     };
 };
 
+function SelectWinners(fetch: any, number: number) {
+    if (fetch.members.length === 0) {
+        return undefined;
+    };
+
+    let areWinnersInPreviousWinners = (currentWinners: string[]) => {
+        return currentWinners.some(winner => fetch.winners.includes(winner));
+    };
+
+    let winners: Array<string> = [];
+
+    do {
+        winners = [];
+        const availableMembers = [...fetch.members];
+
+        if (winners.length === 0 || areWinnersInPreviousWinners(winners)) {
+            winners = [];
+        };
+
+        for (let i = 0; i < number; i++) {
+            if (availableMembers.length === 0) {
+                break;
+            }
+
+            let randomIndex = Math.floor(Math.random() * availableMembers.length);
+            let winnerID = availableMembers.splice(randomIndex, 1)[0];
+            winners.push(winnerID);
+        }
+    } while (winners.length === 0);
+
+    return winners.length > 0 ? winners : undefined;
+};
+
 async function Finnish(client: Client, messageId: any, guildId: any, channelId: any) {
 
     let fetch = await db.DataBaseModel({
@@ -181,12 +214,12 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         let channel = await guild.channels.fetch(channelId);
 
         let message = await (channel as any).messages.fetch(messageId);
-        let winner = fetch.members[(Math.floor(Math.random() * fetch.members.length))];
-        let winner_2 = '';
+        let winner: any = SelectWinners(
+            fetch,
+            fetch.winnerCount
+        );
 
-        if (winner) {
-            winner_2 = '<@' + winner + '>';
-        } else { winner_2 = 'None' };
+        let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : 'None';
 
         let Finnish = new ButtonBuilder()
             .setLabel('Giveaway Finnished')
@@ -196,7 +229,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         let embeds = new EmbedBuilder()
             .setColor('#2f3136')
             .setTitle(fetch.prize)
-            .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winner_2}`)
+            .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winners}`)
             .setTimestamp()
 
         await message.edit({
@@ -204,8 +237,8 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
                 .addComponents(Finnish)]
         });
 
-        if (winner_2 !== 'None') {
-            await message.reply({ content: `Congratulations ${winner_2}! You won the **${fetch.prize}**!` })
+        if (winners !== 'None') {
+            await message.reply({ content: `Congratulations ${winners}! You won the **${fetch.prize}**!` })
         } else {
             await message.reply({
                 content: 'No valid entrants, so a winner could not be determined!'
@@ -229,12 +262,12 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         let channel = await guild.channels.fetch(channelId);
 
         let message = await (channel as any).messages.fetch(messageId);
-        let winner = fetch.members[(Math.floor(Math.random() * fetch.members.length))];
-        let winner_2 = '';
+        let winner: any = SelectWinners(
+            fetch,
+            fetch.winnerCount
+        );
 
-        if (winner) {
-            winner_2 = '<@' + winner + '>';
-        } else { winner_2 = 'None' };
+        let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : 'None';
 
         let Finnish = new ButtonBuilder()
             .setLabel('Giveaway Finnished')
@@ -244,7 +277,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         let embeds = new EmbedBuilder()
             .setColor('#2f3136')
             .setTitle(fetch.prize)
-            .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winner_2}`)
+            .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winners}`)
             .setTimestamp()
 
         await message.edit({
@@ -252,8 +285,8 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
                 .addComponents(Finnish)]
         });
 
-        if (winner_2 !== 'None') {
-            await message.reply({ content: `Congratulations ${winner_2}! You won the **${fetch.prize}**!` })
+        if (winners !== 'None') {
+            await message.reply({ content: `Congratulations ${winners}! You won the **${fetch.prize}**!` })
         } else {
             await message.reply({
                 content: 'No valid entrants, so a winner could not be determined!'
@@ -265,7 +298,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
             key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.ended`,
             value: true
         });
-        console.log(winner || 'None')
+
         await db.DataBaseModel({
             id: db.Set,
             key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.winner`,
@@ -290,20 +323,17 @@ async function Reroll(client: Client, data: any) {
                 let channel = await guild.channels.fetch(channelId);
 
                 let message = await (channel as any).messages.fetch(messageId);
+                let winner: any = SelectWinners(
+                    fetch[channelId][messageId],
+                    fetch[channelId][messageId].winnerCount
+                );
 
-                let winner = fetch[channelId][messageId].members[(Math.floor(Math.random() * fetch[channelId][messageId].members.length))];
-
-                if (fetch[channelId][messageId].members.length > 1) {
-
-                    while (winner === fetch[channelId][messageId].winner) {
-                        winner = fetch[channelId][messageId].members[(Math.floor(Math.random() * fetch[channelId][messageId].members.length))];
-                    };
-                };
+                let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : [];
 
                 let embeds = new EmbedBuilder()
                     .setColor('#2f3136')
                     .setTitle(fetch[channelId][messageId].prize)
-                    .setDescription(`Ended: ${time(new Date(fetch[channelId][messageId].expireIn), 'R')} (${time(new Date(fetch[channelId][messageId].expireIn), 'D')})\nHosted by: <@${fetch[channelId][messageId].hostedBy}>\nEntries **${fetch[channelId][messageId].members.length}**\nWinners: <@${winner}>`)
+                    .setDescription(`Ended: ${time(new Date(fetch[channelId][messageId].expireIn), 'R')} (${time(new Date(fetch[channelId][messageId].expireIn), 'D')})\nHosted by: <@${fetch[channelId][messageId].hostedBy}>\nEntries **${fetch[channelId][messageId].members.length}**\nWinners: ${winners}`)
                     .setTimestamp()
 
                 await message.edit({
@@ -311,7 +341,7 @@ async function Reroll(client: Client, data: any) {
                 });
 
                 if (winner !== 'None') {
-                    await message.reply({ content: `Congratulations <@${winner}>! You won the **${fetch[channelId][messageId].prize}**!` })
+                    await message.reply({ content: `Congratulations ${winners}! You won the **${fetch[channelId][messageId].prize}**!` })
                 } else {
                     await message.reply({
                         content: 'No valid entrants, so a winner could not be determined!'
