@@ -673,6 +673,7 @@ start_is_not_valid: "Sie müssen eine gültige Anzahl von Gewinnern angeben!"
 start_confirmation_command: "Giveaway gestartet in ${giveawayChannel}!"
 start_logs_embed_title: "Giveaway-Logs"
 start_logs_embed_description: "<@${interaction.user.id}> hat ein Giveaway gestartet in: ${giveawayChannel}"
+start_time_not_valid: "${interaction.user}, die von Ihnen angegebene Dauer des Giveaways ist ungültig, bitte versuchen Sie es erneut!"
 
 # /reroll
 reroll_not_perm: "Sie müssen die Berechtigung haben, Nachrichten zu verwalten, um dieses Giveaway erneut auszulosen."

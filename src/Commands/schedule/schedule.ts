@@ -37,6 +37,7 @@ import * as db from '../../core/functions/DatabaseModel';
 
 import date from 'date-and-time';
 import ms from 'ms';
+import logger from '../../core/logger';
 
 export const command: Command = {
     name: "schedule",
@@ -121,7 +122,7 @@ export const command: Command = {
         } catch (e) {
             return interaction.reply({ content: data.embed_timeout_getbtn });
         };
-        
+
         async function chooseAction(i: {
             deferUpdate?: any; member?: { id: any; }; reply: (arg0: { content: string; ephemeral: boolean; }) => any; values?: any; showModal?: any; awaitModalSubmit?: any;
         }) {
@@ -134,7 +135,9 @@ export const command: Command = {
                         .then((interaction: any) => {
                             executeAfterModal(interaction);
                         })
-                        .catch(console.error);
+                        .catch((error: any) => {
+                            logger.err(error)
+                        });
                     break;
                 case '1':
                     let u = await i.reply({ content: data.schedule_delete_question, ephemeral: false });
