@@ -29,13 +29,6 @@ export default {
 
     },
 
-    giveaway: {
-
-        "hostedBy": true,
-        // In the giveaway embed, the hosted name of the user who hosted the giveaway.
-
-    },
-
     core: {
 
         "debug": true,
