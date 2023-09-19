@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { RemoveEntries, AddEntries } from '../core/giveawaysManager';
+import { AddEntries } from '../core/giveawaysManager';
 import * as db from '../core/functions/DatabaseModel';
 import config from '../files/config';
 import logger from '../core/logger';
@@ -42,7 +42,7 @@ export = async (client: any, interaction: any) => {
             if (await db.DataBaseModel({
                 id: db.Get,
                 key: `GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}`
-            }))  AddEntries(interaction);
+            })) AddEntries(interaction);
             return;
         };
     };

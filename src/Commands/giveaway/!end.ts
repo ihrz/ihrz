@@ -49,7 +49,7 @@ export = {
             return;
         };
 
-        if (!await isEnded(inputData, {
+        if (await isEnded(inputData, {
             guildId: interaction.guild.id
         })) {
             await interaction.editReply({ content: `This giveaway is already over!` });

@@ -60,6 +60,7 @@ async function Create(channel: any, data: Giveaway) {
             prize: data.prize,
             hostedBy: data.hostedBy.id,
             expireIn: date.addMilliseconds(new Date(), data.duration),
+            ended: false,
             members: []
         }
     });
@@ -425,6 +426,7 @@ async function Refresh(client: Client) {
             for (let messageId in drop_all_db[guildId][channelId]) {
                 let now = new Date().getTime();
                 let gwExp = new Date(drop_all_db[guildId][channelId][messageId]?.expireIn).getTime();
+                let cooldownTime = now - gwExp;
 
                 if (now >= gwExp) {
                     Finnish(
@@ -433,6 +435,15 @@ async function Refresh(client: Client) {
                         guildId,
                         channelId
                     );
+                };
+
+                if (cooldownTime >= 5000) {
+                    await db.DataBaseModel({
+                        id: db.Delete,
+                        key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}`
+                    });
+
+                    console.log('suppression de la db tqt', messageId)
                 };
             }
         }
