@@ -25,6 +25,8 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
+import { Create } from '../../core/giveawaysManager';
+
 import logger from '../../core/logger';
 import config from '../../files/config';
 
@@ -38,7 +40,7 @@ export = {
             return;
         };
 
-        let giveawayChannel = interaction.options.getChannel("channel");
+        let giveawayChannel = interaction.channel;
         var giveawayDuration: any = interaction.options.getString("time");
         let giveawayNumberWinners = interaction.options.getNumber("winner");
 
@@ -50,11 +52,19 @@ export = {
         let giveawayPrize = interaction.options.getString("prize");
         giveawayDuration = ms(giveawayDuration);
 
-        client.giveawaysManager.start(giveawayChannel, {
+        if (Number.isNaN(giveawayDuration)) {
+            await interaction.editReply({
+                content: data.start_time_not_valid
+                    .replace('${interaction.user}', interaction.user)
+            });
+            return;
+        };
+
+        Create(giveawayChannel, {
             duration: giveawayDuration,
             prize: giveawayPrize,
             winnerCount: parseInt(giveawayNumberWinners),
-            hostedBy: config.giveaway.hostedBy ? interaction.user : null,
+            hostedBy: interaction.user,
         });
 
         try {
@@ -78,6 +88,7 @@ export = {
             content: data.start_confirmation_command
                 .replace(/\${giveawayChannel}/g, giveawayChannel)
         });
+
         return;
     },
 };

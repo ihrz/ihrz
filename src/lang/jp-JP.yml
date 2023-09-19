@@ -673,6 +673,7 @@ start_is_not_valid: "有効な受賞者の数を指定する必要がありま�
 start_confirmation_command: "${giveawayChannel}でギブアウェイが開始されました！"
 start_logs_embed_title: "ギブアウェイのログ"
 start_logs_embed_description: "<@${interaction.user.id}>が${giveawayChannel}でギブアウェイを開始しました。"
+start_time_not_valid: "${interaction.user}、指定したギブアウェイの期間が無効です。もう一度試してみてください！"
 
 # /reroll
 reroll_not_perm: "このギブアウェイを終了するためには、メッセージを管理する権限が必要です。"

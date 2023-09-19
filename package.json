@@ -38,7 +38,6 @@
     "date-fns": "^2.30.0",
     "deepmerge-ts": "^5.1.0",
     "discord-backup": "^3.3.2",
-    "discord-giveaways": "^6.0.1",
     "discord-oauth2": "^2.11.0",
     "discord-player": "^6.6.3",
     "discord-player-deezer": "^0.0.8",

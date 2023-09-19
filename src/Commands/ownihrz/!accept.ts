@@ -30,6 +30,7 @@ import config from '../../files/config';
 
 import CryptoJS, { enc } from 'crypto-js';
 import axios from 'axios';
+import logger from '../../core/logger';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -94,14 +95,12 @@ export = {
                 let encrypted = CryptoJS.AES.encrypt(JSON.stringify(id_2), config.api.apiToken).toString();
 
                 axios.post(apiUrlParser.PublishURL, { cryptedJSON: encrypted }, { headers: { 'Accept': 'application/json' } })
-                    .then(response => {
-                        console.log(response)
-                    })
+                    .then((response: any) => { })
                     .catch(error => {
-                        console.error(error)
+                        logger.err(error)
                     });
-            } catch (error) {
-                console.error(error)
+            } catch (error: any) {
+                logger.err(error)
             };
 
             await db.DataBaseModel({
