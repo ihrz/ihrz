@@ -389,7 +389,7 @@ async function Refresh(client: Client) {
                     );
                 };
 
-                if (cooldownTime >= 5000) {
+                if (cooldownTime >= 345_600_000) {
                     await db.DataBaseModel({
                         id: db.Delete,
                         key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}`
