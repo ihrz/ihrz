@@ -210,7 +210,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}`
     });
 
-    if (!fetch.ended === true) {
+    if (!fetch.ended === true || fetch.ended === 'End()') {
         let guild = await client.guilds.fetch(guildId);
         let channel = await guild.channels.fetch(channelId);
 
@@ -257,55 +257,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
             key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.winner`,
             value: winner || 'None'
         });
-
-    } else if (fetch?.ended === 'End()') {
-        let guild = await client.guilds.fetch(guildId);
-        let channel = await guild.channels.fetch(channelId);
-
-        let message = await (channel as any).messages.fetch(messageId);
-        let winner: any = SelectWinners(
-            fetch,
-            fetch.winnerCount
-        );
-
-        let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : 'None';
-
-        let Finnish = new ButtonBuilder()
-            .setLabel('Giveaway Finnished')
-            .setURL('https://media.tenor.com/uO4u0ib3oK0AAAAC/done-and-done-spongebob.gif')
-            .setStyle(ButtonStyle.Link);
-
-        let embeds = new EmbedBuilder()
-            .setColor('#2f3136')
-            .setTitle(fetch.prize)
-            .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winners}`)
-            .setTimestamp()
-
-        await message.edit({
-            embeds: [embeds], components: [new ActionRowBuilder()
-                .addComponents(Finnish)]
-        });
-
-        if (winners !== 'None') {
-            await message.reply({ content: `Congratulations ${winners}! You won the **${fetch.prize}**!` })
-        } else {
-            await message.reply({
-                content: 'No valid entrants, so a winner could not be determined!'
-            });
-        };
-
-        await db.DataBaseModel({
-            id: db.Set,
-            key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.ended`,
-            value: true
-        });
-
-        await db.DataBaseModel({
-            id: db.Set,
-            key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.winner`,
-            value: winner || 'None'
-        });
-    }
+    };
     return;
 };
 
