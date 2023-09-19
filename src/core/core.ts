@@ -20,7 +20,7 @@
 */
 
 import * as checkSys from './functions/checkSys';
-import giveawayManager from './giveawayManager';
+import { Init } from './giveawaysManager';
 import playerManager from "./playerManager";
 import bash from './bash/bash';
 
@@ -70,7 +70,7 @@ export = (client: Client) => {
 
     require('../api/server'),
         bash(client),
-        giveawayManager(client),
+        Init(client),
         playerManager(client),
         errorManager.uncaughtExceptionHandler();
 };
