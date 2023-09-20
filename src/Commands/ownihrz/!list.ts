@@ -37,6 +37,10 @@ export = {
         });
 
         let lsEmbed: Array<EmbedBuilder> = [];
+        lsEmbed.push(new EmbedBuilder()
+            .setTitle('Liste de tout vos bot(s)')
+            .setTimestamp()
+        );
 
         for (let i in data_2) {
             if (data_2[i]) {
