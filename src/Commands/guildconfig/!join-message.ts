@@ -39,7 +39,7 @@ export = {
         let messagei = interaction.options.getString("message");
 
         let help_embed = new EmbedBuilder()
-            .setColor("#0014a8")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#0014a8")
             .setTitle(data.setjoinmessage_help_embed_title)
             .setDescription(data.setjoinmessage_help_embed_description)
             .addFields({
@@ -60,7 +60,7 @@ export = {
 
                 try {
                     let logEmbed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
+                        .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`}) || "#bf0bb9")
                         .setTitle(data.setjoinmessage_logs_embed_title_on_enable)
                         .setDescription(data.setjoinmessage_logs_embed_description_on_enable
                             .replace("${interaction.user.id}", interaction.user.id)
@@ -80,7 +80,7 @@ export = {
             await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage` });
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
+                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`}) || "#bf0bb9")
                     .setTitle(data.setjoinmessage_logs_embed_title_on_disable)
                     .setDescription(data.setjoinmessage_logs_embed_description_on_disable
                         .replace("${interaction.user.id}", interaction.user.id)
@@ -101,7 +101,7 @@ export = {
 
             let embed = new EmbedBuilder()
                 .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
-                .setColor('#1481c1')
+                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || '#1481c1')
                 .setDescription(ls || 'None')
                 .setTimestamp()
                 .setTitle(data.setjoinmessage_command_work_ls)

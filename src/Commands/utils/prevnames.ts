@@ -53,7 +53,7 @@ export const command: Command = {
         let fetch = await db.DataBaseModel({ id: db.Get, key: `DB.PREVNAMES.${user.id}` });
         if (fetch) fetch = fetch.join('\n');
 
-        let prevEmbed = new EmbedBuilder().setColor("#000000");
+        let prevEmbed = new EmbedBuilder().setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd` }) || "#000000");
         prevEmbed.setTitle(data.prevnames_embed_title.replace("${user.username}", user.username));
         prevEmbed.setDescription(fetch || data.prevnames_undetected);
         prevEmbed.setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });

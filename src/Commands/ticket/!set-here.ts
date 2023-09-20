@@ -44,7 +44,7 @@ export = {
 
         let panel = new EmbedBuilder()
             .setTitle(`${panelName}`)
-            .setColor("#3b8f41")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#3b8f41")
             .setDescription(data.sethereticket_description_embed)
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
 

@@ -70,7 +70,7 @@ export = async (client: any, interaction: any) => {
                 await interaction.editReply({
                     embeds: [
                         new EmbedBuilder()
-                            .setColor("#0827F5").setTitle(":(")
+                            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#0827F5").setTitle(":(")
                             .setImage(config.core.blacklistPictureInEmbed)
                     ]
                 });

@@ -26,6 +26,7 @@ import {
     PermissionsBitField
 } from 'discord.js'
 
+import * as db from '../../core/functions/DatabaseModel';
 import { Command } from '../../../types/command';
 
 export const command: Command = {
@@ -71,7 +72,7 @@ export const command: Command = {
         }
 
         let embed = new EmbedBuilder()
-            .setColor('#bea9de')
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd` }) || '#bea9de')
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp()
             .setDescription(`__Created **${cnt}** emoji(s) in \`${interaction.guild.name}\`__\n(${nemj})`)

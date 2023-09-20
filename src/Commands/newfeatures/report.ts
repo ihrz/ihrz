@@ -71,7 +71,7 @@ export const command: Command = {
 
             interaction.editReply({ content: data.report_command_work });
             var embed = new EmbedBuilder()
-                .setColor("#ff0000")
+                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#ff0000")
                 .setDescription(`**${interaction.user.username}** (<@${interaction.user.id}>) reported:\n~~--------------------------------~~\n${sentences}\n~~--------------------------------~~\nServer ID: **${interaction.guild.id}**`)
 
             await interaction.client.channels.cache.get(config.core.reportChannelID).send({ embeds: [embed] });

@@ -66,7 +66,7 @@ export = {
         let iconURL: any = client.user?.displayAvatarURL();
 
         let embed = new EmbedBuilder()
-            .setColor("#000000")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#000000")
             .setAuthor({ name: "Allowlist" })
             .setDescription(`${text}`)
             .setFooter({ text: 'iHorizon', iconURL: iconURL })

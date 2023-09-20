@@ -334,9 +334,9 @@ export const command: Command = {
 
                     let colorFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
                     let colorCollector = interaction.channel.createMessageCollector({ filter: colorFilter, max: 1, time: 120_000 });
-                    colorCollector.on('collect', (message: { content: string | number | readonly [red: number, green: number, blue: number] | null; delete: () => any; }) => {
+                    colorCollector.on('collect', async (message: { content: string | number | readonly [red: number, green: number, blue: number] | null; delete: () => any; }) => {
                         if (reg.test((message.content as any))) {
-                            __tempEmbed.setColor((message.content as any));
+                            __tempEmbed.setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || (message.content as any));
                             response.edit({ embeds: [__tempEmbed] });
                         } else {
                             interaction.channel.send({ content: data.embed_choose_12_error });
@@ -346,7 +346,7 @@ export const command: Command = {
                     });
                     break;
                 case '13':
-                    __tempEmbed.setColor("#000000");
+                    __tempEmbed.setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#000000");
                     response.edit({ embeds: [__tempEmbed] });
                     i.reply({ content: data.embed_choose_13 });
                     break;

@@ -57,7 +57,7 @@ export = {
                 { name: data.profil_embed_fields_xplevels, value: level + data.profil_embed_fields_xplevels_value, inline: false },
                 { name: data.profil_embed_fields_age, value: age + data.profil_embed_fields_age_value, inline: false },
                 { name: data.profil_embed_fields_gender, value: `${gender}`, inline: false })
-            .setColor("#ffa550")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#ffa550")
             .setThumbnail(member.avatarURL({ format: 'png', dynamic: true, size: 512 }))
             .setTimestamp()
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })

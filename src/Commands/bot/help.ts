@@ -69,7 +69,7 @@ export const command: Command = {
         let pp: any = client.user?.displayAvatarURL();
 
         let embed = new EmbedBuilder()
-            .setColor('#001eff')
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || '#001eff')
             .setDescription(data.help_tip_embed)
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setThumbnail(pp)

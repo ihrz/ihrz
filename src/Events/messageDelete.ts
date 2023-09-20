@@ -54,7 +54,7 @@ export = async (client: Client, message: Message) => {
         let iconURL: any = message.author.avatarURL();
 
         let logsEmbed = new EmbedBuilder()
-            .setColor("#000000")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#000000")
             .setAuthor({
                 name: message.author.username,
                 iconURL: iconURL

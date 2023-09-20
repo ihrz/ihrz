@@ -192,7 +192,7 @@ export = async (client: Client, message: any) => {
         var suggestCode = Math.random().toString(36).slice(-8);
 
         let suggestionEmbed = new EmbedBuilder()
-            .setColor('#4000ff')
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.GUILD.GUILD_CONFIG.embed_color` }) || '#4000ff')
             .setTitle(`#${suggestCode}`)
             .setAuthor({
                 name: data.event_suggestion_embed_author

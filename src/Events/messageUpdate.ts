@@ -42,7 +42,7 @@ export = async (client: Client, oldMessage: Message, newMessage: Message) => {
         let icon: any = newMessage.author.displayAvatarURL();
 
         let logsEmbed = new EmbedBuilder()
-            .setColor("#000000")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${oldMessage.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`}) || "#000000")
             .setAuthor({ name: newMessage.author.username, iconURL: icon })
             .setDescription(data.event_srvLogs_messageUpdate_description
                 .replace("${oldMessage.channelId}", oldMessage.channelId)

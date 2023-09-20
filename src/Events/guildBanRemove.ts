@@ -24,7 +24,6 @@ import { Client, GuildChannel, GuildChannelManager, Message, MessageManager } fr
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
 import * as db from '../core/functions/DatabaseModel';
 
-
 export = async (client: Client, ban: GuildBan) => {
     let data = await client.functions.getLanguageData(ban.guild.id);
     async function serverLogs() {
@@ -35,7 +34,7 @@ export = async (client: Client, ban: GuildBan) => {
             type: AuditLogEvent.MemberBanRemove,
             limit: 1,
         });
-        
+
         var firstEntry: any = fetchedLogs.entries.first();
         let someinfo = await db.DataBaseModel({ id: db.Get, key: `${ban.guild.id}.GUILD.SERVER_LOGS.moderation` });
 
@@ -45,7 +44,7 @@ export = async (client: Client, ban: GuildBan) => {
         if (!Msgchannel) return;
 
         let logsEmbed = new EmbedBuilder()
-            .setColor("#000000")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${ban.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs` }) || "#000000")
             .setDescription(data.event_srvLogs_banRemove_description
                 .replace("${firstEntry.executor.id}", firstEntry.executor.id)
                 .replace("${firstEntry.target.username}", firstEntry.target.username)

@@ -47,7 +47,7 @@ export = {
                 .replace(/\${interaction\.user\.username}/g, interaction.user.username)
                 .replace(/\${amount}/g, amount)
             )
-            .setColor("#f1d488");
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#f1d488");
 
         await interaction.editReply({ embeds: [embed] });
         await db.DataBaseModel({ id: db.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: amount });

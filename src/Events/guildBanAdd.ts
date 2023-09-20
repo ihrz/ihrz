@@ -42,14 +42,14 @@ export = async (client: Client, ban: GuildBan) => {
         let Msgchannel: any = client.channels.cache.get(someinfo);
         if (!Msgchannel) return;
         let logsEmbed = new EmbedBuilder()
-            .setColor("#000000")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${ban.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs` }) || "#000000")
             .setDescription(data.event_srvLogs_banAdd_description
                 .replace("${firstEntry.executor.id}", firstEntry.executor.id)
                 .replace("${firstEntry.target.id}", firstEntry.target.id)
             ).setTimestamp();
 
-        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
+        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
     };
-    
+
     await serverLogs();
 };

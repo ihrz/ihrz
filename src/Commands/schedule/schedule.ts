@@ -192,7 +192,7 @@ export const command: Command = {
                             .replace('${arg0}', arg0)
                         )
                         .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
-                        .setColor('#ff0a0a')
+                        .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || '#ff0a0a')
                         .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                         .setTimestamp();
 
@@ -207,7 +207,7 @@ export const command: Command = {
                     await db.DataBaseModel({ id: db.Delete, key: `SCHEDULE.${interaction.user.id}` });
 
                     let embed = new EmbedBuilder()
-                        .setColor('#ff0a0a')
+                        .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || '#ff0a0a')
                         .setAuthor({
                             name: interaction.user.username,
                             iconURL: interaction.user.avatarURL({ format: 'png', dynamic: true, size: 512 })
@@ -241,7 +241,7 @@ export const command: Command = {
                 let embed = new EmbedBuilder()
                     .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                     .setTitle(data.schedule_list_title_embed)
-                    .setColor('#60BEE0')
+                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || '#60BEE0')
                     .setAuthor({
                         name: interaction.user.username,
                         iconURL: interaction.user.avatarURL({ format: 'png', dynamic: true, size: 512 })
@@ -278,7 +278,7 @@ export const command: Command = {
                     })
                     .setTitle(data.schedule_create_title_embed)
                     .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
-                    .setColor('#00549f')
+                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || '#00549f')
                     .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                     .setTimestamp();
 

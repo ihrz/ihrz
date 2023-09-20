@@ -47,7 +47,7 @@ export = {
 
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
+                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
                     .setTitle(data.setxpchannels_logs_embed_title_enable)
                     .setDescription(data.setxpchannels_logs_embed_description_enable.replace(/\${interaction\.user.id}/g, interaction.user.id)
                         .replace(/\${argsid}/g, argsid.id))
@@ -77,7 +77,7 @@ export = {
         } else if (type == "off") {
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
+                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
                     .setTitle(data.setxpchannels_logs_embed_title_disable)
                     .setDescription(data.setxpchannels_logs_embed_description_disable.replace(/\${interaction\.user.id}/g, interaction.user.id))
 

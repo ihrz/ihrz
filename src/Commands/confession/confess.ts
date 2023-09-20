@@ -78,7 +78,7 @@ export const command: Command = {
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setDescription(message)
             .setTimestamp()
-            .setColor('#0000d0')
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || '#0000d0')
             .setAuthor({
                 name: interaction.user.username,
                 iconURL: interaction.user.avatarURL({ format: 'png', dynamic: true })

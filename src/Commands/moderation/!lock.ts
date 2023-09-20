@@ -25,11 +25,13 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
+import * as db from '../../core/functions/DatabaseModel';
+
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let Lockembed = new EmbedBuilder()
-            .setColor("#5b3475")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.mod-cmd` }) || "#5b3475")
             .setTimestamp()
             .setDescription(data.lock_embed_message_description
                 .replace(/\${interaction\.user\.id}/g, interaction.user.id)
@@ -48,7 +50,7 @@ export = {
 
         try {
             let logEmbed = new EmbedBuilder()
-                .setColor("#bf0bb9")
+                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
                 .setTitle(data.lock_logs_embed_title)
                 .setDescription(data.lock_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)

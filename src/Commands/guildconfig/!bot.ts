@@ -37,7 +37,7 @@ export = {
         } else if (action === 'on') {
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
+                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`}) || "#bf0bb9")
                     .setTitle(data.blockbot_logs_enable_title)
                     .setDescription(data.blockbot_logs_enable_description
                         .replace(/\${interaction\.user}/g, interaction.user)
@@ -59,7 +59,7 @@ export = {
         } else if (action === 'off') {
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
+                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`}) || "#bf0bb9")
                     .setTitle(data.blockbot_logs_disable_commmand_work)
                     .setDescription(data.blockbot_logs_disable_description
                         .replace(/\${interaction\.user}/g, interaction.user)

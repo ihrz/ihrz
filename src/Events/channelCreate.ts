@@ -30,7 +30,7 @@ export = async (client: Client, channel: any) => {
         let data = await client.functions.getLanguageData(channel.guild.id);
 
         let setup_embed = new EmbedBuilder()
-            .setColor("#1e1d22")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${channel.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#1e1d22")
             .setTitle(data.event_channel_create_message_embed_title)
             .setDescription(data.event_channel_create_message_embed_description);
         await channel.send({ embeds: [setup_embed] }).catch(() => { });

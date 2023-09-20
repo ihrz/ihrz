@@ -26,7 +26,7 @@ import {
 
 import logger from '../../core/logger';
 import { lyricsExtractor } from '@discord-player/extractor';
-
+import * as db from '../../core/functions/DatabaseModel';
 let lyricsFinder = lyricsExtractor();
 
 export = {
@@ -37,7 +37,7 @@ export = {
             let lyrics = await lyricsFinder.search(title).catch(() => null);
 
             if (!lyrics) {
-                await interaction.deleteReply();    
+                await interaction.deleteReply();
                 await interaction.followUp({ content: 'No lyrics found', ephemeral: true });
                 return;
             }
@@ -54,7 +54,7 @@ export = {
                     url: lyrics.artist.url
                 })
                 .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
-                .setColor('#cd703a')
+                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.music-cmd` }) || '#cd703a')
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
             await interaction.editReply({ embeds: [embed] });

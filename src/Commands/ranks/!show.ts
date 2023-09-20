@@ -41,7 +41,7 @@ export = {
             .setTitle(data.level_embed_title
                 .replace('${user.username}', user.username)
             )
-            .setColor('#0014a8')
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || '#0014a8')
             .addFields({
                 name: data.level_embed_fields1_name, value: data.level_embed_fields1_value
                     .replace('${currentxp}', currentxp)

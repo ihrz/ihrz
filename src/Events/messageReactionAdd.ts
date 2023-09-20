@@ -99,7 +99,7 @@ export = async (client: Client, reaction: any, user: User) => {
 
             let welcome = new EmbedBuilder()
                 .setTitle(result.panelName)
-                .setColor("#3b8f41")
+                .setColor(await db.DataBaseModel({ id: db.Get, key: `${reaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#3b8f41")
                 .setDescription(data.event_ticket_embed_description
                     .replace("${user.username}", user.username)
                 )

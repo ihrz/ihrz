@@ -47,7 +47,7 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
         let newRoles = newMember?.['_roles'].length;
 
         let logsEmbed = new EmbedBuilder()
-            .setColor("#000000")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${oldMember.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs` }) || "#000000")
             .setAuthor({ name: firstEntry.target.username, iconURL: firstEntry.target.avatarURL({ format: 'png', dynamic: true, size: 512 }) })
             .setTimestamp();
 

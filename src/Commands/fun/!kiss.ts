@@ -25,6 +25,7 @@ import {
 } from 'discord.js';
 import axios from 'axios';
 import * as apiUrlParser from '../../core/functions/apiUrlParser';
+import * as db from '../../core/functions/DatabaseModel';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -34,7 +35,7 @@ export = {
         axios.get(apiUrlParser.KissURL)
             .then(async (res) => {
                 let embed = new EmbedBuilder()
-                    .setColor("#ff0884")
+                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd` }) || "#ff0884")
                     .setDescription(data.kiss_embed_description
                         .replace(/\${kiss\.id}/g, kiss.id)
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)

@@ -66,7 +66,7 @@ export = {
                     try {
                         let embed = new EmbedBuilder()
                             .setDescription(`[\`View This\`](${response.url})`)
-                            .setColor('#5b92e5');
+                            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || '#5b92e5');
                         await interaction.editReply({ content: data.close_command_work_channel, embeds: [embed] })
                     } catch (e: any) {
                         logger.err(e);

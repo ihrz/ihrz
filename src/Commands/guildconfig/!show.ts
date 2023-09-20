@@ -176,7 +176,7 @@ export = {
         };
 
         let guildc = new EmbedBuilder()
-            .setColor("#016c9a")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#016c9a")
             .setDescription(data.guildprofil_embed_description
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
             )

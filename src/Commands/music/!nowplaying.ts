@@ -30,6 +30,7 @@ import {
 
 import { lyricsExtractor } from '@discord-player/extractor';
 
+import * as db from '../../core/functions/DatabaseModel';
 let lyricsFinder = lyricsExtractor();
 
 export = {
@@ -56,7 +57,7 @@ export = {
         let queue = interaction.client.player.nodes.get(interaction.guild);
 
         if (!queue || !queue.isPlaying()) {
-            await interaction.deleteReply();    
+            await interaction.deleteReply();
             await interaction.followUp({ content: data.nowplaying_no_queue, ephemeral: true });
             return;
         };
@@ -118,11 +119,10 @@ export = {
                                         url: lyrics.artist.url
                                     })
                                     .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
-                                    .setColor('#cd703a')
+                                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.music-cmd` }) || '#cd703a')
                                     .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
                                 i.reply({ embeds: [embed], ephemeral: true });
-                            }
-                            ;
+                            };
                             break;
                         case "stop":
                             i.deferUpdate();

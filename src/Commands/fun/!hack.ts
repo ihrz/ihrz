@@ -24,6 +24,8 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
+import * as db from '../../core/functions/DatabaseModel';
+
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         let victim = interaction.options.getUser("user");
@@ -67,7 +69,7 @@ export = {
         var generatedPassword = hackerPasswords[Math.floor(Math.random() * hackerPasswords.length)];
 
         let embed = new EmbedBuilder()
-            .setColor("#800000")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd` }) || "#800000")
             .setDescription(data.hack_embed_description
                 .replace(/\${victim\.id}/g, victim.id)
                 .replace(/\${interaction\.user\.id}/g, interaction.user.id)

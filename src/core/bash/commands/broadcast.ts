@@ -31,7 +31,7 @@ export = function (client: any, args: string) {
         .setFooter({ text: `Kisakay - iHorizon`, iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
 
     client.guilds.cache.forEach(async (guild: any) => {
-        let channel = guild.channels.cache.find((role: { name: string; }) => role.name === 'ihorizon-logs'); 
+        let channel = guild.channels.cache.find((role: { name: string; }) => role.name === 'ihorizon-logs');
         if (channel) { channel.send({ content: "@here", embeds: [embed] }) };
     });
 

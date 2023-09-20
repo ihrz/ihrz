@@ -49,7 +49,7 @@ export = {
         };
 
         let embed = new EmbedBuilder()
-            .setColor('#c4afed')
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd` }) || '#c4afed')
             .setTitle(data.banner_user_embed.replace('${user?.username}', user?.username))
             .setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
             .setThumbnail((user?.displayAvatarURL() as string))
