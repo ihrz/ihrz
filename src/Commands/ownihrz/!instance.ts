@@ -126,7 +126,6 @@ export = {
                         await interaction.deleteReply();
                         await interaction.followUp({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now Power On.\nNow, the bot container can be Power On when iHorizon-Prod booting...`, ephemeral: true });
 
-                        console.log(data_2[userId][botId].path)
                         execSync(`pm2 start ./dist/${id_to_bot}.js -f`, {
                             stdio: [0, 1, 2],
                             cwd: data_2[userId][botId].path,
@@ -149,7 +148,6 @@ export = {
                         await interaction.deleteReply();
                         await interaction.followUp({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now Power On.\nNow, the bot container can be Power On when iHorizon-Prod booting...`, ephemeral: true });
 
-                        console.log(data_2[userId][botId].path)
                         execSync(`pm2 stop ${id_to_bot} -f`, {
                             stdio: [0, 1, 2],
                             cwd: process.cwd(),
@@ -173,16 +171,11 @@ export = {
             let data_3 = '';
 
             for (let i in data_2) {
-                for (let j in data_2[i]) {
-                    data_3 += `
-\`\`\`TS
-{
-    owner: ${i},
-    id_bot: '${j}',
-    bot_name: '${data_2[i][j].bot?.username}'
-    expireIn: '${date.format(new Date(data_2[i][j].expireIn), 'ddd, MMM DD YYYY')}'
-},
-\`\`\`\n`
+                if (i !== 'TEMP') {
+                    for (let j in data_2[i]) {
+                        data_3 +=
+                            `[OWNIHRZ] (${j}) - **Owner**: <@${i}> | **BotId**: \`${data_2[i][j].bot?.id}\` | **BotName**: \`${data_2[i][j].bot?.username}\` | **Expire In**: \`${date.format(new Date(data_2[i][j].expireIn), 'ddd, MMM DD YYYY')}\`\r\n`
+                    }
                 }
             }
 
@@ -191,8 +184,6 @@ export = {
             return;
         };
 
-        // await interaction.deleteReply();
-        await interaction.editReply({ content: 'Instance', ephemeral: true });
         return;
     },
 };
