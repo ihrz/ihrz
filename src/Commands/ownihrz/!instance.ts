@@ -174,23 +174,21 @@ export = {
 
             for (let i in data_2) {
                 for (let j in data_2[i]) {
-                    let expire = date.format(new Date(data_2[i][j].expireIn), 'ddd, MMM DD YYYY');
-
                     data_3 += `
 \`\`\`TS
 {
     owner: ${i},
     id_bot: '${j}',
     bot_name: '${data_2[i][j].bot?.username}'
-    expireIn: '${expire}'
+    expireIn: '${date.format(new Date(data_2[i][j].expireIn), 'ddd, MMM DD YYYY')}'
 },
 \`\`\`\n`
-                    await interaction.deleteReply();
-                    await interaction.followUp({ embeds: [new EmbedBuilder().setDescription(data_3)], ephemeral: true });
-                    return;
                 }
             }
 
+            await interaction.deleteReply();
+            await interaction.followUp({ embeds: [new EmbedBuilder().setDescription(data_3)], ephemeral: true });
+            return;
         };
 
         // await interaction.deleteReply();
