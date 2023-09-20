@@ -87,7 +87,7 @@ export = async (client: Client) => {
             "My owner doesn't use tiktok...I INSTALLED IT BEHIND HER BACK",
             "I BROKED MY CODE HELP ME",
             "What is a database? Do I really need one?",
-            "My parents : Don't work too much, me : I forgor
+            "My parents : Don't work too much, me : I forgor"
         ];
 
         let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
