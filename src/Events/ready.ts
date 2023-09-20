@@ -69,7 +69,7 @@ export = async (client: Client) => {
     };
 
     async function quotesPresence() {
-         let quotes = [
+        let quotes = [
             "discord.gg/ihorizon",
             "Our goal is to make the internet simpler!",
             "200K USERS !? 🥳🥳🥳",
@@ -146,7 +146,7 @@ export = async (client: Client) => {
                             cwd: result?.[i]?.[c]?.path,
                         });
                     };
-                    
+
                     execSync(`git pull`, {
                         stdio: [0, 1, 2],
                         cwd: result?.[i]?.[c]?.path,
