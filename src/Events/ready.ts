@@ -169,7 +169,7 @@
      }; 
      otherBotPowerOn(); 
   
-     setInterval(quotesPresence, 80_000), setInterval(refreshSchedule, 15_000); 
+     setInterval(quotesPresence, 30_000), setInterval(refreshSchedule, 15_000); 
   
      await fetchInvites(), refreshDatabaseModel(), term(), quotesPresence(), refreshSchedule(); 
  };
