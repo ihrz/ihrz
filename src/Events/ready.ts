@@ -69,7 +69,7 @@ export = async (client: Client) => {
     };
 
     async function quotesPresence() {
-        let quotes = [
+         let quotes = [
             "discord.gg/ihorizon",
             "Our goal is to make the internet simpler!",
             "200K USERS !? 🥳🥳🥳",
@@ -83,10 +83,11 @@ export = async (client: Client) => {
             "I forgor",
             "I removed my own database (going insane) 😎😎😎",
             "I can code myself (Not a joke)",
-            "Life is a succession of lessons which must be lived to be understood. - Ralph Waldo Emerson",
-            "The only way to escape the corruptible effect of praise is to go on working. - Albert Einstein",
-            "Life is what happens when you're busy making other plans. - John Lennon",
-            "The secret of success is to know something nobody else knows. - Aristotle Onassis"
+            "Looking for a botfriend 😎",
+            "My owner doesn't use tiktok...I INSTALLED IT BEHIND HER BACK",
+            "I BROKED MY CODE HELP ME",
+            "What is a database? Do I really need one?",
+            "My parents : Don't work too much, me : I forgor
         ];
 
         let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
