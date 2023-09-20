@@ -70,15 +70,14 @@ export = async (client: Client) => {
 
     async function quotesPresence() {
         let quotes = [
-            "The only true wisdom is in knowing you know nothing. - Socrates",
-            "Life is really simple, but we insist on making it complicated. - Confucius",
-            "The unexamined life is not worth living. - Socrates",
-            "Happiness is not something ready-made. It comes from your own actions. - Dalai Lama",
-            "The only way to do great work is to love what you do. - Steve Jobs",
-            "In three words I can sum up everything I've learned about life: it goes on. - Robert Frost",
-            "The greatest glory in living lies not in never falling, but in rising every time we fall. - Nelson Mandela",
-            "Life is 10% what happens to us and 90% how we react to it. - Charles R. Swindoll",
-            "The purpose of our lives is to be happy. - Dalai Lama",
+            "discord.gg/ihorizon",
+            "Our goal is to make the internet simpler!",
+            "200K USERS !? 🥳🥳🥳",
+            "trusted by big servers 😎",
+            "Happy back to school 😭😭😭",
+            "Nah men I'm not getting paid enough to manage 200K users...",
+            "Did you know you can have your own iHorizon? For really cheap??",
+            "We are now open source!!!",
             "I have not failed. I've just found 10,000 ways that won't work. - Thomas A. Edison",
             "The best way to predict your future is to create it. - Peter Drucker",
             "The only limit to our realization of tomorrow will be our doubts of today. - Franklin D. Roosevelt",
