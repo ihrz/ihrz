@@ -72,10 +72,11 @@
           let quotes = [ 
              "discord.gg/ihorizon", 
              "Our goal is to make the internet simpler!", 
-             "200K USERS !? 🥳🥳🥳", 
+             "250K USERS !? 🥳🥳🥳",
+             "It's not 200k anymore it's 250k 😎😎😎😎" 
              "trusted by big servers 😎", 
              "Happy back to school 😭😭😭", 
-             "Nah men I'm not getting paid enough to manage 200K users...", 
+             "Nah men I'm not getting paid enough to manage 250K users...", 
              "Did you know you can have your own iHorizon? For really cheap??", 
              "We are now open source!!!", 
              "Never gonna give you up...BRO YOU'VE BEEN RICK ROLLED BY A BOT", 
