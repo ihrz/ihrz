@@ -40,5 +40,5 @@ export = async (client: Client, invite: any) => {
         };
     };
 
-    await inviteManager();
+    inviteManager();
 };

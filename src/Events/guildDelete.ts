@@ -35,7 +35,7 @@ export = async (client: Client, guild: Guild) => {
         try {
             let i: string = '';
             if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; };
-            
+
             let embed = new EmbedBuilder().setColor("#ff0505").setTimestamp(guild.joinedTimestamp).setDescription(`**A guild have deleted iHorizon !**`)
                 .addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
                     { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
@@ -53,5 +53,5 @@ export = async (client: Client, guild: Guild) => {
         };
     };
 
-    await ownerLogs(), inviteManager();
+    ownerLogs(), inviteManager();
 };

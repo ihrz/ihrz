@@ -79,5 +79,5 @@ export = async (client: Client, channel: any) => {
         }
     };
 
-    await protect(), ihrzLogs();
+    protect(), ihrzLogs();
 };

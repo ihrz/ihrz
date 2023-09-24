@@ -32,6 +32,7 @@ import config from '../files/config';
 export = async (client: any, member: any) => {
 
     let data = await client.functions.getLanguageData(member.guild.id);
+    
     async function joinRoles() {
         if (!member.guild.members.me.permissions.has(PermissionsBitField.Flags.ManageRoles)) return;
 
@@ -53,13 +54,7 @@ export = async (client: any, member: any) => {
 
     async function blacklistFetch() {
         try {
-            if (!await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.USER.${member.user.id}.ECONOMY.money` })) {
-                await db.DataBaseModel({ id: db.Add, key: `${member.guild.id}.USER.${member.user.id}.ECONOMY.money`, value: 1 });
-            }
-
-            let e = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${member.user.id}.blacklisted` });
-
-            if (e) {
+            if (await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${member.user.id}.blacklisted` })) {
                 member.send({ content: "You've been banned, because you are blacklisted" }).catch(member.ban({ reason: 'blacklisted!' })).catch(() => { });
                 member.ban({ reason: 'blacklisted!' }).catch(() => { });
             }
@@ -240,5 +235,5 @@ export = async (client: any, member: any) => {
         });
     };
 
-    await blockBot(), joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage(), securityCheck();
+    blockBot(), joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage(), securityCheck();
 };

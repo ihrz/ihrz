@@ -26,5 +26,5 @@ export = async (client: Client, invite: Invite) => {
         await client.invites.get(invite.guild?.id).delete(invite.code);
     };
 
-    await inviteManager();
+    inviteManager();
 };

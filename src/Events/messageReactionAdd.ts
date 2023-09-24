@@ -93,8 +93,8 @@ export = async (client: Client, reaction: any, user: User) => {
             ],
             parent: await db.DataBaseModel({ id: db.Get, key: `${reaction.message.guildId}.GUILD.TICKET.category` })
         }).then(async (channel: { send: (arg0: { content: string; embeds: EmbedBuilder[]; }) => any; }) => {
-            
-            await reaction.users.remove(user).catch(() => {});
+
+            await reaction.users.remove(user).catch(() => { });
             let iconURL: any = client.user?.displayAvatarURL();
 
             let welcome = new EmbedBuilder()
@@ -107,9 +107,9 @@ export = async (client: Client, reaction: any, user: User) => {
                     text: 'iHorizon',
                     iconURL: iconURL
                 });
-            return channel.send({ content: `<@${user.id}>`, embeds: [welcome] }).catch(() => {});
+            return channel.send({ content: `<@${user.id}>`, embeds: [welcome] }).catch(() => { });
         }).catch(() => { });
     };
 
-    await reactionRole(), ticketModule();
+    reactionRole(), ticketModule();
 };

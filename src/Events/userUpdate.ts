@@ -36,5 +36,5 @@ export = async (client: Client, oldUser: User) => {
         });
     };
 
-    await prevNames();
+    prevNames();
 };

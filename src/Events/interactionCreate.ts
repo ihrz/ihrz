@@ -115,5 +115,6 @@ export = async (client: any, interaction: any) => {
         await db.DataBaseModel({ id: db.Set, key: `TEMP.COOLDOWN.${interaction.user.id}`, value: tn });
         return false;
     };
-    await slashExecutor(), buttonExecutor(), logsCommands();
+
+    slashExecutor(), buttonExecutor(), logsCommands();
 };

@@ -39,7 +39,7 @@ export = async (client: Client, oldPresence: Presence, newPresence: Presence) =>
         let fetchedRoles: any = await newPresence.guild.roles.cache.get(someinfo.rolesId);
 
         if (!fetchedUser || !fetchedRoles) return;
-        
+
         if (newPresence.guild.members.me.roles.highest.position < fetchedRoles.rawPosition) {
             return;
         };
@@ -62,5 +62,5 @@ export = async (client: Client, oldPresence: Presence, newPresence: Presence) =>
         };
     };
 
-    await supportModule();
+    supportModule();
 };
