@@ -43,7 +43,15 @@ let client = new Client({
         GatewayIntentBits.GuildWebhooks,
         GatewayIntentBits.Guilds,
         GatewayIntentBits.MessageContent,
-    ], partials: [Partials.Message, Partials.Channel, Partials.Reaction]
+    ], partials: [
+        Partials.Message,
+        Partials.Channel,
+        Partials.Reaction,
+        Partials.GuildMember,
+        Partials.GuildScheduledEvent,
+        Partials.User,
+        Partials.ThreadMember,
+    ]
 });
 
 require('./core')(client);
