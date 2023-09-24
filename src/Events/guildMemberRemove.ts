@@ -144,5 +144,5 @@ export = async (client: Client, member: any) => {
         await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
     };
 
-    await memberCount(), goodbyeMessage(), serverLogs();
+    goodbyeMessage(), serverLogs(), memberCount();
 };

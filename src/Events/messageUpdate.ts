@@ -54,5 +54,5 @@ export = async (client: Client, oldMessage: Message, newMessage: Message) => {
         await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
     };
 
-    await serverLogs();
+    serverLogs();
 };

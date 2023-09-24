@@ -68,5 +68,5 @@ export = async (client: Client, role: any) => {
         }
     };
 
-    await protect();
+    protect();
 };

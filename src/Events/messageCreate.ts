@@ -260,5 +260,5 @@ export = async (client: Client, message: any) => {
         return;
     };
 
-    await xpFetcher(), blockSpam(), rankRole(), createAllowList(), suggestion(), reactToHeyMSG();
+    xpFetcher(), blockSpam(), rankRole(), createAllowList(), suggestion(), reactToHeyMSG();
 };

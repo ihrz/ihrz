@@ -80,5 +80,5 @@ export = async (client: Client, channel: any) => {
         }
     };
 
-    await protect();
+    protect();
 };

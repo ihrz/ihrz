@@ -73,5 +73,5 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
         await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
     };
 
-    await serverLogs();
+    serverLogs();
 };

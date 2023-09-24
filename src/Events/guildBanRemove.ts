@@ -35,7 +35,7 @@ export = async (client: Client, ban: GuildBan) => {
             type: AuditLogEvent.MemberBanRemove,
             limit: 1,
         });
-        
+
         var firstEntry: any = fetchedLogs.entries.first();
         let someinfo = await db.DataBaseModel({ id: db.Get, key: `${ban.guild.id}.GUILD.SERVER_LOGS.moderation` });
 
@@ -54,5 +54,5 @@ export = async (client: Client, ban: GuildBan) => {
 
         await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
     };
-    await serverLogs();
+    serverLogs();
 };

@@ -54,5 +54,5 @@ export = async (client: Client, reaction: any, user: User) => {
         } catch (e: any) { return; };
     };
 
-    await reactionRole();
+    reactionRole();
 };
