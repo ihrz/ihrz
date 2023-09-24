@@ -126,5 +126,5 @@ Thanks for choosing me and let's have some fun together!`);
 
     // let c = await antiPoubelle();
     let d = await blacklistLeave();
-    if (d) await ownerLogs(), messageToServer(), getInvites();
+    if (d) ownerLogs(), messageToServer(), getInvites();
 };

@@ -112,5 +112,5 @@ export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
         };
     };
 
-    await serverLogs();
+    serverLogs();
 };

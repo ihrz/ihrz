@@ -48,8 +48,8 @@ export = async (client: Client, ban: GuildBan) => {
                 .replace("${firstEntry.target.id}", firstEntry.target.id)
             ).setTimestamp();
 
-        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => {});
+        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
     };
-    
-    await serverLogs();
+
+    serverLogs();
 };
