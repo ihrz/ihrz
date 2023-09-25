@@ -34,6 +34,11 @@ export = async (client: Client, guild: Guild) => {
     async function ownerLogs() {
         try {
             let i: string = '';
+
+            if (guild.name === undefined || null) {
+                return;
+            };
+
             if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; };
 
             let embed = new EmbedBuilder().setColor("#ff0505").setTimestamp(guild.joinedTimestamp).setDescription(`**A guild have deleted iHorizon !**`)
