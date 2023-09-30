@@ -69,7 +69,7 @@ export const command: Command = {
         };
 
         let avatarURL = user.avatarURL({ extension: 'png' });
-        let username = user.globalName;
+        let username = user.username;
 
         let link = `https://some-random-api.com/canvas/misc/tweet?avatar=${encodeURIComponent((avatarURL as string))}&username=${encodeURIComponent((username as string))}&comment=${encodeURIComponent(args.join(' '))}&displayname=${encodeURIComponent((username as string))}`;
 
