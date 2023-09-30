@@ -19,9 +19,10 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Attachment, AttachmentData, Client, Collection, EmbedBuilder, GuildTextBasedChannel, Message, PermissionsBitField } from 'discord.js';
+import { Attachment, AttachmentBuilder, AttachmentData, Client, Collection, EmbedBuilder, GuildTextBasedChannel, Message, PermissionsBitField } from 'discord.js';
 import * as hidden from '../core/functions/maskLink';
 import * as db from '../core/functions/DatabaseModel';
+import axios from 'axios';
 
 export = async (client: Client, message: Message) => {
     let data = await client.functions.getLanguageData(message.guild?.id);
@@ -50,9 +51,8 @@ export = async (client: Client, message: Message) => {
 
         let Msgchannel: any = client.channels.cache.get(someinfo);
         if (!Msgchannel) return;
-
+        
         let iconURL: any = message.author.avatarURL();
-
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setAuthor({
@@ -71,12 +71,20 @@ export = async (client: Client, message: Message) => {
             if (!attachment || !attachment.contentType) return;
 
             if (attachment && attachment.contentType.startsWith('image/')) {
-                let imageUrl: any = attachment?.['attachment'];
-                logsEmbed.setImage(imageUrl)
+                let snipedImage;
+
+                await axios.get((attachment?.['attachment'] as string), { responseType: 'arraybuffer' }).then((response: any) => {
+                    snipedImage = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'sniped-image-by-ihorizon.png' });
+                    logsEmbed.setImage(`attachment://sniped-image-by-ihorizon.png`);
+                });
+
+                await Msgchannel.send({ embeds: [logsEmbed], files: [snipedImage] }).catch(() => { });
+                return;
             };
         };
 
         await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
+        return;
     };
 
     snipeModules(), serverLogs();
