@@ -80,7 +80,7 @@ export const command: Command = {
 
                 if (member.bannable) {
                     member.ban({ reason: "blacklisted !" });
-                    await interaction.editReply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, member.user.username) });
+                    await interaction.editReply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, member.user.globalName) });
                     return;
                 } else {
                     await db.DataBaseModel({ id: db.Set, key: `GLOBAL.BLACKLIST.${member.user.id}`, value: { blacklisted: true } });
@@ -88,7 +88,7 @@ export const command: Command = {
                     return;
                 }
             } else {
-                await interaction.editReply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, member.user.username) });
+                await interaction.editReply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, member.user.globalName) });
                 return;
             }
         } else if (user) {
@@ -103,9 +103,9 @@ export const command: Command = {
             if (!fetched) {
                 await db.DataBaseModel({ id: db.Set, key: `GLOBAL.BLACKLIST.${user.id}`, value: { blacklisted: true } });
 
-                await interaction.editReply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, user.username) }); return;
+                await interaction.editReply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, user.globalName) }); return;
             } else {
-                await interaction.editReply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, user.username) });
+                await interaction.editReply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, user.globalName) });
                 return;
             }
         };

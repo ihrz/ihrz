@@ -39,7 +39,7 @@ export = {
 
         let nivEmbed = new EmbedBuilder()
             .setTitle(data.level_embed_title
-                .replace('${user.username}', user.username)
+                .replace('${user.username}', user.globalName)
             )
             .setColor('#0014a8')
             .addFields({

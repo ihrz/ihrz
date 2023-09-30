@@ -72,7 +72,7 @@ export = {
 
             embed.addFields({
                 name: data.suggest_accept_embed_fields_to_put
-                    .replace('${interaction.user.username}', interaction.user.username),
+                    .replace('${interaction.user.username}', interaction.user.globalName),
                 value: message.toString()
             });
 

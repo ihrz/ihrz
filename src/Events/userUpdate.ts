@@ -27,13 +27,26 @@ export = async (client: Client, oldUser: User) => {
         var newUser = await client.users.fetch(oldUser.id);
 
         let oldUsertag = oldUser.username;
-        if (oldUser.username === newUser.username || !oldUser) return;
+        let oldUserGlbl = oldUser.globalName;
 
-        await db.DataBaseModel({
-            id: db.Push,
-            key: `DB.PREVNAMES.${oldUser.id}`,
-            value: `${time((new Date()), 'd')} - ${oldUsertag}`
-        });
+        if (!oldUser) return;
+
+        if (oldUser.globalName !== newUser.globalName) {
+
+            await db.DataBaseModel({
+                id: db.Push,
+                key: `DB.PREVNAMES.${oldUser.id}`,
+                value: `${time((new Date()), 'd')} - ${oldUserGlbl}`
+            });
+
+        } else if (oldUser.username !== newUser.username) {
+
+            await db.DataBaseModel({
+                id: db.Push,
+                key: `DB.PREVNAMES.${oldUser.id}`,
+                value: `${time((new Date()), 'd')} - ${oldUsertag}`
+            });
+        };
     };
 
     prevNames();

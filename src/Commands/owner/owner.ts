@@ -77,7 +77,7 @@ export const command: Command = {
         };
 
         await db.DataBaseModel({ id: db.Set, key: `GLOBAL.OWNER.${member.user.id}.owner`, value: true });
-        await interaction.editReply({ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.user.username) });
+        await interaction.editReply({ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.user.globalName) });
         return;
     },
 };

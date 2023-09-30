@@ -88,7 +88,7 @@ export const command: Command = {
                 for (let [memberID, member] of members) {
                     if (
                         (
-                            member.user.username.includes(part_of_nickname)
+                            member.user.globalName.includes(part_of_nickname)
                             || (member.nickname && member.nickname.includes(part_of_nickname))
                         )
                         && !member.roles.cache.has(role.id)
@@ -134,7 +134,7 @@ export const command: Command = {
                 for (let [memberID, member] of members) {
                     if (
                         (
-                            member.user.username.includes(part_of_nickname)
+                            member.user.globalName.includes(part_of_nickname)
                             || (member.nickname && member.nickname.includes(part_of_nickname))
                         )
                         && member.roles.cache.has(role.id)
