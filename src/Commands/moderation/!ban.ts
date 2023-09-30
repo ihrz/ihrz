@@ -64,12 +64,12 @@ export = {
         member.send({
             content: data.ban_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-                .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.username)
+                .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.globalName)
         })
             .catch(() => {
             })
             .then(() => {
-                member.ban({ reason: 'banned by ' + interaction.user.username })
+                member.ban({ reason: 'banned by ' + interaction.user.globalName })
                     .then((member: { user: { id: any; }; }) => {
                         interaction.editReply({
                             content: data.ban_command_work

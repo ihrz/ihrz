@@ -43,8 +43,8 @@ export = {
 
         await interaction.editReply({
             content: data.pay_command_work
-                .replace(/\${interaction\.user\.username}/g, interaction.user.username)
-                .replace(/\${user\.user\.username}/g, user.user.username)
+                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName)
+                .replace(/\${user\.user\.username}/g, user.user.globalName)
                 .replace(/\${amount}/g, amount)
         });
 

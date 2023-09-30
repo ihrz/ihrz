@@ -57,7 +57,7 @@ export = {
                 metadata: {
                     channel: interaction.channel,
                     client: interaction.guild?.members.me,
-                    requestedBy: interaction.user.username
+                    requestedBy: interaction.user.globalName
                 },
                 volume: 60,
                 bufferingTimeout: 3000,
