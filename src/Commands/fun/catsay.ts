@@ -38,29 +38,27 @@ import { Command } from '../../../types/command';
 import axios from 'axios';
 
 export const command: Command = {
-  name: 'transgender',
-  description: 'all humans have rights',
+  name: 'catsay',
+  description: 'Cat say (insert text here)',
   category: 'fun',
   options: [
     {
-      name: 'user',
-      description: "the user",
+      name: 'text',
+      description: "The cat say...",
       required: true,
-      type: ApplicationCommandOptionType.User
+      type: ApplicationCommandOptionType.String
     },
   ],
   run: async (client: Client, interaction: any) => {
 
-    let user = interaction.options.getUser('user') || interaction.user;
-    let avatarURL = user.avatarURL({ extension: 'png' });
-
-    let link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(avatarURL)}`;
+    let str = interaction.options.getString('text');
+    let link = `https://cataas.com/cat/cute/says/${str}`;
 
     let embed = new EmbedBuilder()
       .setColor('#000000')
       .setImage('attachment://all-human-have-rights-elektra.png')
       .setTimestamp()
-      .setFooter({ text: 'iHorizon x ElektraBots' });
+      .setFooter({ text: 'iHorizon x ElektraBots', iconURL: client.user?.displayAvatarURL() });
 
     let imgs;
 
