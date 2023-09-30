@@ -39,8 +39,8 @@ import { Command } from '../../../types/command';
 import axios from 'axios';
 
 export const command: Command = {
-    name: 'youtube',
-    description: 'Permit to send custom youtube comment (real) !',
+    name: 'tweet',
+    description: 'Permit to send custom tweet !',
     category: 'bot',
     options: [
         {
@@ -71,19 +71,20 @@ export const command: Command = {
         let avatarURL = user.avatarURL({ extension: 'png' });
         let username = user.globalName;
 
-        let link = `https://some-random-api.com/canvas/misc/youtube-comment?avatar=${encodeURIComponent((avatarURL as string))}&username=${encodeURIComponent((username as string))}&comment=${encodeURIComponent(args.join(' '))}`;
+        let link = `https://some-random-api.com/canvas/misc/tweet?avatar=${encodeURIComponent((avatarURL as string))}&username=${encodeURIComponent((username as string))}&comment=${encodeURIComponent(args.join(' '))}&displayname=${encodeURIComponent((username as string))}`;
 
         let embed = new EmbedBuilder()
             .setColor('#000000')
-            .setImage('attachment://all-human-have-rights-elektra.png')
+            .setImage('attachment://tweet-elektra.png')
             .setTimestamp()
             .setFooter({ text: 'iHorizon x ElektraBots', iconURL: client.user?.displayAvatarURL() });
+
 
         let imgs;
 
         await axios.get(link, { responseType: 'arraybuffer' }).then((response: any) => {
-            imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'youtube-elektra.png' });
-            embed.setImage(`attachment://youtube-elektra.png`);
+            imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'tweet-elektra.png' });
+            embed.setImage(`attachment://tweet-elektra.png`);
         });
 
         await interaction.editReply({ embeds: [embed], files: [imgs] });
