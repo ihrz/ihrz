@@ -47,7 +47,7 @@ export = {
         if (targetuser < 250) {
             await interaction.editReply({
                 content: data.rob_him_dont_enought_error
-                    .replace(/\${user\.user\.username}/g, user.user.username)
+                    .replace(/\${user\.user\.username}/g, user.user.globalName)
             });
             return;
         };

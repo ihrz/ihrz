@@ -54,7 +54,7 @@ export const command: Command = {
         if (fetch) fetch = fetch.join('\n');
 
         let prevEmbed = new EmbedBuilder().setColor("#000000");
-        prevEmbed.setTitle(data.prevnames_embed_title.replace("${user.username}", user.username));
+        prevEmbed.setTitle(data.prevnames_embed_title.replace("${user.username}", user.globalName));
         prevEmbed.setDescription(fetch || data.prevnames_undetected);
         prevEmbed.setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 

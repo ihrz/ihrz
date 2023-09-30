@@ -40,7 +40,7 @@ export = {
 
         let embed = new EmbedBuilder()
             .setTitle(data.question_embed_title
-                .replace(/\${interaction\.user\.username}/g, interaction.user.username)
+                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName)
             )
             .setColor("#ddd98b")
             .addFields({ name: data.question_fields_input_embed, value: question, inline: true },

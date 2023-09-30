@@ -185,7 +185,7 @@ export const command: Command = {
                 } else {
                     let embed = new EmbedBuilder()
                         .setAuthor({
-                            name: interaction.user.username,
+                            name: interaction.user.globalName,
                             iconURL: interaction.user.avatarURL({ format: 'png', dynamic: true, size: 512 })
                         })
                         .setTitle(data.schedule_delete_title_embed
@@ -209,7 +209,7 @@ export const command: Command = {
                     let embed = new EmbedBuilder()
                         .setColor('#ff0a0a')
                         .setAuthor({
-                            name: interaction.user.username,
+                            name: interaction.user.globalName,
                             iconURL: interaction.user.avatarURL({ format: 'png', dynamic: true, size: 512 })
                         })
                         .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
@@ -243,7 +243,7 @@ export const command: Command = {
                     .setTitle(data.schedule_list_title_embed)
                     .setColor('#60BEE0')
                     .setAuthor({
-                        name: interaction.user.username,
+                        name: interaction.user.globalName,
                         iconURL: interaction.user.avatarURL({ format: 'png', dynamic: true, size: 512 })
                     });
 
@@ -273,7 +273,7 @@ export const command: Command = {
                 let embed = new EmbedBuilder()
                     .setDescription(`\`\`\`${nameValue}\`\`\`\`\`\`${descValue}\`\`\``)
                     .setAuthor({
-                        name: interaction.user.username,
+                        name: interaction.user.globalName,
                         iconURL: interaction.user.avatarURL({ format: 'png', dynamic: true, size: 512 })
                     })
                     .setTitle(data.schedule_create_title_embed)

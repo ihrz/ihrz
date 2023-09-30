@@ -34,9 +34,9 @@ export = async (client: Client) => {
         }
     });
 
-    await player.extractors.register(DeezerExtractor, {});
     await player.extractors.register(SpotifyExtractor, {});
     await player.extractors.register(SoundCloudExtractor, {});
+    await player.extractors.register(DeezerExtractor, {});
 
     await player.extractors.loadDefault();
 
