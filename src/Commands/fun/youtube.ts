@@ -48,18 +48,18 @@ import axios from 'axios';
 
 export const command: Command = {
     name: 'youtube',
-    description: 'Permit to send custom youtube spot!',
+    description: 'Permit to send custom youtube comment (real) !',
     category: 'bot',
     options: [
         {
             name: 'user',
-            description: "the user",
+            description: "The user",
             required: true,
             type: ApplicationCommandOptionType.User
         },
         {
-            name: 'args',
-            description: "the args",
+            name: 'comment',
+            description: "The comment",
             required: true,
             type: ApplicationCommandOptionType.String
         },
@@ -76,11 +76,10 @@ export const command: Command = {
             return;
         };
 
-        let comment = args.join(' ');
         let avatarURL = user.avatarURL({ extension: 'png' });
         let username = user.globalName;
 
-        let link = `https://some-random-api.com/canvas/misc/youtube-comment?avatar=${encodeURIComponent((avatarURL as string))}&username=${encodeURIComponent((username as string))}&comment=${encodeURIComponent(comment)}`;
+        let link = `https://some-random-api.com/canvas/misc/youtube-comment?avatar=${encodeURIComponent((avatarURL as string))}&username=${encodeURIComponent((username as string))}&comment=${encodeURIComponent(args.join(' '))}`;
 
         let embed = new EmbedBuilder()
             .setColor('#000000')
