@@ -41,7 +41,7 @@ import axios from 'axios';
 export const command: Command = {
     name: 'tweet',
     description: 'Permit to send custom tweet !',
-    category: 'bot',
+    category: 'fun',
     options: [
         {
             name: 'user',
@@ -78,7 +78,6 @@ export const command: Command = {
             .setImage('attachment://tweet-elektra.png')
             .setTimestamp()
             .setFooter({ text: 'iHorizon x ElektraBots', iconURL: client.user?.displayAvatarURL() });
-
 
         let imgs;
 
