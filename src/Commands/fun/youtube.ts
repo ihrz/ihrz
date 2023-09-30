@@ -58,7 +58,7 @@ export const command: Command = {
     ],
     run: async (client: Client, interaction: any) => {
 
-        let args = interaction.options.getString('args');
+        let args = interaction.options.getString('comment');
         args = args.split(' ');
 
         let user: User = interaction.options.getUser('user') || interaction.user;
