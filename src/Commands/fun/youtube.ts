@@ -1,11 +1,3 @@
-
-
-// module.exports = {
-//     name: "ytb",
-//     aliases: ['youtube'],
-//     description: "Permet d'envoyer un faux commentaire youtube",
-//     category: "fun",
-//     usage: ["ytb <message> [utilisateur]"],
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
  
