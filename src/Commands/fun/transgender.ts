@@ -60,7 +60,7 @@ export const command: Command = {
       .setColor('#000000')
       .setImage('attachment://all-human-have-rights-elektra.png')
       .setTimestamp()
-      .setFooter({ text: 'iHorizon x ElektraBots' });
+      .setFooter({ text: 'iHorizon x ElektraBots', iconURL: client.user?.displayAvatarURL() });
 
     let snipedImage;
 
