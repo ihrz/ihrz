@@ -80,7 +80,7 @@ export const command: Command = {
             .setTimestamp()
             .setColor('#0000d0')
             .setAuthor({
-                name: interaction.user.username,
+                name: interaction.user.globalName,
                 iconURL: interaction.user.avatarURL({ format: 'png', dynamic: true })
             });
 

@@ -104,7 +104,7 @@ export = {
             var ls = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage` });
 
             let embed = new EmbedBuilder()
-                .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
+                .setAuthor({ name: interaction.user.globalName, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
                 .setColor('#1481c1')
                 .setDescription(ls || 'None')
                 .setTimestamp()

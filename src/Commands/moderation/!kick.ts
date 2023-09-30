@@ -56,11 +56,11 @@ export = {
         member.send({
             content: data.kick_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-                .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.username)
+                .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.globalName)
         }).catch(() => { });
 
         try {
-            await member.kick({ reason: 'kicked by ' + interaction.user.username });
+            await member.kick({ reason: 'kicked by ' + interaction.user.globalName });
 
             let logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")

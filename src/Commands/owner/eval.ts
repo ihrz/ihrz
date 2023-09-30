@@ -57,7 +57,7 @@ export const command: Command = {
                 .setColor("#468468")
                 .setTitle("This block was evalued with iHorizon.")
                 .setDescription(`\`\`\`JS\n${result || "None"}\n\`\`\``)
-                .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL() });
+                .setAuthor({ name: interaction.user.globalName, iconURL: interaction.user.displayAvatarURL() });
 
             await interaction.deleteReply();
             await interaction.followUp({ embeds: [embed], ephemeral: true });
