@@ -41,7 +41,7 @@ import axios from 'axios';
 export const command: Command = {
     name: 'youtube',
     description: 'Permit to send custom youtube comment (real) !',
-    category: 'bot',
+    category: 'fun',
     options: [
         {
             name: 'user',
