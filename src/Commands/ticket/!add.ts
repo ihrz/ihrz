@@ -24,6 +24,7 @@ import {
 } from 'discord.js';
 
 import * as db from '../../core/functions/DatabaseModel';
+import { TicketAddMember } from '../../core/ticketsManager';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -36,22 +37,10 @@ export = {
         };
 
         if (interaction.channel.name.includes('ticket-')) {
-
-            let member = interaction.options.getUser("user");
-
-            if (!member) {
-                await interaction.editReply({ content: data.add_incorect_syntax });
-                return;
-            };
-
-            try {
-                interaction.channel.permissionOverwrites.create(member, { ViewChannel: true, SendMessages: true, ReadMessageHistory: true });
-                await interaction.editReply({ content: data.add_command_work.replace(/\${member\.tag}/g, member.username) });
-                return;
-            } catch (e) {
-                await interaction.editReply({ content: data.add_command_error });
-                return;
-            }
+            await TicketAddMember(interaction);
+        } else {
+            await interaction.editReply({ content: data.close_not_in_ticket });
+            return;
         };
     },
 };

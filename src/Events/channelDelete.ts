@@ -80,5 +80,24 @@ export = async (client: Client, channel: any) => {
         }
     };
 
-    protect();
+    async function ticketModule() {
+        let fetch = await db.DataBaseModel({
+            id: db.Get,
+            key: `TICKET.${channel.guild.id}`
+        });
+
+        for (let user in fetch) {
+            for (let channel_2 in fetch[user]) {
+
+                if (channel.id === channel_2) {
+                    await db.DataBaseModel({
+                        id: db.Delete,
+                        key: `TICKET.${channel.guild.id}.${user}`,
+                    });
+                }
+            }
+        }
+    };
+
+    protect(), ticketModule();
 };

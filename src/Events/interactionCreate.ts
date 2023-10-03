@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+import { CreateTicketChannel } from '../core/ticketsManager';
 import { AddEntries } from '../core/giveawaysManager';
 import * as db from '../core/functions/DatabaseModel';
 import config from '../files/config';
@@ -38,11 +39,21 @@ export = async (client: any, interaction: any) => {
             || !interaction.guild?.channels
             || interaction.user.bot) return;
 
-        if (interaction.customId === 'confirm-entry-giveaway') {
-            if (await db.DataBaseModel({
+        if (interaction.customId === 'confirm-entry-giveaway'
+            &&
+            await db.DataBaseModel({
                 id: db.Get,
                 key: `GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}`
-            })) AddEntries(interaction);
+            })) {
+            AddEntries(interaction);
+            return;
+        } else if (interaction.customId === 'open-new-ticket'
+            &&
+            await db.DataBaseModel({
+                id: db.Get,
+                key: `${interaction.guild.id}.GUILD.TICKET.${interaction.message.id}`
+            })) {
+            CreateTicketChannel(interaction);
             return;
         };
     };

@@ -24,6 +24,7 @@ import {
 } from 'discord.js';
 
 import * as db from '../../core/functions/DatabaseModel';
+import { TicketReOpen } from '../../core/ticketsManager';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -36,25 +37,7 @@ export = {
         };
 
         if (interaction.channel.name.includes('ticket-')) {
-            let member = interaction.guild.members.cache.get(interaction.channel.name.split('ticket-').join(''));
-            try {
-                interaction.channel.permissionOverwrites.edit(member.id, {
-                    VIEW_CHANNEL: true,
-                    SEND_MESSAGES: true,
-                    ATTACH_FILES: true,
-                    READ_MESSAGE_HISTORY: true,
-                })
-                    .then(() => {
-                        interaction.editReply({
-                            content: data.open_command_work
-                                .replace(/\${interaction\.channel}/g, interaction.channel)
-                        });
-                        return;
-                    });
-            } catch (e: any) {
-                await interaction.editReply({ content: data.open_command_error });
-                return;
-            };
+            await TicketReOpen(interaction);
         } else {
             await interaction.editReply({ content: data.open_not_in_ticket });
             return;

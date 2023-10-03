@@ -66,50 +66,5 @@ export = async (client: Client, reaction: any, user: User) => {
         };
     };
 
-    async function ticketModule() {
-        if (user.id == client.user?.id) return;
-
-        let result = await db.DataBaseModel({ id: db.Get, key: `${reaction.message.guildId}.GUILD.TICKET.${reaction.message.id}` });
-
-        if (!result || result.channel !== reaction.message.channel.id
-            || result.messageID !== reaction.message.id) return;
-
-        if (reaction.message.guild?.channels.cache.find((channel: { name: string; }) => channel.name === `ticket-${user.id}`)) {
-            return reaction.users.remove(user).catch(() => { });
-        };
-
-        await reaction.message.guild?.channels.create({
-            name: `ticket-${user.id}`,
-            type: ChannelType.GuildText,
-            permissionOverwrites: [
-                {
-                    id: reaction.message.guild?.roles.everyone,
-                    deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionsBitField.Flags.ReadMessageHistory]
-                },
-                {
-                    id: user.id,
-                    allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionsBitField.Flags.ReadMessageHistory]
-                }
-            ],
-            parent: await db.DataBaseModel({ id: db.Get, key: `${reaction.message.guildId}.GUILD.TICKET.category` })
-        }).then(async (channel: { send: (arg0: { content: string; embeds: EmbedBuilder[]; }) => any; }) => {
-
-            await reaction.users.remove(user).catch(() => { });
-            let iconURL: any = client.user?.displayAvatarURL();
-
-            let welcome = new EmbedBuilder()
-                .setTitle(result.panelName)
-                .setColor("#3b8f41")
-                .setDescription(data.event_ticket_embed_description
-                    .replace("${user.username}", user.username)
-                )
-                .setFooter({
-                    text: 'iHorizon',
-                    iconURL: iconURL
-                });
-            return channel.send({ content: `<@${user.id}>`, embeds: [welcome] }).catch(() => { });
-        }).catch(() => { });
-    };
-
-    reactionRole(), ticketModule();
+    reactionRole();
 };
