@@ -83,7 +83,7 @@ export = async (client: Client, channel: any) => {
     async function ticketModule() {
         let fetch = await db.DataBaseModel({
             id: db.Get,
-            key: `TICKET.${channel.guild.id}`
+            key: `${channel.guild.id}.TICKET_ALL`
         });
 
         for (let user in fetch) {
@@ -92,7 +92,7 @@ export = async (client: Client, channel: any) => {
                 if (channel.id === channel_2) {
                     await db.DataBaseModel({
                         id: db.Delete,
-                        key: `TICKET.${channel.guild.id}.${user}`,
+                        key: `${channel.guild.id}.TICKET_ALL.${user}`,
                     });
                 }
             }

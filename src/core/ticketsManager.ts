@@ -28,7 +28,8 @@ import {
     Client,
     ChannelType,
     PermissionFlagsBits,
-    PermissionsBitField
+    PermissionsBitField,
+    ComponentType
 } from 'discord.js';
 
 import * as db from './functions/DatabaseModel';
@@ -44,7 +45,7 @@ async function CreatePanel(interaction: any, data: any) {
         .setTitle(data.name)
         .setColor("#3b8f41")
         .setDescription(data.description || lang.sethereticket_description_embed)
-        .setFooter({ text: interaction.guild.name, iconURL: interaction.guild.iconURL({ dynamic: true }) })
+        .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
 
     let confirm = new ButtonBuilder()
         .setCustomId('open-new-ticket')
@@ -75,7 +76,7 @@ async function CreatePanel(interaction: any, data: any) {
 async function CreateTicketChannel(interaction: any) {
 
     let result = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.${interaction.message.id}` });
-    let userTickets = await db.DataBaseModel({ id: db.Get, key: `TICKET.${interaction.guild.id}.${interaction.user.id}` });
+    let userTickets = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.TICKET_ALL.${interaction.user.id}` });
 
     if (!result || result.channel !== interaction.message.channelId
         || result.messageID !== interaction.message.id) return;
@@ -100,18 +101,22 @@ async function CreateChannel(interaction: any, result: any) {
     await interaction.guild?.channels.create({
         name: `ticket-${interaction.user.username}`,
         type: ChannelType.GuildText,
-        permissionOverwrites: [
-            {
-                id: interaction.message.guild?.roles.everyone,
-                deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionsBitField.Flags.ReadMessageHistory]
-            },
-            {
-                id: interaction.user.id,
-                allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionsBitField.Flags.ReadMessageHistory]
-            }
-        ],
         parent: await db.DataBaseModel({ id: db.Get, key: `${interaction.message.guildId}.GUILD.TICKET.category` })
-    }).then(async (channel: { send: (arg0: { content: string; embeds: EmbedBuilder[]; }) => any, id: (string) }) => {
+    }).then(async (channel: {
+        permissionOverwrites: any;
+        lockPermissions(): unknown; send: (arg0: { content: string; embeds: EmbedBuilder[]; }) => any, id: (string)
+    }) => {
+
+        channel.lockPermissions();
+        channel.permissionOverwrites.edit(interaction.guild?.roles.everyone,
+            {
+                ViewChannel: false, SendMessages: false, ReadMessageHistory: false
+            });
+        channel.permissionOverwrites.edit(interaction.user.id,
+            {
+                ViewChannel: true, SendMessages: true, ReadMessageHistory: true, AttachFiles: true
+            });
+
         let welcome = new EmbedBuilder()
             .setTitle(result.panelName)
             .setColor("#3b8f41")
@@ -119,13 +124,13 @@ async function CreateChannel(interaction: any, result: any) {
                 .replace("${user.username}", interaction.user.username)
             )
             .setFooter({
-                text: interaction.guild.name,
-                iconURL: interaction.guild.iconURL({ dynamic: true })
+                text: 'iHorizon',
+                iconURL: interaction.client.user?.displayAvatarURL()
             });
 
         await db.DataBaseModel({
             id: db.Set,
-            key: `TICKET.${interaction.guild.id}.${interaction.user.id}.${channel.id}`,
+            key: `${interaction.guild.id}.TICKET_ALL.${interaction.user.id}.${channel.id}`,
             value: {
                 channel: channel.id,
                 author: interaction.user.id,
@@ -133,7 +138,41 @@ async function CreateChannel(interaction: any, result: any) {
             }
         });
 
-        channel.send({ content: `<@${interaction.user.id}>`, embeds: [welcome] }).catch(() => { });
+        let delete_ticket_button = new ButtonBuilder()
+            .setCustomId('t-embed-delete-ticket')
+            .setEmoji('🗑️')
+            .setLabel('Delete Ticket')
+            .setStyle(ButtonStyle.Danger);
+
+        let transcript_ticket_button = new ButtonBuilder()
+            .setCustomId('t-embed-transcript-ticket')
+            .setEmoji('📜')
+            .setLabel('Transcript Ticket')
+            .setStyle(ButtonStyle.Primary);
+
+        let add_ticket_button = new ButtonBuilder()
+            .setCustomId('t-embed-add-ticket')
+            .setEmoji('➕')
+            .setLabel('Add Member')
+            .setStyle(ButtonStyle.Secondary);
+
+        let remove_ticket_button = new ButtonBuilder()
+            .setCustomId('t-embed-remove-ticket')
+            .setEmoji('➖')
+            .setLabel('Remove Member')
+            .setStyle(ButtonStyle.Secondary);
+
+        (channel as any).send({
+            embeds: [welcome],
+            content: `<@${interaction.user.id}>`,
+            components: [
+                new ActionRowBuilder()
+                    .addComponents(delete_ticket_button)
+                    .addComponents(transcript_ticket_button)
+                    .addComponents(add_ticket_button)
+                    .addComponents(remove_ticket_button)
+            ],
+        }).catch(() => { });
         return;
     }).catch(() => { });
 };
@@ -143,7 +182,7 @@ async function CloseTicket(interaction: any) {
 
     let fetch = await db.DataBaseModel({
         id: db.Get,
-        key: `TICKET.${interaction.guild.id}`
+        key: `${interaction.guild.id}.TICKET_ALL`
     });
 
     for (let user in fetch) {
@@ -201,10 +240,9 @@ async function TicketTranscript(interaction: any) {
     let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
     let interactionChannel = interaction.channel;
 
-
     let fetch = await db.DataBaseModel({
         id: db.Get,
-        key: `TICKET.${interaction.guild.id}`
+        key: `${interaction.guild.id}.TICKET_ALL`
     });
 
     for (let user in fetch) {
@@ -238,7 +276,13 @@ async function TicketTranscript(interaction: any) {
                         let embed = new EmbedBuilder()
                             .setDescription(`[\`View this\`](${response.url})`)
                             .setColor('#0014a8');
-                        await interaction.editReply({ embeds: [embed], content: data.transript_command_work });
+
+                        if (interaction.replied) {
+                            await interaction.editReply({ embeds: [embed], content: data.transript_command_work });
+                        } else {
+                            await interaction.reply({ embeds: [embed], content: data.transript_command_work });
+                        };
+
                         return;
                     });
                 }
@@ -284,7 +328,7 @@ async function TicketReOpen(interaction: any) {
 
     let fetch = await db.DataBaseModel({
         id: db.Get,
-        key: `TICKET.${interaction.guild.id}`
+        key: `${interaction.guild.id}.TICKET_ALL`
     });
 
     for (let user in fetch) {
@@ -317,11 +361,9 @@ async function TicketReOpen(interaction: any) {
 };
 
 async function TicketDelete(interaction: any) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
-
     let fetch = await db.DataBaseModel({
         id: db.Get,
-        key: `TICKET.${interaction.guild.id}`
+        key: `${interaction.guild.id}.TICKET_ALL`
     });
 
     for (let user in fetch) {
@@ -335,7 +377,7 @@ async function TicketDelete(interaction: any) {
 
                 await db.DataBaseModel({
                     id: db.Delete,
-                    key: `TICKET.${interaction.guild.id}.${interaction.user.id}`
+                    key: `${interaction.guild.id}.TICKET_ALL.${interaction.user.id}`
                 })
                 interaction.channel.delete();
                 return;
@@ -344,25 +386,57 @@ async function TicketDelete(interaction: any) {
     }
 };
 
-async function isValid(giveawayId: number, data: any) {
-    let fetch = await db.DataBaseModel({
-        id: db.Get,
-        key: `GIVEAWAYS.${data.guildId}`
-    });
+async function TicketAddMember_2(interaction: any) {
+    let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
 
-    let dataDict: any = {};
+    await interaction.reply({ content: `Quel est la perssonne que vous voulez ajouter à votre ticket? (Préciser sont Identifiant d'Utilisateur)!` })
 
-    for (let channelId in fetch) {
-        for (let messageId in fetch[channelId]) {
-            dataDict[messageId] = true;
+    let messageFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
+    let messageCollector = interaction.channel.createMessageCollector({ filter: messageFilter, max: 1, time: 30_000 });
+
+    messageCollector.on('collect', async (message: { content: string | null; delete: () => any; }) => {
+        let member = await interaction.guild.members.fetch(message.content);
+
+        if (!member) {
+            await interaction.editReply({ content: data.add_incorect_syntax });
+            return;
+        };
+
+        try {
+            interaction.channel.permissionOverwrites.create(member, { ViewChannel: true, SendMessages: true, ReadMessageHistory: true });
+            await interaction.editReply({ content: data.add_command_work.replace(/\${member\.tag}/g, member.user.username) });
+            return;
+        } catch (e) {
+            await interaction.editReply({ content: data.add_command_error });
+            return;
         }
-    };
+    });
+};
 
-    if (dataDict[giveawayId]) {
-        return true;
-    };
+async function TicketRemoveMember_2(interaction: any) {
+    let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
 
-    return false;
+    await interaction.reply({ content: `Quel est la perssonne que vous voulez supprimer de votre ticket? (Préciser sont Identifiant d'Utilisateur)!` })
+
+    let messageFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
+    let messageCollector = interaction.channel.createMessageCollector({ filter: messageFilter, max: 1, time: 30_000 });
+
+    messageCollector.on('collect', async (message: { content: string | null; delete: () => any; }) => {
+        let member = await interaction.guild.members.fetch(message.content);
+
+        if (!member) {
+            await interaction.editReply({ content: data.add_incorect_syntax });
+            return;
+        };
+
+        try {
+            interaction.channel.permissionOverwrites.create(member, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
+            interaction.editReply({ content: data.remove_command_work.replace(/\${member\.tag}/g, member.user.username) });
+        } catch (e: any) {
+            await interaction.editReply({ content: data.remove_command_error });
+            return;
+        };
+    });
 };
 
 export {
@@ -377,5 +451,6 @@ export {
     TicketAddMember,
     TicketReOpen,
 
-    isValid
+    TicketAddMember_2,
+    TicketRemoveMember_2
 };
