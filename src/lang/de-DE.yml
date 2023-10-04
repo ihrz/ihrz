@@ -1022,7 +1022,7 @@ event_goodbye_default: "➖・<@${member.id}> hat den Server verlassen. Auf Wied
 event_xp_level_earn: "**GG**, <@${message.author.id}> du hast +1 für dein XP-Level erhalten (Level: **${newLevel}**)"
 
 # Ticket Module Events:
-event_ticket_embed_description: "Hallo ${user.username}, willkommen in deinem Ticket! Bitte hab etwas Geduld, wir werden bald bei dir sein. Wenn du das Ticket schließen möchtest, gib bitte `/close` ein."
+event_ticket_embed_description: "Hallo ${user.username}, willkommen in deinem Ticket! Bitte hab etwas Geduld, wir werden bald bei dir sein. Wenn du das Ticket schließen möchtest, gib bitte `/ticket close` ein."
 
 # interactionCreate-Ereignisse:
 iC_event_cooldown: "Abklingzeit, bitte warten Sie zwischen den Befehlen einen Moment!"
@@ -1030,6 +1030,14 @@ iC_event_connection_error: "Verbindungsfehler!"
 
 # Cooldown
 Msg_cooldown: "Kannst du bitte einen Moment warten, bevor du einen Befehl ausführst?"
+
+# Ticket-Modul
+ticket_module_button_delete: "Ticket löschen"
+ticket_module_button_transcript: "Ticket transkribieren"
+ticket_module_button_addmember: "Mitglied hinzufügen"
+ticket_module_button_removemember: "Mitglied entfernen"
+ticket_module_add_question: "Wen möchtest du zu deinem Ticket hinzufügen? (Gib ihre Benutzer-ID an)!"
+ticket_module_remove_question: "Wer ist der Benutzer, den du aus deinem Ticket entfernen möchtest? (Gib ihre Benutzer-ID an)!"
 
 # Server-Protokolle
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **hat <@${firstEntry.target.id}> gebannt**"

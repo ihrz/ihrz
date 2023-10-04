@@ -19,23 +19,6 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { execSync } from 'child_process';
-
-execSync(`rm -r dist`, {
-    stdio: [0, 1, 2],
-    cwd: process.cwd(),
-});
-
-execSync(`git pull`, {
-    stdio: [0, 1, 2],
-    cwd: process.cwd(),
-});
-
-execSync(`npx tsc`, {
-    stdio: [0, 1, 2],
-    cwd: process.cwd(),
-});
-
 import couleurmdr from 'colors';
 import logger from './src/core/logger';
 import { ShardingManager } from 'discord.js';

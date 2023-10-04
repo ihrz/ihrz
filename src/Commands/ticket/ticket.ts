@@ -104,6 +104,12 @@ export const command: Command = {
                     description: "The name of you ticket's panel.",
                     type: ApplicationCommandOptionType.String,
                     required: true,
+                },
+                {
+                    name: "description",
+                    description: "The description of you ticket's panel.",
+                    type: ApplicationCommandOptionType.String,
+                    required: false,
                 }
             ],
         },

@@ -1022,7 +1022,7 @@ event_goodbye_default: "➖・<@${member.id}>さんがサーバーから退出�
 event_xp_level_earn: "<@${message.author.id}> さん、レベルアップ (+1) おめでとうございます (現在のレベル: **${newLevel}**)。"
 
 # Ticket Module Events:
-event_ticket_embed_description: "${user.username}さん、チケットへようこそ！しばらくお待ちください。チケットを閉じる場合は、`/close` を実行してください。"
+event_ticket_embed_description: "${user.username}さん、チケットへようこそ！しばらくお待ちください。チケットを閉じる場合は、`/ticket close` を実行してください。"
 
 # interactionCreateイベント：
 iC_event_cooldown: "クールダウン、コマンド間に少し待ってください！"
@@ -1030,6 +1030,14 @@ iC_event_connection_error: "接続エラー！"
 
 # Cooldown
 Msg_cooldown: "「コマンドを実行する前に、一秒待っていただけますか？お願いします。」"
+
+# チケットモジュール
+ticket_module_button_delete: "チケットを削除"
+ticket_module_button_transcript: "チケットの記録"
+ticket_module_button_addmember: "メンバーを追加"
+ticket_module_button_removemember: "メンバーを削除"
+ticket_module_add_question: "チケットに追加したいユーザーは誰ですか？（ユーザーIDを指定してください）！"
+ticket_module_remove_question: "チケットから削除したいユーザーは誰ですか？（ユーザーIDを指定してください）！"
 
 # サーバーログ
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **が<@${firstEntry.target.id}>をBANしました**"

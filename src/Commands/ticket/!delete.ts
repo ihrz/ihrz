@@ -24,6 +24,7 @@ import {
 } from 'discord.js';
 
 import * as db from '../../core/functions/DatabaseModel';
+import { TicketDelete } from '../../core/ticketsManager';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -36,7 +37,7 @@ export = {
         };
 
         if (interaction.channel.name.includes('ticket-')) {
-            interaction.channel.delete();
+            await TicketDelete(interaction);
         } else {
             await interaction.editReply({ content: data.delete_not_in_ticket });
             return;

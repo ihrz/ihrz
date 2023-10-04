@@ -25,6 +25,7 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
+import { TicketTranscript } from '../../core/ticketsManager';
 import * as db from '../../core/functions/DatabaseModel';
 import { create, get, url } from 'sourcebin';
 
@@ -41,35 +42,7 @@ export = {
         let channel = interaction.channel;
 
         if (channel.name.includes('ticket-')) {
-            if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || channel.name === `ticket-${interaction.user.id}`) {
-                channel.messages.fetch().then(async (messages: any[]) => {
-                    let output = messages.reverse().map(m => `${new Date(m.createdAt).toLocaleString('en-US')} - ${m.author.username}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`).join('\n');
-
-                    let response;
-                    try {
-                        response = await create({
-                            title: data.close_title_sourcebin,
-                            description: data.close_description_sourcebin,
-                            files: [
-                                {
-                                    content: output,
-                                    language: 'text',
-                                },
-                            ],
-                        })
-
-                    } catch (e: any) {
-                        await interaction.editReply({ content: data.transript_command_error });
-                        return;
-                    };
-
-                    let embed = new EmbedBuilder()
-                        .setDescription(`[\`View this\`](${response.url})`)
-                        .setColor('#0014a8');
-                    await interaction.editReply({ embeds: [embed], content: data.transript_command_work });
-                    return;
-                });
-            }
+            await TicketTranscript(interaction);
         } else {
             await interaction.editReply({ content: data.transript_not_in_ticket });
             return;
