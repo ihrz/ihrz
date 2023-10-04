@@ -1022,7 +1022,7 @@ event_goodbye_default: "➖・<@${member.id}> vient de quitter la guilde. Au rev
 event_xp_level_earn: "**GG**, <@${message.author.id}> vous avez gagné un niveau d'expérience ! (Niveau : **${newLevel}**)"
 
 # Ticket Module Events:
-event_ticket_embed_description: "Salut ${user.username}, bienvenue dans votre ticket ! S'il vous plaît, soyez patient, nous serons avec vous sous peu. Si vous souhaitez fermer ce ticket, veuillez exécuter /close"
+event_ticket_embed_description: "Salut ${user.username}, bienvenue dans votre ticket ! S'il vous plaît, soyez patient, nous serons avec vous sous peu. Si vous souhaitez fermer ce ticket, veuillez exécuter `/ticket close`"
 
 # Événements interactionCreate :
 iC_event_cooldown: "Cooldown, veuillez patienter un peu entre les commandes !"
@@ -1030,6 +1030,14 @@ iC_event_connection_error: "Erreur de connexion !"
 
 # Cooldown
 Msg_cooldown: "Peux-tu patienter une seconde avant d'exécuter une commande, s'il te plaît ?"
+
+# Module de Ticket
+ticket_module_button_delete: "Supprimer le ticket"
+ticket_module_button_transcript: "Transcrire le ticket"
+ticket_module_button_addmember: "Ajouter un membre"
+ticket_module_button_removemember: "Supprimer un membre"
+ticket_module_add_question: "Qui souhaitez-vous ajouter à votre ticket ? (Spécifiez sont identifiant d'utilisateur) !"
+ticket_module_remove_question: "Qui est l'utilisateur que vous souhaitez retirer de votre ticket ? (Spécifiez sont identifiant d'utilisateur) !"
 
 # Server Logs
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **a ban** <@${firstEntry.target.id}>"

@@ -141,25 +141,25 @@ async function CreateChannel(interaction: any, result: any) {
         let delete_ticket_button = new ButtonBuilder()
             .setCustomId('t-embed-delete-ticket')
             .setEmoji('🗑️')
-            .setLabel('Delete Ticket')
+            .setLabel(lang.ticket_module_button_delete)
             .setStyle(ButtonStyle.Danger);
 
         let transcript_ticket_button = new ButtonBuilder()
             .setCustomId('t-embed-transcript-ticket')
             .setEmoji('📜')
-            .setLabel('Transcript Ticket')
+            .setLabel(lang.ticket_module_button_transcript)
             .setStyle(ButtonStyle.Primary);
 
         let add_ticket_button = new ButtonBuilder()
             .setCustomId('t-embed-add-ticket')
             .setEmoji('➕')
-            .setLabel('Add Member')
+            .setLabel(lang.ticket_module_button_addmember)
             .setStyle(ButtonStyle.Secondary);
 
         let remove_ticket_button = new ButtonBuilder()
             .setCustomId('t-embed-remove-ticket')
             .setEmoji('➖')
-            .setLabel('Remove Member')
+            .setLabel(lang.ticket_module_button_removemember)
             .setStyle(ButtonStyle.Secondary);
 
         (channel as any).send({
@@ -389,12 +389,13 @@ async function TicketDelete(interaction: any) {
 async function TicketAddMember_2(interaction: any) {
     let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
 
-    await interaction.reply({ content: `Quel est la perssonne que vous voulez ajouter à votre ticket? (Préciser sont Identifiant d'Utilisateur)!` })
+    await interaction.reply({ content: data.ticket_module_add_question });
 
     let messageFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
     let messageCollector = interaction.channel.createMessageCollector({ filter: messageFilter, max: 1, time: 30_000 });
 
     messageCollector.on('collect', async (message: { content: string | null; delete: () => any; }) => {
+        message.delete();
         let member = await interaction.guild.members.fetch(message.content);
 
         if (!member) {
@@ -416,14 +417,15 @@ async function TicketAddMember_2(interaction: any) {
 async function TicketRemoveMember_2(interaction: any) {
     let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
 
-    await interaction.reply({ content: `Quel est la perssonne que vous voulez supprimer de votre ticket? (Préciser sont Identifiant d'Utilisateur)!` })
+    await interaction.reply({ content: data.ticket_module_remove_question });
 
     let messageFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
     let messageCollector = interaction.channel.createMessageCollector({ filter: messageFilter, max: 1, time: 30_000 });
 
     messageCollector.on('collect', async (message: { content: string | null; delete: () => any; }) => {
+        message.delete();
         let member = await interaction.guild.members.fetch(message.content);
-
+        
         if (!member) {
             await interaction.editReply({ content: data.add_incorect_syntax });
             return;
