@@ -19,61 +19,36 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { ApplicationCommand, Client, Collection } from "discord.js";
-import logger from "./logger";
-import couleurmdr from 'colors';
-import config from "../files/config";
-
+import { Collection, REST, Routes, ApplicationCommandType } from "discord.js";
 import { Command } from '../../types/command';
+import config from "../files/config";
+import couleurmdr from 'colors';
+import logger from "./logger";
 
 export = async (client: any, commands: Collection<string, Command>) => {
-
-    let log = (message: any) => config.core.debug && message.number > 0 && logger.log(message?.string.replace('{number}', message.number));
 
     let ready = client.readyAt ? Promise.resolve() : new Promise(resolve => client.once('ready', resolve));
     await ready;
 
-    let currentCommands = await client.application.commands.fetch();
+    let rest = new REST().setToken(config.discord.token);
 
-    log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Synchronizing commands...`), number: 1 });
-    log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Currently {number} Slash commands are registered.`), number: currentCommands.size });
+    try {
+        logger.log(couleurmdr.white(`${config.console.emojis.LOAD} >> Currently ${commands?.size || 0} of application (/) commands awaiting for refreshing.`));
 
-    let deletedCommands = currentCommands.filter((command: ApplicationCommand) => !commands.has(command.name));
+        let data: any = await rest.put(
+            Routes.applicationCommands(client.user.id),
+            {
+                body: client.commands?.map((command: { name: string; description: string; options: JSON }) => ({
+                    name: command.name,
+                    description: command.description,
+                    options: command.options,
+                    type: ApplicationCommandType.ChatInput
+                }))
+            },
+        );
 
-    for (let deletedCommand of deletedCommands.values()) {
-        await deletedCommand.delete();
+        logger.log(couleurmdr.white(`${config.console.emojis.OK} >> Currently ${data.length} of application (/) commands are now synchronized.`));
+    } catch (e: any) {
+        logger.err(e);
     };
-
-    log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Deleted {number} Slash commands!`), number: deletedCommands.size });
-
-    let newCommands = commands.filter((command: Command) => !currentCommands.some((c: ApplicationCommand) => c.name === command.name));
-    for (let newCommand of newCommands.values()) {
-        await client.application.commands.create(newCommand as unknown as ApplicationCommand);
-    };
-
-    log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Created {number} Slash commands!`), number: newCommands.size });
-
-    let updatedCommands = commands.filter((command: Command) => currentCommands.some((c: ApplicationCommand) => c.name === command.name));
-    let updatedCommandCount = 0;
-    for (let updatedCommand of updatedCommands.values()) {
-        let newCommand = updatedCommand as unknown as ApplicationCommand;
-        let previousCommand = currentCommands.find((c: ApplicationCommand) => c.name === updatedCommand.name);
-        let modified = false;
-
-        if (previousCommand && previousCommand.description !== newCommand.description) {
-            modified = true;
-        };
-
-        if (!ApplicationCommand.optionsEqual(previousCommand?.options ?? [], newCommand.options ?? [])) {
-            modified = true;
-        };
-
-        if (modified) {
-            await previousCommand?.edit(newCommand);
-            updatedCommandCount++;
-        };
-    };
-
-    log({ string: couleurmdr.white(`${config.console.emojis.LOAD} >> Updated {number} Slash commands!`), number: updatedCommandCount });
-    log({ string: couleurmdr.white(`${config.console.emojis.OK} >> Slash commands are now synchronized with Discord!`), number: 1 });
 };

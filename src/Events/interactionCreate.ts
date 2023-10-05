@@ -44,7 +44,7 @@ export = async (client: any, interaction: any) => {
             || !interaction.guild?.channels
             || interaction.user.bot) return;
 
-        let command = client.commands.get(interaction.commandName);
+        let command = client.commands?.get(interaction.commandName);
         if (!command) {
             await interaction.deleteReply();
             return interaction.followUp({ content: "Connection error.", ephemeral: true });
