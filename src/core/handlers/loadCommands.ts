@@ -98,9 +98,6 @@ async function loadCommands(client: Client, path: string = `${process.cwd()}/dis
         if (command.options) {
             await processOptions(command.options, command.category, command.name);
         };
-        client.interactions.set(command.name, { name: command.name, ...command });
-
-        client.register_arr.push(command);
 
         client.commands.set(command.name, command);
     };

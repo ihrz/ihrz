@@ -33,12 +33,7 @@ import { Client, Collection, ApplicationCommandType, PermissionsBitField, Activi
 import { execSync } from 'child_process';
 
 export = async (client: Client) => {
-    await register(client, client.register_arr.map((command: { name: string; description: string; options: JSON }) => ({
-        name: command.name,
-        description: command.description,
-        options: command.options,
-        type: ApplicationCommandType.ChatInput
-    })));
+    await register(client, client.commands)
 
     async function term() {
         logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  ")),
