@@ -19,18 +19,9 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Collection } from "discord.js";
-import { clientFunction } from "./clientFunction";
-import { Command } from "./command";
-import { QuickDB } from "quick.db";
-import { Player } from 'discord-player';
+import { TicketTranscript } from '../core/ticketsManager';
 
-declare module 'discord.js' {
-    export interface Client {
-        functions: clientFunction,
-        commands: Collection<string, Command>,
-        player: Player,
-        invites: Collection,
-        buttons: Collection<string, Function>,
-    }
+export = async function (interaction: any, data: any) {
+    TicketTranscript(interaction);
+    return;
 };

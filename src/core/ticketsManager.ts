@@ -251,7 +251,7 @@ async function TicketTranscript(interaction: any) {
             if (channel === interaction.channel.id) {
                 let member = interaction.guild.members.cache.get(fetch[user][channel]?.author);
 
-                if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member.user.id) {
+                if (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member.user.id) {
                     interactionChannel.messages.fetch().then(async (messages: any[]) => {
                         let output = messages.reverse().map(m => `${new Date(m.createdAt).toLocaleString('en-US')} - ${m.author.username}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`).join('\n');
 
@@ -338,7 +338,7 @@ async function TicketReOpen(interaction: any) {
                 let member = interaction.guild.members.cache.get(fetch[user][channel]?.author);
 
                 try {
-                    interaction.channel.permissionOverwrites.edit(member.id, {
+                    interaction.channel.permissionOverwrites.edit(member.user.id, {
                         ViewChannel: true,
                         SendMessages: true,
                         AttachFiles: true,
@@ -373,7 +373,7 @@ async function TicketDelete(interaction: any) {
 
             if (channel === interaction.channel.id
                 &&
-                (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member.user.id)) {
+                (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member.user.id)) {
 
                 await db.DataBaseModel({
                     id: db.Delete,

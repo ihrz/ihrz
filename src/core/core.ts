@@ -87,9 +87,7 @@ export = (client: Client) => {
         require(`${process.cwd()}/dist/src/core/handlers/${file}`)(client);
     });
 
-    client.invites = new Collection(),
-        client.interactions = new Map(),
-        client.register_arr = [];
+    client.invites = new Collection();
 
     require('../api/server'),
         bash(client),

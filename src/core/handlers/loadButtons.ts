@@ -19,18 +19,15 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Collection } from "discord.js";
-import { clientFunction } from "./clientFunction";
-import { Command } from "./command";
-import { QuickDB } from "quick.db";
-import { Player } from 'discord-player';
+import { Client, Collection } from "discord.js";
+import { readdirSync } from "fs";
 
-declare module 'discord.js' {
-    export interface Client {
-        functions: clientFunction,
-        commands: Collection<string, Command>,
-        player: Player,
-        invites: Collection,
-        buttons: Collection<string, Function>,
-    }
+export = async (client: Client) => {
+
+    client.buttons = new Collection<string, Function>();
+
+    readdirSync(`${process.cwd()}/dist/src/Buttons`).filter(file => file.endsWith(".js")).forEach(file => {
+        client.buttons.set(file.split('.js')[0], require(`${process.cwd()}/dist/src/Buttons/${file}`))
+    });
+
 };

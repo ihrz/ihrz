@@ -19,18 +19,17 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Collection } from "discord.js";
-import { clientFunction } from "./clientFunction";
-import { Command } from "./command";
-import { QuickDB } from "quick.db";
-import { Player } from 'discord-player';
+import * as db from '../core/functions/DatabaseModel';
+import { AddEntries } from '../core/giveawaysManager';
 
-declare module 'discord.js' {
-    export interface Client {
-        functions: clientFunction,
-        commands: Collection<string, Command>,
-        player: Player,
-        invites: Collection,
-        buttons: Collection<string, Function>,
-    }
+export = async function (interaction: any) {
+
+    if (await db.DataBaseModel({
+        id: db.Get,
+        key: `GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}`
+    })) {
+        AddEntries(interaction);
+    };
+
+    return;
 };
