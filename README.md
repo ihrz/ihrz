@@ -15,8 +15,8 @@ IHorizon have a large variety of features, including moderation, invite manageme
 
 ## Contributor's Wall
 
-- [Maxine](https://github.com/mxi1n) (She/Her)
 - [Kisakay](https://github.com/Kisakay) (She/Her)
+- [Maxine](https://github.com/mxi1n) (She/Her)
 - [Noémie](https://github.com/name-shitty-github-profile) (She/Her)
 - [Wyene](https://github.com/WyeneCloud) (He/him)
 
