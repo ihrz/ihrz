@@ -24,6 +24,7 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
+import * as db from '../../core/functions/DatabaseModel';
 import { useQueue } from 'discord-player';
 
 export = {
@@ -56,7 +57,7 @@ export = {
         while (tracks.length > 0) {
             let chunk = tracks.slice(0, chunkSize);
             let embed = new EmbedBuilder()
-                .setColor('#ff0000')
+                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.music-cmd` }) || '#ff0000')
                 .setTitle(data.queue_embed_title)
                 .setDescription(chunk.join('\n') || data.queue_embed_description_empty)
                 .setFooter({

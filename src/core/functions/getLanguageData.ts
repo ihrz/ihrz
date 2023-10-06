@@ -34,7 +34,7 @@ async function getLanguageData(arg: string): Promise<any> {
     let lang: string = '';
 
     if (!fetched) {
-        lang = "en-US";
+        lang = "fr-FR";
     } else {
         lang = fetched.lang;
     };

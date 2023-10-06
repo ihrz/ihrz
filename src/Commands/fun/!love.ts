@@ -29,6 +29,8 @@ import config from '../../files/config';
 
 import axios from 'axios';
 import fs from 'fs';
+
+import * as db from '../../core/functions/DatabaseModel';
 import { createCanvas, loadImage } from "canvas";
 import logger from '../../core/logger';
 
@@ -60,7 +62,7 @@ export = {
         let ctx = canvas.getContext('2d');
 
         let heartEmojiPath = `${process.cwd()}/src/assets/heart.png`;
-        
+
         let profileImage1URL = user1.displayAvatarURL({ extension: 'png', size: 512 });
         let profileImage2URL = user2.displayAvatarURL({ extension: 'png', size: 512 });
 
@@ -126,7 +128,7 @@ export = {
             };
 
             var embed = new EmbedBuilder()
-                .setColor("#FFC0CB")
+                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd` }) || "#FFC0CB")
                 .setTitle("💕")
                 .setImage(`attachment://${user1.id}x${user2.id}.png`)
                 .setDescription(data.love_embed_description

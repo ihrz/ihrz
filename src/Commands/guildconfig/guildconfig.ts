@@ -251,7 +251,64 @@ export const command: Command = {
                             required: false
                         },
                     ],
-                }
+                },
+                {
+                    name: 'embed-color',
+                    description: 'Set the embed color !',
+                    type: 1,
+                    options: [
+                        {
+                            name: 'action',
+                            type: ApplicationCommandOptionType.String,
+                            description: `What do you want to do ?`,
+                            required: true,
+                            choices: [
+                                {
+                                    name: 'Reset All Settings',
+                                    value: 'reset'
+                                },
+                                {
+                                    name: 'Set for iHorizon-Logs (#ihorizon-logs) Embed!',
+                                    value: 'ihrz-logs'
+                                },
+                                {
+                                    name: 'Set for Giveaway Embed!',
+                                    value: 'gw'
+                                },
+                                {
+                                    name: 'Set for Audits-Logs Embed!',
+                                    value: 'audits-logs'
+                                },
+                                {
+                                    name: 'Set for Fun Command Embed!',
+                                    value: 'fun-cmd'
+                                },
+                                {
+                                    name: 'Set for Utils Command Embed!',
+                                    value: 'utils-cmd'
+                                },
+                                {
+                                    name: 'Set for Mod Command Embed!',
+                                    value: 'mod-cmd'
+                                },
+                                {
+                                    name: 'Set for Music Command Embed!',
+                                    value: 'music-cmd'
+                                },
+                                {
+                                    name: 'All others Embed!',
+                                    value: 'all'
+                                },
+                            ]
+                        },
+                        {
+                            name: 'hex-color',
+                            type: ApplicationCommandOptionType.String,
+                            description: `Use www.color-hex.com`,
+                            required: false
+                        },
+                    ]
+                },
             ],
         },
     ],

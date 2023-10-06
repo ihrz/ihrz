@@ -25,6 +25,7 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
+import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
 export = {
@@ -47,7 +48,7 @@ export = {
             await interaction.editReply({ content: data.unmute_attempt_mute_your_self });
             return;
         };
-        
+
         let muterole = interaction.guild.roles.cache.find((role: { name: string; }) => role.name === 'muted');
 
         if (!tomute.roles.cache.has(muterole.id)) {
@@ -69,7 +70,7 @@ export = {
 
         try {
             let logEmbed = new EmbedBuilder()
-                .setColor("#bf0bb9")
+                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
                 .setTitle(data.unmute_logs_embed_title)
                 .setDescription(data.unmute_logs_embed_description
                     .replace("${interaction.user.id}", interaction.user.id)

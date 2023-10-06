@@ -30,6 +30,7 @@ import {
     ApplicationCommandOptionType
 } from 'discord.js'
 
+import * as db from '../../core/functions/DatabaseModel';
 import { Command } from '../../../types/command';
 import os from 'os-utils';
 import config from '../../files/config';
@@ -46,9 +47,9 @@ export const command: Command = {
             return;
         };
 
-        os.cpuUsage(function (c) {
+        os.cpuUsage(async function (c) {
             let embed = new EmbedBuilder()
-                .setColor("#42ff08")
+                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color` }) || "#42ff08")
                 .addFields(
                     { name: "=====================", value: '**Consumed in real time** :', inline: false },
                     { name: "**CPU USAGE:**", value: 'CPU Usage (%): **' + c + '** %', inline: false },

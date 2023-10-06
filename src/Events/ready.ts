@@ -23,14 +23,12 @@ import logger from "../core/logger";
 import couleurmdr from 'colors';
 import config from "../files/config";
 import * as db from '../core/functions/DatabaseModel';
-
 import register from '../core/slashSync';
 import date from 'date-and-time';
 import path from 'path';
 import fs from 'fs';
 
 import { Client, Collection, ApplicationCommandType, PermissionsBitField, ActivityType, Guild, Embed, EmbedBuilder } from 'discord.js';
-import { execSync } from 'child_process';
 
 export = async (client: Client) => {
     await register(client, client.commands)
@@ -85,9 +83,20 @@ export = async (client: Client) => {
             "What is a database? Do I really need one?",
             "My parents : Don't work too much, me : I forgor"
         ];
+        let e = await db.DataBaseModel({
+            id: db.Get,
+            key: `BOT.PRESENCE`,
+        });
 
-        let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Custom }] });
+        if (e) {
+            client.user?.setActivity(e.name, {
+                type: e.type,
+                url: "https://www.twitch.tv/anaissaraiva"
+            });
+        } else {
+            let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Playing }] });
+        };
     };
 
     async function refreshSchedule() {
@@ -123,48 +132,7 @@ export = async (client: Client) => {
         };
     };
 
-    async function otherBotPowerOn() {
-        let result = await db.DataBaseModel({
-            id: db.Get,
-            key: `OWNIHRZ`
-        });
-
-        for (let i in result) {
-            for (let c in result[i]) {
-                if (result[i][c].power_off) break;
-
-                if (i !== 'TEMP') {
-
-                    if (fs.existsSync(path.join(result?.[i]?.[c]?.path, 'dist'))) {
-                        execSync(`rm -r dist`, {
-                            stdio: [0, 1, 2],
-                            cwd: result?.[i]?.[c]?.path,
-                        });
-                    };
-
-                    execSync(`git pull`, {
-                        stdio: [0, 1, 2],
-                        cwd: result?.[i]?.[c]?.path,
-                    });
-                    execSync(`npx tsc`, {
-                        stdio: [0, 1, 2],
-                        cwd: result?.[i]?.[c]?.path,
-                    });
-                    execSync(`mv dist/index.js dist/${result?.[i]?.[c]?.code}.js`, {
-                        stdio: [0, 1, 2],
-                        cwd: result?.[i]?.[c]?.path,
-                    });
-                    execSync(`pm2 start dist/${result?.[i]?.[c]?.code}.js -f`, {
-                        stdio: [0, 1, 2],
-                        cwd: result?.[i]?.[c]?.path,
-                    });
-                };
-            }
-        }
-    };
-    otherBotPowerOn();
-
-    setInterval(quotesPresence, 30_000), setInterval(refreshSchedule, 15_000);
+    setInterval(quotesPresence, 80_000), setInterval(refreshSchedule, 15_000);
 
     fetchInvites(), refreshDatabaseModel(), term(), quotesPresence(), refreshSchedule();
 };

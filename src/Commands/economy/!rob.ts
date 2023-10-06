@@ -60,7 +60,7 @@ export = {
                 .replace(/\${user\.id}/g, user.id)
                 .replace(/\${random}/g, random)
             )
-            .setColor("#a4cb80")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#a4cb80")
             .setTimestamp()
 
         await interaction.editReply({ embeds: [embed] });

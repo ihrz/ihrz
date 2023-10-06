@@ -26,6 +26,7 @@ import {
 
 import { Command } from '../../../types/command';
 import * as pkg from '../../../package.json';
+import * as db from '../../core/functions/DatabaseModel';
 
 export const command: Command = {
     name: 'botinfo',
@@ -39,7 +40,7 @@ export const command: Command = {
         let pp: any = client.user?.displayAvatarURL();
 
         let clientembed = new EmbedBuilder()
-            .setColor("#f0d020")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#f0d020")
             .setThumbnail(pp)
             .addFields(
                 { name: data.botinfo_embed_fields_myname, value: `:green_circle: ${client.user?.username}`, inline: false },

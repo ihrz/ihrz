@@ -31,7 +31,7 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let embed = new EmbedBuilder()
-            .setColor('#c4afed')
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`}) || '#c4afed')
             .setTitle(data.banner_guild_embed)
             .setImage(interaction.guild.bannerURL({ extension: 'png', size: 4096 }))
             .setThumbnail(interaction.guild.iconURL({ size: 4096 }))

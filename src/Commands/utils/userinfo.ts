@@ -21,6 +21,7 @@
 
 import { Client, ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
 import * as apiUrlParser from '../../core/functions/apiUrlParser';
+import * as db from '../../core/functions/DatabaseModel';
 import { Command } from '../../../types/command';
 import DiscordOauth2 from 'discord-oauth2';
 import config from '../../files/config';
@@ -121,7 +122,7 @@ export const command: Command = {
                 .setThumbnail(member.displayAvatarURL({ dynamic: true }))
                 .setFooter({ text: `ID: ${member.id}` })
                 .setTimestamp()
-                .setColor('#0014a8')
+                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd` }) || '#0014a8')
                 .setDescription(description);
 
             await interaction.editReply({ embeds: [embed], content: '✅ Fetched !' });

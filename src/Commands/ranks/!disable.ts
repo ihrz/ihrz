@@ -41,12 +41,12 @@ export = {
         if (types == "off") {
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
+                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
                     .setTitle(data.disablexp_logs_embed_title_disable)
                     .setDescription(data.disablexp_logs_embed_description_disable.replace(/\${interaction\.user\.id}/g, interaction.user.id))
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                
+
                 if (logchannel) {
                     logchannel.send({ embeds: [logEmbed] })
                 };
@@ -55,18 +55,18 @@ export = {
             };
 
             await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.disable`, value: false });
-            
+
             await interaction.editReply({ content: data.disablexp_command_work_disable });
             return;
         } else if (types == "on") {
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
+                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
                     .setTitle(data.disablexp_logs_embed_title_enable)
                     .setDescription(data.disablexp_logs_embed_description_enable.replace(/\${interaction\.user\.id}/g, interaction.user.id))
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                
+
                 if (logchannel) {
                     logchannel.send({ embeds: [logEmbed] })
                 };
@@ -75,7 +75,7 @@ export = {
             };
 
             await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.disable`, value: true });
-            
+
             await interaction.editReply({ content: data.disablexp_command_work_enable });
             return;
         };

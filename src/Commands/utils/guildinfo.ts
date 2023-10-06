@@ -24,6 +24,7 @@ import {
     EmbedBuilder,
 } from 'discord.js'
 
+import * as db from '../../core/functions/DatabaseModel';
 import { Command } from '../../../types/command';
 
 export const command: Command = {
@@ -42,7 +43,9 @@ export const command: Command = {
         };
 
         let embeds = new EmbedBuilder()
-            .setColor("#C3B2A1")
+            .setColor(
+                await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd` }) || "#C3B2A1"
+            )
             .setAuthor({
                 name: data.serverinfo_embed_author
                     .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)

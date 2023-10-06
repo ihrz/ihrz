@@ -26,6 +26,8 @@ import {
 
 import { QueryType } from 'discord-player';
 
+import * as db from '../../core/functions/DatabaseModel';
+
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
@@ -44,7 +46,7 @@ export = {
 
         let results = new EmbedBuilder()
             .setTitle(data.p_embed_title)
-            .setColor('#ff0000')
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.music-cmd` }) || '#ff0000')
             .setTimestamp();
 
         if (!result.hasTracks()) {
@@ -82,7 +84,7 @@ export = {
 
         let embed = new EmbedBuilder()
             .setDescription(`${yes.track.playlist ? `**multiple tracks** from: **${yes.track.playlist.title}**` : `**${yes.track.title}**`}`)
-            .setColor('#00cc1a')
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.music-cmd` }) || '#00cc1a')
             .setTimestamp()
             .setFooter({ text: data.p_duration + `${yes.track.playlist ? `${yess()}` : `${yes.track.duration}`}` });
 

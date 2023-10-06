@@ -26,13 +26,14 @@ import {
 } from 'discord.js';
 
 import logger from '../../core/logger';
+import * as db from '../../core/functions/DatabaseModel';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)
         var numberx = interaction.options.getNumber("number");
-        
+
         if (!permission) {
             await interaction.editReply({ content: data.clear_dont_have_permission });
             return;
@@ -44,7 +45,7 @@ export = {
         };
 
         interaction.channel.bulkDelete(numberx, true)
-            .then((messages: { size: any; }) => {
+            .then(async (messages: { size: any; }) => {
                 interaction.channel.send({
                     content: data.clear_confirmation_message
                         .replace(/\${messages\.size}/g, messages.size)
@@ -52,7 +53,7 @@ export = {
 
                 try {
                     let logEmbed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
+                        .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
                         .setTitle(data.clear_logs_embed_title)
                         .setDescription(data.clear_logs_embed_description
                             .replace(/\${interaction\.user\.id}/g, interaction.user.id)

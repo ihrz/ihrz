@@ -56,7 +56,7 @@ export const command: Command = {
         };
 
         let embed = new EmbedBuilder()
-            .setColor('#2E2EFE').setAuthor({ name: 'Blacklist' }).setDescription(text || "No blacklist")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || '#2E2EFE').setAuthor({ name: 'Blacklist' }).setDescription(text || "No blacklist")
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
         let member = interaction.options.getMember('user');

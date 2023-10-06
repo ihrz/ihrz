@@ -44,7 +44,7 @@ export = {
         } else {
             let embed = new EmbedBuilder()
                 .setAuthor({ name: data.monthly_embed_title, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
-                .setColor("#a4cb80")
+                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#a4cb80")
                 .setDescription(data.monthly_embed_description)
                 .addFields({ name: data.monthly_embed_fields, value: `${amount}🪙` })
             await interaction.editReply({ embeds: [embed] });

@@ -77,7 +77,7 @@ export const command: Command = {
         let channel = interaction.options.getChannel("channel");
 
         let help_embed = new EmbedBuilder()
-            .setColor("#0014a8")
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color` }) || "#0014a8")
             .setTitle(data.setmembercount_helpembed_title)
             .setDescription(data.setmembercount_helpembed_description)
             .addFields({ name: data.setmembercount_helpembed_fields_name, value: data.setmembercount_helpembed_fields_value });
@@ -112,7 +112,7 @@ export const command: Command = {
 
                 try {
                     let logEmbed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
+                        .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
                         .setTitle(data.setmembercount_logs_embed_title_on_enable)
                         .setDescription(data.setmembercount_logs_embed_description_on_enable
                             .replace(/\${interaction\.user\.id}/g, interaction.user.id)
@@ -133,7 +133,7 @@ export const command: Command = {
             await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.MCOUNT` });
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
+                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
                     .setTitle(data.setmembercount_logs_embed_title_on_disable)
                     .setDescription(data.setmembercount_logs_embed_description_on_disable
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)

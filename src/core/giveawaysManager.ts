@@ -40,7 +40,7 @@ async function Create(channel: any, data: Giveaway) {
         .setStyle(ButtonStyle.Primary);
 
     let gw = new EmbedBuilder()
-        .setColor('#9a5af2')
+        .setColor(await db.DataBaseModel({ id: db.Get, key: `${channel.guild.id}.GUILD.GUILD_CONFIG.embed_color.gw` }) || '#9a5af2')
         .setTitle(data.prize)
         .setDescription(`Ends: ${time((date.addMilliseconds(new Date(), data.duration)), 'R')} (${time((date.addMilliseconds(new Date(), data.duration)), 'D')})\nHosted by: ${data.hostedBy}\nEntries: **0**\nWinners: **${data.winnerCount}**`)
         .setTimestamp((date.addMilliseconds(new Date(), data.duration)));
@@ -228,7 +228,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
             .setStyle(ButtonStyle.Link);
 
         let embeds = new EmbedBuilder()
-            .setColor('#2f3136')
+            .setColor(await db.DataBaseModel({ id: db.Get, key: `${guildId}.GUILD.GUILD_CONFIG.embed_color.gw` }) || '#2f3136')
             .setTitle(fetch.prize)
             .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winners}`)
             .setTimestamp()
@@ -284,7 +284,7 @@ async function Reroll(client: Client, data: any) {
                 let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : [];
 
                 let embeds = new EmbedBuilder()
-                    .setColor('#2f3136')
+                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${data.guildId}.GUILD.GUILD_CONFIG.embed_color.gw` }) || '#2f3136')
                     .setTitle(fetch[channelId][messageId].prize)
                     .setDescription(`Ended: ${time(new Date(fetch[channelId][messageId].expireIn), 'R')} (${time(new Date(fetch[channelId][messageId].expireIn), 'D')})\nHosted by: <@${fetch[channelId][messageId].hostedBy}>\nEntries **${fetch[channelId][messageId].members.length}**\nWinners: ${winners}`)
                     .setTimestamp()

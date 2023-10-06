@@ -28,7 +28,7 @@ import axios from 'axios';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
-        
+
         axios.get('http://edgecats.net/random').then(async res => {
             let emb = new EmbedBuilder()
                 .setImage(res.data)

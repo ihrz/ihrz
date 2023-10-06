@@ -76,7 +76,7 @@ export = {
                 value: message.toString()
             });
 
-            embed.setColor('#21744c');
+            embed.setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || '#21744c');
             embed.setTitle(data.suggest_acceptembed_title_to_put
                 .replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title));
 
