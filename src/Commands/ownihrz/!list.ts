@@ -37,9 +37,13 @@ export = {
         });
 
         let lsEmbed: Array<EmbedBuilder> = [];
-        lsEmbed.push(new EmbedBuilder()
-            .setTitle('Liste de tout vos bot(s)')
-            .setTimestamp()
+
+        lsEmbed.push(
+            new EmbedBuilder()
+                .setTitle('List of all your bot(s)')
+                .setColor('#000000')
+                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+                .setTimestamp()
         );
 
         for (let i in data_2) {
@@ -53,20 +57,22 @@ export = {
                 let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, config)
                     .catch((e: any) => { }))?.data || 404;
 
-                let utils_msg = `__Identifiant du bot__ \`${data_2[i].bot.id}\`
-                        __Username du bot__ \`${data_2[i].bot.username}\`
-                        __Bot Public__ \`${data_2[i].bot_public ? 'Oui' : 'Non'}\``
+                let utils_msg =
+                    `__Bot ID__ \`${data_2[i].bot.id}\`\n` +
+                    `__Bot username__ \`${data_2[i].bot.username}\`\n` +
+                    `__Public Bot__ \`${data_2[i].bot_public ? 'Yes' : 'No'}\``;
 
                 let expire = date.format(new Date(data_2[i].expireIn), 'ddd, MMM DD YYYY');
 
                 let embed = new EmbedBuilder()
                     .setColor('#ff7f50')
                     .setThumbnail(`https://cdn.discordapp.com/avatars/${data_2[i].bot.id}/${bot_1?.bot.avatar}.png`)
-                    .setTitle(`Votre propre iHorizon : ${data_2[i].bot.username}`)
-                    .setDescription(`Votre code de bot: ||**${data_2[i].code}**|| ⚠️ **Ne le partager à personne** !
-                        **Expire dans**: \`${expire}\`
-                        **Rejoignez le serveur support** [Cliquer Ici](https://discord.gg/ihorizon), si vous avez des problèmes avec votre bot.
-                        ${utils_msg}`)
+                    .setTitle(`Your own iHorizon: ${data_2[i].bot.username}`)
+                    .setDescription(
+                        `Your bot code: ||**${data_2[i].code}**|| ⚠️ **Do not share it with anyone**!\n` +
+                        `**Expires in**: \`${expire}\`\n` +
+                        `**Join the support server** [Click Here](https://discord.gg/ihorizon), if you have problems with your bot.\n\n` + utils_msg
+                    )
                     .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                     .setTimestamp()
 
