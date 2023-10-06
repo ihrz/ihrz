@@ -19,14 +19,13 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Request, Response } from 'express';
-import fs from 'fs';
-import * as apiUrlParser from '../../core/functions/apiUrlParser';
+import { Client } from "discord.js";
+import { readdirSync } from "fs";
 
-export = async (req: Request, res: Response) => {
-    let images = fs.readdirSync(`${process.cwd()}/src/assets/slap/`);
-
-    res.send(apiUrlParser.assets + 'slap/' +
-        images[Math.floor(Math.random() * images.length)]);
-    return;
+export = async (client: Client) => {
+    client.functions = {};
+    
+    readdirSync(`${process.cwd()}/dist/src/core/functions`).filter(file => file.endsWith(".js")).forEach(file => {
+        client.functions[file.split('.js')[0]] = require(`${process.cwd()}/dist/src/core/functions/${file}`);
+    });
 };

@@ -19,30 +19,12 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import * as url from 'url';
+import { Request, Response } from 'express';
 
-let allowedDomains: string[] = [
-    'open.spotify.com', 'play.spotify.com', 'spotify.com',
-    'www.spotify.com', 'www.deezer.com', 'deezer.com',
-    'www.youtube.com', 'youtube.com', 'youtu.be',
-    'soundcloud.com', 'www.soundcloud.com',
-    'music.apple.com', 'www.music.apple.com',
-    'music.youtube.com', 'www.music.youtube.com',
-    'www.napster.com', 'napster.com', 'us.napster.com',
-    'play.google.com', 'music.youtube.com',
-    'music.apple.com', 'www.music.apple.com',
-    'www.deezer.com', 'deezer.com', 'deezer.page.link',
-    'cdn.discordapp.com'
-];
-
-export function isLinkAllowed(link: string): boolean {
-    if (link !== null) {
-        let parsedUrl = url.parse(link);
-        if (parsedUrl.hostname !== null) {
-            return !link.includes("://") || allowedDomains.includes(parsedUrl.hostname);
-        }
-    };
-    return false;
+export = {
+    type: 'get',
+    apiPath: '/',
+    run: async (req: Request, res: Response) => {
+        res.sendFile(`${process.cwd()}/src/api/index.html`);
+    },
 };
-
-export { allowedDomains };

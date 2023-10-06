@@ -27,9 +27,6 @@ import logger from "./logger";
 
 export = async (client: any, commands: Collection<string, Command>) => {
 
-    let ready = client.readyAt ? Promise.resolve() : new Promise(resolve => client.once('ready', resolve));
-    await ready;
-
     let rest = new REST().setToken(config.discord.token);
 
     try {

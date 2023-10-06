@@ -19,30 +19,18 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import * as url from 'url';
+import captcha from '../../../core/captcha';
+import { Request, Response } from 'express';
 
-let allowedDomains: string[] = [
-    'open.spotify.com', 'play.spotify.com', 'spotify.com',
-    'www.spotify.com', 'www.deezer.com', 'deezer.com',
-    'www.youtube.com', 'youtube.com', 'youtu.be',
-    'soundcloud.com', 'www.soundcloud.com',
-    'music.apple.com', 'www.music.apple.com',
-    'music.youtube.com', 'www.music.youtube.com',
-    'www.napster.com', 'napster.com', 'us.napster.com',
-    'play.google.com', 'music.youtube.com',
-    'music.apple.com', 'www.music.apple.com',
-    'www.deezer.com', 'deezer.com', 'deezer.page.link',
-    'cdn.discordapp.com'
-];
+export = {
+    type: 'get',
+    apiPath: '/api/captcha/:width?/:height?/',
+    run: async (req: Request, res: Response) => {
+        let width = parseInt(req.params.width) || 200;
+        let height = parseInt(req.params.height) || 100;
 
-export function isLinkAllowed(link: string): boolean {
-    if (link !== null) {
-        let parsedUrl = url.parse(link);
-        if (parsedUrl.hostname !== null) {
-            return !link.includes("://") || allowedDomains.includes(parsedUrl.hostname);
-        }
-    };
-    return false;
+        let { image, text } = captcha(width, height);
+
+        res.send({ image, text });
+    },
 };
-
-export { allowedDomains };

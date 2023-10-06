@@ -19,14 +19,18 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+import * as apiUrlParser from '../../../core/functions/apiUrlParser';
 import { Request, Response } from 'express';
 import fs from 'fs';
-import * as apiUrlParser from '../../core/functions/apiUrlParser';
 
-export = async (req: Request, res: Response) => {
-    let images = fs.readdirSync(`${process.cwd()}/src/assets/kiss/`);
+export = {
+    type: 'get',
+    apiPath: '/api/kiss',
+    run: async (req: Request, res: Response) => {
+        let images = fs.readdirSync(`${process.cwd()}/src/assets/kiss/`);
 
-    res.send(apiUrlParser.assets + 'kiss/' +
-        images[Math.floor(Math.random() * images.length)]);
-    return;
+        res.send(apiUrlParser.assets + 'kiss/' +
+            images[Math.floor(Math.random() * images.length)]);
+        return;
+    },
 };

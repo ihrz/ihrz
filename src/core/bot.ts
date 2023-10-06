@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, IntentsBitField, Partials, GatewayIntentBits } from "discord.js";
+import { Client, Partials, GatewayIntentBits } from "discord.js";
 import config from "../files/config";
 
 let client = new Client({

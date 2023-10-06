@@ -19,14 +19,15 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-export async function maskLink(input: string) {
+export function maskLink(input: string) {
     let blacklistContent = [
         "http://",
         "https://",
         ".gg/"
     ];
+
     for (let content of blacklistContent) {
         if (input.includes(content)) return `[Hidden Link] ${input.replace(/./g, "*")}`;
-    }
+    };
     return input;
 };

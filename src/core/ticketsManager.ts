@@ -97,17 +97,20 @@ async function CreateTicketChannel(interaction: any) {
 
 async function CreateChannel(interaction: any, result: any) {
     let lang = await interaction.client.functions.getLanguageData(interaction.guild.id);
-
+    let category = await db.DataBaseModel({ id: db.Get, key: `${interaction.message.guildId}.GUILD.TICKET.category` });
     await interaction.guild?.channels.create({
         name: `ticket-${interaction.user.username}`,
         type: ChannelType.GuildText,
-        parent: await db.DataBaseModel({ id: db.Get, key: `${interaction.message.guildId}.GUILD.TICKET.category` })
+        parent: category
     }).then(async (channel: {
         permissionOverwrites: any;
         lockPermissions(): unknown; send: (arg0: { content: string; embeds: EmbedBuilder[]; }) => any, id: (string)
     }) => {
 
-        channel.lockPermissions();
+        if (category) {
+            channel.lockPermissions();
+        };
+
         channel.permissionOverwrites.edit(interaction.guild?.roles.everyone,
             {
                 ViewChannel: false, SendMessages: false, ReadMessageHistory: false
@@ -425,7 +428,7 @@ async function TicketRemoveMember_2(interaction: any) {
     messageCollector.on('collect', async (message: { content: string | null; delete: () => any; }) => {
         message.delete();
         let member = await interaction.guild.members.fetch(message.content);
-        
+
         if (!member) {
             await interaction.editReply({ content: data.add_incorect_syntax });
             return;

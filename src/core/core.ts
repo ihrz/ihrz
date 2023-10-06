@@ -35,6 +35,7 @@ import couleurmdr from "colors";
 import path from 'path';
 import fs from 'fs';
 import * as db from './functions/DatabaseModel';
+
 function cleanTempDir() {
     let folderPath = `${process.cwd()}/src/temp`;
 
