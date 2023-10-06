@@ -32,6 +32,7 @@ let LangsData: LangsData = {};
 async function getLanguageData(arg: string): Promise<any> {
     let fetched = await db.DataBaseModel({ id: db.Get, key: `${arg}.GUILD.LANG` });
     let lang: string = '';
+
     if (!fetched) {
         lang = "en-US";
     } else {
@@ -44,7 +45,8 @@ async function getLanguageData(arg: string): Promise<any> {
         dat = yaml.load(fs.readFileSync(`${process.cwd()}/src/lang/${lang}.yml`, 'utf8'));
         LangsData[lang] = dat;
     };
+    
     return dat;
-}
+};
 
 export = getLanguageData;
