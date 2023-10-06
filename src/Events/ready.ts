@@ -63,25 +63,7 @@ export = async (client: Client) => {
 
     async function quotesPresence() {
         let quotes = [
-            "discord.gg/ihorizon",
-            "Our goal is to make the internet simpler!",
-            "250K USERS !? 🥳🥳🥳",
-            "It's not 200k anymore it's 250k 😎😎😎😎",
-            "trusted by big servers 😎",
-            "Happy back to school 😭😭😭",
-            "Nah men I'm not getting paid enough to manage 250K users...",
-            "Did you know you can have your own iHorizon? For really cheap??",
-            "We are now open source!!!",
-            "Never gonna give you up...BRO YOU'VE BEEN RICK ROLLED BY A BOT",
-            "I have a youtube channel!",
-            "I forgor",
-            "I removed my own database (going insane) 😎😎😎",
-            "I can code myself (Not a joke)",
-            "Looking for a botfriend 😎",
-            "My owner doesn't use tiktok...I INSTALLED IT BEHIND HER BACK",
-            "I BROKED MY CODE HELP ME",
-            "What is a database? Do I really need one?",
-            "My parents : Don't work too much, me : I forgor"
+            "Custom this Presence with /presence",
         ];
         let e = await db.DataBaseModel({
             id: db.Get,

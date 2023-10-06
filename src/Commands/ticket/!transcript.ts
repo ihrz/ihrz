@@ -42,39 +42,7 @@ export = {
         let channel = interaction.channel;
 
         if (channel.name.includes('ticket-')) {
-<<<<<<< HEAD
             await TicketTranscript(interaction);
-=======
-            if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || channel.name === `ticket-${interaction.user.id}`) {
-                channel.messages.fetch().then(async (messages: any[]) => {
-                    let output = messages.reverse().map(m => `${new Date(m.createdAt).toLocaleString('en-US')} - ${m.author.username}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`).join('\n');
-
-                    let response;
-                    try {
-                        response = await create({
-                            title: data.close_title_sourcebin,
-                            description: data.close_description_sourcebin,
-                            files: [
-                                {
-                                    content: output,
-                                    language: 'text',
-                                },
-                            ],
-                        })
-
-                    } catch (e: any) {
-                        await interaction.editReply({ content: data.transript_command_error });
-                        return;
-                    };
-
-                    let embed = new EmbedBuilder()
-                        .setDescription(`[\`View this\`](${response.url})`)
-                        .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || '#0014a8');
-                    await interaction.editReply({ embeds: [embed], content: data.transript_command_work });
-                    return;
-                });
-            }
->>>>>>> ownihrz
         } else {
             await interaction.editReply({ content: data.transript_not_in_ticket });
             return;
