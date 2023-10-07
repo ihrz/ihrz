@@ -42,22 +42,12 @@ export = {
             }
         };
 
-        let already_have_bot = await db.DataBaseModel({
-            id: db.Get,
-            key: `OWNIHRZ.${interaction.user.id}`
-        });
-
-        // if (already_have_bot) {
-        //     await interaction.editReply({ content: `${interaction.user}, vous possedez déjà un bot iHorizon personalisé !` });
-        //     return;
-        // };
-
         let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, config)
             .catch((e: any) => { }))?.data || 404;
 
         if (bot_1 === 404) {
             await interaction.deleteReply();
-            await interaction.followUp({ content: 'Le token saisie est invalide. Nous ne pouvons pas procéder à la suite.' });
+            await interaction.followUp({ content: 'The token entered is invalid. We cannot proceed further.' });
             return;
         } else {
             var code = Math.random().toString(36).slice(-10);
@@ -78,15 +68,18 @@ export = {
                 }
             });
 
-            let utils_msg = `__Identifiant du bot__ \`${bot_1.bot.id}\`
-            __Username du bot__ \`${bot_1.bot.username}\`
-            __Bot Public__ \`${bot_1.bot_public ? 'Oui' : 'Non'}\``
+            let utils_msg =
+                `__Bot ID__ \`${bot_1.bot.id}\`\n` +
+                `__Bot username__ \`${bot_1.bot.username}\`\n` +
+                `__Public Bot__ \`${bot_1.bot_public ? 'Yes' : 'No'}\``;
 
             let embed = new EmbedBuilder()
                 .setColor('#ff7f50')
                 .setTitle(`Host your own iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}`)
-                .setDescription(`Votre demande as bien été enregistrer, votre identifiant unique est: **${code}** !\nNe le partager à personne !\n
-            **Rejoignez le serveur support** [Cliquer ICI](https://discord.gg/ihorizon), puis ouvrer un ticket pour poursuivre l'achat.\n\n${utils_msg}`)
+                .setDescription(
+                    `Your request has been successfully registered, your unique identifier is: **${code}**!\nDo not share it with anyone!\n` +
+                    `**Join the support server** [Click Here](https://discord.gg/ihorizon), then open a ticket to continue the purchase.\n\n${utils_msg}`
+                )
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
             await interaction.deleteReply();

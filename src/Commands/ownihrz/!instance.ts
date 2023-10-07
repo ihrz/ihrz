@@ -30,6 +30,7 @@ import { execSync } from 'child_process';
 import config from '../../files/config';
 import date from 'date-and-time';
 import axios from 'axios';
+import ms from 'ms';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -146,7 +147,7 @@ export = {
                         });
 
                         await interaction.deleteReply();
-                        await interaction.followUp({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now Power On.\nNow, the bot container can be Power On when iHorizon-Prod booting...`, ephemeral: true });
+                        await interaction.followUp({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now deleted.\nThe bot container has been entierly erased...`, ephemeral: true });
 
                         execSync(`pm2 stop ${id_to_bot} -f`, {
                             stdio: [0, 1, 2],
@@ -168,21 +169,73 @@ export = {
                 }
             };
         } else if (action_to_do === 'ls') {
-            let data_3 = '';
+            let data_3 = 'Instance:\n';
 
             for (let i in data_2) {
                 if (i !== 'TEMP') {
                     for (let j in data_2[i]) {
                         data_3 +=
                             `[OWNIHRZ] (${j}) - **Owner**: <@${i}> | **BotId**: \`${data_2[i][j].bot?.id}\` | **BotName**: \`${data_2[i][j].bot?.username}\` | **Expire In**: \`${date.format(new Date(data_2[i][j].expireIn), 'ddd, MMM DD YYYY')}\`\r\n`
-                    }
-                }
-            }
+                    };
+                };
+            };
 
             await interaction.deleteReply();
-            await interaction.followUp({ embeds: [new EmbedBuilder().setDescription(data_3)], ephemeral: true });
+            await interaction.followUp({ embeds: [new EmbedBuilder().setDescription(data_3).setColor('#000000')], ephemeral: true });
             return;
-        };
+        } else if (action_to_do === 'add-expire') {
+            for (let userId in data_2) {
+                for (let botId in data_2[userId]) {
+                    if (botId === id_to_bot) {
+                        let time = interaction.options.getString('time') || '0d';
+
+                        await db.DataBaseModel({
+                            id: db.Add,
+                            key: `OWNIHRZ.${userId}.${id_to_bot}.expireIn`,
+                            value: ms(time)
+                        });
+
+                        let expire = date.format(new Date(
+                            await db.DataBaseModel({
+                                id: db.Get,
+                                key: `OWNIHRZ.${userId}.${id_to_bot}.expireIn`,
+                            })
+                        ), 'ddd, MMM DD YYYY');
+
+                        await interaction.deleteReply();
+                        await interaction.followUp({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`, ephemeral: true });
+
+                        return;
+                    };
+                }
+            };
+        } else if (action_to_do === 'sub-expire') {
+            for (let userId in data_2) {
+                for (let botId in data_2[userId]) {
+                    if (botId === id_to_bot) {
+                        let time = interaction.options.getString('time') || '0d';
+
+                        await db.DataBaseModel({
+                            id: db.Sub,
+                            key: `OWNIHRZ.${userId}.${id_to_bot}.expireIn`,
+                            value: ms(time)
+                        });
+
+                        let expire = date.format(new Date(
+                            await db.DataBaseModel({
+                                id: db.Get,
+                                key: `OWNIHRZ.${userId}.${id_to_bot}.expireIn`,
+                            })
+                        ), 'ddd, MMM DD YYYY');
+
+                        await interaction.deleteReply();
+                        await interaction.followUp({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`, ephemeral: true });
+
+                        return;
+                    };
+                }
+            };
+        }
 
         return;
     },

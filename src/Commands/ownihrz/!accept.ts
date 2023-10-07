@@ -57,7 +57,7 @@ export = {
         };
 
         if (!id_2) {
-            await interaction.editReply({ content: 'Le bot dans la DB est introuvable. Nous ne pouvons pas procéder à la suite.' });
+            await interaction.editReply({ content: 'The bot in the DB cannot be found. We cannot proceed further.' });
             return;
         };
 
@@ -74,18 +74,19 @@ export = {
             .catch((e: any) => { }))?.data || 404;
 
         if (bot_1 === 404) {
-            await interaction.editReply({ content: 'Le token dans la DB est invalide. Nous ne pouvons pas procéder à la suite.' });
+            await interaction.editReply({ content: 'The token in the DB is invalid. We cannot proceed further.' });
             return;
         } else {
-
-            let utils_msg = `__Identifiant du bot__ \`${bot_1.bot.id}\`
-            __Username du bot__ \`${bot_1.bot.username}\`
-            __Bot Public__ \`${bot_1.bot_public ? 'Oui' : 'Non'}\``
+            
+            let utils_msg =
+                `__Bot ID__ \`${bot_1.bot.id}\`\n` +
+                `__Bot username__ \`${bot_1.bot.username}\`\n` +
+                `__Public Bot__ \`${bot_1.bot_public ? 'Yes' : 'No'}\``;
 
             let embed = new EmbedBuilder()
                 .setColor('#ff7f50')
                 .setTitle(`Host your own iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}`)
-                .setDescription(`Le bot as bien été accepté\n\n${utils_msg}`)
+                .setDescription(`The bot has been accepted\n\n${utils_msg}`)
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
             await interaction.deleteReply();

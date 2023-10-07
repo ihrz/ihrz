@@ -108,7 +108,7 @@ export = async (client: Client) => {
                         .setColor('#56a0d3')
                         .setTitle(`#${code} Schedule has been expired!`)
                         .setDescription(desc)
-                        .setThumbnail((member?.avatarURL() as any))
+                        .setThumbnail((member?.displayAvatarURL() as any))
                         .setTimestamp()
                         .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 

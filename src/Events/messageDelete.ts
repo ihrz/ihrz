@@ -52,7 +52,7 @@ export = async (client: Client, message: Message) => {
         let Msgchannel: any = client.channels.cache.get(someinfo);
         if (!Msgchannel) return;
         
-        let iconURL: any = message.author.avatarURL();
+        let iconURL: any = message.author.displayAvatarURL();
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setAuthor({

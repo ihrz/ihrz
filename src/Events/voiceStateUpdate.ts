@@ -47,7 +47,7 @@ export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
 
         if (targetUser.id === client.user?.id) return;
 
-        let iconURL: any = targetUser.avatarURL();
+        let iconURL: any = targetUser.displayAvatarURL();
 
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")

@@ -162,6 +162,70 @@ export const command: Command = {
                     required: true
                 }
             ],
+        },
+        {
+            name: 'youtube',
+            description: 'Permit to send custom youtube comment (real) !',
+            type: 1,
+            options: [
+                {
+                    name: 'user',
+                    description: "The user",
+                    required: true,
+                    type: ApplicationCommandOptionType.User
+                },
+                {
+                    name: 'comment',
+                    description: "The comment",
+                    required: true,
+                    type: ApplicationCommandOptionType.String
+                },
+            ],
+        },
+        {
+            name: 'tweet',
+            description: 'Permit to send custom tweet !',
+            type: 1,
+            options: [
+                {
+                    name: 'user',
+                    description: "The user",
+                    required: true,
+                    type: ApplicationCommandOptionType.User
+                },
+                {
+                    name: 'comment',
+                    description: "The comment",
+                    required: true,
+                    type: ApplicationCommandOptionType.String
+                },
+            ]
+        },
+        {
+            name: 'transgender',
+            description: 'all humans have rights',
+            type: 1,
+            options: [
+                {
+                    name: 'user',
+                    description: "the user",
+                    required: true,
+                    type: ApplicationCommandOptionType.User
+                },
+            ],
+        },
+        {
+            name: 'catsay',
+            description: 'Cat say (insert text here)',
+            type: 1,
+            options: [
+                {
+                    name: 'text',
+                    description: "The cat say...",
+                    required: true,
+                    type: ApplicationCommandOptionType.String
+                },
+            ],
         }
     ],
     category: 'fun',

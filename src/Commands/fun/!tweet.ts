@@ -28,34 +28,15 @@
 */
 
 import {
-    ApplicationCommandOptionType,
     AttachmentBuilder,
     Client,
     EmbedBuilder,
     User,
 } from 'discord.js'
 
-import { Command } from '../../../types/command';
 import axios from 'axios';
 
-export const command: Command = {
-    name: 'youtube',
-    description: 'Permit to send custom youtube comment (real) !',
-    category: 'fun',
-    options: [
-        {
-            name: 'user',
-            description: "The user",
-            required: true,
-            type: ApplicationCommandOptionType.User
-        },
-        {
-            name: 'comment',
-            description: "The comment",
-            required: true,
-            type: ApplicationCommandOptionType.String
-        },
-    ],
+export = {
     run: async (client: Client, interaction: any) => {
 
         let args = interaction.options.getString('comment');
@@ -68,22 +49,25 @@ export const command: Command = {
             return;
         };
 
-        let avatarURL = user.avatarURL({ extension: 'png' });
         let username = user.username;
 
-        let link = `https://some-random-api.com/canvas/misc/youtube-comment?avatar=${encodeURIComponent((avatarURL as string))}&username=${encodeURIComponent((username as string))}&comment=${encodeURIComponent(args.join(' '))}`;
+        if (username.length > 15) {
+            username = username.substring(0, 15);
+        };
+
+        let link = `https://some-random-api.com/canvas/misc/tweet?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png' }) as string))}&username=${encodeURIComponent((username as string))}&comment=${encodeURIComponent(args.join(' '))}&displayname=${encodeURIComponent((username as string))}`;
 
         let embed = new EmbedBuilder()
             .setColor('#000000')
-            .setImage('attachment://all-human-have-rights-elektra.png')
+            .setImage('attachment://tweet-elektra.png')
             .setTimestamp()
             .setFooter({ text: 'iHorizon x ElektraBots', iconURL: client.user?.displayAvatarURL() });
 
         let imgs;
 
         await axios.get(link, { responseType: 'arraybuffer' }).then((response: any) => {
-            imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'youtube-elektra.png' });
-            embed.setImage(`attachment://youtube-elektra.png`);
+            imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'tweet-elektra.png' });
+            embed.setImage(`attachment://tweet-elektra.png`);
         });
 
         await interaction.editReply({ embeds: [embed], files: [imgs] });

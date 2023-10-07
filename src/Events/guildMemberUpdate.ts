@@ -48,7 +48,7 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
 
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
-            .setAuthor({ name: firstEntry.target.username, iconURL: firstEntry.target.avatarURL({ format: 'png', dynamic: true, size: 512 }) })
+            .setAuthor({ name: firstEntry.target.username, iconURL: firstEntry.target.displayAvatarURL({ format: 'png', dynamic: true, size: 512 }) })
             .setTimestamp();
 
         if (oldRoles > newRoles) {

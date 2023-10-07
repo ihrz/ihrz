@@ -27,7 +27,7 @@ import {
 import { Command } from '../../../types/command';
 
 export const command: Command = {
-    name: "publish",
+    name: "mybots",
     description: "Host your own iHorizon!",
     options: [
         {
@@ -108,6 +108,14 @@ export const command: Command = {
                                     value: 'delete'
                                 },
                                 {
+                                    name: 'Add time (Expire Date)',
+                                    value: 'add-expire'
+                                },
+                                {
+                                    name: 'Remove time (Expire Date)',
+                                    value: 'sub-expire'
+                                },
+                                {
                                     name: 'List All',
                                     value: 'ls'
                                 }
@@ -118,6 +126,12 @@ export const command: Command = {
                             name: 'id',
                             type: ApplicationCommandOptionType.String,
                             description: 'The id of the bot to manage !',
+                            required: false
+                        },
+                        {
+                            name: 'time',
+                            type: ApplicationCommandOptionType.String,
+                            description: 'The time to add/remove for the expire Date !',
                             required: false
                         }
                     ]
