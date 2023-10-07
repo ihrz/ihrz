@@ -19,8 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import yaml from 'js-yaml';
 import db from '../functions/DatabaseModel';
+import yaml from 'js-yaml';
 import fs from 'fs';
 
 interface LangsData {
