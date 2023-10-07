@@ -187,7 +187,7 @@ export = {
             for (let userId in data_2) {
                 for (let botId in data_2[userId]) {
                     if (botId === id_to_bot) {
-                        let time = interaction.options.getString('time');
+                        let time = interaction.options.getString('time') || '0d';
 
                         await db.DataBaseModel({
                             id: db.Add,
@@ -199,7 +199,8 @@ export = {
                             await db.DataBaseModel({
                                 id: db.Get,
                                 key: `OWNIHRZ.${userId}.${id_to_bot}.expireIn`,
-                            })), 'ddd, MMM DD YYYY');
+                            })
+                        ), 'ddd, MMM DD YYYY');
 
                         await interaction.deleteReply();
                         await interaction.followUp({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`, ephemeral: true });
@@ -212,7 +213,7 @@ export = {
             for (let userId in data_2) {
                 for (let botId in data_2[userId]) {
                     if (botId === id_to_bot) {
-                        let time = interaction.options.getString('time');
+                        let time = interaction.options.getString('time') || '0d';
 
                         await db.DataBaseModel({
                             id: db.Sub,
@@ -224,7 +225,8 @@ export = {
                             await db.DataBaseModel({
                                 id: db.Get,
                                 key: `OWNIHRZ.${userId}.${id_to_bot}.expireIn`,
-                            })), 'ddd, MMM DD YYYY');
+                            })
+                        ), 'ddd, MMM DD YYYY');
 
                         await interaction.deleteReply();
                         await interaction.followUp({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`, ephemeral: true });

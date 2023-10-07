@@ -27,7 +27,7 @@ import {
 import { Command } from '../../../types/command';
 
 export const command: Command = {
-    name: "ownihrz",
+    name: "mybots",
     description: "Host your own iHorizon!",
     options: [
         {
