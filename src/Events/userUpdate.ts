@@ -20,7 +20,6 @@
 */
 
 import { Client, User, time } from "discord.js";
-import db from '../core/functions/DatabaseModel';
 
 export = async (client: Client, oldUser: User) => {
     async function prevNames() {
@@ -33,11 +32,11 @@ export = async (client: Client, oldUser: User) => {
 
         if (oldUser.globalName !== newUser.globalName) {
 
-            await db.push(`DB.PREVNAMES.${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUserGlbl}`);
+            await client.db.push(`DB.PREVNAMES.${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUserGlbl}`);
 
         } else if (oldUser.username !== newUser.username) {
 
-            await db.push(`DB.PREVNAMES.${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUsertag}`);
+            await client.db.push(`DB.PREVNAMES.${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUsertag}`);
         };
     };
 

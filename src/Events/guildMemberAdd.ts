@@ -25,7 +25,7 @@ import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, G
 import axios from 'axios';
 
 import * as apiUrlParser from '../core/functions/apiUrlParser';
-import db from '../core/functions/DatabaseModel';
+
 import logger from "../core/logger";
 import config from '../files/config';
 
@@ -36,7 +36,7 @@ export = async (client: any, member: any) => {
     async function joinRoles() {
         if (!member.guild.members.me.permissions.has(PermissionsBitField.Flags.ManageRoles)) return;
 
-        let roleid = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
+        let roleid = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
         let role = member.guild.roles.cache.get(roleid);
         if (!roleid || !role) return;
 
@@ -45,7 +45,7 @@ export = async (client: any, member: any) => {
 
     async function joinDm() {
         try {
-            let msg_dm = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`);
+            let msg_dm = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`);
 
             if (!msg_dm || msg_dm === "off") return;
             member.send({ content: "**This is a Join DM from** \`" + member.guild.id + "\`**!**\n" + msg_dm });
@@ -54,7 +54,7 @@ export = async (client: any, member: any) => {
 
     async function blacklistFetch() {
         try {
-            if (await db.get(`GLOBAL.BLACKLIST.${member.user.id}.blacklisted`)) {
+            if (await client.db.get(`GLOBAL.BLACKLIST.${member.user.id}.blacklisted`)) {
                 member.send({ content: "You've been banned, because you are blacklisted" }).catch(member.ban({ reason: 'blacklisted!' })).catch(() => { });
                 member.ban({ reason: 'blacklisted!' }).catch(() => { });
             }
@@ -66,7 +66,7 @@ export = async (client: any, member: any) => {
             let botMembers = member.guild.members.cache.filter((member: { user: { bot: any; }; }) => member.user.bot);
             let rolesCount = member.guild.roles.cache.size;
 
-            let baseData = await db.get(`${member.guild.id}.GUILD.MCOUNT`);
+            let baseData = await client.db.get(`${member.guild.id}.GUILD.MCOUNT`);
             let bot = baseData?.bot;
             let member_2 = baseData?.member;
             let roles = baseData?.roles;
@@ -111,37 +111,37 @@ export = async (client: any, member: any) => {
             let inviter = await client.users.fetch(invite.inviterId);
             client.invites.get(member.guild.id).set(invite.code, invite.uses);
 
-            let check = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES`);
+            let check = await client.db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES`);
 
             if (check) {
-                await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.regular`, 1);
-                await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.invites`, 1);
+                await client.db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.regular`, 1);
+                await client.db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.invites`, 1);
             } else {
 
-                await db.set(`${invite.guild.id}.USER.${inviter.id}.INVITES`,
+                await client.db.set(`${invite.guild.id}.USER.${inviter.id}.INVITES`,
                     {
                         regular: 0, bonus: 0, leaves: 0, invites: 0
                     }
                 );
 
-                await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.regular`, 1);
-                await db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.invites`, 1);
-                check = await db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES`);
+                await client.db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.regular`, 1);
+                await client.db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.invites`, 1);
+                check = await client.db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES`);
             };
 
-            await db.set(`${invite.guild.id}.USER.${member.user.id}.INVITES.BY`,
+            await client.db.set(`${invite.guild.id}.USER.${member.user.id}.INVITES.BY`,
                 {
                     inviter: inviter.id,
                     invite: invite.code,
                 }
             );
 
-            var invitesAmount = await db.get(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`);
+            var invitesAmount = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`);
 
-            let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
+            let wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
             if (!wChan || !client.channels.cache.get(wChan)) return;
 
-            let joinMessage = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
+            let joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
 
             if (!joinMessage) {
                 client.channels.cache.get(wChan).send({
@@ -166,7 +166,7 @@ export = async (client: any, member: any) => {
             client.channels.cache.get(wChan).send({ content: joinMessageFormated }).catch(() => { });
             return;
         } catch (e: any) {
-            let wChan = await db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
+            let wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
             if (!wChan || !client.channels.cache.get(wChan)) return;
 
             client.channels.cache.get(wChan).send({
@@ -180,13 +180,13 @@ export = async (client: any, member: any) => {
     };
 
     async function blockBot() {
-        if (await db.get(`${member.guild.id}.GUILD.BLOCK_BOT`) && member.user.bot) {
+        if (await client.db.get(`${member.guild.id}.GUILD.BLOCK_BOT`) && member.user.bot) {
             member.ban({ reason: 'The BlockBot function are enable!' }).catch(() => { });
         };
     };
 
     async function securityCheck() {
-        let baseData = await db.get(`${member.guild.id}.SECURITY`);
+        let baseData = await client.db.get(`${member.guild.id}.SECURITY`);
         if (!baseData
             || baseData?.disable === true) return;
 

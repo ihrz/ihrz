@@ -22,7 +22,6 @@
 import logger from "../core/logger";
 import couleurmdr from 'colors';
 import config from "../files/config";
-import db from '../core/functions/DatabaseModel';
 
 import register from '../core/slashSync';
 import date from 'date-and-time';
@@ -58,9 +57,9 @@ export = async (client: Client) => {
     };
 
     async function refreshDatabaseModel() {
-        await db.set(`GLOBAL.OWNER.${config.owner.ownerid1}`, { owner: true }),
-            await db.set(`GLOBAL.OWNER.${config.owner.ownerid2}`, { owner: true }),
-            await db.set(`TEMP`, {});
+        await client.db.set(`GLOBAL.OWNER.${config.owner.ownerid1}`, { owner: true }),
+            await client.db.set(`GLOBAL.OWNER.${config.owner.ownerid2}`, { owner: true }),
+            await client.db.set(`TEMP`, {});
     };
 
     async function quotesPresence() {
@@ -91,7 +90,7 @@ export = async (client: Client) => {
     };
 
     async function refreshSchedule() {
-        let listAll = await db.get(`SCHEDULE`);
+        let listAll = await client.db.get(`SCHEDULE`);
         let dateNow = Date.now();
         let desc: string = '';
 
@@ -117,14 +116,14 @@ export = async (client: Client) => {
                         embeds: [embed]
                     }).catch(() => { });
 
-                    await db.delete(`SCHEDULE.${user}.${code}`);
+                    await client.db.delete(`SCHEDULE.${user}.${code}`);
                 };
             };
         };
     };
 
     async function otherBotPowerOn() {
-        let result = await db.get(`OWNIHRZ`);
+        let result = await client.db.get(`OWNIHRZ`);
         
         for (let i in result) {
             for (let c in result[i]) {

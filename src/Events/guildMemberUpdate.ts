@@ -20,7 +20,6 @@
 */
 
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
-import db from '../core/functions/DatabaseModel';
 
 export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
     let data = await client.functions.getLanguageData(newMember.guild.id);
@@ -40,7 +39,7 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
             || firstEntry.targetId !== newMember.user.id
         ) return;
 
-        let someinfo = await db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.roles`);
+        let someinfo = await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.roles`);
         let Msgchannel: any = client.channels.cache.get(someinfo);
 
         if (!someinfo || !Msgchannel) return;
