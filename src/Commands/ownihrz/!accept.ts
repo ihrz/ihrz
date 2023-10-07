@@ -25,9 +25,8 @@ import {
 } from 'discord.js';
 
 import * as apiUrlParser from '../../core/functions/apiUrlParser';
-import db from '../../core/functions/DatabaseModel';
-import config from '../../files/config';
 
+import config from '../../files/config';
 import CryptoJS, { enc } from 'crypto-js';
 import axios from 'axios';
 import logger from '../../core/logger';
@@ -36,7 +35,7 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let id_1 = interaction.options.getString('id');
-        let id_2 = await db.get(`OWNIHRZ.TEMP`);
+        let id_2 = await client.db.get(`OWNIHRZ.TEMP`);
 
         for (let i in id_2) {
             for (let j in id_2[i]) {
@@ -100,7 +99,7 @@ export = {
                 logger.err(error)
             };
 
-            await db.get(`OWNIHRZ.TEMP.${interaction.user.id}`);
+            await client.db.get(`OWNIHRZ.TEMP.${interaction.user.id}`);
         };
     },
 };

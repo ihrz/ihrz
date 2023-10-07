@@ -26,7 +26,6 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
-import db from '../../core/functions/DatabaseModel';
 import config from '../../files/config';
 import ms from 'ms';
 
@@ -48,7 +47,7 @@ export const command: Command = {
 
         var sentences = interaction.options.getString("message-to-dev")
         let timeout = 18000000
-        let cooldown = await db.get(`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`);
+        let cooldown = await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`);
 
         if (cooldown !== null && timeout - (Date.now() - cooldown) > 0) {
             let time = ms(timeout - (Date.now() - cooldown));
@@ -76,7 +75,7 @@ export const command: Command = {
 
             await interaction.client.channels.cache.get(config.core.reportChannelID).send({ embeds: [embed] });
 
-            await db.set(`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`, Date.now());
+            await client.db.set(`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`, Date.now());
             return;
         }
     },

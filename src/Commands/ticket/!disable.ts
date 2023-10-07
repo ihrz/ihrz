@@ -25,7 +25,6 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
 export = {
@@ -53,7 +52,7 @@ export = {
                 logger.err(e)
             };
 
-            await db.set(`${interaction.guild.id}.GUILD.TICKET.disable`, true);
+            await client.db.set(`${interaction.guild.id}.GUILD.TICKET.disable`, true);
             await interaction.editReply({ content: data.disableticket_command_work_disable });
             return;
         } else if (type === "on") {
@@ -71,7 +70,7 @@ export = {
                 logger.err(e)
             };
 
-            await db.set(`${interaction.guild.id}.GUILD.TICKET.disable`, false);
+            await client.db.set(`${interaction.guild.id}.GUILD.TICKET.disable`, false);
             await interaction.editReply({ content: data.disableticket_command_work_enable });
             return;
         };

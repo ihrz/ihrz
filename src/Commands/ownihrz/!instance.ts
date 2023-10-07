@@ -24,12 +24,10 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import db from '../../core/functions/DatabaseModel';
-import { execSync } from 'child_process';
 
+import { execSync } from 'child_process';
 import config from '../../files/config';
 import date from 'date-and-time';
-import axios from 'axios';
 import ms from 'ms';
 
 export = {
@@ -45,7 +43,7 @@ export = {
             return;
         };
 
-        let data_2 = await db.get(`OWNIHRZ`);
+        let data_2 = await client.db.get(`OWNIHRZ`);
 
         if (action_to_do === 'shutdown') {
             if (!id_to_bot) {
@@ -58,7 +56,7 @@ export = {
             for (let userId in data_2) {
                 for (let botId in data_2[userId]) {
                     if (botId === id_to_bot) {
-                        let fetch = await db.get(`OWNIHRZ.${userId}.${id_to_bot}.power_off`);
+                        let fetch = await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.power_off`);
 
                         if (fetch) {
                             await interaction.deleteReply();
@@ -66,7 +64,7 @@ export = {
                             return;
                         };
 
-                        await db.set(`OWNIHRZ.${userId}.${id_to_bot}.power_off`, true);
+                        await client.db.set(`OWNIHRZ.${userId}.${id_to_bot}.power_off`, true);
 
                         await interaction.deleteReply();
                         await interaction.followUp({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now shutdown.\nNow, the bot container can't be Power On when iHorizon-Prod booting...`, ephemeral: true });
@@ -97,7 +95,7 @@ export = {
             for (let userId in data_2) {
                 for (let botId in data_2[userId]) {
                     if (botId === id_to_bot) {
-                        let fetch = await db.get(`OWNIHRZ.${userId}.${id_to_bot}.power_off`);
+                        let fetch = await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.power_off`);
 
                         if (!fetch) {
                             await interaction.deleteReply();
@@ -105,7 +103,7 @@ export = {
                             return;
                         };
 
-                        await db.set(`OWNIHRZ.${userId}.${id_to_bot}.power_off`, false);
+                        await client.db.set(`OWNIHRZ.${userId}.${id_to_bot}.power_off`, false);
 
                         await interaction.deleteReply();
                         await interaction.followUp({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now Power On.\nNow, the bot container can be Power On when iHorizon-Prod booting...`, ephemeral: true });
@@ -124,7 +122,7 @@ export = {
             for (let userId in data_2) {
                 for (let botId in data_2[userId]) {
                     if (botId === id_to_bot) {
-                        await db.delete(`OWNIHRZ.${userId}.${id_to_bot}`);
+                        await client.db.delete(`OWNIHRZ.${userId}.${id_to_bot}`);
 
                         await interaction.deleteReply();
                         await interaction.followUp({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now deleted.\nThe bot container has been entierly erased...`, ephemeral: true });
@@ -169,10 +167,10 @@ export = {
                     if (botId === id_to_bot) {
                         let time = interaction.options.getString('time') || '0d';
 
-                        await db.add(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`, ms(time));
+                        await client.db.add(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`, ms(time));
 
                         let expire = date.format(new Date(
-                            await db.get(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`)
+                            await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`)
                         ), 'ddd, MMM DD YYYY');
 
                         await interaction.deleteReply();
@@ -188,10 +186,10 @@ export = {
                     if (botId === id_to_bot) {
                         let time = interaction.options.getString('time') || '0d';
 
-                        await db.sub(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`, ms(time));
+                        await client.db.sub(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`, ms(time));
 
                         let expire = date.format(new Date(
-                            await db.get(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`)
+                            await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`)
                         ), 'ddd, MMM DD YYYY');
 
                         await interaction.deleteReply();

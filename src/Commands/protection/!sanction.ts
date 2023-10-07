@@ -24,8 +24,6 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
@@ -37,7 +35,7 @@ export = {
         let choose = interaction.options.getString('choose');
 
         if (choose) {
-            await db.set(`${interaction.guild.id}.PROTECTION.SANCTION`, choose);
+            await client.db.set(`${interaction.guild.id}.PROTECTION.SANCTION`, choose);
             
             if (choose === 'simply') choose = 'N/A';
             if (choose === 'simply+derank') choose = 'UNRANK';

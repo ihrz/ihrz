@@ -20,13 +20,12 @@
 */
 
 export interface DataBase {
-    делать: Function,
-    Set: number,
-    Push: number,
-    Sub: number,
-    Add: number,
-    Get: number,
-    Pull: number,
-    All: number,
-    Delete: number
-};
+    set(key: string, value: any): Promise<any>,
+    push(key: string, value: any): Promise<any>,
+    sub(key: string, value: any): Promise<any>,
+    add(key: string, value: any): Promise<any>,
+    get(key: string): Promise<any>,
+    pull(key: string, value: any): Promise<any>,
+    all(): Promise<any>,
+    delete(key: string): Promise<any>
+}

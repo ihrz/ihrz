@@ -23,13 +23,11 @@ import {
     Client,
 } from 'discord.js';
 
-import db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         var desc = interaction.options.getString("descriptions");
         
-        await db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.desc`, desc);
+        await client.db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.desc`, desc);
 
         await interaction.editReply({ content: data.setprofildescriptions_command_work });
         return;

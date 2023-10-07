@@ -27,7 +27,6 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
-import db from '../../core/functions/DatabaseModel';
 
 export const command: Command = {
     name: 'punishpub',
@@ -103,7 +102,7 @@ export const command: Command = {
                 return;
             };
 
-            await db.set(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`,
+            await client.db.set(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`,
                 {
                     amountMax: amount - 1,
                     punishementType: punishment,
@@ -132,7 +131,7 @@ export const command: Command = {
             });
             return;
         } else {
-            await db.delete(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
+            await client.db.delete(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
             await interaction.editReply({ content: data.punishpub_confirmation_disable })
 
             try {

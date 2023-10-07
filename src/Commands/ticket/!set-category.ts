@@ -26,14 +26,12 @@ import {
     CategoryChannel,
 } from 'discord.js';
 
-import db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let category = interaction.options.getChannel("category-name");
 
-        if (await db.get(`${interaction.guild.id}.GUILD.TICKET.disable`)) {
+        if (await client.db.get(`${interaction.guild.id}.GUILD.TICKET.disable`)) {
             await interaction.editReply({ content: data.setticketcategory_disabled_command });
             return;
         };
@@ -48,7 +46,7 @@ export = {
             return;
         };
 
-        await db.set(`${interaction.guild.id}.GUILD.TICKET.category`, category.id);
+        await client.db.set(`${interaction.guild.id}.GUILD.TICKET.category`, category.id);
 
         let embed = new EmbedBuilder()
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })

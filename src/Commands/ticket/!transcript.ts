@@ -26,13 +26,11 @@ import {
 } from 'discord.js';
 
 import { TicketTranscript } from '../../core/ticketsManager';
-import db from '../../core/functions/DatabaseModel';
-import { create, get, url } from 'sourcebin';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let blockQ = await db.get(`${interaction.guild.id}.GUILD.TICKET.disable`);
+        let blockQ = await client.db.get(`${interaction.guild.id}.GUILD.TICKET.disable`);
 
         if (blockQ) {
             await interaction.editReply({ content: data.transript_disabled_command });

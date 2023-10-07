@@ -26,12 +26,11 @@ import {
 } from 'discord.js';
 
 import { CloseTicket } from '../../core/ticketsManager';
-import db from '../../core/functions/DatabaseModel';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let blockQ = await db.get(`${interaction.guild.id}.GUILD.TICKET.disable`);
+        let blockQ = await client.db.get(`${interaction.guild.id}.GUILD.TICKET.disable`);
 
         if (blockQ) {
             await interaction.editReply({ content: data.close_disabled_command });

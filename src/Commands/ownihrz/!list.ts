@@ -24,14 +24,13 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import db from '../../core/functions/DatabaseModel';
 import date from 'date-and-time';
 import axios from 'axios';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let data_2 = await db.get(`OWNIHRZ.${interaction.user.id}`);
+        let data_2 = await client.db.get(`OWNIHRZ.${interaction.user.id}`);
 
         let lsEmbed: Array<EmbedBuilder> = [];
 

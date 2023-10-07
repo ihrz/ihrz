@@ -24,8 +24,6 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
@@ -38,7 +36,7 @@ export = {
         let allow = interaction.options.getString('allow');
 
         if (rule !== 'cls' && allow) {
-            await db.set(`${interaction.guild.id}.PROTECTION.${rule}`, { mode: allow });
+            await client.db.set(`${interaction.guild.id}.PROTECTION.${rule}`, { mode: allow });
 
             if (allow === 'member') allow = 'Everyone'
             if (allow === 'allowlist') allow = 'Member(s) of allowlist'
@@ -46,7 +44,7 @@ export = {
             await interaction.editReply({ content: `<@${interaction.user.id}>, the rule for \`${rule.toUpperCase()}\` are been set. **${allow}** are allowed to bypass-it!` });
             return;
         } else if (rule === 'cls') {
-            await db.set(`${interaction.guild.id}.PROTECTION`, {});
+            await client.db.set(`${interaction.guild.id}.PROTECTION`, {});
 
             await interaction.editReply({ content: `<@${interaction.user.id}>, all of the rule for \`${interaction.guild.name}\` are been deleted. Protection module is now disabled!` });
             return;

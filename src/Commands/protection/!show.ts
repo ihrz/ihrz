@@ -24,18 +24,16 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         var text = "";
 
-        let baseData = await db.get(`${interaction.guild.id}.ALLOWLIST`);
+        let baseData = await client.db.get(`${interaction.guild.id}.ALLOWLIST`);
 
         if (!baseData) {
 
-            await db.set(`${interaction.guild.id}.ALLOWLIST`,
+            await client.db.set(`${interaction.guild.id}.ALLOWLIST`,
                 {
                     enable: false,
                     list: {
@@ -44,7 +42,7 @@ export = {
                 }
             );
 
-            baseData = await db.get(`${interaction.guild.id}.ALLOWLIST`);
+            baseData = await client.db.get(`${interaction.guild.id}.ALLOWLIST`);
         };
 
         for (var i in baseData.list) {

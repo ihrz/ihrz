@@ -24,8 +24,6 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import db from '../../core/functions/DatabaseModel';
-import date from 'date-and-time';
 import axios from 'axios';
 import ms from 'ms';
 
@@ -52,7 +50,7 @@ export = {
         } else {
             var code = Math.random().toString(36).slice(-10);
 
-            await db.set(`OWNIHRZ.TEMP.${interaction.user.id}.${code}`,
+            await client.db.set(`OWNIHRZ.TEMP.${interaction.user.id}.${code}`,
                 {
                     auth: discord_bot_token,
                     owner_one: owner_one.id,

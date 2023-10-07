@@ -25,8 +25,6 @@ import {
     PermissionsBitField
 } from 'discord.js';
 
-import db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
@@ -37,7 +35,7 @@ export = {
             return;
         };
 
-        let fetchOldChannel = await db.get(`${interaction.guild.id}.SUGGEST.channel`);
+        let fetchOldChannel = await client.db.get(`${interaction.guild.id}.SUGGEST.channel`);
 
         if (fetchOldChannel === channel.id) {
             await interaction.editReply({
@@ -54,7 +52,7 @@ export = {
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setDescription(data.setsuggest_channel_embed_desc);
 
-        await db.set(`${interaction.guild.id}.SUGGEST.channel`, channel.id);
+        await client.db.set(`${interaction.guild.id}.SUGGEST.channel`, channel.id);
         await interaction.editReply({
             content: data.setsuggest_channel_command_work
                 .replace('${interaction.user}', interaction.user)
