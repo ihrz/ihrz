@@ -23,54 +23,64 @@ import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Client, G
 import * as db from '../core/functions/DatabaseModel';
 
 export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
-    let data = await client.functions.getLanguageData(oldMember.guild.id);
+    let data = await client.functions.getLanguageData(newMember.guild.id);
 
     async function serverLogs() {
-        if (!oldMember.guild.members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+        if (!newMember.guild.members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
 
-        let fetchedLogs = await oldMember.guild.fetchAuditLogs({
+        let fetchedLogs = await newMember.guild.fetchAuditLogs({
             type: AuditLogEvent.MemberRoleUpdate,
             limit: 1,
         });
+
         let firstEntry: any = fetchedLogs.entries.first();
 
-        if (!firstEntry || firstEntry.executor.id == client.user?.id
-            || !oldMember || !oldMember.guild) return;
+        if (!firstEntry
+            || firstEntry.executorId == client.user?.id
+            || firstEntry.targetId !== newMember.user.id
+        ) return;
 
-        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${oldMember.guild.id}.GUILD.SERVER_LOGS.roles` });
-        if (!someinfo) return;
-
+        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${newMember.guild.id}.GUILD.SERVER_LOGS.roles` });
         let Msgchannel: any = client.channels.cache.get(someinfo);
-        if (!Msgchannel) return;
 
-        let oldRoles = oldMember?.['_roles'].length;
-        let newRoles = newMember?.['_roles'].length;
+        if (!someinfo || !Msgchannel) return;
+
+        let newObjects: any[] = [];
+        let removeObjects: any[] = [];
+
+        firstEntry.changes.forEach((item: { key: string; new: any; }) => {
+            if (item.key === '$add') {
+                newObjects.push(...item.new);
+            } else if (item.key === '$remove') {
+                removeObjects.push(...item.new);
+            }
+        });
+
+        newObjects = newObjects.map((obj) => obj.id);
+        removeObjects = removeObjects.map((obj) => obj.id);
 
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
-            .setAuthor({ name: firstEntry.target.username, iconURL: firstEntry.target.displayAvatarURL({ format: 'png', dynamic: true, size: 512 }) })
+            .setAuthor({ name: firstEntry.target.username, iconURL: firstEntry.target.displayAvatarURL({ format: 'png', dynamic: true }) })
             .setTimestamp();
 
-        if (oldRoles > newRoles) {
-            var removedRoles = oldMember?.['_roles'].filter(roleId => !newMember?.['_roles'].includes(roleId));
+        let desc = ' ';
 
-            if (removedRoles.length == 0) return;
-            logsEmbed.setDescription(data.event_srvLogs_guildMemberUpdate_description
+        if (removeObjects.length >= 1) {
+            desc += data.event_srvLogs_guildMemberUpdate_description
                 .replace("${firstEntry.executor.id}", firstEntry.executor.id)
-                .replace("${removedRoles}", removedRoles.map(value => `<@&${value}>`))
-                .replace("${oldMember.user.username}", oldMember.user.username)
-            )
-        } else {
-            let addedRoles = newMember?.['_roles'].filter(roleId => !oldMember?.['_roles'].includes(roleId));
+                .replace("${removedRoles}", removeObjects.map(value => `<@&${value}>`))
+                .replace("${oldMember.user.username}", firstEntry.target.username) + '\n';
+        };
+        if (newObjects.length >= 1) {
+            desc += data.event_srvLogs_guildMemberUpdate_2_description
+                .replace("${firstEntry.executor.id}", firstEntry.executor.id)
+                .replace("${addedRoles}", newObjects.map(value => `<@&${value}>`))
+                .replace("${oldMember.user.username}", firstEntry.target.username);
+        };
+        logsEmbed.setDescription(desc);
 
-            if (addedRoles.length == 0) return;
-            logsEmbed.setDescription(data.event_srvLogs_guildMemberUpdate_2_description
-                .replace("${firstEntry.executor.id}", firstEntry.executor.id)
-                .replace("${addedRoles}", addedRoles.map(value => `<@&${value}>`))
-                .replace("${oldMember.user.username}", oldMember.user.username)
-            );
-        }
-        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
+        Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
     };
 
     serverLogs();

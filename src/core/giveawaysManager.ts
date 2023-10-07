@@ -183,7 +183,7 @@ function SelectWinners(fetch: any, number: number) {
 
     do {
         winners = [];
-        const availableMembers = [...fetch.members];
+        let availableMembers = [...fetch.members];
 
         if (winners.length === 0 || areWinnersInPreviousWinners(winners)) {
             winners = [];
