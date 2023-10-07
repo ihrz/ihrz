@@ -28,33 +28,18 @@
 */
 
 import {
-  ApplicationCommandOptionType,
   AttachmentBuilder,
   Client,
   EmbedBuilder,
 } from 'discord.js'
 
-import { Command } from '../../../types/command';
 import axios from 'axios';
 
-export const command: Command = {
-  name: 'transgender',
-  description: 'all humans have rights',
-  category: 'fun',
-  options: [
-    {
-      name: 'user',
-      description: "the user",
-      required: true,
-      type: ApplicationCommandOptionType.User
-    },
-  ],
+export = {
   run: async (client: Client, interaction: any) => {
 
-    let user = interaction.options.getUser('user') || interaction.user;
-    let avatarURL = user.avatarURL({ extension: 'png' });
-
-    let link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(avatarURL)}`;
+    let str = interaction.options.getString('text');
+    let link = `https://cataas.com/cat/cute/says/${str}`;
 
     let embed = new EmbedBuilder()
       .setColor('#000000')

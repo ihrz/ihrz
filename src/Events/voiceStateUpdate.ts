@@ -47,7 +47,7 @@ export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
 
         if (targetUser.id === client.user?.id) return;
 
-        let iconURL: any = targetUser.avatarURL();
+        let iconURL: any = targetUser.displayAvatarURL();
 
         let logsEmbed = new EmbedBuilder()
             .setColor(await db.DataBaseModel({ id: db.Get, key: `${oldState.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs` }) || "#000000")
