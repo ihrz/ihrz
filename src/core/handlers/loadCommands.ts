@@ -24,7 +24,7 @@ import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
 import logger from "../logger";
 import { Command } from "../../../types/command";
-import * as db from '../functions/DatabaseModel';
+import db from '../functions/DatabaseModel';
 import config from "../../files/config";
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
@@ -66,11 +66,9 @@ async function processOptions(options: any[], category: string, parentName: stri
         let fullName = parentName ? `${parentName} ${option.name}` : option.name;
 
         if (option.type === 1) {
-            await db.DataBaseModel({
-                id: db.Push,
-                key: `BOT.CONTENT.${category}`,
-                value: { cmd: fullName, desc: option.description },
-            });
+            await db.push(`BOT.CONTENT.${category}`,
+                { cmd: fullName, desc: option.description },
+            );
         };
         if (option.options) {
             await processOptions(option.options, category, fullName);
@@ -80,7 +78,7 @@ async function processOptions(options: any[], category: string, parentName: stri
 
 async function loadCommands(client: Client, path: string = `${process.cwd()}/dist/src/Commands`): Promise<void> {
 
-    await db.DataBaseModel({ id: db.Set, key: `BOT.CONTENT`, value: {} });
+    await db.set(`BOT.CONTENT`, {});
 
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
@@ -93,7 +91,7 @@ async function loadCommands(client: Client, path: string = `${process.cwd()}/dis
         i++;
         let command = require(path).command;
 
-        await db.DataBaseModel({ id: db.Push, key: `BOT.CONTENT.${command.category}`, value: { cmd: command.name, desc: command.description } });
+        await db.push(`BOT.CONTENT.${command.category}`, { cmd: command.name, desc: command.description });
 
         if (command.options) {
             await processOptions(command.options, command.category, command.name);

@@ -24,7 +24,7 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -37,15 +37,9 @@ export = {
         var text = "";
         var text2 = "";
 
-        let baseData = await db.DataBaseModel({
-            id: db.Get, key:
-                `${interaction.guild.id}.ALLOWLIST`
-        });
+        let baseData = await db.get(`${interaction.guild.id}.ALLOWLIST`);
 
-        let baseData4Protection = await db.DataBaseModel({
-            id: db.Get, key:
-                `${interaction.guild.id}.PROTECTION`
-        });
+        let baseData4Protection = await db.get(`${interaction.guild.id}.PROTECTION`);
 
         if (!baseData || !baseData4Protection) {
             await interaction.editReply({ content: "You have not anything!" });

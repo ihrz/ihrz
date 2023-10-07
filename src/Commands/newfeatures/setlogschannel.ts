@@ -27,7 +27,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
 export const command: Command = {
@@ -87,7 +87,7 @@ export const command: Command = {
             } catch (e: any) { logger.err(e) };
 
             try {
-                let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.roles` });
+                let already = await db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS.roles`);
 
                 if (already === argsid.id) {
                     await interaction.editReply({ content: data.setlogschannel_already_this_channel });
@@ -99,7 +99,7 @@ export const command: Command = {
                         .replace("${interaction.user.id}", interaction.user.id)
                         .replace("${typeOfLogs}", typeOfLogs)
                 })
-                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.roles`, values: argsid.id });
+                await db.set(`${interaction.guild.id}.GUILD.SERVER_LOGS.roles`, argsid.id);
 
                 await interaction.editReply({
                     content: data.setlogschannel_command_work
@@ -136,7 +136,7 @@ export const command: Command = {
             } catch (e: any) { logger.err(e) };
 
             try {
-                let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.moderation` });
+                let already = await db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS.moderation`);
 
                 if (already === argsid.id) {
                     await interaction.editReply({ content: data.setlogschannel_already_this_channel });
@@ -148,10 +148,7 @@ export const command: Command = {
                         .replace("${interaction.user.id}", interaction.user.id)
                         .replace("${typeOfLogs}", typeOfLogs)
                 })
-                await db.DataBaseModel({
-                    id: db.Set, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.moderation`,
-                    value: argsid.id
-                });
+                await db.set(`${interaction.guild.id}.GUILD.SERVER_LOGS.moderation`, argsid.id);
 
                 await interaction.editReply({
                     content: data.setlogschannel_command_work
@@ -187,7 +184,7 @@ export const command: Command = {
             } catch (e: any) { logger.err(e) };
 
             try {
-                let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.voice` });
+                let already = await db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS.voice`);
                 if (already === argsid.id) {
                     await interaction.editReply({ content: data.setlogschannel_already_this_channel });
                     return;
@@ -198,7 +195,7 @@ export const command: Command = {
                         .replace("${interaction.user.id}", interaction.user.id)
                         .replace("${typeOfLogs}", typeOfLogs)
                 })
-                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.voice`, value: argsid.id });
+                await db.set(`${interaction.guild.id}.GUILD.SERVER_LOGS.voice`, argsid.id);
 
                 await interaction.editReply({
                     content: data.setlogschannel_command_work
@@ -236,7 +233,7 @@ export const command: Command = {
             } catch (e: any) { logger.err(e) };
 
             try {
-                let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.message` })
+                let already = await db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS.message`)
                 if (already === argsid.id) {
                     await interaction.editReply({ content: data.setlogschannel_already_this_channel });
                     return;
@@ -247,7 +244,7 @@ export const command: Command = {
                         .replace("${interaction.user.id}", interaction.user.id)
                         .replace("${typeOfLogs}", typeOfLogs)
                 })
-                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.SERVER_LOGS.message`, value: argsid.id });
+                await db.set(`${interaction.guild.id}.GUILD.SERVER_LOGS.message`, argsid.id);
 
                 await interaction.editReply({
                     content: data.setlogschannel_command_work
@@ -275,13 +272,13 @@ export const command: Command = {
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
             } catch (e: any) { logger.err(e) };
 
-            let checkData = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.SERVER_LOGS` })
+            let checkData = await db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS`);
             if (!checkData) {
                 await interaction.editReply({ content: data.setlogschannel_already_deleted });
                 return;
             };
 
-            await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.SERVER_LOGS` });
+            await db.delete(`${interaction.guild.id}.GUILD.SERVER_LOGS`);
             await interaction.editReply({
                 content: data.setlogschannel_command_work_on_delete
                     .replace("${interaction.guild.name}", interaction.guild.name)

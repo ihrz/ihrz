@@ -20,7 +20,7 @@
 */
 
 import { Client, Collection, EmbedBuilder, Guild, GuildApplicationCommandManager, GuildMember, PermissionsBitField, Presence, PresenceManager, Role, RoleManager, User, UserManager } from 'discord.js';
-import * as db from '../core/functions/DatabaseModel';
+import db from '../core/functions/DatabaseModel';
 
 export = async (client: Client, oldPresence: Presence, newPresence: Presence) => {
 
@@ -28,7 +28,7 @@ export = async (client: Client, oldPresence: Presence, newPresence: Presence) =>
         if (!newPresence.guild?.members.me?.permissions.has([PermissionsBitField.Flags.ManageRoles])) return;
         if (!oldPresence || !oldPresence.guild) return;
 
-        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${oldPresence.guild.id}.GUILD.SUPPORT` });
+        let someinfo = await db.get(`${oldPresence.guild.id}.GUILD.SUPPORT`);
 
         if (!someinfo) { return; };
 

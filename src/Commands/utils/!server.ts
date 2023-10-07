@@ -25,7 +25,7 @@ import {
     PermissionsBitField
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {

@@ -29,7 +29,7 @@ import {
 import { Command } from '../../../types/command';
 import logger from '../../core/logger';
 
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 
 export const command: Command = {
     name: 'setmentionrole',
@@ -90,14 +90,14 @@ export const command: Command = {
             } catch (e: any) { logger.err(e) };
 
             try {
-                let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.RANK_ROLES.roles` });
+                let already = await db.get(`${interaction.guild.id}.GUILD.RANK_ROLES.roles`);
 
                 if (already === argsid.id) {
                     await interaction.editReply({ content: data.setrankroles_already_this_in_db });
                     return;
                 };
 
-                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.RANK_ROLES.roles`, value: argsid.id });
+                await db.set(`${interaction.guild.id}.GUILD.RANK_ROLES.roles`, argsid.id);
 
                 let e = new EmbedBuilder().setDescription(data.setrankroles_command_work.replace(/\${argsid}/g, argsid.id));
 
@@ -123,7 +123,7 @@ export const command: Command = {
             } catch (e: any) { logger.err(e) };
 
             try {
-                await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.RANK_ROLES.roles` });
+                await db.delete(`${interaction.guild.id}.GUILD.RANK_ROLES.roles`);
 
                 await interaction.editReply({
                     content: data.setrankroles_command_work_disable

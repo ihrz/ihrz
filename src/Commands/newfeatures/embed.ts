@@ -33,7 +33,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 
 export const command: Command = {
     name: 'embed',
@@ -51,7 +51,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         let arg = interaction.options.getString("id");
-        let potentialEmbed = await db.DataBaseModel({ id: db.Get, key: `EMBED.${arg}` });
+        let potentialEmbed = await db.get(`EMBED.${arg}`);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.punishpub_not_admin });
@@ -168,7 +168,7 @@ export const command: Command = {
 
                 switch (confirmation.customId) {
                     case "save":
-                        if (potentialEmbed) await db.DataBaseModel({ id: db.Delete, key: `EMBED.${arg}` });
+                        if (potentialEmbed) await db.delete(`EMBED.${arg}`);
 
                         await confirmation.update({
                             content: data.embed_save_message
@@ -375,13 +375,12 @@ export const command: Command = {
 
         async function saveEmbed() {
             var password = Math.random().toString(36).slice(-8);
-            await db.DataBaseModel({
-                id: db.Set, key: `EMBED.${password}`, values:
+            await db.set(`EMBED.${password}`,
                 {
                     embedOwner: interaction.user.id,
                     embedSource: __tempEmbed
                 }
-            });
+            );
             return password;
         };
     },

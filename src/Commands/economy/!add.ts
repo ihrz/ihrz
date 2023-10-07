@@ -25,7 +25,7 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -43,7 +43,7 @@ export = {
                 .replace("${amount.value}", amount.value)
         });
 
-        await db.DataBaseModel({ id: db.Add, key: `${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, value: amount.value });
+        await db.add(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, amount.value);
 
         try {
             let logEmbed = new EmbedBuilder()

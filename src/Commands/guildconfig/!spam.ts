@@ -25,7 +25,7 @@ import {
     AutoModerationRuleTriggerType
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 
 interface Action {
     type: number;
@@ -101,7 +101,7 @@ export = {
                 });
             };
 
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.spam`, value: "on" });
+            await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.spam`, "on");
             await interaction.editReply({
                 content: data.automod_block_spam_command_on
                     .replace('${interaction.user}', interaction.user)
@@ -112,7 +112,7 @@ export = {
 
             await spamRule.setEnabled(false);
 
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.spam`, value: "off" });
+            await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.spam`, "off");
             await interaction.editReply({
                 content: data.automod_block_spam_command_off
                     .replace('${interaction.user}', interaction.user)

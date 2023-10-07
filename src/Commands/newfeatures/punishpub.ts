@@ -27,7 +27,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 
 export const command: Command = {
     name: 'punishpub',
@@ -103,14 +103,13 @@ export const command: Command = {
                 return;
             };
 
-            await db.DataBaseModel({
-                id: db.Set, key: `${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`, values:
+            await db.set(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`,
                 {
                     amountMax: amount - 1,
                     punishementType: punishment,
                     state: action
                 }
-            });
+            );
 
             try {
                 let logEmbed = new EmbedBuilder()
@@ -133,7 +132,7 @@ export const command: Command = {
             });
             return;
         } else {
-            await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB` });
+            await db.delete(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
             await interaction.editReply({ content: data.punishpub_confirmation_disable })
 
             try {

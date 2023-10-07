@@ -26,7 +26,7 @@ import {
 
 import { Command } from '../../../types/command';
 
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 
 export const command: Command = {
     name: 'snipe',
@@ -35,7 +35,7 @@ export const command: Command = {
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
-        var based = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.SNIPE.${interaction.channel.id}` });
+        var based = await db.get(`${interaction.guild.id}.GUILD.SNIPE.${interaction.channel.id}`);
 
         if (!based) {
             await interaction.editReply({ content: data.snipe_no_previous_message_deleted });

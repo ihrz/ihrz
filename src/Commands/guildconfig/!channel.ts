@@ -25,7 +25,7 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
 export = {
@@ -62,13 +62,13 @@ export = {
             };
 
             try {
-                let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join` });
+                let already = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`);
                 if (already === argsid.id) {
                     await interaction.editReply({ content: data.setchannels_already_this_channel_on_join });
                     return;
                 };
                 interaction.client.channels.cache.get(argsid.id).send({ content: data.setchannels_confirmation_message_on_join });
-                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join`, value: argsid.id });
+                await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`, argsid.id);
 
                 await interaction.editReply({
                     content: data.setchannels_command_work_on_join
@@ -86,7 +86,7 @@ export = {
                     return;
                 };
 
-                let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave` });
+                let already = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`);
 
                 if (already === argsid.id) {
                     await interaction.editReply({ content: data.setchannels_already_this_channel_on_leave });
@@ -94,7 +94,7 @@ export = {
                 };
 
                 interaction.client.channels.cache.get(argsid.id)?.send({ content: data.setchannels_confirmation_message_on_leave });
-                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`, value: argsid.id });
+                await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`, argsid.id);
 
                 try {
                     let logEmbed = new EmbedBuilder()
@@ -141,15 +141,15 @@ export = {
                 logger.err(e)
             };
 
-            let leavec: string = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join` });
-            let joinc: string = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave` });
+            let leavec: string = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`);
+            let joinc: string = await db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`);
             if (!joinc && !leavec) {
                 await interaction.editReply({ content: data.setchannels_already_on_off });
                 return;
             };
 
-            await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.join` });
-            await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leave` });
+            await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`);
+            await db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`);
             await interaction.editReply({ content: data.setchannels_command_work_on_off });
             return;
         };

@@ -21,7 +21,7 @@
 
 import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent } from 'discord.js'
 
-import * as db from '../core/functions/DatabaseModel';
+import db from '../core/functions/DatabaseModel';
 
 export = async (client: Client, channel: any) => {
 
@@ -38,7 +38,7 @@ export = async (client: Client, channel: any) => {
     };
 
     async function protect() {
-        let data = await db.DataBaseModel({ id: db.Get, key: `${channel.guild.id}.PROTECTION` });
+        let data = await db.get(`${channel.guild.id}.PROTECTION`);
         if (!data) return;
 
         if (data.createchannel && data.createchannel.mode === 'allowlist') {
@@ -50,10 +50,7 @@ export = async (client: Client, channel: any) => {
             if (firstEntry.targetId !== channel.id) return;
             if (firstEntry.executorId === client.user?.id) return;
 
-            let baseData = await db.DataBaseModel({
-                id: db.Get, key:
-                    `${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`
-            });
+            let baseData = await db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
             if (!baseData) {
                 channel.delete();

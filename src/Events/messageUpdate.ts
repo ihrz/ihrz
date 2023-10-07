@@ -20,7 +20,7 @@
 */
 
 import { Client, Collection, EmbedBuilder, Message, Options, Permissions, Presence } from 'discord.js';
-import * as db from '../core/functions/DatabaseModel';
+import db from '../core/functions/DatabaseModel';
 
 export = async (client: Client, oldMessage: Message, newMessage: Message) => {
     let data = await client.functions.getLanguageData(oldMessage.guild?.id)
@@ -31,7 +31,7 @@ export = async (client: Client, oldMessage: Message, newMessage: Message) => {
             || oldMessage.content == '' || !oldMessage.content
             || newMessage.content == '' || !newMessage.content) return;
 
-        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${oldMessage.guildId}.GUILD.SERVER_LOGS.message` });
+        let someinfo = await db.get(`${oldMessage.guildId}.GUILD.SERVER_LOGS.message`);
 
         if (!someinfo || !oldMessage.content || !newMessage.content
             || oldMessage.content === newMessage.content) return;

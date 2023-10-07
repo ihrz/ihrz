@@ -26,7 +26,7 @@ import logger from '../../../core/logger';
 import config from '../../../files/config';
 import * as apiUrlParser from '../../../core/functions/apiUrlParser';
 import { Request, Response } from 'express';
-import * as db from '../../../core/functions/DatabaseModel';
+import db from '../../../core/functions/DatabaseModel';
 
 export = {
     type: 'post',
@@ -61,11 +61,7 @@ export = {
                 return;
             }
 
-            await db.DataBaseModel({
-                id: db.Set,
-                key: `API.TOKEN.${userinfo.id}`,
-                value: { token: `${accessToken}` }
-            });
+            await db.set(`API.TOKEN.${userinfo.id}`, { token: `${accessToken}` });
 
             res.status(200).send(userinfo);
             return;

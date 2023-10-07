@@ -27,7 +27,7 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
 export const command: Command = {
@@ -77,14 +77,14 @@ export const command: Command = {
             return;
         };
 
-        let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.LANG` });
+        let already = await db.get(`${interaction.guild.id}.GUILD.LANG`);
 
         if (already?.lang === type) {
             await interaction.editReply({ content: data.setserverlang_already });
             return;
         }
 
-        await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.LANG`, value: { lang: type } });
+        await db.set(`${interaction.guild.id}.GUILD.LANG`, { lang: type });
         data = await client.functions.getLanguageData(interaction.guild.id);
 
         try {

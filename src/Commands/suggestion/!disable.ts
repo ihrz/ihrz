@@ -25,7 +25,7 @@ import {
     PermissionsBitField
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -38,7 +38,7 @@ export = {
         };
 
         if (action === 'on') {
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.SUGGEST.disable`, value: false });
+            await db.set(`${interaction.guild.id}.SUGGEST.disable`, false);
             await interaction.editReply({
                 content: data.setsuggest_disable_pw_on
                     .replace('${interaction.user}', interaction.user)
@@ -46,7 +46,7 @@ export = {
 
             return;
         } else if (action === 'off') {
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.SUGGEST.disable`, value: true });
+            await db.set(`${interaction.guild.id}.SUGGEST.disable`, true);
             await interaction.editReply({
                 content: data.setsuggest_disable_pw_off
                     .replace('${interaction.user}', interaction.user)

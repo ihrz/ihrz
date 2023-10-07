@@ -33,7 +33,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 
 import date from 'date-and-time';
 import ms from 'ms';
@@ -174,7 +174,7 @@ export const command: Command = {
             };
 
             async function __1(arg0: string) {
-                let fetched = await db.DataBaseModel({ id: db.Get, key: `SCHEDULE.${interaction.user.id}` });
+                let fetched = await db.get(`SCHEDULE.${interaction.user.id}`);
 
                 if (!fetched || !fetched[arg0]) {
                     await response.edit({
@@ -196,7 +196,7 @@ export const command: Command = {
                         .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                         .setTimestamp();
 
-                    await db.DataBaseModel({ id: db.Delete, key: `SCHEDULE.${interaction.user.id}.${arg0}` });
+                    await db.delete(`SCHEDULE.${interaction.user.id}.${arg0}`);
                     await response.edit({ content: data.schedule_delete_confirm, embeds: [embed], ephemeral: true });
                     return;
                 };
@@ -204,7 +204,7 @@ export const command: Command = {
 
             async function __2(arg0: boolean) {
                 if (arg0) {
-                    await db.DataBaseModel({ id: db.Delete, key: `SCHEDULE.${interaction.user.id}` });
+                    await db.delete(`SCHEDULE.${interaction.user.id}`);
 
                     let embed = new EmbedBuilder()
                         .setColor('#ff0a0a')
@@ -231,7 +231,7 @@ export const command: Command = {
             };
 
             async function __3() {
-                let fetched = await db.DataBaseModel({ id: db.Get, key: `SCHEDULE.${interaction.user.id}` });
+                let fetched = await db.get(`SCHEDULE.${interaction.user.id}`);
 
                 if (!fetched) {
                     await response.edit({ content: data.schedule_list_not_schedule, embeds: [], ephemeral: true });
@@ -319,14 +319,13 @@ export const command: Command = {
                             .replace('${scheduleCode}', scheduleCode)
                     });
 
-                    await db.DataBaseModel({
-                        id: db.Set, key: `SCHEDULE.${interaction.user.id}.${scheduleCode}`,
-                        value: {
+                    await db.set(`SCHEDULE.${interaction.user.id}.${scheduleCode}`,
+                        {
                             title: collection.get('name')?.value,
                             description: collection.get('desc')?.value,
                             expired: Date.now() + date0
                         }
-                    });
+                    );
                 };
             };
         };

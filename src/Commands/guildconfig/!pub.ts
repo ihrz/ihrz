@@ -25,7 +25,7 @@ import {
     AutoModerationRuleTriggerType
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 
 interface Action {
     type: number;
@@ -121,7 +121,7 @@ export = {
                 });
             };
 
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "on" });
+            await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "on");
             await interaction.editReply({
                 content: data.automod_block_pub_command_on
                     .replace('${interaction.user}', interaction.user)
@@ -132,7 +132,7 @@ export = {
         } else if (turn === "off") {
             await KeywordPresetRule.setEnabled(false);
 
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, value: "off" });
+            await db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "off");
             await interaction.editReply({
                 content: data.automod_block_pub_command_off
                     .replace('${interaction.user}', interaction.user)

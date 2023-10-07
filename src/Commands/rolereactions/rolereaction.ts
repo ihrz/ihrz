@@ -27,7 +27,7 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
 export const command: Command = {
@@ -106,12 +106,11 @@ export const command: Command = {
                 return;
             };
 
-            await db.DataBaseModel({
-                id: db.Set, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`,
-                value: {
+            await db.set(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`,
+                {
                     rolesID: role.id, reactionNAME: reaction, enable: true
                 }
-            });
+            );
 
             try {
                 let logEmbed = new EmbedBuilder()
@@ -146,7 +145,7 @@ export const command: Command = {
 
             let message = await interaction.channel.messages.fetch(messagei);
 
-            let fetched = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}` });
+            let fetched = await db.get(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`);
 
             if (!fetched) {
                 await interaction.editReply({ content: data.reactionroles_missing_reaction_remove });
@@ -161,7 +160,7 @@ export const command: Command = {
             };
             await reactionVar.users.remove(client.user?.id).catch((err: string) => { logger.err(err) });
 
-            await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}` });
+            await db.delete(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`);
 
             try {
                 let logEmbed = new EmbedBuilder()

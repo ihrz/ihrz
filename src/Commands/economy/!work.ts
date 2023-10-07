@@ -24,7 +24,7 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -50,7 +50,7 @@ export = {
             .setColor("#f1d488");
 
         await interaction.editReply({ embeds: [embed] });
-        await db.DataBaseModel({ id: db.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: amount });
+        await db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
 
         talkedRecentlyforw.add(interaction.user.id);
         setTimeout(() => {
