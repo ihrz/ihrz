@@ -197,7 +197,7 @@ export = async (client: Client, message: any) => {
             .setAuthor({
                 name: data.event_suggestion_embed_author
                     .replace('${message.author.username}', message.author.username),
-                iconURL: message.author.avatarURL({ format: 'png', dynamic: true })
+                iconURL: message.author.displayAvatarURL({ format: 'png', dynamic: true })
             })
             .setDescription(suggestionContent.toString())
             .setThumbnail(message.guild.iconURL())

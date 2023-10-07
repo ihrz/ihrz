@@ -28,31 +28,18 @@
 */
 
 import {
-  ApplicationCommandOptionType,
   AttachmentBuilder,
   Client,
   EmbedBuilder,
 } from 'discord.js'
 
-import { Command } from '../../../types/command';
 import axios from 'axios';
 
-export const command: Command = {
-  name: 'catsay',
-  description: 'Cat say (insert text here)',
-  category: 'fun',
-  options: [
-    {
-      name: 'text',
-      description: "The cat say...",
-      required: true,
-      type: ApplicationCommandOptionType.String
-    },
-  ],
+export = {
   run: async (client: Client, interaction: any) => {
 
-    let str = interaction.options.getString('text');
-    let link = `https://cataas.com/cat/cute/says/${str}`;
+    let user = interaction.options.getUser('user') || interaction.user;
+    let link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(user.displayAvatarURL({ extension: 'png' }))}`;
 
     let embed = new EmbedBuilder()
       .setColor('#000000')

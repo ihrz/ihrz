@@ -58,7 +58,7 @@ export = {
                 { name: data.profil_embed_fields_age, value: age + data.profil_embed_fields_age_value, inline: false },
                 { name: data.profil_embed_fields_gender, value: `${gender}`, inline: false })
             .setColor("#ffa550")
-            .setThumbnail(member.avatarURL({ format: 'png', dynamic: true, size: 512 }))
+            .setThumbnail(member.displayAvatarURL({ format: 'png', dynamic: true, size: 512 }))
             .setTimestamp()
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
 

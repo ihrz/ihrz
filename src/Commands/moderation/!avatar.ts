@@ -29,7 +29,7 @@ export = {
         let mentionedUser = interaction.options.getUser("user") || interaction.user;
 
         let embed = new EmbedBuilder()
-            .setImage(mentionedUser.avatarURL({ format: 'png', dynamic: true, size: 512 }))
+            .setImage(mentionedUser.displayAvatarURL({ format: 'png', dynamic: true, size: 512 }))
             .setColor("#add5ff")
             .setTitle(data.avatar_embed_title
                 .replace('${mentionedUser.username}', mentionedUser.username)

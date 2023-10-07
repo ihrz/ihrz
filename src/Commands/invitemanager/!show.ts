@@ -40,7 +40,7 @@ export = {
             .setColor("#92A8D1")
             .setTitle(data.invites_confirmation_embed_title)
             .setTimestamp()
-            .setThumbnail(member.user.avatarURL({ dynamic: true }))
+            .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
             .setDescription(
                 data.invites_confirmation_embed_description
                     .replace(/\${member\.user\.id}/g, member.user.id)

@@ -186,7 +186,7 @@ export const command: Command = {
                     let embed = new EmbedBuilder()
                         .setAuthor({
                             name: interaction.user.globalName,
-                            iconURL: interaction.user.avatarURL({ format: 'png', dynamic: true, size: 512 })
+                            iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 })
                         })
                         .setTitle(data.schedule_delete_title_embed
                             .replace('${arg0}', arg0)
@@ -210,7 +210,7 @@ export const command: Command = {
                         .setColor('#ff0a0a')
                         .setAuthor({
                             name: interaction.user.globalName,
-                            iconURL: interaction.user.avatarURL({ format: 'png', dynamic: true, size: 512 })
+                            iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 })
                         })
                         .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                         .setTitle(data.schedule_deleteall_title_embed)
@@ -244,7 +244,7 @@ export const command: Command = {
                     .setColor('#60BEE0')
                     .setAuthor({
                         name: interaction.user.globalName,
-                        iconURL: interaction.user.avatarURL({ format: 'png', dynamic: true, size: 512 })
+                        iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 })
                     });
 
                 for (let i in fetched) {
@@ -274,7 +274,7 @@ export const command: Command = {
                     .setDescription(`\`\`\`${nameValue}\`\`\`\`\`\`${descValue}\`\`\``)
                     .setAuthor({
                         name: interaction.user.globalName,
-                        iconURL: interaction.user.avatarURL({ format: 'png', dynamic: true, size: 512 })
+                        iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 })
                     })
                     .setTitle(data.schedule_create_title_embed)
                     .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
