@@ -25,7 +25,7 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
+import db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
 import backup from 'discord-backup';
@@ -61,7 +61,7 @@ export = {
 
             let elData = { guildName: backupData.name, categoryCount: i, channelCount: j };
 
-            await db.DataBaseModel({ id: db.Set, key: `BACKUPS.${interaction.user.id}.${backupData.id}`, value: elData });
+            await db.set(`BACKUPS.${interaction.user.id}.${backupData.id}`, elData);
 
             interaction.channel.send({ content: data.backup_command_work_on_creation });
             await interaction.editReply({

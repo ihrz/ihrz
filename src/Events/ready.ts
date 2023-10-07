@@ -22,7 +22,7 @@
 import logger from "../core/logger";
 import couleurmdr from 'colors';
 import config from "../files/config";
-import * as db from '../core/functions/DatabaseModel';
+import db from '../core/functions/DatabaseModel';
 
 import register from '../core/slashSync';
 import date from 'date-and-time';
@@ -58,9 +58,9 @@ export = async (client: Client) => {
     };
 
     async function refreshDatabaseModel() {
-        await db.DataBaseModel({ id: db.Set, key: `GLOBAL.OWNER.${config.owner.ownerid1}`, value: { owner: true } }),
-            await db.DataBaseModel({ id: db.Set, key: `GLOBAL.OWNER.${config.owner.ownerid2}`, value: { owner: true } }),
-            await db.DataBaseModel({ id: db.Set, key: `TEMP`, value: {} });
+        await db.set(`GLOBAL.OWNER.${config.owner.ownerid1}`, { owner: true }),
+            await db.set(`GLOBAL.OWNER.${config.owner.ownerid2}`, { owner: true }),
+            await db.set(`TEMP`, {});
     };
 
     async function quotesPresence() {
@@ -91,7 +91,7 @@ export = async (client: Client) => {
     };
 
     async function refreshSchedule() {
-        let listAll = await db.DataBaseModel({ id: db.Get, key: `SCHEDULE` });
+        let listAll = await db.get(`SCHEDULE`);
         let dateNow = Date.now();
         let desc: string = '';
 
@@ -117,18 +117,15 @@ export = async (client: Client) => {
                         embeds: [embed]
                     }).catch(() => { });
 
-                    await db.DataBaseModel({ id: db.Delete, key: `SCHEDULE.${user}.${code}` });
+                    await db.delete(`SCHEDULE.${user}.${code}`);
                 };
             };
         };
     };
 
     async function otherBotPowerOn() {
-        let result = await db.DataBaseModel({
-            id: db.Get,
-            key: `OWNIHRZ`
-        });
-
+        let result = await db.get(`OWNIHRZ`);
+        
         for (let i in result) {
             for (let c in result[i]) {
                 if (result[i][c].power_off) break;
