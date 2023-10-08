@@ -25,7 +25,6 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
 export = {
@@ -56,7 +55,7 @@ export = {
                     .replaceAll("{membercount}", "{membercount}")
                     .replaceAll("\\n", '\n')
 
-                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`, value: joinmsgreplace });
+                await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`, joinmsgreplace);
 
                 try {
                     let logEmbed = new EmbedBuilder()
@@ -80,7 +79,7 @@ export = {
             }
 
         } else if (type == "off") {
-            await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage` });
+            await client.db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`);
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
@@ -101,7 +100,7 @@ export = {
             await interaction.editReply({ content: data.setleavemessage_command_work_on_disable });
             return;
         } else if (type == "ls") {
-            var ls = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage` });
+            var ls = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leavemessage`);
 
             let embed = new EmbedBuilder()
                 .setAuthor({ name: interaction.user.globalName, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })

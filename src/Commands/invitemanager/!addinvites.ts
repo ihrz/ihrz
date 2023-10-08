@@ -25,8 +25,6 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
@@ -40,7 +38,7 @@ export = {
             return;
         };
 
-        await db.DataBaseModel({ id: db.Add, key: `${interaction.guild.id}.USER.${user.id}.INVITES.invites`, value: amount });
+        await client.db.add(`${interaction.guild.id}.USER.${user.id}.INVITES.invites`, amount);
 
         let finalEmbed = new EmbedBuilder()
             .setDescription(data.addinvites_confirmation_embed_description
@@ -50,7 +48,7 @@ export = {
             .setColor(`#92A8D1`)
             .setFooter({ text: interaction.guild.name, iconURL: interaction.guild.iconURL({ dynamic: true }) });
 
-        await db.DataBaseModel({ id: db.Add, key: `${interaction.guild.id}.USER.${user.id}.INVITES.bonus`, value: amount });
+        await client.db.add(`${interaction.guild.id}.USER.${user.id}.INVITES.bonus`, amount);
         await interaction.editReply({ embeds: [finalEmbed] });
 
         try {

@@ -19,27 +19,13 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import {
-    Client,
-} from 'discord.js';
-
-import { TicketDelete } from '../../core/ticketsManager';
-
-export = {
-    run: async (client: Client, interaction: any, data: any) => {
-
-        let blockQ = await client.db.get(`${interaction.guild.id}.GUILD.TICKET.disable`);
-
-        if (blockQ) {
-            await interaction.editReply({ content: data.delete_disabled_command });
-            return;
-        };
-
-        if (interaction.channel.name.includes('ticket-')) {
-            await TicketDelete(interaction);
-        } else {
-            await interaction.editReply({ content: data.delete_not_in_ticket });
-            return;
-        };
-    },
-};
+export interface DataBase {
+    set(key: string, value: any): Promise<any>,
+    push(key: string, value: any): Promise<any>,
+    sub(key: string, value: any): Promise<any>,
+    add(key: string, value: any): Promise<any>,
+    get(key: string): Promise<any>,
+    pull(key: string, value: any): Promise<any>,
+    all(): Promise<any>,
+    delete(key: string): Promise<any>
+}

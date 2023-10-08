@@ -32,7 +32,7 @@ import {
     ComponentType
 } from 'discord.js';
 
-import * as db from './functions/DatabaseModel';
+import db from './functions/DatabaseModel';
 
 import { create, get, url } from 'sourcebin';
 import logger from './logger';
@@ -58,16 +58,16 @@ async function CreatePanel(interaction: any, data: any) {
             .addComponents(confirm)]
     }).then(async (message: { react: (arg0: string) => void; guild: { id: any; }; id: any; channel: { id: any; }; }) => {
 
-        await db.DataBaseModel({
-            id: db.Set, key: `${message.guild.id}.GUILD.TICKET.${message.id}`,
-            value: {
+        await db.set(
+            `${message.guild.id}.GUILD.TICKET.${message.id}`,
+            {
                 author: data.author,
                 used: true,
                 panelName: data.name,
                 channel: message.channel.id,
                 messageID: message.id,
             }
-        });
+        );
     });
 
     return;
@@ -75,8 +75,8 @@ async function CreatePanel(interaction: any, data: any) {
 
 async function CreateTicketChannel(interaction: any) {
 
-    let result = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.${interaction.message.id}` });
-    let userTickets = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.TICKET_ALL.${interaction.user.id}` });
+    let result = await db.get(`${interaction.guild.id}.GUILD.TICKET.${interaction.message.id}`);
+    let userTickets = await db.get(`${interaction.guild.id}.TICKET_ALL.${interaction.user.id}`);
 
     if (!result || result.channel !== interaction.message.channelId
         || result.messageID !== interaction.message.id) return;
@@ -97,7 +97,8 @@ async function CreateTicketChannel(interaction: any) {
 
 async function CreateChannel(interaction: any, result: any) {
     let lang = await interaction.client.functions.getLanguageData(interaction.guild.id);
-    let category = await db.DataBaseModel({ id: db.Get, key: `${interaction.message.guildId}.GUILD.TICKET.category` });
+    let category = await db.get(`${interaction.message.guildId}.GUILD.TICKET.category`);
+
     await interaction.guild?.channels.create({
         name: `ticket-${interaction.user.username}`,
         type: ChannelType.GuildText,
@@ -131,15 +132,13 @@ async function CreateChannel(interaction: any, result: any) {
                 iconURL: interaction.client.user?.displayAvatarURL()
             });
 
-        await db.DataBaseModel({
-            id: db.Set,
-            key: `${interaction.guild.id}.TICKET_ALL.${interaction.user.id}.${channel.id}`,
-            value: {
+        await db.set(`${interaction.guild.id}.TICKET_ALL.${interaction.user.id}.${channel.id}`,
+            {
                 channel: channel.id,
                 author: interaction.user.id,
                 alive: true
             }
-        });
+        );
 
         let delete_ticket_button = new ButtonBuilder()
             .setCustomId('t-embed-delete-ticket')
@@ -183,10 +182,9 @@ async function CreateChannel(interaction: any, result: any) {
 async function CloseTicket(interaction: any) {
     let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
 
-    let fetch = await db.DataBaseModel({
-        id: db.Get,
-        key: `${interaction.guild.id}.TICKET_ALL`
-    });
+    let fetch = await db.get(
+        `${interaction.guild.id}.TICKET_ALL`
+    );
 
     for (let user in fetch) {
         for (let channel in fetch[user]) {
@@ -243,10 +241,9 @@ async function TicketTranscript(interaction: any) {
     let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
     let interactionChannel = interaction.channel;
 
-    let fetch = await db.DataBaseModel({
-        id: db.Get,
-        key: `${interaction.guild.id}.TICKET_ALL`
-    });
+    let fetch = await db.get(
+        `${interaction.guild.id}.TICKET_ALL`
+    );
 
     for (let user in fetch) {
         for (let channel in fetch[user]) {
@@ -329,10 +326,7 @@ async function TicketAddMember(interaction: any) {
 async function TicketReOpen(interaction: any) {
     let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
 
-    let fetch = await db.DataBaseModel({
-        id: db.Get,
-        key: `${interaction.guild.id}.TICKET_ALL`
-    });
+    let fetch = await db.get(`${interaction.guild.id}.TICKET_ALL`);
 
     for (let user in fetch) {
         for (let channel in fetch[user]) {
@@ -364,10 +358,7 @@ async function TicketReOpen(interaction: any) {
 };
 
 async function TicketDelete(interaction: any) {
-    let fetch = await db.DataBaseModel({
-        id: db.Get,
-        key: `${interaction.guild.id}.TICKET_ALL`
-    });
+    let fetch = await db.get(`${interaction.guild.id}.TICKET_ALL`);
 
     for (let user in fetch) {
         for (let channel in fetch[user]) {
@@ -378,10 +369,7 @@ async function TicketDelete(interaction: any) {
                 &&
                 (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member.user.id)) {
 
-                await db.DataBaseModel({
-                    id: db.Delete,
-                    key: `${interaction.guild.id}.TICKET_ALL.${interaction.user.id}`
-                })
+                await db.delete(`${interaction.guild.id}.TICKET_ALL.${interaction.user.id}`);
                 interaction.channel.delete();
                 return;
             }

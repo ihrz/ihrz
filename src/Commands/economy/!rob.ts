@@ -24,8 +24,6 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         let talkedRecentlyforr = new Set();
@@ -36,8 +34,8 @@ export = {
         };
 
         let user = interaction.options.getMember("member");
-        let targetuser = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${user.id}.ECONOMY.money` });
-        let author = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money` })
+        let targetuser = await client.db.get(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`);
+        let author = await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`);
 
         if (author < 250) {
             await interaction.editReply({ content: data.rob_dont_enought_error });
@@ -65,8 +63,8 @@ export = {
 
         await interaction.editReply({ embeds: [embed] });
 
-        await db.DataBaseModel({ id: db.Sub, key: `${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, value: random });
-        await db.DataBaseModel({ id: db.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: random });
+        await client.db.sub(`${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, random);
+        await client.db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, random);
 
         talkedRecentlyforr.add(interaction.user.id);
         setTimeout(() => {

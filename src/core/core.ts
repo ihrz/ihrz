@@ -34,7 +34,7 @@ import { readdirSync } from "fs";
 import couleurmdr from "colors";
 import path from 'path';
 import fs from 'fs';
-import * as db from './functions/DatabaseModel';
+import db from './functions/DatabaseModel';
 
 function cleanTempDir() {
     let folderPath = `${process.cwd()}/src/temp`;
@@ -62,10 +62,7 @@ export = (client: Client) => {
 
     process.on('SIGINT', async () => {
 
-        let result = await db.DataBaseModel({
-            id: db.Get,
-            key: `OWNIHRZ`
-        });
+        let result = await db.get('OWNIHRZ');
 
         for (let i in result) {
             for (let c in result[i]) {
@@ -84,11 +81,12 @@ export = (client: Client) => {
     cleanTempDir();
     checkSys.Html();
 
+    client.db = db;
+    client.invites = new Collection();
+
     readdirSync(`${process.cwd()}/dist/src/core/handlers`).filter(file => file.endsWith('.js')).forEach(file => {
         require(`${process.cwd()}/dist/src/core/handlers/${file}`)(client);
     });
-
-    client.invites = new Collection();
 
     require('../api/server'),
         bash(client),

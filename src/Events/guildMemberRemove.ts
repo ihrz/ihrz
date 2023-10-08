@@ -20,9 +20,6 @@
 */
 
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan, Client, BaseClient, Channel, GuildChannel, Message } from 'discord.js';
-import * as db from '../core/functions/DatabaseModel';
-import logger from "../core/logger";
-import config from '../files/config';
 
 export = async (client: Client, member: any) => {
     let data = await client.functions.getLanguageData(member.guild.id);
@@ -32,7 +29,7 @@ export = async (client: Client, member: any) => {
             let botMembers = member.guild.members.cache.filter((member: { user: { bot: any; }; }) => member.user.bot);
             let rolesCount = member.guild.roles.cache.size;
 
-            let baseData = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.MCOUNT` });
+            let baseData = await client.db.get(`${member.guild.id}.GUILD.MCOUNT`);
             let bot = baseData?.bot;
             let member_2 = baseData?.member;
             let roles = baseData?.roles;
@@ -65,21 +62,22 @@ export = async (client: Client, member: any) => {
 
     async function goodbyeMessage() {
         try {
-            let base = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.USER.${member.user.id}.INVITES.BY` });
+            let base = await client.db.get(`${member.guild.id}.USER.${member.user.id}.INVITES.BY`);
             let inviter = await client.users.fetch(base.inviter);
 
-            let check = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.USER.${inviter.id}.INVITES` });
+            let check = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES`);
 
             if (check) {
-                await db.DataBaseModel({ id: db.Sub, key: `${member.guild.id}.USER.${inviter.id}.INVITES.invites`, values: 1 });
-                await db.DataBaseModel({ id: db.Add, key: `${member.guild.id}.USER.${inviter.id}.INVITES.leaves`, values: 1 });
+                await client.db.sub(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`, 1);
+                await client.db.add(`${member.guild.id}.USER.${inviter.id}.INVITES.leaves`, 1);
             };
 
-            var invitesAmount = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.USER.${inviter.id}.INVITES.invites` });
-            var lChan: string = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.leave` });
+            var invitesAmount = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`);
+            var lChan: string = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`);
+
             if (!lChan || !client.channels.cache.get(lChan)) return;
 
-            let joinMessage = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.leavemessage` });
+            let joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leavemessage`);
             if (!joinMessage) {
                 let lChanManager: any = client.channels.cache.get(lChan)
                 return lChanManager.send({
@@ -101,7 +99,8 @@ export = async (client: Client, member: any) => {
             let lChanManager: any = client.channels.cache.get(lChan)
             lChanManager.send({ content: joinMessageFormated }).catch(() => { });
         } catch (e) {
-            let lChan = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.GUILD_CONFIG.leave` });
+            let lChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`);
+
             if (!lChan || !client.channels.cache.get(lChan)) return;
             let lChanManager: any = client.channels.cache.get(lChan)
 
@@ -127,7 +126,7 @@ export = async (client: Client, member: any) => {
         let firstEntry = fetchedLogs.entries.first();
         if (!firstEntry || !firstEntry.target || member.id !== firstEntry.target.id) return;
 
-        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${member.guild.id}.GUILD.SERVER_LOGS.moderation` });
+        let someinfo = await client.db.get(`${member.guild.id}.GUILD.SERVER_LOGS.moderation`);
         if (!someinfo) return;
 
         let Msgchannel: any = client.channels.cache.get(someinfo);

@@ -21,12 +21,10 @@
 
 import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent } from 'discord.js'
 
-import * as db from '../core/functions/DatabaseModel';
-
 export = async (client: Client, channel: any) => {
 
     async function protect() {
-        let data = await db.DataBaseModel({ id: db.Get, key: `${channel.guild.id}.PROTECTION` });
+        let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
 
         if (!data) return;
 
@@ -39,10 +37,7 @@ export = async (client: Client, channel: any) => {
             if (firstEntry.targetId !== channel.id) return;
             if (firstEntry.executorId === client.user?.id) return;
 
-            let baseData = await db.DataBaseModel({
-                id: db.Get, key:
-                    `${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`
-            });
+            let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
             if (!baseData) {
                 (await channel.clone({
@@ -81,19 +76,13 @@ export = async (client: Client, channel: any) => {
     };
 
     async function ticketModule() {
-        let fetch = await db.DataBaseModel({
-            id: db.Get,
-            key: `${channel.guild.id}.TICKET_ALL`
-        });
+        let fetch = await client.db.get(`${channel.guild.id}.TICKET_ALL`);
 
         for (let user in fetch) {
             for (let channel_2 in fetch[user]) {
 
                 if (channel.id === channel_2) {
-                    await db.DataBaseModel({
-                        id: db.Delete,
-                        key: `${channel.guild.id}.TICKET_ALL.${user}`,
-                    });
+                    await client.db.delete(`${channel.guild.id}.TICKET_ALL.${user}`);
                 }
             }
         }

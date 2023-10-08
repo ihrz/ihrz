@@ -20,7 +20,6 @@
 */
 
 import { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client, VoiceState, GuildTextBasedChannel } from 'discord.js';
-import * as db from '../core/functions/DatabaseModel';
 
 export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
 
@@ -29,7 +28,7 @@ export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
     async function serverLogs() {
         if (!oldState || !oldState.guild) return;
 
-        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${oldState.guild.id}.GUILD.SERVER_LOGS.voice` });
+        let someinfo = await client.db.get(`${oldState.guild.id}.GUILD.SERVER_LOGS.voice`);
         if (!someinfo) return;
 
         let Msgchannel: any = client.channels.cache.get(someinfo);

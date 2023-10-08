@@ -25,7 +25,6 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
 export = {
@@ -68,13 +67,13 @@ export = {
             };
 
             try {
-                let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles` });
+                let already = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
                 if (already === roleid.value) {
                     await interaction.editReply({ content: data.setjoinroles_already_on_enable });
                     return;
                 };
 
-                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`, value: roleid.value });
+                await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`, roleid.value);
 
                 await interaction.editReply({
                     content: data.setjoinroles_command_work_enable
@@ -103,7 +102,7 @@ export = {
             }
 
             try {
-                let already = await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles` });
+                let already = await client.db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
                 if (!already) {
                     await interaction.editReply({ content: data.setjoinroles_dont_need_command_on_disable });
                     return;
@@ -116,7 +115,7 @@ export = {
                 return;
             };
         } else if (query === "ls") {
-            let roles = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles` });
+            let roles = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
             if (!roles) {
                 await interaction.editReply({ content: data.setjoinroles_command_any_set_ls });
                 return;

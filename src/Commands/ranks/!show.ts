@@ -24,13 +24,11 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let user = interaction.options.getUser("user") || interaction.user;
-        let baseData = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${user.id}.XP_LEVELING` })
+        let baseData = await client.db.get(`${interaction.guild.id}.USER.${user.id}.XP_LEVELING`);
         var level = baseData?.level || 0;
         var currentxp = baseData?.xp || 0;
 

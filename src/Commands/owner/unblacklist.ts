@@ -25,7 +25,6 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
 
 export const command: Command = {
     name: 'unblacklist',
@@ -42,13 +41,13 @@ export const command: Command = {
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
-        if (await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER.${interaction.user.id}.owner` }) !== true) {
+        if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
             await interaction.editReply({ content: data.unblacklist_not_owner });
             return;
         };
 
         let member = interaction.options.getUser('member');
-        let fetched = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${member.id}` });
+        let fetched = await client.db.get(`GLOBAL.BLACKLIST.${member.id}`);
 
         if (!fetched) {
             await interaction.editReply({ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member.id) });
@@ -63,13 +62,13 @@ export const command: Command = {
                 return;
             };
 
-            await db.DataBaseModel({ id: db.Delete, key: `GLOBAL.BLACKLIST.${member.id}` });
+            await client.db.delete(`GLOBAL.BLACKLIST.${member.id}`);
             await interaction.guild.members.unban(bannedMember);
 
             await interaction.editReply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member.id) });
             return;
         } catch (e) {
-            await db.DataBaseModel({ id: db.Delete, key: `GLOBAL.BLACKLIST.${member.id}` });
+            await client.db.delete(`GLOBAL.BLACKLIST.${member.id}`);
             await interaction.editReply({ content: data.unblacklist_unblacklisted_but_can_unban_him });
             return;
         };

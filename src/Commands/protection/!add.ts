@@ -24,15 +24,10 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let baseData = await db.DataBaseModel({
-            id: db.Get, key:
-                `${interaction.guild.id}.ALLOWLIST`
-        });
+        let baseData = await client.db.get(`${interaction.guild.id}.ALLOWLIST`);
 
         if (interaction.user.id !== interaction.guild.ownerId && baseData.list[interaction.user.id]?.allowed !== true) {
             await interaction.editReply({ content: 'You are not authorized to use this command! You must be in the allowlist!' });
@@ -56,7 +51,7 @@ export = {
             return;
         };
 
-        await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.ALLOWLIST.list.${member.user.id}`, value: { allowed: true } });
+        await client.db.set(`${interaction.guild.id}.ALLOWLIST.list.${member.user.id}`, { allowed: true });
         await interaction.editReply({ content: `<@${member.user.id}> has been added in the allowlist !` });
         return;
     },

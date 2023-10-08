@@ -30,7 +30,7 @@ import {
 
 import { Giveaway } from '../../types/giveaways';
 import date from 'date-and-time';
-import * as db from './functions/DatabaseModel';
+import db from './functions/DatabaseModel';
 
 async function Create(channel: any, data: Giveaway) {
 
@@ -52,10 +52,8 @@ async function Create(channel: any, data: Giveaway) {
             .addComponents(confirm)]
     });
 
-    await db.DataBaseModel({
-        id: db.Set,
-        key: `GIVEAWAYS.${channel.guild.id}.${channel.id}.${response.id}`,
-        value: {
+    await db.set(`GIVEAWAYS.${channel.guild.id}.${channel.id}.${response.id}`,
+        {
             winnerCount: data.winnerCount,
             prize: data.prize,
             hostedBy: data.hostedBy.id,
@@ -63,28 +61,21 @@ async function Create(channel: any, data: Giveaway) {
             ended: false,
             members: []
         }
-    });
+    );
 
     return;
 };
 
 async function AddEntries(interaction: any) {
 
-    let members = await db.DataBaseModel({
-        id: db.Get,
-        key: `GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`,
-    });
+    let members = await db.get(`GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`);
 
     if (members.includes(interaction.user.id)) {
         RemoveEntries(interaction);
         return;
     } else {
 
-        await db.DataBaseModel({
-            id: db.Push,
-            key: `GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`,
-            value: interaction.user.id
-        });
+        await db.push(`GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`, interaction.user.id);
 
         await interaction.deferUpdate();
 
@@ -102,10 +93,7 @@ async function AddEntries(interaction: any) {
 
 async function RemoveEntries(interaction: any) {
 
-    let members: Array<string> = await db.DataBaseModel({
-        id: db.Get,
-        key: `GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`,
-    });
+    let members: Array<string> = await db.get(`GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`);
 
     function arraySub(arr: Array<any>, value: string) {
         return arr.filter(function (toSub) {
@@ -113,11 +101,7 @@ async function RemoveEntries(interaction: any) {
         });
     };
 
-    await db.DataBaseModel({
-        id: db.Set,
-        key: `GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`,
-        value: arraySub(members, interaction.user.id)
-    });
+    await db.set(`GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`, arraySub(members, interaction.user.id));
 
     await interaction.reply({ content: `${interaction.user} you have leave this giveaways !`, ephemeral: true });
 
@@ -135,27 +119,17 @@ async function RemoveEntries(interaction: any) {
 
 async function End(client: Client, data: any) {
 
-    let fetch = await db.DataBaseModel({
-        id: db.Get,
-        key: `GIVEAWAYS.${data.guildId}`
-    });
+    let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
 
     for (let channelId in fetch) {
         for (let messageId in fetch[channelId]) {
 
             if (messageId === data.messageId) {
 
-                let ended = await db.DataBaseModel({
-                    id: db.Get,
-                    key: `GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.ended`
-                });
+                let ended = await db.get(`GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.ended`);
 
                 if (ended !== true) {
-                    await db.DataBaseModel({
-                        id: db.Set,
-                        key: `GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.ended`,
-                        value: 'End()'
-                    });
+                    await db.set(`GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.ended`, 'End()');
 
                     Finnish(
                         client,
@@ -205,10 +179,7 @@ function SelectWinners(fetch: any, number: number) {
 
 async function Finnish(client: Client, messageId: any, guildId: any, channelId: any) {
 
-    let fetch = await db.DataBaseModel({
-        id: db.Get,
-        key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}`
-    });
+    let fetch = await db.get(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
 
     if (!fetch.ended === true || fetch.ended === 'End()') {
         let guild = await client.guilds.fetch(guildId);
@@ -246,27 +217,16 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
             });
         };
 
-        await db.DataBaseModel({
-            id: db.Set,
-            key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.ended`,
-            value: true,
-        });
+        await db.set(`GIVEAWAYS.${guildId}.${channelId}.${messageId}.ended`, true);
 
-        await db.DataBaseModel({
-            id: db.Set,
-            key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}.winner`,
-            value: winner || 'None'
-        });
+        await db.set(`GIVEAWAYS.${guildId}.${channelId}.${messageId}.winner`, winner || 'None');
     };
     return;
 };
 
 async function Reroll(client: Client, data: any) {
 
-    let fetch = await db.DataBaseModel({
-        id: db.Get,
-        key: `GIVEAWAYS.${data.guildId}`
-    });
+    let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
 
     for (let channelId in fetch) {
         for (let messageId in fetch[channelId]) {
@@ -301,11 +261,7 @@ async function Reroll(client: Client, data: any) {
                     });
                 };
 
-                await db.DataBaseModel({
-                    id: db.Set,
-                    key: `GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.winner`,
-                    value: winner || 'None'
-                });
+                await db.set(`GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.winner`, winner || 'None');
             };
         };
     };
@@ -322,10 +278,7 @@ function Init(client: any) {
 
 
 async function isValid(giveawayId: number, data: any) {
-    let fetch = await db.DataBaseModel({
-        id: db.Get,
-        key: `GIVEAWAYS.${data.guildId}`
-    });
+    let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
 
     let dataDict: any = {};
 
@@ -343,10 +296,7 @@ async function isValid(giveawayId: number, data: any) {
 };
 
 async function isEnded(giveawayId: number, data: any) {
-    let fetch = await db.DataBaseModel({
-        id: db.Get,
-        key: `GIVEAWAYS.${data.guildId}`
-    });
+    let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
 
     let dataDict: any = {};
 
@@ -364,10 +314,7 @@ async function isEnded(giveawayId: number, data: any) {
 };
 
 async function Refresh(client: Client) {
-    let drop_all_db = await db.DataBaseModel({
-        id: db.Get,
-        key: `GIVEAWAYS`
-    });
+    let drop_all_db = await db.get(`GIVEAWAYS`);
 
     for (let guildId in drop_all_db) {
         // guildId: Server Guild ID
@@ -390,10 +337,7 @@ async function Refresh(client: Client) {
                 };
 
                 if (cooldownTime >= 345_600_000) {
-                    await db.DataBaseModel({
-                        id: db.Delete,
-                        key: `GIVEAWAYS.${guildId}.${channelId}.${messageId}`
-                    });
+                    await db.delete(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
                 };
             }
         }

@@ -20,9 +20,7 @@
 */
 
 import { Client, GuildChannel, GuildChannelManager } from "discord.js";
-
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
-import * as db from '../core/functions/DatabaseModel';
 
 export = async (client: Client, ban: GuildBan) => {
     let data = await client.functions.getLanguageData(ban.guild.id);
@@ -35,7 +33,7 @@ export = async (client: Client, ban: GuildBan) => {
         });
 
         var firstEntry: any = fetchedLogs.entries.first();
-        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${ban.guild.id}.GUILD.SERVER_LOGS.moderation` });
+        let someinfo = await client.db.get(`${ban.guild.id}.GUILD.SERVER_LOGS.moderation`);
 
         if (!someinfo) return;
 

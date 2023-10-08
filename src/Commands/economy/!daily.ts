@@ -36,14 +36,13 @@ import {
     StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
 import ms from 'ms';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         let timeout = 86400000;
         let amount = 500;
-        let daily = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.daily` });
+        let daily = await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.daily`);
 
         if (daily !== null && timeout - (Date.now() - daily) > 0) {
             let time = ms(timeout - (Date.now() - daily));
@@ -58,8 +57,8 @@ export = {
                 .addFields({ name: data.daily_embed_fields, value: `${amount}🪙` })
 
             await interaction.editReply({ embeds: [embed] });
-            await db.DataBaseModel({ id: db.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: amount });
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.daily`, value: Date.now() });
+            await client.db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
+            await client.db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.daily`, Date.now());
             return;
         };
     },

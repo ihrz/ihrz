@@ -26,7 +26,6 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
 import config from '../../files/config';
 
 export const command: Command = {
@@ -44,7 +43,7 @@ export const command: Command = {
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
-        if (await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER.${interaction.user.id}.owner` })
+        if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`)
             !== true) {
             await interaction.editReply({ content: data.unowner_not_owner });
             return;
@@ -57,7 +56,7 @@ export const command: Command = {
             return;
         };
 
-        await db.DataBaseModel({ id: db.Delete, key: `GLOBAL.OWNER.${member.id}` });
+        await client.db.delete(`GLOBAL.OWNER.${member.id}`);
 
         await interaction.editReply({ content: data.unowner_command_work.replace(/\${member\.username}/g, member.username) });
         return;

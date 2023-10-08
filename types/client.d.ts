@@ -24,6 +24,7 @@ import { clientFunction } from "./clientFunction";
 import { Command } from "./command";
 import { QuickDB } from "quick.db";
 import { Player } from 'discord-player';
+import { DataBase } from "./database";
 
 declare module 'discord.js' {
     export interface Client {
@@ -32,5 +33,6 @@ declare module 'discord.js' {
         player: Player,
         invites: Collection,
         buttons: Collection<string, Function>,
+        db: DataBase
     }
 };

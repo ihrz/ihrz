@@ -23,7 +23,7 @@
 import { Client, Guild, GuildChannel, GuildChannelManager, Message, MessageManager } from "discord.js";
 
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
-import * as db from '../core/functions/DatabaseModel';
+
 import logger from "../core/logger";
 import config from '../files/config';
 
@@ -63,7 +63,7 @@ export = async (client: any, guild: any) => {
             .setTimestamp()
             .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
 
-        let isBL = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${guild.ownerId}.blacklisted` }) || false;
+        let isBL = await client.db.get(`GLOBAL.BLACKLIST.${guild.ownerId}.blacklisted`) || false;
 
         if (isBL) {
             await channelHr.send({ embeds: [tqtmonreuf] }).catch(() => { });

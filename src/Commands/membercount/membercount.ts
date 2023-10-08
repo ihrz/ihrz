@@ -27,7 +27,6 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
 export const command: Command = {
@@ -94,20 +93,17 @@ export const command: Command = {
                     .replace("{botcount}", botMembers.size)
 
                 if (messagei.includes("member")) {
-                    await db.DataBaseModel({
-                        id: db.Set, key: `${interaction.guild.id}.GUILD.MCOUNT.member`, values:
-                            { name: messagei, enable: true, event: "member", channel: channel.id }
-                    });
+                    await client.db.set(`${interaction.guild.id}.GUILD.MCOUNT.member`,
+                        { name: messagei, enable: true, event: "member", channel: channel.id }
+                    );
                 } else if (messagei.includes("roles")) {
-                    await db.DataBaseModel({
-                        id: db.Set, key: `${interaction.guild.id}.GUILD.MCOUNT.roles`, values:
-                            { name: messagei, enable: true, event: "roles", channel: channel.id }
-                    });
+                    await client.db.set(`${interaction.guild.id}.GUILD.MCOUNT.roles`,
+                        { name: messagei, enable: true, event: "roles", channel: channel.id }
+                    );
                 } else if (messagei.includes("bot")) {
-                    await db.DataBaseModel({
-                        id: db.Get, key: `${interaction.guild.id}.GUILD.MCOUNT.bot`, values:
-                            { name: messagei, enable: true, event: "bot", channel: channel.id }
-                    });
+                    await client.db.set(`${interaction.guild.id}.GUILD.MCOUNT.bot`,
+                        { name: messagei, enable: true, event: "bot", channel: channel.id }
+                    );
                 };
 
                 try {
@@ -130,7 +126,7 @@ export const command: Command = {
                 return;
             };
         } else if (type == "off") {
-            await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.MCOUNT` });
+            await client.db.delete(`${interaction.guild.id}.GUILD.MCOUNT`);
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")

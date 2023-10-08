@@ -24,9 +24,8 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-import config from '../../files/config';
 
+import config from '../../files/config';
 import axios from 'axios';
 
 export = {
@@ -34,10 +33,7 @@ export = {
 
         let id_1 = interaction.options.getString('id');
 
-        let id_2 = await db.DataBaseModel({
-            id: db.Get,
-            key: `OWNIHRZ.TEMP.${interaction.user.id}.${id_1}`,
-        });
+        let id_2 = await client.db.get(`OWNIHRZ.TEMP.${interaction.user.id}.${id_1}`);
 
         for (let i in id_2) {
             for (let j in id_2[i]) {
@@ -89,10 +85,7 @@ export = {
             await interaction.deleteReply();
             await interaction.followUp({ embeds: [embed], ephemeral: true });
 
-            await db.DataBaseModel({
-                id: db.Delete,
-                key: `OWNIHRZ.TEMP.${interaction.user.id}`,
-            });
+            await client.db.delete(`OWNIHRZ.TEMP.${interaction.user.id}`);
         };
     },
 };

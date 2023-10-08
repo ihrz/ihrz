@@ -24,7 +24,7 @@ import {
     Permissions, PermissionsBitField, User, ReactionEmoji, Message, GuildMember,
     MessageReaction, ReactionManager, Guild
 } from 'discord.js';
-import * as db from '../core/functions/DatabaseModel';
+
 import logger from '../core/logger';
 
 export = async (client: Client, reaction: any, user: User) => {
@@ -33,10 +33,7 @@ export = async (client: Client, reaction: any, user: User) => {
     async function reactionRole() {
         try {
             if (user.id == client.user?.id || !reaction.message.guild) return;
-            let fetched = await db.DataBaseModel({
-                id: db.Get, key:
-                    `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`
-            });
+            let fetched = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
 
             if (fetched) {
                 let role = reaction.message.guild.roles.cache.get(fetched.rolesID);
@@ -47,10 +44,7 @@ export = async (client: Client, reaction: any, user: User) => {
                 return;
             };
 
-            let fetchedForNitro = await db.DataBaseModel({
-                id: db.Get,
-                key: `${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`
-            });
+            let fetchedForNitro = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`);
 
             if (fetchedForNitro) {
                 let role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);

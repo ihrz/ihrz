@@ -25,7 +25,6 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
@@ -36,8 +35,8 @@ export = {
         var amount = interaction.options.getNumber("amount");
         let user = interaction.options.getUser("member");
 
-        await db.DataBaseModel({ id: db.Sub, key: `${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, value: amount });
-        let bal = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${user.id}.ECONOMY.money` });
+        await client.db.sub(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, amount);
+        let bal = await client.db.get(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`);
 
         let embed = new EmbedBuilder()
             .setAuthor({ name: data.removemoney_embed_title, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })

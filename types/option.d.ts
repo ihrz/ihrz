@@ -24,7 +24,7 @@ import { Choice } from "./choice";
 
 export interface Option {
     type: ApplicationCommandOptionType,
-    options?: Option[], // Update the type to Option[]
+    options?: Option[],
     name: string,
     description: string,
     required?: boolean,

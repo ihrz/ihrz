@@ -23,13 +23,12 @@ import {
     Client,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
 import { TicketRemoveMember } from '../../core/ticketsManager';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let blockQ = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable` });
+        let blockQ = await client.db.get(`${interaction.guild.id}.GUILD.TICKET.disable`);
 
         if (blockQ) {
             await interaction.editReply({ content: data.remove_disabled_command });

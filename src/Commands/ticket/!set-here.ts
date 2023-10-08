@@ -26,7 +26,6 @@ import {
 } from 'discord.js';
 
 import { CreatePanel } from '../../core/ticketsManager';
-import * as db from '../../core/functions/DatabaseModel';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -34,7 +33,7 @@ export = {
         let panelName = interaction.options.getString("name");
         let panelDesc = interaction.options.getString("description");
 
-        if (await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.TICKET.disable` })) {
+        if (await client.db.get(`${interaction.guild.id}.GUILD.TICKET.disable`)) {
             await interaction.editReply({ content: data.sethereticket_disabled_command });
             return;
         };

@@ -25,13 +25,12 @@ import {
     AttachmentBuilder,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
 import fs from 'fs';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let char = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER` });
+        let char = await client.db.get(`${interaction.guild.id}.USER`);
         let tableau = [];
 
         for (let i in char) {

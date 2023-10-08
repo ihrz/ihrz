@@ -25,7 +25,6 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
 export = {
@@ -54,7 +53,7 @@ export = {
                 logger.err(e)
             };
 
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.disable`, value: false });
+            await client.db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.disable`, false);
             
             await interaction.editReply({ content: data.disablexp_command_work_disable });
             return;
@@ -74,7 +73,7 @@ export = {
                 logger.err(e)
             };
 
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.disable`, value: true });
+            await client.db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.disable`, true);
             
             await interaction.editReply({ content: data.disablexp_command_work_enable });
             return;

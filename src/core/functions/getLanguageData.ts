@@ -19,8 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+import db from '../functions/DatabaseModel';
 import yaml from 'js-yaml';
-import * as db from '../functions/DatabaseModel';
 import fs from 'fs';
 
 interface LangsData {
@@ -30,7 +30,7 @@ interface LangsData {
 let LangsData: LangsData = {};
 
 async function getLanguageData(arg: string): Promise<any> {
-    let fetched = await db.DataBaseModel({ id: db.Get, key: `${arg}.GUILD.LANG` });
+    let fetched = await db.get(`${arg}.GUILD.LANG`);
     let lang: string = '';
 
     if (!fetched) {
@@ -45,7 +45,7 @@ async function getLanguageData(arg: string): Promise<any> {
         dat = yaml.load(fs.readFileSync(`${process.cwd()}/src/lang/${lang}.yml`, 'utf8'));
         LangsData[lang] = dat;
     };
-    
+
     return dat;
 };
 

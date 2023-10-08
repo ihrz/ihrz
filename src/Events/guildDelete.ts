@@ -21,13 +21,14 @@
 
 import { Client, Guild, GuildChannel, GuildChannelManager, Message, MessageManager } from "discord.js";
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
-import * as db from '../core/functions/DatabaseModel';
+
 import logger from "../core/logger";
 import config from '../files/config';
 
 export = async (client: Client, guild: Guild) => {
     async function inviteManager() {
-        await db.DataBaseModel({ id: db.Delete, key: `${guild.id}` })
+        await client.db.delete(`${guild.id}`);
+        
         return client.invites.delete(guild.id);
     };
 

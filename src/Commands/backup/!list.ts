@@ -24,19 +24,17 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         let backupID = interaction.options.getString('backup-id');
 
-        if (backupID && !await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${backupID}` })) {
+        if (backupID && !await client.db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {
             await interaction.editReply({ content: data.backup_this_is_not_your_backup });
             return;
         };
 
         if (backupID) {
-            let data = await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${backupID}` });
+            let data = await client.db.get(`BACKUPS.${interaction.user.id}.${backupID}`);
 
             if (!data) {
                 await interaction.editReply({ content: data.backup_backup_doesnt_exist });
@@ -54,11 +52,12 @@ export = {
             return;
         } else {
             let em = new EmbedBuilder().setDescription(data.backup_all_of_your_backup).setColor("#bf0bb9").setTimestamp();
-            let data2 = await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}` });
+            let data2 = await client.db.get(`BACKUPS.${interaction.user.id}`);
             let b: number = 1;
 
             for (let i in data2) {
-                let result = await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${i}` });
+                let result = await client.db.get(`BACKUPS.${interaction.user.id}.${i}`);
+                
                 let v = (data.backup_string_see_another_v
                     .replace('${result.categoryCount}', result.categoryCount)
                     .replace('${result.channelCount}', result.channelCount));
