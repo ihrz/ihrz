@@ -27,7 +27,7 @@ import { Command } from '../../../types/command';
 
 export const command: Command = {
     name: 'nayaweb',
-    description: 'Get necessary information about my contributor``',
+    description: 'Get necessary information about my contributor',
     category: 'bot',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
