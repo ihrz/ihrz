@@ -174,7 +174,7 @@ invite_embed_description: "私はあなたを愛しています、私に対す�
 kisakay_message: "✨Kisakayは私の創造者であり開発者です。彼女と彼女のキーボードのおかげで生まれました。彼女には深く感謝しています！✨ ❤️❤️"
 
 # /nayaweb
-kisakay_message: "😼ナヤウェブは私の2番目の開発者/貢献者 , ナヤウェブ x キサケイ ❤️"
+nayaweb_message: "😼ナヤウェブは私の2番目の開発者/貢献者 , ナヤウェブ x キサケイ ❤️"
 
 # /ping
 pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
