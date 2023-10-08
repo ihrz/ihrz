@@ -23,7 +23,7 @@ IHorizon have a large variety of features, including moderation, invite manageme
 
 ## Origin
 
-The bot was primarily developed by Kisakay (*formerly known as Ezermoz*) and was first released in **September 2020** using **discord.js v12.
+The bot was primarily developed by Kisakay and was first released in **September 2020** using **discord.js v12 and now v14.13.0 , yeah the latest version !
 Now, It has a strong architecture with separated modules, each with their own owner directory.**
 
 ## Is it Free ?
@@ -84,7 +84,7 @@ If you have any questions or concerns, you can contact the owner via Discord at 
 
 # About the owner
 
-**Kisakay** (*formerly known as Ezermoz*) has not changed their identity, but has simply embraced who they truly are as a person. She now goes by she/her pronouns.
+**Kisakay** has not changed their identity, but has simply embraced who they truly are as a person. She now goes by she/her pronouns.
 
 In the `LICENSE` files, the name `Anaïs Saraiva` is the name of the owner.
 
