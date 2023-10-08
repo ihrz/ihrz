@@ -69,7 +69,7 @@ export = {
         var generatedPassword = hackerPasswords[Math.floor(Math.random() * hackerPasswords.length)];
 
         let embed = new EmbedBuilder()
-            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd` }) || "#800000")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#800000")
             .setDescription(data.hack_embed_description
                 .replace(/\${victim\.id}/g, victim.id)
                 .replace(/\${interaction\.user\.id}/g, interaction.user.id)

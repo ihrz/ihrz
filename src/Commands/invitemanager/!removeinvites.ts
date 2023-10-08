@@ -30,7 +30,7 @@ export = {
 
         let user = interaction.options.getMember("member");
         let amount = interaction.options.getNumber("amount");
-        let a = new EmbedBuilder().setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#FF0000").setDescription(data.removeinvites_not_admin_embed_description);
+        let a = new EmbedBuilder().setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#FF0000").setDescription(data.removeinvites_not_admin_embed_description);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ embeds: [a] });
@@ -44,7 +44,7 @@ export = {
                 .replace(/\${amount}/g, amount)
                 .replace(/\${user}/g, user)
             )
-            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || `#92A8D1`)
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || `#92A8D1`)
             .setFooter({ text: interaction.guild.name, iconURL: interaction.guild.iconURL({ dynamic: true }) });
 
         await client.db.sub(`${interaction.guild.id}.USER.${user.id}.INVITES.bonus`, amount);
@@ -52,7 +52,7 @@ export = {
 
         try {
             let logEmbed = new EmbedBuilder()
-                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`}) || "#bf0bb9")
+                .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                 .setTitle(data.removeinvites_logs_embed_title)
                 .setDescription(data.removeinvites_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)

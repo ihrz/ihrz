@@ -25,6 +25,8 @@ import playerManager from "./playerManager";
 import bash from './bash/bash';
 
 import * as errorManager from './errorManager';
+import db from './functions/DatabaseModel';
+
 import logger from "./logger";
 
 import { Client, Collection } from "discord.js";

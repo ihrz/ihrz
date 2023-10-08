@@ -23,13 +23,72 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
+    ApplicationCommandOptionType
 } from 'discord.js';
 
 import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
-export = {
-    run: async (client: Client, interaction: any, data: any) => {
+import { Command } from '../../../types/command';
+
+export const command: Command = {
+    name: 'embed-color',
+    description: 'Set the embed color !',
+    options: [
+        {
+            name: 'action',
+            type: ApplicationCommandOptionType.String,
+            description: `What do you want to do ?`,
+            required: true,
+            choices: [
+                {
+                    name: 'Reset All Settings',
+                    value: 'reset'
+                },
+                {
+                    name: 'Set for iHorizon-Logs (#ihorizon-logs) Embed!',
+                    value: 'ihrz-logs'
+                },
+                {
+                    name: 'Set for Giveaway Embed!',
+                    value: 'gw'
+                },
+                {
+                    name: 'Set for Audits-Logs Embed!',
+                    value: 'audits-logs'
+                },
+                {
+                    name: 'Set for Fun Command Embed!',
+                    value: 'fun-cmd'
+                },
+                {
+                    name: 'Set for Utils Command Embed!',
+                    value: 'utils-cmd'
+                },
+                {
+                    name: 'Set for Mod Command Embed!',
+                    value: 'mod-cmd'
+                },
+                {
+                    name: 'Set for Music Command Embed!',
+                    value: 'music-cmd'
+                },
+                {
+                    name: 'All others Embed!',
+                    value: 'all'
+                },
+            ]
+        },
+        {
+            name: 'hex-color',
+            type: ApplicationCommandOptionType.String,
+            description: `Use www.color-hex.com`,
+            required: false
+        },
+    ],
+    category: 'owner',
+    run: async (client: Client, interaction: any) => {
+        let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setjoindm_not_admin });
@@ -41,14 +100,10 @@ export = {
         var reg = /^#([0-9a-f]{3}){1,2}$/i;
 
         if (choices === 'reset') {
-            await db.DataBaseModel({
-                id: db.Delete,
-                key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`,
-                value: hex_color
-            });
+            await client.db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`);
 
             await interaction.editReply({
-                content: `${interaction.user}, now the color of all embeds are reseted!`
+                content: `${interaction.user}, now the color of all embeds are deleted!`
             });
 
             return;
@@ -63,11 +118,7 @@ export = {
                 key = `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.${choices}`;
             };
 
-            await db.DataBaseModel({
-                id: db.Set,
-                key: key,
-                value: hex_color
-            });
+            await client.db.set(key, hex_color);
 
             await interaction.editReply({
                 content: `${interaction.user}, now the embed color is \`${hex_color}\` for ${choices} !`

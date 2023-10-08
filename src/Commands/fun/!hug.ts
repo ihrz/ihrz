@@ -35,7 +35,7 @@ export = {
         axios.get(apiUrlParser.HugURL)
             .then(async (res) => {
                 let embed = new EmbedBuilder()
-                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd` }) || "#FFB6C1")
+                    .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#FFB6C1")
                     .setDescription(data.hug_embed_title
                         .replace(/\${hug\.id}/g, hug.id)
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)

@@ -62,7 +62,7 @@ export const command: Command = {
     run: async (client: Client, interaction: any) => {
         async function cooldDown() {
             let tn = Date.now();
-            var fetch = await db.DataBaseModel({ id: db.Get, key: `TEMP_COOLDOWN.${interaction.user.id}.SETAVATAR` });
+            var fetch = await client.db.get(`TEMP_COOLDOWN.${interaction.user.id}.SETAVATAR`);
 
             if (fetch !== null && timeout - (tn - fetch) > 0) return true;
 
@@ -71,7 +71,7 @@ export const command: Command = {
 
         let action_2 = interaction.options.getString("pfp");
 
-        if (await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER.${interaction.user.id}.owner` })
+        if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`)
             !== true) {
 
             await interaction.deleteReply();
@@ -81,7 +81,7 @@ export const command: Command = {
 
         if (await cooldDown()) {
             let time = ms(timeout - (Date.now() -
-                await db.DataBaseModel({ id: db.Get, key: `TEMP_COOLDOWN.${interaction.user.id}.SETAVATAR` })
+                await client.db.get(`TEMP_COOLDOWN.${interaction.user.id}.SETAVATAR`)
             ));
 
             await interaction.editReply({ content: `Veuillez attendre ${time} avant de ré-éxecuter cette commandes!` });
@@ -93,11 +93,8 @@ export const command: Command = {
             .then(async (isValid) => {
                 if (isValid) {
                     client.user?.setAvatar(action_2);
-                    await db.DataBaseModel({
-                        id: db.Set,
-                        key: `TEMP_COOLDOWN.${interaction.user.id}.SETAVATAR`,
-                        value: Date.now()
-                    });
+                    await client.db.set(`TEMP_COOLDOWN.${interaction.user.id}.SETAVATAR`, Date.now());
+                    
                     return interaction.editReply({ content: `La photo de profil du bot as bien été changer avec succès.` });
                 } else {
                     return interaction.editReply({ content: `L'URL saisie n'est pas une image. Veuillez changer d'URL.` });

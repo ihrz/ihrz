@@ -119,7 +119,7 @@ export = {
                                         url: lyrics.artist.url
                                     })
                                     .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
-                                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.music-cmd` }) || '#cd703a')
+                                    .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.music-cmd`) || '#cd703a')
                                     .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
                                 i.reply({ embeds: [embed], ephemeral: true });
                             };

@@ -35,7 +35,7 @@ export = {
         let bonus = baseData?.bonus;
 
         let embed = new EmbedBuilder()
-            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#92A8D1")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#92A8D1")
             .setTitle(data.invites_confirmation_embed_title)
             .setTimestamp()
             .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))

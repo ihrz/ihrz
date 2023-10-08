@@ -70,7 +70,7 @@ export = {
 
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
+                    .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                     .setTitle(data.backup_logs_embed_title_on_creation)
                     .setDescription(data.backup_logs_embed_description_on_creation
                         .replace('${interaction.user.id}', interaction.user.id)

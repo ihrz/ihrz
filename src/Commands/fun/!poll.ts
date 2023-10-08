@@ -40,7 +40,7 @@ export = {
             .setTitle(data.poll_embed_title
                 .replace(/\${interaction\.user\.username}/g, interaction.user.globalName)
             )
-            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd` }) || "#ddd98b")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#ddd98b")
             .setDescription(pollMessage)
             .addFields({ name: data.poll_embed_fields_reaction, value: data.poll_embed_fields_choice })
             .setImage("https://cdn.discordapp.com/attachments/610152915063013376/610947097969164310/loading-animation.gif")

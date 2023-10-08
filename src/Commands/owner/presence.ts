@@ -75,7 +75,7 @@ export const command: Command = {
         let action_1 = interaction.options.getString("type");
         let action_2 = interaction.options.getString("name");
 
-        if (await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER.${interaction.user.id}.owner` })
+        if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`)
             !== true) {
 
             await interaction.deleteReply();
@@ -89,63 +89,54 @@ export const command: Command = {
                     type: ActivityType.Streaming,
                     url: "https://www.twitch.tv/anaissaraiva"
                 });
-                await db.DataBaseModel({
-                    id: db.Set,
-                    key: `BOT.PRESENCE`,
-                    value: {
+                await client.db.set(`BOT.PRESENCE`,
+                    {
                         type: ActivityType.Streaming,
                         name: action_2
                     }
-                });
+                );
                 break;
             case 'watching':
-                client.user?.setActivity(action_2, {
-                    type: ActivityType.Watching,
-                    url: "https://www.twitch.tv/anaissaraiva"
-                });
-                await db.DataBaseModel({
-                    id: db.Set,
-                    key: `BOT.PRESENCE`,
-                    value: {
+                client.user?.setActivity(action_2,
+                    {
+                        type: ActivityType.Watching,
+                        url: "https://www.twitch.tv/anaissaraiva"
+                    }
+                );
+                await client.db.set(`BOT.PRESENCE`,
+                    {
                         type: ActivityType.Watching,
                         name: action_2
                     }
-                });
+                );
                 break;
             case 'playing':
                 client.user?.setActivity(action_2, {
                     type: ActivityType.Playing,
                     url: "https://www.twitch.tv/anaissaraiva"
                 });
-                await db.DataBaseModel({
-                    id: db.Set,
-                    key: `BOT.PRESENCE`,
-                    value: {
+                await client.db.set(`BOT.PRESENCE`,
+                    {
                         type: ActivityType.Playing,
                         name: action_2
                     }
-                });
+                );
                 break;
             case 'listening':
                 client.user?.setActivity(action_2, {
                     type: ActivityType.Listening,
                     url: "https://www.twitch.tv/anaissaraiva"
                 });
-                await db.DataBaseModel({
-                    id: db.Set,
-                    key: `BOT.PRESENCE`,
-                    value: {
+                await client.db.set(`BOT.PRESENCE`,
+                    {
                         type: ActivityType.Listening,
                         name: action_2,
                         url: 'https://twitch.tv/anaissaraiva'
                     }
-                });
+                );
                 break;
             default:
-                await db.DataBaseModel({
-                    id: db.Delete,
-                    key: `BOT.PRESENCE`,
-                });
+                await client.db.delete(`BOT.PRESENCE`);
                 break;
         };
 

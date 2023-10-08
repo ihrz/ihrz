@@ -35,7 +35,7 @@ export = {
         axios.get(apiUrlParser.SlapURL)
             .then(async (res: any) => {
                 let embed = new EmbedBuilder()
-                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd` }) || "#42ff08")
+                    .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#42ff08")
                     .setDescription(data.slap_embed_description
                         .replace(/\${slap\.id}/g, slap.id)
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)

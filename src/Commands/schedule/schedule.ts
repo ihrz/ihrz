@@ -190,7 +190,7 @@ export const command: Command = {
                             .replace('${arg0}', arg0)
                         )
                         .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
-                        .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || '#ff0a0a')
+                        .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || '#ff0a0a')
                         .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                         .setTimestamp();
 
@@ -205,7 +205,7 @@ export const command: Command = {
                     await client.db.delete(`SCHEDULE.${interaction.user.id}`);
 
                     let embed = new EmbedBuilder()
-                        .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || '#ff0a0a')
+                        .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || '#ff0a0a')
                         .setAuthor({
                             name: interaction.user.globalName,
                             iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 })
@@ -239,7 +239,7 @@ export const command: Command = {
                 let embed = new EmbedBuilder()
                     .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                     .setTitle(data.schedule_list_title_embed)
-                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || '#60BEE0')
+                    .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || '#60BEE0')
                     .setAuthor({
                         name: interaction.user.globalName,
                         iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 })
@@ -276,7 +276,7 @@ export const command: Command = {
                     })
                     .setTitle(data.schedule_create_title_embed)
                     .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
-                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || '#00549f')
+                    .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || '#00549f')
                     .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                     .setTimestamp();
 

@@ -54,7 +54,7 @@ export = {
         });
 
         let embed = new EmbedBuilder()
-            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#FFB6C1")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#FFB6C1")
             .setDescription(text)
             .setTimestamp()
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })

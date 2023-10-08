@@ -122,7 +122,7 @@ export const command: Command = {
                 .setThumbnail(member.displayAvatarURL({ dynamic: true }))
                 .setFooter({ text: `ID: ${member.id}` })
                 .setTimestamp()
-                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd` }) || '#0014a8')
+                .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#0014a8')
                 .setDescription(description);
 
             await interaction.editReply({ embeds: [embed], content: '✅ Fetched !' });

@@ -72,7 +72,7 @@ export const command: Command = {
         }
 
         let embed = new EmbedBuilder()
-            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd` }) || '#bea9de')
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#bea9de')
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp()
             .setDescription(`__Created **${cnt}** emoji(s) in \`${interaction.guild.name}\`__\n(${nemj})`)

@@ -73,7 +73,7 @@ export const command: Command = {
             };
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
+                    .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                     .setTitle(data.setlogschannel_logs_embed_title)
                     .setDescription(data.setlogschannel_logs_embed_description_on_enable
                         .replace(/\${argsid\.id}/g, argsid.id)
@@ -122,7 +122,7 @@ export const command: Command = {
 
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
+                    .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                     .setTitle(data.setlogschannel_logs_embed_title)
                     .setDescription(data.setlogschannel_logs_embed_description_on_enable
                         .replace(/\${argsid\.id}/g, argsid.id)
@@ -170,7 +170,7 @@ export const command: Command = {
             }
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
+                    .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                     .setTitle(data.setlogschannel_logs_embed_title)
                     .setDescription(data.setlogschannel_logs_embed_description_on_enable
                         .replace(/\${argsid\.id}/g, argsid.id)
@@ -219,7 +219,7 @@ export const command: Command = {
 
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
+                    .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                     .setTitle(data.setlogschannel_logs_embed_title)
                     .setDescription(data.setlogschannel_logs_embed_description_on_enable
                         .replace(/\${argsid\.id}/g, argsid.id)
@@ -261,7 +261,7 @@ export const command: Command = {
         if (type === "off") {
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
+                    .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                     .setTitle(data.setlogschannel_logs_embed_title)
                     .setDescription(data.setlogschannel_logs_embed_description_on_off
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)

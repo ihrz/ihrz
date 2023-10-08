@@ -44,7 +44,7 @@ export = {
             .setTitle(data.question_embed_title
                 .replace(/\${interaction\.user\.username}/g, interaction.user.globalName)
             )
-            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd` }) || "#ddd98b")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#ddd98b")
             .addFields({ name: data.question_fields_input_embed, value: question, inline: true },
                 { name: data.question_fields_output_embed, value: reponse[result] })
             .setTimestamp();

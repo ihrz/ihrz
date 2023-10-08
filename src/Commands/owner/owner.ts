@@ -57,7 +57,7 @@ export const command: Command = {
         let iconURL: any = client.user?.displayAvatarURL();
 
         let embed = new EmbedBuilder()
-            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#2E2EFE")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#2E2EFE")
             .setAuthor({ name: "Owners" })
             .setDescription(`${text}`)
             .setFooter({ text: 'iHorizon', iconURL: iconURL });

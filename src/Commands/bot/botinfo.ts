@@ -40,7 +40,7 @@ export const command: Command = {
         let pp: any = client.user?.displayAvatarURL();
 
         let clientembed = new EmbedBuilder()
-            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#f0d020")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#f0d020")
             .setThumbnail(pp)
             .addFields(
                 { name: data.botinfo_embed_fields_myname, value: `:green_circle: ${client.user?.username}`, inline: false },

@@ -41,7 +41,7 @@ export const command: Command = {
         };
 
         let embed = new EmbedBuilder()
-            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd` }) || "#474749")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || "#474749")
             .setAuthor({ name: based.snipeUserInfoTag, iconURL: based.snipeUserInfoPp })
             .setDescription(`\`${based.snipe || 0}\``)
             .setTimestamp(based.snipeTimestamp);

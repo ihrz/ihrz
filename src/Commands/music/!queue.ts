@@ -57,7 +57,7 @@ export = {
         while (tracks.length > 0) {
             let chunk = tracks.slice(0, chunkSize);
             let embed = new EmbedBuilder()
-                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.music-cmd` }) || '#ff0000')
+                .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.music-cmd`) || '#ff0000')
                 .setTitle(data.queue_embed_title)
                 .setDescription(chunk.join('\n') || data.queue_embed_description_empty)
                 .setFooter({

@@ -44,7 +44,7 @@ export const command: Command = {
 
         let embeds = new EmbedBuilder()
             .setColor(
-                await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd` }) || "#C3B2A1"
+                await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || "#C3B2A1"
             )
             .setAuthor({
                 name: data.serverinfo_embed_author

@@ -32,7 +32,7 @@ export = {
 
         let embed = new EmbedBuilder()
             .setImage(mentionedUser.displayAvatarURL({ format: 'png', dynamic: true, size: 512 }))
-            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.mod-cmd` }) || "#add5ff")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.mod-cmd`) || "#add5ff")
             .setTitle(data.avatar_embed_title
                 .replace('${mentionedUser.username}', mentionedUser.username)
             )

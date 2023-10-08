@@ -67,7 +67,7 @@ export = {
             .catch((err: string) => logger.err(err));
 
         try {
-            let logEmbed = new EmbedBuilder().setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9").setTitle(data.unban_logs_embed_title)
+            let logEmbed = new EmbedBuilder().setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9").setTitle(data.unban_logs_embed_title)
                 .setDescription(data.unban_logs_embed_description
                     .replace(/\${userID}/g, userID)
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)

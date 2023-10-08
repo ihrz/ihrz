@@ -59,7 +59,7 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
         removeObjects = removeObjects.map((obj) => obj.id);
 
         let logsEmbed = new EmbedBuilder()
-            .setColor(await db.DataBaseModel({ id: db.Get, key: `${oldMember.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs` }) || "#000000")
+            .setColor(await client.db.get(`${oldMember.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#000000")
             .setAuthor({ name: firstEntry.target.username, iconURL: firstEntry.target.displayAvatarURL({ format: 'png', dynamic: true }) })
             .setTimestamp();
 

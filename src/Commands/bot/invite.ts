@@ -36,7 +36,7 @@ export const command: Command = {
         let pp: any = client.user?.displayAvatarURL();
 
         let invites = new EmbedBuilder()
-            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#416fec")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#416fec")
             .setTitle(data.invite_embed_title)
             .setDescription(data.invite_embed_description)
             .setURL('https://discord.com/api/oauth2/authorize?client_id=' + client.user?.id + '&permissions=8&scope=bot')

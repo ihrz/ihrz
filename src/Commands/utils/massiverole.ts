@@ -102,7 +102,7 @@ export const command: Command = {
 
             let embed = new EmbedBuilder()
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
-                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd` }) || '#007fff')
+                .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
                 .setDescription(data.massiverole_add_command_work
@@ -141,7 +141,7 @@ export const command: Command = {
 
             let embed = new EmbedBuilder()
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
-                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd` }) || '#007fff')
+                .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
                 .setDescription(data.massiverole_sub_command_work

@@ -128,7 +128,7 @@ export = {
             };
 
             var embed = new EmbedBuilder()
-                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd` }) || "#FFC0CB")
+                .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#FFC0CB")
                 .setTitle("💕")
                 .setImage(`attachment://${user1.id}x${user2.id}.png`)
                 .setDescription(data.love_embed_description

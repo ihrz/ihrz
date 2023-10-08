@@ -44,7 +44,7 @@ export const command: Command = {
         API = await ping.promise.probe("discord.com").then(result => API = result.time).catch(e => { API = "**DOWN**" });
 
         let embed = new EmbedBuilder()
-            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`}) || "#319938")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#319938")
             .setTitle("Pong! 🏓")
             .setDescription(`**Network** : \`${await network}\` ms\n**Discord API** : \`${await API}\` ms`)
 

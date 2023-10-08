@@ -37,14 +37,14 @@ export = {
             return;
         }
         let embed = new EmbedBuilder()
-            .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color` }) || "#5b3475")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#5b3475")
             .setTimestamp()
             .setDescription(data.unlock_embed_message_description);
         await interaction.channel.permissionOverwrites.create(interaction.guild.id, { SendMessages: true });
 
         try {
             let logEmbed = new EmbedBuilder()
-                .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
+                .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                 .setTitle(data.unlock_logs_embed_title)
                 .setDescription(data.unlock_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)

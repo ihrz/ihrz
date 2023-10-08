@@ -49,7 +49,7 @@ export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
         let iconURL: any = targetUser.displayAvatarURL();
 
         let logsEmbed = new EmbedBuilder()
-            .setColor(await db.DataBaseModel({ id: db.Get, key: `${oldState.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs` }) || "#000000")
+            .setColor(await client.db.get(`${oldState.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#000000")
             .setAuthor({ name: targetUser.username, iconURL: iconURL })
             .setTimestamp();
 

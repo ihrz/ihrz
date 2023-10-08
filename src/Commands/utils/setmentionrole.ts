@@ -76,7 +76,7 @@ export const command: Command = {
 
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
+                    .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                     .setTitle(data.setrankroles_logs_embed_title_enable)
                     .setDescription(data.setrankroles_logs_embed_description_enable
                         .replace(/\${interaction\.user.id}/g, interaction.user.id)
@@ -110,7 +110,7 @@ export const command: Command = {
         } else if (type == "off") {
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
+                    .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                     .setTitle(data.setrankroles_logs_embed_title_disable)
                     .setDescription(data.setrankroles_logs_embed_description_disable
                         .replace(/\${interaction\.user.id}/g, interaction.user.id)
