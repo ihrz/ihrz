@@ -65,14 +65,17 @@ export = async (client: Client) => {
     async function quotesPresence() {
         let quotes = [
             "discord.gg/ihorizon",
+            "iHorizon x ElektraBots <3",
             "Our goal is to make the internet simpler!",
             "250K USERS !? 🥳🥳🥳",
             "It's not 200k anymore it's 250k 😎😎😎😎",
             "trusted by big servers 😎",
             "Happy back to school 😭😭😭",
             "Nah men I'm not getting paid enough to manage 250K users...",
+            "Pay Discord bots 3€ Seriously? Use iHorizon...",
             "Did you know you can have your own iHorizon? For really cheap??",
             "We are now open source!!!",
+            "Typescript >>>> Javascript",
             "Never gonna give you up...BRO YOU'VE BEEN RICK ROLLED BY A BOT",
             "I have a youtube channel!",
             "I forgor",
@@ -82,6 +85,7 @@ export = async (client: Client) => {
             "My owner doesn't use tiktok...I INSTALLED IT BEHIND HER BACK",
             "I BROKED MY CODE HELP ME",
             "What is a database? Do I really need one?",
+            "Are you a hacker ? Please dont touch my token..",
             "My parents : Don't work too much, me : I forgor"
         ];
 
