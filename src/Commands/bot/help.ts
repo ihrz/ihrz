@@ -29,7 +29,6 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
 
 export const command: Command = {
     name: 'help',
@@ -37,7 +36,7 @@ export const command: Command = {
     category: 'bot',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
-        let CONTENT = await db.DataBaseModel({ id: db.Get, key: "BOT.CONTENT" });
+        let CONTENT = await client.db.get("BOT.CONTENT");
 
         let categories = [
             { name: data.help_backup_fields, value: CONTENT.backup, inline: true, description: data.help_backup_dsc, emoji: "🔁" },

@@ -20,23 +20,20 @@
 */
 
 import { Client, Collection, EmbedBuilder, Guild, Invite, Permissions, PermissionsBitField } from 'discord.js';
-import * as db from '../core/functions/DatabaseModel';
 
 export = async (client: Client, invite: any) => {
     async function inviteManager() {
         if (!invite.guild || !invite.guild.members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
         await client.invites.get(invite.guild?.id)?.set(invite.code, invite.uses);
 
-        let check = await db.DataBaseModel({
-            id: db.Get, key: `${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`
-        });
+        let check = await client.db.get(`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`);
 
         if (!check) {
-            await db.DataBaseModel({
-                id: db.Set, key: `${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`, value: {
+            await client.db.set(`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`,
+                {
                     regular: 0, bonus: 0, leaves: 0, invites: 0
                 }
-            });
+            );
         };
     };
 

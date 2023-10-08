@@ -24,12 +24,10 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         let member = interaction.options.getMember("member") || interaction.member;
-        let baseData = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${member.user.id}.INVITES` });
+        let baseData = await client.db.get(`${interaction.guild.id}.USER.${member.user.id}.INVITES`);
 
         let inv = baseData?.invites;
         let leaves = baseData?.leaves;

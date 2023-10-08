@@ -23,14 +23,12 @@ import {
     Client,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         let user = interaction.options.getMember("member");
         let amount = interaction.options.getNumber("amount");
 
-        let member = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${user.id}.ECONOMY.money` });
+        let member = await client.db.get(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`);
         if (amount.toString().includes('-')) {
             await interaction.editReply({ content: data.pay_negative_number_error });
             return;
@@ -48,8 +46,8 @@ export = {
                 .replace(/\${amount}/g, amount)
         });
 
-        await db.DataBaseModel({ id: db.Add, key: `${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, value: amount });
-        await db.DataBaseModel({ id: db.Sub, key: `${interaction.guild.id}.USER.${interaction.member.id}.ECONOMY.money`, value: amount });
+        await client.db.add(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, amount);
+        await client.db.sub(`${interaction.guild.id}.USER.${interaction.member.id}.ECONOMY.money`, amount);
         return;
     },
 };

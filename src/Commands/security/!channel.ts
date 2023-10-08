@@ -25,8 +25,6 @@ import {
     PermissionsBitField
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
@@ -37,7 +35,7 @@ export = {
             return;
         };
 
-        await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.SECURITY.channel`, value: channel.id });
+        await client.db.set(`${interaction.guild.id}.SECURITY.channel`, channel.id);
 
         await interaction.editReply({
             content: data.security_channel_command_work

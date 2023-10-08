@@ -60,11 +60,12 @@ export = (client: Client) => {
     cleanTempDir();
     checkSys.Html();
 
+    client.db = db;
+    client.invites = new Collection();
+
     readdirSync(`${process.cwd()}/dist/src/core/handlers`).filter(file => file.endsWith('.js')).forEach(file => {
         require(`${process.cwd()}/dist/src/core/handlers/${file}`)(client);
     });
-
-    client.invites = new Collection();
 
     require('../api/server'),
         bash(client),

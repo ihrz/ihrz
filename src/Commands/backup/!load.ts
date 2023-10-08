@@ -24,8 +24,6 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 import backup from 'discord-backup';
 
 export = {
@@ -47,7 +45,7 @@ export = {
             return;
         };
 
-        if (backupID && !await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${backupID}` })) {
+        if (backupID && !await client.db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {
             await interaction.editReply({ content: data.backup_this_is_not_your_backup });
             return;
         };

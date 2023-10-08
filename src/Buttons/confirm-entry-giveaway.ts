@@ -19,15 +19,14 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import * as db from '../core/functions/DatabaseModel';
+import db from '../core/functions/DatabaseModel';
 import { AddEntries } from '../core/giveawaysManager';
 
 export = async function (interaction: any) {
 
-    if (await db.DataBaseModel({
-        id: db.Get,
-        key: `GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}`
-    })) {
+    if (await db.get(
+        `GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}`
+    )) {
         AddEntries(interaction);
     };
 

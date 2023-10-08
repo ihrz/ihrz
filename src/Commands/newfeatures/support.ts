@@ -27,7 +27,6 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
 export const command: Command = {
@@ -81,14 +80,13 @@ export const command: Command = {
             return;
         }
         if (action == "true") {
-            await db.DataBaseModel({
-                id: db.Set, key: `${interaction.guild.id}.GUILD.SUPPORT`, value:
+            await client.db.set(`${interaction.guild.id}.GUILD.SUPPORT`,
                 {
                     input: input,
                     rolesId: roles.id,
                     state: action
                 }
-            });
+            );
 
             await interaction.editReply({
                 content: data.support_command_work
@@ -109,7 +107,7 @@ export const command: Command = {
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
         } else {
-            await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.SUPPORT` });
+            await client.db.delete(`${interaction.guild.id}.GUILD.SUPPORT`);
 
             await interaction.editReply({
                 content: data.support_command_work_on_disable

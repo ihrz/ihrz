@@ -20,14 +20,13 @@
 */
 
 import { CreateTicketChannel } from '../core/ticketsManager';
-import * as db from '../core/functions/DatabaseModel';
+import db from '../core/functions/DatabaseModel';
 
 export = async function (interaction: any) {
 
-    if (await db.DataBaseModel({
-        id: db.Get,
-        key: `${interaction.guild.id}.GUILD.TICKET.${interaction.message.id}`
-    })) {
+    if (await db.get(
+        `${interaction.guild.id}.GUILD.TICKET.${interaction.message.id}`
+    )) {
         CreateTicketChannel(interaction);
     };
 

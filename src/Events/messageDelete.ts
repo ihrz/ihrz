@@ -21,7 +21,7 @@
 
 import { Attachment, AttachmentBuilder, AttachmentData, Client, Collection, EmbedBuilder, GuildTextBasedChannel, Message, PermissionsBitField } from 'discord.js';
 import * as hidden from '../core/functions/maskLink';
-import * as db from '../core/functions/DatabaseModel';
+
 import axios from 'axios';
 
 export = async (client: Client, message: Message) => {
@@ -31,27 +31,26 @@ export = async (client: Client, message: Message) => {
         if (!message.guild || !message.author
             || message.author.id == client.user?.id) return;
 
-        await db.DataBaseModel({
-            id: db.Set, key: `${message.guild.id}.GUILD.SNIPE.${message.channel.id}`,
-            value: {
+        await client.db.set(`${message.guild.id}.GUILD.SNIPE.${message.channel.id}`,
+            {
                 snipe: `${await hidden.maskLink(message.content)}`,
                 snipeUserInfoTag: `${message.author.username} (${message.author.id} )`,
                 snipeUserInfoPp: `${message.author.displayAvatarURL()}`,
                 snipeTimestamp: Date.now()
             }
-        });
+        );
     };
 
     async function serverLogs() {
         if (!message.guild || !message.author
             || message.author.id == client.user?.id) return;
 
-        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${message.guild.id}.GUILD.SERVER_LOGS.message` });
+        let someinfo = await client.db.get(`${message.guild.id}.GUILD.SERVER_LOGS.message`);
         if (!someinfo) return;
 
         let Msgchannel: any = client.channels.cache.get(someinfo);
         if (!Msgchannel) return;
-        
+
         let iconURL: any = message.author.displayAvatarURL();
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")

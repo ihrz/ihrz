@@ -27,7 +27,7 @@ import CryptoJS from 'crypto-js';
 import path from 'path';
 import fs from 'fs';
 import wait from 'wait';
-import * as db from '../../../core/functions/DatabaseModel';
+import db from '../../../core/functions/DatabaseModel';
 
 export = {
     type: 'post',
@@ -137,10 +137,8 @@ export = {
 
         cliArray.forEach((index) => { execSync(index.l, { stdio: [0, 1, 2], cwd: index.cwd }); });
 
-        await db.DataBaseModel({
-            id: db.Set,
-            key: `OWNIHRZ.${owner_one}.${code}`,
-            value: {
+        await db.set(`OWNIHRZ.${owner_one}.${code}`,
+            {
                 path: path.resolve(process.cwd(), 'ownihrz', code),
                 port: port_range,
                 auth: auth,
@@ -148,7 +146,7 @@ export = {
                 expireIn: expireIn,
                 bot: bot
             }
-        });
+        );
 
         return;
     },

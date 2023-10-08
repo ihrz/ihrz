@@ -25,7 +25,6 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
 export = {
@@ -62,11 +61,11 @@ export = {
             };
 
             try {
-                let already = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels` });
+                let already = await client.db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`);
                 if (already === argsid.id) return interaction.editReply({ content: data.setxpchannels_already_with_this_config });
 
                 interaction.client.channels.cache.get(argsid.id)?.send({ content: data.setxpchannels_confirmation_message });
-                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`, value: argsid.id });
+                await client.db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`, argsid.id);
 
                 await interaction.editReply({ content: data.setxpchannels_command_work_enable.replace(/\${argsid}/g, argsid.id) });
                 return;
@@ -91,14 +90,14 @@ export = {
             };
 
             try {
-                let already2 = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels` });
+                let already2 = await client.db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`);
 
                 if (already2 === "off") {
                     await interaction.editReply({ content: data.setxpchannels_already_disabled_disable });
                     return;
                 };
 
-                await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels` });
+                await client.db.delete(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`);
                 await interaction.editReply({ content: data.setxpchannels_command_work_disable });
                 return;
             } catch (e) {

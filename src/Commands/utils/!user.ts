@@ -26,7 +26,6 @@ import {
     User
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
 import axios from 'axios';
 
 export = {

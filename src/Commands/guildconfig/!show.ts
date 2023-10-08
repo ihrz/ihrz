@@ -25,8 +25,6 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
@@ -34,7 +32,7 @@ export = {
             return;
         };
 
-        let baseData = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD` });
+        let baseData = await client.db.get(`${interaction.guild.id}.GUILD`);
 
         let setchannelsjoin = (baseData?.['GUILD_CONFIG'])?.join;
         let setchannelsleave = (baseData?.['GUILD_CONFIG'])?.leave;

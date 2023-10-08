@@ -21,8 +21,6 @@
 
 import logger from "../logger";
 import wait from 'wait';
-import couleurmdr from 'colors';
-import * as db from '../functions/DatabaseModel';
 import os from 'os-utils';
 import readline from 'readline';
 import fs from 'fs';
@@ -55,13 +53,13 @@ export = async (client: any) => {
         };
 
         let formattedDate = now.toLocaleDateString('fr-FR', options),
-            LoadFiles = await db.DataBaseModel({ id: db.Get, key: `BASH.LAST_LOGIN` }) || "None",
+            LoadFiles = await client.db.get(`BASH.LAST_LOGIN`) || "None",
             LoadFiles2 = "127.0.0.1";
 
         let filePath = path.join(process.cwd(), 'src', 'core', 'bash', 'history', '.bash_history'),
             createFiles = fs.createWriteStream(filePath, { flags: 'a' });
 
-        await db.DataBaseModel({ id: db.Set, key: `BASH.LAST_LOGIN`, value: dateStr});
+        await client.db.set(`BASH.LAST_LOGIN`, dateStr);
         logger.legacy(`Welcome to iHorizon Bash
     
     * Documentation:  https://github.com/ihrz/ihrz/

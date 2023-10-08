@@ -23,16 +23,14 @@ import {
     Client,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let member = interaction.options.getUser('user') || interaction.user;
-        var bal = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${member.id}.ECONOMY.money` });
+        var bal = await client.db.get(`${interaction.guild.id}.USER.${member.id}.ECONOMY.money`);
 
         if (!bal) {
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.USER.${member.value}.ECONOMY.money`, value: 1 });
+            await client.db.set(`${interaction.guild.id}.USER.${member.value}.ECONOMY.money`, 1);
             await interaction.editReply({ content: data.balance_he_dont_have_wallet });
             return;
         };

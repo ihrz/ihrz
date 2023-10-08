@@ -24,7 +24,6 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
 export = {
@@ -52,7 +51,7 @@ export = {
                 logger.err(e);
             };
 
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.BLOCK_BOT`, value: true });
+            await client.db.set(`${interaction.guild.id}.GUILD.BLOCK_BOT`, true);
 
             await interaction.editReply({ content: data.blockbot_command_work_on_enable });
             return;
@@ -74,7 +73,7 @@ export = {
                 logger.err(e);
             };
 
-            await db.DataBaseModel({ id: db.Delete, key: `${interaction.guild.id}.GUILD.BLOCK_BOT` });
+            await client.db.delete(`${interaction.guild.id}.GUILD.BLOCK_BOT`);
 
             await interaction.editReply({ content: data.blockbot_command_work_on_disable });
             return;

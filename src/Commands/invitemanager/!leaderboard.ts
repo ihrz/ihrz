@@ -24,12 +24,10 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         var text: string = data.leaderboard_default_text;
-        let char = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER` });
+        let char = await client.db.get(`${interaction.guild.id}.USER`);
         let tableau: Array<any> = [];
         let i: number = 1;
 

@@ -26,7 +26,6 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
 
 export const command: Command = {
     name: 'blacklist',
@@ -43,13 +42,13 @@ export const command: Command = {
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
-        if (await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER.${interaction.user.id}.owner` }) !== true) {
+        if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
             await interaction.editReply({ content: data.blacklist_not_owner });
             return;
         };
 
         var text = "";
-        let char = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST` });
+        let char = await client.db.get(`GLOBAL.BLACKLIST`);
 
         for (var i in char) {
             text += `<@${i}>\n`;
@@ -73,17 +72,17 @@ export const command: Command = {
                 return;
             };
 
-            let fetched = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${member.user.id}` });
+            let fetched = await client.db.get(`GLOBAL.BLACKLIST.${member.user.id}`);
 
             if (!fetched) {
-                await db.DataBaseModel({ id: db.Set, key: `GLOBAL.BLACKLIST.${member.user.id}`, value: { blacklisted: true } });
+                await client.db.set(`GLOBAL.BLACKLIST.${member.user.id}`, { blacklisted: true });
 
                 if (member.bannable) {
                     member.ban({ reason: "blacklisted !" });
                     await interaction.editReply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, member.user.globalName) });
                     return;
                 } else {
-                    await db.DataBaseModel({ id: db.Set, key: `GLOBAL.BLACKLIST.${member.user.id}`, value: { blacklisted: true } });
+                    await client.db.set(`GLOBAL.BLACKLIST.${member.user.id}`, { blacklisted: true });
                     await interaction.editReply({ content: data.blacklist_blacklisted_but_can_ban_him });
                     return;
                 }
@@ -92,16 +91,16 @@ export const command: Command = {
                 return;
             }
         } else if (user) {
-            
+
             if (user.id === client.user?.id) {
                 await interaction.editReply({ content: data.blacklist_bot_lol });
                 return;
             };
 
-            let fetched = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${user.id}` });
+            let fetched = await client.db.get(`GLOBAL.BLACKLIST.${user.id}`);
 
             if (!fetched) {
-                await db.DataBaseModel({ id: db.Set, key: `GLOBAL.BLACKLIST.${user.id}`, value: { blacklisted: true } });
+                await client.db.set(`GLOBAL.BLACKLIST.${user.id}`, { blacklisted: true });
 
                 await interaction.editReply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, user.globalName) }); return;
             } else {

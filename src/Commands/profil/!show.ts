@@ -24,26 +24,24 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         let member = interaction.options.getUser('user') || interaction.user;
 
-        var description = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.USER_PROFIL.${member.id}.desc` });
+        var description = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.desc`);
         if (!description) var description = data.profil_not_description_set;
 
-        var level: Number = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${member.id}.XP_LEVELING.level` });
+        var level: Number = await client.db.get(`${interaction.guild.id}.USER.${member.id}.XP_LEVELING.level`);
         if (!level) var level: Number = 0;
 
-        var balance: Number = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${member.id}.ECONOMY.money` });
+        var balance: Number = await client.db.get(`${interaction.guild.id}.USER.${member.id}.ECONOMY.money`);
         if (!balance) var balance: Number = 0;
 
-        var age = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.USER_PROFIL.${member.id}.age` });
+        var age = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.age`);
         if (!age) var age = data.profil_unknown;
 
-        var gender = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.USER_PROFIL.${member.id}.gender` });
+        var gender = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.gender`);
         if (!gender) var gender = data.profil_unknown;
 
         let profil = new EmbedBuilder()

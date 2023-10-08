@@ -22,7 +22,7 @@
 import DiscordOauth2 from 'discord-oauth2';
 import logger from '../../../core/logger';
 import { Request, Response } from 'express';
-import * as db from '../../../core/functions/DatabaseModel';
+import db from '../../../core/functions/DatabaseModel';
 import config from '../../../files/config';
 
 let oauth = new DiscordOauth2();
@@ -46,7 +46,7 @@ export = {
             };
 
             if (adminKey != config.api.apiToken) return;
-            let value = await db.DataBaseModel({ id: db.Get, key: `API.TOKEN.${userid}` });
+            let value = await db.get(`API.TOKEN.${userid}`);
             if (!value) {
                 res.json({ available: "no", id: userid, adminKey: "ok" });
                 return;
@@ -55,7 +55,7 @@ export = {
             try {
                 await oauth.getUser(value.token); res.json({ connectionToken: value.token, available: "yes", id: userid, adminKey: "ok" });
             } catch (e) {
-                await db.DataBaseModel({ id: db.Delete, key: `API.TOKEN.${userid}` });
+                await db.delete(`API.TOKEN.${userid}`);
 
                 return res.json({ available: "no", id: "deleted", adminKey: "ok" });
             };

@@ -27,7 +27,6 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
 
 export const command: Command = {
     name: 'prevnames',
@@ -50,7 +49,7 @@ export const command: Command = {
         //     return;
         // };
 
-        let fetch = await db.DataBaseModel({ id: db.Get, key: `DB.PREVNAMES.${user.id}` });
+        let fetch = await client.db.get(`DB.PREVNAMES.${user.id}`);
         if (fetch) fetch = fetch.join('\n');
 
         let prevEmbed = new EmbedBuilder().setColor("#000000");

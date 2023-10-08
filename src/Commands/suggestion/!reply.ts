@@ -25,8 +25,6 @@ import {
     PermissionsBitField
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
@@ -38,8 +36,8 @@ export = {
             return;
         };
 
-        let baseData = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.SUGGEST` });
-        let fetchId = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.SUGGESTION.${id}` });
+        let baseData = await client.db.get(`${interaction.guild.id}.SUGGEST`);
+        let fetchId = await client.db.get(`${interaction.guild.id}.SUGGESTION.${id}`);
 
         if (!baseData
             || baseData?.channel !== interaction.channel.id
@@ -82,7 +80,7 @@ export = {
             );
 
             await msg.edit({ embeds: [embed] });
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.SUGGESTION.${id}.replied`, value: true });
+            await client.db.set(`${interaction.guild.id}.SUGGESTION.${id}.replied`, true);
 
             await interaction.deleteReply();
             await interaction.followUp({

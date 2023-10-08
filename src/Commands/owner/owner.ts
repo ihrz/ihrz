@@ -26,7 +26,6 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
 
 export const command: Command = {
     name: 'owner',
@@ -44,7 +43,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         var text = "";
-        var char = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER` });
+        var char = await client.db.get(`GLOBAL.OWNER`);
 
         for (var i in char) {
             text += `<@${i}>\n`
@@ -69,14 +68,14 @@ export const command: Command = {
             return;
         };
 
-        let checkAx = await db.DataBaseModel({ id: db.Get, key: `GLOBAL.OWNER.${member.id}.owner` });
+        let checkAx = await client.db.get(`GLOBAL.OWNER.${member.id}.owner`);
 
         if (checkAx) {
             await interaction.editReply({ content: data.owner_already_owner });
             return;
         };
 
-        await db.DataBaseModel({ id: db.Set, key: `GLOBAL.OWNER.${member.user.id}.owner`, value: true });
+        await client.db.set(`GLOBAL.OWNER.${member.user.id}.owner`, true);
         await interaction.editReply({ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.user.globalName) });
         return;
     },

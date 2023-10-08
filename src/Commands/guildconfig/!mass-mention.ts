@@ -25,20 +25,10 @@ import {
     AutoModerationRuleTriggerType
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 interface Action {
     type: number;
     metadata: Record<string, any>;
-}
-
-interface CustomMessageMetadata {
-    customMessage: string;
-}
-
-interface ChannelMetadata {
-    channel: string;
-}
+};
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -105,7 +95,7 @@ export = {
                     });
                 };
 
-                await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.mass_mention`, value: "on" });
+                await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.mass_mention`, "on");
                 await interaction.editReply({
                     content: data.automod_block_massmention_command_on
                         .replace('${interaction.user}', interaction.user)
@@ -120,7 +110,7 @@ export = {
 
             await mentionSpamRule.setEnabled(false);
 
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.mass_mention`, value: "off" });
+            await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.mass_mention`, "off");
             await interaction.editReply({
                 content: data.automod_block_massmention_command_off
                     .replace('${interaction.user}', interaction.user)

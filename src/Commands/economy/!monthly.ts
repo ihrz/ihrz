@@ -24,8 +24,6 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 import ms from 'ms';
 
 export = {
@@ -34,7 +32,7 @@ export = {
         let timeout: number = 2592000000;
         let amount: number = 5000;
 
-        let monthly = await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly` });
+        let monthly = await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly`);
 
         if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
             let time = ms(timeout - (Date.now() - monthly));
@@ -48,8 +46,8 @@ export = {
                 .setDescription(data.monthly_embed_description)
                 .addFields({ name: data.monthly_embed_fields, value: `${amount}🪙` })
             await interaction.editReply({ embeds: [embed] });
-            await db.DataBaseModel({ id: db.Add, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, value: amount });
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly`, value: Date.now() });
+            await client.db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
+            await client.db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly`, Date.now());
             return;
         };
     },

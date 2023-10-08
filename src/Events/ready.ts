@@ -22,7 +22,6 @@
 import logger from "../core/logger";
 import couleurmdr from 'colors';
 import config from "../files/config";
-import * as db from '../core/functions/DatabaseModel';
 import register from '../core/slashSync';
 import date from 'date-and-time';
 import path from 'path';
@@ -56,19 +55,16 @@ export = async (client: Client) => {
     };
 
     async function refreshDatabaseModel() {
-        await db.DataBaseModel({ id: db.Set, key: `GLOBAL.OWNER.${config.owner.ownerid1}`, value: { owner: true } }),
-            await db.DataBaseModel({ id: db.Set, key: `GLOBAL.OWNER.${config.owner.ownerid2}`, value: { owner: true } }),
-            await db.DataBaseModel({ id: db.Set, key: `TEMP`, value: {} });
+        await client.db.set(`GLOBAL.OWNER.${config.owner.ownerid1}`, { owner: true }),
+            await client.db.set(`GLOBAL.OWNER.${config.owner.ownerid2}`, { owner: true }),
+            await client.db.set(`TEMP`, {});
     };
 
     async function quotesPresence() {
         let quotes = [
             "Custom this Presence with /presence",
         ];
-        let e = await db.DataBaseModel({
-            id: db.Get,
-            key: `BOT.PRESENCE`,
-        });
+        let e = await client.db.get(`BOT.PRESENCE`);
 
         if (e) {
             client.user?.setActivity(e.name, {
@@ -82,7 +78,7 @@ export = async (client: Client) => {
     };
 
     async function refreshSchedule() {
-        let listAll = await db.DataBaseModel({ id: db.Get, key: `SCHEDULE` });
+        let listAll = await client.db.get(`SCHEDULE`);
         let dateNow = Date.now();
         let desc: string = '';
 
@@ -108,7 +104,7 @@ export = async (client: Client) => {
                         embeds: [embed]
                     }).catch(() => { });
 
-                    await db.DataBaseModel({ id: db.Delete, key: `SCHEDULE.${user}.${code}` });
+                    await client.db.delete(`SCHEDULE.${user}.${code}`);
                 };
             };
         };

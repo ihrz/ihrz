@@ -19,7 +19,6 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import * as db from '../core/functions/DatabaseModel';
 import config from '../files/config';
 import logger from '../core/logger';
 
@@ -59,7 +58,7 @@ export = async (client: any, interaction: any) => {
         };
 
         try {
-            if (await db.DataBaseModel({ id: db.Get, key: `GLOBAL.BLACKLIST.${interaction.user.id}.blacklisted` })) {
+            if (await client.db.get(`GLOBAL.BLACKLIST.${interaction.user.id}.blacklisted`)) {
                 await interaction.editReply({
                     embeds: [
                         new EmbedBuilder()
@@ -102,10 +101,10 @@ export = async (client: any, interaction: any) => {
 
     async function cooldDown() {
         let tn = Date.now();
-        var fetch = await db.DataBaseModel({ id: db.Get, key: `TEMP.COOLDOWN.${interaction.user.id}` });
+        var fetch = await client.db.get(`TEMP.COOLDOWN.${interaction.user.id}`);
         if (fetch !== null && timeout - (tn - fetch) > 0) return true;
 
-        await db.DataBaseModel({ id: db.Set, key: `TEMP.COOLDOWN.${interaction.user.id}`, value: tn });
+        await client.db.set(`TEMP.COOLDOWN.${interaction.user.id}`, tn);
         return false;
     };
 

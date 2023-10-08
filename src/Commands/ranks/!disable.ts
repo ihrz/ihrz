@@ -25,7 +25,6 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
 import logger from '../../core/logger';
 
 export = {
@@ -41,7 +40,7 @@ export = {
         if (types == "off") {
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
+                    .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                     .setTitle(data.disablexp_logs_embed_title_disable)
                     .setDescription(data.disablexp_logs_embed_description_disable.replace(/\${interaction\.user\.id}/g, interaction.user.id))
 
@@ -54,14 +53,14 @@ export = {
                 logger.err(e)
             };
 
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.disable`, value: false });
+            await client.db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.disable`, false);
 
             await interaction.editReply({ content: data.disablexp_command_work_disable });
             return;
         } else if (types == "on") {
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs` }) || "#bf0bb9")
+                    .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                     .setTitle(data.disablexp_logs_embed_title_enable)
                     .setDescription(data.disablexp_logs_embed_description_enable.replace(/\${interaction\.user\.id}/g, interaction.user.id))
 
@@ -74,7 +73,7 @@ export = {
                 logger.err(e)
             };
 
-            await db.DataBaseModel({ id: db.Set, key: `${interaction.guild.id}.GUILD.XP_LEVELING.disable`, value: true });
+            await client.db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.disable`, true);
 
             await interaction.editReply({ content: data.disablexp_command_work_enable });
             return;

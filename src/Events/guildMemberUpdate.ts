@@ -20,7 +20,6 @@
 */
 
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
-import * as db from '../core/functions/DatabaseModel';
 
 export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
     let data = await client.functions.getLanguageData(newMember.guild.id);
@@ -40,7 +39,7 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
             || firstEntry.targetId !== newMember.user.id
         ) return;
 
-        let someinfo = await db.DataBaseModel({ id: db.Get, key: `${newMember.guild.id}.GUILD.SERVER_LOGS.roles` });
+        let someinfo = await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.roles`);
         let Msgchannel: any = client.channels.cache.get(someinfo);
 
         if (!someinfo || !Msgchannel) return;
@@ -72,6 +71,7 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
                 .replace("${removedRoles}", removeObjects.map(value => `<@&${value}>`))
                 .replace("${oldMember.user.username}", firstEntry.target.username) + '\n';
         };
+
         if (newObjects.length >= 1) {
             desc += data.event_srvLogs_guildMemberUpdate_2_description
                 .replace("${firstEntry.executor.id}", firstEntry.executor.id)

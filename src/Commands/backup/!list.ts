@@ -24,26 +24,24 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import * as db from '../../core/functions/DatabaseModel';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         let backupID = interaction.options.getString('backup-id');
 
-        if (backupID && !await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${backupID}` })) {
+        if (backupID && !await client.db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {
             await interaction.editReply({ content: data.backup_this_is_not_your_backup });
             return;
         };
 
-        if (backupID) {
-            let data = await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${backupID}` });
+        if (backupID) { 
+            let data = await client.db.get(`BACKUPS.${interaction.user.id}.${backupID}`);
 
             if (!data) {
                 await interaction.editReply({ content: data.backup_backup_doesnt_exist });
                 return;
             };
 
-            let em = new EmbedBuilder().setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`}) || "#bf0bb9").setTimestamp().addFields({
+            let em = new EmbedBuilder().setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9").setTimestamp().addFields({
                 name: `${data.guildName} - (||${backupID}||)`,
                 value: (data.backup_string_see_v
                     .replace('${data.categoryCount}', data.categoryCount)
@@ -53,12 +51,13 @@ export = {
             await interaction.editReply({ embeds: [em] });
             return;
         } else {
-            let em = new EmbedBuilder().setDescription(data.backup_all_of_your_backup).setColor(await db.DataBaseModel({ id: db.Get, key: `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`}) || "#bf0bb9").setTimestamp();
-            let data2 = await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}` });
+            let em = new EmbedBuilder().setDescription(data.backup_all_of_your_backup).setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9").setTimestamp();
+            let data2 = await client.db.get(`BACKUPS.${interaction.user.id}`);
             let b: number = 1;
 
             for (let i in data2) {
-                let result = await db.DataBaseModel({ id: db.Get, key: `BACKUPS.${interaction.user.id}.${i}` });
+                let result = await client.db.get(`BACKUPS.${interaction.user.id}.${i}`);
+                
                 let v = (data.backup_string_see_another_v
                     .replace('${result.categoryCount}', result.categoryCount)
                     .replace('${result.channelCount}', result.channelCount));
