@@ -31,12 +31,14 @@ export = async (client: Client, message: Message) => {
         if (!message.guild || !message.author
             || message.author.id == client.user?.id) return;
 
-        await client.db.set(`${message.guild.id}.GUILD.SNIPE.${message.channel.id}`, {
-            snipe: `${await hidden.maskLink(message.content)}`,
-            snipeUserInfoTag: `${message.author.username} (${message.author.id} )`,
-            snipeUserInfoPp: `${message.author.displayAvatarURL()}`,
-            snipeTimestamp: Date.now()
-        });
+        await client.db.set(`${message.guild.id}.GUILD.SNIPE.${message.channel.id}`,
+            {
+                snipe: `${await hidden.maskLink(message.content)}`,
+                snipeUserInfoTag: `${message.author.username} (${message.author.id} )`,
+                snipeUserInfoPp: `${message.author.displayAvatarURL()}`,
+                snipeTimestamp: Date.now()
+            }
+        );
     };
 
     async function serverLogs() {

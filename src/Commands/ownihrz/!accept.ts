@@ -99,7 +99,7 @@ export = {
                 logger.err(error)
             };
 
-            await client.db.get(`OWNIHRZ.TEMP.${interaction.user.id}`);
+            await client.db.delete(`OWNIHRZ.TEMP.${interaction.user.id}`);
         };
     },
 };
