@@ -118,8 +118,7 @@ export const command: Command = {
         async function sendMessage(description: string) {
             let embed = new EmbedBuilder()
                 .setAuthor({ name: `${member.username}`, iconURL: member.displayAvatarURL({ dynamic: true }) })
-                .setThumbnail(member.displayAvatarURL({ dynamic: true }))
-                .setFooter({ text: `ID: ${member.id}` })
+                .setFooter({ text: `iHorizon`, iconURL: client.user?.displayAvatarURL() })
                 .setTimestamp()
                 .setColor('#0014a8')
                 .setDescription(description);
@@ -156,7 +155,7 @@ export const command: Command = {
                 };
             };
 
-            description = getBadges(member.flags) + nitr0 + `\n**User:** \`${member.username}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\``;
+            description = getBadges(member.flags) + nitr0 + `\n**User:** \`${member.username}\`\n**DisplayName:** \`${member.displayName}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\``;
             if (nitr0 === '') { description += `\n[My nitro is not shown](${apiUrlParser.LoginURL})`; };
 
             sendMessage(description);
@@ -164,7 +163,7 @@ export const command: Command = {
         } catch (error: any) {
             logger.err(error);
 
-            let description = `${getBadges(member.flags)}\n**User:** \`${member.username}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\`\n[🔴 API DOWN](${apiUrlParser.LoginURL})`;
+            let description = `${getBadges(member.flags)}\n**User:** \`${member.username}\`\n**DisplayName:** \`${member.displayName}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\`\n[🔴 API DOWN](${apiUrlParser.LoginURL})`;
 
             await sendMessage(description);
         };

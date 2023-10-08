@@ -62,6 +62,7 @@ export const command: Command = {
                 { name: data.serverinfo_embed_fields_joinat, value: `\`${interaction.member.joinedAt}\``, inline: true },
                 { name: data.serverinfo_embed_fields_createat, value: `\`${interaction.guild.createdAt}\``, inline: true }
             )
+            .setFooter({ text: `iHorizon`, iconURL: client.user?.displayAvatarURL() })
             .setTimestamp()
             .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
             .setImage(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.banner}.png`);
