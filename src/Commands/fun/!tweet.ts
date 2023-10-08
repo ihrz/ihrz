@@ -50,12 +50,9 @@ export = {
         };
 
         let username = user.username;
+        let displayname = user.globalName;
 
-        if (username.length > 15) {
-            username = username.substring(0, 15);
-        };
-
-        let link = `https://some-random-api.com/canvas/misc/tweet?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png' }) as string))}&username=${encodeURIComponent((username as string))}&comment=${encodeURIComponent(args.join(' '))}&displayname=${encodeURIComponent((username as string))}`;
+        let link = `https://some-random-api.com/canvas/misc/tweet?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png' }) as string))}&username=${encodeURIComponent((username as string))}&comment=${encodeURIComponent(args.join(' '))}&displayname=${encodeURIComponent((displayname as string))}`;
 
         let embed = new EmbedBuilder()
             .setColor('#000000')
