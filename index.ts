@@ -16,6 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
+・ Contribution by Naya (https://github.com/belugafr)
 ・ Copyright © 2020-2023 iHorizon
 */
 
