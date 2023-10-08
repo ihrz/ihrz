@@ -49,9 +49,9 @@ export = {
             return;
         };
 
-        let username = user.username;
+        let username = user?.globalName;
 
-        if (username.length > 15) {
+        if (username&&username.length > 15) {
             username = username.substring(0, 15);
         };
 
