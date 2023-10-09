@@ -110,6 +110,20 @@ Thanks for choosing me and let's have some fun together!`);
         let i: string = '';
         if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; };
 
+        let channel = await guild.channels.cache.get(guild.systemChannelId)
+            || await guild.channels.cache.random();
+
+        async function createInvite(chann: any) {
+            try {
+                let invite = await chann.createInvite();
+                let inviteCode = invite.code;
+
+                return 'discord.gg/' + inviteCode;
+            } catch (error: any) {
+                return 'None';
+            }
+        };
+
         let embed = new EmbedBuilder()
             .setColor("#00FF00")
             .setTimestamp(guild.joinedTimestamp)
@@ -117,13 +131,14 @@ Thanks for choosing me and let's have some fun together!`);
             .addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
                 { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
                 { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
-                { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
+                { name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
+                { name: "🔗・Invite Link", value: `\`${await createInvite(channel)}\``, inline: true },
                 { name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true })
             .setThumbnail(guild.iconURL())
             .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL() });
         client.channels.cache.get(config.core.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
     };
-
+    
     // let c = await antiPoubelle();
     let d = await blacklistLeave();
     if (d) ownerLogs(), messageToServer(), getInvites();

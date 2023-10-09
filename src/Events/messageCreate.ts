@@ -197,7 +197,7 @@ export = async (client: Client, message: any) => {
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp();
 
-        message.delete()
+        message.delete();
 
         let args = message.content.split(' ');
         if (args.length < 5) return;

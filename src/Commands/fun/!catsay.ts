@@ -38,8 +38,8 @@ import axios from 'axios';
 export = {
   run: async (client: Client, interaction: any) => {
 
-    let str = interaction.options.getString('text');
-    let link = `https://cataas.com/cat/cute/says/${str}`;
+    let text = interaction.options.getString('text');
+    let link = `https://cataas.com/cat/cute/says/${text}`;
 
     let embed = new EmbedBuilder()
       .setColor('#000000')
