@@ -83,7 +83,7 @@ export = async (client: Client) => {
             "I can code myself (Not a joke)",
             "Looking for a botfriend 😎",
             "My owner doesn't use tiktok...I INSTALLED IT BEHIND HER BACK",
-            "I BROKED MY CODE HELP ME",
+            "I BROKE MY CODE HELP ME",
             "What is a database? Do I really need one?",
             "Are you a hacker ? Please dont touch my token..",
             "My parents : Don't work too much, me : I forgor"
