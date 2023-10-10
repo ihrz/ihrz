@@ -62,6 +62,10 @@ export const command: Command = {
                 {
                     name: "Spanish",
                     value: "es-ES"
+                },
+                {
+                    name: "Russian",
+                    value: "ru-RU"
                 }
             ],
         }
