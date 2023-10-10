@@ -11,6 +11,7 @@ IHorizon have a large variety of features, including moderation, invite manageme
 * German
 * Japanese
 * Spanish
+* Russian
 * And soon more !
 
 ## Contributor's Wall
