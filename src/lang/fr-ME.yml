@@ -127,7 +127,7 @@ unblacklist_not_owner: "T'es pas le boss du projet iHorizon. Cette commande est 
 unblacklist_command_work: "<@${member.id}> n'est plus sur la liste noire"
 unblacklist_not_blacklisted: "<@${member.id}> n'était pas sur la liste noire"
 unblacklist_unblacklisted_but_can_unban_him: "❌ A été retiré de la liste noire, impossible de débannir ce membre ici, permission manquante ou déjà débanni ?"
-unblacklist_user_is_not_exist: "Je n'ai pas pu trouver l'utilisateur , surement a cause de son Qi négatif"
+unblacklist_user_is_not_exist: "Je n'ai pas pu trouver l'utilisateur , surement a cause de son QI négatif"
 
 
 # Invite Manager commands
@@ -269,14 +269,14 @@ dogs_embed_title: "🐶 ouaf-ouaf."
 
 # /love
 love_embed_description: "**${user1.username}** + **${user2.username}** = __${randomNumber}%__ d'amour 💗"
-love_command_error: "Une erreur s'est produite lors de la création de l'image"
+love_command_error: "Ya eu une erreur lors dla création dlimage, ressaie plus tard ou debrouille toi!"
 
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
 # /addmoney
-addmoney_not_admin: "Vous ne pouvez pas exécuter cette commande car vous n'avez pas les autorisations nécessaires `ADMINISTRATEUR`"
+addmoney_not_admin: "Dsl mgl c la rue la vrai ici , donc faut perm admin pour faire ça."
 addmoney_logs_embed_title: "Logs Économie"
 addmoney_logs_embed_description: "<@${interaction.user.id}> a ajouté ${amount.value} coin à <@${user.user.id}> !"
 addmoney_command_work: "Ajout de `${amount.value}`$ à <@${user.user.id}> effectué avec succès"
@@ -313,10 +313,10 @@ removemoney_logs_embed_description: "<@${interaction.user.id}> a retiré ${amoun
 removemoney_logs_embed_title: "Logs d'économie"
 
 # /rob
-rob_cooldown_error: "**Attendez 50 minutes avant de pouvoir voler à nouveau un utilisateur !**"
-rob_dont_enought_error: ":x: Vous devez avoir au moins 250$ pour voler quelqu'un."
-rob_him_dont_enought_error: ":x: ${user.user.username} n'a pas assez d'argent pour être volé."
-rob_embed_description: "<@${interaction.user.id}>, vous avez volé <@${user.id}> et avez réussi à vous enfuir avec ${random} !"
+rob_cooldown_error: "**Attend 50 minutes avant de pouvoir voler à nouveau un utilisateur Espece de voleur , roh !**"
+rob_dont_enought_error: ":x: Il te faut 250 balle si tu veux voler un mec dsl frérot."
+rob_him_dont_enought_error: ":x: ${user.user.username} cmec il a pas assez d'argent pour etre volé mdmmdr."
+rob_embed_description: "<@${interaction.user.id}>, vous avez volé <@${user.id}> et avez réussi à vous enfuir avec ${random} allez le frapper cbatard!"
 
 # /weekly
 weekly_cooldown_error: "Désolé, vous devez attendre **${time}** avant d'exécuter cette commande !"
@@ -327,7 +327,7 @@ weekly_embed_fields: "Collecté"
 # /work
 work_cooldown_error: "**Attendez 50 minutes avant de voler à nouveau un utilisateur !** ${interaction.user.username}"
 work_embed_author: "${interaction.user.username}, ça a payé !"
-work_embed_description: "${interaction.user.username}, vous avez travaillé et gagné ${amount}$ !"
+work_embed_description: "${interaction.user.username}, vous avez travaillé et gagné ${amount}$ c'est bien bon esclave de la société!"
 
 
 # Profil Customisation commands
@@ -376,7 +376,7 @@ serverinfo_embed_fields_joinat: "🚲・**Rejoint le** :"
 serverinfo_embed_fields_createat: "⚓・**Créé le** :"
 
 # /setrankroles
-setrankroles_not_admin: "❌ Vous n'êtes pas administrateur de ce serveur. Vous ne pouvez pas exécuter cette commande !"
+setrankroles_not_admin: "❌ Il te faut perm admin dsl beau gosse!"
 setrankroles_already_this_in_db: "❎ Les rôles de classement sont déjà enregistrés dans la base de données de ce serveur."
 setrankroles_not_roles_typed: "❌ Vous n'avez spécifié aucun rôle dans votre commande !"
 setrankroles_command_work: "Maintenant, lorsque vous me mentionnez `@iHorizon`, je vais ajouter les rôles suivants : <@&${argsid}>"
@@ -384,27 +384,27 @@ setrankroles_logs_embed_description_enable: "<@${interaction.user.id}> a défini
 setrankroles_logs_embed_title_enable: "Définir le rôle de classement"
 setrankroles_logs_embed_description_disable: "<@${interaction.user.id}> a supprimé le rôle de classement !"
 setrankroles_logs_embed_title_disable: "Définir le rôle de classement"
-setrankroles_command_work_disable: "<@${interaction.user.id}>, vous avez supprimé le rôle de classement !"
-setrankroles_command_error: "❌ Une erreur s'est produite lors de l'exécution de la commande ! Veuillez réessayer ultérieurement."
+setrankroles_command_work_disable: "<@${interaction.user.id}>, ta supprimé le rôle de classement !"
+setrankroles_command_error: "❌ Ouais , la ya une erreur ressaie apres bg."
 
 # /snipe
 snipe_no_previous_message_deleted: "Le message précédent n'a pas été supprimé dans ce canal !"
 
 # /userinfo
-userinfo_wait_please: "⏲ Veuillez patienter s'il vous plaît..."
+userinfo_wait_please: "⏲ Patiente mgl sois pas trop impatiant..."
 
 # /renew
-renew_channel_send_success: "${interaction.user} le canal a été recréé !"
-renew_dont_have_permission: ":x: **Impossible** Vous n'avez pas la permission !"
-renew_not_administrator: ":x: **Vous n'êtes pas un administrateur pour utiliser cette commande !**"
+renew_channel_send_success: "${interaction.user} jai recrée le salon , tu voulais cacher des trucs ouuu? !"
+renew_dont_have_permission: ":x: **Impossible** Ta pas la perm gros shlag !"
+renew_not_administrator: ":x: **Faut etre le boss pour faire ca , revient quand taura perm admin !**"
 
 # /prevnames
-prevnames_embed_title: "Liste de tous les pseudonymes de ${user.username}"
+prevnames_embed_title: "Liste de tous les pseudos de ${user.username}"
 prevnames_undetected: "Aucune donnée trouvée !"
-prevnames_not_admin: "Vous n'avez pas la permission `ADMINISTRATOR` pour exécuter cette commande !"
+prevnames_not_admin: "Il te faut la perm admin encore une fois, essaie /nayaweb c une super commande bg."
 
 # /blockbot
-blockbot_not_owner: ":x: **Vous n'êtes pas le propriétaire du serveur !**"
+blockbot_not_owner: ":x: **Vous n'êtes pas le propriétaire du serveur grosse merde !**"
 blockbot_logs_enable_title: "Journal BlockBot"
 blockbot_logs_enable_description: "${interaction.user} (Le propriétaire du serveur) a __activé__ `BlockBot`. Maintenant, le bot ne peut **pas** être ajouté à ce serveur !"
 blockbot_command_work_on_enable: "**Vous avez activé `BlockPub`**\nMaintenant, le bot ne peut **pas** être ajouté à ce serveur !"
