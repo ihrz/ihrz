@@ -22,7 +22,7 @@ close_not_in_ticket: "Tu peux pas utilisé cte commande si t pas dans un salon d
 
 # /delete
 delete_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui a désactivé les commandes de ticket!"
-delete_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un salon de ticket !"
+delete_not_in_ticket: "Tu ne peux pas utiliser cette commande en dehors d'un salon de ticket !"
 
 # /sethereticket
 sethereticket_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui a désactivé les commandes de ticket!"
@@ -34,24 +34,24 @@ sethereticket_command_work: "Wé c bon le paneau de ticket est config."
 open_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui a désactivé les commandes de ticket!"
 open_command_work: "Le ticket ${interaction.channel} a été réouvert avec succès."
 open_command_error: "Une erreur est survenue, veuillez réessayer!"
-open_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un salon de ticket!"
+open_not_in_ticket: "Tu ne peux pas utiliser cette commande en dehors d'un salon de ticket!"
 
 # /remove
 remove_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui a désactivé les commandes de ticket!"
-remove_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un canal de ticket !"
+remove_not_in_ticket: "Tu ne peux pas utiliser cette commande en dehors d'un canal de ticket !"
 remove_command_error: "Une erreur est survenue, veuillez réessayer !"
-remove_command_work: "${member.tag} a été retiré avec succès de votre ticket !"
+remove_command_work: "${member.tag} a été retiré avec succès de ton ticket !"
 
 # /transript
 transript_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui a désactivé les commandes de ticket!"
 transript_name_sourcebin: " "
 transript_title_sourcebin: "Transcription du chat de ticket pour ${channel.name}"
 transript_command_error: "Erreur de merde , ressaie dans 1 ans."
-transript_command_work: "Vous avez fermé votre ticket. Jvais t'envoyé la transcription."
+transript_command_work: "Tu avez fermé ton ticket. Jvais t'envoyé la transcription."
 transript_not_in_ticket: "Fait la commande dans un ticket ou jte fracasse !"
 
 # /disableticket
-disableticket_not_admin: ":x: | Vous devez être le patron du serveur pour utiliser cte commande !"
+disableticket_not_admin: ":x: | Tu devez être le patron du serveur pour utiliser cte commande !"
 disableticket_logs_embed_title_disable: "Logs de désactivation des tickets au cas ou tu trappelle plus"
 disableticket_logs_embed_description_disable: "<@${interaction.user.id}> a désactivé les commandes de ticket il étais trooop guez !"
 disableticket_command_work_disable: "Ta désactivé les commandes de ticket mes couilles !"
@@ -63,7 +63,7 @@ disableticket_command_work_enable: "GG ta activé les commandes de ticket we we 
 setticketcategory_not_admin: ":x: | Tu dois avoir perm admin , et ouais va sucer les owners il te rankeront peut etre!"
 setticketcategory_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui a désactivé les commandes de ticket!"
 setticketcategory_not_a_category: "C pas une catégorie refait , sois moin con un peu nan?"
-setticketcategory_command_work: "<@${interaction.user.id}>, vous avez défini la catégorie du canal de ticket sur `${category.name}` !"
+setticketcategory_command_work: "<@${interaction.user.id}>, tu avez défini la catégorie du canal de ticket sur `${category.name}` !"
 
 
 # Ranks commandsa
@@ -203,28 +203,28 @@ help_memberc_fields: "Nombre de membres"
 help_newftrs_fields: "Nouvelle fonctionnalité"
 help_mod_dsc: "Finit le stress et la depression ihorizon va ban tous les psg de ton pays , c'est Marseille bébé"
 help_ranks_dsc: "Regarde ton experience et tes ranks , pour voir si t plus fort que ton pote !!!"
-help_fun_dsc: "Vous trouvez Discord ennuyeux ? Très bien, cette catégorie est faite pour vous ! iHorizon saura vous redonner le sourire !"
-help_utils_dsc: "Vous avez besoin de commandes spécifiques ? Utiles dans certains cas ? Très bien ! Les voici !"
-help_giveaway_dsc: "Vous vous sentez généreux/généreuse ? Vous voulez offrir quelque chose à votre communauté ? Voici mes commandes pour vous aider !"
-help_bot_dsc: "Vous êtes curieux/curieuse et vous voulez en savoir plus à propos de moi ? Ces commandes sont là pour ça !"
-help_music_dsc: "Vous êtes plutôt musique ? Tenez, cadeau :)"
-help_backup_dsc: "Vous voulez une sauvegarde rapide de votre serveur ? Me voici !"
-help_guildconf_dsc: "Vous voulez une configuration avancée et facile à mettre en place ? Me voilà :)"
-help_prof_dsc: "Vous êtes du genre à prendre soin de votre apparence ? Voici des commandes pour vous garantir un profil magnifique auprès des utilisateurs :)"
-help_economy_dsc: "Vous faites attention à votre porte-monnaie ? Ou souhaitez-vous simplement faire des achats ? Je suis là :)"
+help_fun_dsc: "Tu trouvez Discord ennuyeux ? Très bien, cette catégorie est faite pour tu ! iHorizon saura tu redonner le sourire !"
+help_utils_dsc: "Tu avez besoin de commandes spécifiques ? Utiles dans certains cas ? Très bien ! Les voici !"
+help_giveaway_dsc: "Tu sentez généreux/généreuse ? Tu voulais offrir quelque chose à ton communauté ? Voici mes commandes pour tu aider !"
+help_bot_dsc: "Tu est curieux/curieuse et tu voulais en savoir plus à propos de moi ? Ces commandes sont là pour ça !"
+help_music_dsc: "Tu est plutôt musique ? Tenez, cadeau :)"
+help_backup_dsc: "Tu voulais une sauvegarde rapide de ton serveur ? Me voici !"
+help_guildconf_dsc: "Tu voulais une configuration avancée et facile à mettre en place ? Me voilà :)"
+help_prof_dsc: "Tu est du genre à prendre soin de ton apparence ? Voici des commandes pour tu garantir un profil magnifique auprès des utilisateurs :)"
+help_economy_dsc: "Tu faites attention à ton porte-monnaie ? Ou souhaite-tu simplement faire des achats ? Je suis là :)"
 help_owner_dsc: "Cette catégorie est réservée aux propriétaires et aux administrateurs du projet d'iHorizon !"
-help_roler_dsc: "Vous voulez configurer un rôle de réaction pour votre serveur ? Me voilà !!"
-help_invitem_dsc: "Vous voulez consulter les invitations d'un membre ? Bah c'est ici battard"
-help_ticket_dsc: "Vous souhaitez créer un ticket ou utiliser l'une de mes fonctions à l'intérieur ? Ouais bah on peut"
-help_memberc_dsc: "Vous voulez configurer des salons vocaux pour le comptage des membres ? Bien sûr :smile:"
+help_roler_dsc: "Tu voulais configurer un rôle de réaction pour ton serveur ? Me voilà !!"
+help_invitem_dsc: "Tu voulais consulter les invitations d'un membre ? Bah c'est ici battard"
+help_ticket_dsc: "Tu souhaitez créer un ticket ou utiliser l'une de mes fonctions à l'intérieur ? Ouais bah on peut"
+help_memberc_dsc: "Tu voulais configurer des salons vocaux pour le comptage des membres ? Bien sûr :smile:"
 help_newftrs_dsc: "Voici de nouvelles fonctionnalités très intéressantes donc utilise la sous peine de mourrir !"
 help_not_for_you: "Cette interaction tconcerne pas , pars salope"
 help_protection_fields: "Protection"
 help_protection_dsc: "Degager les mecs noon autorisé qui tente de raid. ( Qui raid sérieux on est plus en 2018 )"
 help_suggestion_fields: "Suggestion"
-help_suggestion_dsc: "Accordez à vos utilisateurs la possibilité de s'exprimer, permettez-leur de soumettre des suggestions dans un canal dédié !"
+help_suggestion_dsc: "Accordez à tes utilisateurs la possibilité de s'exprimer, permettez-leur de soumettre des suggestions dans un canal dédié !"
 help_security_fields: "Sécurité"
-help_security_dsc: "Administrez des tests de captcha à vos nouveaux membres pour sécuriser l'accès à votre serveur."
+help_security_dsc: "Administrez des tests de captcha à tes nouveaux membres pour sécuriser l'accès à ton serveur."
 help_schedule_fields: "Planning"
 help_schedule_dsc: "Crée des message pré-programmé , pour les flemmards en gros"
 
@@ -316,10 +316,10 @@ removemoney_logs_embed_title: "Logs d'économie"
 rob_cooldown_error: "**Attend 50 minutes avant de pouvoir voler à nouveau un utilisateur Espece de voleur , roh !**"
 rob_dont_enought_error: ":x: Il te faut 250 balle si tu veux voler un mec dsl frérot."
 rob_him_dont_enought_error: ":x: ${user.user.username} cmec il a pas assez d'argent pour etre volé mdmmdr."
-rob_embed_description: "<@${interaction.user.id}>, vous avez volé <@${user.id}> et avez réussi à vous enfuir avec ${random} allez le frapper cbatard!"
+rob_embed_description: "<@${interaction.user.id}>, tu avez volé <@${user.id}> et avez réussi à tu enfuir avec ${random} allez le frapper cbatard!"
 
 # /weekly
-weekly_cooldown_error: "Désolé, vous devez attendre **${time}** avant d'exécuter cette commande !"
+weekly_cooldown_error: "Désolé, tu devez attendre **${time}** avant d'exécuter cette commande !"
 weekly_embed_title: "Hebdomadaire"
 weekly_embed_description: "**Récompense Hebdomadaire**"
 weekly_embed_fields: "Collecté"
@@ -327,17 +327,17 @@ weekly_embed_fields: "Collecté"
 # /work
 work_cooldown_error: "**Attendez 50 minutes avant de voler à nouveau un utilisateur !** ${interaction.user.username}"
 work_embed_author: "${interaction.user.username}, ça a payé !"
-work_embed_description: "${interaction.user.username}, vous avez travaillé et gagné ${amount}$ c'est bien bon esclave de la société!"
+work_embed_description: "${interaction.user.username}, tu avez travaillé et gagné ${amount}$ c'est bien bon esclave de la société!"
 
 
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
 # /setprofilage
-setprofilage_command_work: "**Votre âge de profil a été mis à jour avec succès.**"
+setprofilage_command_work: "**Ton âge de profil a été mis à jour avec succès.**"
 
 # /setprofildescriptions
-setprofildescriptions_command_work: "**Votre description a été mise à jour avec succès.**"
+setprofildescriptions_command_work: "**Ton description a été mise à jour avec succès.**"
 
 # /profil
 profil_not_description_set: "Aucune description définie !"
@@ -378,8 +378,8 @@ serverinfo_embed_fields_createat: "⚓・**Créé le** :"
 # /setrankroles
 setrankroles_not_admin: "❌ Il te faut perm admin dsl beau gosse!"
 setrankroles_already_this_in_db: "❎ Les rôles de classement sont déjà enregistrés dans la base de données de ce serveur."
-setrankroles_not_roles_typed: "❌ Vous n'avez spécifié aucun rôle dans votre commande !"
-setrankroles_command_work: "Maintenant, lorsque vous me mentionnez `@iHorizon`, je vais ajouter les rôles suivants : <@&${argsid}>"
+setrankroles_not_roles_typed: "❌ Tu n'avez spécifié aucun rôle dans ton commande !"
+setrankroles_command_work: "Maintenant, lorsque tu me mentionnez `@iHorizon`, je vais ajouter les rôles suivants : <@&${argsid}>"
 setrankroles_logs_embed_description_enable: "<@${interaction.user.id}> a défini le rôle de classement sur <@&${argsid}>"
 setrankroles_logs_embed_title_enable: "Définir le rôle de classement"
 setrankroles_logs_embed_description_disable: "<@${interaction.user.id}> a supprimé le rôle de classement !"
@@ -404,39 +404,39 @@ prevnames_undetected: "Aucune donnée trouvée !"
 prevnames_not_admin: "Il te faut la perm admin encore une fois, essaie /nayaweb c une super commande bg."
 
 # /blockbot
-blockbot_not_owner: ":x: **Vous n'êtes pas le propriétaire du serveur grosse merde !**"
+blockbot_not_owner: ":x: **Tu n'est pas le propriétaire du serveur grosse merde !**"
 blockbot_logs_enable_title: "Journal BlockBot"
 blockbot_logs_enable_description: "${interaction.user} (Le propriétaire du serveur) a __activé__ `BlockBot`. Maintenant, le bot ne peut **pas** être ajouté à ce serveur !"
-blockbot_command_work_on_enable: "**Vous avez activé `BlockPub`**\nMaintenant, le bot ne peut **pas** être ajouté à ce serveur !"
-blockbot_command_work_on_disable: "**Vous avez désactivé `BlockPub`**\nMaintenant, le bot peut être ajouté à ce serveur !"
+blockbot_command_work_on_enable: "**Tu avez activé `BlockPub`**\nMaintenant, le bot ne peut **pas** être ajouté à ce serveur !"
+blockbot_command_work_on_disable: "**Tu avez désactivé `BlockPub`**\nMaintenant, le bot peut être ajouté à ce serveur !"
 blockbot_logs_disable_commmand_work: "Journal BlockBot"
 blockbot_logs_disable_description: "${interaction.user} (Le propriétaire du serveur) a __désactivé__ `BlockBot`. Maintenant, le bot peut être ajouté à ce serveur !"
 
 # /banner
-banner_guild_embed: "**Ceci est la bannière du serveur de guilde !**"
-banner_user_embed: "**Ceci est la bannière de ${user?.username} !**"
+banner_guild_embed: "**Tient c'est la bannière du serv !**"
+banner_user_embed: "**Tient la banniere ${user?.username} pourquoi tu fais ça enfaite , tu veut lui voler sa banniere ?!**"
 
 # /massiverole
 massiverole_add_command_work: "${interaction.user}, iHorizon à effectué la commande massiverole.\n\n**${a}** Utilisateur(s) ont __reçue__ le rôle ${role}\n**${s}** Utilisateur(s) __avait déjà__ le role ${role}\niHorizon __n'a pas réussi__ à ajoutez le rôle à **${e}** Utilisateur(s)."
 massiverole_sub_command_work: "${interaction.user}, iHorizon à effectué la commande massiverole.\n\n**${a}** Utilisateur(s) ont __perdu__ le rôle ${role}\n**${s}** Utilisateur(s) __avait déjà plus__ le role ${role}\niHorizon __n'a pas réussi__ à retirer le rôle à **${e}** Utilisateur(s)."
-massiverole_too_much_member: "Trop de membres, je le ferais pas, car rate-limite possible!"
+massiverole_too_much_member: "Ya trop dmembre c mort jfais pas ça!"
 
 # /nickrole
 nickrole_add_command_work: "${interaction.user}, iHorizon à effectué la commande nickrole.\n\n**${a}** Utilisateur(s) ont __reçue__ le rôle ${role}\n**${s}** Utilisateur(s) __n'avait pas__ le pseudo ${part_of_nickname}\niHorizon __n'a pas réussi__ à ajoutez le rôle à **${e}** Utilisateur(s)."
 nickrole_sub_command_work: "${interaction.user}, iHorizon à effectué la commande nickrole.\n\n**${a}** Utilisateur(s) ont __perdu__ le rôle ${role}\n**${s}** Utilisateur(s) __n'avait déjà plus__ le pseudo ${part_of_nickname}\niHorizon __n'a pas réussi__ à retirer le rôle à **${e}** Utilisateur(s)."
-nickrole_too_much_member: "Trop de membres, je le ferais pas, car rate-limite possible!"
+nickrole_too_much_member: "Ya trop dmembre c mort jfais pas ça!"
 
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
 # /blockpub
-blockpub_not_admin: ":x: | Vous devez être un administrateur de ce serveur !"
-blockpub_now_enable: "📌 | L'anti-pub est maintenant activé (il fonctionne pour tout le monde sauf les administrateurs)"
-blockpub_now_disable: "📌 | L'anti-pub est maintenant désactivé !"
+blockpub_not_admin: ":x: | Tu dois etre un admin du serv bg revient après !"
+blockpub_now_enable: "📌 | Jai activé lantipub en gros on peut plus envoyer dlien , sauf les admins biensur"
+blockpub_now_disable: "📌 | Jai enlever lantipub allez go spammez tes servs !"
 
 # /guildprofil
-guildprofil_not_admin: ":x: | Vous devez être administrateur de ce serveur !"
+guildprofil_not_admin: ":x: | Tu dois etre un admin du serv bg revient après !"
 guildprofil_not_set_reactionrole: "Non configuré !"
 guildprofil_set_reactionrole: "**ID du message**: `${i}` -> ${emoji || key} donne le rôle <@&${rolesID}>\n"
 guildprofil_not_set_ticketFetched: "Non configuré !"
@@ -482,42 +482,42 @@ guildprofil_embed_fields_logs: "Journaux"
 guildprofil_embed_fields_ranks: "Rangs"
 
 # /setchannels
-setchannels_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour demander cette commande !"
-setchannels_not_specified_args: "Vous devez spécifier un canal valide pour votre module."
-setchannels_already_this_channel_on_join: "Le module est déjà configuré avec ce canal !"
+setchannels_not_admin: ":x: | Tu dois etre un admin du serv bg revient après pour demander cette commande !"
+setchannels_not_specified_args: "Envoie un bon channel , ca ca marche pas dsl."
+setchannels_already_this_channel_on_join: "Déja config trou dballe !"
 setchannels_confirmation_message_on_join: "**Canal de bienvenue configuré ici !** :tada:"
-setchannels_command_error_on_join: "Erreur : autorisations manquantes ou le canal n'existe pas"
-setchannels_command_work_on_join: "Vous avez configuré avec succès le module du canal de bienvenue sur <#${argsid.id}>"
+setchannels_command_error_on_join: "Erreur : jcrois jai pas les perms ou le channel existe po"
+setchannels_command_work_on_join: "Tu avez configuré avec succès le module du canal de bienvenue sur <#${argsid.id}>"
 setchannels_logs_embed_title_on_join: "Logs de configuration de canal"
 setchannels_logs_embed_description_on_join: "<@${interaction.user.id}> a configuré le module de canal de bienvenue sur : <#${argsid.id}>"
 setchannels_already_this_channel_on_leave: "Le module est déjà configuré avec ce canal !"
 setchannels_confirmation_message_on_leave: "**Canal de départ configuré ici !** :tada:"
 setchannels_command_error_on_leave: "Erreur : autorisations manquantes ou le canal n'existe pas"
-setchannels_command_work_on_leave: "Vous avez configuré avec succès le module du canal de départ sur <#${argsid.id}>"
+setchannels_command_work_on_leave: "Tu avez configuré avec succès le module du canal de départ sur <#${argsid.id}>"
 setchannels_logs_embed_title_on_leave: "Logs de configuration de canal"
 setchannels_logs_embed_description_on_leave: "<@${interaction.user.id}> a configuré le module de canal de départ sur : <#${argsid.id}>"
-setchannels_already_on_off: "Les canaux de bienvenue et de départ sont déjà désactivés"
-setchannels_command_work_on_off: "Vous avez désactivé avec succès les canaux de bienvenue et de départ !"
-setchannels_logs_embed_title_on_off: "Logs de configuration de canal"
+setchannels_already_on_off: "Les salons de départ et d'arrivé sont maintenant désactivé bye bye les avions"
+setchannels_command_work_on_off: "Ta désactivé les canaux de bienvenue et de départ !"
+setchannels_logs_embed_title_on_off: "Logs de config de salons"
 setchannels_logs_embed_description_on_off: "<@${interaction.user.id}> a supprimé toutes les configurations des canaux de bienvenue/départ !"
 
 # /setjoindm
-setjoindm_not_admin: ":x: | Vous devez être administrateur de ce serveur pour demander cette commande !"
+setjoindm_not_admin: ":x: | Tu devez être administrateur de ce serveur pour demander cette commande !"
 setjoindm_logs_embed_title_on_enable: "Logs SetJoinDm"
 setjoindm_logs_embed_description_on_enable: "<@${interaction.user.id}> a configuré le message de bienvenue en DM !"
-setjoindm_not_specified_args_on_enable: "Vous devez spécifier un message valide pour votre message de bienvenue en DM."
-setjoindm_confirmation_message_on_enable: "Vous avez configuré avec succès le message de bienvenue en DM à : ${dm_msg} et l'avez activé."
+setjoindm_not_specified_args_on_enable: "Tu devez spécifier un message valide pour ton message de bienvenue en DM."
+setjoindm_confirmation_message_on_enable: "Tu avez configuré avec succès le message de bienvenue en DM à : ${dm_msg} et l'avez activé."
 setjoindm_command_error_on_enable: "Erreur : autorisations manquantes ou le salon n'existe pas"
 setjoindm_logs_embed_title_on_disable: "Logs SetJoinDm"
 setjoindm_logs_embed_description_on_disable: "<@${interaction.user.id}> a désactivé le message de bienvenue en DM !"
-setjoindm_confirmation_message_on_disable: "Vous avez désactivé avec succès le message de bienvenue en DM !"
+setjoindm_confirmation_message_on_disable: "Tu avez désactivé avec succès le message de bienvenue en DM !"
 setjoindm_command_error_on_disable: "Erreur : autorisations manquantes ou le salon n'existe pas"
 setjoindm_already_disable: "Le message de bienvenue en DM est déjà désactivé !"
 setjoindm_not_setup_ls: "Aucun message de bienvenue en DM n'a été configuré ici !"
-setjoindm_command_work_ls: "Le message de bienvenue en DM est : \n```${already_off}```"
+setjoindm_command_work_ls: "Le message de bienvenue en DM est : \n```${already_off}``` suivi dun dégage d'ici on t'aime pas"
 
 # /setjoinmessage
-setjoinmessage_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour demander des commandes de configuration !"
+setjoinmessage_not_admin: ":x: | Tu dois etre un admin du serv bg revient après pour demander des commandes de configuration !"
 setjoinmessage_help_embed_title: "Aide pour /setjoinmessage !"
 setjoinmessage_help_embed_description: "/setjoinmessage <Power on /Power off/Show the message set> <join message>"
 setjoinmessage_help_embed_fields_name: "Comment utiliser ?"
@@ -531,24 +531,24 @@ setjoinmessage_command_work_on_disable: "✅ | Message de bienvenue personnalis�
 setjoinmessage_command_work_ls: "Le message de bienvenue est :"
 
 # /setjoinroles
-setjoinroles_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour utiliser cette commande !"
+setjoinroles_not_admin: ":x: | Tu dois etre un admin du serv bg revient après pour utiliser cette commande !"
 setjoinroles_help_embed_title: "Aide de /setjoinroles !"
 setjoinroles_help_embed_description: "/setjoinroles <Power on / Power off / Afficher le rôle configuré> <identifiant du rôle>"
 setjoinroles_logs_embed_title_on_enable: "Logs de SetJoinRoles"
 setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}> a configuré les rôles de rejoignants !"
 setjoinroles_already_on_enable: "Les rôles de rejoignants sont déjà configurés avec ce rôle !"
-setjoinroles_command_work_enable: "Vous avez configuré les rôles de rejoignants sur le rôle <@&${roleid}> !"
+setjoinroles_command_work_enable: "Tu avez configuré les rôles de rejoignants sur le rôle <@&${roleid}> !"
 setjoinroles_command_error_on_enable: "Erreur : autorisations manquantes ou rôle inexistant"
 setjoinroles_logs_embed_title_on_disable: "Logs de SetJoinRoles"
 setjoinroles_logs_embed_description_on_disable: "<@${interaction.user.id}> a supprimé les rôles de rejoignants !"
-setjoinroles_dont_need_command_on_disable: "Vous n'avez pas de rôles de rejoignants configurés, cette commande est inutile !"
-setjoinroles_command_work_on_disable: "Vous avez supprimé les rôles de rejoignants avec succès !"
+setjoinroles_dont_need_command_on_disable: "Tu n'avez pas de rôles de rejoignants configurés, cette commande est inutile !"
+setjoinroles_command_work_on_disable: "Tu avez supprimé les rôles de rejoignants avec succès !"
 setjoinroles_command_error_on_disable: "Erreur ?"
 setjoinroles_command_any_set_ls: "Ce serveur n'a pas de rôles de rejoignants configurés."
 setjoinroles_command_work_ls: "Les rôles de rejoignants configurés sont : <@&${roles}>"
 
 # /setleavemessage
-setleavemessage_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour utiliser cette commande de message de départ !"
+setleavemessage_not_admin: ":x: | Tu dois etre un admin du serv bg revient après pour utiliser cette commande de message de départ !"
 setleavemessage_help_embed_title: "Aide pour /setleavemessage !"
 setleavemessage_help_embed_description: "/setleavemessage <Activer/Désactiver/Afficher le message> <message de départ>"
 setleavemessage_help_embed_fields_name: "Comment utiliser ?"
@@ -562,42 +562,42 @@ setleavemessage_command_work_on_disable: "✅ | Message de départ personnalisé
 setleavemessage_command_work_ls: "Le message de départ est le suivant:"
 
 # /setup
-setup_not_admin: ":x: | Vous devez être administrateur de ce serveur !"
+setup_not_admin: ":x: | Tu devez être administrateur de ce serveur !"
 setup_command_work: "✅ | Configuration du salon terminée."
 setup_command_error: "Le bot a déjà configuré les salons de logs ! Ou le bot n'a pas la permission..."
 
 # /setlogschannel
-setlogschannel_not_admin:  ":x: | Vous devez être administrateur de ce serveur pour exécuter cette commande !"
-setlogschannel_not_specified_args: "Vous devez spécifier un canal valide pour votre module."
+setlogschannel_not_admin:  ":x: | Tu devez être administrateur de ce serveur pour exécuter cette commande !"
+setlogschannel_not_specified_args: "Tu devez spécifier un canal valide pour ton module."
 setlogschannel_confirmation_message: "✅ | Le canal pour les `${typeOfLogs}` est maintenant configuré par <@${interaction.user.id}> !"
 setlogschannel_already_this_channel: "Ce serveur a déjà ce canal pour les logs !"
 setlogschannel_already_deleted: "Ce serveur n'a déjà plus de `SERVER_LOGS` !"
 setlogschannel_command_error: "Erreur lors de l'exécution de la commande ?"
-setlogschannel_command_work: "Vous avez configuré avec succès les `${typeOfLogs}` dans <#${argsid.id}> !"
-setlogschannel_command_work_on_delete: "Vous avez supprimé avec succès tous les `SERVER_LOGS` dans **${interaction.guild.name}**"
+setlogschannel_command_work: "Tu avez configuré avec succès les `${typeOfLogs}` dans <#${argsid.id}> !"
+setlogschannel_command_work_on_delete: "Tu avez supprimé avec succès tous les `SERVER_LOGS` dans **${interaction.guild.name}**"
 setlogschannel_logs_embed_title: "Configuration des logs du serveur"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> a configuré les `${typeOfLogs}` vers <#${argsid.id}>"
 setlogschannel_logs_embed_title_on_off: "Configuration des logs du serveur"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> a supprimé tous les `SERVER_LOGS` dans le serveur !"
 
 # /automod block mass-mention
-automod_block_massmention_command_off: "${interaction.user}, vous avez désactivé la règle `AutoModération de Mention Massive` à **false**.\nMaintenant, les utilisateurs peuvent envoyer des mentions dans leurs messages.\nAutoMod x iHorizon a été désactivé sur votre serveur !"
-automod_block_massmention_command_on: "${interaction.user}, vous avez activé la règle `AutoModération de Mention Massive` à **true**.\nMaintenant, les utilisateurs ne peuvent pas envoyer plus de **${max_mention}** mention(s) dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur !"
+automod_block_massmention_command_off: "${interaction.user}, tu avez désactivé la règle `AutoModération de Mention Massive` à **false**.\nMaintenant, les utilisateurs peuvent envoyer des mentions dans leurs messages.\nAutoMod x iHorizon a été désactivé sur ton serveur !"
+automod_block_massmention_command_on: "${interaction.user}, tu avez activé la règle `AutoModération de Mention Massive` à **true**.\nMaintenant, les utilisateurs ne peuvent pas envoyer plus de **${max_mention}** mention(s) dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège ton serveur !"
 
 # /automod block pub
-automod_block_pub_command_on: "${interaction.user}, vous avez activé la règle `AutoModération de Publicité` à **true**.\nMaintenant, les utilisateurs ne peuvent pas envoyer de publicité dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur !"
-automod_block_pub_command_off: "${interaction.user}, vous avez désactivé la règle `AutoModération de Publicité` à **false**.\nMaintenant, les utilisateurs peuvent envoyer de la publicité dans leurs messages.\nAutoMod x iHorizon a été désactivé sur votre serveur !"
+automod_block_pub_command_on: "${interaction.user}, tu avez activé la règle `AutoModération de Publicité` à **true**.\nMaintenant, les utilisateurs ne peuvent pas envoyer de publicité dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège ton serveur !"
+automod_block_pub_command_off: "${interaction.user}, tu avez désactivé la règle `AutoModération de Publicité` à **false**.\nMaintenant, les utilisateurs peuvent envoyer de la publicité dans leurs messages.\nAutoMod x iHorizon a été désactivé sur ton serveur !"
 
 # /automod block spam
-automod_block_spam_command_on: "${interaction.user}, vous avez activé la règle `AutoModération de Spam` à **true**.\nMaintenant, les utilisateurs ne peuvent pas spammer.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur !"
-automod_block_spam_command_off: "${interaction.user}, vous avez désactivé la règle `AutoModération de Spam` à **false**.\nMaintenant, les utilisateurs peuvent spammer.\nAutoMod x iHorizon a été désactivé sur votre serveur !"
+automod_block_spam_command_on: "${interaction.user}, tu avez activé la règle `AutoModération de Spam` à **true**.\nMaintenant, les utilisateurs ne peuvent pas spammer.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège ton serveur !"
+automod_block_spam_command_off: "${interaction.user}, tu avez désactivé la règle `AutoModération de Spam` à **false**.\nMaintenant, les utilisateurs peuvent spammer.\nAutoMod x iHorizon a été désactivé sur ton serveur !"
 
 
 # Member Count commands
 # /setmembercount
 
 # /setmembercount
-setmembercount_not_admin: ":x: | Vous devez être administrateur de ce serveur pour utiliser les commandes de configuration !"
+setmembercount_not_admin: ":x: | Tu devez être administrateur de ce serveur pour utiliser les commandes de configuration !"
 setmembercount_helpembed_title: "Aide pour la configuration du nombre de membres !"
 setmembercount_helpembed_description: "/setmembercount <Activer / Désactiver> <Nom du salon>"
 setmembercount_helpembed_fields_name: "Comment utiliser ?"
@@ -614,11 +614,11 @@ setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> a s
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
 # /p
-p_not_in_voice_channel: "Vous devez être connecté à un canal vocal pour utiliser cette commande !"
+p_not_in_voice_channel: "Tu devez être connecté à un canal vocal pour utiliser cette commande !"
 p_embed_title: "Aucun résultat"
 p_loading_message: "⏲️ Chargement de : {result} !"
 p_duration: "Durée : "
-p_not_allowed: "Le lien que vous avez envoyé n'est pas pris en charge par ce bot. Veuillez utiliser les services de streaming audio autorisés tels que Deezer, Spotify, Youtube, etc."
+p_not_allowed: "Le lien que tu avez envoyé n'est pas pris en charge par ce bot. Veuillez utiliser les services de streaming audio autorisés tels que Deezer, Spotify, Youtube, etc."
 
 # /loop
 loop_no_queue: "Il n'y a pas de file d'attente !"
@@ -629,7 +629,7 @@ nowplaying_no_queue: "Il n'y a rien qui joue actuellement"
 nowplaying_message_embed_title: "En train de jouer"
 
 # /pause
-pause_no_queue: "⚠️ - Vous n'êtes pas dans un salon vocal !"
+pause_no_queue: "⚠️ - Tu n'est pas dans un salon vocal !"
 pause_nothing_playing: "Il n'y a rien qui est en train d'être joué"
 
 # /resume
@@ -637,7 +637,7 @@ resume_nothing_playing: "Il n'y a rien en train de jouer"
 resume_command_work: "Reprise de la lecture avec succès"
 
 # /skip
-skip_not_in_voice_channel: "⚠️ - Vous n'êtes pas dans un canal vocal !"
+skip_not_in_voice_channel: "⚠️ - Tu n'est pas dans un canal vocal !"
 skip_nothing_playing: "Il n'y a rien qui est en train de jouer"
 skip_command_work: "Piste passée : {queue}"
 
@@ -663,7 +663,7 @@ shuffle_command_work: "J'ai **mélangé** la file d'attente"
 # /end, /start, /reroll
 
 # /end
-end_not_admin: "Vous devez avoir les permissions pour gérer les messages afin de terminer ce giveaway."
+end_not_admin: "Tu devez avoir les permissions pour gérer les messages afin de terminer ce giveaway."
 end_not_find_giveaway: "Impossible de trouver un giveaway pour ${gw}."
 end_confirmation_message: "Le giveaway se terminera dans moins de (${timeEstimate}) secondes..."
 end_logs_embed_title: "Logs des giveaways"
@@ -671,15 +671,15 @@ end_logs_embed_description: "<@${interaction.user.id}> a terminé le giveaway av
 end_command_error: "Ce giveaway est déjà terminé !"
 
 # /start
-start_not_perm: "Vous devez avoir les autorisations pour gérer les messages afin de commencer les giveaways."
-start_is_not_valid: "Vous devez spécifier un nombre valide de gagnants !"
+start_not_perm: "Tu devez avoir les autorisations pour gérer les messages afin de commencer les giveaways."
+start_is_not_valid: "Tu devez spécifier un nombre valide de gagnants !"
 start_confirmation_command: "Giveaway démarré dans ${giveawayChannel} !"
 start_logs_embed_title: "Logs des Giveaways"
 start_logs_embed_description: "<@${interaction.user.id}> a lancé un giveaway dans : ${giveawayChannel}"
-start_time_not_valid: "${interaction.user}, la durée du giveaway que vous avez spécifiée n'est pas valide, veuillez réessayer !"
+start_time_not_valid: "${interaction.user}, la durée du giveaway que tu avez spécifiée n'est pas valide, veuillez réessayer !"
 
 # /reroll
-reroll_not_perm: "Vous devez avoir les permissions pour gérer les messages pour relancer ce giveaway."
+reroll_not_perm: "Tu devez avoir les permissions pour gérer les messages pour relancer ce giveaway."
 reroll_dont_find_giveaway: "Impossible de trouver un giveaway pour {args}."
 reroll_command_work: "Giveaway relancé !"
 reroll_logs_embed_title: "Logs des Giveaways"
@@ -696,29 +696,29 @@ avatar_embed_description: "Regardez cet incroyable avatar ! :D"
 avatar_embed_title: "__**Avatar**__: `${mentionedUser.username}`"
 
 # /ban
-ban_not_permission: "❌ | Vous n'avez pas la permission de bannir des membres."
+ban_not_permission: "❌ | Tu n'avez pas la permission de bannir des membres."
 ban_dont_found_member: "🔍 | Impossible de trouver ce membre."
 ban_dont_have_perm_myself: "❌ | Je n'ai pas la permission de bannir des membres !"
-ban_try_to_ban_yourself: "❌ | Vous ne pouvez pas vous bannir vous-même !"
-ban_attempt_ban_higter_member: "🛑 Vous ne pouvez pas bannir un utilisateur qui a un rôle supérieur au vôtre..."
+ban_try_to_ban_yourself: "❌ | Tu ne peux pas tu bannir tu-même !"
+ban_attempt_ban_higter_member: "🛑 Tu ne peux pas bannir un utilisateur qui a un rôle supérieur au vôtre..."
 ban_cant_ban_member: "❌ | Je ne peux pas bannir ce membre."
-ban_message_to_the_banned_member: "Vous avez été banni de ce serveur : ${interaction.guild.name} par ${interaction.member.user.username}."
+ban_message_to_the_banned_member: "Tu avez été banni de ce serveur : ${interaction.guild.name} par ${interaction.member.user.username}."
 ban_command_work: "<@${member.user.id}> a été banni par <@${interaction.member.id}>."
 ban_logs_embed_title: "Logs de bannissement"
 ban_logs_embed_description: "<@${member.user.id}> a été banni par <@${interaction.member.id}>."
 
 # /kick
-kick_not_permission: "❌ | Vous n'avez pas la permission d'expulser des membres."
+kick_not_permission: "❌ | Tu n'avez pas la permission d'expulser des membres."
 kick_dont_have_permission: "❌ | Je n'ai pas la permission d'expulser des membres!"
-kick_attempt_kick_your_self: "❌ | Vous ne pouvez pas vous expulser vous-même!"
-kick_attempt_kick_higter_member: "🛑 Vous ne pouvez pas expulser un utilisateur ayant un rôle supérieur au vôtre..."
-kick_message_to_the_banned_member: "Vous avez été expulser de ce serveur : ${interaction.guild.name} par ${interaction.member.user.username}"
+kick_attempt_kick_your_self: "❌ | Tu ne peux pas tu expulser tu-même!"
+kick_attempt_kick_higter_member: "🛑 Tu ne peux pas expulser un utilisateur ayant un rôle supérieur au vôtre..."
+kick_message_to_the_banned_member: "Tu avez été expulser de ce serveur : ${interaction.guild.name} par ${interaction.member.user.username}"
 kick_command_work: "${member.user} a été expulser par ${interaction.user}"
 kick_logs_embed_title: "Logs du Kick"
 kick_logs_embed_description: "${member.user} a été kick par <@${interaction.user.id}>"
 
 # /clear
-clear_dont_have_permission: "❌ | Vous n'avez pas la permission MANAGE_MESSAGES."
+clear_dont_have_permission: "❌ | Tu n'avez pas la permission MANAGE_MESSAGES."
 clear_max_message_limit: "❌ | Je ne peux pas supprimer plus de 99 messages à la fois !"
 clear_channel_message_deleted: "${messages.size} messages supprimés !"
 clear_confirmation_message: "${messages.size} messages ont été supprimés !"
@@ -727,24 +727,24 @@ clear_logs_embed_description: "<@${interaction.user.id}> a supprimé ${messages.
 
 # /lock
 lock_embed_message_description: "Le salon a été verrouillé par <@${interaction.user.id}>."
-lock_dont_have_permission: "❌ | Vous n'avez pas la permission de verrouiller les salons."
+lock_dont_have_permission: "❌ | Tu n'avez pas la permission de verrouiller les salons."
 lock_logs_embed_title: "Logs de Verrouillage"
 lock_logs_embed_description: "<@${interaction.user.id}> a verrouillé le salon <#${interaction.channel.id}>"
 
 # /unlock
 unlock_embed_message_description: "Le salon a été déverrouillé avec succès !"
-unlock_dont_have_permission: "❌ | Vous n'avez pas la permission de déverrouiller le salon."
+unlock_dont_have_permission: "❌ | Tu n'avez pas la permission de déverrouiller le salon."
 unlock_logs_embed_title: "Journal de déverrouillage"
 unlock_logs_embed_description: "<@${interaction.user.id}> a déverrouillé le salon <#${interaction.channel.id}>"
 
 # /lockall
-lockall_dont_have_permission: "❌ | Vous n'avez pas la permission de verrouiller tous les canaux."
+lockall_dont_have_permission: "❌ | Tu n'avez pas la permission de verrouiller tous les canaux."
 lockall_embed_message_description: "Tous les canaux ont été verrouillés par <@${interaction.user.id}>."
 lockall_logs_embed_title: "Logs de Verrouillage"
 lockall_logs_embed_description: "<@${interaction.user.id}> a verrouillé tous les canaux !"
 
 # /unban
-unban_dont_have_permission: "❌ | Vous n'avez pas la permission de débannir des membres."
+unban_dont_have_permission: "❌ | Tu n'avez pas la permission de débannir des membres."
 unban_bot_dont_have_permission: "❌ | Je n'ai pas la permission."
 unban_there_is_nobody_banned: "❌ | **Il n'y a personne banni de ce serveur !**"
 unban_the_member_is_not_banned: "❌ | **L'ID indiqué n'est pas banni de ce serveur !**"
@@ -753,9 +753,9 @@ unban_logs_embed_title: "Logs de déban"
 unban_logs_embed_description: "<@${userID}> a été débanni du serveur par ${interaction.user.id} !"
 
 # /tempmute
-tempmute_dont_have_permission: "❌ | Vous n'avez pas la permission de temporairement rendre muet les membres."
+tempmute_dont_have_permission: "❌ | Tu n'avez pas la permission de temporairement rendre muet les membres."
 tempmute_i_dont_have_permission: "❌ | Je n'ai pas la permission."
-tempmute_cannot_mute_yourself: "❌ | Vous ne pouvez pas vous rendre muet vous-même!"
+tempmute_cannot_mute_yourself: "❌ | Tu ne peux pas tu rendre muet tu-même!"
 tempmute_already_muted: "Cet utilisateur est déjà rendu muet !"
 tempmute_command_work: "<@${tomute.id}> a été rendu muet pendant ${ms(ms(mutetime))}"
 tempmute_unmuted_by_time: "<@${tomute.id}> a été réactivé!"
@@ -764,8 +764,8 @@ tempmute_logs_embed_description: "<@${interaction.user.id}> a rendu muet <@${tom
 tempmute_reason_create_roles: "Créer le rôle de mute temporaire !"
 
 # /unmute
-unmute_dont_have_permission: "❌ | Vous n'avez pas la permission de retirer temporairement la sourdine aux membres."
-unmute_attempt_mute_your_self: "❌ | Vous ne pouvez pas vous retirer la sourdine !"
+unmute_dont_have_permission: "❌ | Tu n'avez pas la permission de retirer temporairement la sourdine aux membres."
+unmute_attempt_mute_your_self: "❌ | Tu ne peux pas tu retirer la sourdine !"
 unmute_i_dont_have_permission: "❌ | Je n'ai pas la permission."
 unmute_not_muted: "Cet utilisateur n'est pas en sourdine !"
 unmute_muted_role_doesnt_exist: "Le rôle sourdine n'existe pas. Veuillez d'abord mettre en sourdine l'utilisateur pour créer le rôle de sourdine..."
@@ -778,23 +778,23 @@ unmute_logs_embed_description: "<@${interaction.user.id}> a enlever de sa sourdi
 # /backup
 
 # /backup
-backup_wait_please: "⏲ Attendez s'il vous plaît..."
-backup_not_admin: ":x: | Vous devez être administrateur de ce serveur pour demander une sauvegarde !"
+backup_wait_please: "⏲ Attendez s'il tu plaît..."
+backup_not_admin: ":x: | Tu devez être administrateur de ce serveur pour demander une sauvegarde !"
 backup_i_dont_have_permission: "Je n'ai pas la permission ADMINISTRATOR"
 backup_command_work_on_creation: ":white_check_mark: Sauvegarde créée avec succès."
 backup_command_work_info_on_creation: "La sauvegarde a été créée ! ID : ${backupData.id} !"
 backup_logs_embed_title_on_creation: "Logs de la sauvegarde"
 backup_logs_embed_description_on_creation: "<@${interaction.user.id}> a créé une sauvegarde !"
-backup_dont_have_perm_on_load: ":x: | Vous devez être administrateur de ce serveur pour charger une sauvegarde !"
+backup_dont_have_perm_on_load: ":x: | Tu devez être administrateur de ce serveur pour charger une sauvegarde !"
 backup_i_dont_have_perm_on_load: "Je n'ai pas la permission ADMINISTRATOR"
-backup_unvalid_id_on_load: ":x: | Vous devez spécifier un ID de sauvegarde valide !"
+backup_unvalid_id_on_load: ":x: | Tu devez spécifier un ID de sauvegarde valide !"
 backup_waiting_on_load: "✅ - Chargement en cours..."
 backup_error_on_load: ":x: | Désolé, une erreur est survenue... Veuillez vérifier que j'ai les permissions d'administrateur !"
 backup_error_when_fetch_backup_on_load: ":x: | Aucune sauvegarde trouvée pour ${backupID} !"
-backup_this_is_not_your_backup: "❌ | Ce n'est pas votre sauvegarde !"
+backup_this_is_not_your_backup: "❌ | Ce n'est pas ton sauvegarde !"
 backup_backup_doesnt_exist: "ERREUR ? La sauvegarde n'existe pas."
 backup_string_see_v: ":placard:・Nombre de catégories: `${data.categoryCount}`\n:hash:・Nombre de canaux: `${data.channelCount}`"
-backup_all_of_your_backup: "**Toutes vos sauvegardes :**"
+backup_all_of_your_backup: "**Toutes tes sauvegardes :**"
 backup_string_see_another_v: ":placard:・Nombre de catégories: `${result.categoryCount}`\n:hash:・Nombre de canaux: `${result.channelCount}`"
 
 
@@ -802,10 +802,10 @@ backup_string_see_another_v: ":placard:・Nombre de catégories: `${result.categ
 # /reactionroles
 
 # /reactionroles
-reactionroles_dont_admin_added: ":x: | Vous devez être administrateur de ce serveur pour utiliser ces commandes !"
+reactionroles_dont_admin_added: ":x: | Tu devez être administrateur de ce serveur pour utiliser ces commandes !"
 reactionroles_embed_message_description_added: "comment utiliser ?\n/rolesreaction add `<identifiant message>` `<réaction>` `<identifiant du rôle>`\n/rolesreaction remove `<identifiant message>` `<réaction>`\n/rolesreaction list `<identifiant message>`"
 reactionroles_missing_reaction_added: "Argument manquant : Emoji de la réaction"
-reactionroles_invalid_emote_format_added: "❌ | Vous ne pouvez pas m'envoyer un CUSTOM_EMOJI au format <::xxx> ! J'ai seulement besoin de leur identifiant !"
+reactionroles_invalid_emote_format_added: "❌ | Tu ne peux pas m'envoyer un CUSTOM_EMOJI au format <::xxx> ! J'ai seulement besoin de leur identifiant !"
 reactionroles_logs_embed_title_added: "Logs des ReactionRoles"
 reactionroles_logs_embed_description_added: "<@${interaction.user.id}> a ajouté un ReactionRole: Message: `${messagei}` | Réaction: `${reaction}` | Rôle: ${role}"
 reactionroles_command_work_added: "${reaction} a été ajouté au message ${messagei} pour donner le rôle ${role}"
@@ -815,46 +815,46 @@ reactionroles_cant_fetched_reaction_remove: "Impossible de récupérer la réact
 reactionroles_logs_embed_title_remove: "Logs des ReactionRoles"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> a supprimé un ReactionRole: Message: `${messagei}` | Réaction: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} a été supprimé du message ${messagei}"
-reactionroles_dont_message_found: "Je ne peux pas obtenir le message avec l'ID de votre message actuel !"
+reactionroles_dont_message_found: "Je ne peux pas obtenir le message avec l'ID de ton message actuel !"
 
 
 # New feature commands
 # /punishpub, /report, /support
 
 # /punishpub
-punishpub_not_admin : ":x: | Vous devez être un administrateur de ce serveur pour exécuter cette commande !"
-punishpub_too_hight_enable : "Votre montant est trop élevé ! Ce n'est pas recommandé !"
-punishpub_negative_number_enable : "Vous ne pouvez pas saisir de nombre négatif !"
+punishpub_not_admin : ":x: | Tu dois etre un admin du serv bg revient après pour exécuter cette commande !"
+punishpub_too_hight_enable : "Ton montant est trop élevé ! Ce n'est pas recommandé !"
+punishpub_negative_number_enable : "Tu ne peux pas saisir de nombre négatif !"
 punishpub_zero_number_enable : "Le nombre 0 n'est pas possible !"
-punishpub_confirmation_message_enable : "Vous avez activé avec succès PunishPub avec un nombre maximum de signalements de ${amount} et une sanction de ${punishement} !"
+punishpub_confirmation_message_enable : "Tu avez activé avec succès PunishPub avec un nombre maximum de signalements de ${amount} et une sanction de ${punishement} !"
 punishpub_logs_embed_title : "Journaux de PunishPub"
 punishpub_logs_embed_description : "<@${interaction.user.id}> a activé PunishPUB avec un nombre maximum de ${amount} signalements et une sanction de ${punishement} !"
-punishpub_confirmation_disable : "Vous avez désactivé avec succès PunishPub"
+punishpub_confirmation_disable : "Tu avez désactivé avec succès PunishPub"
 punishpub_logs_embed_title_disable : "Journaux de PunishPub"
 punishpub_logs_embed_description_disable : "<@${interaction.user.id}> a désactivé PunishPUB !"
 
 # /report
-report_cooldown_command: "Désolé, vous devez attendre **${time}** avant d'exécuter cette commande !"
-report_owner_need: ":x: | **Vous devez être propriétaire du serveur pour pouvoir exécuter cette commande !**"
-report_specify: "Veuillez préciser le bug, s'il vous plaît. Merci de formuler une phrase correcte !"
-report_command_work: "Merci d'avoir signalé un bug !"
+report_cooldown_command: "Désolé, tu devez attendre **${time}** avant d'exécuter cette commande !"
+report_owner_need: ":x: | **Faut etre le chef du serv pour faire ça !**"
+report_specify: "Precise le bug sinon jpeu pas lcomprendre!"
+report_command_work: "Merci d'avoir signalé lbug frerot mais tu t'es pris pour kisakay ?"
 
 # /support
-support_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour utiliser cette commande !"
-support_command_work: "Vous avez configuré le module de support pour ${interaction.guild.name}.\nLorsqu'un utilisateur a ceci dans sa bio :\n**${input}**.\nJe devrais leur donner le rôle <@&${roles.id}> !"
-support_command_work_on_disable: "Vous avez configuré le module de support pour ${interaction.guild.name}.\nPersonne ne peut maintenant avoir de rôle !"
-support_command_not_role: ":x: | Vous n'avez pas spécifié le rôle !"
+support_not_admin: ":x: | Tu dois etre un admin du serv bg revient après pour utiliser cette commande !"
+support_command_work: "Tu avez configuré le module de support pour ${interaction.guild.name}.\nLorsqu'un utilisateur a ceci dans sa bio :\n**${input}**.\nJe devrais leur donner le rôle <@&${roles.id}> !"
+support_command_work_on_disable: "Tu avez configuré le module de support pour ${interaction.guild.name}.\nPersonne ne peut maintenant avoir de rôle !"
+support_command_not_role: ":x: | Tu n'avez pas spécifié le rôle !"
 
 # /setserverlang
-setserverlang_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour utiliser cette commande !"
+setserverlang_not_admin: ":x: | Tu dois etre un admin du serv bg revient après pour utiliser cette commande !"
 setserverlang_logs_embed_title_on_enable: "Logs SetServerLang"
-setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> a défini la langue d'iHorizon sur **${type}** !"
-setserverlang_already: "Je suis déjà sur cette langue !"
+setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> a défini la langue d'iHorizon sur **${type}** boufffon fallais garder Mal Polis !"
+setserverlang_already: "C'est gentil dessayer dme rendre con mais jle suis déja !"
 setserverlang_command_work_enable: "Ma langue est maintenant sur **${type}** !"
 setserverlang_command_error_enable: "Erreur !"
 
 # /embed
-embed_placeholder_string_select_menu_builder: "Que voulez-vous faire ?"
+embed_placeholder_string_select_menu_builder: "Que tu veux faire ?"
 embed_placeholder_option_copy_embed: "Copier un embed"
 embed_placeholder_option_edit_title: "Modifier le titre"
 embed_placeholder_option_delete_title: "Supprimer le titre"
@@ -874,103 +874,103 @@ embed_btn_send: "Send Embed"
 embed_btn_cancel: "Cancel"
 embed_interaction_not_for_you: "This interaction is not for you"
 embed_first_message: "Que veux tu faire ?"
-embed_save_message: "<@${interaction.user.id}>, **Vous avez décidé de sauvegardée la configuration de l'Embed !**```Identifiant de l'Embed: ${await saveEmbed()}```"
-embed_cancel_message: "<@${interaction.user.id}>, **Vous avez décidé d'abandonner la configuration de l'Embed !**"
+embed_save_message: "<@${interaction.user.id}>, **Tu avez décidé de sauvegardée la configuration de l'Embed !**```Identifiant de l'Embed: ${await saveEmbed()}```"
+embed_cancel_message: "<@${interaction.user.id}>, **Tu avez décidé d'abandonner la configuration de l'Embed !**"
 embed_send_message: "<@${interaction.user.id}>, **Dans quel cannal je dois envoyez cette embed ?** (*Avec l'ID du salon*)"
-embed_timeout_getbtn: "<@${interaction.user.id}>, **Vous avez mis trop de temps à répondre, je coupe l'opération en cours!**"
-embed_choose_0: "Quel message voulez-vous inclure dans votre Embed?"
-embed_choose_1: "Quel titre voulez-vous inclure dans votre Embed?"
+embed_timeout_getbtn: "<@${interaction.user.id}>, **Tu avez mis trop de temps à répondre, je coupe l'opération en cours!**"
+embed_choose_0: "Quel message tu veux inclure dans ton Embed?"
+embed_choose_1: "Quel titre tu veux inclure dans ton Embed?"
 embed_choose_2: "Le titre de l'embed à été correctement Supprimer !"
-embed_choose_3: "Quelle description voulez-vous inclure dans votre Embed?"
+embed_choose_3: "Quelle description tu veux inclure dans ton Embed?"
 embed_choose_4: "La description de l'embed à été correctement Supprimer !"
-embed_choose_5: "Quel auteur voulez-vous inclure dans votre Embed?"
+embed_choose_5: "Quel auteur tu veux inclure dans ton Embed?"
 embed_choose_6: "L'autheur de l'embed à été correctement Supprimer !"
-embed_choose_7: "Quel footer voulez-vous inclure dans votre Embed?"
+embed_choose_7: "Quel footer tu veux inclure dans ton Embed?"
 embed_choose_8: "Le footer de l'embed à été correctement Supprimer !"
-embed_choose_9: "Quel image de thumbnail voulez-vous inclure dans votre Embed?"
-embed_choose_10: "Quel image voulez-vous inclure dans votre Embed?"
-embed_choose_11: "Quel URL de titre voulez-vous inclure dans votre Embed?"
-embed_choose_12: "Quel est la couleur que voulez-vous inclure dans votre Embed? **www.color-hex.com**"
-embed_choose_12_error: "❌ | Couleur Invalide ! Svp, renseignez vous sur **www.color-hex.com**"
-embed_choose_13: "La couleur de l'Embed à correctement été Supprimer !"
-embed_send_embed_work: "<@${interaction.user.id}>, **Vous avez parfaitement envoyé l'Embed dans le salon <#${message.content}> !**"
+embed_choose_9: "Quel image de thumbnail tu veux inclure dans ton Embed?"
+embed_choose_10: "Quel image tu veux inclure dans ton Embed?"
+embed_choose_11: "Quel URL de titre tu veux inclure dans ton Embed?"
+embed_choose_12: "Quel est la couleur que tu veux inclure dans ton Embed? **www.color-hex.com**"
+embed_choose_12_error: "❌ | Couleur Invalide ! Renseigne toi sur **www.color-hex.com**"
+embed_choose_13: "Jai supprimer la couleur de lembed , c lnéan maintenant wesh !"
+embed_send_embed_work: "<@${interaction.user.id}>, **Tu avez parfaitement envoyé l'Embed dans le salon <#${message.content}> !**"
 
 
 # Commandes de suggestion
 # /setsuggest, /suggest
 
 # /suggest accept
-suggest_accept_not_admin: "Vous n'êtes pas administrateur !"
+suggest_accept_not_admin: "Tu n'est pas administrateur !"
 suggest_acceptnot_good_channel: "Cette commande doit être exécutée dans le canal du module de suggestions (<#${baseData?.channel}>) !\nVeuillez vérifier que le module de suggestions n'est pas désactivé !"
 suggest_accept_not_found_db: "La suggestion n'a pas été trouvée dans ma base de données !"
 suggest_accept_already_replied: "Cette suggestion a déjà reçu une réponse !"
 suggest_accept_embed_fields_to_put: "Réponse de ${interaction.user.username} (Acceptation)"
 suggest_acceptembed_title_to_put: "[Acceptation] ${msg.embeds[0].data?.title}"
-suggest_accept_command_work: "Vous avez accepté la suggestion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_accept_command_work: "Tu avez accepté la suggestion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
 suggest_accept_command_error: "La suggestion n'a pas été trouvée dans le canal Discord !"
 
 # /suggest deny
-suggest_deny_not_admin: "Vous n'êtes pas administrateur !"
+suggest_deny_not_admin: "Tu n'est pas administrateur !"
 suggest_deny_not_good_channel: "Cette commande doit être exécutée dans le canal du module de suggestions (<#${baseData?.channel}>) !\nVeuillez vérifier que le module de suggestions n'est pas désactivé !"
 suggest_deny_not_found_db: "La suggestion n'a pas été trouvée dans ma base de données !"
 suggest_deny_already_replied: "Cette suggestion a déjà reçu une réponse !"
 suggest_deny_embed_fields_to_put: "Réponse de ${interaction.user.username} (Refus)"
 suggest_deny_embed_title_to_put: "[Refus] ${msg.embeds[0].data?.title}"
-suggest_deny_command_work: "Vous avez refusé la suggestion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_deny_command_work: "Tu avez refusé la suggestion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
 suggest_deny_command_error: "La suggestion n'a pas été trouvée dans le canal Discord !"
 
 # /suggest reply
-suggest_reply_not_admin: "Vous n'êtes pas administrateur !"
+suggest_reply_not_admin: "Tu n'est pas administrateur !"
 suggest_reply_not_good_channel: "Cette commande doit être exécutée dans le canal du module de suggestions (<#${baseData?.channel}>) !\nVeuillez vérifier que le module de suggestions n'est pas désactivé !"
 suggest_replynot_found_db: "La suggestion n'a pas été trouvée dans ma base de données !"
 suggest_reply_already_replied: "Cette suggestion a déjà reçu une réponse !"
 suggest_reply_embed_fields_to_put: "Réponse de ${interaction.user.username}"
 suggest_reply_embed_title_to_put: "[Réponse] ${msg.embeds[0].data?.title}"
-suggest_reply_command_work: "Vous avez envoyé une réponse à la suggestion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_reply_command_work: "Tu avez envoyé une réponse à la suggestion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
 suggest_reply_command_error: "La suggestion n'a pas été trouvée dans le canal Discord !"
 
 # /suggest delete
-suggest_delete_not_delete: "Vous n'êtes pas administrateur !"
+suggest_delete_not_delete: "Tu n'est pas administrateur !"
 suggest_delete_not_good_channel: "Cette commande doit être exécutée dans le canal du module de suggestions (<#${baseData?.channel}>) !\nVeuillez vérifier que le module de suggestions n'est pas désactivé !"
 suggest_delete_not_found_db: "La suggestion n'a pas été trouvée dans ma base de données !"
-suggest_delete_command_work: "Vous avez supprimé la suggestion !"
+suggest_delete_command_work: "Tu avez supprimé la suggestion !"
 suggest_delete_command_error: "La suggestion n'a pas été trouvée dans le canal Discord !"
 
 # /setsuggest disable
-setsuggest_disable_not_admin: "Vous n'êtes pas administrateur !"
-setsuggest_disable_pw_on: "${interaction.user}, vous avez activé le module de suggestions !"
-setsuggest_disable_pw_off: "${interaction.user}, vous avez désactivé le module de suggestions !"
+setsuggest_disable_not_admin: "Tu n'est pas administrateur !"
+setsuggest_disable_pw_on: "${interaction.user}, tu avez activé le module de suggestions !"
+setsuggest_disable_pw_off: "${interaction.user}, tu avez désactivé le module de suggestions !"
 
 # /setsuggest channel
-setsuggest_channel_not_admin: "Vous n'êtes pas administrateur !"
+setsuggest_channel_not_admin: "Tu n'est pas administrateur !"
 setsuggest_channel_already_set_with_that: "${interaction.user}, le canal du module de suggestions est déjà configuré dans ${channel} !"
 setsuggest_channel_embed_title: "Le module de suggestions a été configuré ici !"
 setsuggest_channel_embed_desc: "Désormais, tous les utilisateurs autorisés à envoyer des messages ici peuvent soumettre des suggestions en envoyant simplement un message !"
-setsuggest_channel_command_work: "${interaction.user}, vous avez configuré le canal du module de suggestions à ${channel} !"
+setsuggest_channel_command_work: "${interaction.user}, tu avez configuré le canal du module de suggestions à ${channel} !"
 
 
 # Commande de sécurité
 # /securite
 
 # /securite desactiver
-security_disable_not_admin: "Vous n'êtes pas administrateur !"
-security_disable_pw_on: "${interaction.user}, vous avez activé le module de sécurité !"
-security_disable_pw_off: "${interaction.user}, vous avez désactivé le module de sécurité."
+security_disable_not_admin: "Tu n'est pas administrateur !"
+security_disable_pw_on: "${interaction.user}, tu avez activé le module de sécurité !"
+security_disable_pw_off: "${interaction.user}, tu avez désactivé le module de sécurité."
 
 # /securite role-a-attribuer
-security_role_to_give_not_admin: "Vous n'êtes pas administrateur !"
-security_role_to_give_command_work: "${interaction.user}, vous avez défini le rôle ${role} pour le module de sécurité !"
+security_role_to_give_not_admin: "Tu n'est pas administrateur !"
+security_role_to_give_command_work: "${interaction.user}, tu avez défini le rôle ${role} pour le module de sécurité !"
 
 # /securite canal
-security_channel_not_admin: "Vous n'êtes pas administrateur !"
-security_channel_command_work: "${interaction.user}, vous avez défini le canal ${channel} pour le module de sécurité !"
+security_channel_not_admin: "Tu n'est pas administrateur !"
+security_channel_command_work: "${interaction.user}, tu avez défini le canal ${channel} pour le module de sécurité !"
 
 
 # Commande de Planification
 # /planifier
 
 # /planifier
-schedule_menu_placeholder: "Que souhaitez-vous faire ?"
+schedule_menu_placeholder: "Que souhaite-tu faire ?"
 schedule_menu_choice_0: "Créer une planification"
 schedule_menu_choice_1: "Supprimer une planification"
 schedule_menu_choice_2: "Supprimer toutes les planifications"
@@ -978,86 +978,86 @@ schedule_menu_choice_3: "Lister toutes les planifications"
 schedule_modal_title: "Gestionnaire de Planification"
 schedule_modal_fields_1_label: "Le nom de la planification ?"
 schedule_modal_fields_2_label: "La description de la planification ?"
-schedule_delete_question: "Quel est l'identifiant de la planification que vous souhaitez supprimer ?"
-schedule_deleteall_question: "Êtes-vous sûr de vouloir supprimer toutes vos planifications ? (O/n)"
+schedule_delete_question: "Quel est l'identifiant de la planification que tu souhaitez supprimer ?"
+schedule_deleteall_question: "Est-tu sûr de vouloir supprimer toutes tes planifications ? (O/n)"
 schedule_delete_not_found: "Il n'y a pas de PLANIFICATION (${arg0}) pour ce membre !"
 schedule_delete_title_embed: "Suppression d'une planification (${arg0})"
 schedule_delete_confirm: "Planification supprimée !"
 schedule_deleteall_title_embed: "Suppression de toutes les planifications"
-schedule_deleteall_desc_embed: "Toutes vos planifications ont été supprimées !"
-schedule_deleteall_confirm: "Toutes vos planifications ont été supprimées !"
+schedule_deleteall_desc_embed: "Toutes tes planifications ont été supprimées !"
+schedule_deleteall_confirm: "Toutes tes planifications ont été supprimées !"
 schedule_deleteall_cancel: "L'action `SUPPRIMER_TOUT` a été annulée !"
 schedule_list_not_schedule: "Il n'y a pas de PLANIFICATION pour ce membre !"
 schedule_list_title_embed: "Liste de toutes les planifications"
 schedule_list_fields_embed: "**Terminé à** : ${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}```${fetched[i]?.title}``````${fetched[i]?.description}```\n"
-schedule_list_content_message: "Voici la liste de toutes vos planifications !"
+schedule_list_content_message: "Voici la liste de toutes tes planifications !"
 schedule_create_title_embed: "Création d'une planification"
-schedule_create_when_question: "Quand souhaitez-vous être notifié de cette planification ? (Exemple : 6j = 6 jours, 2h = 2 heures, 10m = 10 minutes, 10s = 10 secondes)"
-schedule_create_not_number_time: "${interaction.user}, votre réponse (le temps pour lequel vous souhaitez être notifié de cette planification) n'est pas un nombre !"
+schedule_create_when_question: "Quand souhaite-tu être notifié de cette planification ? (Exemple : 6j = 6 jours, 2h = 2 heures, 10m = 10 minutes, 10s = 10 secondes)"
+schedule_create_not_number_time: "${interaction.user}, ton réponse (le temps pour lequel tu souhaitez être notifié de cette planification) n'est pas un nombre !"
 schedule_create_embed_fields_name_confirm: "Date de Notification"
 schedule_create_embed_title_confirm: "Planification #${scheduleCode} créée !"
-schedule_create_confirm_msg: "${interaction.user}, votre planification a été créée !\nCode : `${scheduleCode}`"
+schedule_create_confirm_msg: "${interaction.user}, ton planification a été créée !\nCode : `${scheduleCode}`"
 
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
-event_mp_playerStart: "🎵 - Lecture de `${track.title}` en cours dans **${queue.channel.name}** ..."
-event_mp_audioTrackAdd: ":musical_note: - ${track.title} a été ajouté à la file d'attente !"
+event_mp_playerStart: "🎵 - Lecture de `${track.title}` en cours dans **${queue.channel.name}** ambiencez tu !!! ..."
+event_mp_audioTrackAdd: ":musical_note: - ${track.title} a été ajouté à la file d'attente :)"
 event_mp_playerError: "Je rencontre des problèmes de connexion => ${error.message}"
 event_mp_error: "Il y a un problème avec la file d'attente de la chanson => ${error.message}"
-event_mp_emptyChannel: "❌ | Personne n'est dans le canal vocal, je quitte..."
-event_mp_playerSkip: ":musical_note: - Skip de **${track.title}** !"
-event_mp_emptyQueue: "⚠️ - La musique s'est arrêtée car il n'y a plus de musique dans la file d'attente !"
+event_mp_emptyChannel: "❌ | Personne n'est dans le canal vocal, je quitte jme sens seul sah..."
+event_mp_playerSkip: ":musical_note: - Skip de **${track.title}** ct une musique de merde !"
+event_mp_emptyQueue: "⚠️ - Jarrete la musique ya plus dliste dattende tchao les nuloss!"
 
 # Channel Create Events
 event_channel_create_message_embed_title: "Configuration réussie !"
-event_channel_create_message_embed_description: "Le bot a été configuré parfaitement. Vous n'avez plus rien à faire (zen).\n\nTous les journaux de modération liés à iHorizon seront affichés ici."
+event_channel_create_message_embed_description: "Bot bien config t'en fais pas bg fait toi un café. Tu n'avez plus rien à faire (zen).\n\nTous les journaux de modération liés à iHorizon seront affichés ici."
 
 # Welcome Message Events
 event_welcomer_inviter: "➕・<@${member.id}> a rejoint le serveur. Invité par **${inviter.tag}** (**${fetched}** invitations). Compte créé le: **${member.user.createdAt.toLocaleDateString()}**. Heureux de te voir sur **${member.guild.name}**"
-event_welcomer_default: "➕・<@${member.id}> a rejoint le serveur. Compte créé le: **${member.user.createdAt.toLocaleDateString()}**. Heureux de te voir sur **${member.guild.name}**"
+event_welcomer_default: "➕・<@${member.id}> a rejoint le serveur. Compte créé le: **${member.user.createdAt.toLocaleDateString()}**. Jsui content de te voir sur **${member.guild.name} ca mfait un copain en +**"
 
 # Goodbye Message Events
-event_goodbye_inviter: "➖・<@${member.id}> vient de quitter la guilde. Il a été invité par **${inviter.tag}** (**${fetched}** invitations). Au revoir de la part de **${member.guild.name}**."
-event_goodbye_default: "➖・<@${member.id}> vient de quitter la guilde. Au revoir de la part de **${member.guild.name}**."
+event_goodbye_inviter: "➖・<@${member.id}> vient de quitter la guilde. Il a été invité par **${inviter.tag}** (**${fetched}** invitations). Pas d'aurevoir ici c la rue la vrai."
+event_goodbye_default: "➖・<@${member.id}> vient de quitter la guilde. Allez degage tout le serveur **${member.guild.name}** t'aimais pas façon."
 
 # XP Level Events
-event_xp_level_earn: "**GG**, <@${message.author.id}> vous avez gagné un niveau d'expérience ! (Niveau : **${newLevel}**)"
+event_xp_level_earn: "**GG**, <@${message.author.id}> ta gagné un niveau! On sen branle (Niveau : **${newLevel}**)"
 
 # Ticket Module Events:
-event_ticket_embed_description: "Salut ${user.username}, bienvenue dans votre ticket ! S'il vous plaît, soyez patient, nous serons avec vous sous peu. Si vous souhaitez fermer ce ticket, veuillez exécuter `/ticket close`"
+event_ticket_embed_description: "Salut ${user.username}, bienvenue dans ton ticket ! S'il tu plaît, soyez patient, nous serons avec tu sous peu. Si tu souhaitez fermer ce ticket, veuillez exécuter `/ticket close`"
 
 # Événements interactionCreate :
-iC_event_cooldown: "Cooldown, veuillez patienter un peu entre les commandes !"
-iC_event_connection_error: "Erreur de connexion !"
+iC_event_cooldown: "Attend un peu frérot tu mutilise bcp !"
+iC_event_connection_error: "Erreur de co , on est en compagne  ?!"
 
 # Cooldown
-Msg_cooldown: "Peux-tu patienter une seconde avant d'exécuter une commande, s'il te plaît ?"
+Msg_cooldown: "Attend une seconde avant de refaire une commande ! Jespere t pas entrain de t'actionner le levier sur moi ???"
 
 # Module de Ticket
-ticket_module_button_delete: "Supprimer le ticket"
+ticket_module_button_delete: "Degager cticket et lfouttre a la corbeille"
 ticket_module_button_transcript: "Transcrire le ticket"
-ticket_module_button_addmember: "Ajouter un membre"
-ticket_module_button_removemember: "Supprimer un membre"
-ticket_module_add_question: "Qui souhaitez-vous ajouter à votre ticket ? (Spécifiez sont identifiant d'utilisateur) !"
-ticket_module_remove_question: "Qui est l'utilisateur que vous souhaitez retirer de votre ticket ? (Spécifiez sont identifiant d'utilisateur) !"
+ticket_module_button_addmember: "Ajouter un bouffon"
+ticket_module_button_removemember: "Supprimer un bouffon"
+ticket_module_add_question: "Qui souhaite-tu ajouter à ton ticket ? (Donne son id pas son pseudo trou dballe) !"
+ticket_module_remove_question: "Qui est l'utilisateur que tu souhaitez retirer de ton ticket ? (Spécifiez sont identifiant d'utilisateur) !"
 
 # Server Logs
-event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **a ban** <@${firstEntry.target.id}>"
-event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> a **révoqué le bannissement** de ${firstEntry.target.username}"
+event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **a ban** <@${firstEntry.target.id}> suivi de "on t'aime pas dégage""
+event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> a **révoqué le bannissement** de ${firstEntry.target.username} revient parmis nous débillos"
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **a kick** <@${firstEntry.target.id}>"
-event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> a supprimé le rôle ${removedRoles} à ${oldMember.user.username}"
-event_srvLogs_guildMemberUpdate_2_description: "📥 <@${firstEntry.executor.id}> a ajouté le rôle ${addedRoles} à ${oldMember.user.username}"
+event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> a supprimé le rôle ${removedRoles} à ${oldMember.user.username} bruh"
+event_srvLogs_guildMemberUpdate_2_description: "📥 <@${firstEntry.executor.id}> a ajouté le rôle ${addedRoles} à ${oldMember.user.username} gg bg "
 event_srvLogs_messageDelete_description: "**Message supprimé dans <#${message.channel.id}>**\n${message.content}"
 event_srvLogs_messageUpdate_description: "**Message édité dans <#${oldMessage.channelId}>**"
 event_srvLogs_messageUpdate_footer_1: "Avant"
 event_srvLogs_messageUpdate_footer_2: "Après"
-event_srvLogs_voiceStateUpdate_description: "📤 <@${targetUser.id}> quitte le salon <#${OchannelID}>"
+event_srvLogs_voiceStateUpdate_description: "📤 <@${targetUser.id}> quitte l'salon <#${OchannelID}>"
 event_srvLogs_voiceStateUpdate_2_description: "📥 <@${targetUser.id}> se connecte au salon <#${channelID}>"
-event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> s'est mute casque dans le salon <#${channelID}>"
-event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> s'est demute casque casque dans le salon <#${channelID}>"
+event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> Ses mute casque dans lsalon<#${channelID}>"
+event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> s'est demute casque casque dans l'salon <#${channelID}>"
 event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> s'est mute dans le salon <#${channelID}>"
-event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> s'est demute casque dans le salon <#${channelID}>"
+event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> s'est demute casque dans l'salon <#${channelID}>"
 
 # Événement de Promotion de Rang
 event_rank_role: "<@${message.author.id}>, tu as maintenant le rôle <@&${fetch.id}> tu la bien mérité a glander sur ton lit , sale modo discord"
