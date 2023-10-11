@@ -850,7 +850,7 @@ setserverlang_not_admin: ":x: | Tu dois etre un admin du serv bg revient après 
 setserverlang_logs_embed_title_on_enable: "Logs SetServerLang"
 setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> a défini la langue d'iHorizon sur **${type}** boufffon fallais garder Mal Polis !"
 setserverlang_already: "C'est gentil dessayer dme rendre con mais jle suis déja !"
-setserverlang_command_work_enable: "Ma langue est maintenant sur **${type}** !"
+setserverlang_command_work_enable: "Ma langue est maintenant sur **${type}**  lets goooo!"
 setserverlang_command_error_enable: "Erreur !"
 
 # /embed
