@@ -7,6 +7,7 @@ IHorizon have a large variety of features, including moderation, invite manageme
 
 * English
 * French
+* Rude French (Troll)
 * Italian
 * German
 * Japanese
