@@ -52,6 +52,10 @@ export const command: Command = {
                     value: "fr-FR"
                 },
                 {
+                    name: "Rude French",
+                    value: "fr-ME"
+                },
+                {
                     name: "Italian",
                     value: "it-IT"
                 },
