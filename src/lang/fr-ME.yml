@@ -22,7 +22,7 @@ close_not_in_ticket: "Tu peux pas utilisé cte commande si t pas dans un salon d
 
 # /delete
 delete_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui a désactivé les commandes de ticket!"
-delete_not_in_ticket: "Tu ne peux pas utiliser cette commande en dehors d'un salon de ticket !"
+delete_not_in_ticket: "Wsh t con tu peux pas utiliser la commande dans un autre salon qu'un salon de ticket !"
 
 # /sethereticket
 sethereticket_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui a désactivé les commandes de ticket!"
