@@ -5,45 +5,45 @@
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
 
 # /add
-add_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
+add_disabled_command: "You can't use this commands because an Administrator disabled the ticket commands !"
 add_incorect_syntax: "Incorrect Syntax ! **Correct Usage:** `.add <member>`"
 add_command_work: "Successfully added ${member.tag} to your ticket!"
-add_command_error: "error occurred, pls try again"
+add_command_error: "error occurred, please try again"
 
 # /close
-close_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
-close_title_sourcebin: "Ticket transcript by iHorizon"
+close_disabled_command: "You can't use this commands because an Administrator disabled the ticket commands !"
+close_title_sourcebin: "Ticket transcripted by iHorizon"
 close_description_sourcebin: " "
-close_error_command: "Error occurred, pls try again!"
+close_error_command: "Error occurred, please try again!"
 close_command_work_channel: "You have closed your ticket. iHorizon sent you the transcript"
-close_command_work_notify_channel: "The ticket was succefully closed !"
+close_command_work_notify_channel: "The ticket was successfully closed !"
 close_command_error: "Error occurred, please try again!"
 close_not_in_ticket: "You cannot use this command outside of a ticket channel !"
 
 # /delete
-delete_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
+delete_disabled_command: "You can't use this commands because an Administrator disabled the ticket commands !"
 delete_not_in_ticket: "You cannot use this command outside of a ticket channel !"
 
 # /sethereticket
-sethereticket_disabled_command: "You can't use this commands because an another Administrator disable the ticket commands !"
-sethereticket_not_admin: ":x: | You must be an administrator of this server to request a this commands!"
+sethereticket_disabled_command: "You can't use this commands because an Administrator disabled the ticket commands !"
+sethereticket_not_admin: ":x: | You must be an administrator of this server to do this commands!"
 sethereticket_description_embed: "To create a new ticket, please react with 📩"
 sethereticket_command_work: "Ticket panel has been set successfully!"
 
 # /open
-open_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
+open_disabled_command: "You can't use this commands because an Administrator disabled the ticket commands !"
 open_command_work: "Successfully re-opened ${interaction.channel}"
 open_command_error: "Error occurred, please try again!"
 open_not_in_ticket: "You cannot use this command outside of a ticket channel!"
 
 # /remove
-remove_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
+remove_disabled_command: "You can't use this commands because an Administrator disabled the ticket commands !"
 remove_not_in_ticket: "You cannot use this command outside of a ticket channel !"
-remove_command_error: "Error occurred, pls try again"
+remove_command_error: "Error occurred, please try again"
 remove_command_work: "Successfully removed ${member.tag} to your ticket!"
 
 # /transript
-transript_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
+transript_disabled_command: "You can't use this commands because an Administrator disabled the ticket commands !"
 transript_name_sourcebin: " "
 transript_title_sourcebin: "Ticket Chat transcript for ${channel.name}"
 transript_command_error: "Error occurred, please try again!"
@@ -51,16 +51,16 @@ transript_command_work: "You have closed your ticket. iHorizon sent you the tran
 transript_not_in_ticket: "You cannot use this command outside of a ticket channel !"
 
 # /disableticket
-disableticket_not_admin: ":x: | You must be an administrator of this server to request this commands!"
+disableticket_not_admin: ":x: | You must be an administrator of this server to do this command!"
 disableticket_logs_embed_title_disable: "DisableTicket Logs"
-disableticket_logs_embed_description_disable: "<@${interaction.user.id}> disable ticket commands !"
-disableticket_command_work_disable: "You have successfully disable the ticket commands !"
+disableticket_logs_embed_description_disable: "<@${interaction.user.id}> disabled ticket commands !"
+disableticket_command_work_disable: "You have successfully disabled the ticket commands !"
 disableticket_logs_embed_title_enable: "EnableTicket Logs"
-disableticket_logs_embed_description_enable: "<@${interaction.user.id}> enable ticket commands !"
-disableticket_command_work_enable: "You have successfully enable the ticket commands !"
+disableticket_logs_embed_description_enable: "<@${interaction.user.id}> enabled ticket commands !"
+disableticket_command_work_enable: "You have successfully enabled the ticket commands !"
 
 # /setticketcategory
-setticketcategory_not_admin: ":x: | You must be an administrator of this server to request this commands!"
+setticketcategory_not_admin: ":x: | You must be an administrator of this server to do this command!"
 setticketcategory_disabled_command: "You can't use this commands because an Administrator disable the ticket commands !"
 setticketcategory_not_a_category: "The channel specified is not an Category, please try again."
 setticketcategory_command_work: "<@${interaction.user.id}>, you have set the Category for ticket channel to `${category.name}` !"
@@ -70,18 +70,18 @@ setticketcategory_command_work: "<@${interaction.user.id}>, you have set the Cat
 # /level, /setxpchannels, /disablexp
 
 # /disablexp
-disablexp_not_admin: ":x: | You must be an administrator of this server to request this commands!"
+disablexp_not_admin: ":x: | You must be an administrator of this server to do this command!"
 disablexp_logs_embed_title_disable: "Disable XP Logs"
 disablexp_logs_embed_description_disable: "<@${interaction.user.id}> disable xp !"
-disablexp_command_work_disable: "You have successfully disable the leveling message (XP)"
+disablexp_command_work_disable: "You have successfully disabled the leveling message (XP)"
 disablexp_logs_embed_title_enable: "Disable XP Logs"
 disablexp_logs_embed_description_enable: "<@${interaction.user.id}> enable xp !"
-disablexp_command_work_enable: "You have successfully enable the leveling message (XP)"
+disablexp_command_work_enable: "You have successfully enabled the leveling message (XP)"
 
 # /setxpchannels
-setxpchannels_not_admin: ":x: | You must be an administrator of this server to request this commands!"
+setxpchannels_not_admin: ":x: | You must be an administrator of this server to do this command!"
 setxpchannels_logs_embed_title_disable: "SetXpChannels Logs"
-setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> disable the custom xp channels. I put the default settings..."
+setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> disabled the custom xp channels. I put the default settings..."
 setxpchannels_already_disabled_disable: "The custom xp channels is already disable !"
 setxpchannels_command_work_disable: "You have successfully disable the custom xp channel !"
 setxpchannels_command_error_disable: "Error: missing permissions or channel doesn't exist"
