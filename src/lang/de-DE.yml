@@ -158,7 +158,7 @@ removeinvites_logs_embed_description: "<@${interaction.user.id}> hat ${amount} E
 # /botinfo, /invite, /kisakay, /ping, /status
 
 # /links
-links_message: "Klicken Sie auf die unten stehenden Links über mich!",
+links_message: "Klicken Sie auf die unten stehenden Links über mich!"
 links_website: "Meine Website"
 
 # /botinfo

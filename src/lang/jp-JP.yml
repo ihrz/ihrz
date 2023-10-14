@@ -158,7 +158,7 @@ removeinvites_logs_embed_description: "<@${interaction.user.id}>さんが<@${use
 # /botinfo, /invite, /kisakay, /ping, /status
 
 # /links
-links_message: "私に関する下記のリンクをクリックしてください！",
+links_message: "私に関する下記のリンクをクリックしてください！"
 links_website: "私のウェブサイト"
 
 # /botinfo
