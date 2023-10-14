@@ -157,6 +157,10 @@ removeinvites_logs_embed_description: "<@${interaction.user.id}> Удалил ${
 # Команды бота
 # /botinfo, /invite, /kisakay, /ping, /status
 
+# /links
+links_message: "Нажмите на ссылки ниже обо мне!",
+links_website: "Мой веб-сайт"
+
 # /botinfo
 botinfo_embed_fields_myname: "Моё имя:"
 botinfo_embed_fields_mychannels: "Мои каналы:"
