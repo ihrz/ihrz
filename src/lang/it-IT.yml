@@ -232,6 +232,8 @@ help_security_fields: "Sicurezza"
 help_security_dsc: "Amministra test captcha ai tuoi nuovi membri per garantire l'accesso sicuro al tuo server."
 help_schedule_fields: "Programma"
 help_schedule_dsc: "Crea promemoria con messaggi pre-programmati che il bot ti invierà in un messaggio privato"
+help_pfps_fields: "PFPS"
+help_pfps_dsc: "Invia un avatar utente casuale nel canale!"
 
 
 # Fun commands
@@ -1002,6 +1004,22 @@ schedule_create_not_number_time: "${interaction.user}, la tua risposta (il tempo
 schedule_create_embed_fields_name_confirm: "Data di Notifica"
 schedule_create_embed_title_confirm: "Pianificazione #${scheduleCode} creata!"
 schedule_create_confirm_msg: "${interaction.user}, la tua pianificazione è stata creata!\nCodice: `${scheduleCode}`"
+
+
+# Comando PFPS
+# /pfps channel, /pfps disable
+
+# /pfps disable
+pfps_disable_not_admin: ":x: Non hai le autorizzazioni di amministratore per eseguire questo comando"
+pfps_disable_command_action_on: "${interaction.user}, hai impostato il modulo PFPS su 'Acceso'.\nSe il canale non esiste, configuralo con il comando: **/pfps channel**."
+pfps_disable_command_action_off: "${interaction.user}, hai impostato il modulo PFPS su 'Spento'."
+
+# /pfps channel
+pfps_channel_not_admin: ":x: Non hai le autorizzazioni di amministratore per eseguire questo comando"
+pfps_channel_embed_title: "Modulo PFPS impostato qui!"
+pfps_channel_embed_desc: "${interaction.user} ha impostato il modulo PFPS qui!\nOra ogni 15 secondi, iHorizon invierà un avatar di un utente casuale in questa gilda!\nFarò del mio meglio!"
+pfps_channel_command_work: "${interaction.user}, hai impostato con successo il modulo PFPS nel canale ${channel} !"
+pfps_channel_command_error: "${interaction.user}, il comando ha restituito un errore. Verifica che il canale specificato esista e che il modulo PFPP sia attivo!"
 
 # -----------------------------/ \-----------------------------
 # Music Player Events

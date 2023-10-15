@@ -51,6 +51,7 @@ export const command: Command = {
             { name: data.help_music_fields, value: CONTENT.music, inline: true, description: data.help_music_dsc, emoji: "🎵" },
             { name: data.help_newftrs_fields, value: CONTENT.newfeatures, inline: true, description: data.help_newftrs_dsc, emoji: "🆕" },
             { name: data.help_owner_fields, value: CONTENT.owner, inline: true, description: data.help_owner_dsc, emoji: "👩‍✈️" },
+            { name: data.help_pfps_fields, value: CONTENT.pfps, inline: true, description: data.help_pfps_dsc, emoji: "🕵️‍♀️" },
             { name: data.help_prof_fields, value: CONTENT.profil, inline: true, description: data.help_prof_dsc, emoji: "👩" },
             { name: data.help_protection_fields, value: CONTENT.protection, inline: true, description: data.help_protection_dsc, emoji: "🛡️" },
             { name: data.help_ranks_fields, value: CONTENT.ranks, inline: true, description: data.help_ranks_dsc, emoji: "🌟" },

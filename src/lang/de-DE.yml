@@ -232,6 +232,8 @@ help_security_fields: "Sicherheit"
 help_security_dsc: "Verwalten Sie Captcha-Tests für Ihre neuen Mitglieder, um den Zugriff auf Ihren Server abzusichern."
 help_schedule_fields: "Zeitplan"
 help_schedule_dsc: "Erstelle Erinnerungen mit vorprogrammierten Nachrichten, die der Bot dir in einer privaten Nachricht sendet"
+help_pfps_fields: "PFPS"
+help_pfps_dsc: "Sendet zufälliges Benutzer-Avatar im Kanal!"
 
 
 # Fun commands
@@ -1002,6 +1004,22 @@ schedule_create_not_number_time: "${interaction.user}, Ihre Antwort (die Zeit, z
 schedule_create_embed_fields_name_confirm: "Benachrichtigungsdatum"
 schedule_create_embed_title_confirm: "Zeitplan #${scheduleCode} erstellt!"
 schedule_create_confirm_msg: "${interaction.user}, Ihr Zeitplan wurde erstellt!\nCode: `${scheduleCode}`"
+
+
+# PFPS-Befehl
+# /pfps Kanal, /pfps deaktivieren
+
+# /pfps deaktivieren
+pfps_disable_not_admin: ":x: Sie haben keine Administratorberechtigungen, um diesen Befehl auszuführen"
+pfps_disable_command_action_on: "${interaction.user}, Sie haben das PFPS-Modul aktiviert.\nWenn der Kanal nicht existiert, konfigurieren Sie ihn mit dem Befehl: **/pfps Kanal**."
+pfps_disable_command_action_off: "${interaction.user}, Sie haben das PFPS-Modul deaktiviert."
+
+# /pfps Kanal
+pfps_channel_not_admin: ":x: Sie haben keine Administratorberechtigungen, um diesen Befehl auszuführen"
+pfps_channel_embed_title: "PFPS-Modul hier eingestellt!"
+pfps_channel_embed_desc: "${interaction.user} hat das PFPS-Modul hier eingestellt!\nJetzt sendet iHorizon alle 15 Sekunden das Avatar eines zufälligen Benutzers in dieser Gilde!\nIch werde mein Bestes tun!"
+pfps_channel_command_work: "${interaction.user}, Sie haben das PFPS-Modul erfolgreich auf dem Kanal ${channel} eingestellt!"
+pfps_channel_command_error: "${interaction.user}, der Befehl hat einen Fehler zurückgegeben. Bitte überprüfen Sie, ob der angegebene Kanal existiert und das PFPP-Modul aktiviert ist!"
 
 # -----------------------------/ \-----------------------------
 # Music Player Events
