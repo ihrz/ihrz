@@ -24,8 +24,6 @@ import {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
-    ActionRow,
-    ButtonInteraction
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
