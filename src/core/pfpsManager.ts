@@ -34,6 +34,7 @@ async function Refresh(client: Client) {
 
     all.forEach((v: any) => {
         if (Number(v.id)) {
+            if(!v.value.PFPS) return;
             if (v.value.PFPS.disable) return;
             if (!v.value.PFPS.channel) return;
 
