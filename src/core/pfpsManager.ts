@@ -34,7 +34,7 @@ async function Refresh(client: Client) {
 
     all.forEach((v: any) => {
         if (Number(v.id)) {
-            if(!v.value.PFPS) return;
+            if (!v.value.PFPS) return;
             if (v.value.PFPS.disable) return;
             if (!v.value.PFPS.channel) return;
 
@@ -46,6 +46,7 @@ async function Refresh(client: Client) {
     });
 }
 
+let usr: string;
 async function SendMessage(client: Client, data: { guildId: string; channelId: string; }) {
 
     let guild = client.guilds.cache.get(data.guildId);
@@ -54,11 +55,18 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
     if (!guild || !channel) return;
 
     // Verify the cache has been initialized
-    if (guild?.members.cache.random()?.user === client.user) {
+    if (guild?.members.cache.random()?.user.id === client.user?.id) {
         await guild?.members.fetch();
     };
 
     let user = guild?.members.cache.filter(user => !user.user.bot).random();
+
+    // Prevent the same before and after
+    if (user?.id === usr) {
+        usr = (user?.id as string);
+        user = guild?.members.cache.filter(user => user?.id !== usr).random();
+    } else usr = (user?.id as string);
+
     let actRow = new ActionRowBuilder();
     let ebds = [];
 
