@@ -26,12 +26,6 @@ import {
     TextChannel
 } from 'discord.js';
 
-import { execSync } from 'child_process';
-import config from '../../files/config';
-import date from 'date-and-time';
-import ms from 'ms';
-import logger from '../../core/logger';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
@@ -44,13 +38,13 @@ export = {
         };
 
         if (!fetch && (channel instanceof TextChannel)) {
-            client.db.set(`${interaction.guild.id}.PFPS.channel`, channel.id);
+            await client.db.set(`${interaction.guild.id}.PFPS.channel`, channel.id);
 
             let embed = new EmbedBuilder()
                 .setColor('#333333')
-                .setTitle('Pfps Module set Here!')
-                .setDescription(`${interaction.user} have set the PFPS module here!\nNow every 15seconds, iHorizon sent a avatar of random user in this guild!\n I will try to do my best!`)
-                .setTimestamp()
+                .setTitle('PFPS Module set Here!')
+                .setDescription(`${interaction.user} have set the PFPS module here!\nNow every 15seconds, iHorizon sent a avatar of random user in this guild!\nI will try to do my best!`)
+                .setTimestamp();
 
             await interaction.editReply({ content: `${interaction.user}, you have set succeffuly the PFPS module to the channel ${channel} !` });
 
@@ -58,7 +52,8 @@ export = {
             return;
 
         } else {
-            logger.log('mmmh?');
+            await interaction.editReply({ content: `${interaction.user}, the command return an error. Please verify the channel you specified exist, verify the PFPP Module as been enable!` });
+            return;
         };
     },
 };

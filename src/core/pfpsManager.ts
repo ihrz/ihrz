@@ -52,6 +52,7 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
 
     if (!guild || !channel) return;
 
+    // Verify the cache has been initialized
     if (guild?.members.cache.random()?.user === client.user) {
         await guild?.members.fetch();
     };

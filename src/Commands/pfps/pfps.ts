@@ -55,12 +55,12 @@ export const command: Command = {
                     required: true,
                     choices: [
                         {
-                            name: "Power Off",
-                            value: "off"
-                        },
-                        {
                             name: 'Power On',
                             value: "on"
+                        },
+                        {
+                            name: "Power Off",
+                            value: "off"
                         },
                     ],
                 }

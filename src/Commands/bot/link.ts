@@ -37,35 +37,27 @@ export const command: Command = {
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
-        const websitebutton = new ButtonBuilder()
+        let websitebutton = new ButtonBuilder()
             .setLabel(data.links_website)
             .setStyle(ButtonStyle.Link)
             .setURL('https://ihrz.github.io');
 
-        const githubbutton = new ButtonBuilder()
+        let githubbutton = new ButtonBuilder()
             .setLabel(data.links_github)
             .setStyle(ButtonStyle.Link)
             .setURL('https://github.com/ihrz/ihrz')
 
-        const testbutton = new ButtonBuilder()
-            .setLabel('Michou')
+        let testbutton = new ButtonBuilder()
+            .setLabel('Staff')
             .setStyle(ButtonStyle.Danger)
             .setEmoji('✨')
             .setCustomId('test_button')
 
-            const row = new ActionRowBuilder().addComponents(websitebutton, githubbutton, testbutton);
+        let row = new ActionRowBuilder().addComponents(websitebutton, githubbutton, testbutton);
 
-            await interaction.editReply({
-                content: data.links_message,
-                components: [row],
-            });
-    
-            client.on('interactionCreate', async (interaction) => {
-                if (!interaction.isButton()) return;
-    
-                if (interaction.customId === 'test_button') {
-                    await interaction.user.send('Salut c\'est Michou');
-                }
-            });
-        },
-    };
+        await interaction.editReply({
+            content: data.links_message,
+            components: [row]
+        });
+    },
+};

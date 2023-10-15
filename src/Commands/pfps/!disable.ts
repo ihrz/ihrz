@@ -25,18 +25,26 @@ import {
     PermissionsBitField
 } from 'discord.js';
 
-import * as apiUrlParser from '../../core/functions/apiUrlParser';
-
-import config from '../../files/config';
-import CryptoJS, { enc } from 'crypto-js';
-import axios from 'axios';
-import logger from '../../core/logger';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let stats = interaction.options.getString('action');
+        let action = interaction.options.getString('action');
 
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            await interaction.editReply({ content: ":x: You don't have Administrator Permissions to execute this command" });
+            return;
+        };
 
+        if (action === 'on') {
+            await client.db.set(`${interaction.guild.id}.PFPS.disable`, false);
+            await interaction.editReply({ content: `${interaction.user}, you have set to \`Power On\` the PFPS Module.\nIf channel doesn't exist, configure these, with the command: **/pfps channel**.` });
+
+            return;
+        } else if (action === 'off') {
+            await client.db.set(`${interaction.guild.id}.PFPS.disable`, true);
+            await interaction.editReply({ content: `${interaction.user}, you have set to \`Power Off\` the PFPS Module.` });
+
+            return;
+        }
     },
 };
