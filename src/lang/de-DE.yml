@@ -1017,7 +1017,7 @@ pfps_disable_command_action_off: "${interaction.user}, Sie haben das PFPS-Modul 
 # /pfps Kanal
 pfps_channel_not_admin: ":x: Sie haben keine Administratorberechtigungen, um diesen Befehl auszuführen"
 pfps_channel_embed_title: "PFPS-Modul hier eingestellt!"
-pfps_channel_embed_desc: "${interaction.user} hat das PFPS-Modul hier eingestellt!\nJetzt sendet iHorizon alle 15 Sekunden das Avatar eines zufälligen Benutzers in dieser Gilde!\nIch werde mein Bestes tun!"
+pfps_channel_embed_desc: "${interaction.user} hat das PFPS-Modul hier eingestellt!\nJetzt sendet iHorizon alle 30 Sekunden das Avatar eines zufälligen Benutzers in dieser Gilde!\nIch werde mein Bestes tun!"
 pfps_channel_command_work: "${interaction.user}, Sie haben das PFPS-Modul erfolgreich auf dem Kanal ${channel} eingestellt!"
 pfps_channel_command_error: "${interaction.user}, der Befehl hat einen Fehler zurückgegeben. Bitte überprüfen Sie, ob der angegebene Kanal existiert und das PFPP-Modul aktiviert ist!"
 

@@ -1017,7 +1017,7 @@ pfps_disable_command_action_off: "${interaction.user}、あなたはPFPSモジ�
 # /pfps channel
 pfps_channel_not_admin: ":x: このコマンドを実行するための管理者権限がありません"
 pfps_channel_embed_title: "ここにPFPSモジュールが設定されています！"
-pfps_channel_embed_desc: "${interaction.user} がPFPSモジュールをここに設定しました！\nこれから15秒ごとに、iHorizonがこのギルドのランダムなユーザーのアバターを送信します！\n最善を尽くします！"
+pfps_channel_embed_desc: "${interaction.user} がPFPSモジュールをここに設定しました！\nこれから30秒ごとに、iHorizonがこのギルドのランダムなユーザーのアバターを送信します！\n最善を尽くします！"
 pfps_channel_command_work: "${interaction.user}、チャンネル${channel} にPFPSモジュールを正常に設定しました！"
 pfps_channel_command_error: "${interaction.user}、コマンドがエラーを返しました。指定したチャンネルが存在し、PFPPモジュールが有効であることを確認してください！"
 

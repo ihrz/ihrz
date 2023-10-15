@@ -1017,7 +1017,7 @@ pfps_disable_command_action_off: "${interaction.user}, you have set to `Power Of
 # /pfps channel
 pfps_channel_not_admin: ":x: You don't have Administrator Permissions to execute this command"
 pfps_channel_embed_title: "PFPS Module set Here!"
-pfps_channel_embed_desc: "${interaction.user} have set the PFPS module here!\nNow every 15seconds, iHorizon sent a avatar of random user in this guild!\nI will try to do my best!"
+pfps_channel_embed_desc: "${interaction.user} have set the PFPS module here!\nNow every 30seconds, iHorizon sent a avatar of random user in this guild!\nI will try to do my best!"
 pfps_channel_command_work: "${interaction.user}, you have set succeffuly the PFPS module to the channel ${channel} !"
 pfps_channel_command_error: "${interaction.user}, the command return an error. Please verify the channel you specified exist, verify the PFPP Module as been enable!"
 

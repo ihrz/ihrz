@@ -1017,7 +1017,7 @@ pfps_disable_command_action_off: "${interaction.user}, vous avez désactivé le 
 # /pfps channel
 pfps_channel_not_admin: ":x: Vous n'avez pas les autorisations d'administrateur pour exécuter cette commande"
 pfps_channel_embed_title: "Module PFPS configuré ici !"
-pfps_channel_embed_desc: "${interaction.user} a configuré le module PFPS ici !\nDésormais, toutes les 15 secondes, iHorizon envoie l'avatar d'un utilisateur aléatoire dans cette guilde !\nJe ferai de mon mieux !"
+pfps_channel_embed_desc: "${interaction.user} a configuré le module PFPS ici !\nDésormais, toutes les 30 secondes, iHorizon envoie l'avatar d'un utilisateur aléatoire dans cette guilde !\nJe ferai de mon mieux !"
 pfps_channel_command_work: "${interaction.user}, vous avez configuré avec succès le module PFPS dans le canal ${channel} !"
 pfps_channel_command_error: "${interaction.user}, la commande a renvoyé une erreur. Veuillez vérifier que le canal que vous avez spécifié existe et que le module PFPS est activé !"
 
