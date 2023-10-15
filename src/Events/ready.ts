@@ -19,11 +19,12 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+import { Init } from "../core/pfpsManager";
 import logger from "../core/logger";
 import couleurmdr from 'colors';
 import config from "../files/config";
-
 import register from '../core/slashSync';
+
 import date from 'date-and-time';
 import path from 'path';
 import fs from 'fs';
@@ -158,9 +159,12 @@ export = async (client: Client) => {
             }
         }
     };
+    
     otherBotPowerOn();
 
     setInterval(quotesPresence, 30_000), setInterval(refreshSchedule, 15_000);
 
     fetchInvites(), refreshDatabaseModel(), term(), quotesPresence(), refreshSchedule();
+
+    Init(client);
 };
