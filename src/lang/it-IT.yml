@@ -158,8 +158,9 @@ removeinvites_logs_embed_description: "<@${interaction.user.id}> ha rimosso ${am
 # /botinfo, /invite, /kisakay, /ping, /status
 
 # /links
-links_message: "Clicca sui link qui sotto su di me!",
+links_message: "Clicca sui link qui sotto su di me!"
 links_website: "Il mio sito web"
+links_github: "Il mio Github"
 
 # /botinfo
 botinfo_embed_fields_myname: "Il mio nome:"

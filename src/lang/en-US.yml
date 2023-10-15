@@ -158,8 +158,9 @@ removeinvites_logs_embed_description: "<@${interaction.user.id}> removed ${amoun
 # /botinfo, /invite, /kisakay, /ping, /status
 
 # /links
-links_message: "Click the links below about me!",
+links_message: "Click the links below about me!"
 links_website: "My Website"
+links_github: "My Github"
 
 # /botinfo
 botinfo_embed_fields_myname: "My Name:"

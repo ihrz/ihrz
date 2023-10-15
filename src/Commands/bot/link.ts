@@ -23,7 +23,9 @@ import {
     Client,
     ActionRowBuilder,
     ButtonBuilder,
-    ButtonStyle
+    ButtonStyle,
+    ActionRow,
+    ButtonInteraction
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -35,16 +37,19 @@ export const command: Command = {
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
-        const buttonLabel = data.links_website;
-
-        const button = new ButtonBuilder()
-            .setLabel(buttonLabel)
+        const websitebutton = new ButtonBuilder()
+            .setLabel(data.links_website)
             .setStyle(ButtonStyle.Link)
             .setURL('https://ihrz.github.io');
 
-        const row = new ActionRowBuilder().addComponents(button);
+        const githubbutton = new ButtonBuilder()
+            .setLabel(data.links.github)
+            .setStyle(ButtonStyle.Link)
+            .setURL('https://github.com/ihrz/ihrz')
 
-        await interaction.reply({
+        const row = new ActionRowBuilder().addComponents(websitebutton,githubbutton);
+
+        await interaction.editReply({
             content: data.links_message,
             components: [row],
         });
