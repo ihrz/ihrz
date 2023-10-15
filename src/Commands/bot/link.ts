@@ -47,11 +47,25 @@ export const command: Command = {
             .setStyle(ButtonStyle.Link)
             .setURL('https://github.com/ihrz/ihrz')
 
-        const row = new ActionRowBuilder().addComponents(websitebutton,githubbutton);
+        const testbutton = new ButtonBuilder()
+            .setLabel('Michou')
+            .setStyle(ButtonStyle.Danger)
+            .setEmoji('✨')
+            .setCustomId('test_button')
 
-        await interaction.editReply({
-            content: data.links_message,
-            components: [row],
-        });
-    },
-};
+            const row = new ActionRowBuilder().addComponents(websitebutton, githubbutton, testbutton);
+
+            await interaction.editReply({
+                content: data.links_message,
+                components: [row],
+            });
+    
+            client.on('interactionCreate', async (interaction) => {
+                if (!interaction.isButton()) return;
+    
+                if (interaction.customId === 'test_button') {
+                    await interaction.user.send('Salut c\'est Michou');
+                }
+            });
+        },
+    };
