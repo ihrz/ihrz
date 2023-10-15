@@ -157,6 +157,10 @@ removeinvites_logs_embed_description: "<@${interaction.user.id}> a supprimé ${a
 # Bot commands
 # /botinfo, /invite, /kisakay, /ping, /status
 
+# /links
+links_message: "Clique sur ces putains de liens !"
+links_website: "Mon Putain De Site Web"
+
 # /botinfo
 botinfo_embed_fields_myname: "Mon nom ca la vie dma mere :"
 botinfo_embed_fields_mychannels: "Mes chaînes sont ici sur la kalash dmon pere et dma mere:"
