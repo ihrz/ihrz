@@ -60,7 +60,7 @@ export = {
         let ctx = canvas.getContext('2d');
 
         let heartEmojiPath = `${process.cwd()}/src/assets/heart.png`;
-        
+
         let profileImage1URL = user1.displayAvatarURL({ extension: 'png', size: 512 });
         let profileImage2URL = user2.displayAvatarURL({ extension: 'png', size: 512 });
 
@@ -84,26 +84,18 @@ export = {
             ctx.drawImage(heartEmoji, heartX, heartY);
             ctx.drawImage(profileImage2, profileImageSize * 1 + heartEmoji.width, 0, profileImageSize, canvasHeight);
 
-            let outputFilePath = `${process.cwd()}/src/temp/${user1.id}x${user2.id}.png`;
-            let outputStream = fs.createWriteStream(outputFilePath);
-            let stream = canvas.createPNGStream();
+            // Convert the canvas to a buffer
+            let buffer = canvas.toBuffer('image/png');
 
-            return new Promise((resolve, reject) => {
-                stream.pipe(outputStream);
-                outputStream.on('finish', () => {
+            fs.unlinkSync(`${process.cwd()}/src/temp/profileImage1_${user1.id}.png`);
+            fs.unlinkSync(`${process.cwd()}/src/temp/profileImage2_${user2.id}.png`);
 
-                    fs.unlinkSync(`${process.cwd()}/src/temp/profileImage1_${user1.id}.png`);
-                    fs.unlinkSync(`${process.cwd()}/src/temp/profileImage2_${user2.id}.png`);
-
-                    resolve(outputFilePath);
-                });
-                outputStream.on('error', reject);
-            });
+            return buffer;
         };
 
         try {
-            let imagePath: any = await downloadAndLoadImages();
-            let file = new AttachmentBuilder(imagePath);
+            let buffer: any = await downloadAndLoadImages();
+            let file = new AttachmentBuilder(Buffer.from(buffer, 'base64'), { name: 'love.png' });
 
             let always100: Array<string> = config.command.alway100;
 
@@ -128,7 +120,7 @@ export = {
             var embed = new EmbedBuilder()
                 .setColor("#FFC0CB")
                 .setTitle("💕")
-                .setImage(`attachment://${user1.id}x${user2.id}.png`)
+                .setImage(`attachment://love.png`)
                 .setDescription(data.love_embed_description
                     .replace('${user1.username}', user1.username)
                     .replace('${user2.username}', user2.username)
