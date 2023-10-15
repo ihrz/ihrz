@@ -232,6 +232,8 @@ help_security_fields: "Seguridad"
 help_security_dsc: "Administre pruebas de captcha a sus nuevos miembros para asegurar el acceso a su servidor."
 help_schedule_fields: "Programación"
 help_schedule_dsc: "Crea recordatorios con mensajes preprogramados que el bot te enviará en un mensaje privado"
+help_pfps_fields: "PFPS"
+help_pfps_dsc: "¡Envía un avatar de usuario al azar en el canal!"
 
 
 # Fun commands
@@ -1002,6 +1004,22 @@ schedule_create_not_number_time: "${interaction.user}, tu respuesta (el tiempo e
 schedule_create_embed_fields_name_confirm: "Fecha de Notificación"
 schedule_create_embed_title_confirm: "#${scheduleCode} ¡Programación Creada!"
 schedule_create_confirm_msg: "${interaction.user}, ¡tu programación ha sido creada!\nCódigo: `${scheduleCode}`"
+
+
+# Comando PFPS
+# /pfps channel, /pfps disable
+
+# /pfps disable
+pfps_disable_not_admin: ":x: No tienes permisos de administrador para ejecutar este comando"
+pfps_disable_command_action_on: "${interaction.user}, has activado el módulo PFPS.\nSi el canal no existe, configúralo con el comando: **/pfps channel**."
+pfps_disable_command_action_off: "${interaction.user}, has desactivado el módulo PFPS."
+
+# /pfps channel
+pfps_channel_not_admin: ":x: No tienes permisos de administrador para ejecutar este comando"
+pfps_channel_embed_title: "¡Módulo PFPS configurado aquí!"
+pfps_channel_embed_desc: "${interaction.user} ha configurado el módulo PFPS aquí.\n¡Ahora, cada 15 segundos, iHorizon enviará el avatar de un usuario al azar en esta hermandad!\n¡Haré lo mejor que pueda!"
+pfps_channel_command_work: "${interaction.user}, has configurado con éxito el módulo PFPS en el canal ${channel} !"
+pfps_channel_command_error: "${interaction.user}, el comando ha devuelto un error. ¡Verifica que el canal que especificaste existe y que el módulo PFPP está habilitado!"
 
 # -----------------------------/ \-----------------------------
 # Music Player Events

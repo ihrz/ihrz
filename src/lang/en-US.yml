@@ -232,6 +232,8 @@ help_security_fields: "Security"
 help_security_dsc: "Administer captcha tests to your new members to secure access to your server."
 help_schedule_fields: "Schedule"
 help_schedule_dsc: "Create reminders with pre-programmed messages that the bot will send to you in a private message"
+help_pfps_fields: "PFPS"
+help_pfps_dsc: "Sending random user avatar in channel!"
 
 
 # Fun commands
@@ -1002,6 +1004,22 @@ schedule_create_not_number_time: "${interaction.user}, your reponse (the time yo
 schedule_create_embed_fields_name_confirm: "Notified Date"
 schedule_create_embed_title_confirm: "#${scheduleCode} Schedule Created!"
 schedule_create_confirm_msg: "${interaction.user}, your schedule has been created!\nCode: `${scheduleCode}`"
+
+
+# PFPS Command
+# /pfps channel, /pfps disable
+
+# /pfps disable
+pfps_disable_not_admin: ":x: You don't have Administrator Permissions to execute this command"
+pfps_disable_command_action_on: "${interaction.user}, you have set to `Power On` the PFPS Module.\nIf channel doesn't exist, configure these, with the command: **/pfps channel**."
+pfps_disable_command_action_off: "${interaction.user}, you have set to `Power Off` the PFPS Module."
+
+# /pfps channel
+pfps_channel_not_admin: ":x: You don't have Administrator Permissions to execute this command"
+pfps_channel_embed_title: "PFPS Module set Here!"
+pfps_channel_embed_desc: "${interaction.user} have set the PFPS module here!\nNow every 15seconds, iHorizon sent a avatar of random user in this guild!\nI will try to do my best!"
+pfps_channel_command_work: "${interaction.user}, you have set succeffuly the PFPS module to the channel ${channel} !"
+pfps_channel_command_error: "${interaction.user}, the command return an error. Please verify the channel you specified exist, verify the PFPP Module as been enable!"
 
 # -----------------------------/ \-----------------------------
 # Music Player Events

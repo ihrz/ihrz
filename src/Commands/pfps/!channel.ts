@@ -33,7 +33,9 @@ export = {
         let fetch = await client.db.get(`${interaction.guild.id}.PFPS.disable`);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: ":x: You don't have Administrator Permissions to execute this command" });
+            await interaction.editReply({
+                content: data.pfps_channel_not_admin
+            });
             return;
         };
 
@@ -42,17 +44,26 @@ export = {
 
             let embed = new EmbedBuilder()
                 .setColor('#333333')
-                .setTitle('PFPS Module set Here!')
-                .setDescription(`${interaction.user} have set the PFPS module here!\nNow every 15seconds, iHorizon sent a avatar of random user in this guild!\nI will try to do my best!`)
+                .setTitle(data.pfps_channel_embed_title)
+                .setDescription(data.pfps_channel_embed_desc
+                    .replace('${interaction.user}', interaction.user)
+                )
                 .setTimestamp();
 
-            await interaction.editReply({ content: `${interaction.user}, you have set succeffuly the PFPS module to the channel ${channel} !` });
+            await interaction.editReply({
+                content: data.pfps_channel_command_work
+                    .replace('${interaction.user}', interaction.user)
+                    .replace('${channel}', channel)
+            });
 
             channel.send({ embeds: [embed] });
             return;
 
         } else {
-            await interaction.editReply({ content: `${interaction.user}, the command return an error. Please verify the channel you specified exist, verify the PFPP Module as been enable!` });
+            await interaction.editReply({
+                content: data.pfps_channel_command_error
+                    .replace('${interaction.user}', interaction.user)
+            });
             return;
         };
     },

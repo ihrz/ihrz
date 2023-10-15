@@ -28,7 +28,7 @@ import { Command } from '../../../types/command';
 
 export const command: Command = {
     name: "pfps",
-    description: "Sending random user avatar in channels!",
+    description: "Sending random user avatar in channel!",
     options: [
         {
             name: "channel",

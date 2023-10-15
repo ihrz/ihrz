@@ -31,18 +31,26 @@ export = {
         let action = interaction.options.getString('action');
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: ":x: You don't have Administrator Permissions to execute this command" });
+            await interaction.editReply({
+                content: data.pfps_disable_not_admin
+            });
             return;
         };
 
         if (action === 'on') {
             await client.db.set(`${interaction.guild.id}.PFPS.disable`, false);
-            await interaction.editReply({ content: `${interaction.user}, you have set to \`Power On\` the PFPS Module.\nIf channel doesn't exist, configure these, with the command: **/pfps channel**.` });
+            await interaction.editReply({
+                content: data.pfps_disable_command_action_on
+                    .replace('${interaction.user}', interaction.user)
+            });
 
             return;
         } else if (action === 'off') {
             await client.db.set(`${interaction.guild.id}.PFPS.disable`, true);
-            await interaction.editReply({ content: `${interaction.user}, you have set to \`Power Off\` the PFPS Module.` });
+            await interaction.editReply({
+                content: data.pfps_disable_command_action_off
+                    .replace('${interaction.user}', interaction.user)
+            });
 
             return;
         }
