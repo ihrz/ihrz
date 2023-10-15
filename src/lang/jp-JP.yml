@@ -160,6 +160,7 @@ removeinvites_logs_embed_description: "<@${interaction.user.id}>さんが<@${use
 # /links
 links_message: "私に関する下記のリンクをクリックしてください！"
 links_website: "私のウェブサイト"
+links_github: "私のGithub"
 
 # /botinfo
 botinfo_embed_fields_myname: "私の名前："

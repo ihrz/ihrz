@@ -160,6 +160,7 @@ removeinvites_logs_embed_description: "<@${interaction.user.id}> ha eliminado ${
 # /links
 links_message: "Haga clic en los enlaces a continuación sobre mí!"
 links_website: "Mi sitio web"
+links_github: "Mi Github"
 
 # /botinfo
 botinfo_embed_fields_myname: "Mi nombre:"
