@@ -43,7 +43,7 @@ export const command: Command = {
             .setURL('https://ihrz.github.io');
 
         const githubbutton = new ButtonBuilder()
-            .setLabel(data.links.github)
+            .setLabel(data.links_github)
             .setStyle(ButtonStyle.Link)
             .setURL('https://github.com/ihrz/ihrz')
 
