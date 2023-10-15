@@ -26,7 +26,7 @@ async function Init(client: Client) {
 
     setInterval(() => {
         Refresh(client);
-    }, 15000);
+    }, 30000);
 }
 
 async function Refresh(client: Client) {
