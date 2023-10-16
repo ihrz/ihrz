@@ -32,6 +32,7 @@ export const command: Command = {
     description: 'Get information about the bot!',
     category: 'bot',
     run: async (client: Client, interaction: any) => {
+        
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
         let chansize = client.channels.cache.size;
@@ -51,7 +52,7 @@ export const command: Command = {
                 { name: data.botinfo_embed_fields_created_by, value: ":green_circle: <@171356978310938624>", inline: false },
             )
             .setTimestamp()
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setFooter({ text: `iHorizon ${pkg.version}`, iconURL: client.user?.displayAvatarURL() })
             .setTimestamp()
 
         await interaction.editReply({ embeds: [clientembed] });
