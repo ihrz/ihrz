@@ -19,33 +19,10 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import {
-    Client,
-    EmbedBuilder,
-    AttachmentBuilder,
-} from 'discord.js';
-
-import config from '../../files/config';
-
-import axios from 'axios';
-import fs from 'fs';
-import { createCanvas, loadImage } from "canvas";
+import { Client, EmbedBuilder, AttachmentBuilder } from 'discord.js';
+import { createCanvas, loadImage } from 'canvas';
 import logger from '../../core/logger';
-
-let downloadImage = (url: string, filename: string) => {
-    return new Promise((resolve, reject) => {
-        axios.get(url, { responseType: 'stream' })
-            .then(response => {
-                let writer = fs.createWriteStream(filename);
-                response.data.pipe(writer);
-                writer.on('finish', resolve);
-                writer.on('error', reject);
-            })
-            .catch(error => {
-                reject(error);
-            });
-    });
-};
+import config from '../../files/config';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
@@ -64,15 +41,10 @@ export = {
         let profileImage1URL = user1.displayAvatarURL({ extension: 'png', size: 512 });
         let profileImage2URL = user2.displayAvatarURL({ extension: 'png', size: 512 });
 
-        await Promise.all([
-            downloadImage(profileImage1URL, `${process.cwd()}/src/temp/profileImage1_${user1.id}.png`),
-            downloadImage(profileImage2URL, `${process.cwd()}/src/temp/profileImage2_${user2.id}.png`)
-        ]);
-
-        let downloadAndLoadImages = async () => {
-            let [profileImage1, profileImage2, heartEmoji] = await Promise.all([
-                loadImage(`${process.cwd()}/src/temp/profileImage1_${user1.id}.png`),
-                loadImage(`${process.cwd()}/src/temp/profileImage2_${user2.id}.png`),
+        try {
+            const [profileImage1, profileImage2, heartEmoji] = await Promise.all([
+                loadImage(profileImage1URL),
+                loadImage(profileImage2URL),
                 loadImage(heartEmojiPath)
             ]);
 
@@ -84,18 +56,8 @@ export = {
             ctx.drawImage(heartEmoji, heartX, heartY);
             ctx.drawImage(profileImage2, profileImageSize * 1 + heartEmoji.width, 0, profileImageSize, canvasHeight);
 
-            // Convert the canvas to a buffer
+            // Convertir le canvas en buffer
             let buffer = canvas.toBuffer('image/png');
-
-            fs.unlinkSync(`${process.cwd()}/src/temp/profileImage1_${user1.id}.png`);
-            fs.unlinkSync(`${process.cwd()}/src/temp/profileImage2_${user2.id}.png`);
-
-            return buffer;
-        };
-
-        try {
-            let buffer: any = await downloadAndLoadImages();
-            let file = new AttachmentBuilder(Buffer.from(buffer, 'base64'), { name: 'love.png' });
 
             let always100: Array<string> = config.command.alway100;
 
@@ -129,12 +91,12 @@ export = {
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                 .setTimestamp();
 
+            let file = new AttachmentBuilder(buffer, { name: 'love.png' });
+
             await interaction.editReply({ embeds: [embed], files: [file] });
-            return;
         } catch (error: any) {
-            logger.err(error)
+            logger.err(error);
             await interaction.editReply({ content: data.love_command_error });
-            return;
-        };
+        }
     },
 };

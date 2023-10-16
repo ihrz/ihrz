@@ -25,8 +25,6 @@ import {
     AttachmentBuilder,
 } from 'discord.js';
 
-import fs from 'fs';
-
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
@@ -61,21 +59,8 @@ export = {
             i++;
         });
 
-        let writeFilePromise = (file: string, data: string) => {
-            return new Promise((resolve, reject) => {
-                fs.writeFile(file, data, (error: any) => {
-                    if (error) reject(error);
-                    resolve("file created successfully with handcrafted Promise!");
-                });
-            });
-        };
-
-        writeFilePromise(
-            `${process.cwd()}/src/temp/${interaction.id}.txt`,
-            o
-        );
-
-        let attachment = new AttachmentBuilder(`${process.cwd()}/src/temp/${interaction.id}.txt`, { name: 'leaderboard.txt' });
+        let buffer = Buffer.from(o, 'utf-8');
+        let attachment = new AttachmentBuilder(buffer, { name: 'leaderboard.txt' })
 
         embed.setThumbnail(interaction.guild.iconURL({ dynamic: true }));
         embed.setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });

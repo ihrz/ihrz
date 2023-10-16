@@ -21,6 +21,7 @@
 
 import * as checkSys from './functions/checkSys';
 import playerManager from "./playerManager";
+import db from './functions/DatabaseModel';
 import bash from './bash/bash';
 
 import * as errorManager from './errorManager';
@@ -32,28 +33,6 @@ import { execSync } from 'child_process';
 
 import { readdirSync } from "fs";
 import couleurmdr from "colors";
-import path from 'path';
-import fs from 'fs';
-import db from './functions/DatabaseModel';
-
-function cleanTempDir() {
-    let folderPath = `${process.cwd()}/src/temp`;
-
-    fs.readdir(folderPath, (err, files) => {
-        if (err) return;
-
-        files.forEach((file) => {
-            let filePath = path.join(folderPath, file);
-
-            if (file !== 'here') {
-                fs.unlink(filePath, (err) => {
-                    if (err) return;
-                });
-            };
-        });
-    });
-
-};
 
 export = (client: Client) => {
     logger.legacy(couleurmdr.gray("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz)."));
@@ -78,7 +57,6 @@ export = (client: Client) => {
         process.exit();
     });
 
-    cleanTempDir();
     checkSys.Html();
 
     client.db = db;
