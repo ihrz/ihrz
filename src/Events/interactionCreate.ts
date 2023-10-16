@@ -35,7 +35,8 @@ export = async (client: any, interaction: any) => {
             || !interaction.guild?.channels
             || interaction.user.bot) return;
 
-        client.buttons.get(interaction.customId)(interaction);
+        let get = client.buttons.get(interaction.customId);
+        if (get) get(interaction);
     };
 
     async function slashExecutor() {

@@ -22,44 +22,23 @@
 import * as checkSys from './functions/checkSys';
 import { Init } from './giveawaysManager';
 import playerManager from "./playerManager";
+import db from './functions/DatabaseModel';
 import bash from './bash/bash';
 
 import * as errorManager from './errorManager';
-import db from './functions/DatabaseModel';
 
 import logger from "./logger";
 
 import { Client, Collection } from "discord.js";
-import fs from 'fs';
 import { readdirSync } from "fs";
-import path from 'path';
 import couleurmdr from "colors";
 
-function cleanTempDir() {
-    let folderPath = `${process.cwd()}/src/temp`;
-
-    fs.readdir(folderPath, (err, files) => {
-        if (err) return;
-
-        files.forEach((file) => {
-            let filePath = path.join(folderPath, file);
-
-            if (file !== 'here') {
-                fs.unlink(filePath, (err) => {
-                    if (err) return;
-                });
-            };
-        });
-    });
-
-};
 
 export = (client: Client) => {
     logger.legacy(couleurmdr.gray("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz)."));
     logger.legacy(couleurmdr.gray("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0."));
     logger.legacy(couleurmdr.gray("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0"));
 
-    cleanTempDir();
     checkSys.Html();
 
     client.db = db;

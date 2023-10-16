@@ -157,6 +157,11 @@ removeinvites_logs_embed_description: "<@${interaction.user.id}> Удалил ${
 # Команды бота
 # /botinfo, /invite, /kisakay, /ping, /status
 
+# /links
+links_message: "Нажмите на ссылки ниже обо мне!"
+links_website: "Мой веб-сайт"
+links_github: "Мой Github"
+
 # /botinfo
 botinfo_embed_fields_myname: "Моё имя:"
 botinfo_embed_fields_mychannels: "Мои каналы:"
@@ -227,6 +232,8 @@ help_security_fields: "Безопасность"
 help_security_dsc: "Проводите тесты CAPTCHA для новых участников, чтобы обеспечить безопасный доступ к вашему серверу."
 help_schedule_fields: "Планирование"
 help_schedule_dsc: "Создавайте напоминания с заранее заданными сообщениями, которые бот будет отправлять вам в личном сообщении"
+help_pfps_fields: "PFPS"
+help_pfps_dsc: "Отправка случайного аватара пользователя в канал!"
 
 
 # Fun commands
@@ -997,6 +1004,22 @@ schedule_create_not_number_time: "${interaction.user}, ваш ответ (вре
 schedule_create_embed_fields_name_confirm: "Дата уведомления"
 schedule_create_embed_title_confirm: "Расписание #${scheduleCode} создано!"
 schedule_create_confirm_msg: "${interaction.user}, ваше расписание было создано!\nКод: `${scheduleCode}`"
+
+
+# Команда PFPS
+# /pfps channel, /pfps disable
+
+# /pfps disable
+pfps_disable_not_admin: ":x: У вас нет прав администратора для выполнения этой команды"
+pfps_disable_command_action_on: "${interaction.user}, вы включили модуль PFPS.\nЕсли канал не существует, настройте его с помощью команды: **/pfps channel**."
+pfps_disable_command_action_off: "${interaction.user}, вы выключили модуль PFPS."
+
+# /pfps channel
+pfps_channel_not_admin: ":x: У вас нет прав администратора для выполнения этой команды"
+pfps_channel_embed_title: "Модуль PFPS настроен здесь!"
+pfps_channel_embed_desc: "${interaction.user} настроил модуль PFPS здесь!\nТеперь каждые 30 секунд iHorizon будет отправлять аватар случайного пользователя в этой гильдии!\nЯ постараюсь сделать все возможное!"
+pfps_channel_command_work: "${interaction.user}, вы успешно настроили модуль PFPS для канала ${channel} !"
+pfps_channel_command_error: "${interaction.user}, команда вернула ошибку. Пожалуйста, проверьте, существует ли указанный канал, и включен ли модуль PFPP!"
 
 # -----------------------------/ \-----------------------------
 # События проигрывателя музыки

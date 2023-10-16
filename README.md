@@ -7,19 +7,19 @@ IHorizon have a large variety of features, including moderation, invite manageme
 
 * English
 * French
+* Rude French (Troll)
 * Italian
 * German
 * Japanese
 * Spanish
+* Russian
 * And soon more !
 
 ## Contributor's Wall
 
 - [Kisakay](https://github.com/Kisakay) (She/Her)
 - [NayaWeb](https://github.com/belugafr) (She/Her)
-- [Maxine](https://github.com/mxi1n) (She/Her)
 - [Noémie](https://github.com/name-shitty-github-profile) (She/Her)
-- [Wyene](https://github.com/WyeneCloud) (He/him)
 
 ## Origin
 
