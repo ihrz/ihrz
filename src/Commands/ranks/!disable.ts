@@ -45,7 +45,7 @@ export = {
                     .setDescription(data.disablexp_logs_embed_description_disable.replace(/\${interaction\.user\.id}/g, interaction.user.id))
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                
+
                 if (logchannel) {
                     logchannel.send({ embeds: [logEmbed] })
                 };
@@ -54,7 +54,27 @@ export = {
             };
 
             await client.db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.disable`, false);
-            
+
+            await interaction.editReply({ content: data.disablexp_command_work_disable_entierly });
+            return;
+        } else if (types == "disable") {
+            try {
+                let logEmbed = new EmbedBuilder()
+                    .setColor("#bf0bb9")
+                    .setTitle(data.disablexp_logs_embed_title_disable)
+                    .setDescription(data.disablexp_logs_embed_description_disable.replace(/\${interaction\.user\.id}/g, interaction.user.id))
+
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
+                if (logchannel) {
+                    logchannel.send({ embeds: [logEmbed] })
+                };
+            } catch (e: any) {
+                logger.err(e)
+            };
+
+            await client.db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.disable`, 'disable');
+
             await interaction.editReply({ content: data.disablexp_command_work_disable });
             return;
         } else if (types == "on") {
@@ -65,7 +85,7 @@ export = {
                     .setDescription(data.disablexp_logs_embed_description_enable.replace(/\${interaction\.user\.id}/g, interaction.user.id))
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                
+
                 if (logchannel) {
                     logchannel.send({ embeds: [logEmbed] })
                 };
@@ -74,7 +94,7 @@ export = {
             };
 
             await client.db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.disable`, true);
-            
+
             await interaction.editReply({ content: data.disablexp_command_work_enable });
             return;
         };

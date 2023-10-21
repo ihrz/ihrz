@@ -77,6 +77,7 @@ disablexp_command_work_disable: "Has desactivado correctamente el mensaje de niv
 disablexp_logs_embed_title_enable: "Registros de activación de XP"
 disablexp_logs_embed_description_enable: "<@${interaction.user.id}> ha activado la XP."
 disablexp_command_work_enable: "Has habilitado correctamente el mensaje de nivelación (XP)."
+disablexp_command_work_disable_entierly: "¡Has desactivado con éxito el módulo de rangos! (No más mensajes y los usuarios no ganan niveles)"
 
 # /setxpchannels
 setxpchannels_not_admin: ":x: | ¡Debes ser administrador de este servidor para solicitar este comando!"

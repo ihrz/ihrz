@@ -77,6 +77,7 @@ disablexp_command_work_disable: "You have successfully disabled the leveling mes
 disablexp_logs_embed_title_enable: "Disable XP Logs"
 disablexp_logs_embed_description_enable: "<@${interaction.user.id}> enable xp !"
 disablexp_command_work_enable: "You have successfully enabled the leveling message (XP)"
+disablexp_command_work_disable_entierly: "You have successfully disabled the ranks module ! (No more message, and user don't earn level)"
 
 # /setxpchannels
 setxpchannels_not_admin: ":x: | You must be an administrator of this server to do this command!"

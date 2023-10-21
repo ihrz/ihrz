@@ -42,12 +42,16 @@ export const command: Command = {
                     required: true,
                     choices: [
                         {
-                            name: "Remove the module (don't send any message but user still earn xp level)",
+                            name: 'Power On the module (send message when user earn xp level)',
+                            value: "on"
+                        },
+                        {
+                            name: "Power Off the module (don't send any message but user still earn xp level)",
                             value: "off"
                         },
                         {
-                            name: 'Power on the module (send message when user earn xp level)',
-                            value: "on"
+                            name: "Disable the module (don't send any message and user don't earn xp level)",
+                            value: "disable"
                         },
                     ],
                 },
