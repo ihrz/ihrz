@@ -77,6 +77,7 @@ disablexp_command_work_disable: "T'as réussi à éteindre ce foutu message de n
 disablexp_logs_embed_title_enable: "Logs d'activation XP"
 disablexp_logs_embed_description_enable: "<@${interaction.user.id}> a rallumé XP, bien joué !"
 disablexp_command_work_enable: "T'as réussi à allumer le message de niveau (XP)."
+disablexp_command_work_disable_entierly: "T'as bien désactivé le bordel des niveaux ! (Fini les messages et les users gagnent plus de niveaux)"
 
 # /setxpchannels
 setxpchannels_not_admin: ":x: | C'est réservé aux admins, mec !"

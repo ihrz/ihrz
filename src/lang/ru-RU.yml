@@ -77,6 +77,7 @@ disablexp_command_work_disable: "Вы успешно отключили сооб
 disablexp_logs_embed_title_enable: "Логи включения опыта"
 disablexp_logs_embed_description_enable: "<@${interaction.user.id}> включил опыт!"
 disablexp_command_work_enable: "Вы успешно включили сообщение о повышении уровня (опыт)!"
+disablexp_command_work_disable_entierly: "Вы успешно отключили модуль рангов! (Больше сообщений и пользователи не получают уровни)"
 
 # /setxpchannels
 setxpchannels_not_admin: ":x: | Вы должны быть администратором этого сервера, чтобы использовать эту команду!"
