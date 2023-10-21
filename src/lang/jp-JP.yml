@@ -77,6 +77,7 @@ disablexp_command_work_disable: "レベリングメッセージ（XP）の送信
 disablexp_logs_embed_title_enable: "XP有効化ログ"
 disablexp_logs_embed_description_enable: "<@${interaction.user.id}> がXPを有効化しました！"
 disablexp_command_work_enable: "レベリングメッセージ（XP）の送信を有効にしました！"
+disablexp_command_work_disable_entierly: "ランクモジュールが正常に無効化されました！（メッセージなし、ユーザーはレベルを獲得しません）"
 
 # /setxpchannels
 setxpchannels_not_admin: ":x: | このコマンドを実行するには、サーバーの管理者である必要があります！"

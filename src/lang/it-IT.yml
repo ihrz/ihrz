@@ -77,6 +77,7 @@ disablexp_command_work_disable: "Hai disattivato con successo il messaggio di li
 disablexp_logs_embed_title_enable: "Registri attivazione XP"
 disablexp_logs_embed_description_enable: "<@${interaction.user.id}> ha attivato l'XP!"
 disablexp_command_work_enable: "Hai attivato con successo il messaggio di livellamento (XP)"
+disablexp_command_work_disable_entierly: "Hai disabilitato con successo il modulo dei livelli! (Nessun altro messaggio e gli utenti non guadagnano livelli)"
 
 # /setxpchannels
 setxpchannels_not_admin: ":x: | Devi essere un amministratore del server per richiedere questo comando!"

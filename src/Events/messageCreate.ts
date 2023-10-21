@@ -32,22 +32,23 @@ export = async (client: Client, message: any) => {
     async function xpFetcher() {
         if (!message.guild || message.author.bot || message.channel.type !== ChannelType.GuildText) return;
 
+        var baseData = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING`);
+        var xpTurn = await client.db.get(`${message.guild.id}.GUILD.XP_LEVELING.disable`);
+
+        if (xpTurn === 'disable') return;
+
+        var xp = baseData?.xp;
+        var level = baseData?.level || 1;
         var randomNumber = Math.floor(Math.random() * 100) + 50;
 
         await client.db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, randomNumber);
         await client.db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xptotal`, randomNumber);
-
-        var baseData = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING`);
-        var xp = baseData?.xp;
-        var level = baseData?.level || 1;
 
         if ((level * 500) < xp) {
             await client.db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`, 1);
             await client.db.sub(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, (level * 500));
 
             let newLevel = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`);
-
-            let xpTurn = await client.db.get(`${message.guild.id}.GUILD.XP_LEVELING.disable`);
 
             if (xpTurn === false
                 || !message.channel.permissionsFor(client.user).has(PermissionsBitField.Flags.SendMessages)) return;

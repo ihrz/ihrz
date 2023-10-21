@@ -77,6 +77,7 @@ disablexp_command_work_disable: "Vous avez réussi à désactiver le message de 
 disablexp_logs_embed_title_enable: "Logs d'activation XP"
 disablexp_logs_embed_description_enable: "<@${interaction.user.id}> a activé XP!"
 disablexp_command_work_enable: "Vous avez réussi à activer le message de niveau (XP)"
+disablexp_command_work_disable_entierly: "Vous avez désactivé avec succès le module des rangs ! (Plus de messages, et les utilisateurs ne gagnent pas de niveaux)"
 
 # /setxpchannels
 setxpchannels_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour utiliser cette commande !"
