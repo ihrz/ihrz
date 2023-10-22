@@ -77,6 +77,7 @@ disablexp_command_work_disable: "Sie haben erfolgreich die Leveling-Nachrichten 
 disablexp_logs_embed_title_enable: "Aktiviere-XP-Logs"
 disablexp_logs_embed_description_enable: "<@${interaction.user.id}> hat XP aktiviert!"
 disablexp_command_work_enable: "Sie haben erfolgreich die Leveling-Nachrichten (XP) aktiviert!"
+disablexp_command_work_disable_entierly: "Sie haben das Ränge-Modul erfolgreich deaktiviert! (Keine weiteren Beiträge und Benutzer steigen nicht auf)"
 
 # /setxpchannels
 setxpchannels_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
@@ -234,6 +235,13 @@ help_schedule_fields: "Zeitplan"
 help_schedule_dsc: "Erstelle Erinnerungen mit vorprogrammierten Nachrichten, die der Bot dir in einer privaten Nachricht sendet"
 help_pfps_fields: "PFPS"
 help_pfps_dsc: "Sendet zufälliges Benutzer-Avatar im Kanal!"
+
+# /say
+say_footer_msg: "\n\nGesendet von `/sagen` von ${interaction.user}"
+
+# /ping
+ping_down_msg: "**INAKTIV**"
+ping_embed_desc: "**Netzwerk** : `${await Netzwerk}` ms\n**Discord API** : `${await API}` ms"
 
 
 # Fun commands
@@ -433,6 +441,11 @@ nickrole_add_command_work: "${interaction.user}, iHorizon hat den massiverole-Be
 nickrole_sub_command_work: "${interaction.user}, iHorizon hat den massiverole-Befehl ausgeführt.\n\n**${a}** Benutzer haben die ${role}-Rolle verloren\n**${s}** Benutzer hatten die ${role}-Rolle nicht mehr\niHorizon konnte die Rolle nicht von **${e}** Benutzern entfernen."
 nickrole_too_much_member: "Zu viele Mitglieder, kann aufgrund einer möglichen Rate-Limitierung nicht fortgesetzt werden!"
 
+# /emoji
+emoji_send_new_emoji: "__Neues Emoji erstellt__ mit dem Namen **${emoji.name}** ! (${emoji})"
+emoji_send_err_emoji: "__Fehler beim Erstellen des neuen Emoji__ mit dem Namen **${emoji.name}** !"
+emoji_embed_desc_work: "__Erstellt **${cnt}** Emoji(s) in `${interaction.guild.name}`__\n(${nemj})"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -586,6 +599,10 @@ setlogschannel_logs_embed_title: "Setze ServerLogs"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> hat `${typeOfLogs}` zu <#${argsid.id}> gesetzt"
 setlogschannel_logs_embed_title_on_off: "Setze ServerLogs"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> hat alle `SERVER_LOGS` in der Gilde gelöscht!"
+setlogschannel_var_roles: "Rollenprotokolle"
+setlogschannel_var_mods: "Moderationsprotokolle"
+setlogschannel_var_voice: "Sprachprotokolle"
+setlogschannel_var_msg: "Nachrichtenprotokolle"
 
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, du hast die `Massen-Erwähnungs-AutoMod-Regel` auf **false** gesetzt.\nJetzt können Benutzer Erwähnungen in ihren Nachrichten senden.\nAutoMod x iHorizon wurde auf deinem Server deaktiviert!"
@@ -692,6 +709,7 @@ reroll_command_work: "Giveaway erneut ausgelost!"
 reroll_logs_embed_title: "Giveaway-Logs"
 reroll_logs_embed_description: "<@${interaction.user.id}> hat Giveaways mit dieser ID erneut ausgelost: ${giveaway.messageID}"
 reroll_command_error: "Fehler!"
+reroll_giveaway_not_over: "Dieses Gewinnspiel ist noch nicht beendet!"
 
 
 # Moderation commands
@@ -758,6 +776,7 @@ unban_the_member_is_not_banned: "❌ | **Die angegebene ID ist von diesem Server
 unban_is_now_unbanned: "<@${userID}> wurde von diesem Server entbannt!"
 unban_logs_embed_title: "Entbannungsprotokoll"
 unban_logs_embed_description: "<@${userID}> wurde von ${interaction.user.id} von diesem Server entbannt!"
+unban_reason: "Es wurde keine Begründung angegeben."
 
 # /tempmute
 tempmute_dont_have_permission: "❌ | Du hast keine Berechtigung, Mitglieder zu temporär stummschalten."
@@ -1021,6 +1040,91 @@ pfps_channel_embed_desc: "${interaction.user} hat das PFPS-Modul hier eingestell
 pfps_channel_command_work: "${interaction.user}, Sie haben das PFPS-Modul erfolgreich auf dem Kanal ${channel} eingestellt!"
 pfps_channel_command_error: "${interaction.user}, der Befehl hat einen Fehler zurückgegeben. Bitte überprüfen Sie, ob der angegebene Kanal existiert und das PFPP-Modul aktiviert ist!"
 
+
+# Schutzmodul
+# /Autorisierungsaktionen, ... Sanktionen, ... Konfiguration anzeigen, /Allowlist anzeigen, ... hinzufügen, ... löschen
+
+# /Autorisierungsaktionen
+authorization_actions_not_permited: "Nur der Besitzer des Servers kann die Autorisierungsregel für das Schutzmodul bearbeiten!"
+authorization_actions_everyone: "Jeder"
+authorization_actions_allowlist: "Mitglied(er) der Allowlist"
+authorization_actions_rule_set: "${interaction.user}, die Regel für `${rule.toUpperCase()}` wurde festgelegt. **${allow}** dürfen sie umgehen!"
+authorization_actions_rule_clear: "${interaction.user}, alle Regeln für `${interaction.guild.name}` wurden gelöscht. Das Schutzmodul ist jetzt deaktiviert!"
+
+# /Autorisierungssanktion
+authorization_sanction_not_permited: "Nur der Besitzer des Servers kann die Autorisierungsregel für das Schutzmodul bearbeiten!"
+authorization_sanction_simply: "N/A"
+authorization_sanction_simply_unrank: "ENTRANGIEREN"
+authorization_sanction_simply_ban: "SPERREN"
+authorization_sanction_command_work: "${interaction.user}, die Sanktionsregel wurde festgelegt. Wenn der Benutzer gegen die Regel verstößt, wird er **${choose}**. Und der Bot bricht seine Aktion ab."
+
+# /Autorisierungskonfiguration anzeigen
+authorization_configshow_not_permited: "Nur der Besitzer des Servers kann die Autorisierungsregel für das Schutzmodul bearbeiten!"
+authorization_configshow_not_anything_setup: "Sie haben im Schutzmodul nichts eingerichtet!"
+authorization_configshow_simply: "Aktion einfach abbrechen"
+authorization_configshow_simply_ban: "Aktion einfach abbrechen und sperren"
+authorization_configshow_simply_unrank: "Aktion einfach abbrechen und Entstufen"
+authorization_configshow_punishement: "```Strafe: ${okay}```"
+authorization_configshow_embed1_author: "Regelliste"
+authorization_configshow_embed2_author: "Allowlist"
+
+# /Allowlist anzeigen
+allowlist_show_not_permited: "Sie sind nicht berechtigt, diesen Befehl zu verwenden! Sie müssen in der Allowlist sein!"
+allowlist_show_embed_author: "Allowlist"
+
+# /Allowlist hinzufügen
+allowlist_add_not_permited: "Sie sind nicht berechtigt, diesen Befehl zu verwenden! Sie müssen in der Allowlist sein!"
+allowlist_add_not_owner: "Nur der Besitzer des Servers kann Benutzer zur Allowlist hinzufügen/entfernen!"
+allowlist_add_member_unreachable: "Das Mitglied, das Sie zur Allowlist hinzufügen wollten, ist nicht erreichbar!"
+allowlist_add_already_in: "Das Mitglied, das Sie von der Allowlist hinzufügen möchten, ist bereits dort!"
+allowlist_add_command_work: "${member.user} wurde zur Allowlist hinzugefügt!"
+
+# /Allowlist löschen
+allowlist_delete_not_permited: "Sie sind nicht berechtigt, diesen Befehl zu verwenden! Sie müssen in der Allowlist sein!"
+allowlist_delete_not_owner: "Nur der Besitzer des Servers kann Benutzer zur Allowlist hinzufügen/entfernen!"
+allowlist_delete_member_unreachable: "Das Mitglied, das Sie aus der Allowlist entfernen wollten, ist nicht erreichbar!"
+allowlist_delete_cant_remove_owner: "Es ist nicht möglich, den Besitzer des Servers aus der Allowlist zu entfernen!"
+allowlist_delete_isnt_in: "Das Mitglied, das Sie aus der Allowlist entfernen möchten, ist nicht darin!"
+allowlist_delete_command_work: "${member.user} wurde aus der Allowlist entfernt!"
+
+
+# OWNIHRZ-Modul
+# /mybot einreichen, ... Liste, /mybot verwalten annehmen, ... ablehnen, ... Instanz
+
+# /mybot einreichen
+mybot_submit_token_invalid: "Der eingegebene Token ist ungültig. Wir können nicht weitermachen."
+mybot_submit_utils_msg: "__Bot-ID__ `${bot_1.bot.id}`\n__Bot-Benutzername__ `${bot_1.bot.username}`\n__Öffentlicher Bot__ `${bot_1.bot_public ? 'Ja' : 'Nein'}`"
+mybot_submit_utils_msg_yes: "Ja"
+mybot_submit_utils_msg_no: "Nein"
+mybot_submit_embed_title: "Hoste deine eigene iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_submit_embed_desc: "Ihre Anfrage wurde erfolgreich registriert, Ihre eindeutige Kennung lautet: **${code}**!\nTeilen Sie sie mit niemandem!\n**Treten Sie dem Support-Server bei** [Klicken Sie hier](https://discord.gg/ihorizon) und öffnen Sie dann ein Ticket, um den Kauf fortzusetzen.\n\n${utils_msg}"
+
+# /mybot Liste
+mybot_list_embed0_title: "Liste aller Ihrer Bots"
+mybot_list_utils_msg: "__Bot-ID__ `${data_2[i].bot.id}`\n__Bot-Benutzername__ `${data_2[i].bot.username}`\n__Öffentlicher Bot__ `${data_2[i].bot_public ? 'Ja' : 'Nein'}`"
+mybot_list_utils_msg_yes: "Ja"
+mybot_list_utils_msg_no: "Nein"
+mybot_list_embed1_title: "Ihre eigene iHorizon: ${data_2[i].bot.username}"
+mybot_list_embed1_desc: "Ihr Bot-Code: ||**${data_2[i].code}**|| ⚠️ **Teilen Sie ihn mit niemandem**!\n**Läuft ab in**: `${expire}`\n**Treten Sie dem Support-Server bei** [Klicken Sie hier](https://discord.gg/ihorizon), wenn Sie Probleme mit Ihrem Bot haben.\n\n${utils_msg}"
+
+# /mybot verwalten annehmen
+mybot_manage_accept_not_found: "Der Bot in der Datenbank kann nicht gefunden werden. Wir können nicht weitermachen."
+mybot_manage_accept_token_error: "Der Token in der Datenbank ist ungültig. Wir können nicht weitermachen."
+mybot_manage_accept_utils_msg: "__Bot-ID__ `${bot_1.bot.id}`\n__Bot-Benutzername__ `${bot_1.bot.username}`\n__Öffentlicher Bot__ `${bot_1.bot_public ? 'Ja' : 'Nein'}`"
+mybot_manage_accept_utiis_yes: "Ja"
+mybot_manage_accept_utils_no: "Nein"
+mybot_manage_accept_embed_title: "Hoste deine eigene iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_manage_accept_embed_desc: "Der Bot wurde akzeptiert\n\n${utils_msg}"
+
+# /mybot Instanz ablehnen
+mybot_instance_deny_not_foud: "Der Bot in der Datenbank kann nicht gefunden werden. Wir können nicht weitermachen."
+mybot_instance_deny_token_error: "Der Token in der Datenbank ist ungültig. Wir können nicht weitermachen."
+mybot_instance_deny_utils_msg: "__Bot-ID__ `${bot_1.bot.id}`\n__Bot-Benutzername__ `${bot_1.bot.username}`\n__Öffentlicher Bot__ `${bot_1.bot_public ? 'Ja' : 'Nein'}`"
+mybot_instance_deny_utils_msg_yes: "Ja"
+mybot_instance_deny_utils_msg_no: "Nein"
+mybot_instance_deny_embed_title: "Hoste deine eigene iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_instance_deny_embed_desc: "Der Bot wurde abgelehnt\n\n${utils_msg}"
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
@@ -1049,6 +1153,8 @@ event_xp_level_earn: "**GG**, <@${message.author.id}> du hast +1 für dein XP-Le
 
 # Ticket Module Events:
 event_ticket_embed_description: "Hallo ${user.username}, willkommen in deinem Ticket! Bitte hab etwas Geduld, wir werden bald bei dir sein. Wenn du das Ticket schließen möchtest, gib bitte `/ticket close` ein."
+event_ticket_add_member: "${interaction.user}, Sie haben **hinzugefügt** ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')} zum Ticket ${interaction.channel} !"
+event_ticket_del_member: "${interaction.user}, Sie haben **entfernt** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} vom Ticket ${interaction.channel} !"
 
 # interactionCreate-Ereignisse:
 iC_event_cooldown: "Abklingzeit, bitte warten Sie zwischen den Befehlen einen Moment!"

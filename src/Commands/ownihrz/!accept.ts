@@ -52,7 +52,7 @@ export = {
         };
 
         if (!id_2) {
-            await interaction.editReply({ content: 'The bot in the DB cannot be found. We cannot proceed further.' });
+            await interaction.editReply({ content: data.mybot_manage_accept_not_found });
             return;
         };
 
@@ -69,19 +69,26 @@ export = {
             .catch((e: any) => { }))?.data || 404;
 
         if (bot_1 === 404) {
-            await interaction.editReply({ content: 'The token in the DB is invalid. We cannot proceed further.' });
+            await interaction.editReply({ content: data.mybot_manage_accept_token_error });
             return;
         } else {
 
-            let utils_msg =
-                `__Bot ID__ \`${bot_1.bot.id}\`\n` +
-                `__Bot username__ \`${bot_1.bot.username}\`\n` +
-                `__Public Bot__ \`${bot_1.bot_public ? 'Yes' : 'No'}\``;
+            let utils_msg = data.mybot_manage_accept_utils_msg
+                .replace('${bot_1.bot.id}', bot_1.bot.id)
+                .replace('${bot_1.bot.username}', bot_1.bot.username)
+                .replace("${bot_1.bot_public ? 'Yes' : 'No'}",
+                    bot_1.bot_public ? data.mybot_manage_accept_utiis_yes : data.mybot_manage_accept_utils_no
+                );
 
             let embed = new EmbedBuilder()
                 .setColor('#ff7f50')
-                .setTitle(`Host your own iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}`)
-                .setDescription(`The bot has been accepted\n\n${utils_msg}`)
+                .setTitle(data.mybot_manage_accept_embed_title
+                    .replace('${bot_1.bot.username}', bot_1.bot.username)
+                    .replace('${bot_1.bot.discriminator}', bot_1.bot.discriminator)
+                )
+                .setDescription(data.mybot_manage_accept_embed_desc
+                    .replace('${utils_msg}', utils_msg)
+                )
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
             await interaction.deleteReply();
@@ -100,6 +107,7 @@ export = {
             };
 
             await client.db.delete(`OWNIHRZ.TEMP.${interaction.user.id}`);
+            return;
         };
     },
 };

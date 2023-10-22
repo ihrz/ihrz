@@ -236,6 +236,13 @@ help_schedule_dsc: "Crea recordatorios con mensajes preprogramados que el bot te
 help_pfps_fields: "PFPS"
 help_pfps_dsc: "¡Envía un avatar de usuario al azar en el canal!"
 
+# /say
+say_footer_msg: "\n\nEnviado desde `/say` por ${interaction.user}"
+
+# /ping
+ping_down_msg: "**INACTIVO**"
+ping_embed_desc: "**Red** : `${await red}` ms\n**API de Discord** : `${await API}` ms"
+
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -434,6 +441,11 @@ nickrole_add_command_work: "${interaction.user}, iHorizon ha ejecutado el comand
 nickrole_sub_command_work: "${interaction.user}, iHorizon ha ejecutado el comando massiverole.\n\n**${a}** usuario(s) perdieron el rol ${role}\n**${s}** usuario(s) ya no tenían el rol ${role}\niHorizon no pudo quitar el rol de **${e}** usuario(s)."
 nickrole_too_much_member: "Demasiados miembros, no se puede continuar debido a un posible límite de velocidad."
 
+# /emoji
+emoji_send_new_emoji: "__¡Nuevo emoji creado__ con el nombre **${emoji.name}** ! (${emoji})"
+emoji_send_err_emoji: "__Error al crear el nuevo emoji__ con el nombre **${emoji.name}** !"
+emoji_embed_desc_work: "__Creados **${cnt}** emoji(s) en `${interaction.guild.name}`__\n(${nemj})"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -587,6 +599,10 @@ setlogschannel_logs_embed_title: "Configuración de registros del servidor"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> configuró el `${typeOfLogs}` en <#${argsid.id}>"
 setlogschannel_logs_embed_title_on_off: "Configuración de registros del servidor"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> eliminó todos los `SERVER_LOGS` en el servidor!"
+setlogschannel_var_roles: "Registros de roles"
+setlogschannel_var_mods: "Registros de moderación"
+setlogschannel_var_voice: "Registros de voz"
+setlogschannel_var_msg: "Registros de mensajes"
 
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, has desactivado la regla de `AutoModeración de Menciones Masivas` a **falso**.\nAhora los usuarios pueden enviar menciones en sus mensajes.\nAutoModeración x iHorizon ha sido desactivada en tu servidor."
@@ -693,6 +709,7 @@ reroll_command_work: "Giveaway relaunched!"
 reroll_logs_embed_title: "Giveaways Logs"
 reroll_logs_embed_description: "<@${interaction.user.id}> reroll giveaways with this id: ${giveaway.messageID}"
 reroll_command_error: "Error !"
+reroll_giveaway_not_over: "¡Este sorteo no ha terminado!"
 
 
 # Moderation commands
@@ -759,6 +776,7 @@ unban_the_member_is_not_banned: "❌ | **¡El ID indicado no está baneado de es
 unban_is_now_unbanned: "¡<@${userID}> ahora ha sido desbaneado de este servidor!"
 unban_logs_embed_title: "Registro de Desbaneos"
 unban_logs_embed_description: "<@${userID}> ¡Ha sido desbaneado del servidor por ${interaction.user.id}!"
+unban_reason: "No se proporcionó ninguna razón."
 
 # /tempmute
 tempmute_dont_have_permission: "❌ | No tienes permiso para silenciar temporalmente a los miembros."
@@ -1022,6 +1040,91 @@ pfps_channel_embed_desc: "${interaction.user} ha configurado el módulo PFPS aqu
 pfps_channel_command_work: "${interaction.user}, has configurado con éxito el módulo PFPS en el canal ${channel} !"
 pfps_channel_command_error: "${interaction.user}, el comando ha devuelto un error. ¡Verifica que el canal que especificaste existe y que el módulo PFPP está habilitado!"
 
+
+# Módulo de Protección
+# /acciones de autorización, ... sanciones, ... mostrar configuración, /lista blanca mostrar, ... agregar, ... eliminar
+
+# /acciones de autorización
+authorization_actions_not_permited: "¡Solo el propietario del servidor puede editar la regla de autorización sobre el módulo de protección!"
+authorization_actions_everyone: "Todos"
+authorization_actions_allowlist: "Miembro(s) de la lista blanca"
+authorization_actions_rule_set: "${interaction.user}, la regla para `${rule.toUpperCase()}` ha sido establecida. **${allow}** tienen permiso para eludirla."
+authorization_actions_rule_clear: "${interaction.user}, todas las reglas para `${interaction.guild.name}` han sido eliminadas. ¡El módulo de protección está ahora desactivado!"
+
+# /sanción de autorización
+authorization_sanction_not_permited: "¡Solo el propietario del servidor puede editar la regla de autorización sobre el módulo de protección!"
+authorization_sanction_simply: "N/D"
+authorization_sanction_simply_unrank: "DESGRADAR"
+authorization_sanction_simply_ban: "PROHIBIR"
+authorization_sanction_command_work: "${interaction.user}, la regla de sanción ha sido establecida. Cuando un usuario rompe la regla, es **${choose}**. Y el bot cancela su acción."
+
+# /mostrar configuración de autorización
+authorization_configshow_not_permited: "¡Solo el propietario del servidor puede editar la regla de autorización sobre el módulo de protección!"
+authorization_configshow_not_anything_setup: "¡No has configurado nada en el Módulo de Protección!"
+authorization_configshow_simply: "Cancelar acción simplemente"
+authorization_configshow_simply_ban: "Cancelar acción y prohibir"
+authorization_configshow_simply_unrank: "Cancelar acción y desgradar"
+authorization_configshow_punishement: "```Sanción: ${okay}```"
+authorization_configshow_embed1_author: "Lista de Reglas"
+authorization_configshow_embed2_author: "Lista Blanca"
+
+# /lista blanca mostrar
+allowlist_show_not_permited: "¡No tienes permitido usar este comando! ¡Debes estar en la lista blanca!"
+allowlist_show_embed_author: "Lista Blanca"
+
+# /lista blanca agregar
+allowlist_add_not_permited: "¡No estás autorizado para usar este comando! ¡Debes estar en la lista blanca!"
+allowlist_add_not_owner: "¡Solo el propietario del servidor puede agregar/eliminar usuarios de la lista blanca!"
+allowlist_add_member_unreachable: "¡El miembro que deseabas agregar a la lista blanca no está disponible!"
+allowlist_add_already_in: "¡El miembro que deseas agregar de la lista blanca ya está en ella!"
+allowlist_add_command_work: "¡${member.user} ha sido agregado a la lista blanca!"
+
+# /lista blanca eliminar
+allowlist_delete_not_permited: "¡No estás autorizado para usar este comando! ¡Debes estar en la lista blanca!"
+allowlist_delete_not_owner: "¡Solo el propietario del servidor puede agregar/eliminar usuarios de la lista blanca!"
+allowlist_delete_member_unreachable: "¡El miembro que deseabas eliminar de la lista blanca no está disponible!"
+allowlist_delete_cant_remove_owner: "¡No es posible eliminar al propietario del servidor de la lista blanca!"
+allowlist_delete_isnt_in: "¡El miembro que deseas eliminar de la lista blanca no está en ella!"
+allowlist_delete_command_work: "¡${member.user} ha sido eliminado de la lista blanca!"
+
+
+# Módulo OWNIHRZ
+# /mybot enviar, ... lista, /mybot gestionar aceptar, ... rechazar, ... instancia
+
+# /mybot enviar
+mybot_submit_token_invalid: "El token ingresado no es válido. No podemos continuar."
+mybot_submit_utils_msg: "__ID del Bot__ `${bot_1.bot.id}`\n__Nombre de usuario del Bot__ `${bot_1.bot.username}`\n__Bot Público__ `${bot_1.bot_public ? 'Sí' : 'No'}`"
+mybot_submit_utils_msg_yes: "Sí"
+mybot_submit_utils_msg_no: "No"
+mybot_submit_embed_title: "Aloja tu propio iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_submit_embed_desc: "Tu solicitud se ha registrado correctamente, ¡tu identificador único es: **${code}**!\n¡No lo compartas con nadie!\n**Únete al servidor de soporte** [Haz clic aquí](https://discord.gg/ihorizon), luego abre un ticket para continuar la compra.\n\n${utils_msg}"
+
+# /mybot lista
+mybot_list_embed0_title: "Lista de todos tus bots"
+mybot_list_utils_msg: "__ID del Bot__ `${data_2[i].bot.id}`\n__Nombre de usuario del Bot__ `${data_2[i].bot.username}`\n__Bot Público__ `${data_2[i].bot_public ? 'Sí' : 'No'}`"
+mybot_list_utils_msg_yes: "Sí"
+mybot_list_utils_msg_no: "No"
+mybot_list_embed1_title: "Tu propio iHorizon: ${data_2[i].bot.username}"
+mybot_list_embed1_desc: "Tu código de bot: ||**${data_2[i].code}**|| ⚠️ **¡No lo compartas con nadie**! \n**Expira en**: `${expire}`\n**Únete al servidor de soporte** [Haz clic aquí](https://discord.gg/ihorizon), si tienes problemas con tu bot.\n\n${utils_msg}"
+
+# /mybot gestionar aceptar
+mybot_manage_accept_not_found: "No se puede encontrar el bot en la base de datos. No podemos continuar."
+mybot_manage_accept_token_error: "El token en la base de datos no es válido. No podemos continuar."
+mybot_manage_accept_utils_msg: "__ID del Bot__ `${bot_1.bot.id}`\n__Nombre de usuario del Bot__ `${bot_1.bot.username}`\n__Bot Público__ `${bot_1.bot_public ? 'Sí' : 'No'}`"
+mybot_manage_accept_utiis_yes: "Sí"
+mybot_manage_accept_utils_no: "No"
+mybot_manage_accept_embed_title: "Aloja tu propio iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_manage_accept_embed_desc: "El bot ha sido aceptado\n\n${utils_msg}"
+
+# /mybot instancia rechazar
+mybot_instance_deny_not_foud: "No se puede encontrar el bot en la base de datos. No podemos continuar."
+mybot_instance_deny_token_error: "El token en la base de datos no es válido. No podemos continuar."
+mybot_instance_deny_utils_msg: "__ID del Bot__ `${bot_1.bot.id}`\n__Nombre de usuario del Bot__ `${bot_1.bot.username}`\n__Bot Público__ `${bot_1.bot_public ? 'Sí' : 'No'}`"
+mybot_instance_deny_utils_msg_yes: "Sí"
+mybot_instance_deny_utils_msg_no: "No"
+mybot_instance_deny_embed_title: "Aloja tu propio iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_instance_deny_embed_desc: "El bot ha sido rechazado\n\n${utils_msg}"
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
@@ -1050,6 +1153,8 @@ event_xp_level_earn: "**GG**, <@${message.author.id}> has ganado +1 para el nive
 
 # Eventos del Módulo de Tickets
 event_ticket_embed_description: "¡Hola ${user.username}! ¡Bienvenido a tu ticket! Por favor, sé paciente, te atenderemos en breve. Si deseas cerrar este ticket, ejecuta `/ticket close`"
+event_ticket_add_member: "${interaction.user}, has **añadido** ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')} al ticket ${interaction.channel} !"
+event_ticket_del_member: "${interaction.user}, has **eliminado** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} del ticket ${interaction.channel} !"
 
 # Eventos interactionCreate:
 iC_event_cooldown: "Cooldown, por favor, espere un poco entre los comandos!"

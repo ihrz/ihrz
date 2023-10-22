@@ -20,37 +20,40 @@
 */
 
 import {
+    ApplicationCommandOptionType,
     Client,
-    EmbedBuilder,
+    PermissionsBitField,
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import ping from 'ping';
 
 export const command: Command = {
-    name: 'ping',
-    description: 'Get the bot latency!',
+    name: 'say',
+    description: 'Sent a message throught the bot!',
     category: 'bot',
+    options: [
+        {
+            name: 'msg',
+            type: ApplicationCommandOptionType.String,
+            description: 'The message to sent throught the bot!',
+            required: true
+        }
+    ],
     run: async (client: Client, interaction: any) => {
-
         let data = await client.functions.getLanguageData(interaction.guild.id);
-        await interaction.editReply({ content: ':ping_pong:' });
+        let msg = interaction.options.getString('msg');
 
-        let network: any = '';
-        network = await ping.promise.probe("google.com").then(result => network = result.time).catch(e => { network = data.ping_down_msg });
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            await interaction.editReply({ content: data.setserverlang_not_admin });
+            return;
+        };
 
-        let API: any = '';
-        API = await ping.promise.probe("discord.com").then(result => API = result.time).catch(e => { API = data.ping_down_msg });
-
-        let embed = new EmbedBuilder()
-            .setColor("#319938")
-            .setTitle("Pong! 🏓")
-            .setDescription(data.ping_embed_desc
-                .replace('${await network}', await network)
-                .replace('${await API}', await API)
-            )
-
-        await interaction.editReply({ content: '', embeds: [embed] });
+        let msg_to_send: string = `> ${msg}${data.say_footer_msg.replace('${interaction.user}', interaction.user)}`
+        
+        await interaction.deleteReply();
+        await interaction.channel.send({
+            content: msg_to_send
+        });
         return;
     },
 };

@@ -30,29 +30,32 @@ export = {
         let baseData = await client.db.get(`${interaction.guild.id}.ALLOWLIST`);
 
         if (interaction.user.id !== interaction.guild.ownerId && baseData.list[interaction.user.id]?.allowed !== true) {
-            await interaction.editReply({ content: 'You are not authorized to use this command! You must be in the allowlist!' });
+            await interaction.editReply({ content: data.allowlist_add_not_permited });
             return;
         };
 
         if (interaction.user.id !== interaction.guild.ownerId) {
-            await interaction.editReply({ content: 'Only the owner of the server can add/remove user in the allow-list!' });
+            await interaction.editReply({ content: data.allowlist_add_not_owner });
             return;
         };
 
         let member = interaction.options.getMember('member');
 
         if (!member) {
-            await interaction.editReply({ content: 'The member you wanted to add into the allow-list is unreachable!' });
+            await interaction.editReply({ content: data.allowlist_add_member_unreachable });
             return;
         };
 
         if (baseData?.list[member.user.id]?.allowed == true) {
-            await interaction.editReply({ content: "The member you want to add from the allowlist is already in!" });
+            await interaction.editReply({ content: data.allowlist_add_already_in });
             return;
         };
 
         await client.db.set(`${interaction.guild.id}.ALLOWLIST.list.${member.user.id}`, { allowed: true });
-        await interaction.editReply({ content: `<@${member.user.id}> has been added in the allowlist !` });
+        await interaction.editReply({
+            content: data.allowlist_add_command_work
+                .replace('${member.user}', member.user)
+        });
         return;
     },
 };

@@ -61,11 +61,17 @@ export const command: Command = {
                     attachment: `https://cdn.discordapp.com/emojis/${match[2]}.${isAnimated ? 'gif' : 'png'}`,
                     name: match[1]
                 }).then((emoji: any) => {
-                    interaction.channel.send(`__Created new emoji__ with name **${emoji.name}**! (${emoji})`);
+                    interaction.channel.send(data.emoji_send_new_emoji
+                        .replace('${emoji.name}', emoji.name)
+                        .replace('${emoji}', emoji)
+                    );
+
                     cnt++;
                     nemj += `<${isAnimated ? 'a:' : ':'}${emoji.name}:${emoji.id}>`
                 }).catch((err: any) => {
-                    interaction.channel.send(`__Error when create new emoji__ with name **${emoji.name}**!`);
+                    interaction.channel.send(data.emoji_send_err_emoji
+                        .replace('${emoji.name}', emoji.name)
+                    );
                 });
             }
         }
@@ -74,8 +80,13 @@ export const command: Command = {
             .setColor('#bea9de')
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp()
-            .setDescription(`__Created **${cnt}** emoji(s) in \`${interaction.guild.name}\`__\n(${nemj})`)
+            .setDescription(data.emoji_embed_desc_work
+                .replace('${cnt}', cnt)
+                .replace('${interaction.guild.name}', interaction.guild.name)
+                .replace('${nemj}', nemj)
+            )
 
         await interaction.editReply({ embeds: [embed] });
+        return;
     },
 };

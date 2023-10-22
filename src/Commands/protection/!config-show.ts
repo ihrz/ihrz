@@ -28,7 +28,7 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         if (interaction.user.id !== interaction.guild.ownerId) {
-            await interaction.editReply({ content: 'Only the owner of the server can edit the authorization rule about the protection module!' });
+            await interaction.editReply({ content: data.authorization_configshow_not_permited });
             return;
         };
 
@@ -40,7 +40,7 @@ export = {
         let baseData4Protection = await client.db.get(`${interaction.guild.id}.PROTECTION`);
 
         if (!baseData || !baseData4Protection) {
-            await interaction.editReply({ content: "You have not anything!" });
+            await interaction.editReply({ content: data.authorization_configshow_not_anything_setup });
             return;
         };
 
@@ -56,24 +56,24 @@ export = {
         };
 
         let okay = '';
-        if (baseData4Protection.SANCTION === 'simply') okay = 'Simply Cancel Action'
-        if (baseData4Protection.SANCTION === 'simply+ban') okay = 'Simply Cancel Action & Ban'
-        if (baseData4Protection.SANCTION === 'simply+derank') okay = 'Simply Cancel Action & Unrank'
+        if (baseData4Protection.SANCTION === 'simply') okay = data.authorization_configshow_simply;
+        if (baseData4Protection.SANCTION === 'simply+ban') okay = data.authorization_configshow_simply_ban;
+        if (baseData4Protection.SANCTION === 'simply+derank') okay = data.authorization_configshow_simply_unrank;
 
-        text2 += `\`\`\`Punishement: ${okay}\`\`\``;
+        text2 += data.authorization_configshow_punishement.replace('${okay}', okay);
 
         let iconURL: any = client.user?.displayAvatarURL();
 
         let embed1 = new EmbedBuilder()
             .setColor('#000000')
-            .setAuthor({ name: "Rule List" })
+            .setAuthor({ name: data.authorization_configshow_embed1_author })
             .setDescription(text2)
             .setFooter({ text: 'iHorizon', iconURL: iconURL })
             .setTimestamp();
 
         let embed2 = new EmbedBuilder()
             .setColor("#000000")
-            .setAuthor({ name: "Allowlist" })
+            .setAuthor({ name: data.authorization_configshow_embed2_author })
             .setDescription(text)
             .setFooter({ text: 'iHorizon', iconURL: iconURL })
             .setTimestamp();

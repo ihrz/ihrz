@@ -45,7 +45,7 @@ export = {
 
         if (bot_1 === 404) {
             await interaction.deleteReply();
-            await interaction.followUp({ content: 'The token entered is invalid. We cannot proceed further.' });
+            await interaction.followUp({ content: data.mybot_submit_token_invalid });
             return;
         } else {
             var code = Math.random().toString(36).slice(-10);
@@ -64,17 +64,23 @@ export = {
                 }
             );
 
-            let utils_msg =
-                `__Bot ID__ \`${bot_1.bot.id}\`\n` +
-                `__Bot username__ \`${bot_1.bot.username}\`\n` +
-                `__Public Bot__ \`${bot_1.bot_public ? 'Yes' : 'No'}\``;
+            let utils_msg = data.mybot_submit_utils_msg
+                .replace('${bot_1.bot.id}', bot_1.bot.id)
+                .replace('${bot_1.bot.username}', bot_1.bot.username)
+                .replace("${bot_1.bot_public ? 'Yes' : 'No'}",
+                    bot_1.bot_public ? data.mybot_submit_utils_msg_yes : data.mybot_submit_utils_msg_no
+                )
 
             let embed = new EmbedBuilder()
                 .setColor('#ff7f50')
-                .setTitle(`Host your own iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}`)
+                .setTitle(data.mybot_submit_embed_title
+                    .replace('${bot_1.bot.username}', bot_1.bot.username)
+                    .replace('${bot_1.bot.discriminator}', bot_1.bot.discriminator)
+                )
                 .setDescription(
-                    `Your request has been successfully registered, your unique identifier is: **${code}**!\nDo not share it with anyone!\n` +
-                    `**Join the support server** [Click Here](https://discord.gg/ihorizon), then open a ticket to continue the purchase.\n\n${utils_msg}`
+                    data.mybot_submit_embed_desc
+                        .replace('${code}', code)
+                        .replace('${utils_msg}', utils_msg)
                 )
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 

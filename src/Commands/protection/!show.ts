@@ -50,7 +50,7 @@ export = {
         };
 
         if (interaction.user.id !== interaction.guild.ownerId && !text.includes(interaction.user.id)) {
-            await interaction.editReply({ content: 'Your not allowed to use this command! You need to be in the allow-list!' });
+            await interaction.editReply({ content: data.allowlist_show_not_permited });
             return;
         };
 
@@ -58,7 +58,7 @@ export = {
 
         let embed = new EmbedBuilder()
             .setColor("#000000")
-            .setAuthor({ name: "Allowlist" })
+            .setAuthor({ name: data.allowlist_show_embed_author })
             .setDescription(`${text}`)
             .setFooter({ text: 'iHorizon', iconURL: iconURL })
             .setTimestamp();

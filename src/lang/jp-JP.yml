@@ -236,6 +236,13 @@ help_schedule_dsc: "プリプログラムされたメッセージを使用して
 help_pfps_fields: "PFPS"
 help_pfps_dsc: "チャンネルにランダムなユーザーアバターを送信します！"
 
+# /say
+say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
+
+# /ping
+ping_down_msg: "**ダウン**"
+ping_embed_desc: "**ネットワーク** : `${await ネットワーク}` ms\n**Discord API** : `${await API}` ms"
+
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -434,6 +441,11 @@ nickrole_add_command_work: "${interaction.user}さん、iHorizonがmassiverole�
 nickrole_sub_command_work: "${interaction.user}さん、iHorizonがmassiveroleコマンドを実行しました。\n\n**${a}**人のユーザーが${role}ロールを失いました\n**${s}**人のユーザーはすでに${role}ロールを持っていません\niHorizonは**${e}**人のユーザーからロールを削除できませんでした。"
 nickrole_too_much_member: "メンバーが多すぎるため、実行できません。レート制限の可能性があります！"
 
+# /emoji
+emoji_send_new_emoji: "__新しい絵文字が作成されました__ 名前：**${emoji.name}** ! (${emoji})"
+emoji_send_err_emoji: "__新しい絵文字の作成時エラー__ 名前：**${emoji.name}** !"
+emoji_embed_desc_work: "__`${interaction.guild.name}` に**${cnt}**個の絵文字を作成しました__\n(${nemj})"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -587,6 +599,10 @@ setlogschannel_logs_embed_title: "サーバーログの設定"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> が `${typeOfLogs}` を <#${argsid.id}> に設定しました"
 setlogschannel_logs_embed_title_on_off: "サーバーログの設定"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> がギルド内のすべての `SERVER_LOGS` を削除しました！"
+setlogschannel_var_roles: "役職のログ"
+setlogschannel_var_mods: "モデレーションログ"
+setlogschannel_var_voice: "音声ログ"
+setlogschannel_var_msg: "メッセージログ"
 
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, あなたは`Mass-Mention AutoModルール`を**false**に設定しました。\n今、ユーザーはメッセージにメンションを送信できます。\nAutoMod x iHorizonはサーバーで無効になっています！"
@@ -693,6 +709,7 @@ reroll_command_work: "ギブアウェイが再開されました！"
 reroll_logs_embed_title: "ギブアウェイログ"
 reroll_logs_embed_description: "<@${interaction.user.id}> がこのIDのギブアウェイを再開しました：${giveaway.messageID}"
 reroll_command_error: "エラー！"
+reroll_giveaway_not_over: "このプレゼントは終了していません！"
 
 
 # Moderation commands
@@ -759,6 +776,7 @@ unban_the_member_is_not_banned: "❌ | **指定されたIDは、このサーバ�
 unban_is_now_unbanned: "<@${userID}> はこのサーバーからアンバンされました！"
 unban_logs_embed_title: "アンバンログ"
 unban_logs_embed_description: "${interaction.user.id}によって<@${userID}>がサーバーからアンバンされました！"
+unban_reason: "理由が提供されませんでした。"
 
 # /tempmute
 tempmute_dont_have_permission: "❌ | メンバーを一時的にミュートする権限がありません。"
@@ -1022,6 +1040,91 @@ pfps_channel_embed_desc: "${interaction.user} がPFPSモジュールをここに
 pfps_channel_command_work: "${interaction.user}、チャンネル${channel} にPFPSモジュールを正常に設定しました！"
 pfps_channel_command_error: "${interaction.user}、コマンドがエラーを返しました。指定したチャンネルが存在し、PFPPモジュールが有効であることを確認してください！"
 
+
+# 保護モジュール
+# /認証アクション、...罰則、...設定表示、/許可リスト表示、...追加、...削除
+
+# /認証アクション
+authorization_actions_not_permited: "この保護モジュールの認証ルールを編集できるのはサーバーのオーナーだけです！"
+authorization_actions_everyone: "誰でも"
+authorization_actions_allowlist: "許可リストのメンバー"
+authorization_actions_rule_set: "${interaction.user}、`${rule.toUpperCase()}` のルールが設定されました。**${allow}** はこれをバイパスできます！"
+authorization_actions_rule_clear: "${interaction.user}、`${interaction.guild.name}` のすべてのルールが削除されました。保護モジュールは無効になりました！"
+
+# /認証罰則
+authorization_sanction_not_permited: "この保護モジュールの認証ルールを編集できるのはサーバーのオーナーだけです！"
+authorization_sanction_simply: "該当なし"
+authorization_sanction_simply_unrank: "ランク外し"
+authorization_sanction_simply_ban: "BAN"
+authorization_sanction_command_work: "${interaction.user}、罰則ルールが設定されました。ユーザーがルールを犯した場合、**${choose}** です。ボットはそのアクションをキャンセルします。"
+
+# /認証設定表示
+authorization_configshow_not_permited: "この保護モジュールの認証ルールを編集できるのはサーバーのオーナーだけです！"
+authorization_configshow_not_anything_setup: "保護モジュールには何も設定されていません！"
+authorization_configshow_simply: "アクションを単純にキャンセル"
+authorization_configshow_simply_ban: "アクションを単純にキャンセルしてBAN"
+authorization_configshow_simply_unrank: "アクションを単純にキャンセルしてランク外し"
+authorization_configshow_punishement: "```罰則：${okay}```"
+authorization_configshow_embed1_author: "ルールリスト"
+authorization_configshow_embed2_author: "許可リスト"
+
+# /許可リスト表示
+allowlist_show_not_permited: "このコマンドを使用する権限がありません！許可リストに含まれている必要があります！"
+allowlist_show_embed_author: "許可リスト"
+
+# /許可リスト追加
+allowlist_add_not_permited: "このコマンドを使用する権限がありません！許可リストに含まれている必要があります！"
+allowlist_add_not_owner: "サーバーのオーナーだけが許可リストにユーザーを追加/削除できます！"
+allowlist_add_member_unreachable: "許可リストに追加しようとしたメンバーは連絡が取れません！"
+allowlist_add_already_in: "許可リストから削除しようとするメンバーは既に含まれています！"
+allowlist_add_command_work: "${member.user} が許可リストに追加されました！"
+
+# /許可リスト削除
+allowlist_delete_not_permited: "このコマンドを使用する権限がありません！許可リストに含まれている必要があります！"
+allowlist_delete_not_owner: "サーバーのオーナーだけが許可リストにユーザーを追加/削除できます！"
+allowlist_delete_member_unreachable: "許可リストから削除しようとしたメンバーは連絡が取れません！"
+allowlist_delete_cant_remove_owner: "サーバーのオーナーを許可リストから削除することはできません！"
+allowlist_delete_isnt_in: "許可リストから削除しようとするメンバーは含まれていません！"
+allowlist_delete_command_work: "${member.user} が許可リストから削除されました！"
+
+
+# モジュール OWNHRZ
+# /mybot 提出、... 一覧、/mybot 管理 承認、... 拒否、... インスタンス
+
+# /mybot 提出
+mybot_submit_token_invalid: "入力されたトークンは無効です。進行できません。"
+mybot_submit_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot ユーザー名__ `${bot_1.bot.username}`\n__パブリック Bot__ `${bot_1.bot_public ? 'はい' : 'いいえ'}`"
+mybot_submit_utils_msg_yes: "はい"
+mybot_submit_utils_msg_no: "いいえ"
+mybot_submit_embed_title: "独自の iHorizon をホストする: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_submit_embed_desc: "リクエストは正常に登録され、一意の識別子は次のとおりです: **${code}**！\n他の人と共有しないでください！\n**サポートサーバーに参加** [ここをクリック](https://discord.gg/ihorizon) してから、購入を続行するためのチケットを開いてください。\n\n${utils_msg}"
+
+# /mybot 一覧
+mybot_list_embed0_title: "すべてのボットの一覧"
+mybot_list_utils_msg: "__Bot ID__ `${data_2[i].bot.id}`\n__Bot ユーザー名__ `${data_2[i].bot.username}`\n__パブリック Bot__ `${data_2[i].bot_public ? 'はい' : 'いいえ'}`"
+mybot_list_utils_msg_yes: "はい"
+mybot_list_utils_msg_no: "いいえ"
+mybot_list_embed1_title: "あなた自身の iHorizon: ${data_2[i].bot.username}"
+mybot_list_embed1_desc: "あなたのボットコード: ||**${data_2[i].code}**|| ⚠️ **他の人と共有しないでください**！\n**有効期限**：`${expire}`\nあなたのボットに問題がある場合、**サポートサーバーに参加** [ここをクリック](https://discord.gg/ihorizon) してください。\n\n${utils_msg}"
+
+# /mybot 管理 承認
+mybot_manage_accept_not_found: "データベース内のボットが見つかりません。進行できません。"
+mybot_manage_accept_token_error: "データベース内のトークンは無効です。進行できません。"
+mybot_manage_accept_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot ユーザー名__ `${bot_1.bot.username}`\n__パブリック Bot__ `${bot_1.bot_public ? 'はい' : 'いいえ'}`"
+mybot_manage_accept_utiis_yes: "はい"
+mybot_manage_accept_utils_no: "いいえ"
+mybot_manage_accept_embed_title: "独自の iHorizon をホストする: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_manage_accept_embed_desc: "ボットは承認されました\n\n${utils_msg}"
+
+# /mybot インスタンス 拒否
+mybot_instance_deny_not_foud: "データベース内のボットが見つかりません。進行できません。"
+mybot_instance_deny_token_error: "データベース内のトークンは無効です。進行できません。"
+mybot_instance_deny_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot ユーザー名__ `${bot_1.bot.username}`\n__パブリック Bot__ `${bot_1.bot_public ? 'はい' : 'いいえ'}`"
+mybot_instance_deny_utils_msg_yes: "はい"
+mybot_instance_deny_utils_msg_no: "いいえ"
+mybot_instance_deny_embed_title: "独自の iHorizon をホストする: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_instance_deny_embed_desc: "ボットは拒否されました\n\n${utils_msg}"
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
@@ -1050,6 +1153,8 @@ event_xp_level_earn: "<@${message.author.id}> さん、レベルアップ (+1) �
 
 # Ticket Module Events:
 event_ticket_embed_description: "${user.username}さん、チケットへようこそ！しばらくお待ちください。チケットを閉じる場合は、`/ticket close` を実行してください。"
+event_ticket_add_member: "${interaction.user}, あなたはチケット ${interaction.channel} に**追加**しました：${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')}！"
+event_ticket_del_member: "${interaction.user}, あなたはチケット ${interaction.channel} から**削除**しました：${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')}！"
 
 # interactionCreateイベント：
 iC_event_cooldown: "クールダウン、コマンド間に少し待ってください！"

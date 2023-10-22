@@ -236,6 +236,13 @@ help_schedule_dsc: "Create reminders with pre-programmed messages that the bot w
 help_pfps_fields: "PFPS"
 help_pfps_dsc: "Sending random user avatar in channel!"
 
+# /say
+say_footer_msg: "\n\nSent from `/say` by ${interaction.user}"
+
+# /ping
+ping_down_msg: "**DOWN**"
+ping_embed_desc: "**Network** : `${await network}` ms\n**Discord API** : `${await API}` ms"
+
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -434,6 +441,11 @@ nickrole_add_command_work: "${interaction.user}, iHorizon has executed the massi
 nickrole_sub_command_work: "${interaction.user}, iHorizon has executed the massiverole command.\n\n**${a}** user(s) lost the ${role} role\n**${s}** user(s) no longer had the ${role} role\niHorizon failed to remove the role from **${e}** user(s)."
 nickrole_too_much_member: "Too many members, cannot proceed due to possible rate limit!"
 
+# /emoji
+emoji_send_new_emoji: "__Created new emoji__ with name **${emoji.name}**! (${emoji})"
+emoji_send_err_emoji: "__Error when create new emoji__ with name **${emoji.name}**!"
+emoji_embed_desc_work: "__Created **${cnt}** emoji(s) in `${interaction.guild.name}`__\n(${nemj})"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -587,6 +599,10 @@ setlogschannel_logs_embed_title: "Set ServerLogs"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> set `${typeOfLogs}` to <#${argsid.id}>"
 setlogschannel_logs_embed_title_on_off: "Set ServerLogs"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> delete all `SERVER_LOGS` in the guild !"
+setlogschannel_var_roles: "Roles Logs"
+setlogschannel_var_mods: "Moderation Logs"
+setlogschannel_var_voice: "Voice Logs"
+setlogschannel_var_msg: "Messages Logs"
 
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **false**.\nNow user can send mentions in their message.\nAutoMod x iHorizon have been disabled on your server!"
@@ -693,6 +709,7 @@ reroll_command_work: "Giveaway relaunched!"
 reroll_logs_embed_title: "Giveaways Logs"
 reroll_logs_embed_description: "<@${interaction.user.id}> reroll giveaways with this id: ${giveaway.messageID}"
 reroll_command_error: "Error !"
+reroll_giveaway_not_over: "This giveaway is not over!"
 
 
 # Moderation commands
@@ -759,6 +776,7 @@ unban_the_member_is_not_banned: "❌ | **The ID stated is not banned from this s
 unban_is_now_unbanned: "<@${userID}> is now unbanned from this server !"
 unban_logs_embed_title: "Unban Logs"
 unban_logs_embed_description: "<@${userID}> Is now unbanned from the server by ${interaction.user.id}!"
+unban_reason: "No reason was provided."
 
 # /tempmute
 tempmute_dont_have_permission: "❌ | You don't have permission to tempmute members."
@@ -1022,6 +1040,91 @@ pfps_channel_embed_desc: "${interaction.user} have set the PFPS module here!\nNo
 pfps_channel_command_work: "${interaction.user}, you have set succeffuly the PFPS module to the channel ${channel} !"
 pfps_channel_command_error: "${interaction.user}, the command return an error. Please verify the channel you specified exist, verify the PFPP Module as been enable!"
 
+
+# Protection Module
+# /authorization actions, ... sanction, ... config-show, /allowlist show, ... add, ... delete
+
+# /authorization actions
+authorization_actions_not_permited: "Only the owner of the server can edit the authorization rule about the protection module!"
+authorization_actions_everyone: "Everyone"
+authorization_actions_allowlist: "Member(s) of allowlist"
+authorization_actions_rule_set: "${interaction.user}, the rule for `${rule.toUpperCase()}` are been set. **${allow}** are allowed to bypass-it!"
+authorization_actions_rule_clear: "${interaction.user}, all of the rule for `${interaction.guild.name}` are been deleted. Protection module is now disabled!"
+
+# /authorization sanction
+authorization_sanction_not_permited: "Only the owner of the server can edit the authorization rule about the protection module!"
+authorization_sanction_simply: "N/A"
+authorization_sanction_simply_unrank: "UNRANK"
+authorization_sanction_simply_ban: "BAN"
+authorization_sanction_command_work: "${interaction.user}, rule sanction has been set. When the user breaks the rule, it's **${choose}**. And the bot cancels its action."
+
+# /authorization config-show
+authorization_configshow_not_permited: "Only the owner of the server can edit the authorization rule about the protection module!"
+authorization_configshow_not_anything_setup: "You have not setup anything in the Protection Module!"
+authorization_configshow_simply: "Simply Cancel Action"
+authorization_configshow_simply_ban: "Simply Cancel Action & Ban"
+authorization_configshow_simply_unrank: "Simply Cancel Action & Unrank"
+authorization_configshow_punishement: "```Punishement: ${okay}```"
+authorization_configshow_embed1_author: "Rule List"
+authorization_configshow_embed2_author: "Allowlist"
+
+# /allowlist show
+allowlist_show_not_permited: "Your not allowed to use this command! You need to be in the allow-list!"
+allowlist_show_embed_author: "Allowlist"
+
+# /allowlist add
+allowlist_add_not_permited: "You are not authorized to use this command! You must be in the allowlist!"
+allowlist_add_not_owner: "Only the owner of the server can add/remove user in the allow-list!"
+allowlist_add_member_unreachable: "The member you wanted to add into the allow-list is unreachable!"
+allowlist_add_already_in: "The member you want to add from the allowlist is already in!"
+allowlist_add_command_work: "${member.user} has been added in the allowlist !"
+
+# /allowlist delete
+allowlist_delete_not_permited: "You are not authorized to use this command! You must be in the allowlist!"
+allowlist_delete_not_owner: "Only the owner of the server can add/remove user in the allow-list!"
+allowlist_delete_member_unreachable: "The member you wanted to remove into the allow-list is unreachable!"
+allowlist_delete_cant_remove_owner: "This is not possible to delete the owner of the server from the allowlist!"
+allowlist_delete_isnt_in: "The member you want to remove from the allowlist isn't in it!"
+allowlist_delete_command_work: "${member.user} has been removed from the allowlist !"
+
+
+# OWNIHRZ Module
+# /mybot submit, ... list, /mybot manage accept, ... ... deny, ... ... instance
+
+# /mybot submit
+mybot_submit_token_invalid: "The token entered is invalid. We cannot proceed further."
+mybot_submit_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot username__ `${bot_1.bot.username}`\n__Public Bot__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
+mybot_submit_utils_msg_yes: "Yes"
+mybot_submit_utils_msg_no: "No"
+mybot_submit_embed_title: "Host your own iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_submit_embed_desc: "Your request has been successfully registered, your unique identifier is: **${code}**!\nDo not share it with anyone!\n**Join the support server** [Click Here](https://discord.gg/ihorizon), then open a ticket to continue the purchase.\n\n${utils_msg}"
+
+# /mybot list
+mybot_list_embed0_title: "List of all your bot(s)"
+mybot_list_utils_msg: "__Bot ID__ `${data_2[i].bot.id}`\n__Bot username__ `${data_2[i].bot.username}`\n__Public Bot__ `${data_2[i].bot_public ? 'Yes' : 'No'}`"
+mybot_list_utils_msg_yes: "Yes"
+mybot_list_utils_msg_no: "No"
+mybot_list_embed1_title: "Your own iHorizon: ${data_2[i].bot.username}"
+mybot_list_embed1_desc: "Your bot code: ||**${data_2[i].code}**|| ⚠️ **Do not share it with anyone**!\n**Expires in**: `${expire}`\n**Join the support server** [Click Here](https://discord.gg/ihorizon), if you have problems with your bot.\n\n${utils_msg}"
+
+# /mybot manage accept
+mybot_manage_accept_not_found: "The bot in the DB cannot be found. We cannot proceed further."
+mybot_manage_accept_token_error: "The token in the DB is invalid. We cannot proceed further."
+mybot_manage_accept_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot username__ `${bot_1.bot.username}`\n__Public Bot__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
+mybot_manage_accept_utiis_yes: "Yes"
+mybot_manage_accept_utils_no: "No"
+mybot_manage_accept_embed_title: "Host your own iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_manage_accept_embed_desc: "The bot has been accepted\n\n${utils_msg}"
+
+# /mybot instance deny
+mybot_instance_deny_not_foud: "The bot in the DB cannot be found. We cannot proceed further."
+mybot_instance_deny_token_error: "The token in the DB is invalid. We cannot proceed further."
+mybot_instance_deny_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot username__ `${bot_1.bot.username}`\n__Public Bot__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
+mybot_instance_deny_utils_msg_yes: "Yes"
+mybot_instance_deny_utils_msg_no: "No"
+mybot_instance_deny_embed_title: "Host your own iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_instance_deny_embed_desc: "The bot has been refused\n\n${utils_msg}"
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
@@ -1050,6 +1153,8 @@ event_xp_level_earn: "**GG**, <@${message.author.id}> you are +1, for xp level (
 
 # Ticket Module Events:
 event_ticket_embed_description: "Hi ${user.username}, welcome to your ticket! Please be patient, we will be with you shortly. If you would like to close this ticket please run `/ticket close`"
+event_ticket_add_member: "${interaction.user}, you have **added** ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')} to the ticket ${interaction.channel} !"
+event_ticket_del_member: "${interaction.user}, you have **removed** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} to the ticket ${interaction.channel} !"
 
 # interactionCreate Events:
 iC_event_cooldown: "Cooldown, please wait a bit between commands !"
