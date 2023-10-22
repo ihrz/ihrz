@@ -1153,6 +1153,8 @@ event_xp_level_earn: "<@${message.author.id}> さん、レベルアップ (+1) �
 
 # Ticket Module Events:
 event_ticket_embed_description: "${user.username}さん、チケットへようこそ！しばらくお待ちください。チケットを閉じる場合は、`/ticket close` を実行してください。"
+event_ticket_add_member: "${interaction.user}, あなたはチケット ${interaction.channel} に**追加**しました：${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')}！"
+event_ticket_del_member: "${interaction.user}, あなたはチケット ${interaction.channel} から**削除**しました：${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')}！"
 
 # interactionCreateイベント：
 iC_event_cooldown: "クールダウン、コマンド間に少し待ってください！"

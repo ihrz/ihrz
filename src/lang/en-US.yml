@@ -1153,6 +1153,8 @@ event_xp_level_earn: "**GG**, <@${message.author.id}> you are +1, for xp level (
 
 # Ticket Module Events:
 event_ticket_embed_description: "Hi ${user.username}, welcome to your ticket! Please be patient, we will be with you shortly. If you would like to close this ticket please run `/ticket close`"
+event_ticket_add_member: "${interaction.user}, you have **added** ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')} to the ticket ${interaction.channel} !"
+event_ticket_del_member: "${interaction.user}, you have **removed** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} to the ticket ${interaction.channel} !"
 
 # interactionCreate Events:
 iC_event_cooldown: "Cooldown, please wait a bit between commands !"

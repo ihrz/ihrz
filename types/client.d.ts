@@ -33,6 +33,7 @@ declare module 'discord.js' {
         player: Player,
         invites: Collection,
         buttons: Collection<string, Function>,
+        selectmenu: Collection<string, Function>,
         db: DataBase
     }
 };

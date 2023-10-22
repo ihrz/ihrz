@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { TicketRemoveMember_2 } from '../core/ticketsManager';
+import { TicketAddMember_2 } from '../core/ticketsManager';
 
-export = async function (interaction: any) {
-    TicketRemoveMember_2(interaction);
+export = async function (interaction: any, data: any) {
+    TicketAddMember_2(interaction);
     return;
 };
