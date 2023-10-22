@@ -599,6 +599,10 @@ setlogschannel_logs_embed_title: "Configuración de registros del servidor"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> configuró el `${typeOfLogs}` en <#${argsid.id}>"
 setlogschannel_logs_embed_title_on_off: "Configuración de registros del servidor"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> eliminó todos los `SERVER_LOGS` en el servidor!"
+setlogschannel_var_roles: "Registros de roles"
+setlogschannel_var_mods: "Registros de moderación"
+setlogschannel_var_voice: "Registros de voz"
+setlogschannel_var_msg: "Registros de mensajes"
 
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, has desactivado la regla de `AutoModeración de Menciones Masivas` a **falso**.\nAhora los usuarios pueden enviar menciones en sus mensajes.\nAutoModeración x iHorizon ha sido desactivada en tu servidor."

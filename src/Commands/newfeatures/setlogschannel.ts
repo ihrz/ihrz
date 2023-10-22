@@ -66,7 +66,7 @@ export const command: Command = {
 
         /*                                        ROLES LOGS                                                */
         if (type === "1") {
-            let typeOfLogs = "Roles Logs"
+            let typeOfLogs = data.setlogschannel_var_roles;
             if (!argsid) {
                 await interaction.editReply({ content: data.setlogschannel_not_specified_args });
                 return;
@@ -114,7 +114,7 @@ export const command: Command = {
 
         /*                                        MODERATION LOGS                                                */
         if (type === "2") {
-            let typeOfLogs = "Moderation Logs"
+            let typeOfLogs = data.setlogschannel_var_mods;
             if (!argsid) {
                 await interaction.editReply({ content: data.setlogschannel_not_specified_args });
                 return;
@@ -163,11 +163,13 @@ export const command: Command = {
 
         /*                                        VOICES LOGS                                                */
         if (type === "3") {
-            let typeOfLogs = "Voice Logs"
+            let typeOfLogs = data.setlogschannel_var_voice;
+
             if (!argsid) {
                 await interaction.editReply({ content: data.setlogschannel_not_specified_args });
                 return;
-            }
+            };
+
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
@@ -211,7 +213,7 @@ export const command: Command = {
         /*                                        MESSAGES LOGS                                                */
 
         if (type === "4") {
-            let typeOfLogs = "Messages Logs"
+            let typeOfLogs = data.setlogschannel_var_msg;
             if (!argsid) {
                 await interaction.editReply({ content: data.setlogschannel_not_specified_args });
                 return;

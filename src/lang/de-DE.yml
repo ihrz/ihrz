@@ -599,6 +599,10 @@ setlogschannel_logs_embed_title: "Setze ServerLogs"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> hat `${typeOfLogs}` zu <#${argsid.id}> gesetzt"
 setlogschannel_logs_embed_title_on_off: "Setze ServerLogs"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> hat alle `SERVER_LOGS` in der Gilde gelöscht!"
+setlogschannel_var_roles: "Rollenprotokolle"
+setlogschannel_var_mods: "Moderationsprotokolle"
+setlogschannel_var_voice: "Sprachprotokolle"
+setlogschannel_var_msg: "Nachrichtenprotokolle"
 
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, du hast die `Massen-Erwähnungs-AutoMod-Regel` auf **false** gesetzt.\nJetzt können Benutzer Erwähnungen in ihren Nachrichten senden.\nAutoMod x iHorizon wurde auf deinem Server deaktiviert!"

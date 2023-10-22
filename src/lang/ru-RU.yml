@@ -599,6 +599,10 @@ setlogschannel_logs_embed_title: "Настройка ServerLogs"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> установил `${typeOfLogs}` на <#${argsid.id}>"
 setlogschannel_logs_embed_title_on_off: "Настройка ServerLogs"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> удалил все `SERVER_LOGS` на сервере!"
+setlogschannel_var_roles: "Журналы ролей"
+setlogschannel_var_mods: "Журналы модерации"
+setlogschannel_var_voice: "Журналы голоса"
+setlogschannel_var_msg: "Журналы сообщений"
 
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, вы отключили `Правило автоматической модерации упоминаний` и теперь пользователи могут отправлять упоминания в своих сообщениях.\nAutoMod x iHorizon отключен на вашем сервере!"

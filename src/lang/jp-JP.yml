@@ -599,6 +599,10 @@ setlogschannel_logs_embed_title: "サーバーログの設定"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> が `${typeOfLogs}` を <#${argsid.id}> に設定しました"
 setlogschannel_logs_embed_title_on_off: "サーバーログの設定"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> がギルド内のすべての `SERVER_LOGS` を削除しました！"
+setlogschannel_var_roles: "役職のログ"
+setlogschannel_var_mods: "モデレーションログ"
+setlogschannel_var_voice: "音声ログ"
+setlogschannel_var_msg: "メッセージログ"
 
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, あなたは`Mass-Mention AutoModルール`を**false**に設定しました。\n今、ユーザーはメッセージにメンションを送信できます。\nAutoMod x iHorizonはサーバーで無効になっています！"

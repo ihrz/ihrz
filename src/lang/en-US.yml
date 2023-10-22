@@ -599,6 +599,10 @@ setlogschannel_logs_embed_title: "Set ServerLogs"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> set `${typeOfLogs}` to <#${argsid.id}>"
 setlogschannel_logs_embed_title_on_off: "Set ServerLogs"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> delete all `SERVER_LOGS` in the guild !"
+setlogschannel_var_roles: "Roles Logs"
+setlogschannel_var_mods: "Moderation Logs"
+setlogschannel_var_voice: "Voice Logs"
+setlogschannel_var_msg: "Messages Logs"
 
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **false**.\nNow user can send mentions in their message.\nAutoMod x iHorizon have been disabled on your server!"
