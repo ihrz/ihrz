@@ -50,7 +50,8 @@ async function CreatePanel(interaction: any, data: any) {
 
     let confirm = new ButtonBuilder()
         .setCustomId('open-new-ticket')
-        .setEmoji('🎟️')
+        .setEmoji('📩')
+        .setLabel('Create Ticket')
         .setStyle(ButtonStyle.Secondary);
 
     interaction.send({
@@ -391,7 +392,7 @@ async function TicketAddMember_2(interaction: any) {
     let removedMembers: any[] = [];
 
     listmembersArray.forEach(async (overwriteId) => {
-        if (!membersArray.includes(overwriteId) && owner_ticket.author !== overwriteId) {
+        if (!membersArray.includes(overwriteId) && owner_ticket?.author !== overwriteId) {
             removedMembers.push(overwriteId);
             await interaction.channel.permissionOverwrites.delete(overwriteId);
         }
