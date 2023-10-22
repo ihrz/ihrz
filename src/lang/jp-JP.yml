@@ -236,6 +236,9 @@ help_schedule_dsc: "プリプログラムされたメッセージを使用して
 help_pfps_fields: "PFPS"
 help_pfps_dsc: "チャンネルにランダムなユーザーアバターを送信します！"
 
+# /say
+say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
+
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap

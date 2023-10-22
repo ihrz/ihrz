@@ -236,6 +236,9 @@ help_schedule_dsc: "Создавайте напоминания с заране�
 help_pfps_fields: "PFPS"
 help_pfps_dsc: "Отправка случайного аватара пользователя в канал!"
 
+# /say
+say_footer_msg: "\n\nОтправлено из `/говорить` от ${interaction.user}"
+
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap

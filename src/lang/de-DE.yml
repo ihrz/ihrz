@@ -235,6 +235,9 @@ help_schedule_dsc: "Erstelle Erinnerungen mit vorprogrammierten Nachrichten, die
 help_pfps_fields: "PFPS"
 help_pfps_dsc: "Sendet zufälliges Benutzer-Avatar im Kanal!"
 
+# /say
+say_footer_msg: "\n\nGesendet von `/sagen` von ${interaction.user}"
+
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap

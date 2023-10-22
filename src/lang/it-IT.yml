@@ -236,6 +236,9 @@ help_schedule_dsc: "Crea promemoria con messaggi pre-programmati che il bot ti i
 help_pfps_fields: "PFPS"
 help_pfps_dsc: "Invia un avatar utente casuale nel canale!"
 
+# /say
+say_footer_msg: "\n\nInviato da `/say` da ${interaction.user}"
+
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap

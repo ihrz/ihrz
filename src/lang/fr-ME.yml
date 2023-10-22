@@ -236,6 +236,9 @@ help_schedule_dsc: "Crée des message pré-programmé , pour les flemmards en gr
 help_pfps_fields: "PFPS"
 help_pfps_dsc: "Envoi d'un avatar utilisateur tout moche aléatoire dans un canal de merde !"
 
+# /say
+say_footer_msg: "\n\nEnvoyé depuis `/say` par ${interaction.user}"
+
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
