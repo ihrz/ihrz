@@ -239,6 +239,10 @@ help_pfps_dsc: "チャンネルにランダムなユーザーアバターを送�
 # /say
 say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
 
+# /ping
+ping_down_msg: "**ダウン**"
+ping_embed_desc: "**ネットワーク** : `${await ネットワーク}` ms\n**Discord API** : `${await API}` ms"
+
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -436,6 +440,11 @@ massiverole_too_much_member: "メンバーが多すぎて、実行できませ�
 nickrole_add_command_work: "${interaction.user}さん、iHorizonがmassiveroleコマンドを実行しました。\n\n**${a}**人のユーザーが${role}ロールを受け取りました\n**${s}**人のユーザーはすでに${role}ロールを持っています\niHorizonは**${e}**人のユーザーにロールを追加できませんでした。"
 nickrole_sub_command_work: "${interaction.user}さん、iHorizonがmassiveroleコマンドを実行しました。\n\n**${a}**人のユーザーが${role}ロールを失いました\n**${s}**人のユーザーはすでに${role}ロールを持っていません\niHorizonは**${e}**人のユーザーからロールを削除できませんでした。"
 nickrole_too_much_member: "メンバーが多すぎるため、実行できません。レート制限の可能性があります！"
+
+# /emoji
+emoji_send_new_emoji: "__新しい絵文字が作成されました__ 名前：**${emoji.name}** ! (${emoji})"
+emoji_send_err_emoji: "__新しい絵文字の作成時エラー__ 名前：**${emoji.name}** !"
+emoji_embed_desc_work: "__`${interaction.guild.name}` に**${cnt}**個の絵文字を作成しました__\n(${nemj})"
 
 
 # Guild Config commands
@@ -696,6 +705,7 @@ reroll_command_work: "ギブアウェイが再開されました！"
 reroll_logs_embed_title: "ギブアウェイログ"
 reroll_logs_embed_description: "<@${interaction.user.id}> がこのIDのギブアウェイを再開しました：${giveaway.messageID}"
 reroll_command_error: "エラー！"
+reroll_giveaway_not_over: "このプレゼントは終了していません！"
 
 
 # Moderation commands
@@ -762,6 +772,7 @@ unban_the_member_is_not_banned: "❌ | **指定されたIDは、このサーバ�
 unban_is_now_unbanned: "<@${userID}> はこのサーバーからアンバンされました！"
 unban_logs_embed_title: "アンバンログ"
 unban_logs_embed_description: "${interaction.user.id}によって<@${userID}>がサーバーからアンバンされました！"
+unban_reason: "理由が提供されませんでした。"
 
 # /tempmute
 tempmute_dont_have_permission: "❌ | メンバーを一時的にミュートする権限がありません。"
@@ -1024,6 +1035,53 @@ pfps_channel_embed_title: "ここにPFPSモジュールが設定されていま�
 pfps_channel_embed_desc: "${interaction.user} がPFPSモジュールをここに設定しました！\nこれから30秒ごとに、iHorizonがこのギルドのランダムなユーザーのアバターを送信します！\n最善を尽くします！"
 pfps_channel_command_work: "${interaction.user}、チャンネル${channel} にPFPSモジュールを正常に設定しました！"
 pfps_channel_command_error: "${interaction.user}、コマンドがエラーを返しました。指定したチャンネルが存在し、PFPPモジュールが有効であることを確認してください！"
+
+
+# 保護モジュール
+# /認証アクション、...罰則、...設定表示、/許可リスト表示、...追加、...削除
+
+# /認証アクション
+authorization_actions_not_permited: "この保護モジュールの認証ルールを編集できるのはサーバーのオーナーだけです！"
+authorization_actions_everyone: "誰でも"
+authorization_actions_allowlist: "許可リストのメンバー"
+authorization_actions_rule_set: "${interaction.user}、`${rule.toUpperCase()}` のルールが設定されました。**${allow}** はこれをバイパスできます！"
+authorization_actions_rule_clear: "${interaction.user}、`${interaction.guild.name}` のすべてのルールが削除されました。保護モジュールは無効になりました！"
+
+# /認証罰則
+authorization_sanction_not_permited: "この保護モジュールの認証ルールを編集できるのはサーバーのオーナーだけです！"
+authorization_sanction_simply: "該当なし"
+authorization_sanction_simply_unrank: "ランク外し"
+authorization_sanction_simply_ban: "BAN"
+authorization_sanction_command_work: "${interaction.user}、罰則ルールが設定されました。ユーザーがルールを犯した場合、**${choose}** です。ボットはそのアクションをキャンセルします。"
+
+# /認証設定表示
+authorization_configshow_not_permited: "この保護モジュールの認証ルールを編集できるのはサーバーのオーナーだけです！"
+authorization_configshow_not_anything_setup: "保護モジュールには何も設定されていません！"
+authorization_configshow_simply: "アクションを単純にキャンセル"
+authorization_configshow_simply_ban: "アクションを単純にキャンセルしてBAN"
+authorization_configshow_simply_unrank: "アクションを単純にキャンセルしてランク外し"
+authorization_configshow_punishement: "```罰則：${okay}```"
+authorization_configshow_embed1_author: "ルールリスト"
+authorization_configshow_embed2_author: "許可リスト"
+
+# /許可リスト表示
+allowlist_show_not_permited: "このコマンドを使用する権限がありません！許可リストに含まれている必要があります！"
+allowlist_show_embed_author: "許可リスト"
+
+# /許可リスト追加
+allowlist_add_not_permited: "このコマンドを使用する権限がありません！許可リストに含まれている必要があります！"
+allowlist_add_not_owner: "サーバーのオーナーだけが許可リストにユーザーを追加/削除できます！"
+allowlist_add_member_unreachable: "許可リストに追加しようとしたメンバーは連絡が取れません！"
+allowlist_add_already_in: "許可リストから削除しようとするメンバーは既に含まれています！"
+allowlist_add_command_work: "${member.user} が許可リストに追加されました！"
+
+# /許可リスト削除
+allowlist_delete_not_permited: "このコマンドを使用する権限がありません！許可リストに含まれている必要があります！"
+allowlist_delete_not_owner: "サーバーのオーナーだけが許可リストにユーザーを追加/削除できます！"
+allowlist_delete_member_unreachable: "許可リストから削除しようとしたメンバーは連絡が取れません！"
+allowlist_delete_cant_remove_owner: "サーバーのオーナーを許可リストから削除することはできません！"
+allowlist_delete_isnt_in: "許可リストから削除しようとするメンバーは含まれていません！"
+allowlist_delete_command_work: "${member.user} が許可リストから削除されました！"
 
 # -----------------------------/ \-----------------------------
 # Music Player Events

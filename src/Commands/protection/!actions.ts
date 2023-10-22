@@ -28,7 +28,7 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         if (interaction.user.id !== interaction.guild.ownerId) {
-            await interaction.editReply({ content: 'Only the owner of the server can edit the authorization rule about the protection module!' });
+            await interaction.editReply({ content: data.authorization_actions_not_permited });
             return;
         };
 
@@ -38,15 +38,24 @@ export = {
         if (rule !== 'cls' && allow) {
             await client.db.set(`${interaction.guild.id}.PROTECTION.${rule}`, { mode: allow });
 
-            if (allow === 'member') allow = 'Everyone'
-            if (allow === 'allowlist') allow = 'Member(s) of allowlist'
+            if (allow === 'member') allow = data.authorization_actions_everyone;
+            if (allow === 'allowlist') allow = data.authorization_actions_allowlist;
 
-            await interaction.editReply({ content: `<@${interaction.user.id}>, the rule for \`${rule.toUpperCase()}\` are been set. **${allow}** are allowed to bypass-it!` });
+            await interaction.editReply({
+                content: data.authorization_actions_rule_set
+                    .replace('${interaction.user}', interaction.user)
+                    .replace('${rule.toUpperCase()}', rule.toUpperCase())
+                    .replace('${allow}', allow)
+            });
             return;
         } else if (rule === 'cls') {
             await client.db.set(`${interaction.guild.id}.PROTECTION`, {});
 
-            await interaction.editReply({ content: `<@${interaction.user.id}>, all of the rule for \`${interaction.guild.name}\` are been deleted. Protection module is now disabled!` });
+            await interaction.editReply({
+                content: data.authorization_actions_rule_clear
+                    .replace('${interaction.user}', interaction.user)
+                    .replace('${interaction.guild.name}', interaction.guild.name)
+            });
             return;
         };
     },

@@ -30,34 +30,38 @@ export = {
         let baseData = await client.db.get(`${interaction.guild.id}.ALLOWLIST`);
 
         if (interaction.user.id !== interaction.guild.ownerId && baseData.list[interaction.user.id]?.allowed !== true) {
-            await interaction.editReply({ content: 'You are not authorized to use this command! You must be in the allowlist!' });
+            await interaction.editReply({ content: data.allowlist_delete_not_permited });
             return;
         };
 
         if (interaction.user.id !== interaction.guild.ownerId) {
-            await interaction.editReply({ content: 'Only the owner of the server can add/remove user in the allow-list!' });
+            await interaction.editReply({ content: data.allowlist_delete_not_owner });
             return;
         };
 
         let member = interaction.options.getMember('member');
 
         if (!member) {
-            await interaction.editReply({ content: 'The member you wanted to remove into the allow-list is unreachable!' });
+            await interaction.editReply({ content: data.allowlist_delete_member_unreachable });
             return;
         };
 
         if (member === interaction.guild.ownerId) {
-            await interaction.editReply({ content: 'This is not possible to delete the owner of the server from the allowlist!' });
+            await interaction.editReply({ content: data.allowlist_delete_cant_remove_owner });
             return;
         };
 
         if (!baseData.list[member.user.id]?.allowed == true) {
-            await interaction.editReply({ content: "The member you want to remove from the allowlist isn't in it!" });
+            await interaction.editReply({ content: data.allowlist_delete_isnt_in });
             return;
         };
 
         await client.db.delete(`${interaction.guild.id}.ALLOWLIST.list.${member.user.id}`);
-        await interaction.editReply({ content: `<@${member.user.id}> has been removed from the allowlist !` });
+        await interaction.editReply({
+            content: data.allowlist_delete_command_work
+                .replace('${member.user}', member.user)
+        });
+
         return;
     },
 };

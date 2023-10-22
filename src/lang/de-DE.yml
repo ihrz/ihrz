@@ -77,6 +77,7 @@ disablexp_command_work_disable: "Sie haben erfolgreich die Leveling-Nachrichten 
 disablexp_logs_embed_title_enable: "Aktiviere-XP-Logs"
 disablexp_logs_embed_description_enable: "<@${interaction.user.id}> hat XP aktiviert!"
 disablexp_command_work_enable: "Sie haben erfolgreich die Leveling-Nachrichten (XP) aktiviert!"
+disablexp_command_work_disable_entierly: "Sie haben das Ränge-Modul erfolgreich deaktiviert! (Keine weiteren Beiträge und Benutzer steigen nicht auf)"
 
 # /setxpchannels
 setxpchannels_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
@@ -237,6 +238,10 @@ help_pfps_dsc: "Sendet zufälliges Benutzer-Avatar im Kanal!"
 
 # /say
 say_footer_msg: "\n\nGesendet von `/sagen` von ${interaction.user}"
+
+# /ping
+ping_down_msg: "**INAKTIV**"
+ping_embed_desc: "**Netzwerk** : `${await Netzwerk}` ms\n**Discord API** : `${await API}` ms"
 
 
 # Fun commands
@@ -435,6 +440,11 @@ massiverole_too_much_member: "Zu viele Mitglieder, kann nicht ausgeführt werden
 nickrole_add_command_work: "${interaction.user}, iHorizon hat den massiverole-Befehl ausgeführt.\n\n**${a}** Benutzer haben die ${role}-Rolle erhalten\n**${s}** Benutzer hatten die ${role}-Rolle bereits\niHorizon konnte die Rolle nicht zu **${e}** Benutzern hinzufügen."
 nickrole_sub_command_work: "${interaction.user}, iHorizon hat den massiverole-Befehl ausgeführt.\n\n**${a}** Benutzer haben die ${role}-Rolle verloren\n**${s}** Benutzer hatten die ${role}-Rolle nicht mehr\niHorizon konnte die Rolle nicht von **${e}** Benutzern entfernen."
 nickrole_too_much_member: "Zu viele Mitglieder, kann aufgrund einer möglichen Rate-Limitierung nicht fortgesetzt werden!"
+
+# /emoji
+emoji_send_new_emoji: "__Neues Emoji erstellt__ mit dem Namen **${emoji.name}** ! (${emoji})"
+emoji_send_err_emoji: "__Fehler beim Erstellen des neuen Emoji__ mit dem Namen **${emoji.name}** !"
+emoji_embed_desc_work: "__Erstellt **${cnt}** Emoji(s) in `${interaction.guild.name}`__\n(${nemj})"
 
 
 # Guild Config commands
@@ -695,6 +705,7 @@ reroll_command_work: "Giveaway erneut ausgelost!"
 reroll_logs_embed_title: "Giveaway-Logs"
 reroll_logs_embed_description: "<@${interaction.user.id}> hat Giveaways mit dieser ID erneut ausgelost: ${giveaway.messageID}"
 reroll_command_error: "Fehler!"
+reroll_giveaway_not_over: "Dieses Gewinnspiel ist noch nicht beendet!"
 
 
 # Moderation commands
@@ -761,6 +772,7 @@ unban_the_member_is_not_banned: "❌ | **Die angegebene ID ist von diesem Server
 unban_is_now_unbanned: "<@${userID}> wurde von diesem Server entbannt!"
 unban_logs_embed_title: "Entbannungsprotokoll"
 unban_logs_embed_description: "<@${userID}> wurde von ${interaction.user.id} von diesem Server entbannt!"
+unban_reason: "Es wurde keine Begründung angegeben."
 
 # /tempmute
 tempmute_dont_have_permission: "❌ | Du hast keine Berechtigung, Mitglieder zu temporär stummschalten."
@@ -1023,6 +1035,53 @@ pfps_channel_embed_title: "PFPS-Modul hier eingestellt!"
 pfps_channel_embed_desc: "${interaction.user} hat das PFPS-Modul hier eingestellt!\nJetzt sendet iHorizon alle 30 Sekunden das Avatar eines zufälligen Benutzers in dieser Gilde!\nIch werde mein Bestes tun!"
 pfps_channel_command_work: "${interaction.user}, Sie haben das PFPS-Modul erfolgreich auf dem Kanal ${channel} eingestellt!"
 pfps_channel_command_error: "${interaction.user}, der Befehl hat einen Fehler zurückgegeben. Bitte überprüfen Sie, ob der angegebene Kanal existiert und das PFPP-Modul aktiviert ist!"
+
+
+# Schutzmodul
+# /Autorisierungsaktionen, ... Sanktionen, ... Konfiguration anzeigen, /Allowlist anzeigen, ... hinzufügen, ... löschen
+
+# /Autorisierungsaktionen
+authorization_actions_not_permited: "Nur der Besitzer des Servers kann die Autorisierungsregel für das Schutzmodul bearbeiten!"
+authorization_actions_everyone: "Jeder"
+authorization_actions_allowlist: "Mitglied(er) der Allowlist"
+authorization_actions_rule_set: "${interaction.user}, die Regel für `${rule.toUpperCase()}` wurde festgelegt. **${allow}** dürfen sie umgehen!"
+authorization_actions_rule_clear: "${interaction.user}, alle Regeln für `${interaction.guild.name}` wurden gelöscht. Das Schutzmodul ist jetzt deaktiviert!"
+
+# /Autorisierungssanktion
+authorization_sanction_not_permited: "Nur der Besitzer des Servers kann die Autorisierungsregel für das Schutzmodul bearbeiten!"
+authorization_sanction_simply: "N/A"
+authorization_sanction_simply_unrank: "ENTRANGIEREN"
+authorization_sanction_simply_ban: "SPERREN"
+authorization_sanction_command_work: "${interaction.user}, die Sanktionsregel wurde festgelegt. Wenn der Benutzer gegen die Regel verstößt, wird er **${choose}**. Und der Bot bricht seine Aktion ab."
+
+# /Autorisierungskonfiguration anzeigen
+authorization_configshow_not_permited: "Nur der Besitzer des Servers kann die Autorisierungsregel für das Schutzmodul bearbeiten!"
+authorization_configshow_not_anything_setup: "Sie haben im Schutzmodul nichts eingerichtet!"
+authorization_configshow_simply: "Aktion einfach abbrechen"
+authorization_configshow_simply_ban: "Aktion einfach abbrechen und sperren"
+authorization_configshow_simply_unrank: "Aktion einfach abbrechen und Entstufen"
+authorization_configshow_punishement: "```Strafe: ${okay}```"
+authorization_configshow_embed1_author: "Regelliste"
+authorization_configshow_embed2_author: "Allowlist"
+
+# /Allowlist anzeigen
+allowlist_show_not_permited: "Sie sind nicht berechtigt, diesen Befehl zu verwenden! Sie müssen in der Allowlist sein!"
+allowlist_show_embed_author: "Allowlist"
+
+# /Allowlist hinzufügen
+allowlist_add_not_permited: "Sie sind nicht berechtigt, diesen Befehl zu verwenden! Sie müssen in der Allowlist sein!"
+allowlist_add_not_owner: "Nur der Besitzer des Servers kann Benutzer zur Allowlist hinzufügen/entfernen!"
+allowlist_add_member_unreachable: "Das Mitglied, das Sie zur Allowlist hinzufügen wollten, ist nicht erreichbar!"
+allowlist_add_already_in: "Das Mitglied, das Sie von der Allowlist hinzufügen möchten, ist bereits dort!"
+allowlist_add_command_work: "${member.user} wurde zur Allowlist hinzugefügt!"
+
+# /Allowlist löschen
+allowlist_delete_not_permited: "Sie sind nicht berechtigt, diesen Befehl zu verwenden! Sie müssen in der Allowlist sein!"
+allowlist_delete_not_owner: "Nur der Besitzer des Servers kann Benutzer zur Allowlist hinzufügen/entfernen!"
+allowlist_delete_member_unreachable: "Das Mitglied, das Sie aus der Allowlist entfernen wollten, ist nicht erreichbar!"
+allowlist_delete_cant_remove_owner: "Es ist nicht möglich, den Besitzer des Servers aus der Allowlist zu entfernen!"
+allowlist_delete_isnt_in: "Das Mitglied, das Sie aus der Allowlist entfernen möchten, ist nicht darin!"
+allowlist_delete_command_work: "${member.user} wurde aus der Allowlist entfernt!"
 
 # -----------------------------/ \-----------------------------
 # Music Player Events

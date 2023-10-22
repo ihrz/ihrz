@@ -43,7 +43,7 @@ export = {
         let userID = interaction.options.getString('userid');
         let reason = interaction.options.getString('reason');
 
-        if (!reason) reason = "No reason was provided.";
+        if (!reason) reason = data.unban_reason;
 
         await interaction.guild.bans.fetch()
             .then(async (bans: { size: number; find: (arg0: (ban: any) => boolean) => any; }) => {

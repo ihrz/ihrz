@@ -239,6 +239,10 @@ help_pfps_dsc: "¡Envía un avatar de usuario al azar en el canal!"
 # /say
 say_footer_msg: "\n\nEnviado desde `/say` por ${interaction.user}"
 
+# /ping
+ping_down_msg: "**INACTIVO**"
+ping_embed_desc: "**Red** : `${await red}` ms\n**API de Discord** : `${await API}` ms"
+
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -436,6 +440,11 @@ massiverole_too_much_member: "Demasiados miembros, no puedo hacerlo debido a pos
 nickrole_add_command_work: "${interaction.user}, iHorizon ha ejecutado el comando massiverole.\n\n**${a}** usuario(s) recibieron el rol ${role}\n**${s}** usuario(s) ya tenían el rol ${role}\niHorizon no pudo agregar el rol a **${e}** usuario(s)."
 nickrole_sub_command_work: "${interaction.user}, iHorizon ha ejecutado el comando massiverole.\n\n**${a}** usuario(s) perdieron el rol ${role}\n**${s}** usuario(s) ya no tenían el rol ${role}\niHorizon no pudo quitar el rol de **${e}** usuario(s)."
 nickrole_too_much_member: "Demasiados miembros, no se puede continuar debido a un posible límite de velocidad."
+
+# /emoji
+emoji_send_new_emoji: "__¡Nuevo emoji creado__ con el nombre **${emoji.name}** ! (${emoji})"
+emoji_send_err_emoji: "__Error al crear el nuevo emoji__ con el nombre **${emoji.name}** !"
+emoji_embed_desc_work: "__Creados **${cnt}** emoji(s) en `${interaction.guild.name}`__\n(${nemj})"
 
 
 # Guild Config commands
@@ -696,6 +705,7 @@ reroll_command_work: "Giveaway relaunched!"
 reroll_logs_embed_title: "Giveaways Logs"
 reroll_logs_embed_description: "<@${interaction.user.id}> reroll giveaways with this id: ${giveaway.messageID}"
 reroll_command_error: "Error !"
+reroll_giveaway_not_over: "¡Este sorteo no ha terminado!"
 
 
 # Moderation commands
@@ -762,6 +772,7 @@ unban_the_member_is_not_banned: "❌ | **¡El ID indicado no está baneado de es
 unban_is_now_unbanned: "¡<@${userID}> ahora ha sido desbaneado de este servidor!"
 unban_logs_embed_title: "Registro de Desbaneos"
 unban_logs_embed_description: "<@${userID}> ¡Ha sido desbaneado del servidor por ${interaction.user.id}!"
+unban_reason: "No se proporcionó ninguna razón."
 
 # /tempmute
 tempmute_dont_have_permission: "❌ | No tienes permiso para silenciar temporalmente a los miembros."
@@ -1024,6 +1035,53 @@ pfps_channel_embed_title: "¡Módulo PFPS configurado aquí!"
 pfps_channel_embed_desc: "${interaction.user} ha configurado el módulo PFPS aquí.\n¡Ahora, cada 30 segundos, iHorizon enviará el avatar de un usuario al azar en esta hermandad!\n¡Haré lo mejor que pueda!"
 pfps_channel_command_work: "${interaction.user}, has configurado con éxito el módulo PFPS en el canal ${channel} !"
 pfps_channel_command_error: "${interaction.user}, el comando ha devuelto un error. ¡Verifica que el canal que especificaste existe y que el módulo PFPP está habilitado!"
+
+
+# Módulo de Protección
+# /acciones de autorización, ... sanciones, ... mostrar configuración, /lista blanca mostrar, ... agregar, ... eliminar
+
+# /acciones de autorización
+authorization_actions_not_permited: "¡Solo el propietario del servidor puede editar la regla de autorización sobre el módulo de protección!"
+authorization_actions_everyone: "Todos"
+authorization_actions_allowlist: "Miembro(s) de la lista blanca"
+authorization_actions_rule_set: "${interaction.user}, la regla para `${rule.toUpperCase()}` ha sido establecida. **${allow}** tienen permiso para eludirla."
+authorization_actions_rule_clear: "${interaction.user}, todas las reglas para `${interaction.guild.name}` han sido eliminadas. ¡El módulo de protección está ahora desactivado!"
+
+# /sanción de autorización
+authorization_sanction_not_permited: "¡Solo el propietario del servidor puede editar la regla de autorización sobre el módulo de protección!"
+authorization_sanction_simply: "N/D"
+authorization_sanction_simply_unrank: "DESGRADAR"
+authorization_sanction_simply_ban: "PROHIBIR"
+authorization_sanction_command_work: "${interaction.user}, la regla de sanción ha sido establecida. Cuando un usuario rompe la regla, es **${choose}**. Y el bot cancela su acción."
+
+# /mostrar configuración de autorización
+authorization_configshow_not_permited: "¡Solo el propietario del servidor puede editar la regla de autorización sobre el módulo de protección!"
+authorization_configshow_not_anything_setup: "¡No has configurado nada en el Módulo de Protección!"
+authorization_configshow_simply: "Cancelar acción simplemente"
+authorization_configshow_simply_ban: "Cancelar acción y prohibir"
+authorization_configshow_simply_unrank: "Cancelar acción y desgradar"
+authorization_configshow_punishement: "```Sanción: ${okay}```"
+authorization_configshow_embed1_author: "Lista de Reglas"
+authorization_configshow_embed2_author: "Lista Blanca"
+
+# /lista blanca mostrar
+allowlist_show_not_permited: "¡No tienes permitido usar este comando! ¡Debes estar en la lista blanca!"
+allowlist_show_embed_author: "Lista Blanca"
+
+# /lista blanca agregar
+allowlist_add_not_permited: "¡No estás autorizado para usar este comando! ¡Debes estar en la lista blanca!"
+allowlist_add_not_owner: "¡Solo el propietario del servidor puede agregar/eliminar usuarios de la lista blanca!"
+allowlist_add_member_unreachable: "¡El miembro que deseabas agregar a la lista blanca no está disponible!"
+allowlist_add_already_in: "¡El miembro que deseas agregar de la lista blanca ya está en ella!"
+allowlist_add_command_work: "¡${member.user} ha sido agregado a la lista blanca!"
+
+# /lista blanca eliminar
+allowlist_delete_not_permited: "¡No estás autorizado para usar este comando! ¡Debes estar en la lista blanca!"
+allowlist_delete_not_owner: "¡Solo el propietario del servidor puede agregar/eliminar usuarios de la lista blanca!"
+allowlist_delete_member_unreachable: "¡El miembro que deseabas eliminar de la lista blanca no está disponible!"
+allowlist_delete_cant_remove_owner: "¡No es posible eliminar al propietario del servidor de la lista blanca!"
+allowlist_delete_isnt_in: "¡El miembro que deseas eliminar de la lista blanca no está en ella!"
+allowlist_delete_command_work: "¡${member.user} ha sido eliminado de la lista blanca!"
 
 # -----------------------------/ \-----------------------------
 # Music Player Events
