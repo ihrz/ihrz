@@ -27,66 +27,69 @@ import config from '../../files/config';
 import logger from '../../core/logger';
 import moment from 'moment';
 import axios from 'axios';
+import toml from 'toml';
+import fs from 'fs';
 
 let oauth = new DiscordOauth2();
+let emojis = toml.parse(String(fs.readFileSync(process.cwd()+"/src/files/emojis.toml")))
 
 interface Badge {
     Value: number;
     Emoji: string;
 };
 
-let badges: { [key: string]: Badge } = {
+let badges: { [key: string]: Badge } = {    
     Discord_Employee: {
         Value: 1,
-        Emoji: "<:STAFF:1139545238340374548>",
+        Emoji: emojis.badge.Discord_Employee,
     },
     Partnered_Server_Owner: {
         Value: 2,
-        Emoji: "<:PARTENAIRE:1139545259920068669>",
+        Emoji: emojis.badge.Partnered_Server_Owner,
     },
     HypeSquad_Events: {
         Value: 4,
-        Emoji: "<:HYPESQUAD_EVENTS:1139545244476657665>",
+        Emoji: emojis.badge.HypeSquad_Events,
     },
     Bug_Hunter_Level_1: {
         Value: 8,
-        Emoji: "<:BUG1:1139545246246649926>",
+        Emoji: emojis.badge.Bug_Hunter_Level_1,
     },
     Early_Supporter: {
         Value: 512,
-        Emoji: "<:EARLY:1139545250394820628>",
+        Emoji: emojis.badge.Early_Supporter,
     },
     Bug_Hunter_Level_2: {
         Value: 16384,
-        Emoji: "<:BUG2:1139545241104425072>",
+        Emoji: emojis.badge.Bug_Hunter_Level_2,
     },
     Early_Verified_Bot_Developer: {
         Value: 131072,
-        Emoji: "<:EARLY_CERTIFIED_DISCORD_BOT_DEVE:1139545239925833860>",
+        Emoji: emojis.badge.Early_Verified_Bot_Developer,
     },
     House_Bravery: {
         Value: 64,
-        Emoji: "<:BRAVERY:1139545256350715924>",
+        Emoji: emojis.badge.House_Bravery,
     },
     House_Brilliance: {
         Value: 128,
-        Emoji: "<:BRILLANCE:1139545266710655176>",
+        Emoji: emojis.badge.House_Brilliance,
     },
     House_Balance: {
         Value: 256,
-        Emoji: "<:BALANCE:1139545247735611564>",
+        Emoji: emojis.badge.House_Balance,
     },
     Active_Developers: {
         Value: 4194304,
-        Emoji: "<:VERIFIED_DEV:1139545271127253152>",
+        Emoji: emojis.badge.Active_Developers,
     },
     Discord_Moderators: {
         Value: 262144,
-        Emoji: "<:MODERATORS:1139545261165781034>",
+        Emoji: emojis.badge.Discord_Moderators,
     },
     Slash_Bot: {
         Value: 524288,
-        Emoji: "<:SLASH_BOTS:1139545263254548631>",
+        Emoji: emojis.badge.Slash_Bot,
     },
 };
 
@@ -112,6 +115,7 @@ export const command: Command = {
     ],
     category: 'utils',
     run: async (client: Client, interaction: any) => {
+
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let member = interaction.options.getUser('user') || interaction.user;
 
@@ -147,11 +151,11 @@ export const command: Command = {
                 let userData = await oauth.getUser(access_token);
 
                 if (userData.premium_type === 1) {
-                    nitr0 = '<:NITRO:1139545249086181488>';
+                    nitr0 = emojis.badge.Nitro;
                 } else if (userData.premium_type === 2) {
-                    nitr0 = '<:NITRO:1139545249086181488><:BOOST:1139545269743141014>';
+                    nitr0 = emojis.badge.Nitro + emojis.badge.Server_Boost_Badge;
                 } else if (userData.premium_type === 3) {
-                    nitr0 = '<:NITRO:1139545249086181488>';
+                    nitr0 = emojis.badge.Nitro;
                 };
             };
 

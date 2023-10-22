@@ -102,9 +102,9 @@ export const command: Command = {
             if (!fetched) {
                 await client.db.set(`GLOBAL.BLACKLIST.${user.id}`, { blacklisted: true });
 
-                await interaction.editReply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, user.globalName) }); return;
+                await interaction.editReply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, user.globalName || user.username) }); return;
             } else {
-                await interaction.editReply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, user.globalName) });
+                await interaction.editReply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, user.globalName || user.username) });
                 return;
             }
         };
