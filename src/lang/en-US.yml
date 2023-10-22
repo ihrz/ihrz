@@ -1083,6 +1083,44 @@ allowlist_delete_cant_remove_owner: "This is not possible to delete the owner of
 allowlist_delete_isnt_in: "The member you want to remove from the allowlist isn't in it!"
 allowlist_delete_command_work: "${member.user} has been removed from the allowlist !"
 
+
+# OWNIHRZ Module
+# /mybot submit, ... list, /mybot manage accept, ... ... deny, ... ... instance
+
+# /mybot submit
+mybot_submit_token_invalid: "The token entered is invalid. We cannot proceed further."
+mybot_submit_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot username__ `${bot_1.bot.username}`\n__Public Bot__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
+mybot_submit_utils_msg_yes: "Yes"
+mybot_submit_utils_msg_no: "No"
+mybot_submit_embed_title: "Host your own iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_submit_embed_desc: "Your request has been successfully registered, your unique identifier is: **${code}**!\nDo not share it with anyone!\n**Join the support server** [Click Here](https://discord.gg/ihorizon), then open a ticket to continue the purchase.\n\n${utils_msg}"
+
+# /mybot list
+mybot_list_embed0_title: "List of all your bot(s)"
+mybot_list_utils_msg: "__Bot ID__ `${data_2[i].bot.id}`\n__Bot username__ `${data_2[i].bot.username}`\n__Public Bot__ `${data_2[i].bot_public ? 'Yes' : 'No'}`"
+mybot_list_utils_msg_yes: "Yes"
+mybot_list_utils_msg_no: "No"
+mybot_list_embed1_title: "Your own iHorizon: ${data_2[i].bot.username}"
+mybot_list_embed1_desc: "Your bot code: ||**${data_2[i].code}**|| ⚠️ **Do not share it with anyone**!\n**Expires in**: `${expire}`\n**Join the support server** [Click Here](https://discord.gg/ihorizon), if you have problems with your bot.\n\n${utils_msg}"
+
+# /mybot manage accept
+mybot_manage_accept_not_found: "The bot in the DB cannot be found. We cannot proceed further."
+mybot_manage_accept_token_error: "The token in the DB is invalid. We cannot proceed further."
+mybot_manage_accept_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot username__ `${bot_1.bot.username}`\n__Public Bot__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
+mybot_manage_accept_utiis_yes: "Yes"
+mybot_manage_accept_utils_no: "No"
+mybot_manage_accept_embed_title: "Host your own iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_manage_accept_embed_desc: "The bot has been accepted\n\n${utils_msg}"
+
+# /mybot instance deny
+mybot_instance_deny_not_foud: "The bot in the DB cannot be found. We cannot proceed further."
+mybot_instance_deny_token_error: "The token in the DB is invalid. We cannot proceed further."
+mybot_instance_deny_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot username__ `${bot_1.bot.username}`\n__Public Bot__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
+mybot_instance_deny_utils_msg_yes: "Yes"
+mybot_instance_deny_utils_msg_no: "No"
+mybot_instance_deny_embed_title: "Host your own iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_instance_deny_embed_desc: "The bot has been refused\n\n${utils_msg}"
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 

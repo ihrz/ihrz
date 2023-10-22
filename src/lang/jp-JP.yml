@@ -1083,6 +1083,44 @@ allowlist_delete_cant_remove_owner: "サーバーのオーナーを許可リス�
 allowlist_delete_isnt_in: "許可リストから削除しようとするメンバーは含まれていません！"
 allowlist_delete_command_work: "${member.user} が許可リストから削除されました！"
 
+
+# モジュール OWNHRZ
+# /mybot 提出、... 一覧、/mybot 管理 承認、... 拒否、... インスタンス
+
+# /mybot 提出
+mybot_submit_token_invalid: "入力されたトークンは無効です。進行できません。"
+mybot_submit_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot ユーザー名__ `${bot_1.bot.username}`\n__パブリック Bot__ `${bot_1.bot_public ? 'はい' : 'いいえ'}`"
+mybot_submit_utils_msg_yes: "はい"
+mybot_submit_utils_msg_no: "いいえ"
+mybot_submit_embed_title: "独自の iHorizon をホストする: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_submit_embed_desc: "リクエストは正常に登録され、一意の識別子は次のとおりです: **${code}**！\n他の人と共有しないでください！\n**サポートサーバーに参加** [ここをクリック](https://discord.gg/ihorizon) してから、購入を続行するためのチケットを開いてください。\n\n${utils_msg}"
+
+# /mybot 一覧
+mybot_list_embed0_title: "すべてのボットの一覧"
+mybot_list_utils_msg: "__Bot ID__ `${data_2[i].bot.id}`\n__Bot ユーザー名__ `${data_2[i].bot.username}`\n__パブリック Bot__ `${data_2[i].bot_public ? 'はい' : 'いいえ'}`"
+mybot_list_utils_msg_yes: "はい"
+mybot_list_utils_msg_no: "いいえ"
+mybot_list_embed1_title: "あなた自身の iHorizon: ${data_2[i].bot.username}"
+mybot_list_embed1_desc: "あなたのボットコード: ||**${data_2[i].code}**|| ⚠️ **他の人と共有しないでください**！\n**有効期限**：`${expire}`\nあなたのボットに問題がある場合、**サポートサーバーに参加** [ここをクリック](https://discord.gg/ihorizon) してください。\n\n${utils_msg}"
+
+# /mybot 管理 承認
+mybot_manage_accept_not_found: "データベース内のボットが見つかりません。進行できません。"
+mybot_manage_accept_token_error: "データベース内のトークンは無効です。進行できません。"
+mybot_manage_accept_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot ユーザー名__ `${bot_1.bot.username}`\n__パブリック Bot__ `${bot_1.bot_public ? 'はい' : 'いいえ'}`"
+mybot_manage_accept_utiis_yes: "はい"
+mybot_manage_accept_utils_no: "いいえ"
+mybot_manage_accept_embed_title: "独自の iHorizon をホストする: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_manage_accept_embed_desc: "ボットは承認されました\n\n${utils_msg}"
+
+# /mybot インスタンス 拒否
+mybot_instance_deny_not_foud: "データベース内のボットが見つかりません。進行できません。"
+mybot_instance_deny_token_error: "データベース内のトークンは無効です。進行できません。"
+mybot_instance_deny_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot ユーザー名__ `${bot_1.bot.username}`\n__パブリック Bot__ `${bot_1.bot_public ? 'はい' : 'いいえ'}`"
+mybot_instance_deny_utils_msg_yes: "はい"
+mybot_instance_deny_utils_msg_no: "いいえ"
+mybot_instance_deny_embed_title: "独自の iHorizon をホストする: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
+mybot_instance_deny_embed_desc: "ボットは拒否されました\n\n${utils_msg}"
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 

@@ -24,7 +24,6 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-
 import config from '../../files/config';
 import axios from 'axios';
 
@@ -50,7 +49,7 @@ export = {
         };
 
         if (!id_2) {
-            await interaction.editReply({ content: 'The bot in the DB cannot be found. We cannot proceed further.' });
+            await interaction.editReply({ content: data.mybot_instance_deny_not_foud });
             return;
         };
 
@@ -67,25 +66,30 @@ export = {
             .catch((e: any) => { }))?.data || 404;
 
         if (bot_1 === 404) {
-            await interaction.editReply({ content: 'The token in the DB is invalid. We cannot proceed further.' });
+            await interaction.editReply({ content: data.mybot_instance_deny_token_error });
             return;
         } else {
-
-            let utils_msg =
-                `__Bot ID__ \`${bot_1.bot.id}\`\n` +
-                `__Bot username__ \`${bot_1.bot.username}\`\n` +
-                `__Public Bot__ \`${bot_1.bot_public ? 'Yes' : 'No'}\``;
-
+            let utils_msg = data.mybot_instance_deny_utils_msg
+                .replace('${bot_1.bot.id}', bot_1.bot.id)
+                .replace('${bot_1.bot.username}', bot_1.bot.username)
+                .replace("${bot_1.bot_public ? 'Yes' : 'No'}",
+                    bot_1.bot_public ? data.mybot_instance_deny_utils_msg_yes : data.mybot_instance_deny_utils_msg_no
+                )
             let embed = new EmbedBuilder()
                 .setColor('#ff0000')
-                .setTitle(`Host your own iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}`)
-                .setDescription(`The bot has been refused\n\n${utils_msg}`)
+                .setTitle(data.mybot_instance_deny_embed_title
+                    .replace('${bot_1.bot.username}', bot_1.bot.username)
+                    .replace('${bot_1.bot.discriminator}', bot_1.bot.discriminator)
+                )
+                .setDescription(data.mybot_instance_deny_embed_desc
+                    .replace('${utils_msg}', utils_msg)
+                )
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
-            await interaction.deleteReply();
-            await interaction.followUp({ embeds: [embed], ephemeral: true });
+            await interaction.editReply({ embeds: [embed], ephemeral: false });
 
             await client.db.delete(`OWNIHRZ.TEMP.${interaction.user.id}`);
+            return;
         };
     },
 };

@@ -36,7 +36,7 @@ export = {
 
         lsEmbed.push(
             new EmbedBuilder()
-                .setTitle('List of all your bot(s)')
+                .setTitle(data.mybot_list_embed0_title)
                 .setColor('#000000')
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                 .setTimestamp()
@@ -53,21 +53,26 @@ export = {
                 let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, config)
                     .catch((e: any) => { }))?.data || 404;
 
-                let utils_msg =
-                    `__Bot ID__ \`${data_2[i].bot.id}\`\n` +
-                    `__Bot username__ \`${data_2[i].bot.username}\`\n` +
-                    `__Public Bot__ \`${data_2[i].bot_public ? 'Yes' : 'No'}\``;
+                let utils_msg = data.mybot_list_utils_msg
+                    .replace('${data_2[i].bot.id}', data_2[i].bot.id)
+                    .replace('${data_2[i].bot.username}', data_2[i].bot.username)
+                    .replace("${data_2[i].bot_public ? 'Yes' : 'No'}",
+                        data_2[i].bot_public ? data.mybot_list_utils_msg_yes : data.mybot_list_utils_msg_no
+                    );
 
                 let expire = date.format(new Date(data_2[i].expireIn), 'ddd, MMM DD YYYY');
 
                 let embed = new EmbedBuilder()
                     .setColor('#ff7f50')
                     .setThumbnail(`https://cdn.discordapp.com/avatars/${data_2[i].bot.id}/${bot_1?.bot.avatar}.png`)
-                    .setTitle(`Your own iHorizon: ${data_2[i].bot.username}`)
+                    .setTitle(data.mybot_list_embed1_title
+                        .replace('${data_2[i].bot.username}', data_2[i].bot.username)
+                    )
                     .setDescription(
-                        `Your bot code: ||**${data_2[i].code}**|| ⚠️ **Do not share it with anyone**!\n` +
-                        `**Expires in**: \`${expire}\`\n` +
-                        `**Join the support server** [Click Here](https://discord.gg/ihorizon), if you have problems with your bot.\n\n` + utils_msg
+                        data.mybot_list_embed1_desc
+                            .replace('${data_2[i].code}', data_2[i].code)
+                            .replace('${expire}', expire)
+                            .replace('${utils_msg}', utils_msg)
                     )
                     .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                     .setTimestamp()
