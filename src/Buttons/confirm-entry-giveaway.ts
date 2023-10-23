@@ -23,12 +23,8 @@ import db from '../core/functions/DatabaseModel';
 import { AddEntries } from '../core/giveawaysManager';
 
 export = async function (interaction: any) {
-
-    if (await db.get(
+    if (!await db.get(
         `GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}`
-    )) {
-        AddEntries(interaction);
-    };
-
-    return;
+    )) return;
+    AddEntries(interaction);
 };
