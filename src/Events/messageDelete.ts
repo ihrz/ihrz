@@ -60,7 +60,7 @@ export = async (client: Client, message: Message) => {
             })
             .setDescription(data.event_srvLogs_messageDelete_description
                 .replace("${message.channel.id}", message.channel.id)
-                .replace("${message.content}", message.content)
+                .replace("${message.content}", ' ' + message.content)
             )
             .setTimestamp();
 
@@ -69,7 +69,24 @@ export = async (client: Client, message: Message) => {
             let attachment = attachments.first();
             if (!attachment || !attachment.contentType) return;
 
-            if (attachment && attachment.contentType.startsWith('image/')) {
+            if (attachments.size >= 2) {
+                let files: any[] = [];
+
+                async function getFile(file: any) {
+                    let response = await axios.get(file?.['attachment'] as string, { responseType: 'arraybuffer' });
+                    let attachment = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: file?.name });
+                    files.push(attachment);
+                }
+
+                let filePromises = attachments.map(async (file: any) => {
+                    await getFile(file);
+                });
+
+                await Promise.all(filePromises);
+
+                await Msgchannel.send({ embeds: [logsEmbed], files: files }).catch(() => { });
+                return;
+            } else if (attachment && attachment.contentType.startsWith('image/')) {
                 let snipedImage;
 
                 await axios.get((attachment?.['attachment'] as string), { responseType: 'arraybuffer' }).then((response: any) => {
@@ -79,7 +96,16 @@ export = async (client: Client, message: Message) => {
 
                 await Msgchannel.send({ embeds: [logsEmbed], files: [snipedImage] }).catch(() => { });
                 return;
-            };
+            } else if (attachment) {
+                let snipedFiles;
+
+                await axios.get((attachment?.['attachment'] as string), { responseType: 'arraybuffer' }).then((response: any) => {
+                    snipedFiles = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: attachment?.name });
+                });
+
+                await Msgchannel.send({ embeds: [logsEmbed], files: [snipedFiles] }).catch(() => { });
+                return;
+            }
         };
 
         await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
