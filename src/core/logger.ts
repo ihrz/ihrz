@@ -30,14 +30,12 @@ let logger: Logger = {
     warn(message) {
         console.log(`[${getCurrentTime()} WRN]: `.red + message);
     },
+    err: logger.warn,
     log(message) {
         console.log(`[${getCurrentTime()} LOG]: `.green + message);
     },
-    err(message) {
-        console.log(`[${getCurrentTime()} ERR]: `.red + message);
-    },
     legacy(message) {
-        console.log(message);
+        console.log(`[${getCurrentTime()} ERR]: ${message}`);
     }
 };
 
