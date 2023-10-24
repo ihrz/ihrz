@@ -32,12 +32,12 @@ export const command: Command = {
     description: 'Get information about the bot!',
     category: 'bot',
     run: async (client: Client, interaction: any) => {
-        
+
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
         let clientembed = new EmbedBuilder()
             .setColor("#f0d020")
-            .setThumbnail(client.user?.displayAvatarURL())
+            .setThumbnail((client.user?.displayAvatarURL() as string))
             .addFields(
                 { name: data.botinfo_embed_fields_myname, value: `:green_circle: ${client.user?.username}`, inline: false },
                 { name: data.botinfo_embed_fields_mychannels, value: `:green_circle: ${client.channels.cache.size}`, inline: false },

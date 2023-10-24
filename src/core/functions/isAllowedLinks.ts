@@ -36,10 +36,13 @@ let allowedDomains: string[] = [
 ];
 
 export function isLinkAllowed(link: string): boolean {
-    if (link === null) return false;
-    let parsedUrl = url.parse(link);
-    if (parsedUrl.hostname !== null || !link.includes("://")) return false;
-    return allowedDomains.includes(parsedUrl.hostname);
+    if (link !== null) {
+        let parsedUrl = url.parse(link);
+        if (parsedUrl.hostname !== null) {
+            return !link.includes("://") || allowedDomains.includes(parsedUrl.hostname);
+        }
+    };
+    return false;
 };
 
 export { allowedDomains };
