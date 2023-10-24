@@ -33,26 +33,21 @@ export const command: Command = {
     category: 'bot',
     options: [
         {
-            name: 'msg',
+            name: 'content',
             type: ApplicationCommandOptionType.String,
-            description: 'The message to sent throught the bot!',
+            description: 'What you want the bot to say!',
             required: true
         }
     ],
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
-        let msg = interaction.options.getString('msg');
-
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setserverlang_not_admin });
             return;
         };
-
-        let msg_to_send: string = `> ${msg}${data.say_footer_msg.replace('${interaction.user}', interaction.user)}`
-        
         await interaction.deleteReply();
         await interaction.channel.send({
-            content: msg_to_send
+            content: `> ${interaction.options.getString('content')}${data.say_footer_msg.replace('${interaction.user}', interaction.user)}`
         });
         return;
     },

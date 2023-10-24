@@ -24,11 +24,8 @@ import db from '../core/functions/DatabaseModel';
 
 export = async function (interaction: any) {
 
-    if (await db.get(
+    if (!await db.get(
         `${interaction.guild.id}.GUILD.TICKET.${interaction.message.id}`
-    )) {
-        CreateTicketChannel(interaction);
-    };
-
-    return;
+    )) return;
+    CreateTicketChannel(interaction);
 };

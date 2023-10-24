@@ -42,7 +42,7 @@ export = {
         let profileImage2URL = user2.displayAvatarURL({ extension: 'png', size: 512 });
 
         try {
-            let [profileImage1, profileImage2, heartEmoji] = await Promise.all([
+            const [profileImage1, profileImage2, heartEmoji] = await Promise.all([
                 loadImage(profileImage1URL),
                 loadImage(profileImage2URL),
                 loadImage(heartEmojiPath)

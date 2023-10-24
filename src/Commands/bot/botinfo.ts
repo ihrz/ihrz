@@ -32,20 +32,16 @@ export const command: Command = {
     description: 'Get information about the bot!',
     category: 'bot',
     run: async (client: Client, interaction: any) => {
-        
+
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
-        let chansize = client.channels.cache.size;
-        let servsize = client.guilds.cache.size;
-        let pp: any = client.user?.displayAvatarURL();
-
         let clientembed = new EmbedBuilder()
             .setColor("#f0d020")
-            .setThumbnail(pp)
+            .setThumbnail((client.user?.displayAvatarURL() as string))
             .addFields(
                 { name: data.botinfo_embed_fields_myname, value: `:green_circle: ${client.user?.username}`, inline: false },
-                { name: data.botinfo_embed_fields_mychannels, value: `:green_circle: ${chansize}`, inline: false },
-                { name: data.botinfo_embed_fields_myservers, value: `:green_circle: ${servsize}`, inline: false },
+                { name: data.botinfo_embed_fields_mychannels, value: `:green_circle: ${client.channels.cache.size}`, inline: false },
+                { name: data.botinfo_embed_fields_myservers, value: `:green_circle: ${client.guilds.cache.size}`, inline: false },
                 { name: data.botinfo_embed_fields_members, value: `:green_circle: ${usersize}`, inline: false },
                 { name: data.botinfo_embed_fields_libraires, value: `:green_circle: discord.js@${pkg.dependencies['discord.js']}`, inline: false },
                 { name: data.botinfo_embed_fields_created_at, value: ":green_circle: <t:1600042320:R>", inline: false },
