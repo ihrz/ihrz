@@ -19,9 +19,6 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-
-import { Client, Guild, GuildChannel, GuildChannelManager, Message, MessageManager } from "discord.js";
-
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
 
 import logger from "../core/logger";
@@ -101,8 +98,8 @@ Thanks for choosing me and let's have some fun together!`);
         if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
         try {
             guild.invites.fetch().then((guildInvites: { map: (arg0: (invite: any) => any[]) => Iterable<readonly [unknown, unknown]> | null | undefined; }) => {
-                client.invites.set(guild.id, new Map(guildInvites.map((invite: any) => [invite.code, invite.uses])));
-            })
+                client.invites.set(guild.id, new Collection(guildInvites.map((invite: any) => [invite.code, invite.uses])));
+            });
         } catch (error: any) { logger.err(error) };
     };
 
