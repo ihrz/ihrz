@@ -33,9 +33,9 @@ export const command: Command = {
     category: 'bot',
     options: [
         {
-            name: 'msg',
+            name: 'content',
             type: ApplicationCommandOptionType.String,
-            description: 'The message to sent throught the bot!',
+            description: 'What you want the bot to say!',
             required: true
         }
     ],
@@ -47,7 +47,7 @@ export const command: Command = {
         };
         await interaction.deleteReply();
         await interaction.channel.send({
-            content: `> ${interaction.options.getString('msg')}${data.say_footer_msg.replace('${interaction.user}', interaction.user)}`
+            content: `> ${interaction.options.getString('content')}${data.say_footer_msg.replace('${interaction.user}', interaction.user)}`
         });
         return;
     },
