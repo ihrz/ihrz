@@ -123,6 +123,7 @@ export const command: Command = {
             let embed = new EmbedBuilder()
                 .setAuthor({ name: `${member.username}`, iconURL: member.displayAvatarURL({ dynamic: true }) })
                 .setFooter({ text: `iHorizon`, iconURL: client.user?.displayAvatarURL() })
+                .setThumbnail(member.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
                 .setColor('#0014a8')
                 .setDescription(description);

@@ -161,7 +161,7 @@ removeinvites_logs_embed_description: "<@${interaction.user.id}> hat ${amount} E
 # /links
 links_message: "Klicken Sie auf die unten stehenden Links über mich!"
 links_website: "Meine Website"
-links_website: "Meine Github"
+links_github: "Meine Github"
 
 # /botinfo
 botinfo_embed_fields_myname: "Mein Name:"

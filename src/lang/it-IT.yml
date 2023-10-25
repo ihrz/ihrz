@@ -1036,7 +1036,7 @@ pfps_disable_command_action_off: "${interaction.user}, hai impostato il modulo P
 # /pfps channel
 pfps_channel_not_admin: ":x: Non hai le autorizzazioni di amministratore per eseguire questo comando"
 pfps_channel_embed_title: "Modulo PFPS impostato qui!"
-: "${interaction.user} ha impostato il modulo PFPS qui!\nOra ogni 15 secondi, iHorizon invierà un avatar di un utente casuale in questa gilda!\nFarò del mio meglio!"
+pfps_channel_embed_desc: "${interaction.user} ha impostato il modulo PFPS qui!\nOra ogni 15 secondi, iHorizon invierà un avatar di un utente casuale in questa gilda!\nFarò del mio meglio!"
 pfps_channel_command_work: "${interaction.user}, hai impostato con successo il modulo PFPS nel canale ${channel} !"
 pfps_channel_command_error: "${interaction.user}, il comando ha restituito un errore. Verifica che il canale specificato esista e che il modulo PFPP sia attivo!"
 
