@@ -121,6 +121,7 @@ export const command: Command = {
                 .setAuthor({ name: `${member.username}`, iconURL: member.displayAvatarURL({ dynamic: true }) })
                 .setFooter({ text: `iHorizon`, iconURL: client.user?.displayAvatarURL() })
                 .setTimestamp()
+                .setThumbnail(member.displayAvatarURL({ dynamic: true }))
                 .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#0014a8')
                 .setDescription(description);
 

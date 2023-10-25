@@ -22,10 +22,12 @@
 import {
     Client,
     EmbedBuilder,
+    ButtonBuilder,
+    ActionRowBuilder,
+    ButtonStyle
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import * as db from '../../core/functions/DatabaseModel';
 
 export const command: Command = {
     name: 'invite',
@@ -35,6 +37,11 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let pp: any = client.user?.displayAvatarURL();
 
+        let button_add_me = new ButtonBuilder()
+            .setStyle(ButtonStyle.Link)
+            .setLabel(data.invite_embed_title)
+            .setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`)
+
         let invites = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#416fec")
             .setTitle(data.invite_embed_title)
@@ -42,8 +49,13 @@ export const command: Command = {
             .setURL('https://discord.com/api/oauth2/authorize?client_id=' + client.user?.id + '&permissions=8&scope=bot')
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setThumbnail(pp);
-            
-        await interaction.editReply({ embeds: [invites] });
+
+        await interaction.editReply({
+            embeds: [invites], components: [
+                new ActionRowBuilder()
+                    .addComponents(button_add_me)
+            ]
+        });
         return;
     },
 };
