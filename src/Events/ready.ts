@@ -68,24 +68,24 @@ export = async (client: Client) => {
             "discord.gg/ihorizon",
             "https://ihorizon.me",
             "iHorizon x ElektraBots <3",
-            "Our goal is to make the internet simpler!",
-            "270K USERS !? 🥳🥳🥳",
-            "It's not 200k anymore it's 270k 😎😎😎😎",
-            "trusted by big servers 😎",
-            "Nah men I'm not getting paid enough to manage 270K users...",
             "Did you know you can have your own iHorizon? For really cheap??",
-            "And all of this work is OpenSource!",
+            "Our goal is to make the internet simpler!",
+            "My goal is to make internet so simple that my own mother can use it!"
+            "280K USERS !? 🥳🥳🥳",
+            "It's not 250k anymore it's 280k 😎😎😎😎",
+            "trusted by big servers 😎",
+            "Nah men I'm not getting paid enough to manage 280K users...",
             "Never gonna give you up...BRO YOU'VE BEEN RICK ROLLED BY A BOT",
             "I have a youtube channel!",
+            "Youtube, X (twitter), only****, what's next?",
+            "Github is basically onlyfan for code, so I have an onlyfan 😎",
+            "My owner doesn't use tiktok...I INSTALLED IT BEHIND HER BACK",
             "I removed my own database (going insane) 😎😎😎",
             "I can code myself (Not a joke)",
-            "My owner doesn't use tiktok...I INSTALLED IT BEHIND HER BACK",
             "I BROKED MY CODE HELP ME",
             "What is a database? Do I really need one?",
-            "Are you a hacker ? Please dont touch my token..",
-            "My parents : Don't work too much, me : I forgor"
+            "20 bucks for my token"
         ];
-
         let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
         client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Custom }] });
     };
