@@ -70,7 +70,7 @@ export = async (client: Client) => {
             "iHorizon x ElektraBots <3",
             "Did you know you can have your own iHorizon? For really cheap??",
             "Our goal is to make the internet simpler!",
-            "My goal is to make internet so simple that my own mother can use it!"
+            "My goal is to make internet so simple that my own mother can use it!",
             "280K USERS !? 🥳🥳🥳",
             "It's not 250k anymore it's 280k 😎😎😎😎",
             "trusted by big servers 😎",
