@@ -62,9 +62,7 @@ export = async (client: Client) => {
             await client.db.set(`GLOBAL.OWNER.${config.owner.ownerid2}`, { owner: true }),
             await client.db.set(`TEMP`, {});
     };
-
-    async function quotesPresence() {
-        let quotes = [
+    const status = [
             "discord.gg/ihorizon",
             "https://ihorizon.me",
             "iHorizon x ElektraBots <3",
@@ -87,8 +85,8 @@ export = async (client: Client) => {
             "20 bucks for my token",
             "No more updates, I'm getting a tattoo"
         ];
-        let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Custom }] });
+    async function StatusPresence() {
+        const randomQuote = status[Math.floor(Math.random() * status.length)];    client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Custom }] });
     };
 
     async function refreshSchedule() {
@@ -163,9 +161,9 @@ export = async (client: Client) => {
     
     otherBotPowerOn();
 
-    setInterval(quotesPresence, 30_000), setInterval(refreshSchedule, 15_000);
+    setInterval(StatusPresence, 30_000), setInterval(refreshSchedule, 15_000);
 
-    fetchInvites(), refreshDatabaseModel(), term(), quotesPresence(), refreshSchedule();
+    fetchInvites(), refreshDatabaseModel(), term(), StatusPresence(), refreshSchedule();
 
     Init(client);
 };
