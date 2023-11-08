@@ -84,7 +84,8 @@ export = async (client: Client) => {
             "I can code myself (Not a joke)",
             "I BROKED MY CODE HELP ME",
             "What is a database? Do I really need one?",
-            "20 bucks for my token"
+            "20 bucks for my token",
+            "No more updates, I'm getting a tattoo"
         ];
         let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
         client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Custom }] });
