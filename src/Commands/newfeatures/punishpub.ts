@@ -35,7 +35,7 @@ export const command: Command = {
         {
             name: 'status',
             type: ApplicationCommandOptionType.String,
-            description: 'Choose the action',
+            description: 'Choose the status of the module',
             required: true,
             choices: [
                 {
