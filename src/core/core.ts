@@ -33,6 +33,7 @@ import { execSync } from 'child_process';
 
 import { readdirSync } from "fs";
 import couleurmdr from "colors";
+import path from 'path';
 
 export = (client: Client) => {
     logger.legacy(couleurmdr.gray("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz)."));
@@ -46,9 +47,10 @@ export = (client: Client) => {
         for (let i in result) {
             for (let c in result[i]) {
                 if (i !== 'TEMP' && !result[i][c].power_off) {
-                    execSync(`pm2 stop ${result?.[i]?.[c]?.code}`, {
+                    let botPath = path.join(process.cwd(), 'ownihrz', result[i][c].code)
+                    execSync(`pm2 stop ${result[i][c]?.code}`, {
                         stdio: [0, 1, 2],
-                        cwd: result?.[i]?.[c]?.path,
+                        cwd: botPath,
                     });
                 };
             }
