@@ -62,31 +62,32 @@ export = async (client: Client) => {
             await client.db.set(`GLOBAL.OWNER.${config.owner.ownerid2}`, { owner: true }),
             await client.db.set(`TEMP`, {});
     };
-    const status = [
+
+    async function quotesPresence() {
+        let quotes = [
             "discord.gg/ihorizon",
             "https://ihorizon.me",
             "iHorizon x ElektraBots <3",
-            "Did you know you can have your own iHorizon? For really cheap??",
             "Our goal is to make the internet simpler!",
-            "My goal is to make internet so simple that my own mother can use it!",
-            "280K USERS !? 🥳🥳🥳",
-            "It's not 250k anymore it's 280k 😎😎😎😎",
+            "270K USERS !? 🥳🥳🥳",
+            "It's not 200k anymore it's 270k 😎😎😎😎",
             "trusted by big servers 😎",
-            "Nah men I'm not getting paid enough to manage 280K users...",
+            "Nah men I'm not getting paid enough to manage 270K users...",
+            "Did you know you can have your own iHorizon? For really cheap??",
+            "And all of this work is OpenSource!",
             "Never gonna give you up...BRO YOU'VE BEEN RICK ROLLED BY A BOT",
             "I have a youtube channel!",
-            "Youtube, X (twitter), only****, what's next?",
-            "Github is basically onlyfan for code, so I have an onlyfan 😎",
-            "My owner doesn't use tiktok...I INSTALLED IT BEHIND HER BACK",
             "I removed my own database (going insane) 😎😎😎",
             "I can code myself (Not a joke)",
+            "My owner doesn't use tiktok...I INSTALLED IT BEHIND HER BACK",
             "I BROKED MY CODE HELP ME",
             "What is a database? Do I really need one?",
-            "20 bucks for my token",
-            "No more updates, I'm getting a tattoo"
+            "Are you a hacker ? Please dont touch my token..",
+            "My parents : Don't work too much, me : I forgor"
         ];
-    async function StatusPresence() {
-        const randomQuote = status[Math.floor(Math.random() * status.length)];    client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Custom }] });
+
+        let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Custom }] });
     };
 
     async function refreshSchedule() {
@@ -124,46 +125,49 @@ export = async (client: Client) => {
 
     async function otherBotPowerOn() {
         let result = await client.db.get(`OWNIHRZ`);
-        
+
         for (let i in result) {
             for (let c in result[i]) {
-                if (result[i][c].power_off) break;
+                if (result[i][c].power_off
+                    || !result[i][c].code) break;
+
+                let botPath = path.join(process.cwd(), 'ownihrz', result[i][c].code)
 
                 if (i !== 'TEMP') {
 
-                    if (fs.existsSync(path.join(result?.[i]?.[c]?.path, 'dist'))) {
+                    if (fs.existsSync(path.join(botPath, 'dist'))) {
                         execSync(`rm -r dist`, {
                             stdio: [0, 1, 2],
-                            cwd: result?.[i]?.[c]?.path,
+                            cwd: botPath,
                         });
                     };
 
                     execSync(`git pull`, {
                         stdio: [0, 1, 2],
-                        cwd: result?.[i]?.[c]?.path,
+                        cwd: botPath,
                     });
                     execSync(`npx tsc`, {
                         stdio: [0, 1, 2],
-                        cwd: result?.[i]?.[c]?.path,
+                        cwd: botPath,
                     });
                     execSync(`mv dist/index.js dist/${result?.[i]?.[c]?.code}.js`, {
                         stdio: [0, 1, 2],
-                        cwd: result?.[i]?.[c]?.path,
+                        cwd: botPath,
                     });
                     execSync(`pm2 start dist/${result?.[i]?.[c]?.code}.js -f`, {
                         stdio: [0, 1, 2],
-                        cwd: result?.[i]?.[c]?.path,
+                        cwd: botPath,
                     });
                 };
             }
         }
     };
-    
+
     otherBotPowerOn();
 
-    setInterval(StatusPresence, 30_000), setInterval(refreshSchedule, 15_000);
+    setInterval(quotesPresence, 30_000), setInterval(refreshSchedule, 15_000);
 
-    fetchInvites(), refreshDatabaseModel(), term(), StatusPresence(), refreshSchedule();
+    fetchInvites(), refreshDatabaseModel(), term(), quotesPresence(), refreshSchedule();
 
     Init(client);
 };
