@@ -33,6 +33,7 @@ import {
     UserSelectMenuBuilder
 } from 'discord.js';
 
+import * as discordTranscripts from 'discord-html-transcripts';
 import db from './functions/DatabaseModel';
 
 import { create, get, url } from 'sourcebin';
@@ -250,39 +251,18 @@ async function TicketTranscript(interaction: any) {
                 let member = interaction.guild.members.cache.get(fetch[user][channel]?.author);
 
                 if (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member.user.id) {
-                    interactionChannel.messages.fetch().then(async (messages: any[]) => {
-                        let output = messages.reverse().map(m => `${new Date(m.createdAt).toLocaleString('en-US')} - ${m.author.username}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`).join('\n');
+                    let attachment = await discordTranscripts.createTranscript(interactionChannel);
 
-                        let response;
-                        try {
-                            response = await create({
-                                title: data.close_title_sourcebin,
-                                description: data.close_description_sourcebin,
-                                files: [
-                                    {
-                                        content: output,
-                                        language: 'text',
-                                    },
-                                ],
-                            })
+                    let embed = new EmbedBuilder()
+                        .setDescription(`The ticket has been saved!`)
+                        .setColor('#0014a8');
 
-                        } catch (e: any) {
-                            await interaction.editReply({ content: data.transript_command_error });
-                            return;
-                        };
-
-                        let embed = new EmbedBuilder()
-                            .setDescription(`[\`View this\`](${response.url})`)
-                            .setColor('#0014a8');
-
-                        if (interaction.replied) {
-                            await interaction.editReply({ embeds: [embed], content: data.transript_command_work });
-                        } else {
-                            await interaction.reply({ embeds: [embed], content: data.transript_command_work });
-                        };
-
-                        return;
-                    });
+                    if (interaction.replied) {
+                        await interaction.editReply({ embeds: [embed], content: data.transript_command_work, files: [attachment] });
+                    } else {
+                        await interaction.reply({ embeds: [embed], content: data.transript_command_work, files: [attachment] });
+                    };
+                    return;
                 }
             }
         }

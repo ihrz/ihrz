@@ -33,17 +33,17 @@ export const command: Command = {
     description: 'Punish user when he send too much advertisement!',
     options: [
         {
-            name: 'action',
+            name: 'status',
             type: ApplicationCommandOptionType.String,
-            description: 'Choose the action',
+            description: 'Choose the status of the module',
             required: true,
             choices: [
                 {
-                    name: "POWER ON",
+                    name: "ON",
                     value: "true"
                 },
                 {
-                    name: "POWER OFF",
+                    name: "OFF",
                     value: "false"
                 }
             ]
@@ -84,7 +84,7 @@ export const command: Command = {
             return;
         };
 
-        let action = interaction.options.getString("action");
+        let action = interaction.options.getString("status");
         let amount = interaction.options.getNumber("amount");
         let punishment = interaction.options.getString("punishement");
 

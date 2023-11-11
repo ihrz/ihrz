@@ -125,41 +125,44 @@ export = async (client: Client) => {
 
     async function otherBotPowerOn() {
         let result = await client.db.get(`OWNIHRZ`);
-        
+
         for (let i in result) {
             for (let c in result[i]) {
-                if (result[i][c].power_off) break;
+                if (result[i][c].power_off
+                    || !result[i][c].code) break;
+
+                let botPath = path.join(process.cwd(), 'ownihrz', result[i][c].code)
 
                 if (i !== 'TEMP') {
 
-                    if (fs.existsSync(path.join(result?.[i]?.[c]?.path, 'dist'))) {
+                    if (fs.existsSync(path.join(botPath, 'dist'))) {
                         execSync(`rm -r dist`, {
                             stdio: [0, 1, 2],
-                            cwd: result?.[i]?.[c]?.path,
+                            cwd: botPath,
                         });
                     };
 
                     execSync(`git pull`, {
                         stdio: [0, 1, 2],
-                        cwd: result?.[i]?.[c]?.path,
+                        cwd: botPath,
                     });
                     execSync(`npx tsc`, {
                         stdio: [0, 1, 2],
-                        cwd: result?.[i]?.[c]?.path,
+                        cwd: botPath,
                     });
                     execSync(`mv dist/index.js dist/${result?.[i]?.[c]?.code}.js`, {
                         stdio: [0, 1, 2],
-                        cwd: result?.[i]?.[c]?.path,
+                        cwd: botPath,
                     });
                     execSync(`pm2 start dist/${result?.[i]?.[c]?.code}.js -f`, {
                         stdio: [0, 1, 2],
-                        cwd: result?.[i]?.[c]?.path,
+                        cwd: botPath,
                     });
                 };
             }
         }
     };
-    
+
     otherBotPowerOn();
 
     setInterval(quotesPresence, 30_000), setInterval(refreshSchedule, 15_000);
