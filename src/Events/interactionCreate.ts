@@ -39,6 +39,15 @@ export = async (client: any, interaction: any) => {
         if (get) get(interaction);
     };
 
+    async function selectMenuExecutor() {
+        if (!interaction.isUserSelectMenu()
+            || !interaction.guild?.channels
+            || interaction.user.bot) return;
+
+        let get = client.selectmenu.get(interaction.customId);
+        if (get) get(interaction);
+    };
+
     async function slashExecutor() {
         if (!interaction.isCommand()
             || !interaction.guild?.channels
@@ -109,5 +118,5 @@ export = async (client: any, interaction: any) => {
         return false;
     };
 
-    slashExecutor(), buttonExecutor(), logsCommands();
+    slashExecutor(), buttonExecutor(), selectMenuExecutor(), logsCommands();
 };

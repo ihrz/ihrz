@@ -185,7 +185,11 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         let guild = await client.guilds.fetch(guildId);
         let channel = await guild.channels.fetch(channelId);
 
-        let message = await (channel as any).messages.fetch(messageId);
+        let message = await (channel as any).messages.fetch(messageId).catch(async () => {
+            await db.delete(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
+            return;
+        })
+
         let winner: any = SelectWinners(
             fetch,
             fetch.winnerCount
@@ -235,7 +239,11 @@ async function Reroll(client: Client, data: any) {
                 let guild = await client.guilds.fetch(data.guildId);
                 let channel = await guild.channels.fetch(channelId);
 
-                let message = await (channel as any).messages.fetch(messageId);
+                let message = await (channel as any).messages.fetch(messageId).catch(async () => {
+                    await db.delete(`GIVEAWAYS.${data.guildId}.${channel?.id}.${data.messageId}`);
+                    return;
+                })
+
                 let winner: any = SelectWinners(
                     fetch[channelId][messageId],
                     fetch[channelId][messageId].winnerCount

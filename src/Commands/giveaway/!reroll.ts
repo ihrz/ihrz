@@ -51,7 +51,7 @@ export = {
         if (!await isEnded(inputData, {
             guildId: interaction.guild.id
         })) {
-            await interaction.editReply({ content: `This giveaway is not over!` });
+            await interaction.editReply({ content: data.reroll_giveaway_not_over });
             return;
         };
 

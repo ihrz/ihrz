@@ -15,6 +15,6 @@
       "types": ["node"],
       "strictPropertyInitialization": false
   },
-  "include": ["./", "./config.json", "./locales/*.json", "./sounds/*.mp3"],
+  "include": ["./"],
   "exclude": ["/.github", "./dist", "./node_modules", "./src/files/config.example.ts", "./ownihrz"]
 }

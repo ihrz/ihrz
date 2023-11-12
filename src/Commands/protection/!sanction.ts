@@ -28,7 +28,7 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         if (interaction.user.id !== interaction.guild.ownerId) {
-            await interaction.editReply({ content: 'Only the owner of the server can edit the authorization rule about the protection module!' });
+            await interaction.editReply({ content: data.authorization_sanction_not_permited });
             return;
         };
 
@@ -36,12 +36,16 @@ export = {
 
         if (choose) {
             await client.db.set(`${interaction.guild.id}.PROTECTION.SANCTION`, choose);
-            
-            if (choose === 'simply') choose = 'N/A';
-            if (choose === 'simply+derank') choose = 'UNRANK';
-            if (choose === 'simply+ban') choose = 'BAN';
 
-            await interaction.editReply({ content: `<@${interaction.user.id}>, rule sanction has been set. When the user breaks the rule, it's **${choose}**. And the bot cancels its action.` });
+            if (choose === 'simply') choose = data.authorization_sanction_simply;
+            if (choose === 'simply+derank') choose = data.authorization_sanction_simply_unrank;
+            if (choose === 'simply+ban') choose = data.authorization_sanction_simply_ban;
+
+            await interaction.editReply({
+                content: data.authorization_sanction_command_work
+                    .replace('${interaction.user}', interaction.user)
+                    .replace('${choose}', choose)
+            });
             return;
         };
     },

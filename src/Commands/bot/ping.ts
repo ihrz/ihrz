@@ -33,21 +33,25 @@ export const command: Command = {
     description: 'Get the bot latency!',
     category: 'bot',
     run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
 
+        let data = await client.functions.getLanguageData(interaction.guild.id);
         await interaction.editReply({ content: ':ping_pong:' });
 
-        let network: any = ''
-        network = await ping.promise.probe("192.168.0.254").then(result => network = result.time).catch(e => { network = "**DOWN**" });
+        let network: any = '';
+        network = await ping.promise.probe("google.com").then(result => network = result.time).catch(e => { network = data.ping_down_msg });
 
-        let API: any = ''
-        API = await ping.promise.probe("discord.com").then(result => API = result.time).catch(e => { API = "**DOWN**" });
+        let API: any = '';
+        API = await ping.promise.probe("discord.com").then(result => API = result.time).catch(e => { API = data.ping_down_msg });
 
         let embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#319938")
             .setTitle("Pong! 🏓")
-            .setDescription(`**Network** : \`${await network}\` ms\n**Discord API** : \`${await API}\` ms`)
+            .setDescription(data.ping_embed_desc
+                .replace('${await network}', await network)
+                .replace('${await API}', await API)
+            )
 
-        interaction.editReply({ content: '', embeds: [embed] })
+        await interaction.editReply({ content: '', embeds: [embed] });
+        return;
     },
 };

@@ -37,11 +37,8 @@ class DatabaseModel {
             let encrypted = CryptoJS.AES.encrypt(JSON.stringify(id), config.api.apiToken).toString();
             let response = await axios.post(apiUrlParser.DatabaseURL, { text: encrypted }, { headers: { 'Accept': 'application/json' } });
 
-            if (JSON.stringify(response.data) === '{}') {
-                return undefined;
-            } else {
-                return response.data.r;
-            }
+            if (JSON.stringify(response.data) === '{}') return undefined;
+            return response.data.r;
         } catch (error) {
             throw error;
         }

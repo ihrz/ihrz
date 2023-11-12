@@ -25,10 +25,7 @@ let FONTBASE = 200;
 let FONTSIZE = 35;
 
 let relativeFont = (width: number) => {
-  let ratio = FONTSIZE / FONTBASE;
-  let size = width * ratio;
-
-  return `${size}px serif`;
+  return `${width * (FONTSIZE / FONTBASE)}px serif`; // size = width * ratio(FONTSIZE/FONTBASE)
 };
 
 let arbitraryRandom = (min: number, max: number) => Math.random() * (max - min) + min;
@@ -57,7 +54,6 @@ let generate = (width: number, height: number) => {
   let ctx = canvas.getContext("2d");
 
   ctx.rotate(randomRotation());
-
   let text = configureText(ctx, width, height);
 
   return {

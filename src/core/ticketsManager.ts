@@ -29,13 +29,12 @@ import {
     ChannelType,
     PermissionFlagsBits,
     PermissionsBitField,
-    ComponentType
+    ComponentType,
+    UserSelectMenuBuilder
 } from 'discord.js';
 
+import * as discordTranscripts from 'discord-html-transcripts';
 import db from './functions/DatabaseModel';
-
-import { create, get, url } from 'sourcebin';
-import logger from './logger';
 
 async function CreatePanel(interaction: any, data: any) {
 
@@ -49,7 +48,8 @@ async function CreatePanel(interaction: any, data: any) {
 
     let confirm = new ButtonBuilder()
         .setCustomId('open-new-ticket')
-        .setEmoji('🎟️')
+        .setEmoji('📩')
+        .setLabel('Create Ticket')
         .setStyle(ButtonStyle.Secondary);
 
     interaction.send({
@@ -152,29 +152,25 @@ async function CreateChannel(interaction: any, result: any) {
             .setLabel(lang.ticket_module_button_transcript)
             .setStyle(ButtonStyle.Primary);
 
-        let add_ticket_button = new ButtonBuilder()
-            .setCustomId('t-embed-add-ticket')
-            .setEmoji('➕')
-            .setLabel(lang.ticket_module_button_addmember)
-            .setStyle(ButtonStyle.Secondary);
-
-        let remove_ticket_button = new ButtonBuilder()
-            .setCustomId('t-embed-remove-ticket')
-            .setEmoji('➖')
-            .setLabel(lang.ticket_module_button_removemember)
-            .setStyle(ButtonStyle.Secondary);
+        let selectUsersMenu = new UserSelectMenuBuilder()
+            .setCustomId('t-embed-select-user')
+            .setPlaceholder(`${lang.ticket_module_button_addmember}/${lang.ticket_module_button_removemember}`)
+            .setMinValues(0)
+            .setMaxValues(10);
 
         (channel as any).send({
             embeds: [welcome],
-            content: `<@${interaction.user.id}>`,
+            content: `${interaction.user}`,
             components: [
                 new ActionRowBuilder()
-                    .addComponents(delete_ticket_button)
+                    .addComponents(selectUsersMenu)
+                , new ActionRowBuilder()
                     .addComponents(transcript_ticket_button)
-                    .addComponents(add_ticket_button)
-                    .addComponents(remove_ticket_button)
+                    .addComponents(delete_ticket_button)
             ],
-        }).catch(() => { });
+        }).catch((err: any) => {
+            console.error(err)
+        });
         return;
     }).catch(() => { });
 };
@@ -194,38 +190,22 @@ async function CloseTicket(interaction: any) {
 
                 if (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member.user.id) {
                     interaction.channel.messages.fetch().then(async (messages: any[]) => {
-                        let output = messages.reverse().map(m => `${new Date(m.createdAt).toLocaleString('en-US')} - ${m.author.username}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`).join('\n');
 
-                        let response;
-                        try {
-                            response = await create({
-                                title: data.close_title_sourcebin,
-                                description: data.close_description_sourcebin,
-                                files: [
-                                    {
-                                        content: output,
-                                        language: 'text',
-                                    },
-                                ],
-                            })
+                        let attachment = await discordTranscripts.createTranscript(interaction.channel, {
+                            limit: -1,
+                            filename: 'transcript.html',
+                            footerText: "Exported {number} message{s}",
+                            poweredBy: false,
+                            hydrate: true
+                        });
 
-                        } catch (e: any) {
-                            await interaction.editReply({ content: data.close_error_command });
-                            return;
-                        };
-
-                        try {
-                            let embed = new EmbedBuilder()
-                                .setDescription(`[\`View This\`](${response.url})`)
-                                .setColor('#5b92e5');
-                            await interaction.editReply({ content: data.close_command_work_channel, embeds: [embed] })
-                        } catch (e: any) {
-                            logger.err(e);
-                        };
+                        let embed = new EmbedBuilder()
+                            .setDescription(data.close_title_sourcebin)
+                            .setColor('#0014a8');
 
                         try {
                             interaction.channel.permissionOverwrites.create(member.user, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
-                            interaction.channel.send({ content: data.close_command_work_notify_channel });
+                            interaction.editReply({ content: data.close_command_work_notify_channel, files: [attachment], embeds: [embed] });
                         } catch (e: any) {
                             await interaction.channel.send(data.close_command_error);
                             return;
@@ -252,39 +232,24 @@ async function TicketTranscript(interaction: any) {
                 let member = interaction.guild.members.cache.get(fetch[user][channel]?.author);
 
                 if (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member.user.id) {
-                    interactionChannel.messages.fetch().then(async (messages: any[]) => {
-                        let output = messages.reverse().map(m => `${new Date(m.createdAt).toLocaleString('en-US')} - ${m.author.username}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`).join('\n');
-
-                        let response;
-                        try {
-                            response = await create({
-                                title: data.close_title_sourcebin,
-                                description: data.close_description_sourcebin,
-                                files: [
-                                    {
-                                        content: output,
-                                        language: 'text',
-                                    },
-                                ],
-                            })
-
-                        } catch (e: any) {
-                            await interaction.editReply({ content: data.transript_command_error });
-                            return;
-                        };
-
-                        let embed = new EmbedBuilder()
-                            .setDescription(`[\`View this\`](${response.url})`)
-                            .setColor('#0014a8');
-
-                        if (interaction.replied) {
-                            await interaction.editReply({ embeds: [embed], content: data.transript_command_work });
-                        } else {
-                            await interaction.reply({ embeds: [embed], content: data.transript_command_work });
-                        };
-
-                        return;
+                    let attachment = await discordTranscripts.createTranscript(interactionChannel, {
+                        limit: -1,
+                        filename: 'transcript.html',
+                        footerText: "Exported {number} message{s}",
+                        poweredBy: false,
+                        hydrate: true
                     });
+
+                    let embed = new EmbedBuilder()
+                        .setDescription(data.close_title_sourcebin)
+                        .setColor('#0014a8');
+
+                    if (interaction.deferred) {
+                        await interaction.editReply({ embeds: [embed], content: data.transript_command_work, files: [attachment] });
+                    } else {
+                        await interaction.reply({ embeds: [embed], content: data.transript_command_work, files: [attachment] });
+                    };
+                    return;
                 }
             }
         }
@@ -379,57 +344,58 @@ async function TicketDelete(interaction: any) {
 
 async function TicketAddMember_2(interaction: any) {
     let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
+    let owner_ticket = await db.get(`${interaction.guild.id}.TICKET_ALL.${interaction.user.id}.${interaction.channel.id}`);
 
-    await interaction.reply({ content: data.ticket_module_add_question });
+    let membersArray: any[] = [];
+    let listmembersArray: any[] = [];
 
-    let messageFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
-    let messageCollector = interaction.channel.createMessageCollector({ filter: messageFilter, max: 1, time: 30_000 });
+    await interaction.members.each(async (i: any) => { membersArray.push(i.id) });
 
-    messageCollector.on('collect', async (message: { content: string | null; delete: () => any; }) => {
-        message.delete();
-        let member = await interaction.guild.members.fetch(message.content);
+    interaction.channel.permissionOverwrites.cache
+        .filter((i: any) => i.type === 1).each
+        ((i: any) => { listmembersArray.push(i.id) });
 
-        if (!member) {
-            await interaction.editReply({ content: data.add_incorect_syntax });
-            return;
-        };
+    let addedMembers: any[] = [];
+    let removedMembers: any[] = [];
 
-        try {
-            interaction.channel.permissionOverwrites.create(member, { ViewChannel: true, SendMessages: true, ReadMessageHistory: true });
-            await interaction.editReply({ content: data.add_command_work.replace(/\${member\.tag}/g, member.user.username) });
-            return;
-        } catch (e) {
-            await interaction.editReply({ content: data.add_command_error });
-            return;
+    listmembersArray.forEach(async (overwriteId) => {
+        if (!membersArray.includes(overwriteId) && owner_ticket?.author !== overwriteId) {
+            removedMembers.push(overwriteId);
+            await interaction.channel.permissionOverwrites.delete(overwriteId);
         }
     });
-};
 
-async function TicketRemoveMember_2(interaction: any) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
-
-    await interaction.reply({ content: data.ticket_module_remove_question });
-
-    let messageFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
-    let messageCollector = interaction.channel.createMessageCollector({ filter: messageFilter, max: 1, time: 30_000 });
-
-    messageCollector.on('collect', async (message: { content: string | null; delete: () => any; }) => {
-        message.delete();
-        let member = await interaction.guild.members.fetch(message.content);
-
-        if (!member) {
-            await interaction.editReply({ content: data.add_incorect_syntax });
-            return;
-        };
-
-        try {
-            interaction.channel.permissionOverwrites.create(member, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
-            interaction.editReply({ content: data.remove_command_work.replace(/\${member\.tag}/g, member.user.username) });
-        } catch (e: any) {
-            await interaction.editReply({ content: data.remove_command_error });
-            return;
+    membersArray.forEach(async (memberId) => {
+        if (!listmembersArray.includes(memberId)) {
+            interaction.channel.permissionOverwrites.edit(memberId,
+                {
+                    ViewChannel: true, SendMessages: true, ReadMessageHistory: true, AttachFiles: true
+                }
+            );
+            addedMembers.push(memberId);
         };
     });
+
+    if (addedMembers.length > 0) {
+        interaction.channel.send({
+            content: data.event_ticket_add_member
+                .replace('${interaction.user}', interaction.user)
+                .replace("${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')}", addedMembers.map((memberId) => `<@${memberId}>`).join(' '))
+                .replace('${interaction.channel}', interaction.channel)
+        });
+    };
+
+    if (removedMembers.length > 0) {
+        interaction.channel.send({
+            content: data.event_ticket_del_member
+                .replace('${interaction.user}', interaction.user)
+                .replace("${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')}", removedMembers.map((memberId) => `<@${memberId}>`).join(' '))
+                .replace('${interaction.channel}', interaction.channel)
+        });
+    };
+    await interaction.deferUpdate();
+
+    return;
 };
 
 export {
@@ -445,5 +411,4 @@ export {
     TicketReOpen,
 
     TicketAddMember_2,
-    TicketRemoveMember_2
 };

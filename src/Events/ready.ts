@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+import { Client, Collection, ApplicationCommandType, PermissionsBitField, ActivityType, Guild, Embed, EmbedBuilder } from 'discord.js';
 import { Init } from "../core/pfpsManager";
 import logger from "../core/logger";
 import couleurmdr from 'colors';
@@ -26,10 +27,6 @@ import config from "../files/config";
 import register from '../core/slashSync';
 
 import date from 'date-and-time';
-import path from 'path';
-import fs from 'fs';
-
-import { Client, Collection, ApplicationCommandType, PermissionsBitField, ActivityType, Guild, Embed, EmbedBuilder } from 'discord.js';
 
 export = async (client: Client) => {
     await register(client, client.commands)

@@ -30,15 +30,15 @@ let logger: Logger = {
     warn(message) {
         console.log(`[${getCurrentTime()} WRN]: `.red + message);
     },
-    log(message) {
-        console.log(`[${getCurrentTime()} LOG]: `.green + message);
-    },
     err(message) {
         console.log(`[${getCurrentTime()} ERR]: `.red + message);
     },
+    log(message) {
+        console.log(`[${getCurrentTime()} LOG]: `.green + message);
+    },
     legacy(message) {
         console.log(message);
-    }
+    },
 };
 
 export default logger;

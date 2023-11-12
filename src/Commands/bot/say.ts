@@ -20,18 +20,35 @@
 */
 
 import {
+    ApplicationCommandOptionType,
     Client,
+    PermissionsBitField,
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
 
 export const command: Command = {
-    name: 'kisakay',
-    description: 'Get necessary information about my developer, Kisakay',
+    name: 'say',
+    description: 'Sent a message throught the bot!',
     category: 'bot',
+    options: [
+        {
+            name: 'content',
+            type: ApplicationCommandOptionType.String,
+            description: 'What you want the bot to say!',
+            required: true
+        }
+    ],
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
-        await interaction.editReply({ content: data.kisakay_message });
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            await interaction.editReply({ content: data.setserverlang_not_admin });
+            return;
+        };
+        await interaction.deleteReply();
+        await interaction.channel.send({
+            content: `> ${interaction.options.getString('content')}${data.say_footer_msg.replace('${interaction.user}', interaction.user)}`
+        });
         return;
     },
 };

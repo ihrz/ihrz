@@ -32,6 +32,7 @@ import logger from "./logger";
 import { Client, Collection } from "discord.js";
 import { readdirSync } from "fs";
 import couleurmdr from "colors";
+import path from 'path';
 
 
 export = (client: Client) => {
