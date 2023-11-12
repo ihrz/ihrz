@@ -1093,7 +1093,7 @@ allowlist_delete_command_work: "¡${member.user} ha sido eliminado de la lista b
 
 # /mybot enviar
 mybot_submit_token_invalid: "El token ingresado no es válido. No podemos continuar."
-mybot_submit_utils_msg: "__ID del Bot__ `${bot_1.bot.id}`\n__Nombre de usuario del Bot__ `${bot_1.bot.username}`\n__Bot Público__ `${bot_1.bot_public ? 'Sí' : 'No'}`"
+mybot_submit_utils_msg: "__ID del Bot__ `${bot_1.bot.id}`\n__Nombre de usuario del Bot__ `${bot_1.bot.username}`\n__Bot Público__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
 mybot_submit_utils_msg_yes: "Sí"
 mybot_submit_utils_msg_no: "No"
 mybot_submit_embed_title: "Aloja tu propio iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
@@ -1110,7 +1110,7 @@ mybot_list_embed1_desc: "Tu código de bot: ||**${data_2[i].code}**|| ⚠️ **�
 # /mybot gestionar aceptar
 mybot_manage_accept_not_found: "No se puede encontrar el bot en la base de datos. No podemos continuar."
 mybot_manage_accept_token_error: "El token en la base de datos no es válido. No podemos continuar."
-mybot_manage_accept_utils_msg: "__ID del Bot__ `${bot_1.bot.id}`\n__Nombre de usuario del Bot__ `${bot_1.bot.username}`\n__Bot Público__ `${bot_1.bot_public ? 'Sí' : 'No'}`"
+mybot_manage_accept_utils_msg: "__ID del Bot__ `${bot_1.bot.id}`\n__Nombre de usuario del Bot__ `${bot_1.bot.username}`\n__Bot Público__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
 mybot_manage_accept_utiis_yes: "Sí"
 mybot_manage_accept_utils_no: "No"
 mybot_manage_accept_embed_title: "Aloja tu propio iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
@@ -1119,7 +1119,7 @@ mybot_manage_accept_embed_desc: "El bot ha sido aceptado\n\n${utils_msg}"
 # /mybot instancia rechazar
 mybot_instance_deny_not_foud: "No se puede encontrar el bot en la base de datos. No podemos continuar."
 mybot_instance_deny_token_error: "El token en la base de datos no es válido. No podemos continuar."
-mybot_instance_deny_utils_msg: "__ID del Bot__ `${bot_1.bot.id}`\n__Nombre de usuario del Bot__ `${bot_1.bot.username}`\n__Bot Público__ `${bot_1.bot_public ? 'Sí' : 'No'}`"
+mybot_instance_deny_utils_msg: "__ID del Bot__ `${bot_1.bot.id}`\n__Nombre de usuario del Bot__ `${bot_1.bot.username}`\n__Bot Público__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
 mybot_instance_deny_utils_msg_yes: "Sí"
 mybot_instance_deny_utils_msg_no: "No"
 mybot_instance_deny_embed_title: "Aloja tu propio iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"

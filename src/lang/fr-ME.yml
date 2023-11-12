@@ -1089,7 +1089,7 @@ allowlist_delete_command_work: "${member.user} a été supprimé de la liste bla
 
 # /mybot soumettre
 mybot_submit_token_invalid: "Le jeton saisi est invalide. Nous ne pouvons pas continuer."
-mybot_submit_utils_msg: "__ID du Bot__ `${bot_1.bot.id}`\n__Nom d'utilisateur du Bot__ `${bot_1.bot.username}`\n__Bot Public__ `${bot_1.bot_public ? 'Oui' : 'Non'}`"
+mybot_submit_utils_msg: "__ID du Bot__ `${bot_1.bot.id}`\n__Nom d'utilisateur du Bot__ `${bot_1.bot.username}`\n__Bot Public__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
 mybot_submit_utils_msg_yes: "Oui"
 mybot_submit_utils_msg_no: "Non"
 mybot_submit_embed_title: "Hébergez votre propre iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"
@@ -1097,7 +1097,7 @@ mybot_submit_embed_desc: "Votre demande a été enregistrée avec succès, votre
 
 # /mybot liste
 mybot_list_embed0_title: "Liste de tous vos bots"
-mybot_list_utils_msg: "__ID du Bot__ `${data_2[i].bot.id}`\n__Nom d'utilisateur du Bot__ `${data_2[i].bot.username}`\n__Bot Public__ `${data_2[i].bot_public ? 'Oui' : 'Non'}`"
+mybot_list_utils_msg: "__ID du Bot__ `${data_2[i].bot.id}`\n__Nom d'utilisateur du Bot__ `${data_2[i].bot.username}`\n__Bot Public__ `${data_2[i].bot_public ? 'Yes' : 'No'}`"
 mybot_list_utils_msg_yes: "Oui"
 mybot_list_utils_msg_no: "Non"
 mybot_list_embed1_title: "Votre propre iHorizon : ${data_2[i].bot.username}"
@@ -1106,7 +1106,7 @@ mybot_list_embed1_desc: "Le code de votre bot : ||**${data_2[i].code}**|| ⚠️
 # /mybot gérer accepter
 mybot_manage_accept_not_found: "Le bot dans la base de données est introuvable. Nous ne pouvons pas continuer."
 mybot_manage_accept_token_error: "Le jeton dans la base de données est invalide. Nous ne pouvons pas continuer."
-mybot_manage_accept_utils_msg: "__ID du Bot__ `${bot_1.bot.id}`\n__Nom d'utilisateur du Bot__ `${bot_1.bot.username}`\n__Bot Public__ `${bot_1.bot_public ? 'Oui' : 'Non'}`"
+mybot_manage_accept_utils_msg: "__ID du Bot__ `${bot_1.bot.id}`\n__Nom d'utilisateur du Bot__ `${bot_1.bot.username}`\n__Bot Public__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
 mybot_manage_accept_utiis_yes: "Oui"
 mybot_manage_accept_utils_no: "Non"
 mybot_manage_accept_embed_title: "Hébergez votre propre iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"
@@ -1115,7 +1115,7 @@ mybot_manage_accept_embed_desc: "Le bot a été accepté\n\n${utils_msg}"
 # /mybot instance refuser
 mybot_instance_deny_not_foud: "Le bot dans la base de données est introuvable. Nous ne pouvons pas continuer."
 mybot_instance_deny_token_error: "Le jeton dans la base de données est invalide. Nous ne pouvons pas continuer."
-mybot_instance_deny_utils_msg: "__ID du Bot__ `${bot_1.bot.id}`\n__Nom d'utilisateur du Bot__ `${bot_1.bot.username}`\n__Bot Public__ `${bot_1.bot_public ? 'Oui' : 'Non'}`"
+mybot_instance_deny_utils_msg: "__ID du Bot__ `${bot_1.bot.id}`\n__Nom d'utilisateur du Bot__ `${bot_1.bot.username}`\n__Bot Public__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
 mybot_instance_deny_utils_msg_yes: "Oui"
 mybot_instance_deny_utils_msg_no: "Non"
 mybot_instance_deny_embed_title: "Hébergez votre propre iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"

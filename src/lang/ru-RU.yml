@@ -1093,7 +1093,7 @@ allowlist_delete_command_work: "${member.user} был удален из спис
 
 # /mybot отправить
 mybot_submit_token_invalid: "Введенный токен недействителен. Мы не можем продолжать."
-mybot_submit_utils_msg: "__ID бота__ `${bot_1.bot.id}`\n__Имя пользователя бота__ `${bot_1.bot.username}`\n__Публичный бот__ `${bot_1.bot_public ? 'Да' : 'Нет'}`"
+mybot_submit_utils_msg: "__ID бота__ `${bot_1.bot.id}`\n__Имя пользователя бота__ `${bot_1.bot.username}`\n__Публичный бот__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
 mybot_submit_utils_msg_yes: "Да"
 mybot_submit_utils_msg_no: "Нет"
 mybot_submit_embed_title: "Разместите свой собственный iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
@@ -1101,7 +1101,7 @@ mybot_submit_embed_desc: "Ваш запрос был успешно зареги
 
 # /mybot список
 mybot_list_embed0_title: "Список всех ваших ботов"
-mybot_list_utils_msg: "__ID бота__ `${data_2[i].bot.id}`\n__Имя пользователя бота__ `${data_2[i].bot.username}`\n__Публичный бот__ `${data_2[i].bot_public ? 'Да' : 'Нет'}`"
+mybot_list_utils_msg: "__ID бота__ `${data_2[i].bot.id}`\n__Имя пользователя бота__ `${data_2[i].bot.username}`\n__Публичный бот__ `${data_2[i].bot_public ? 'Yes' : 'No'}`"
 mybot_list_utils_msg_yes: "Да"
 mybot_list_utils_msg_no: "Нет"
 mybot_list_embed1_title: "Ваш собственный iHorizon: ${data_2[i].bot.username}"
@@ -1110,7 +1110,7 @@ mybot_list_embed1_desc: "Код вашего бота: ||**${data_2[i].code}**||
 # /mybot управление принять
 mybot_manage_accept_not_found: "Бот в базе данных не может быть найден. Мы не можем продолжать."
 mybot_manage_accept_token_error: "Токен в базе данных недействителен. Мы не можем продолжать."
-mybot_manage_accept_utils_msg: "__ID бота__ `${bot_1.bot.id}`\n__Имя пользователя бота__ `${bot_1.bot.username}`\n__Публичный бот__ `${bot_1.bot_public ? 'Да' : 'Нет'}`"
+mybot_manage_accept_utils_msg: "__ID бота__ `${bot_1.bot.id}`\n__Имя пользователя бота__ `${bot_1.bot.username}`\n__Публичный бот__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
 mybot_manage_accept_utiis_yes: "Да"
 mybot_manage_accept_utils_no: "Нет"
 mybot_manage_accept_embed_title: "Разместите свой собственный iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
@@ -1119,7 +1119,7 @@ mybot_manage_accept_embed_desc: "Бот был принят\n\n${utils_msg}"
 # /mybot экземпляр отказать
 mybot_instance_deny_not_foud: "Бот в базе данных не может быть найден. Мы не можем продолжать."
 mybot_instance_deny_token_error: "Токен в базе данных недействителен. Мы не можем продолжать."
-mybot_instance_deny_utils_msg: "__ID бота__ `${bot_1.bot.id}`\n__Имя пользователя бота__ `${bot_1.bot.username}`\n__Публичный бот__ `${bot_1.bot_public ? 'Да' : 'Нет'}`"
+mybot_instance_deny_utils_msg: "__ID бота__ `${bot_1.bot.id}`\n__Имя пользователя бота__ `${bot_1.bot.username}`\n__Публичный бот__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
 mybot_instance_deny_utils_msg_yes: "Да"
 mybot_instance_deny_utils_msg_no: "Нет"
 mybot_instance_deny_embed_title: "Разместите свой собственный iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"

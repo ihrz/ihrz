@@ -1093,7 +1093,7 @@ allowlist_delete_command_work: "${member.user} wurde aus der Allowlist entfernt!
 
 # /mybot einreichen
 mybot_submit_token_invalid: "Der eingegebene Token ist ungültig. Wir können nicht weitermachen."
-mybot_submit_utils_msg: "__Bot-ID__ `${bot_1.bot.id}`\n__Bot-Benutzername__ `${bot_1.bot.username}`\n__Öffentlicher Bot__ `${bot_1.bot_public ? 'Ja' : 'Nein'}`"
+mybot_submit_utils_msg: "__Bot-ID__ `${bot_1.bot.id}`\n__Bot-Benutzername__ `${bot_1.bot.username}`\n__Öffentlicher Bot__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
 mybot_submit_utils_msg_yes: "Ja"
 mybot_submit_utils_msg_no: "Nein"
 mybot_submit_embed_title: "Hoste deine eigene iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
@@ -1101,7 +1101,7 @@ mybot_submit_embed_desc: "Ihre Anfrage wurde erfolgreich registriert, Ihre einde
 
 # /mybot Liste
 mybot_list_embed0_title: "Liste aller Ihrer Bots"
-mybot_list_utils_msg: "__Bot-ID__ `${data_2[i].bot.id}`\n__Bot-Benutzername__ `${data_2[i].bot.username}`\n__Öffentlicher Bot__ `${data_2[i].bot_public ? 'Ja' : 'Nein'}`"
+mybot_list_utils_msg: "__Bot-ID__ `${data_2[i].bot.id}`\n__Bot-Benutzername__ `${data_2[i].bot.username}`\n__Öffentlicher Bot__ `${data_2[i].bot_public ? 'Yes' : 'No'}`"
 mybot_list_utils_msg_yes: "Ja"
 mybot_list_utils_msg_no: "Nein"
 mybot_list_embed1_title: "Ihre eigene iHorizon: ${data_2[i].bot.username}"
@@ -1110,7 +1110,7 @@ mybot_list_embed1_desc: "Ihr Bot-Code: ||**${data_2[i].code}**|| ⚠️ **Teilen
 # /mybot verwalten annehmen
 mybot_manage_accept_not_found: "Der Bot in der Datenbank kann nicht gefunden werden. Wir können nicht weitermachen."
 mybot_manage_accept_token_error: "Der Token in der Datenbank ist ungültig. Wir können nicht weitermachen."
-mybot_manage_accept_utils_msg: "__Bot-ID__ `${bot_1.bot.id}`\n__Bot-Benutzername__ `${bot_1.bot.username}`\n__Öffentlicher Bot__ `${bot_1.bot_public ? 'Ja' : 'Nein'}`"
+mybot_manage_accept_utils_msg: "__Bot-ID__ `${bot_1.bot.id}`\n__Bot-Benutzername__ `${bot_1.bot.username}`\n__Öffentlicher Bot__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
 mybot_manage_accept_utiis_yes: "Ja"
 mybot_manage_accept_utils_no: "Nein"
 mybot_manage_accept_embed_title: "Hoste deine eigene iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
@@ -1119,7 +1119,7 @@ mybot_manage_accept_embed_desc: "Der Bot wurde akzeptiert\n\n${utils_msg}"
 # /mybot Instanz ablehnen
 mybot_instance_deny_not_foud: "Der Bot in der Datenbank kann nicht gefunden werden. Wir können nicht weitermachen."
 mybot_instance_deny_token_error: "Der Token in der Datenbank ist ungültig. Wir können nicht weitermachen."
-mybot_instance_deny_utils_msg: "__Bot-ID__ `${bot_1.bot.id}`\n__Bot-Benutzername__ `${bot_1.bot.username}`\n__Öffentlicher Bot__ `${bot_1.bot_public ? 'Ja' : 'Nein'}`"
+mybot_instance_deny_utils_msg: "__Bot-ID__ `${bot_1.bot.id}`\n__Bot-Benutzername__ `${bot_1.bot.username}`\n__Öffentlicher Bot__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
 mybot_instance_deny_utils_msg_yes: "Ja"
 mybot_instance_deny_utils_msg_no: "Nein"
 mybot_instance_deny_embed_title: "Hoste deine eigene iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"

@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+import { Client, Collection, ApplicationCommandType, PermissionsBitField, ActivityType, Guild, Embed, EmbedBuilder } from 'discord.js';
 import { Init } from "../core/pfpsManager";
 import logger from "../core/logger";
 import couleurmdr from 'colors';
@@ -26,11 +27,8 @@ import config from "../files/config";
 import register from '../core/slashSync';
 
 import date from 'date-and-time';
-import path from 'path';
-import fs from 'fs';
 
-import { Client, Collection, ApplicationCommandType, PermissionsBitField, ActivityType, Guild, Embed, EmbedBuilder } from 'discord.js';
-import { execSync } from 'child_process';
+import OwnIHRZ from "../core/ownihrzManager";
 
 export = async (client: Client) => {
     await register(client, client.commands)
@@ -122,48 +120,12 @@ export = async (client: Client) => {
             };
         };
     };
-
-    async function otherBotPowerOn() {
-        let result = await client.db.get(`OWNIHRZ`);
-
-        for (let i in result) {
-            for (let c in result[i]) {
-                if (result[i][c].power_off
-                    || !result[i][c].code) break;
-
-                let botPath = path.join(process.cwd(), 'ownihrz', result[i][c].code)
-
-                if (i !== 'TEMP') {
-
-                    if (fs.existsSync(path.join(botPath, 'dist'))) {
-                        execSync(`rm -r dist`, {
-                            stdio: [0, 1, 2],
-                            cwd: botPath,
-                        });
-                    };
-
-                    execSync(`git pull`, {
-                        stdio: [0, 1, 2],
-                        cwd: botPath,
-                    });
-                    execSync(`npx tsc`, {
-                        stdio: [0, 1, 2],
-                        cwd: botPath,
-                    });
-                    execSync(`mv dist/index.js dist/${result?.[i]?.[c]?.code}.js`, {
-                        stdio: [0, 1, 2],
-                        cwd: botPath,
-                    });
-                    execSync(`pm2 start dist/${result?.[i]?.[c]?.code}.js -f`, {
-                        stdio: [0, 1, 2],
-                        cwd: botPath,
-                    });
-                };
-            }
-        }
-    };
-
-    otherBotPowerOn();
+    let iHorizon_Container = new OwnIHRZ();
+    iHorizon_Container.Startup(client);
+    
+    setInterval(() => {
+        iHorizon_Container.Refresh(client);
+    }, 86400000);
 
     setInterval(quotesPresence, 30_000), setInterval(refreshSchedule, 15_000);
 

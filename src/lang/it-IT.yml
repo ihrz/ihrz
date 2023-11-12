@@ -1093,7 +1093,7 @@ allowlist_delete_command_work: "${member.user} è stato rimosso dalla lista bian
 
 # /mybot invia
 mybot_submit_token_invalid: "Il token inserito non è valido. Non possiamo procedere."
-mybot_submit_utils_msg: "__ID del Bot__ `${bot_1.bot.id}`\n__Nome utente del Bot__ `${bot_1.bot.username}`\n__Bot Pubblico__ `${bot_1.bot_public ? 'Sì' : 'No'}`"
+mybot_submit_utils_msg: "__ID del Bot__ `${bot_1.bot.id}`\n__Nome utente del Bot__ `${bot_1.bot.username}`\n__Bot Pubblico__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
 mybot_submit_utils_msg_yes: "Sì"
 mybot_submit_utils_msg_no: "No"
 mybot_submit_embed_title: "Ospita il tuo iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
@@ -1101,7 +1101,7 @@ mybot_submit_embed_desc: "La tua richiesta è stata registrata con successo, il 
 
 # /mybot elenco
 mybot_list_embed0_title: "Elenco di tutti i tuoi bot"
-mybot_list_utils_msg: "__ID del Bot__ `${data_2[i].bot.id}`\n__Nome utente del Bot__ `${data_2[i].bot.username}`\n__Bot Pubblico__ `${data_2[i].bot_public ? 'Sì' : 'No'}`"
+mybot_list_utils_msg: "__ID del Bot__ `${data_2[i].bot.id}`\n__Nome utente del Bot__ `${data_2[i].bot.username}`\n__Bot Pubblico__ `${data_2[i].bot_public ? 'Yes' : 'No'}`"
 mybot_list_utils_msg_yes: "Sì"
 mybot_list_utils_msg_no: "No"
 mybot_list_embed1_title: "Il tuo iHorizon personale: ${data_2[i].bot.username}"
@@ -1110,7 +1110,7 @@ mybot_list_embed1_desc: "Il codice del tuo bot: ||**${data_2[i].code}**|| ⚠️
 # /mybot gestisci accetta
 mybot_manage_accept_not_found: "Il bot nel database non può essere trovato. Non possiamo procedere."
 mybot_manage_accept_token_error: "Il token nel database non è valido. Non possiamo procedere."
-mybot_manage_accept_utils_msg: "__ID del Bot__ `${bot_1.bot.id}`\n__Nome utente del Bot__ `${bot_1.bot.username}`\n__Bot Pubblico__ `${bot_1.bot_public ? 'Sì' : 'No'}`"
+mybot_manage_accept_utils_msg: "__ID del Bot__ `${bot_1.bot.id}`\n__Nome utente del Bot__ `${bot_1.bot.username}`\n__Bot Pubblico__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
 mybot_manage_accept_utiis_yes: "Sì"
 mybot_manage_accept_utils_no: "No"
 mybot_manage_accept_embed_title: "Ospita il tuo iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
