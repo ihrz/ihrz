@@ -36,9 +36,6 @@ import {
 import * as discordTranscripts from 'discord-html-transcripts';
 import db from './functions/DatabaseModel';
 
-import { create, get, url } from 'sourcebin';
-import logger from './logger';
-
 async function CreatePanel(interaction: any, data: any) {
 
     let lang = await interaction.client.functions.getLanguageData(interaction.guild.id);
