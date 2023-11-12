@@ -193,38 +193,22 @@ async function CloseTicket(interaction: any) {
 
                 if (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member.user.id) {
                     interaction.channel.messages.fetch().then(async (messages: any[]) => {
-                        let output = messages.reverse().map(m => `${new Date(m.createdAt).toLocaleString('en-US')} - ${m.author.username}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`).join('\n');
 
-                        let response;
-                        try {
-                            response = await create({
-                                title: data.close_title_sourcebin,
-                                description: data.close_description_sourcebin,
-                                files: [
-                                    {
-                                        content: output,
-                                        language: 'text',
-                                    },
-                                ],
-                            })
+                        let attachment = await discordTranscripts.createTranscript(interaction.channel, {
+                            limit: -1,
+                            filename: 'transcript.html',
+                            footerText: "Exported {number} message{s}",
+                            poweredBy: false,
+                            hydrate: true
+                        });
 
-                        } catch (e: any) {
-                            await interaction.editReply({ content: data.close_error_command });
-                            return;
-                        };
-
-                        try {
-                            let embed = new EmbedBuilder()
-                                .setDescription(`[\`View This\`](${response.url})`)
-                                .setColor('#5b92e5');
-                            await interaction.editReply({ content: data.close_command_work_channel, embeds: [embed] })
-                        } catch (e: any) {
-                            logger.err(e);
-                        };
+                        let embed = new EmbedBuilder()
+                            .setDescription(data.close_title_sourcebin)
+                            .setColor('#0014a8');
 
                         try {
                             interaction.channel.permissionOverwrites.create(member.user, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
-                            interaction.channel.send({ content: data.close_command_work_notify_channel });
+                            interaction.editReply({ content: data.close_command_work_notify_channel, files: [attachment], embeds: [embed] });
                         } catch (e: any) {
                             await interaction.channel.send(data.close_command_error);
                             return;
@@ -251,13 +235,19 @@ async function TicketTranscript(interaction: any) {
                 let member = interaction.guild.members.cache.get(fetch[user][channel]?.author);
 
                 if (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member.user.id) {
-                    let attachment = await discordTranscripts.createTranscript(interactionChannel);
+                    let attachment = await discordTranscripts.createTranscript(interactionChannel, {
+                        limit: -1,
+                        filename: 'transcript.html',
+                        footerText: "Exported {number} message{s}",
+                        poweredBy: false,
+                        hydrate: true
+                    });
 
                     let embed = new EmbedBuilder()
-                        .setDescription(`The ticket has been saved!`)
+                        .setDescription(data.close_title_sourcebin)
                         .setColor('#0014a8');
 
-                    if (interaction.replied) {
+                    if (interaction.deferred) {
                         await interaction.editReply({ embeds: [embed], content: data.transript_command_work, files: [attachment] });
                     } else {
                         await interaction.reply({ embeds: [embed], content: data.transript_command_work, files: [attachment] });
