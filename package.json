@@ -58,7 +58,6 @@
     "quickmongo": "^5.2.0",
     "serialize-javascript": "^6.0.1",
     "soundcloud-scraper": "^5.0.3",
-    "sourcebin": "^5.0.0",
     "toml": "^3.0.0",
     "tslib": "^2.6.0",
     "typescript": "^5.1.6",
