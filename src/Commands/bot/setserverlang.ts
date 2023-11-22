@@ -52,10 +52,6 @@ export const command: Command = {
                     value: "fr-FR"
                 },
                 {
-                    name: "Islamist French",
-                    value: "fr-IS"
-                },
-                {
                     name: "Rude French",
                     value: "fr-ME"
                 },
