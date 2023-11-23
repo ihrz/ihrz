@@ -297,10 +297,10 @@ addmoney_logs_embed_description: "<@${interaction.user.id}> Added ${amount.value
 addmoney_command_work: "<@${user.user.id}> に `${amount.value}`$ 追加に成功しました"
 
 # /balance
-balance_dont_have_wallet: "👛 You dont't have wallet... !"
-balance_he_dont_have_wallet: "👛 He dont't have wallet... !"
-balance_have_wallet: "👛 You have ${bal} coin(s) !"
-balance_he_have_wallet: "👛 He have ${bal} coin(s) !"
+balance_dont_have_wallet: "👛 財布がありません... !"
+balance_he_dont_have_wallet: "${user} は財布を持っていません... !"
+balance_have_wallet: "👛 ${bal} コインを持っています！"
+balance_he_have_wallet: "👛 ${user} は ${bal} コインを持っています！"
 
 # /daily
 daily_cooldown_error: "Sorry you must wait **${time}** before running this command!"

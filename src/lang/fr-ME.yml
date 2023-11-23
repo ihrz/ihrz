@@ -299,8 +299,8 @@ addmoney_command_work: "Ajout de `${amount.value}`$ à <@${user.user.id}> effect
 # /balance
 balance_dont_have_wallet: "👛 Ta pas de porte feuille t pauvre... !"
 balance_he_dont_have_wallet: "👛 Il n'a pas de portefeuille dsl il est sdf... !"
-balance_have_wallet: "👛 Ta ${bal} balles !"
-balance_he_have_wallet: "👛 Il a ${bal} balles !"
+balance_have_wallet: "👛 Vous avez ${bal} coin(s) !"
+balance_he_have_wallet: "👛 ${user} a ${bal} coin(s) !"
 
 # /daily
 daily_cooldown_error: "Désolé mgl faut attendre **${time}** Avant drefaire la commande !"

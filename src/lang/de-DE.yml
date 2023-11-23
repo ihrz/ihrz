@@ -297,10 +297,10 @@ addmoney_logs_embed_description: "<@${interaction.user.id}> hat ${amount.value} 
 addmoney_command_work: "Erfolgreich `${amount.value}`$ zu <@${user.user.id}> hinzugefügt"
 
 # /balance
-balance_dont_have_wallet: "👛 Sie haben kein Portemonnaie... !"
-balance_he_dont_have_wallet: "👛 Er hat kein Portemonnaie... !"
-balance_have_wallet: "👛 Sie haben ${bal} Münze(n)!"
-balance_he_have_wallet: "👛 Er hat ${bal} Münze(n)!"
+balance_dont_have_wallet: "👛 Du hast keine Brieftasche... !"
+balance_he_dont_have_wallet: "${user} hat keine Brieftasche... !"
+balance_have_wallet: "👛 Du hast ${bal} Münzen !"
+balance_he_have_wallet: "👛 ${user} hat ${bal} Münzen !"
 
 # /daily
 daily_cooldown_error: "Entschuldigung, Sie müssen **${time}** warten, bevor Sie diesen Befehl ausführen können!"

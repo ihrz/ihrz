@@ -21,6 +21,7 @@
 
 import {
     Client,
+    EmbedBuilder
 } from 'discord.js';
 
 export = {
@@ -35,8 +36,19 @@ export = {
             return;
         };
 
+        let embed = new EmbedBuilder()
+            .setColor('#e3c6ff')
+            .setTitle(`\`${interaction.user.username}\`'s Wallet`)
+            .setThumbnail(interaction.user.displayAvatarURL())
+            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setDescription(data.balance_he_have_wallet
+                .replace(/\${bal}/g, bal)
+                .replace('${user}', interaction.user)
+            )
+            .setTimestamp()
+
         await interaction.editReply({
-            content: data.balance_he_have_wallet.replace(/\${bal}/g, bal)
+            embeds: [embed]
         });
         return;
     },

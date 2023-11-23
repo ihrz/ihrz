@@ -298,9 +298,9 @@ addmoney_command_work: "Ajout de `${amount.value}`$ à <@${user.user.id}> effect
 
 # /balance
 balance_dont_have_wallet: "👛 Vous n'avez pas de portefeuille... !"
-balance_he_dont_have_wallet: "👛 Il n'a pas de portefeuille... !"
+balance_he_dont_have_wallet: "${user} n'a pas de portefeuille... !"
 balance_have_wallet: "👛 Vous avez ${bal} coin(s) !"
-balance_he_have_wallet: "👛 Il a ${bal} coin(s) !"
+balance_he_have_wallet: "👛 ${user} a ${bal} coin(s) !"
 
 # /daily
 daily_cooldown_error: "Désolé, vous devez attendre **${time}** avant de pouvoir exécuter cette commande à nouveau !"
@@ -1145,7 +1145,7 @@ event_welcomer_inviter: "➕・<@${member.id}> a rejoint le serveur. Invité par
 event_welcomer_default: "➕・<@${member.id}> a rejoint le serveur. Compte créé le: **${member.user.createdAt.toLocaleDateString()}**. Heureux de te voir sur **${member.guild.name}**"
 
 # Goodbye Message Events
-event_goodbye_inviter: "➖・<@${member.id}> vient de quitter la guilde. Il a été invité par **${inviter.tag}** (**${fetched}** invitations). Au revoir de la part de **${member.guild.name}**."
+event_goodbye_inviter: "➖・<@${member.id}> vient de quitter la guilde. Iel a été invité par **${inviter.tag}** (**${fetched}** invitations). Au revoir de la part de **${member.guild.name}**."
 event_goodbye_default: "➖・<@${member.id}> vient de quitter la guilde. Au revoir de la part de **${member.guild.name}**."
 
 # XP Level Events

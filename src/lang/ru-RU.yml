@@ -298,9 +298,9 @@ addmoney_command_work: "Успешно добавлено `${amount.value}`$ п�
 
 # /balance
 balance_dont_have_wallet: "👛 У вас нет кошелька... !"
-balance_he_dont_have_wallet: "👛 У него нет кошелька... !"
+balance_he_dont_have_wallet: "${user} не имеет кошелька... !"
 balance_have_wallet: "👛 У вас есть ${bal} монет(ы) !"
-balance_he_have_wallet: "👛 У него есть ${bal} монет(ы) !"
+balance_he_have_wallet: "👛 У ${user} есть ${bal} монет(ы) !"
 
 # /daily
 daily_cooldown_error: "Извините, вы должны подождать **${time}** перед выполнением этой команды!"

@@ -298,9 +298,9 @@ addmoney_command_work: "Aggiunti con successo `${amount.value}`$ a <@${user.user
 
 # /balance
 balance_dont_have_wallet: "👛 Non hai un portafoglio... !"
-balance_he_dont_have_wallet: "👛 Lui non ha un portafoglio... !"
-balance_have_wallet: "👛 Hai ${bal} moneta/e !"
-balance_he_have_wallet: "👛 Lui ha ${bal} moneta/e !"
+balance_he_dont_have_wallet: "${user} non ha un portafoglio... !"
+balance_have_wallet: "👛 Hai ${bal} monete !"
+balance_he_have_wallet: "👛 ${user} ha ${bal} monete !"
 
 # /daily
 daily_cooldown_error: "Spiacenti, devi aspettare **${time}** prima di eseguire questo comando!"
