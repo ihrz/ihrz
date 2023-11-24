@@ -82,7 +82,7 @@ async function CreateTicketChannel(interaction: any) {
         || result.messageID !== interaction.message.id) return;
 
     if (userTickets) {
-        interaction.deferUpdate()
+        interaction.deferUpdate();
         return;
     } else {
         await CreateChannel(
@@ -345,6 +345,11 @@ async function TicketDelete(interaction: any) {
 async function TicketAddMember_2(interaction: any) {
     let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
     let owner_ticket = await db.get(`${interaction.guild.id}.TICKET_ALL.${interaction.user.id}.${interaction.channel.id}`);
+
+    if (!owner_ticket) {
+        await interaction.deferUpdate();
+        return;
+    };
 
     let membersArray: any[] = [];
     let listmembersArray: any[] = [];
