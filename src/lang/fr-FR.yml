@@ -241,7 +241,7 @@ say_footer_msg: "\n\nEnvoyé depuis `/say` par ${interaction.user}"
 
 # /ping
 ping_down_msg: "**INACTIF**"
-ping_embed_desc: "**Réseau** : `${await réseau}` ms\n**API Discord** : `${await API}` ms"
+ping_embed_desc: "**Réseau** : `${await network}` ms\n**API Discord** : `${await API}` ms"
 
 
 # Fun commands
@@ -1196,5 +1196,24 @@ event_suggestion_embed_author: "Nouvelle suggestion de ${message.author.username
 
 # Événement de sécurité
 event_security: "${member}, veuillez écrire le captcha envoyé dans ce message.\nVotre réponse doit être dans la syntaxe correcte !\n__Vous avez 30 secondes pour répondre.__"
+
+# Événement de ticket
+event_ticket_whenCreated_msg: "${interaction.user}, votre ticket a été créé, visitez <#${channel.id}> !"
+event_ticket_logsChannel_onCreation_embed_title: "Journal des tickets - Création du panneau"
+event_ticket_logsChannel_onCreation_embed_desc: "Panneau de ticket appelé `${data.name}` dans ${interaction} est créé !"
+event_ticket_logsChannel_onCreationChannel_embed_title: "Journal des tickets - Création du ticket"
+event_ticket_logsChannel_onCreationChannel_embed_desc: "Ticket créé : ${interaction.user} (<#${channel.id}>) !"
+event_ticket_logsChannel_onClose_embed_title: "Journal des tickets - Fermeture du ticket"
+event_ticket_logsChannel_onClose_embed_desc: "Le ticket est maintenant fermé par ${interaction.user} (<#${interaction.channel.id}>) !"
+event_ticket_logsChannel_onRemoveMember_embed_title: "Journal des tickets - Retirer un membre d'un ticket"
+event_ticket_logsChannel_onRemoveMember_embed_desc: "${member} a été retiré du ticket par ${interaction.user} (<#${interaction.channel.id}>) !"
+event_ticket_logsChannel_onAddMember_embed_title: "Journal des tickets - Ajouter un membre à un ticket"
+event_ticket_logsChannel_onAddMember_embed_desc: "${member} a été ajouté au ticket par ${interaction.user} (<#${interaction.channel.id}>) !"
+event_ticket_logsChannel_onReopen_embed_title: "Journal des tickets - Réouverture d'un ticket"
+event_ticket_logsChannel_onReopen_embed_desc: "${interaction.user} réouvre un ticket (<#${interaction.channel.id}>) !"
+event_ticket_logsChannel_onDelete_embed_title: "Journal des tickets - Suppression d'un ticket"
+event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} a supprimé un ticket (#${interaction.channel.name}) !"
+event_ticket_logsChannel_onAddMember2_embed_title: "Journal des tickets - Ajout/Retrait de membres d'un ticket"
+event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nRetirés : ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'Aucun'}.\nAjoutés : ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'Aucun'}.\n dans le ticket (${interaction.channel}) !"
 
 # -----------------------------\ /-----------------------------

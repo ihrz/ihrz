@@ -241,7 +241,7 @@ say_footer_msg: "\n\nОтправлено из `/говорить` от ${intera
 
 # /ping
 ping_down_msg: "**НЕАКТИВНО**"
-ping_embed_desc: "**Сеть** : `${await сеть}` мс\n**API Discord** : `${await API}` мс"
+ping_embed_desc: "**Сеть** : `${await network}` мс\n**API Discord** : `${await API}` мс"
 
 
 # Fun commands
@@ -1196,5 +1196,24 @@ event_suggestion_embed_author: "Новое предложение от ${message
 
 # Событие безопасности
 event_security: "${member}, пожалуйста, введите капчу, отправленную в этом сообщении.\nВаш ответ должен быть в правильном синтаксисе!\n__У вас есть 30 секунд на ответ.__"
+
+# Событие по билетам
+event_ticket_whenCreated_msg: "${interaction.user}, ваш билет был создан, посетите <#${channel.id}>!"
+event_ticket_logsChannel_onCreation_embed_title: "Лог билетов - Создание панели"
+event_ticket_logsChannel_onCreation_embed_desc: "Панель билетов с названием `${data.name}` в ${interaction} создана!"
+event_ticket_logsChannel_onCreationChannel_embed_title: "Лог билетов - Создание билета"
+event_ticket_logsChannel_onCreationChannel_embed_desc: "Билет создан: ${interaction.user} (<#${channel.id}>)!"
+event_ticket_logsChannel_onClose_embed_title: "Лог билетов - Закрытие билета"
+event_ticket_logsChannel_onClose_embed_desc: "Билет теперь закрыт ${interaction.user} (<#${interaction.channel.id}>)!"
+event_ticket_logsChannel_onRemoveMember_embed_title: "Лог билетов - Удаление участника из билета"
+event_ticket_logsChannel_onRemoveMember_embed_desc: "${member} удален из билета ${interaction.user} (<#${interaction.channel.id}>)!"
+event_ticket_logsChannel_onAddMember_embed_title: "Лог билетов - Добавление участника в билет"
+event_ticket_logsChannel_onAddMember_embed_desc: "${member} добавлен в билет ${interaction.user} (<#${interaction.channel.id}>)!"
+event_ticket_logsChannel_onReopen_embed_title: "Лог билетов - Повторное открытие билета"
+event_ticket_logsChannel_onReopen_embed_desc: "${interaction.user} повторно открывает билет (<#${interaction.channel.id}>)!"
+event_ticket_logsChannel_onDelete_embed_title: "Лог билетов - Удаление билета"
+event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} удалил билет (#${interaction.channel.name})!"
+event_ticket_logsChannel_onAddMember2_embed_title: "Лог билетов - Добавление/удаление участников из билета"
+event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nУдаленные: ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'Нет'}.\nДобавленные: ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'Нет'}.\n в билете (${interaction.channel})!"
 
 # -----------------------------/ \-----------------------------
