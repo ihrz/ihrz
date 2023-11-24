@@ -241,7 +241,7 @@ say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
 
 # /ping
 ping_down_msg: "**ダウン**"
-ping_embed_desc: "**ネットワーク** : `${await ネットワーク}` ms\n**Discord API** : `${await API}` ms"
+ping_embed_desc: "**ネットワーク** : `${await network}` ms\n**Discord API** : `${await API}` ms"
 
 
 # Fun commands
@@ -297,10 +297,10 @@ addmoney_logs_embed_description: "<@${interaction.user.id}> Added ${amount.value
 addmoney_command_work: "<@${user.user.id}> に `${amount.value}`$ 追加に成功しました"
 
 # /balance
-balance_dont_have_wallet: "👛 You dont't have wallet... !"
-balance_he_dont_have_wallet: "👛 He dont't have wallet... !"
-balance_have_wallet: "👛 You have ${bal} coin(s) !"
-balance_he_have_wallet: "👛 He have ${bal} coin(s) !"
+balance_dont_have_wallet: "👛 財布がありません... !"
+balance_he_dont_have_wallet: "${user} は財布を持っていません... !"
+balance_have_wallet: "👛 ${bal} コインを持っています！"
+balance_he_have_wallet: "👛 ${user} は ${bal} コインを持っています！"
 
 # /daily
 daily_cooldown_error: "Sorry you must wait **${time}** before running this command!"
@@ -1196,5 +1196,24 @@ event_suggestion_embed_author: "${message.author.username} からの新しい提
 
 # セキュリティイベント
 event_security: "${member} さん、このメッセージに送信されたキャプチャを入力してください。\nあなたの回答は正しい構文である必要があります！\n__回答するための時間は30秒です。__"
+
+# チケットイベント
+event_ticket_whenCreated_msg: "${interaction.user}さん、チケットが作成されました。 <#${channel.id}> をご覧ください！"
+event_ticket_logsChannel_onCreation_embed_title: "チケットログ - パネルの作成"
+event_ticket_logsChannel_onCreation_embed_desc: "チケットパネル`${data.name}`が${interaction}に作成されました！"
+event_ticket_logsChannel_onCreationChannel_embed_title: "チケットログ - チケットの作成"
+event_ticket_logsChannel_onCreationChannel_embed_desc: "チケットが作成されました：${interaction.user} (<#${channel.id}>)！"
+event_ticket_logsChannel_onClose_embed_title: "チケットログ - チケットのクローズ"
+event_ticket_logsChannel_onClose_embed_desc: "チケットは${interaction.user}によって閉じられました（<#${interaction.channel.id}>）！"
+event_ticket_logsChannel_onRemoveMember_embed_title: "チケットログ - チケットからメンバーを削除"
+event_ticket_logsChannel_onRemoveMember_embed_desc: "${interaction.user}によってチケットから${member}が削除されました（<#${interaction.channel.id}>）！"
+event_ticket_logsChannel_onAddMember_embed_title: "チケットログ - チケットにメンバーを追加"
+event_ticket_logsChannel_onAddMember_embed_desc: "${interaction.user}によってチケットに${member}が追加されました（<#${interaction.channel.id}>）！"
+event_ticket_logsChannel_onReopen_embed_title: "チケットログ - チケットの再オープン"
+event_ticket_logsChannel_onReopen_embed_desc: "${interaction.user}さんがチケットを再オープンしました（<#${interaction.channel.id}>）！"
+event_ticket_logsChannel_onDelete_embed_title: "チケットログ - チケットの削除"
+event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user}さんがチケットを削除しました（#${interaction.channel.name}）！"
+event_ticket_logsChannel_onAddMember2_embed_title: "チケットログ - チケットのメンバーの追加/削除"
+event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}さん\n削除されたメンバー：${removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'なし'}。\n追加されたメンバー：${addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'なし'}。\nチケット（${interaction.channel}）にいます！"
 
 # -----------------------------\ /-----------------------------

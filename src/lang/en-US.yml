@@ -297,10 +297,10 @@ addmoney_logs_embed_description: "<@${interaction.user.id}> Added ${amount.value
 addmoney_command_work: "Successfully added `${amount.value}`$ to <@${user.user.id}>"
 
 # /balance
-balance_dont_have_wallet: "👛 You dont't have wallet... !"
-balance_he_dont_have_wallet: "👛 He dont't have wallet... !"
+balance_dont_have_wallet: "👛 You don't have a wallet... !"
+balance_he_dont_have_wallet: "${user} doesn't have a wallet... !"
 balance_have_wallet: "👛 You have ${bal} coin(s) !"
-balance_he_have_wallet: "👛 He have ${bal} coin(s) !"
+balance_he_have_wallet: "👛 ${user} has ${bal} coin(s) !"
 
 # /daily
 daily_cooldown_error: "Sorry you must wait **${time}** before running this command!"
@@ -1196,5 +1196,24 @@ event_suggestion_embed_author: "New suggestion from ${message.author.username}"
 
 # Security Event
 event_security: "${member}, please type the captcha sended in this message.\nYou response need to be in the correct syntax!\n__You have 30 seconds to answer.__"
+
+# Ticket Event
+event_ticket_whenCreated_msg: "${interaction.user}, your ticket has been created, visit <#${channel.id}> !"
+event_ticket_logsChannel_onCreation_embed_title: "TicketLog - Creation Of Panel"
+event_ticket_logsChannel_onCreation_embed_desc: "Ticket Panel called `${data.name}` in ${interaction} are created !"
+event_ticket_logsChannel_onCreationChannel_embed_title: "TicketLog - Creation Of Ticket"
+event_ticket_logsChannel_onCreationChannel_embed_desc: "Ticket are create: ${interaction.user} (<#${channel.id}>) !"
+event_ticket_logsChannel_onClose_embed_title: "TicketLog - Closure Of Ticket"
+event_ticket_logsChannel_onClose_embed_desc: "Ticket are now closed by ${interaction.user} (<#${interaction.channel.id}>) !"
+event_ticket_logsChannel_onRemoveMember_embed_title: "TicketLog - Remove Member in a Ticket"
+event_ticket_logsChannel_onRemoveMember_embed_desc: "${member} are removed to the ticket by ${interaction.user} (<#${interaction.channel.id}>) !"
+event_ticket_logsChannel_onAddMember_embed_title: "TicketLog - Add Member in a Ticket"
+event_ticket_logsChannel_onAddMember_embed_desc: "${member} are added in the ticket by ${interaction.user} (<#${interaction.channel.id}>) !"
+event_ticket_logsChannel_onReopen_embed_title: "TicketLog - Re-Open a Ticket"
+event_ticket_logsChannel_onReopen_embed_desc: "${interaction.user} re-open a ticket (<#${interaction.channel.id}>) !"
+event_ticket_logsChannel_onDelete_embed_title: "TicketLog - Deletion of a Ticket"
+event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} have delete a ticket (#${interaction.channel.name}) !"
+event_ticket_logsChannel_onAddMember2_embed_title: "TicketLog - Add/Remove Members of a Ticket"
+event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nRemoved: ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'None'}.\nAdded: ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'None'}.\n in the ticket (${interaction.channel}) !"
 
 # -----------------------------\ /-----------------------------

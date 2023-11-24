@@ -86,45 +86,49 @@ export const command: Command = {
             let rolesCollection = interaction.guild.roles.cache;
             let rolesCount = rolesCollection.size;
 
-            if (messagei) {
-                let joinmsgreplace = messagei
-                    .replace("{rolescount}", rolesCount)
-                    .replace("{membercount}", interaction.guild.memberCount)
-                    .replace("{botcount}", botMembers.size)
-
-                if (messagei.includes("member")) {
-                    await client.db.set(`${interaction.guild.id}.GUILD.MCOUNT.member`,
-                        { name: messagei, enable: true, event: "member", channel: channel.id }
-                    );
-                } else if (messagei.includes("roles")) {
-                    await client.db.set(`${interaction.guild.id}.GUILD.MCOUNT.roles`,
-                        { name: messagei, enable: true, event: "roles", channel: channel.id }
-                    );
-                } else if (messagei.includes("bot")) {
-                    await client.db.set(`${interaction.guild.id}.GUILD.MCOUNT.bot`,
-                        { name: messagei, enable: true, event: "bot", channel: channel.id }
-                    );
-                };
-
-                try {
-                    let logEmbed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
-                        .setTitle(data.setmembercount_logs_embed_title_on_enable)
-                        .setDescription(data.setmembercount_logs_embed_description_on_enable
-                            .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                            .replace(/\${channel\.id}/g, channel.id)
-                            .replace(/\${messagei}/g, messagei)
-                        );
-
-                    let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                    if (logchannel) { logchannel.send({ embeds: [logEmbed] }); };
-                } catch (e: any) { logger.err(e) };
-                let fetched = interaction.guild.channels.cache.get(channel.id);
-
-                fetched.edit({ name: joinmsgreplace });
-                await interaction.editReply({ content: data.setmembercount_command_work_on_enable });
+            if (!messagei) {
+                await interaction.editReply({ embeds: [help_embed] });
                 return;
             };
+
+            let joinmsgreplace = messagei
+                .replace("{rolescount}", rolesCount)
+                .replace("{membercount}", interaction.guild.memberCount)
+                .replace("{botcount}", botMembers.size);
+
+            if (messagei.includes("member")) {
+                await client.db.set(`${interaction.guild.id}.GUILD.MCOUNT.member`,
+                    { name: messagei, enable: true, event: "member", channel: channel.id }
+                );
+            } else if (messagei.includes("roles")) {
+                await client.db.set(`${interaction.guild.id}.GUILD.MCOUNT.roles`,
+                    { name: messagei, enable: true, event: "roles", channel: channel.id }
+                );
+            } else if (messagei.includes("bot")) {
+                await client.db.set(`${interaction.guild.id}.GUILD.MCOUNT.bot`,
+                    { name: messagei, enable: true, event: "bot", channel: channel.id }
+                );
+            };
+
+            try {
+                let logEmbed = new EmbedBuilder()
+                    .setColor("#bf0bb9")
+                    .setTitle(data.setmembercount_logs_embed_title_on_enable)
+                    .setDescription(data.setmembercount_logs_embed_description_on_enable
+                        .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                        .replace(/\${channel\.id}/g, channel.id)
+                        .replace(/\${messagei}/g, messagei)
+                    );
+
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { logchannel.send({ embeds: [logEmbed] }); };
+            } catch (e: any) { logger.err(e) };
+            let fetched = interaction.guild.channels.cache.get(channel.id);
+
+            fetched.edit({ name: joinmsgreplace });
+            await interaction.editReply({ content: data.setmembercount_command_work_on_enable });
+            return;
+
         } else if (type == "off") {
             await client.db.delete(`${interaction.guild.id}.GUILD.MCOUNT`);
             try {

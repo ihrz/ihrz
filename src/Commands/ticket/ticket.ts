@@ -77,6 +77,19 @@ export const command: Command = {
             ],
         },
         {
+            name: 'log-channel',
+            description: "Set a channel where iHorizon sent a logs about tickets!",
+            type: 1,
+            options: [
+                {
+                    name: 'channel',
+                    type: ApplicationCommandOptionType.Channel,
+                    description: 'Where you want the logs',
+                    required: true
+                }
+            ],
+        },
+        {
             name: "open",
             description: "re-open a closed ticket!",
             type: 1,
