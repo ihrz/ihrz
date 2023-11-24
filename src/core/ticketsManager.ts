@@ -35,6 +35,7 @@ import {
 
 import * as discordTranscripts from 'discord-html-transcripts';
 import db from './functions/DatabaseModel';
+import logger from './logger';
 
 async function CreatePanel(interaction: any, data: any) {
 
@@ -70,7 +71,24 @@ async function CreatePanel(interaction: any, data: any) {
         );
     });
 
-    return;
+    try {
+        let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild.id}.GUILD.TICKET.logs`);
+        TicketLogsChannel = interaction.guild.channels.cache.get(TicketLogsChannel);
+        if (!TicketLogsChannel) return;
+
+        let embed = new EmbedBuilder()
+            .setColor("#008000")
+            .setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
+            .setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc
+                .replace('${interaction}', interaction)
+                .replace('${interaction}', interaction)
+            )
+            .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+            .setTimestamp();
+
+        TicketLogsChannel.send({ embeds: [embed] });
+        return;
+    } catch (e) { return };
 };
 
 async function CreateTicketChannel(interaction: any) {
@@ -82,7 +100,7 @@ async function CreateTicketChannel(interaction: any) {
         || result.messageID !== interaction.message.id) return;
 
     if (userTickets) {
-        interaction.deferUpdate()
+        interaction.deferUpdate();
         return;
     } else {
         await CreateChannel(
@@ -90,7 +108,6 @@ async function CreateTicketChannel(interaction: any) {
             result,
         );
 
-        interaction.deferUpdate();
         return;
     };
 };
@@ -107,6 +124,10 @@ async function CreateChannel(interaction: any, result: any) {
         permissionOverwrites: any;
         lockPermissions(): unknown; send: (arg0: { content: string; embeds: EmbedBuilder[]; }) => any, id: (string)
     }) => {
+        interaction.reply({ content: lang.event_ticket_whenCreated_msg
+            .replace('${interaction.user}', interaction.user)
+            .replace('${channel.id}', channel.id)
+        , ephemeral: true });
 
         if (category) {
             channel.lockPermissions();
@@ -169,9 +190,27 @@ async function CreateChannel(interaction: any, result: any) {
                     .addComponents(delete_ticket_button)
             ],
         }).catch((err: any) => {
-            console.error(err)
+            logger.err(err)
         });
-        return;
+
+        try {
+            let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild.id}.GUILD.TICKET.logs`);
+            TicketLogsChannel = interaction.guild.channels.cache.get(TicketLogsChannel);
+            if (!TicketLogsChannel) return;
+
+            let embed = new EmbedBuilder()
+                .setColor("#008000")
+                .setTitle(lang.event_ticket_logsChannel_onCreationChannel_embed_title)
+                .setDescription(lang.event_ticket_logsChannel_onCreationChannel_embed_desc
+                    .replace('${interaction.user}', interaction.user)
+                    .replace('${channel.id}', channel.id)
+                )
+                .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+                .setTimestamp();
+
+            TicketLogsChannel.send({ embeds: [embed] });
+            return;
+        } catch (e) { return };
     }).catch(() => { });
 };
 
@@ -210,6 +249,25 @@ async function CloseTicket(interaction: any) {
                             await interaction.channel.send(data.close_command_error);
                             return;
                         };
+
+                        try {
+                            let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild.id}.GUILD.TICKET.logs`);
+                            TicketLogsChannel = interaction.guild.channels.cache.get(TicketLogsChannel);
+                            if (!TicketLogsChannel) return;
+
+                            let embed = new EmbedBuilder()
+                                .setColor("#008000")
+                                .setTitle(data.event_ticket_logsChannel_onClose_embed_title)
+                                .setDescription(data.event_ticket_logsChannel_onClose_embed_desc
+                                    .replace('${interaction.user}', interaction.user)
+                                    .replace('${interaction.channel.id}', interaction.channel.id)
+                                )
+                                .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+                                .setTimestamp();
+
+                            TicketLogsChannel.send({ embeds: [embed], files: [attachment] });
+                            return;
+                        } catch (e) { return };
                     });
                 }
             }
@@ -263,6 +321,27 @@ async function TicketRemoveMember(interaction: any) {
     try {
         interaction.channel.permissionOverwrites.create(member, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
         interaction.editReply({ content: data.remove_command_work.replace(/\${member\.tag}/g, member.username) });
+
+        try {
+            let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild.id}.GUILD.TICKET.logs`);
+            TicketLogsChannel = interaction.guild.channels.cache.get(TicketLogsChannel);
+            if (!TicketLogsChannel) return;
+
+            let embed = new EmbedBuilder()
+                .setColor("#008000")
+                .setTitle(data.event_ticket_logsChannel_onRemoveMember_embed_title)
+                .setDescription(data.event_ticket_logsChannel_onRemoveMember_embed_desc
+                    .replace('${member}', member)
+                    .replace('${interaction.user}', interaction.user)
+                    .replace('${interaction.channel.id}', interaction.channel.id)
+                )
+                .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+                .setTimestamp();
+
+            TicketLogsChannel.send({ embeds: [embed] });
+            return;
+        } catch (e) { return };
+
     } catch (e: any) {
         await interaction.editReply({ content: data.remove_command_error });
         return;
@@ -281,7 +360,27 @@ async function TicketAddMember(interaction: any) {
     try {
         interaction.channel.permissionOverwrites.create(member, { ViewChannel: true, SendMessages: true, ReadMessageHistory: true });
         await interaction.editReply({ content: data.add_command_work.replace(/\${member\.tag}/g, member.username) });
-        return;
+
+        try {
+            let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild.id}.GUILD.TICKET.logs`);
+            TicketLogsChannel = interaction.guild.channels.cache.get(TicketLogsChannel);
+            if (!TicketLogsChannel) return;
+
+            let embed = new EmbedBuilder()
+                .setColor("#008000")
+                .setTitle(data.event_ticket_logsChannel_onAddMember_embed_title)
+                .setDescription(data.event_ticket_logsChannel_onAddMember_embed_desc
+                    .replace('${member}', member)
+                    .replace('${interaction.user}', interaction.user)
+                    .replace('${interaction.channel.id}', interaction.channel.id)
+                )
+                .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+                .setTimestamp();
+
+            TicketLogsChannel.send({ embeds: [embed] });
+            return;
+        } catch (e) { return };
+
     } catch (e) {
         await interaction.editReply({ content: data.add_command_error });
         return;
@@ -290,7 +389,6 @@ async function TicketAddMember(interaction: any) {
 
 async function TicketReOpen(interaction: any) {
     let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
-
     let fetch = await db.get(`${interaction.guild.id}.TICKET_ALL`);
 
     for (let user in fetch) {
@@ -313,6 +411,26 @@ async function TicketReOpen(interaction: any) {
                             });
                             return;
                         });
+
+                    try {
+                        let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild.id}.GUILD.TICKET.logs`);
+                        TicketLogsChannel = interaction.guild.channels.cache.get(TicketLogsChannel);
+                        if (!TicketLogsChannel) return;
+
+                        let embed = new EmbedBuilder()
+                            .setColor("#008000")
+                            .setTitle(data.event_ticket_logsChannel_onReopen_embed_title)
+                            .setDescription(data.event_ticket_logsChannel_onReopen_embed_desc
+                                .replace('${interaction.user}', interaction.user)
+                                .replace('${interaction.channel.id}', interaction.channel.id)
+                            )
+                            .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+                            .setTimestamp();
+
+                        TicketLogsChannel.send({ embeds: [embed] });
+                        return;
+                    } catch (e) { return };
+
                 } catch (e: any) {
                     await interaction.editReply({ content: data.open_command_error });
                     return;
@@ -323,6 +441,7 @@ async function TicketReOpen(interaction: any) {
 };
 
 async function TicketDelete(interaction: any) {
+    let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
     let fetch = await db.get(`${interaction.guild.id}.TICKET_ALL`);
 
     for (let user in fetch) {
@@ -336,7 +455,25 @@ async function TicketDelete(interaction: any) {
 
                 await db.delete(`${interaction.guild.id}.TICKET_ALL.${interaction.user.id}`);
                 interaction.channel.delete();
-                return;
+
+                try {
+                    let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild.id}.GUILD.TICKET.logs`);
+                    TicketLogsChannel = interaction.guild.channels.cache.get(TicketLogsChannel);
+                    if (!TicketLogsChannel) return;
+
+                    let embed = new EmbedBuilder()
+                        .setColor("#008000")
+                        .setTitle(data.event_ticket_logsChannel_onDelete_embed_title)
+                        .setDescription(data.event_ticket_logsChannel_onDelete_embed_desc
+                            .replace('${interaction.user}', interaction.user)
+                            .replace('${interaction.channel.name}', interaction.channel.name)
+                        )
+                        .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+                        .setTimestamp();
+
+                    TicketLogsChannel.send({ embeds: [embed] });
+                    return;
+                } catch (e) { return };
             }
         }
     }
@@ -345,6 +482,11 @@ async function TicketDelete(interaction: any) {
 async function TicketAddMember_2(interaction: any) {
     let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
     let owner_ticket = await db.get(`${interaction.guild.id}.TICKET_ALL.${interaction.user.id}.${interaction.channel.id}`);
+
+    if (!owner_ticket) {
+        await interaction.deferUpdate();
+        return;
+    };
 
     let membersArray: any[] = [];
     let listmembersArray: any[] = [];
@@ -395,7 +537,27 @@ async function TicketAddMember_2(interaction: any) {
     };
     await interaction.deferUpdate();
 
-    return;
+    try {
+        let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild.id}.GUILD.TICKET.logs`);
+        TicketLogsChannel = interaction.guild.channels.cache.get(TicketLogsChannel);
+        if (!TicketLogsChannel) return;
+
+        let embed = new EmbedBuilder()
+            .setColor("#008000")
+            .setTitle(data.event_ticket_logsChannel_onAddMember2_embed_title)
+            .setDescription(data.event_ticket_logsChannel_onAddMember2_embed_desc
+                .replace('${interaction.user}', interaction.user)
+                .replace("${removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'None'}", removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'None')
+                .replace("${addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'None'}", addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'None')
+                .replace('${interaction.channel}', interaction.channel)
+
+            )
+            .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+            .setTimestamp();
+
+        TicketLogsChannel.send({ embeds: [embed] });
+        return;
+    } catch (e) { return };
 };
 
 export {

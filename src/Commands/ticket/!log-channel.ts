@@ -21,35 +21,36 @@
 
 import {
     Client,
-    EmbedBuilder
+    EmbedBuilder,
+    PermissionsBitField,
 } from 'discord.js';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let member = interaction.options.getUser('user') || interaction.user;
-        var bal = await client.db.get(`${interaction.guild.id}.USER.${member.id}.ECONOMY.money`);
+        let blockQ = await client.db.get(`${interaction.guild.id}.GUILD.TICKET.disable`);
+        let channel = interaction.options.getChannel('channel');
 
-        if (!bal) {
-            await client.db.set(`${interaction.guild.id}.USER.${member.value}.ECONOMY.money`, 1);
-            await interaction.editReply({ content: data.balance_he_dont_have_wallet });
+        if (blockQ) {
+            await interaction.editReply({ content: data.open_disabled_command });
             return;
         };
 
-        let embed = new EmbedBuilder()
-            .setColor('#e3c6ff')
-            .setTitle(`\`${interaction.user.username}\`'s Wallet`)
-            .setThumbnail(interaction.user.displayAvatarURL())
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
-            .setDescription(data.balance_he_have_wallet
-                .replace(/\${bal}/g, bal)
-                .replace('${user}', interaction.user)
-            )
-            .setTimestamp()
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            await interaction.editReply({ content: data.disableticket_not_admin });
+            return;
+        };
 
-        await interaction.editReply({
-            embeds: [embed]
-        });
+        client.db.set(`${interaction.guild.id}.GUILD.TICKET.logs`, channel.id);
+
+        let embed = new EmbedBuilder()
+            .setColor("#008000")
+            .setTitle('Ticket Logs Channel')
+            .setDescription(`${interaction.user}, you have been set the Ticket Module's Channel logs to ${channel}!`)
+            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setTimestamp();
+
+        await interaction.editReply({ embeds: [embed] });
         return;
     },
 };

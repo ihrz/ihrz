@@ -241,7 +241,7 @@ say_footer_msg: "\n\nGesendet von `/sagen` von ${interaction.user}"
 
 # /ping
 ping_down_msg: "**INAKTIV**"
-ping_embed_desc: "**Netzwerk** : `${await Netzwerk}` ms\n**Discord API** : `${await API}` ms"
+ping_embed_desc: "**Netzwerk** : `${await network}` ms\n**Discord API** : `${await API}` ms"
 
 
 # Fun commands
@@ -297,10 +297,10 @@ addmoney_logs_embed_description: "<@${interaction.user.id}> hat ${amount.value} 
 addmoney_command_work: "Erfolgreich `${amount.value}`$ zu <@${user.user.id}> hinzugefügt"
 
 # /balance
-balance_dont_have_wallet: "👛 Sie haben kein Portemonnaie... !"
-balance_he_dont_have_wallet: "👛 Er hat kein Portemonnaie... !"
-balance_have_wallet: "👛 Sie haben ${bal} Münze(n)!"
-balance_he_have_wallet: "👛 Er hat ${bal} Münze(n)!"
+balance_dont_have_wallet: "👛 Du hast keine Brieftasche... !"
+balance_he_dont_have_wallet: "${user} hat keine Brieftasche... !"
+balance_have_wallet: "👛 Du hast ${bal} Münzen !"
+balance_he_have_wallet: "👛 ${user} hat ${bal} Münzen !"
 
 # /daily
 daily_cooldown_error: "Entschuldigung, Sie müssen **${time}** warten, bevor Sie diesen Befehl ausführen können!"
@@ -1196,5 +1196,24 @@ event_suggestion_embed_author: "Neuer Vorschlag von ${message.author.username}"
 
 # Sicherheitsereignis
 event_security: "${member}, tippe bitte das gesendete Captcha in diese Nachricht ein.\nDeine Antwort muss die richtige Syntax haben!\n__Du hast 30 Sekunden Zeit, um zu antworten.__"
+
+# Ticket-Ereignis
+event_ticket_whenCreated_msg: "${interaction.user}, Ihr Ticket wurde erstellt, besuchen Sie <#${channel.id}>!"
+event_ticket_logsChannel_onCreation_embed_title: "Ticket-Protokoll - Erstellung des Panels"
+event_ticket_logsChannel_onCreation_embed_desc: "Ticket-Panel mit dem Namen `${data.name}` in ${interaction} erstellt!"
+event_ticket_logsChannel_onCreationChannel_embed_title: "Ticket-Protokoll - Erstellung des Tickets"
+event_ticket_logsChannel_onCreationChannel_embed_desc: "Ticket erstellt von ${interaction.user} (<#${channel.id}>)!"
+event_ticket_logsChannel_onClose_embed_title: "Ticket-Protokoll - Schließung des Tickets"
+event_ticket_logsChannel_onClose_embed_desc: "Ticket wurde nun von ${interaction.user} geschlossen (<#${interaction.channel.id}>)!"
+event_ticket_logsChannel_onRemoveMember_embed_title: "Ticket-Protokoll - Mitglied aus einem Ticket entfernen"
+event_ticket_logsChannel_onRemoveMember_embed_desc: "${member} wurde von ${interaction.user} aus dem Ticket entfernt (<#${interaction.channel.id}>)!"
+event_ticket_logsChannel_onAddMember_embed_title: "Ticket-Protokoll - Mitglied zu einem Ticket hinzufügen"
+event_ticket_logsChannel_onAddMember_embed_desc: "${member} wurde von ${interaction.user} dem Ticket hinzugefügt (<#${interaction.channel.id}>)!"
+event_ticket_logsChannel_onReopen_embed_title: "Ticket-Protokoll - Ticket wieder öffnen"
+event_ticket_logsChannel_onReopen_embed_desc: "${interaction.user} hat ein Ticket wieder geöffnet (<#${interaction.channel.id}>)!"
+event_ticket_logsChannel_onDelete_embed_title: "Ticket-Protokoll - Löschen eines Tickets"
+event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} hat ein Ticket gelöscht (#${interaction.channel.name})!"
+event_ticket_logsChannel_onAddMember2_embed_title: "Ticket-Protokoll - Hinzufügen/Entfernen von Mitgliedern eines Tickets"
+event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nEntfernt: ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'Keine'}.\nHinzugefügt: ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'Keine'}.\n im Ticket (${interaction.channel})!"
 
 # -----------------------------\ /-----------------------------
