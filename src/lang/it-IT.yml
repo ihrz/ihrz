@@ -1214,6 +1214,6 @@ event_ticket_logsChannel_onReopen_embed_desc: "${interaction.user} ha riaperto u
 event_ticket_logsChannel_onDelete_embed_title: "Registro dei ticket - Eliminazione di un ticket"
 event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} ha eliminato un ticket (#${interaction.channel.name})!"
 event_ticket_logsChannel_onAddMember2_embed_title: "Registro dei ticket - Aggiunta/Rimozione membri di un ticket"
-event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nRimossi: ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'Nessuno'}.\nAggiunti: ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'Nessuno'}.\n nel ticket (${interaction.channel})!"
+event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nRimossi: ${removedMembers}.\nAggiunti: ${addedMembers}.\n nel ticket (${interaction.channel})!"
 
 # -----------------------------\ /-----------------------------

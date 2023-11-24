@@ -1214,6 +1214,6 @@ event_ticket_logsChannel_onReopen_embed_desc: "${interaction.user} hat ein Ticke
 event_ticket_logsChannel_onDelete_embed_title: "Ticket-Protokoll - Löschen eines Tickets"
 event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} hat ein Ticket gelöscht (#${interaction.channel.name})!"
 event_ticket_logsChannel_onAddMember2_embed_title: "Ticket-Protokoll - Hinzufügen/Entfernen von Mitgliedern eines Tickets"
-event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nEntfernt: ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'Keine'}.\nHinzugefügt: ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'Keine'}.\n im Ticket (${interaction.channel})!"
+event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nEntfernt: ${removedMembers}.\nHinzugefügt: ${addedMembers}.\n im Ticket (${interaction.channel})!"
 
 # -----------------------------\ /-----------------------------

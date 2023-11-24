@@ -1214,6 +1214,6 @@ event_ticket_logsChannel_onReopen_embed_desc: "${interaction.user} réouvre un t
 event_ticket_logsChannel_onDelete_embed_title: "Journal des tickets - Suppression d'un ticket"
 event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} a supprimé un ticket (#${interaction.channel.name}) !"
 event_ticket_logsChannel_onAddMember2_embed_title: "Journal des tickets - Ajout/Retrait de membres d'un ticket"
-event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nRetirés : ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'Aucun'}.\nAjoutés : ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'Aucun'}.\n dans le ticket (${interaction.channel}) !"
+event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nRetirés : ${removedMembers}.\nAjoutés : ${addedMembers}.\n dans le ticket (${interaction.channel}) !"
 
 # -----------------------------\ /-----------------------------

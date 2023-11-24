@@ -547,8 +547,8 @@ async function TicketAddMember_2(interaction: any) {
             .setTitle(data.event_ticket_logsChannel_onAddMember2_embed_title)
             .setDescription(data.event_ticket_logsChannel_onAddMember2_embed_desc
                 .replace('${interaction.user}', interaction.user)
-                .replace("${removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'None'}", removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'None')
-                .replace("${addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'None'}", addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'None')
+                .replace("${removedMembers}", removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'None')
+                .replace("${addedMembers}", addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'None')
                 .replace('${interaction.channel}', interaction.channel)
 
             )

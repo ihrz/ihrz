@@ -1214,6 +1214,6 @@ event_ticket_logsChannel_onReopen_embed_desc: "${interaction.user} повтор�
 event_ticket_logsChannel_onDelete_embed_title: "Лог билетов - Удаление билета"
 event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} удалил билет (#${interaction.channel.name})!"
 event_ticket_logsChannel_onAddMember2_embed_title: "Лог билетов - Добавление/удаление участников из билета"
-event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nУдаленные: ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'Нет'}.\nДобавленные: ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'Нет'}.\n в билете (${interaction.channel})!"
+event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nУдаленные: ${removedMembers}.\nДобавленные: ${addedMembers}.\n в билете (${interaction.channel})!"
 
 # -----------------------------/ \-----------------------------
