@@ -301,6 +301,8 @@ balance_dont_have_wallet: "👛 財布がありません... !"
 balance_he_dont_have_wallet: "${user} は財布を持っていません... !"
 balance_have_wallet: "👛 ${bal} コインを持っています！"
 balance_he_have_wallet: "👛 ${user} は ${bal} コインを持っています！"
+balance_embed_fields1_name: "銀行"
+balance_embed_fields2_name: "バランス中"
 
 # /daily
 daily_cooldown_error: "Sorry you must wait **${time}** before running this command!"
@@ -343,6 +345,22 @@ weekly_embed_fields: "収集された"
 work_cooldown_error: "**50分間は他のユーザーを強奪できません！** ${interaction.user.username}"
 work_embed_author: "${interaction.user.username}、報酬がもらえました！"
 work_embed_description: "${interaction.user.username}、あなたは働いて${amount}$を稼ぎました！"
+
+# /withdraw
+withdraw_cannot_abuse: "❌ | あなたの銀行にある金額よりも多くのコインを引き出すことはできません！"
+withdraw_embed_title: "あなたの銀行から引き出す"
+withdraw_embed_desc: "${interaction.user}、あなたは`銀行`から${toWithdraw}🪙を引き出しました"
+withdraw_embed_fields1_name: "銀行"
+
+# /deposit
+deposit_cannot_abuse: "❌ | あなたのウォレットにある金額よりも多くのコインを預けることはできません！"
+deposit_embed_title: "あなたの銀行に預ける"
+deposit_embed_desc: "${interaction.user}、あなたは`銀行`に${toDeposit}🪙を預けました"
+deposit_embed_fields1_name: "銀行"
+
+# /leaderboard
+economy_leaderboard_embed_title: "`${interaction.guild.name}`の経済リーダーボード"
+economy_leaderboard_embed_fields_value: "<@${userId}> - 銀行: `${userData.bank || 0}`🪙 | バランス: `${userData.money || 0}`🪙"
 
 
 # Profil Customisation commands

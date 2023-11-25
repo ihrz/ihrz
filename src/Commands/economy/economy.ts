@@ -76,7 +76,7 @@ export const command: Command = {
             ],
         },
         {
-            name: 'wallet',
+            name: 'balance',
             description: 'Get the balance of a user!',
             type: 1,
             options: [
@@ -85,6 +85,24 @@ export const command: Command = {
                     type: ApplicationCommandOptionType.User,
                     description: 'Target a user for see their current balance or keep blank for yourself',
                     required: false
+                }
+            ],
+        },
+        {
+            name: 'leaderboard',
+            description: "Get the users balance's leaderboard of the guild!",
+            type: 1,
+        },
+        {
+            name: 'deposit',
+            description: 'Deposit coin in your bank!',
+            type: 1,
+            options: [
+                {
+                    name: 'how-much',
+                    type: ApplicationCommandOptionType.Number,
+                    description: 'How much coin you want to deposit in your bank?',
+                    required: true
                 }
             ],
         },
@@ -138,6 +156,19 @@ export const command: Command = {
                     name: 'member',
                     type: ApplicationCommandOptionType.User,
                     description: 'the member you want to rob a money',
+                    required: true
+                }
+            ],
+        },
+        {
+            name: 'withdraw',
+            description: 'Withdraw coin from your bank!',
+            type: 1,
+            options: [
+                {
+                    name: 'how-much',
+                    type: ApplicationCommandOptionType.Number,
+                    description: 'How much coin you want to withdraw from your bank?',
                     required: true
                 }
             ],

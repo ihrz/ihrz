@@ -301,6 +301,8 @@ balance_dont_have_wallet: "👛 Du hast keine Brieftasche... !"
 balance_he_dont_have_wallet: "${user} hat keine Brieftasche... !"
 balance_have_wallet: "👛 Du hast ${bal} Münzen !"
 balance_he_have_wallet: "👛 ${user} hat ${bal} Münzen !"
+balance_embed_fields1_name: "Bank"
+balance_embed_fields2_name: "Im Guthaben"
 
 # /daily
 daily_cooldown_error: "Entschuldigung, Sie müssen **${time}** warten, bevor Sie diesen Befehl ausführen können!"
@@ -343,6 +345,22 @@ weekly_embed_fields: "Eingesammelt"
 work_cooldown_error: "**Warte 50 Minuten, bevor du wieder arbeitest!** ${interaction.user.username}"
 work_embed_author: "${interaction.user.username}, es hat sich ausgezahlt!"
 work_embed_description: "${interaction.user.username}, du hast gearbeitet und ${amount}$ verdient!"
+
+# /withdraw
+withdraw_cannot_abuse: "❌ | Sie können nicht mehr Münzen abheben, als Sie auf der Bank haben!"
+withdraw_embed_title: "Abhebung von Ihrer Bank"
+withdraw_embed_desc: "${interaction.user}, Sie haben ${toWithdraw}🪙 von Ihrer `Bank` abgehoben"
+withdraw_embed_fields1_name: "Bank"
+
+# /deposit
+deposit_cannot_abuse: "❌ | Sie können nicht mehr Münzen einzahlen, als Sie in Ihrer Brieftasche haben!"
+deposit_embed_title: "Einzahlung auf Ihre Bank"
+deposit_embed_desc: "${interaction.user}, Sie haben ${toDeposit}🪙 auf Ihre `Bank` eingezahlt"
+deposit_embed_fields1_name: "Bank"
+
+# /leaderboard
+economy_leaderboard_embed_title: "Wirtschafts-Rangliste von `${interaction.guild.name}`"
+economy_leaderboard_embed_fields_value: "<@${userId}> - Bank: `${userData.bank || 0}`🪙 | Guthaben: `${userData.money || 0}`🪙"
 
 
 # Profil Customisation commands

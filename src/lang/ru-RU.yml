@@ -301,6 +301,8 @@ balance_dont_have_wallet: "👛 У вас нет кошелька... !"
 balance_he_dont_have_wallet: "${user} не имеет кошелька... !"
 balance_have_wallet: "👛 У вас есть ${bal} монет(ы) !"
 balance_he_have_wallet: "👛 У ${user} есть ${bal} монет(ы) !"
+balance_embed_fields1_name: "Банк"
+balance_embed_fields2_name: "В балансе"
 
 # /daily
 daily_cooldown_error: "Извините, вы должны подождать **${time}** перед выполнением этой команды!"
@@ -343,6 +345,22 @@ weekly_embed_fields: "Собрано"
 work_cooldown_error: "**Подождите 50 минут, прежде чем снова работать!** ${interaction.user.username}"
 work_embed_author: "${interaction.user.username}, это окупилось!"
 work_embed_description: "${interaction.user.username}, вы поработали и заработали ${amount}$ !"
+
+# /withdraw
+withdraw_cannot_abuse: "❌ | Вы не можете снять большую сумму монет, чем у вас в банке!"
+withdraw_embed_title: "Снятие с вашего банка"
+withdraw_embed_desc: "${interaction.user}, вы сняли ${toWithdraw}🪙 с вашего `банка`"
+withdraw_embed_fields1_name: "Банк"
+
+# /deposit
+deposit_cannot_abuse: "❌ | Вы не можете внести большую сумму монет, чем у вас в кошельке!"
+deposit_embed_title: "Внесение в ваш банк"
+deposit_embed_desc: "${interaction.user}, вы внесли ${toDeposit}🪙 в ваш `банк`"
+deposit_embed_fields1_name: "Банк"
+
+# /leaderboard
+economy_leaderboard_embed_title: "Экономическое лидерство `${interaction.guild.name}`"
+economy_leaderboard_embed_fields_value: "<@${userId}> - Банк: `${userData.bank || 0}`🪙 | Баланс: `${userData.money || 0}`🪙"
 
 
 # Profil Customisation commands

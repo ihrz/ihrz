@@ -21,30 +21,39 @@
 
 import {
     Client,
-    EmbedBuilder
+    EmbedBuilder,
+    User
 } from 'discord.js';
 
 export = {
     run: async (client: Client, interaction: any, data: any) => {
 
-        let member = interaction.options.getUser('user') || interaction.user;
+        let member: User = interaction.options.getUser('user') || interaction.user;
         var bal = await client.db.get(`${interaction.guild.id}.USER.${member.id}.ECONOMY.money`);
 
         if (!bal) {
-            await client.db.set(`${interaction.guild.id}.USER.${member.value}.ECONOMY.money`, 1);
-            await interaction.editReply({ content: data.balance_he_dont_have_wallet });
+            await client.db.set(`${interaction.guild.id}.USER.${member.id}.ECONOMY.money`, 1);
+            await interaction.editReply({
+                content: data.balance_he_dont_have_wallet
+                    .replace('${user}', interaction.user)
+            });
             return;
         };
 
+        let totalWallet = (bal || 0) + (await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.bank`) || 0);
         let embed = new EmbedBuilder()
             .setColor('#e3c6ff')
-            .setTitle(`\`${interaction.user.username}\`'s Wallet`)
-            .setThumbnail(interaction.user.displayAvatarURL())
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setTitle(`\`${member.username}\`'s Wallet`)
+            .setThumbnail(member.displayAvatarURL())
             .setDescription(data.balance_he_have_wallet
-                .replace(/\${bal}/g, bal)
-                .replace('${user}', interaction.user)
+                .replace(/\${bal}/g, totalWallet)
+                .replace('${user}', member)
             )
+            .addFields(
+                { name: data.balance_embed_fields1_name, value: `${await client.db.get(`${interaction.guild.id}.USER.${member.id}.ECONOMY.bank`) || 0}🪙`, inline: true },
+                { name: data.balance_embed_fields2_name, value: `${await client.db.get(`${interaction.guild.id}.USER.${member.id}.ECONOMY.money`) || 0}🪙`, inline: true }
+            )
+            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp()
 
         await interaction.editReply({

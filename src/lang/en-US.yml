@@ -301,6 +301,8 @@ balance_dont_have_wallet: "👛 You don't have a wallet... !"
 balance_he_dont_have_wallet: "${user} doesn't have a wallet... !"
 balance_have_wallet: "👛 You have ${bal} coin(s) !"
 balance_he_have_wallet: "👛 ${user} has ${bal} coin(s) !"
+balance_embed_fields1_name: "Bank"
+balance_embed_fields2_name: "In Balance"
 
 # /daily
 daily_cooldown_error: "Sorry you must wait **${time}** before running this command!"
@@ -343,6 +345,22 @@ weekly_embed_fields: "Collected"
 work_cooldown_error: "**Wait 50minutes before rob user again !** ${interaction.user.username}"
 work_embed_author: "${interaction.user.username}, it payed off!"
 work_embed_description: "${interaction.user.username}, you've worked and earned ${amount}$ !"
+
+# /withdraw
+withdraw_cannot_abuse: "❌ | You cannot Withdraw a larger amount of coin as you have in your bank!"
+withdraw_embed_title: "Withdraw from your bank"
+withdraw_embed_desc: "${interaction.user}, you have been withdraw ${toWithdraw}🪙 from your `bank`"
+withdraw_embed_fields1_name: "Bank"
+
+# /deposit
+deposit_cannot_abuse: "❌ | You cannot deposit a larger amount of coin as you have in your wallet!"
+deposit_embed_title: "Deposit into your bank"
+deposit_embed_desc: "${interaction.user}, you have been deposit ${toDeposit}🪙 in your `bank`"
+deposit_embed_fields1_name: "Bank"
+
+# /leaderboard
+economy_leaderboard_embed_title: "Economy leaderboard of `${interaction.guild.name}`"
+economy_leaderboard_embed_fields_value: "<@${userId}> - Bank: `${userData.bank || 0}`🪙 | Balance: `${userData.money || 0}`🪙"
 
 
 # Profil Customisation commands
