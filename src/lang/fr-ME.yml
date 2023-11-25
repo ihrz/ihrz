@@ -617,6 +617,10 @@ setlogschannel_logs_embed_title: "Configuration des logs du serveur"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> a configuré les `${typeOfLogs}` vers <#${argsid.id}>"
 setlogschannel_logs_embed_title_on_off: "Configuration des logs du serveur"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> a supprimé tous les `SERVER_LOGS` dans le serveur !"
+setlogschannel_var_roles: "Logs des rôles"
+setlogschannel_var_mods: "Logs de modération"
+setlogschannel_var_voice: "Logs vocaux"
+setlogschannel_var_msg: "Logs des messages"
 
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, tu avez désactivé la règle `AutoModération de Mention Massive` à **false**.\nMaintenant, les utilisateurs peuvent envoyer des mentions dans leurs messages.\nAutoMod x iHorizon a été désactivé sur ton serveur !"
@@ -1229,5 +1233,13 @@ event_ticket_logsChannel_onDelete_embed_title: "Journal des tickets - Suppressio
 event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} a supprimé un ticket (#${interaction.channel.name}) !"
 event_ticket_logsChannel_onAddMember2_embed_title: "Journal des tickets - Ajout/Retrait de con d'un ticket"
 event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nRetirés : ${removedMembers}.\nAjoutés : ${addedMembers}.\n dans le ticket (${interaction.channel})  (enfaite je m'en branle mdr)!"
+
+# Événement Giveaway
+event_gw_reroll_win_msg: "Félicitations ${winners} ! Vous avez remporté **${fetch[channelId][messageId].prize}** (j'éspère c'est un nitro nikoumouk)!"
+event_gw_reroll_cannot_win_msg: "Wesh personne n'a voulue le cadeau? Nique sa mère. Aucun participant valide, donc un gagnant n'a pas pu être déterminé ! "
+event_gw_finnish_msg: "Félicitations ${winners} ! Vous avez remporté **${fetch.prize}** !"
+event_gw_finnish_cannot_msg: "Aucun participant valide, donc un gagnant n'a pas pu être déterminé ! Eh merde ptn"
+event_gw_finnish_button_title: "Giveaway Terminé Wallah"
+event_gw_removeentries_msg: "${interaction.user}, vous avez quitté ce giveaway ! Salle clochard wtf"
 
 # -----------------------------\ /-----------------------------

@@ -1234,4 +1234,12 @@ event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} ha eliminado 
 event_ticket_logsChannel_onAddMember2_embed_title: "Registro de Tickets - Agregar/Eliminar Miembros de un Ticket"
 event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nEliminados: ${removedMembers}.\nAgregados: ${addedMembers}.\n en el Ticket (${interaction.channel}) !"
 
+# Evento de Sorteo
+event_gw_reroll_win_msg: "¡Felicidades ${winners}! ¡Ganaste **${fetch[channelId][messageId].prize}**!"
+event_gw_reroll_cannot_win_msg: "No hay participantes válidos, por lo que no se pudo determinar un ganador."
+event_gw_finnish_msg: "¡Felicidades ${winners}! ¡Ganaste **${fetch.prize}**!"
+event_gw_finnish_cannot_msg: "No hay participantes válidos, por lo que no se pudo determinar un ganador."
+event_gw_finnish_button_title: "Sorteo Finalizado"
+event_gw_removeentries_msg: "${interaction.user}, ¡has abandonado este sorteo!"
+
 # -----------------------------\ /-----------------------------

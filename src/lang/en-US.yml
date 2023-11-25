@@ -1234,4 +1234,12 @@ event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} have delete a
 event_ticket_logsChannel_onAddMember2_embed_title: "TicketLog - Add/Remove Members of a Ticket"
 event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nRemoved: ${removedMembers}.\nAdded: ${addedMembers}.\n in the ticket (${interaction.channel}) !"
 
+# Giveaway Event
+event_gw_reroll_win_msg: "Congratulations ${winners}! You won the **${fetch[channelId][messageId].prize}**!"
+event_gw_reroll_cannot_win_msg: "No valid entrants, so a winner could not be determined!"
+event_gw_finnish_msg: "Congratulations ${winners}! You won the **${fetch.prize}**!"
+event_gw_finnish_cannot_msg: "No valid entrants, so a winner could not be determined!"
+event_gw_finnish_button_title: "Giveaway Finished"
+event_gw_removeentries_msg: "${interaction.user} you have leave this giveaways !"
+
 # -----------------------------\ /-----------------------------

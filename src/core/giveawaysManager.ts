@@ -45,7 +45,6 @@ async function Create(channel: any, data: Giveaway) {
         .setDescription(`Ends: ${time((date.addMilliseconds(new Date(), data.duration)), 'R')} (${time((date.addMilliseconds(new Date(), data.duration)), 'D')})\nHosted by: ${data.hostedBy}\nEntries: **0**\nWinners: **${data.winnerCount}**`)
         .setTimestamp((date.addMilliseconds(new Date(), data.duration)));
 
-
     let response = await channel.send({
         embeds: [gw],
         components: [new ActionRowBuilder()
@@ -94,6 +93,7 @@ async function AddEntries(interaction: any) {
 async function RemoveEntries(interaction: any) {
 
     let members: Array<string> = await db.get(`GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`);
+    let lang = await interaction.client.functions.getLanguageData(interaction.guild.id);
 
     function arraySub(arr: Array<any>, value: string) {
         return arr.filter(function (toSub) {
@@ -103,7 +103,11 @@ async function RemoveEntries(interaction: any) {
 
     await db.set(`GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`, arraySub(members, interaction.user.id));
 
-    await interaction.reply({ content: `${interaction.user} you have leave this giveaways !`, ephemeral: true });
+    await interaction.reply({
+        content: lang.event_gw_removeentries_msg
+            .replace('${interaction.user}', interaction.user)
+        , ephemeral: true
+    });
 
     let regex = /Entries: \*\*\d+\*\*/;
 
@@ -113,7 +117,6 @@ async function RemoveEntries(interaction: any) {
         );
 
     await interaction.message.edit({ embeds: [embedsToEdit] });
-
     return;
 };
 
@@ -179,6 +182,7 @@ function SelectWinners(fetch: any, number: number) {
 
 async function Finnish(client: Client, messageId: any, guildId: any, channelId: any) {
 
+    let lang = await client.functions.getLanguageData(guildId);
     let fetch = await db.get(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
 
     if (!fetch.ended === true || fetch.ended === 'End()') {
@@ -198,7 +202,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : 'None';
 
         let Finnish = new ButtonBuilder()
-            .setLabel('Giveaway Finnished')
+            .setLabel(lang.event_gw_finnish_button_title)
             .setURL('https://media.tenor.com/uO4u0ib3oK0AAAAC/done-and-done-spongebob.gif')
             .setStyle(ButtonStyle.Link);
 
@@ -214,15 +218,18 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         });
 
         if (winners !== 'None') {
-            await message.reply({ content: `Congratulations ${winners}! You won the **${fetch.prize}**!` })
+            await message.reply({
+                content: lang.event_gw_finnish_msg
+                    .replace('${winners}', winners)
+                    .replace('${fetch.prize}', fetch.prize)
+            })
         } else {
             await message.reply({
-                content: 'No valid entrants, so a winner could not be determined!'
+                content: lang.event_gw_finnish_cannot_msg
             });
         };
 
         await db.set(`GIVEAWAYS.${guildId}.${channelId}.${messageId}.ended`, true);
-
         await db.set(`GIVEAWAYS.${guildId}.${channelId}.${messageId}.winner`, winner || 'None');
     };
     return;
@@ -230,6 +237,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
 
 async function Reroll(client: Client, data: any) {
 
+    let lang = await client.functions.getLanguageData(data.guildId);
     let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
 
     for (let channelId in fetch) {
@@ -262,10 +270,14 @@ async function Reroll(client: Client, data: any) {
                 });
 
                 if (winner !== 'None') {
-                    await message.reply({ content: `Congratulations ${winners}! You won the **${fetch[channelId][messageId].prize}**!` })
+                    await message.reply({
+                        content: lang.event_gw_reroll_win_msg
+                            .replace('${winners}', winners)
+                            .replace('${fetch[channelId][messageId].prize}', fetch[channelId][messageId].prize)
+                    });
                 } else {
                     await message.reply({
-                        content: 'No valid entrants, so a winner could not be determined!'
+                        content: lang.event_gw_reroll_cannot_win_msg
                     });
                 };
 

@@ -1234,4 +1234,12 @@ event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user}さんがチ�
 event_ticket_logsChannel_onAddMember2_embed_title: "チケットログ - チケットのメンバーの追加/削除"
 event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}さん\n削除されたメンバー：${removedMembers}。\n追加されたメンバー：${addedMembers}。\nチケット（${interaction.channel}）にいます！"
 
+# ギブアウェイイベント
+event_gw_reroll_win_msg: "おめでとうございます、${winners}さん！ **${fetch[channelId][messageId].prize}** を獲得しました！"
+event_gw_reroll_cannot_win_msg: "有効な応募者がいないため、受賞者を決定できませんでした！"
+event_gw_finnish_msg: "おめでとうございます、${winners}さん！ **${fetch.prize}** を獲得しました！"
+event_gw_finnish_cannot_msg: "有効な応募者がいないため、受賞者を決定できませんでした！"
+event_gw_finnish_button_title: "ギブアウェイ終了"
+event_gw_removeentries_msg: "${interaction.user}さん、このギブアウェイから退出しました！"
+
 # -----------------------------\ /-----------------------------
