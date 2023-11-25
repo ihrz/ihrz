@@ -301,6 +301,8 @@ balance_dont_have_wallet: "👛 No tienes una billetera... !"
 balance_he_dont_have_wallet: "${user} no tiene una billetera... !"
 balance_have_wallet: "👛 Tienes ${bal} moneda(s) !"
 balance_he_have_wallet: "👛 ${user} tiene ${bal} moneda(s) !"
+balance_embed_fields1_name: "Banco"
+balance_embed_fields2_name: "En Saldo"
 
 # /daily
 daily_cooldown_error: "Lo siento, debes esperar **${time}** antes de ejecutar este comando nuevamente."
@@ -343,6 +345,22 @@ weekly_embed_fields: "Recogido"
 work_cooldown_error: "**¡Espera 50 minutos antes de trabajar de nuevo!** ${interaction.user.username}"
 work_embed_author: "${interaction.user.username}, ¡ha valido la pena!"
 work_embed_description: "${interaction.user.username}, has trabajado y ganado ${amount}$ !"
+
+# /withdraw
+withdraw_cannot_abuse: "❌ | ¡No puedes retirar una cantidad mayor de monedas de las que tienes en tu banco!"
+withdraw_embed_title: "Retiro de tu banco"
+withdraw_embed_desc: "${interaction.user}, has retirado ${toWithdraw}🪙 de tu `banco`"
+withdraw_embed_fields1_name: "Banco"
+
+# /deposit
+deposit_cannot_abuse: "❌ | ¡No puedes depositar una cantidad mayor de monedas de las que tienes en tu billetera!"
+deposit_embed_title: "Depósito en tu banco"
+deposit_embed_desc: "${interaction.user}, has depositado ${toDeposit}🪙 en tu `banco`"
+deposit_embed_fields1_name: "Banco"
+
+# /leaderboard
+economy_leaderboard_embed_title: "Clasificación económica de `${interaction.guild.name}`"
+economy_leaderboard_embed_fields_value: "<@${userId}> - Banco: `${userData.bank || 0}`🪙 | Saldo: `${userData.money || 0}`🪙"
 
 
 # Profil Customisation commands

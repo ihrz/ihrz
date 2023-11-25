@@ -37,7 +37,9 @@ export = {
 
         let embed = new EmbedBuilder()
             .setColor('#e4b7ff')
-            .setTitle(`Economy leaderboard of \`${interaction.guild.name}\``)
+            .setTitle(data.economy_leaderboard_embed_title
+                .replace('${interaction.guild.name}', interaction.guild.name)
+            )
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp();
 
@@ -51,7 +53,11 @@ export = {
             if (userId !== 'undefined' && userData) {
                 embed.addFields({
                     name: `#${index + 1}`,
-                    value: `<@${userId}> - Bank: \`${userData.bank || 0}\`🪙 | Balance: \`${userData.money || 0}\`🪙`,
+                    value: data.economy_leaderboard_embed_fields_value
+                        .replace('${userId}', userId)
+                        .replace('${userData.bank || 0}', userData.bank || 0)
+                        .replace('${userData.money || 0}', userData.money || 0)
+                    ,
                     inline: false,
                 });
             }

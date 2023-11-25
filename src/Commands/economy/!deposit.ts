@@ -43,7 +43,7 @@ export = {
         let toDeposit = interaction.options.getNumber('how-much');
 
         if (toDeposit > balance) {
-            await interaction.editReply({ content: `❌ | You cannot deposit a larger amount of coin as you have in your wallet!` });
+            await interaction.editReply({ content: data.deposit_cannot_abuse });
             return;
         };
 
@@ -53,9 +53,14 @@ export = {
         let embed = new EmbedBuilder()
             .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
             .setColor("#a4cb80")
-            .setTitle('Deposit into your bank')
-            .setDescription(`${interaction.user}, you have been deposit ${toDeposit}🪙 in your \`bank\``)
-            .addFields({ name: "Bank", value: `${await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.bank`)}🪙` })
+            .setTitle(data.deposit_embed_title)
+            .setDescription(data.deposit_embed_desc
+                .replace('${interaction.user}', interaction.user)
+                .replace('${toDeposit}', toDeposit)
+            )
+            .addFields({ name: data.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.bank`)}🪙` })
+            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setTimestamp();
 
         await interaction.editReply({ embeds: [embed] });
         return;

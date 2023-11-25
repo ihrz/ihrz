@@ -301,6 +301,8 @@ balance_dont_have_wallet: "👛 Ta pas de porte feuille t pauvre... !"
 balance_he_dont_have_wallet: "👛 Il n'a pas de portefeuille dsl il est sdf... !"
 balance_have_wallet: "👛 Vous avez ${bal} coin(s) !"
 balance_he_have_wallet: "👛 ${user} a ${bal} coin(s) !"
+balance_embed_fields1_name: "Banque à découvert mgl"
+balance_embed_fields2_name: "En Solde (donne moi ta thune connard d'tes mort)"
 
 # /daily
 daily_cooldown_error: "Désolé mgl faut attendre **${time}** Avant drefaire la commande !"
@@ -343,6 +345,22 @@ weekly_embed_fields: "Collecté"
 work_cooldown_error: "**Attendez 50 minutes avant de voler à nouveau un utilisateur !** ${interaction.user.username}"
 work_embed_author: "${interaction.user.username}, ça a payé !"
 work_embed_description: "${interaction.user.username}, tu avez travaillé et gagné ${amount}$ c'est bien bon esclave de la société!"
+
+# /withdraw
+withdraw_cannot_abuse: "❌ | Vous ne pouvez pas retirer une somme supérieure à celle que vous avez dans votre banque !"
+withdraw_embed_title: "Retrait de votre banque"
+withdraw_embed_desc: "${interaction.user}, vous avez retiré ${toWithdraw}🪙 de votre `banque`"
+withdraw_embed_fields1_name: "Banque"
+
+# /deposit
+deposit_cannot_abuse: "❌ | Vous ne pouvez pas déposer une somme supérieure à celle que vous avez dans votre portefeuille !"
+deposit_embed_title: "Dépôt dans votre banque"
+deposit_embed_desc: "${interaction.user}, vous avez déposé ${toDeposit}🪙 dans votre `banque`"
+deposit_embed_fields1_name: "Banque"
+
+# /leaderboard
+economy_leaderboard_embed_title: "Classement économique de `${interaction.guild.name}`"
+economy_leaderboard_embed_fields_value: "<@${userId}> - Banque : `${userData.bank || 0}`🪙 | Solde : `${userData.money || 0}`🪙"
 
 
 # Profil Customisation commands

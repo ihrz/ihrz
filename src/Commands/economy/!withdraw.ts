@@ -21,19 +21,7 @@
 
 import {
     Client,
-    Collection,
-    EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
-    ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
+    EmbedBuilder
 } from 'discord.js';
 
 export = {
@@ -43,7 +31,7 @@ export = {
         let toWithdraw = interaction.options.getNumber('how-much');
 
         if (toWithdraw > balance) {
-            await interaction.editReply({ content: `❌ | You cannot Withdraw a larger amount of coin as you have in your bank!` });
+            await interaction.editReply({ content: data.withdraw_cannot_abuse });
             return;
         };
 
@@ -53,9 +41,14 @@ export = {
         let embed = new EmbedBuilder()
             .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
             .setColor("#a4cb80")
-            .setTitle('Withdraw from your bank')
-            .setDescription(`${interaction.user}, you have been withdraw ${toWithdraw}🪙 from your \`bank\``)
-            .addFields({ name: "Bank", value: `${await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.bank`)}🪙` })
+            .setTitle(data.withdraw_embed_title)
+            .setDescription(data.withdraw_embed_desc
+                .replace('${interaction.user}', interaction.user)
+                .replace('${toWithdraw}', toWithdraw)
+            )
+            .addFields({ name: data.withdraw_embed_fields1_name, value: `${await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.bank`)}🪙` })
+            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setTimestamp();
 
         await interaction.editReply({ embeds: [embed] });
         return;
