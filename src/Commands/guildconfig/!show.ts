@@ -61,7 +61,7 @@ export = {
             let charForRr = baseData?.['REACTION_ROLES'];
 
             for (var i in charForTicket) {
-                if (baseData?.['TICKET'][i]) {
+                if (baseData?.['TICKET'][i] && baseData?.['TICKET'][i].used) {
                     text += `**${baseData?.['TICKET'][i].panelName}**: <#${baseData['TICKET'][i].channel}>\n`;
                 };
             };

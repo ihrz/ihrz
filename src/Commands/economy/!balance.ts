@@ -32,18 +32,26 @@ export = {
 
         if (!bal) {
             await client.db.set(`${interaction.guild.id}.USER.${member.value}.ECONOMY.money`, 1);
-            await interaction.editReply({ content: data.balance_he_dont_have_wallet });
+            await interaction.editReply({
+                content: data.balance_he_dont_have_wallet
+                    .replace('${user}', interaction.user)
+            });
             return;
         };
 
+        let totalWallet = (bal || 0) + (await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.bank`) || 0);
         let embed = new EmbedBuilder()
             .setColor('#e3c6ff')
             .setTitle(`\`${interaction.user.username}\`'s Wallet`)
             .setThumbnail(interaction.user.displayAvatarURL())
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setDescription(data.balance_he_have_wallet
-                .replace(/\${bal}/g, bal)
+                .replace(/\${bal}/g, totalWallet)
                 .replace('${user}', interaction.user)
+            )
+            .addFields(
+                { name: "Bank", value: `${await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.bank`) || 0}🪙`, inline: true },
+                { name: "In Balance", value: `${await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`) || 0}🪙`, inline: true }
             )
             .setTimestamp()
 
