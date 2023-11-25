@@ -1234,4 +1234,12 @@ event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} hat ein Ticke
 event_ticket_logsChannel_onAddMember2_embed_title: "Ticket-Protokoll - Hinzufügen/Entfernen von Mitgliedern eines Tickets"
 event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nEntfernt: ${removedMembers}.\nHinzugefügt: ${addedMembers}.\n im Ticket (${interaction.channel})!"
 
+# Gewinnspiel-Ereignis
+event_gw_reroll_win_msg: "Herzlichen Glückwunsch ${winners}! Sie haben **${fetch[channelId][messageId].prize}** gewonnen!"
+event_gw_reroll_cannot_win_msg: "Keine gültigen Teilnehmer, daher konnte kein Gewinner ermittelt werden!"
+event_gw_finnish_msg: "Herzlichen Glückwunsch ${winners}! Sie haben **${fetch.prize}** gewonnen!"
+event_gw_finnish_cannot_msg: "Keine gültigen Teilnehmer, daher konnte kein Gewinner ermittelt werden!"
+event_gw_finnish_button_title: "Gewinnspiel beendet"
+event_gw_removeentries_msg: "${interaction.user}, du hast an diesem Gewinnspiel teilgenommen!"
+
 # -----------------------------\ /-----------------------------
