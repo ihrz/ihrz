@@ -76,7 +76,7 @@ export const command: Command = {
         let channel = interaction.options.getChannel("channel");
 
         let help_embed = new EmbedBuilder()
-            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#0014a8")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0014a8")
             .setTitle(data.setmembercount_helpembed_title)
             .setDescription(data.setmembercount_helpembed_description)
             .addFields({ name: data.setmembercount_helpembed_fields_name, value: data.setmembercount_helpembed_fields_value });

@@ -30,7 +30,7 @@ export = async (client: any, guild: any) => {
 
     // async function antiPoubelle() {
     //   let embed = new EmbedBuilder()
-    //     .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#f44336")
+    //     .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#f44336")
     //     .setTimestamp()
     //     .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
     //     .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })

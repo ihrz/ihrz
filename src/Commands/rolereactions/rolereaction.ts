@@ -83,7 +83,7 @@ export const command: Command = {
         let role = interaction.options.getRole("role");
 
         let help_embed = new EmbedBuilder()
-            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#0000FF")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0000FF")
             .setTitle("/reactionroles Help !")
             .setDescription(data.reactionroles_embed_message_description_added);
 

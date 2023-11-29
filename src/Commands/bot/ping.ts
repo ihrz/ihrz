@@ -44,7 +44,7 @@ export const command: Command = {
         API = await ping.promise.probe("discord.com").then(result => API = result.time).catch(e => { API = data.ping_down_msg });
 
         let embed = new EmbedBuilder()
-            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#319938")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#319938")
             .setTitle("Pong! 🏓")
             .setDescription(data.ping_embed_desc
                 .replace('${await network}', await network)

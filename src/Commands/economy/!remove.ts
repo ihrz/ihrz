@@ -42,7 +42,7 @@ export = {
             .setAuthor({ name: data.removemoney_embed_title, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
             .addFields({ name: data.removemoney_embed_fields, value: `${amount}$` },
                 { name: data.removemoney_embed_second_fields, value: `${bal}$` })
-            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#bc0116")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#bc0116")
             .setTimestamp()
 
         try {

@@ -65,14 +65,14 @@ export = {
         let iconURL: any = client.user?.displayAvatarURL();
 
         let embed1 = new EmbedBuilder()
-            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || '#000000')
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#000000')
             .setAuthor({ name: data.authorization_configshow_embed1_author })
             .setDescription(text2)
             .setFooter({ text: 'iHorizon', iconURL: iconURL })
             .setTimestamp();
 
         let embed2 = new EmbedBuilder()
-            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#000000")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#000000")
             .setAuthor({ name: data.authorization_configshow_embed2_author })
             .setDescription(text)
             .setFooter({ text: 'iHorizon', iconURL: iconURL })

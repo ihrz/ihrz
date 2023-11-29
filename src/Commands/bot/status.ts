@@ -49,7 +49,7 @@ export const command: Command = {
 
         os.cpuUsage(async function (c) {
             let embed = new EmbedBuilder()
-                .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#42ff08")
+                .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#42ff08")
                 .addFields(
                     { name: "=====================", value: '**Consumed in real time** :', inline: false },
                     { name: "**CPU USAGE:**", value: 'CPU Usage (%): **' + c + '** %', inline: false },

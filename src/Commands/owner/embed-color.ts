@@ -100,7 +100,7 @@ export const command: Command = {
         var reg = /^#([0-9a-f]{3}){1,2}$/i;
 
         if (choices === 'reset') {
-            await client.db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`);
+            await client.db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`);
 
             await interaction.editReply({
                 content: `${interaction.user}, now the color of all embeds are deleted!`
@@ -110,10 +110,10 @@ export const command: Command = {
         };
 
         if (hex_color && reg.test(hex_color)) {
-            let key = ``
-
+            let key = ``;
+            
             if (choices === 'all') {
-                key = `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`;
+                key = `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`;
             } else {
                 key = `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.${choices}`;
             };

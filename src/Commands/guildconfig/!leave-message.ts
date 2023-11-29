@@ -39,7 +39,7 @@ export = {
         let messagei = interaction.options.getString("message");
 
         let help_embed = new EmbedBuilder()
-            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#016c9a")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#016c9a")
             .setTitle(data.setleavemessage_help_embed_title)
             .setDescription(data.setleavemessage_help_embed_description)
             .addFields({
@@ -104,7 +104,7 @@ export = {
 
             let embed = new EmbedBuilder()
                 .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
-                .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || '#1481c1')
+                .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#1481c1')
                 .setDescription(ls || 'None')
                 .setTimestamp()
                 .setTitle(data.setleavemessage_command_work_ls)

@@ -37,7 +37,7 @@ export = {
             return;
         }
         let embed = new EmbedBuilder()
-            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#5b3475")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#5b3475")
             .setTimestamp()
             .setDescription(data.unlock_embed_message_description);
         await interaction.channel.permissionOverwrites.create(interaction.guild.id, { SendMessages: true });

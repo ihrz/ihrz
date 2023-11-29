@@ -52,7 +52,7 @@ export = {
         } else {
             let embed = new EmbedBuilder()
                 .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
-                .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#a4cb80")
+                .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#a4cb80")
                 .setDescription(data.daily_embed_description)
                 .addFields({ name: data.daily_embed_fields, value: `${amount}🪙` })
 

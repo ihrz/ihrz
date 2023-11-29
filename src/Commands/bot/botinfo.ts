@@ -37,7 +37,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
         let clientembed = new EmbedBuilder()
-            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#f0d020")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#f0d020")
             .setThumbnail((client.user?.displayAvatarURL() as string))
             .addFields(
                 { name: data.botinfo_embed_fields_myname, value: `:green_circle: ${client.user?.username}`, inline: false },

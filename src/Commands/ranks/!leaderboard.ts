@@ -47,7 +47,7 @@ export = {
 
         tableau.sort((a, b) => b.length - a.length);
 
-        let embed = new EmbedBuilder().setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#1456b6").setTimestamp();
+        let embed = new EmbedBuilder().setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#1456b6").setTimestamp();
         let i = 1;
         let o = '';
 

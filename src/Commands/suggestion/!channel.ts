@@ -47,7 +47,7 @@ export = {
         };
 
         let setupEmbed = new EmbedBuilder()
-            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || '#000000')
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#000000')
             .setTitle(data.setsuggest_channel_embed_title)
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setDescription(data.setsuggest_channel_embed_desc);

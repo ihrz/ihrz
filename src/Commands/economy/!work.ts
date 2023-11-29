@@ -45,7 +45,7 @@ export = {
                 .replace(/\${interaction\.user\.username}/g, interaction.user.globalName)
                 .replace(/\${amount}/g, amount)
             )
-            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#f1d488");
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#f1d488");
 
         await interaction.editReply({ embeds: [embed] });
         await client.db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);

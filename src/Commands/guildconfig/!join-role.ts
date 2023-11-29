@@ -39,7 +39,7 @@ export = {
         var roleid = interaction.options.get("roles");
 
         let help_embed = new EmbedBuilder()
-            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || "#016c9a")
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#016c9a")
             .setTitle(data.setjoinroles_help_embed_title)
             .setDescription(data.setjoinroles_help_embed_description);
 

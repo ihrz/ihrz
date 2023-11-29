@@ -50,7 +50,7 @@ export = {
 
         let embed = new EmbedBuilder()
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
-            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color`) || '#00FFFF')
+            .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#00FFFF')
             .setDescription(data.setticketcategory_command_work
                 .replace('${category.name}', category.name)
                 .replace('${interaction.user.id}', interaction.user.id)
