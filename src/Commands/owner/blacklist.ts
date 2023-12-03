@@ -51,11 +51,16 @@ export const command: Command = {
             return;
         };
 
-        let char = await client.db.get(`GLOBAL.BLACKLIST`) || { "e": { blacklisted: true } }
+        let char = await client.db.get(`GLOBAL.BLACKLIST`);
         let member = interaction.options.getMember('user');
         let user = interaction.options.getUser('user');
 
         if (!member && !user) {
+            if (!char) {
+                await interaction.reply({ content: 'No one blacklisted found!', ephemeral: true });
+                return;
+            };
+
             let blacklistedUsers = Object.keys(char).filter(userId => char[userId].blacklisted);
 
             let currentPage = 0;
