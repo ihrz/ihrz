@@ -110,15 +110,8 @@ export const command: Command = {
         };
 
         if (hex_color && reg.test(hex_color)) {
-            let key = ``;
-            
-            if (choices === 'all') {
-                key = `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`;
-            } else {
-                key = `${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.${choices}`;
-            };
 
-            await client.db.set(key, hex_color);
+            await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.${choices}`, hex_color);
 
             await interaction.editReply({
                 content: `${interaction.user}, now the embed color is \`${hex_color}\` for ${choices} !`
