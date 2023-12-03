@@ -144,7 +144,7 @@ export = async (client: Client, member: GuildMember) => {
     };
 
     async function rolesSaver() {
-        console.log(member.roles.cache)
+        // console.log(member.roles.cache)
     }
     goodbyeMessage(), serverLogs(), memberCount(), rolesSaver();
 };
