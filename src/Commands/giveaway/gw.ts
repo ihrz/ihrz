@@ -80,7 +80,20 @@ export const command: Command = {
                     required: true
                 }
             ],
-        }
+        },
+        {
+            name: "list-entries",
+            description: "List all entries in giveaway!",
+            type: 1,
+            options: [
+                {
+                    name: 'giveaway-id',
+                    type: ApplicationCommandOptionType.String,
+                    description: 'The giveaway id (is the message id of the embed\'s giveaways)',
+                    required: true
+                }
+            ],
+        },
     ],
     category: 'giveaway',
     run: async (client: Client, interaction: any) => {

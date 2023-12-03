@@ -30,6 +30,7 @@ import {
     ButtonBuilder,
     ButtonStyle,
     StringSelectMenuOptionBuilder,
+    ColorResolvable,
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
@@ -292,7 +293,7 @@ export const command: Command = {
                         if (!links.some(word => message.content?.includes(word))) {
                             __tempEmbed.setThumbnail("https://exemple.com/exemple/png")
                         } else {
-                            __tempEmbed.setThumbnail((message.content as any))
+                            __tempEmbed.setThumbnail((message.content as string))
                         };
 
                         response.edit({ embeds: [__tempEmbed] });
@@ -308,7 +309,7 @@ export const command: Command = {
                         if (!links.some(word => message.content?.includes(word))) {
                             __tempEmbed.setImage("https://exemple.com/exemple/png")
                         } else {
-                            __tempEmbed.setImage((message.content as any))
+                            __tempEmbed.setImage((message.content as string))
                         };
 
                         response.edit({ embeds: [__tempEmbed] });
@@ -322,7 +323,7 @@ export const command: Command = {
                     let ttUrlCollector = interaction.channel.createMessageCollector({ filter: ttUrlFilter, max: 1, time: 120_000 });
                     ttUrlCollector.on('collect', (message: { content: string | string[] | null; delete: () => any; }) => {
                         if (links.some(word => message.content?.includes(word))) {
-                            __tempEmbed.setURL((message.content as any)) && response.edit({ embeds: [__tempEmbed] });
+                            __tempEmbed.setURL((message.content as string)) && response.edit({ embeds: [__tempEmbed] });
                         };
 
                         i11.delete() && message.delete();
@@ -334,8 +335,8 @@ export const command: Command = {
                     let colorFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
                     let colorCollector = interaction.channel.createMessageCollector({ filter: colorFilter, max: 1, time: 120_000 });
                     colorCollector.on('collect', (message: { content: string | number | readonly [red: number, green: number, blue: number] | null; delete: () => any; }) => {
-                        if (reg.test((message.content as any))) {
-                            __tempEmbed.setColor((message.content as any));
+                        if (reg.test((message.content as string))) {
+                            __tempEmbed.setColor((message.content as ColorResolvable));
                             response.edit({ embeds: [__tempEmbed] });
                         } else {
                             interaction.channel.send({ content: data.embed_choose_12_error });

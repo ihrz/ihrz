@@ -24,6 +24,7 @@ import config from '../../files/config';
 import CryptoJS from 'crypto-js';
 import dbPromise from '../database';
 import * as apiUrlParser from './apiUrlParser';
+import { QuickDB } from 'quick.db';
 
 interface DatabaseAction {
     id: number;
@@ -45,25 +46,25 @@ class DatabaseModel {
     }
 
     async useWrapper(action: DatabaseAction) {
-        let db = (await dbPromise) as any;
+        let db = (await dbPromise) as QuickDB;
 
         switch (action.id) {
             case 1:
-                return db.set(action.key, action.values);
+                return db.set((action.key as string), action.values);
             case 2:
-                return db.push(action.key, action.values);
+                return db.push((action.key as string), action.values);
             case 3:
-                return db.sub(action.key, action.values);
+                return db.sub((action.key as string), action.values);
             case 4:
-                return await db.add(action.key, action.values);
+                return await db.add((action.key as string), action.values);
             case 5:
-                return db.get(action.key);
+                return db.get((action.key as string));
             case 6:
-                return db.pull(action.key, action.values);
+                return db.pull((action.key as string), action.values);
             case 7:
                 return db.all();
             case 8:
-                return db.delete(action.key);
+                return db.delete((action.key as string));
             default:
                 throw new Error(`${action.id} -> Bad json request without ip/key`);
         }

@@ -31,6 +31,7 @@
     "@types/js-yaml": "^4.0.5",
     "axios": "^1.4.0",
     "better-sqlite3": "^8.4.0",
+    "bufferutil": "^4.0.8",
     "canvas": "^2.11.2",
     "colors": "^1.4.0",
     "crypto-js": "^4.1.1",
@@ -61,9 +62,11 @@
     "toml": "^3.0.0",
     "tslib": "^2.6.0",
     "typescript": "^5.1.6",
+    "utf-8-validate": "^6.0.3",
     "wait": "^0.4.2",
     "yarn": "^1.22.19",
-    "youtube-ext": "^1.1.12"
+    "youtube-ext": "^1.1.12",
+    "zlib-sync": "^0.1.9"
   },
   "devDependencies": {
     "@types/ms": "^0.7.31",

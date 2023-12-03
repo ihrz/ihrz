@@ -28,5 +28,5 @@ export interface Command {
     permission?: bigint | 0,
     category: string,
     options?: Option[],
-    async run(client: Client, interaction: CommandInteraction, args: CommandInteractionOptionResolver): Promise<any>
+    async run(client: Client, interaction: CommandInteraction, args?: CommandInteractionOptionResolver): Promise<any>
 }

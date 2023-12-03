@@ -19,12 +19,9 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import fs from 'fs';
-import { Client, Collection, EmbedBuilder, PermissionsBitField, ChannelType, Message, Role } from 'discord.js';
-import logger from '../core/logger';
+import { Client, Collection, EmbedBuilder, PermissionsBitField, ChannelType, Message, Role, GuildTextBasedChannel, ClientUser } from 'discord.js';
 
-
-export = async (client: Client, message: any) => {
+export = async (client: Client, message: Message) => {
     if (!message.guild || message.author.bot || !message.channel) return;
 
     let data = await client.functions.getLanguageData(message.guild.id);
@@ -53,7 +50,7 @@ export = async (client: Client, message: any) => {
             let newLevel = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`);
 
             if (xpTurn === false
-                || !message.channel.permissionsFor(client.user).has(PermissionsBitField.Flags.SendMessages)) return;
+                || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)) return;
 
             let xpChan = await client.db.get(`${message.guild.id}.GUILD.XP_LEVELING.xpchannels`);
 
@@ -63,7 +60,7 @@ export = async (client: Client, message: any) => {
                     .replace("${newLevel}", newLevel)
             }).catch(() => { });
 
-            message.client.channels.cache.get(xpChan).send({
+            (client.channels.cache.get(xpChan) as GuildTextBasedChannel).send({
                 content: data.event_xp_level_earn
                     .replace("${message.author.id}", message.author.id)
                     .replace("${newLevel}", newLevel)
@@ -96,20 +93,23 @@ export = async (client: Client, message: any) => {
             if (LOG?.amountMax === LOGfetched?.flags && LOG?.state === "true") {
                 switch (LOG.punishementType) {
                     case 'ban':
-                        message.guild.members.ban(message.author.id, { reason: "Ban by PUNISHPUB" }).catch(() => { });
+                        message.guild.members.ban(message.author, { reason: "Ban by PUNISHPUB" }).catch(() => { });
                         break;
                     case 'kick':
-                        message.guild.members.kick(message.author.id, { reason: "Kick by PUNISHPUB" }).catch(() => { });
+                        message.guild.members.kick(message.author).catch(() => { });
                         break;
                     case 'mute':
                         let muterole = message.guild.roles.cache.find((role: { name: string; }) => role.name === 'muted');
+
                         if (muterole) {
-                            await member.roles.add(muterole.id).catch();
+                            await member?.roles.add(muterole.id).catch();
                             setTimeout(async () => {
-                                if (member.roles.cache.has(muterole.id)) {
+                                if (!muterole?.id) return;
+
+                                if (member?.roles.cache.has(muterole.id)) {
                                     member.roles.remove(muterole.id);
                                 }
-                                await client.db.set(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`, {});
+                                await client.db.set(`TEMP.${message.guildId}.PUNISH_DATA.${message.author.id}`, {});
                             }, 40000);
                         }
                         break;
@@ -139,8 +139,8 @@ export = async (client: Client, message: any) => {
 
     async function rankRole() {
         if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || message.author.bot
-            || message.author.id === client.user?.id || !message.channel.permissionsFor(client.user).has(PermissionsBitField.Flags.SendMessages)
-            || !message.channel.permissionsFor(client.user).has(PermissionsBitField.Flags.ManageRoles) || message.content !== `<@${client.user?.id}>`) return;
+            || message.author.id === client.user?.id || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)
+            || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.ManageRoles) || message.content !== `<@${client.user?.id}>`) return;
 
         let dbGet = await client.db.get(`${message.guild.id}.GUILD.RANK_ROLES.roles`);
         let fetch = message.guild.roles.cache.find((role: { id: any; }) => role.id === dbGet);
@@ -157,20 +157,20 @@ export = async (client: Client, message: any) => {
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                 .setTimestamp();
 
-            message.member.roles.add(fetch).catch(() => { });
+            message.member?.roles.add(fetch).catch(() => { });
             message.channel.send({ embeds: [embed] }).catch(() => { });
             return;
         };
     };
 
     async function createAllowList() {
-        let baseData = await client.db.get(`${message.guild.id}.ALLOWLIST`);
+        let baseData = await client.db.get(`${message.guildId}.ALLOWLIST`);
 
         if (!baseData) {
-            await client.db.set(`${message.guild.id}.ALLOWLIST`,
+            await client.db.set(`${message.guildId}.ALLOWLIST`,
                 {
                     enable: false,
-                    list: { [`${message.guild.ownerId}`]: { allowed: true } },
+                    list: { [`${message.guild?.ownerId}`]: { allowed: true } },
                 }
             );
             return;
@@ -178,7 +178,7 @@ export = async (client: Client, message: any) => {
     };
 
     async function suggestion() {
-        let baseData = await client.db.get(`${message.guild.id}.SUGGEST`);
+        let baseData = await client.db.get(`${message.guildId}.SUGGEST`);
 
         if (!baseData
             || baseData?.channel !== message.channel.id
@@ -193,10 +193,10 @@ export = async (client: Client, message: any) => {
             .setAuthor({
                 name: data.event_suggestion_embed_author
                     .replace('${message.author.username}', message.author.username),
-                iconURL: message.author.displayAvatarURL({ format: 'png', dynamic: true })
+                iconURL: message.author.displayAvatarURL()
             })
             .setDescription(suggestionContent.toString())
-            .setThumbnail(message.guild.iconURL())
+            .setThumbnail((message.guild?.iconURL() as string))
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp();
 
@@ -213,7 +213,7 @@ export = async (client: Client, message: any) => {
         await msg.react('✅');
         await msg.react('❌');
 
-        await client.db.set(`${message.guild.id}.SUGGESTION.${suggestCode}`,
+        await client.db.set(`${message.guildId}.SUGGESTION.${suggestCode}`,
             {
                 author: message.author.id,
                 msgId: msg.id

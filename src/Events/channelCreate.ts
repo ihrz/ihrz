@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent } from 'discord.js'
+import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent, GuildChannel, GuildTextBasedChannel } from 'discord.js'
 
-export = async (client: Client, channel: any) => {
+export = async (client: Client, channel: GuildChannel) => {
 
     async function ihrzLogs() {
         if (channel.name !== "ihorizon-logs") return;
@@ -31,7 +31,7 @@ export = async (client: Client, channel: any) => {
             .setColor("#1e1d22")
             .setTitle(data.event_channel_create_message_embed_title)
             .setDescription(data.event_channel_create_message_embed_description);
-        await channel.send({ embeds: [setup_embed] }).catch(() => { });
+        await (channel as GuildTextBasedChannel).send({ embeds: [setup_embed] }).catch(() => { });
         return;
     };
 
@@ -58,14 +58,14 @@ export = async (client: Client, channel: any) => {
                     case 'simply':
                         break;
                     case 'simply+derank':
-                        user.guild.roles.cache.forEach((element: any) => {
-                            if (user.roles.cache.has(element.id) && element.name !== '@everyone') {
+                        user?.guild.roles.cache.forEach((element: any) => {
+                            if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
                                 user.roles.remove(element.id);
                             };
                         });
                         break;
                     case 'simply+ban':
-                        user.ban({ reason: 'Protect!' }).catch(() => { });
+                        user?.ban({ reason: 'Protect!' }).catch(() => { });
                         break;
                     default:
                         return;

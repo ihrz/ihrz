@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent } from 'discord.js'
+import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent, GuildChannel, BaseGuildTextChannel } from 'discord.js'
 
-export = async (client: Client, channel: any) => {
+export = async (client: Client, channel: GuildChannel) => {
 
     async function protect() {
         let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
@@ -32,6 +32,7 @@ export = async (client: Client, channel: any) => {
                 type: AuditLogEvent.WebhookCreate,
                 limit: 1,
             });
+
             var firstEntry: any = fetchedLogs.entries.first();
             if (firstEntry.target.channelId !== channel.id) return;
             if (firstEntry.executorId === client.user?.id) return;
@@ -39,10 +40,10 @@ export = async (client: Client, channel: any) => {
             let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
             if (!baseData) {
-                let webhooks = await channel.fetchWebhooks();
+                let webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
                 let myWebhooks = webhooks.filter((webhook: { id: any; }) => webhook.id === firstEntry.target.id);
 
-                for (let [id, webhook] of myWebhooks) await webhook.delete({ reason: 'Protect!' });
+                for (let [id, webhook] of myWebhooks) await webhook.delete("Protect!");
 
                 let user = await channel.guild.members.cache.get(firstEntry.executorId);
 
@@ -50,14 +51,14 @@ export = async (client: Client, channel: any) => {
                     case 'simply':
                         break;
                     case 'simply+derank':
-                        user.guild.roles.cache.forEach((element: any) => {
-                            if (user.roles.cache.has(element.id) && element.name !== '@everyone') {
+                        user?.guild.roles.cache.forEach((element: any) => {
+                            if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
                                 user.roles.remove(element.id);
                             };
                         });
                         break;
                     case 'simply+ban':
-                        user.ban({ reason: 'Protect!' }).catch(() => { });
+                        user?.ban({ reason: 'Protect!' }).catch(() => { });
                         break;
                     default:
                         return;

@@ -22,7 +22,10 @@
 import {
     Client,
     EmbedBuilder,
-    ApplicationCommandOptionType
+    ApplicationCommandOptionType,
+    ButtonBuilder,
+    ButtonStyle,
+    ActionRowBuilder
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -47,23 +50,79 @@ export const command: Command = {
             return;
         };
 
-        var text = "";
         let char = await client.db.get(`GLOBAL.BLACKLIST`);
-
-        for (var i in char) {
-            text += `<@${i}>\n`;
-        };
-
-        let embed = new EmbedBuilder()
-            .setColor('#2E2EFE').setAuthor({ name: 'Blacklist' }).setDescription(text || "No blacklist")
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
-
         let member = interaction.options.getMember('user');
         let user = interaction.options.getUser('user');
 
-        if (!member && !user) {
-            await interaction.editReply({ embeds: [embed] });
-            return;
+        if (!member && !user && char) {
+            let blacklistedUsers = Object.keys(char).filter(userId => char[userId].blacklisted);
+
+            let currentPage = 0;
+            let usersPerPage = 5;
+            let pages: { title: any; description: any; }[] = [];
+
+            for (let i = 0; i < blacklistedUsers.length; i += usersPerPage) {
+                let pageUsers = blacklistedUsers.slice(i, i + usersPerPage);
+                let pageContent = pageUsers.map(userId => `<@${userId}>`).join('\n');
+                pages.push({
+                    title: `Page ${i / usersPerPage + 1}`,
+                    description: pageContent,
+                });
+            }
+
+            let createEmbed = () => {
+                return new EmbedBuilder()
+                    .setColor("#2E2EFE")
+                    .setTitle(pages[currentPage].title)
+                    .setDescription(pages[currentPage].description)
+                    .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: client.user?.displayAvatarURL() })
+                    .setTimestamp()
+            };
+
+            let row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId('previousPage')
+                    .setLabel('⬅️')
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
+                    .setCustomId('nextPage')
+                    .setLabel('➡️')
+                    .setStyle(ButtonStyle.Secondary),
+            );
+
+            let messageEmbed = await interaction.editReply({
+                embeds: [createEmbed()], components: [row]
+            });
+
+            let filter = (i: {
+                user: any; deferUpdate: () => void; author: { id: any; };
+            }) => {
+                i.deferUpdate();
+                return interaction.user.id === i.user.id;
+            };
+
+            let collector = messageEmbed.createMessageComponentCollector({
+                filter, time: 60000
+            });
+
+            collector.on('collect', (interaction: { customId: string; }) => {
+                if (interaction.customId === 'previousPage') {
+                    currentPage = (currentPage - 1 + pages.length) % pages.length;
+                } else if (interaction.customId === 'nextPage') {
+                    currentPage = (currentPage + 1) % pages.length;
+                }
+
+                messageEmbed.edit({ embeds: [createEmbed()] });
+            });
+
+            collector.on('end', () => {
+                row.components.forEach((component) => {
+                    if (component instanceof ButtonBuilder) {
+                        component.setDisabled(true);
+                    }
+                });
+                messageEmbed.edit({ components: [row] });
+            });
         };
 
         if (member) {

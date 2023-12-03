@@ -28,7 +28,7 @@ import fs from 'fs';
 
 var timeout: number = 1000;
 
-export = async (client: any, interaction: any) => {
+export = async (client: Client, interaction: any) => {
 
     async function buttonExecutor() {
         if (!interaction.isButton()
