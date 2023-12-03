@@ -47,7 +47,7 @@ export = {
         if (daily !== null && timeout - (Date.now() - daily) > 0) {
             let time = ms(timeout - (Date.now() - daily));
 
-            await interaction.editReply({ content: data.daily_cooldown_error.replace(/\${time}/g, time) });
+            await interaction.reply({ content: data.daily_cooldown_error.replace(/\${time}/g, time) });
             return;
         } else {
             let embed = new EmbedBuilder()
@@ -56,7 +56,7 @@ export = {
                 .setDescription(data.daily_embed_description)
                 .addFields({ name: data.daily_embed_fields, value: `${amount}🪙` })
 
-            await interaction.editReply({ embeds: [embed] });
+            await interaction.reply({ embeds: [embed] });
             await client.db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
             await client.db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.daily`, Date.now());
             return;

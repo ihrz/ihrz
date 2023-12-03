@@ -381,7 +381,12 @@ async function ListEntries(interaction: ChatInputCommandInteraction, data: any) 
         for (let channelId in drop_all_db[guildId]) {
             for (let messageId in drop_all_db[guildId][channelId]) {
                 if (messageId === data.messageId && guildId === data.guildId) {
-                    var char = drop_all_db[guildId][channelId][messageId].members;
+                    var char: Array<string> = drop_all_db[guildId][channelId][messageId].members;
+
+                    if (char.length == 0) {
+                        await interaction.editReply({ content: "There is no entry into this competition." });
+                        return;
+                    };
 
                     let currentPage = 0;
                     let usersPerPage = 10;

@@ -31,14 +31,14 @@ export = {
         let channel = interaction.options.getChannel("channel");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.setsuggest_channel_not_admin });
+            await interaction.reply({ content: data.setsuggest_channel_not_admin });
             return;
         };
 
         let fetchOldChannel = await client.db.get(`${interaction.guild.id}.SUGGEST.channel`);
 
         if (fetchOldChannel === channel.id) {
-            await interaction.editReply({
+            await interaction.reply({
                 content: data.setsuggest_channel_already_set_with_that
                     .replace('${interaction.user}', interaction.user)
                     .replace('${channel}', channel)
@@ -53,7 +53,7 @@ export = {
             .setDescription(data.setsuggest_channel_embed_desc);
 
         await client.db.set(`${interaction.guild.id}.SUGGEST.channel`, channel.id);
-        await interaction.editReply({
+        await interaction.reply({
             content: data.setsuggest_channel_command_work
                 .replace('${interaction.user}', interaction.user)
                 .replace('${channel}', channel)

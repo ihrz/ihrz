@@ -116,6 +116,7 @@ export const command: Command = {
             type: 1,
         }
     ],
+    thinking: true,
     category: 'music',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);

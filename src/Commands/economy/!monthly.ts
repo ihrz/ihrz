@@ -37,7 +37,7 @@ export = {
         if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
             let time = ms(timeout - (Date.now() - monthly));
 
-            await interaction.editReply({ content: data.monthly_cooldown_error.replace(/\${time}/g, time) });
+            await interaction.reply({ content: data.monthly_cooldown_error.replace(/\${time}/g, time) });
             return;
         } else {
             let embed = new EmbedBuilder()
@@ -45,7 +45,7 @@ export = {
                 .setColor("#a4cb80")
                 .setDescription(data.monthly_embed_description)
                 .addFields({ name: data.monthly_embed_fields, value: `${amount}🪙` })
-            await interaction.editReply({ embeds: [embed] });
+            await interaction.reply({ embeds: [embed] });
             await client.db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
             await client.db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly`, Date.now());
             return;

@@ -29,9 +29,10 @@ export const command: Command = {
     name: 'nayaweb',
     description: 'Get necessary information about my contributor',
     category: 'bot',
+    thinking: false,
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
-        await interaction.editReply({ content: data.nayaweb_message });
+        await interaction.reply({ content: data.nayaweb_message });
         return;
     },
 };

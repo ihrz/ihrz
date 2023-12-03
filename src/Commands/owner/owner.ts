@@ -38,6 +38,7 @@ export const command: Command = {
             required: false
         }
     ],
+    thinking: false,
     category: 'owner',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
@@ -50,7 +51,7 @@ export const command: Command = {
         };
 
         if (!text.includes(interaction.user.id)) {
-            await interaction.editReply({ content: data.owner_not_owner });
+            await interaction.reply({ content: data.owner_not_owner });
             return;
         };
 
@@ -64,19 +65,19 @@ export const command: Command = {
 
         let member = interaction.options.getMember('member');
         if (!member) {
-            await interaction.editReply({ embeds: [embed] });
+            await interaction.reply({ embeds: [embed] });
             return;
         };
 
         let checkAx = await client.db.get(`GLOBAL.OWNER.${member.id}.owner`);
 
         if (checkAx) {
-            await interaction.editReply({ content: data.owner_already_owner });
+            await interaction.reply({ content: data.owner_already_owner });
             return;
         };
 
         await client.db.set(`GLOBAL.OWNER.${member.user.id}.owner`, true);
-        await interaction.editReply({ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.user.globalName) });
+        await interaction.reply({ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.user.globalName) });
         return;
     },
 };

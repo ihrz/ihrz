@@ -30,13 +30,14 @@ export const command: Command = {
     name: 'snipe',
     description: 'Get the last message deleted in this channel!',
     category: 'utils',
+    thinking: false,
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         var based = await client.db.get(`${interaction.guild.id}.GUILD.SNIPE.${interaction.channel.id}`);
 
         if (!based) {
-            await interaction.editReply({ content: data.snipe_no_previous_message_deleted });
+            await interaction.reply({ content: data.snipe_no_previous_message_deleted });
             return;
         };
 
@@ -46,7 +47,7 @@ export const command: Command = {
             .setDescription(`\`${based.snipe || 0}\``)
             .setTimestamp(based.snipeTimestamp);
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
         return;
     },
 };

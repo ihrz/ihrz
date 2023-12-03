@@ -62,12 +62,13 @@ export const command: Command = {
             required: false,
         }
     ],
+    thinking: false,
     category: 'newfeatures',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.support_not_admin });
+            await interaction.reply({ content: data.support_not_admin });
             return;
         };
 
@@ -76,7 +77,7 @@ export const command: Command = {
         let roles = interaction.options.getRole("roles");
 
         if (!roles) {
-            await interaction.editReply({ content: data.support_command_not_role });
+            await interaction.reply({ content: data.support_command_not_role });
             return;
         }
         if (action == "true") {
@@ -88,7 +89,7 @@ export const command: Command = {
                 }
             );
 
-            await interaction.editReply({
+            await interaction.reply({
                 content: data.support_command_work
                     .replace("${interaction.guild.name}", interaction.guild.name)
                     .replace("${input}", input)
@@ -109,7 +110,7 @@ export const command: Command = {
         } else {
             await client.db.delete(`${interaction.guild.id}.GUILD.SUPPORT`);
 
-            await interaction.editReply({
+            await interaction.reply({
                 content: data.support_command_work_on_disable
                     .replace("${interaction.guild.name}", interaction.guild.name)
             })

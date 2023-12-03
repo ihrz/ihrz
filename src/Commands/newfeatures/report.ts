@@ -40,6 +40,7 @@ export const command: Command = {
             required: true
         }
     ],
+    thinking: true,
     category: 'newfeatures',
     run: async (client: Client, interaction: any) => {
         

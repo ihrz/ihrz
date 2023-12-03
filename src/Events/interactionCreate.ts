@@ -78,8 +78,11 @@ export = async (client: Client, interaction: Interaction) => {
                 });
                 return;
             };
+            
+            if (command.thinking) {
+                await interaction.deferReply();
+            };
 
-            await interaction.deferReply();
             await command.run(client, interaction);
         } catch (e: any) {
             logger.err(e);

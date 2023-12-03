@@ -30,16 +30,16 @@ export = {
 
         let member = await client.db.get(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`);
         if (amount.toString().includes('-')) {
-            await interaction.editReply({ content: data.pay_negative_number_error });
+            await interaction.reply({ content: data.pay_negative_number_error });
             return;
         };
 
         if (member < amount.value) {
-            await interaction.editReply({ content: data.pay_dont_have_enought_to_give });
+            await interaction.reply({ content: data.pay_dont_have_enought_to_give });
             return;
         }
 
-        await interaction.editReply({
+        await interaction.reply({
             content: data.pay_command_work
                 .replace(/\${interaction\.user\.username}/g, interaction.user.globalName)
                 .replace(/\${user\.user\.username}/g, user.user.globalName)

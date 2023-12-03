@@ -46,6 +46,7 @@ export const command: Command = {
             required: false,
         }
     ],
+    thinking: false,
     category: 'utils',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
@@ -54,7 +55,7 @@ export const command: Command = {
         let potentialEmbed = await client.db.get(`EMBED.${arg}`);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.punishpub_not_admin });
+            await interaction.reply({ content: data.punishpub_not_admin });
             return;
         };
 
@@ -138,7 +139,7 @@ export const command: Command = {
             .setLabel(data.embed_btn_cancel)
             .setStyle(ButtonStyle.Danger);
 
-        let response = await interaction.editReply({
+        let response = await interaction.reply({
             content: data.embed_first_message,
             embeds: [__tempEmbed],
             components: [

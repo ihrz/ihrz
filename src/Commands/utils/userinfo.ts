@@ -114,6 +114,7 @@ export const command: Command = {
         },
     ],
     category: 'utils',
+    thinking: false,
     run: async (client: Client, interaction: any) => {
 
         let data = await client.functions.getLanguageData(interaction.guild.id);
@@ -128,11 +129,11 @@ export const command: Command = {
                 .setColor('#0014a8')
                 .setDescription(description);
 
-            await interaction.editReply({ embeds: [embed], content: '✅ Fetched !' });
+            await interaction.reply({ embeds: [embed], content: '✅ Fetched !' });
             return;
         };
 
-        await interaction.editReply({ content: data.userinfo_wait_please });
+        await interaction.reply({ content: data.userinfo_wait_please });
 
         let requestData = {
             tokent: 'want',

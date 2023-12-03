@@ -39,26 +39,27 @@ export const command: Command = {
             required: true
         },
     ],
+    thinking: false,
     category: 'owner',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`)
             !== true) {
-            await interaction.editReply({ content: data.unowner_not_owner });
+            await interaction.reply({ content: data.unowner_not_owner });
             return;
         };
 
         var member = interaction.options.getUser('member');
 
         if ((member.id === config.owner.ownerid1) || (member.id === config.owner.ownerid2)) {
-            await interaction.editReply({ content: data.unowner_cant_unowner_creator });
+            await interaction.reply({ content: data.unowner_cant_unowner_creator });
             return;
         };
 
         await client.db.delete(`GLOBAL.OWNER.${member.id}`);
 
-        await interaction.editReply({ content: data.unowner_command_work.replace(/\${member\.username}/g, member.username) });
+        await interaction.reply({ content: data.unowner_command_work.replace(/\${member\.username}/g, member.username) });
         return;
     },
 };

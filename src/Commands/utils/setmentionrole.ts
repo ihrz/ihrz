@@ -57,6 +57,7 @@ export const command: Command = {
         }
     ],
     category: 'utils',
+    thinking: false,
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
@@ -64,13 +65,13 @@ export const command: Command = {
         let argsid = interaction.options.getRole("roles");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.setrankroles_not_admin });
+            await interaction.reply({ content: data.setrankroles_not_admin });
             return;
         };
 
         if (type === "on") {
             if (!argsid) {
-                await interaction.editReply({ content: data.setrankroles_not_roles_typed });
+                await interaction.reply({ content: data.setrankroles_not_roles_typed });
                 return;
             };
 
@@ -91,7 +92,7 @@ export const command: Command = {
                 let already = await client.db.get(`${interaction.guild.id}.GUILD.RANK_ROLES.roles`);
 
                 if (already === argsid.id) {
-                    await interaction.editReply({ content: data.setrankroles_already_this_in_db });
+                    await interaction.reply({ content: data.setrankroles_already_this_in_db });
                     return;
                 };
 
@@ -99,12 +100,12 @@ export const command: Command = {
 
                 let e = new EmbedBuilder().setDescription(data.setrankroles_command_work.replace(/\${argsid}/g, argsid.id));
 
-                await interaction.editReply({ embeds: [e] });
+                await interaction.reply({ embeds: [e] });
                 return;
 
             } catch (e: any) {
                 logger.err(e);
-                await interaction.editReply({ content: data.setrankroles_command_error });
+                await interaction.reply({ content: data.setrankroles_command_error });
                 return;
             }
         } else if (type == "off") {
@@ -123,14 +124,14 @@ export const command: Command = {
             try {
                 await client.db.delete(`${interaction.guild.id}.GUILD.RANK_ROLES.roles`);
 
-                await interaction.editReply({
+                await interaction.reply({
                     content: data.setrankroles_command_work_disable
                         .replace(/\${interaction\.user.id}/g, interaction.user.id)
                 });
                 return;
             } catch (e: any) {
                 logger.err(e)
-                await interaction.editReply({ content: data.setrankroles_command_error });
+                await interaction.reply({ content: data.setrankroles_command_error });
                 return;
             }
         }

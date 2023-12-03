@@ -31,10 +31,11 @@ export const command: Command = {
     name: 'ping',
     description: 'Get the bot latency!',
     category: 'bot',
+    thinking: false,
     run: async (client: Client, interaction: any) => {
 
         let data = await client.functions.getLanguageData(interaction.guild.id);
-        await interaction.editReply({ content: ':ping_pong:' });
+        await interaction.reply({ content: ':ping_pong:' });
 
         let network: any = '';
         network = await ping.promise.probe("google.com").then(result => network = result.time).catch(e => { network = data.ping_down_msg });
@@ -50,7 +51,7 @@ export const command: Command = {
                 .replace('${await API}', await API)
             )
 
-        await interaction.editReply({ content: '', embeds: [embed] });
+        await interaction.reply({ content: '', embeds: [embed] });
         return;
     },
 };

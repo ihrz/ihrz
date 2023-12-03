@@ -34,6 +34,7 @@ export const command: Command = {
     name: 'help',
     description: 'Get a list of all the commands!',
     category: 'bot',
+    thinking: false,
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let CONTENT = await client.db.get("BOT.CONTENT");
@@ -75,7 +76,7 @@ export const command: Command = {
             .setThumbnail(pp)
             .setTimestamp();
 
-        let response = await interaction.editReply({ embeds: [embed], components: [row] });
+        let response = await interaction.reply({ embeds: [embed], components: [row] });
         let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840_000 });
 
         collector.on('collect', async (i: {

@@ -34,13 +34,13 @@ export = {
         let argsid = interaction.options.getChannel("channel");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.setxpchannels_not_admin });
+            await interaction.reply({ content: data.setxpchannels_not_admin });
             return;
         };
 
         if (type === "on") {
             if (!argsid) {
-                await interaction.editReply({ content: data.setxpchannels_valid_channel_message });
+                await interaction.reply({ content: data.setxpchannels_valid_channel_message });
                 return;
             };
 
@@ -62,15 +62,15 @@ export = {
 
             try {
                 let already = await client.db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`);
-                if (already === argsid.id) return interaction.editReply({ content: data.setxpchannels_already_with_this_config });
+                if (already === argsid.id) return interaction.reply({ content: data.setxpchannels_already_with_this_config });
 
                 interaction.client.channels.cache.get(argsid.id)?.send({ content: data.setxpchannels_confirmation_message });
                 await client.db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`, argsid.id);
 
-                await interaction.editReply({ content: data.setxpchannels_command_work_enable.replace(/\${argsid}/g, argsid.id) });
+                await interaction.reply({ content: data.setxpchannels_command_work_enable.replace(/\${argsid}/g, argsid.id) });
                 return;
             } catch (e) {
-                await interaction.editReply({ content: data.setxpchannels_command_error_enable });
+                await interaction.reply({ content: data.setxpchannels_command_error_enable });
                 return;
             };
         } else if (type == "off") {
@@ -93,15 +93,15 @@ export = {
                 let already2 = await client.db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`);
 
                 if (already2 === "off") {
-                    await interaction.editReply({ content: data.setxpchannels_already_disabled_disable });
+                    await interaction.reply({ content: data.setxpchannels_already_disabled_disable });
                     return;
                 };
 
                 await client.db.delete(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`);
-                await interaction.editReply({ content: data.setxpchannels_command_work_disable });
+                await interaction.reply({ content: data.setxpchannels_command_work_disable });
                 return;
             } catch (e) {
-                await interaction.editReply({ content: data.setxpchannels_command_error_disable });
+                await interaction.reply({ content: data.setxpchannels_command_error_disable });
                 return;
             };
         };

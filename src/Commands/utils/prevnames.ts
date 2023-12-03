@@ -39,13 +39,14 @@ export const command: Command = {
             required: false
         }
     ],
+    thinking: false,
     category: 'utils',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let user = interaction.options.getUser("user") || interaction.user;
 
         // if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-        //     await interaction.editReply({ content: data.prevnames_not_admin });
+        //     await interaction.reply({ content: data.prevnames_not_admin });
         //     return;
         // };
 
@@ -57,7 +58,7 @@ export const command: Command = {
         prevEmbed.setDescription(fetch || data.prevnames_undetected);
         prevEmbed.setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
-        await interaction.editReply({ embeds: [prevEmbed] });
+        await interaction.reply({ embeds: [prevEmbed] });
         return;
     },
 };

@@ -49,7 +49,7 @@ export = {
         };
 
         if (!id_2) {
-            await interaction.editReply({ content: data.mybot_instance_deny_not_foud });
+            await interaction.reply({ content: data.mybot_instance_deny_not_foud });
             return;
         };
 
@@ -66,7 +66,7 @@ export = {
             .catch((e: any) => { }))?.data || 404;
 
         if (bot_1 === 404) {
-            await interaction.editReply({ content: data.mybot_instance_deny_token_error });
+            await interaction.reply({ content: data.mybot_instance_deny_token_error });
             return;
         } else {
             let utils_msg = data.mybot_instance_deny_utils_msg
@@ -86,7 +86,7 @@ export = {
                 )
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
-            await interaction.editReply({ embeds: [embed], ephemeral: false });
+            await interaction.reply({ embeds: [embed], ephemeral: false });
 
             await client.db.delete(`OWNIHRZ.TEMP.${interaction.user.id}`);
             return;

@@ -83,12 +83,13 @@ export const command: Command = {
             required: false
         },
     ],
+    thinking: false,
     category: 'owner',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.setjoindm_not_admin });
+            await interaction.reply({ content: data.setjoindm_not_admin });
             return;
         };
 
@@ -99,7 +100,7 @@ export const command: Command = {
         if (choices === 'reset') {
             await client.db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`);
 
-            await interaction.editReply({
+            await interaction.reply({
                 content: `${interaction.user}, now the color of all embeds are deleted!`
             });
 
@@ -117,13 +118,13 @@ export const command: Command = {
 
             await client.db.set(key, hex_color);
 
-            await interaction.editReply({
+            await interaction.reply({
                 content: `${interaction.user}, now the embed color is \`${hex_color}\` for ${choices} !`
             });
 
             return;
         } else {
-            await interaction.editReply({ content: `${interaction.user}, color is not in the right format.\nPlease refer to **www.color-hex.com**` });
+            await interaction.reply({ content: `${interaction.user}, color is not in the right format.\nPlease refer to **www.color-hex.com**` });
             return;
         };
     },

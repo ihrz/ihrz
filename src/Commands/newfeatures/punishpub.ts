@@ -75,12 +75,13 @@ export const command: Command = {
             ]
         }
     ],
+    thinking: false,
     category: 'newfeatures',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.punishpub_not_admin });
+            await interaction.reply({ content: data.punishpub_not_admin });
             return;
         };
 
@@ -90,15 +91,15 @@ export const command: Command = {
 
         if (action == "true") {
             if (amount > 50) {
-                await interaction.editReply({ content: data.punishpub_too_hight_enable })
+                await interaction.reply({ content: data.punishpub_too_hight_enable })
                 return;
             };
             if (amount < 0) {
-                await interaction.editReply({ content: data.punishpub_negative_number_enable });
+                await interaction.reply({ content: data.punishpub_negative_number_enable });
                 return;
             };
             if (amount == 0) {
-                await interaction.editReply({ content: data.punishpub_zero_number_enable });
+                await interaction.reply({ content: data.punishpub_zero_number_enable });
                 return;
             };
 
@@ -123,7 +124,7 @@ export const command: Command = {
                 if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
             } catch (e) { };
 
-            await interaction.editReply({
+            await interaction.reply({
                 content: data.punishpub_confirmation_message_enable
                     .replace("${interaction.user.id}", interaction.user.id)
                     .replace("${amount}", amount)
@@ -132,7 +133,7 @@ export const command: Command = {
             return;
         } else {
             await client.db.delete(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
-            await interaction.editReply({ content: data.punishpub_confirmation_disable })
+            await interaction.reply({ content: data.punishpub_confirmation_disable })
 
             try {
                 let logEmbed = new EmbedBuilder()

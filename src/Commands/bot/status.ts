@@ -38,11 +38,12 @@ export const command: Command = {
     name: 'status',
     description: 'Get the bot status! (Only for the bot owner)',
     category: 'bot',
+    thinking: false,
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (interaction.user.id != config.owner.ownerid1 && config.owner.ownerid2) {
-            await interaction.editReply({ content: data.status_be_bot_dev });
+            await interaction.reply({ content: data.status_be_bot_dev });
             return;
         };
 
@@ -60,7 +61,7 @@ export const command: Command = {
                 )
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
 
-            interaction.editReply({ embeds: [embed] });
+            interaction.reply({ embeds: [embed] });
             return;
         })
     },

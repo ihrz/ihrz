@@ -69,6 +69,7 @@ export const command: Command = {
             ],
         },
     ],
+    thinking: false,
     category: 'protection',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);

@@ -41,20 +41,21 @@ export const command: Command = {
             required: false
         }
     ],
+    thinking: false,
     category: 'owner',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
-            await interaction.editReply({ content: data.blacklist_not_owner });
+            await interaction.reply({ content: data.blacklist_not_owner });
             return;
         };
 
-        let char = await client.db.get(`GLOBAL.BLACKLIST`);
+        let char = await client.db.get(`GLOBAL.BLACKLIST`) || { "e": { blacklisted: true } }
         let member = interaction.options.getMember('user');
         let user = interaction.options.getUser('user');
 
-        if (!member && !user && char) {
+        if (!member && !user) {
             let blacklistedUsers = Object.keys(char).filter(userId => char[userId].blacklisted);
 
             let currentPage = 0;
@@ -90,7 +91,7 @@ export const command: Command = {
                     .setStyle(ButtonStyle.Secondary),
             );
 
-            let messageEmbed = await interaction.editReply({
+            let messageEmbed = await interaction.reply({
                 embeds: [createEmbed()], components: [row]
             });
 
@@ -127,7 +128,7 @@ export const command: Command = {
 
         if (member) {
             if (member.user.id === client.user?.id) {
-                await interaction.editReply({ content: data.blacklist_bot_lol });
+                await interaction.reply({ content: data.blacklist_bot_lol });
                 return;
             };
 
@@ -138,21 +139,21 @@ export const command: Command = {
 
                 if (member.bannable) {
                     member.ban({ reason: "blacklisted !" });
-                    await interaction.editReply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, member.user.globalName) });
+                    await interaction.reply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, member.user.globalName) });
                     return;
                 } else {
                     await client.db.set(`GLOBAL.BLACKLIST.${member.user.id}`, { blacklisted: true });
-                    await interaction.editReply({ content: data.blacklist_blacklisted_but_can_ban_him });
+                    await interaction.reply({ content: data.blacklist_blacklisted_but_can_ban_him });
                     return;
                 }
             } else {
-                await interaction.editReply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, member.user.globalName) });
+                await interaction.reply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, member.user.globalName) });
                 return;
             }
         } else if (user) {
 
             if (user.id === client.user?.id) {
-                await interaction.editReply({ content: data.blacklist_bot_lol });
+                await interaction.reply({ content: data.blacklist_bot_lol });
                 return;
             };
 
@@ -161,9 +162,9 @@ export const command: Command = {
             if (!fetched) {
                 await client.db.set(`GLOBAL.BLACKLIST.${user.id}`, { blacklisted: true });
 
-                await interaction.editReply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, user.globalName || user.username) }); return;
+                await interaction.reply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, user.globalName || user.username) }); return;
             } else {
-                await interaction.editReply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, user.globalName || user.username) });
+                await interaction.reply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, user.globalName || user.username) });
                 return;
             }
         };

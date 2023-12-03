@@ -28,14 +28,14 @@ import {
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.addmoney_not_admin });
+            await interaction.reply({ content: data.addmoney_not_admin });
             return;
         };
 
         let amount = interaction.options.get("amount");
         let user = interaction.options.getUser("member");
 
-        await interaction.editReply({
+        await interaction.reply({
             content: data.addmoney_command_work
                 .replace("${user.user.id}", user.id)
                 .replace("${amount.value}", amount.value)

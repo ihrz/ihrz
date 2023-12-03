@@ -30,29 +30,29 @@ export = {
         let baseData = await client.db.get(`${interaction.guild.id}.ALLOWLIST`);
 
         if (interaction.user.id !== interaction.guild.ownerId && baseData.list[interaction.user.id]?.allowed !== true) {
-            await interaction.editReply({ content: data.allowlist_add_not_permited });
+            await interaction.reply({ content: data.allowlist_add_not_permited });
             return;
         };
 
         if (interaction.user.id !== interaction.guild.ownerId) {
-            await interaction.editReply({ content: data.allowlist_add_not_owner });
+            await interaction.reply({ content: data.allowlist_add_not_owner });
             return;
         };
 
         let member = interaction.options.getMember('member');
 
         if (!member) {
-            await interaction.editReply({ content: data.allowlist_add_member_unreachable });
+            await interaction.reply({ content: data.allowlist_add_member_unreachable });
             return;
         };
 
         if (baseData?.list[member.user.id]?.allowed == true) {
-            await interaction.editReply({ content: data.allowlist_add_already_in });
+            await interaction.reply({ content: data.allowlist_add_already_in });
             return;
         };
 
         await client.db.set(`${interaction.guild.id}.ALLOWLIST.list.${member.user.id}`, { allowed: true });
-        await interaction.editReply({
+        await interaction.reply({
             content: data.allowlist_add_command_work
                 .replace('${member.user}', member.user)
         });

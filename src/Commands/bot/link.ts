@@ -32,6 +32,7 @@ export const command: Command = {
     name: 'links',
     description: 'Show all links about iHorizon',
     category: 'bot',
+    thinking: false,
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
@@ -45,17 +46,13 @@ export const command: Command = {
             .setStyle(ButtonStyle.Link)
             .setURL('https://github.com/ihrz/ihrz')
 
-        let testbutton = new ButtonBuilder()
-            .setLabel('Staff')
-            .setStyle(ButtonStyle.Danger)
-            .setEmoji('✨')
-            .setCustomId('test_button')
+        let row = new ActionRowBuilder().addComponents(websitebutton, githubbutton);
 
-        let row = new ActionRowBuilder().addComponents(websitebutton, githubbutton, testbutton);
-
-        await interaction.editReply({
+        await interaction.reply({
             content: data.links_message,
             components: [row]
         });
+
+        return;
     },
 };
