@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan, Client, BaseClient, Channel, GuildChannel, Message, GuildMember } from 'discord.js';
+import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan, Client, BaseClient, Channel, GuildChannel, Message, GuildMember, Role } from 'discord.js';
 
 export = async (client: Client, member: GuildMember) => {
     let data = await client.functions.getLanguageData(member.guild.id);
@@ -144,7 +144,31 @@ export = async (client: Client, member: GuildMember) => {
     };
 
     async function rolesSaver() {
-        // console.log(member.roles.cache)
-    }
+        if (await client.db.get(`${member.guild.id}.GUILD_CONFIG.rolesaver.enable`)) {
+            await client.db.delete(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
+
+            let admin = await client.db.get(`${member.guild?.id}.GUILD_CONFIG.rolesaver.admin`);
+            let rolesArray: string[] = [];
+
+            member.roles.cache.each((role) => {
+                if (role.id === member.guild.roles.everyone.id) {
+                    // Ignorer le rôle @everyone
+                    return;
+                }
+            
+                if (role.permissions.has(PermissionsBitField.Flags.Administrator) && admin === 'no') {
+                    // Ignorer le rôle d'administrateur si admin est "no"
+                    return;
+                }
+            
+                // Ajouter tous les autres rôles
+                rolesArray.push(role.id);
+            });
+            
+            await client.db.set(`${member.guild.id}.ROLE_SAVER.${member.user.id}`, rolesArray);
+            return;
+        }
+    };
+
     goodbyeMessage(), serverLogs(), memberCount(), rolesSaver();
 };

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { AttachmentBuilder, Client, Guild, GuildChannel, GuildChannelManager, GuildMember, GuildTextBasedChannel, Invite, Message, MessageManager } from "discord.js";
+import { AttachmentBuilder, Client, Guild, GuildChannel, GuildChannelManager, GuildMember, GuildTextBasedChannel, Invite, Message, MessageManager, Role } from "discord.js";
 
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
 import axios from 'axios';
@@ -238,5 +238,19 @@ export = async (client: any, member: GuildMember) => {
         });
     };
 
-    blockBot(), joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage(), securityCheck();
+    async function rolesSaver() {
+        if (await client.db.get(`${member.guild.id}.GUILD_CONFIG.rolesaver.enable`)) {
+
+            let array = await client.db.get(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
+
+            array.forEach(async (role: Role) => {
+                member.roles.add(role);
+            });
+
+            await client.db.delete(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
+            return;
+        }
+    };
+
+    blockBot(), joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage(), securityCheck(), rolesSaver();
 };
