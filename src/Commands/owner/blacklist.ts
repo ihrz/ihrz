@@ -71,7 +71,7 @@ export const command: Command = {
                 let pageUsers = blacklistedUsers.slice(i, i + usersPerPage);
                 let pageContent = pageUsers.map(userId => `<@${userId}>`).join('\n');
                 pages.push({
-                    title: `Page ${i / usersPerPage + 1}`,
+                    title: `Blacklist - Page ${i / usersPerPage + 1}`,
                     description: pageContent,
                 });
             }
