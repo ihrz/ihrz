@@ -143,7 +143,10 @@ export const command: Command = {
                 return;
             };
 
-            let message = await interaction.channel.messages.fetch(messagei);
+            let message = await interaction.channel.messages.fetch(messagei).catch(() => {
+                interaction.reply({ content: data.reactionroles_cant_fetched_reaction_remove })
+                return;
+            });
 
             let fetched = await client.db.get(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`);
 
