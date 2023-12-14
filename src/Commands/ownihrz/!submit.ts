@@ -20,6 +20,7 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
@@ -28,7 +29,7 @@ import axios from 'axios';
 import ms from 'ms';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let discord_bot_token = interaction.options.getString('discord_bot_token');
         let owner_one = interaction.user;
@@ -44,8 +45,7 @@ export = {
             .catch((e: any) => { }))?.data || 404;
 
         if (bot_1 === 404) {
-            await interaction.deleteReply();
-            await interaction.followUp({ content: data.mybot_submit_token_invalid });
+            await interaction.reply({ content: data.mybot_submit_token_invalid });
             return;
         } else {
             var code = Math.random().toString(36).slice(-10);
@@ -84,8 +84,7 @@ export = {
                 )
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
-            await interaction.deleteReply();
-            await interaction.followUp({ embeds: [embed], ephemeral: true });
+            await interaction.reply({ embeds: [embed], ephemeral: true });
             return;
         };
     },
