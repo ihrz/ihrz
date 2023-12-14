@@ -20,6 +20,7 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
@@ -28,7 +29,7 @@ import date from 'date-and-time';
 import axios from 'axios';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let data_2 = await client.db.get(`OWNIHRZ.${interaction.user.id}`);
 
@@ -81,8 +82,7 @@ export = {
             };
         }
 
-        await interaction.deleteReply();
-        await interaction.followUp({ embeds: lsEmbed, ephemeral: true });
+        await interaction.reply({ embeds: lsEmbed, ephemeral: true });
         return;
     },
 };

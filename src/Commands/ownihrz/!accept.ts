@@ -20,6 +20,7 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
@@ -32,7 +33,7 @@ import axios from 'axios';
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let id_1 = interaction.options.getString('id');
         let id_2 = await client.db.get(`OWNIHRZ.TEMP`);
@@ -46,8 +47,7 @@ export = {
         };
 
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
-            await interaction.deleteReply();
-            await interaction.followUp({ content: "❌", ephemeral: true });
+            await interaction.reply({ content: "❌", ephemeral: true });
             return;
         };
 
@@ -91,8 +91,7 @@ export = {
                 )
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
-            await interaction.deleteReply();
-            await interaction.followUp({ embeds: [embed], ephemeral: false });
+            await interaction.reply({ embeds: [embed], ephemeral: false });
 
             try {
                 let encrypted = CryptoJS.AES.encrypt(JSON.stringify(id_2), config.api.apiToken).toString();

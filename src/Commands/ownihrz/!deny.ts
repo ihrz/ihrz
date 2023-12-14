@@ -20,6 +20,7 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
@@ -28,7 +29,7 @@ import config from '../../files/config';
 import axios from 'axios';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let id_1 = interaction.options.getString('id');
 
@@ -43,8 +44,7 @@ export = {
         };
 
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
-            await interaction.deleteReply();
-            await interaction.followUp({ content: "❌", ephemeral: true });
+            await interaction.reply({ content: "❌", ephemeral: true });
             return;
         };
 

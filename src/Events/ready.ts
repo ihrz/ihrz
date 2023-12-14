@@ -127,7 +127,7 @@ export = async (client: Client) => {
         iHorizon_Container.Refresh(client);
     }, 86400000);
 
-    setInterval(quotesPresence, 30_000), setInterval(refreshSchedule, 15_000);
+    setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000);
 
     fetchInvites(), refreshDatabaseModel(), term(), quotesPresence(), refreshSchedule();
 
