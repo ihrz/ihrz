@@ -33,6 +33,7 @@ export const command: Command = {
     name: 'invite',
     description: 'Get the bot invite link!',
     category: 'bot',
+    thinking: false,
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let pp: any = client.user?.displayAvatarURL();
@@ -50,7 +51,7 @@ export const command: Command = {
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setThumbnail(pp);
 
-        await interaction.editReply({
+        await interaction.reply({
             embeds: [invites], components: [
                 new ActionRowBuilder()
                     .addComponents(button_add_me)

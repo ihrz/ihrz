@@ -56,7 +56,7 @@ export = {
                 text: 'iHorizon', iconURL: client.user?.displayAvatarURL()
             });
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
         return;
     },
 };

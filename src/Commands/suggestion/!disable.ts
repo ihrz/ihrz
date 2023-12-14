@@ -31,13 +31,13 @@ export = {
         let action = interaction.options.getString("action");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.setsuggest_disable_not_admin });
+            await interaction.reply({ content: data.setsuggest_disable_not_admin });
             return;
         };
 
         if (action === 'on') {
             await client.db.set(`${interaction.guild.id}.SUGGEST.disable`, false);
-            await interaction.editReply({
+            await interaction.reply({
                 content: data.setsuggest_disable_pw_on
                     .replace('${interaction.user}', interaction.user)
             });
@@ -45,7 +45,7 @@ export = {
             return;
         } else if (action === 'off') {
             await client.db.set(`${interaction.guild.id}.SUGGEST.disable`, true);
-            await interaction.editReply({
+            await interaction.reply({
                 content: data.setsuggest_disable_pw_off
                     .replace('${interaction.user}', interaction.user)
             });

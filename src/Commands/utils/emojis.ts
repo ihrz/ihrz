@@ -40,9 +40,10 @@ export const command: Command = {
             required: true,
         },
     ],
+    thinking: true,
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
-        let str = interaction.options.getString('emojis').split(' ')
+        let str = interaction.options.getString('emojis').split(' ');
         let cnt: number = 0;
         let nemj: string = '';
 

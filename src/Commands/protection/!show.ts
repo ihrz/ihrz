@@ -50,7 +50,7 @@ export = {
         };
 
         if (interaction.user.id !== interaction.guild.ownerId && !text.includes(interaction.user.id)) {
-            await interaction.editReply({ content: data.allowlist_show_not_permited });
+            await interaction.reply({ content: data.allowlist_show_not_permited });
             return;
         };
 
@@ -63,7 +63,7 @@ export = {
             .setFooter({ text: 'iHorizon', iconURL: iconURL })
             .setTimestamp();
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
         return;
     },
 };

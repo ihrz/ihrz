@@ -65,7 +65,7 @@ export = {
         embed.setThumbnail(interaction.guild.iconURL({ dynamic: true }));
         embed.setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
         embed.setTitle(`${interaction.guild.name}'s Levels Leaderboard`)
-        await interaction.editReply({ embeds: [embed], content: ' ', files: [attachment] });
+        await interaction.reply({ embeds: [embed], content: ' ', files: [attachment] });
         return;
     },
 };

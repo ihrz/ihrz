@@ -39,10 +39,11 @@ export const command: Command = {
             required: true
         }
     ],
+    thinking: false,
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.setserverlang_not_admin });
+            await interaction.reply({ content: data.setserverlang_not_admin });
             return;
         };
         await interaction.deleteReply();

@@ -31,6 +31,7 @@ export const command: Command = {
     name: 'botinfo',
     description: 'Get information about the bot!',
     category: 'bot',
+    thinking: false,
     run: async (client: Client, interaction: any) => {
 
         let data = await client.functions.getLanguageData(interaction.guild.id);
@@ -51,7 +52,7 @@ export const command: Command = {
             .setFooter({ text: `iHorizon ${pkg.version}`, iconURL: client.user?.displayAvatarURL() })
             .setTimestamp()
 
-        await interaction.editReply({ embeds: [clientembed] });
+        await interaction.reply({ embeds: [clientembed] });
         return;
     },
 };

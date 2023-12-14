@@ -80,6 +80,7 @@ export const command: Command = {
             ],
         },
     ],
+    thinking: false,
     category: 'security',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);

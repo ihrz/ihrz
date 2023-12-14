@@ -33,7 +33,7 @@ export = {
         let fetch = await client.db.get(`${interaction.guild.id}.PFPS.disable`);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({
+            await interaction.reply({
                 content: data.pfps_channel_not_admin
             });
             return;
@@ -50,7 +50,7 @@ export = {
                 )
                 .setTimestamp();
 
-            await interaction.editReply({
+            await interaction.reply({
                 content: data.pfps_channel_command_work
                     .replace('${interaction.user}', interaction.user)
                     .replace('${channel}', channel)
@@ -60,7 +60,7 @@ export = {
             return;
 
         } else {
-            await interaction.editReply({
+            await interaction.reply({
                 content: data.pfps_channel_command_error
                     .replace('${interaction.user}', interaction.user)
             });

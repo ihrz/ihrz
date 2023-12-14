@@ -41,6 +41,7 @@ export const command: Command = {
     name: "schedule",
     description: "Manager for schedule category!",
     category: 'schedule',
+    thinking: false,
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
@@ -66,7 +67,7 @@ export const command: Command = {
                     .setValue('3'),
             );
 
-        let response = await interaction.editReply({
+        let response = await interaction.reply({
             content: `<@${interaction.user.id}>`,
             components: [
                 new ActionRowBuilder().addComponents(select),

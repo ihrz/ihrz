@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan, Client, BaseClient, Channel, GuildChannel, Message } from 'discord.js';
+import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan, Client, BaseClient, Channel, GuildChannel, Message, GuildMember, Role } from 'discord.js';
 
-export = async (client: Client, member: any) => {
+export = async (client: Client, member: GuildMember) => {
     let data = await client.functions.getLanguageData(member.guild.id);
 
     async function memberCount() {
@@ -39,21 +39,21 @@ export = async (client: Client, member: any) => {
                     .replace("{botcount}", botMembers.size);
 
                 let Fetched = member.guild.channels.cache.get(bot.channel);
-                Fetched.edit({ name: joinmsgreplace });
+                Fetched?.edit({ name: joinmsgreplace });
                 return;
             } else if (member_2) {
                 let joinmsgreplace = member_2.name
                     .replace("{membercount}", member.guild.memberCount);
 
                 let Fetched = member.guild.channels.cache.get(member_2.channel);
-                Fetched.edit({ name: joinmsgreplace });
+                Fetched?.edit({ name: joinmsgreplace });
                 return;
             } else if (roles) {
                 let joinmsgreplace = roles.name
                     .replace("{rolescount}", rolesCount);
 
                 let Fetched = member.guild.channels.cache.get(roles.channel);
-                Fetched.edit({ name: joinmsgreplace });
+                Fetched?.edit({ name: joinmsgreplace });
                 return;
             };
 
@@ -135,7 +135,7 @@ export = async (client: Client, member: any) => {
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setDescription(data.event_srvLogs_guildMemberRemove_description
-                .replace("${firstEntry.executor.id}", firstEntry.executor.id)
+                .replace("${firstEntry.executor.id}", firstEntry.executor?.id)
                 .replace("${firstEntry.target.id}", firstEntry.target.id)
             )
             .setTimestamp();
@@ -143,5 +143,32 @@ export = async (client: Client, member: any) => {
         await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
     };
 
-    goodbyeMessage(), serverLogs(), memberCount();
+    async function rolesSaver() {
+        if (await client.db.get(`${member.guild.id}.GUILD_CONFIG.rolesaver.enable`)) {
+            await client.db.delete(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
+
+            let admin = await client.db.get(`${member.guild?.id}.GUILD_CONFIG.rolesaver.admin`);
+            let rolesArray: string[] = [];
+
+            member.roles.cache.each((role) => {
+                if (role.id === member.guild.roles.everyone.id) {
+                    // Ignorer le rôle @everyone
+                    return;
+                }
+            
+                if (role.permissions.has(PermissionsBitField.Flags.Administrator) && admin === 'no') {
+                    // Ignorer le rôle d'administrateur si admin est "no"
+                    return;
+                }
+            
+                // Ajouter tous les autres rôles
+                rolesArray.push(role.id);
+            });
+            
+            await client.db.set(`${member.guild.id}.ROLE_SAVER.${member.user.id}`, rolesArray);
+            return;
+        }
+    };
+
+    goodbyeMessage(), serverLogs(), memberCount(), rolesSaver();
 };

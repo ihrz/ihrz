@@ -69,11 +69,12 @@ export const command: Command = {
         }
     ],
     category: 'rolereactions',
+    thinking: false,
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.reactionroles_dont_admin_added });
+            await interaction.reply({ content: data.reactionroles_dont_admin_added });
             return;
         };
 
@@ -88,20 +89,20 @@ export const command: Command = {
             .setDescription(data.reactionroles_embed_message_description_added);
 
         if (type == "add") {
-            if (!role) { interaction.editReply({ embeds: [help_embed] }) };
-            if (!reaction) { return interaction.editReply({ content: data.reactionroles_missing_reaction_added }) };
+            if (!role) { interaction.reply({ embeds: [help_embed] }) };
+            if (!reaction) { return interaction.reply({ content: data.reactionroles_missing_reaction_added }) };
 
             try {
                 await interaction.channel.messages.fetch(messagei).then((message: { react: (arg0: any) => void; }) => { message.react(reaction) });
             } catch {
-                await interaction.editReply({ content: data.reactionroles_dont_message_found });
+                await interaction.reply({ content: data.reactionroles_dont_message_found });
                 return;
             };
 
             let check = reaction.toString();
 
             if (check.includes("<") || check.includes(">") || check.includes(":")) {
-                await interaction.editReply({ content: data.reactionroles_invalid_emote_format_added })
+                await interaction.reply({ content: data.reactionroles_invalid_emote_format_added })
                 return;
             };
 
@@ -138,23 +139,26 @@ export const command: Command = {
             let reactionLet = interaction.options.getString("reaction");
 
             if (!reactionLet) {
-                await interaction.editReply({ content: data.reactionroles_missing_remove });
+                await interaction.reply({ content: data.reactionroles_missing_remove });
                 return;
             };
 
-            let message = await interaction.channel.messages.fetch(messagei);
+            let message = await interaction.channel.messages.fetch(messagei).catch(() => {
+                interaction.reply({ content: data.reactionroles_cant_fetched_reaction_remove })
+                return;
+            });
 
             let fetched = await client.db.get(`${interaction.guild.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`);
 
             if (!fetched) {
-                await interaction.editReply({ content: data.reactionroles_missing_reaction_remove });
+                await interaction.reply({ content: data.reactionroles_missing_reaction_remove });
                 return
             };
 
             let reactionVar = message.reactions.cache.get(fetched.reactionNAME);
 
             if (!reactionVar) {
-                await interaction.editReply({ content: data.reactionroles_cant_fetched_reaction_remove })
+                await interaction.reply({ content: data.reactionroles_cant_fetched_reaction_remove })
                 return;
             };
             await reactionVar.users.remove(client.user?.id).catch((err: string) => { logger.err(err) });

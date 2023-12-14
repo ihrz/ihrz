@@ -33,7 +33,7 @@ export = {
 
         if (!bal) {
             await client.db.set(`${interaction.guild.id}.USER.${member.id}.ECONOMY.money`, 1);
-            await interaction.editReply({
+            await interaction.reply({
                 content: data.balance_he_dont_have_wallet
                     .replace('${user}', interaction.user)
             });
@@ -56,7 +56,7 @@ export = {
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp()
 
-        await interaction.editReply({
+        await interaction.reply({
             embeds: [embed]
         });
         return;

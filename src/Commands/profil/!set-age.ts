@@ -29,7 +29,7 @@ export = {
 
         await client.db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.age`, age);
 
-        await interaction.editReply({ content: data.setprofilage_command_work });
+        await interaction.reply({ content: data.setprofilage_command_work, ephemeral: true });
         return;
     },
 };

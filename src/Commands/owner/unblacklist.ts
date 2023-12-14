@@ -37,12 +37,13 @@ export const command: Command = {
             required: true
         }
     ],
+    thinking: false,
     category: 'owner',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
-            await interaction.editReply({ content: data.unblacklist_not_owner });
+            await interaction.reply({ content: data.unblacklist_not_owner });
             return;
         };
 
@@ -50,7 +51,7 @@ export const command: Command = {
         let fetched = await client.db.get(`GLOBAL.BLACKLIST.${member.id}`);
 
         if (!fetched) {
-            await interaction.editReply({ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member.id) });
+            await interaction.reply({ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member.id) });
             return;
         };
 
@@ -58,18 +59,18 @@ export const command: Command = {
             let bannedMember = await client.users.fetch(member.user.id);
 
             if (!bannedMember) {
-                await interaction.editReply({ content: data.unblacklist_user_is_not_exist });
+                await interaction.reply({ content: data.unblacklist_user_is_not_exist });
                 return;
             };
 
             await client.db.delete(`GLOBAL.BLACKLIST.${member.id}`);
             await interaction.guild.members.unban(bannedMember);
 
-            await interaction.editReply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member.id) });
+            await interaction.reply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member.id) });
             return;
         } catch (e) {
             await client.db.delete(`GLOBAL.BLACKLIST.${member.id}`);
-            await interaction.editReply({ content: data.unblacklist_unblacklisted_but_can_unban_him });
+            await interaction.reply({ content: data.unblacklist_unblacklisted_but_can_unban_him });
             return;
         };
     },

@@ -23,7 +23,10 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
-    ApplicationCommandOptionType
+    ApplicationCommandOptionType,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -39,25 +42,90 @@ export const command: Command = {
             required: false
         }
     ],
+    thinking: false,
     category: 'utils',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let user = interaction.options.getUser("user") || interaction.user;
 
         // if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-        //     await interaction.editReply({ content: data.prevnames_not_admin });
+        //     await interaction.reply({ content: data.prevnames_not_admin });
         //     return;
         // };
+        var char: Array<string> = await client.db.get(`DB.PREVNAMES.${user.id}`) || [];
 
-        let fetch = await client.db.get(`DB.PREVNAMES.${user.id}`);
-        if (fetch) fetch = fetch.join('\n');
+        if (char.length == 0) {
+            await interaction.reply({ content: `${data.prevnames_undetected}` });
+            return;
+        };
 
-        let prevEmbed = new EmbedBuilder().setColor("#000000");
-        prevEmbed.setTitle(data.prevnames_embed_title.replace("${user.username}", user.globalName));
-        prevEmbed.setDescription(fetch || data.prevnames_undetected);
-        prevEmbed.setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
+        let currentPage = 0;
+        let usersPerPage = 5;
+        let pages: { title: string; description: string; }[] = [];
 
-        await interaction.editReply({ embeds: [prevEmbed] });
+        for (let i = 0; i < char.length; i += usersPerPage) {
+            let pageUsers = char.slice(i, i + usersPerPage);
+            let pageContent = pageUsers.map((userId: any) => userId).join('\n');
+            pages.push({
+                title: `${data.prevnames_embed_title.replace("${user.username}", user.globalName)} | Page ${i / usersPerPage + 1}`,
+                description: pageContent,
+            });
+        };
+
+        let createEmbed = () => {
+            return new EmbedBuilder()
+                .setColor("#000000")
+                .setTitle(pages[currentPage].title)
+                .setDescription(pages[currentPage].description)
+                .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: interaction.client.user?.displayAvatarURL() })
+                .setTimestamp()
+        };
+
+        let row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId('previousPage')
+                .setLabel('⬅️')
+                .setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder()
+                .setCustomId('nextPage')
+                .setLabel('➡️')
+                .setStyle(ButtonStyle.Secondary),
+        );
+
+        let messageEmbed = await interaction.reply({
+            embeds: [createEmbed()], components: [(row as ActionRowBuilder<ButtonBuilder>)]
+        });
+
+        let filter = (i: {
+            user: any; deferUpdate: () => void;
+        }) => {
+            i.deferUpdate();
+            return interaction.user.id === i.user.id;
+        };
+
+        let collector = messageEmbed.createMessageComponentCollector({
+            filter, time: 60000
+        });
+
+        collector.on('collect', (interaction: { customId: string; }) => {
+            if (interaction.customId === 'previousPage') {
+                currentPage = (currentPage - 1 + pages.length) % pages.length;
+            } else if (interaction.customId === 'nextPage') {
+                currentPage = (currentPage + 1) % pages.length;
+            }
+
+            messageEmbed.edit({ embeds: [createEmbed()] });
+        });
+
+        collector.on('end', () => {
+            row.components.forEach((component) => {
+                if (component instanceof ButtonBuilder) {
+                    component.setDisabled(true);
+                }
+            });
+            messageEmbed.edit({ components: [(row as ActionRowBuilder<ButtonBuilder>)] });
+        });
+
         return;
     },
 };

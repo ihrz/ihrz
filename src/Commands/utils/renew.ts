@@ -30,11 +30,12 @@ export const command: Command = {
     name: 'renew',
     description: 'Re-created a channels (cloning permission and all configurations). nuke equivalent',
     category: 'utils',
+    thinking: false,
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
         if (!interaction.member.permissions.has([PermissionsBitField.Flags.Administrator])) {
-            await interaction.editReply({ content: data.renew_not_administrator });
+            await interaction.reply({ content: data.renew_not_administrator });
             return;
         };
 
@@ -59,7 +60,7 @@ export const command: Command = {
             here.send({ content: data.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.user) });
             return;
         } catch (error) {
-            await interaction.editReply({ content: data.renew_dont_have_permission });
+            await interaction.reply({ content: data.renew_dont_have_permission });
             return;
         }
     },

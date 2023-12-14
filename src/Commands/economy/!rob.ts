@@ -29,7 +29,7 @@ export = {
         let talkedRecentlyforr = new Set();
 
         if (talkedRecentlyforr.has(interaction.user.id)) {
-            await interaction.editReply({ content: data.rob_cooldown_error });
+            await interaction.reply({ content: data.rob_cooldown_error });
             return;
         };
 
@@ -38,12 +38,12 @@ export = {
         let author = await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`);
 
         if (author < 250) {
-            await interaction.editReply({ content: data.rob_dont_enought_error });
+            await interaction.reply({ content: data.rob_dont_enought_error });
             return;
         };
 
         if (targetuser < 250) {
-            await interaction.editReply({
+            await interaction.reply({
                 content: data.rob_him_dont_enought_error
                     .replace(/\${user\.user\.username}/g, user.user.globalName)
             });
@@ -61,7 +61,7 @@ export = {
             .setColor("#a4cb80")
             .setTimestamp()
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
 
         await client.db.sub(`${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, random);
         await client.db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, random);

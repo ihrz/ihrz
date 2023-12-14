@@ -22,13 +22,13 @@
 import config from '../files/config';
 import logger from '../core/logger';
 
-import { BaseInteraction, Client, Collection, EmbedBuilder, Interaction, InteractionResponse, Permissions } from 'discord.js';
+import { ApplicationCommand, BaseInteraction, Client, Collection, CommandInteraction, CommandInteractionOptionResolver, EmbedBuilder, GuildChannel, Interaction, InteractionCollector, InteractionResponse, Permissions } from 'discord.js';
 import { format } from 'date-fns';
 import fs from 'fs';
 
 var timeout: number = 1000;
 
-export = async (client: any, interaction: any) => {
+export = async (client: Client, interaction: Interaction) => {
 
     async function buttonExecutor() {
         if (!interaction.isButton()
@@ -69,17 +69,20 @@ export = async (client: any, interaction: any) => {
 
         try {
             if (await client.db.get(`GLOBAL.BLACKLIST.${interaction.user.id}.blacklisted`)) {
-                await interaction.editReply({
+                await interaction.reply({
                     embeds: [
                         new EmbedBuilder()
                             .setColor("#0827F5").setTitle(":(")
                             .setImage(config.core.blacklistPictureInEmbed)
-                    ]
+                    ], ephemeral: true
                 });
                 return;
             };
+            
+            if (command.thinking) {
+                await interaction.deferReply();
+            };
 
-            await interaction.deferReply();
             await command.run(client, interaction);
         } catch (e: any) {
             logger.err(e);
@@ -91,16 +94,16 @@ export = async (client: any, interaction: any) => {
             || !interaction.guild?.channels
             || interaction.user.bot) return;
 
-        let optionsList: string[] = interaction.options._hoistedOptions.map((element: { name: any; value: any; }) => `${element.name}:"${element.value}"`);
+        let optionsList: string[] = (interaction as any).options._hoistedOptions.map((element: { name: any; value: any; }) => `${element.name}:"${element.value}"`);
         let subCmd: string = '';
 
-        if (interaction.options['_subcommand']) {
-            subCmd = interaction.options.getSubcommand();
+        if ((interaction as any).options['_subcommand']) {
+            subCmd = (interaction as any).options.getSubcommand();
         };
 
-        let logMessage = `[${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}] "${interaction.guild?.name}" #${interaction.channel ? interaction.channel.name : 'Unknown Channel'}:\n` +
+        let logMessage = `[${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}] "${interaction.guild?.name}" #${interaction.channel ? (interaction.channel as GuildChannel).name : 'Unknown Channel'}:\n` +
             `${interaction.user.username}:\n` +
-            `/${interaction.commandName} ${subCmd} ${optionsList.join(' ')}\n\n`;
+            `/${interaction.commandName} ${subCmd} ${optionsList?.join(' ')}\n\n`;
 
         fs.appendFile(`${process.cwd()}/src/files/slash.log`, logMessage, (err) => {
             if (err) {

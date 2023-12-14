@@ -31,7 +31,7 @@ export = {
         let toWithdraw = interaction.options.getNumber('how-much');
 
         if (toWithdraw > balance) {
-            await interaction.editReply({ content: data.withdraw_cannot_abuse });
+            await interaction.reply({ content: data.withdraw_cannot_abuse });
             return;
         };
 
@@ -50,7 +50,7 @@ export = {
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp();
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
         return;
     },
 };

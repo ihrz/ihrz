@@ -28,7 +28,7 @@ import {
 export = {
     run: async (client: Client, interaction: any, data: any) => {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.removemoney_not_admin });
+            await interaction.reply({ content: data.removemoney_not_admin });
             return;
         };
 
@@ -59,7 +59,7 @@ export = {
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
         } catch (e) { return; };
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
         return;
     },
 };

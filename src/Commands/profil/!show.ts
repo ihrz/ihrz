@@ -60,7 +60,7 @@ export = {
             .setTimestamp()
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
 
-        await interaction.editReply({ embeds: [profil] });
+        await interaction.reply({ embeds: [profil] });
         return;
     },
 };

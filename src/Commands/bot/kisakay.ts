@@ -29,9 +29,10 @@ export const command: Command = {
     name: 'kisakay',
     description: 'Get necessary information about my developer, Kisakay',
     category: 'bot',
+    thinking: false,
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
-        await interaction.editReply({ content: data.kisakay_message });
+        await interaction.reply({ content: data.kisakay_message });
         return;
     },
 };

@@ -30,7 +30,8 @@ import {
     PermissionFlagsBits,
     PermissionsBitField,
     ComponentType,
-    UserSelectMenuBuilder
+    UserSelectMenuBuilder,
+    GuildTextBasedChannel
 } from 'discord.js';
 
 import * as discordTranscripts from 'discord-html-transcripts';
@@ -124,10 +125,12 @@ async function CreateChannel(interaction: any, result: any) {
         permissionOverwrites: any;
         lockPermissions(): unknown; send: (arg0: { content: string; embeds: EmbedBuilder[]; }) => any, id: (string)
     }) => {
-        interaction.reply({ content: lang.event_ticket_whenCreated_msg
-            .replace('${interaction.user}', interaction.user)
-            .replace('${channel.id}', channel.id)
-        , ephemeral: true });
+        interaction.reply({
+            content: lang.event_ticket_whenCreated_msg
+                .replace('${interaction.user}', interaction.user)
+                .replace('${channel.id}', channel.id)
+            , ephemeral: true
+        });
 
         if (category) {
             channel.lockPermissions();

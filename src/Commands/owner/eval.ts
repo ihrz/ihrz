@@ -39,6 +39,7 @@ export const command: Command = {
             required: true
         }
     ],
+    thinking: false,
     category: 'owner',
     run: async (client: Client, interaction: any) => {
 

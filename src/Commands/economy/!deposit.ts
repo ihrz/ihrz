@@ -43,7 +43,7 @@ export = {
         let toDeposit = interaction.options.getNumber('how-much');
 
         if (toDeposit > balance) {
-            await interaction.editReply({ content: data.deposit_cannot_abuse });
+            await interaction.reply({ content: data.deposit_cannot_abuse });
             return;
         };
 
@@ -62,7 +62,7 @@ export = {
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp();
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
         return;
     },
 };

@@ -31,7 +31,7 @@ export = {
     run: async (client: Client, interaction: any, data: any) => {
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.disablexp_not_admin });
+            await interaction.reply({ content: data.disablexp_not_admin });
             return;
         };
 
@@ -55,7 +55,7 @@ export = {
 
             await client.db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.disable`, false);
 
-            await interaction.editReply({ content: data.disablexp_command_work_disable_entierly });
+            await interaction.reply({ content: data.disablexp_command_work_disable_entierly });
             return;
         } else if (types == "disable") {
             try {
@@ -75,7 +75,7 @@ export = {
 
             await client.db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.disable`, 'disable');
 
-            await interaction.editReply({ content: data.disablexp_command_work_disable });
+            await interaction.reply({ content: data.disablexp_command_work_disable });
             return;
         } else if (types == "on") {
             try {
@@ -95,7 +95,7 @@ export = {
 
             await client.db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.disable`, true);
 
-            await interaction.editReply({ content: data.disablexp_command_work_enable });
+            await interaction.reply({ content: data.disablexp_command_work_enable });
             return;
         };
     },

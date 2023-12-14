@@ -35,7 +35,7 @@ export = {
             .setThumbnail(interaction.guild.iconURL({ size: 4096 }))
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL({ size: 4096 }) })
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
         return;
     },
 };

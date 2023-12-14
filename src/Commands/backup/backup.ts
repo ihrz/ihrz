@@ -63,6 +63,7 @@ export const command: Command = {
         },
     ],
     category: 'backup',
+    thinking: true,
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let command: any = interaction.options.getSubcommand();

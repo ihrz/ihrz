@@ -52,7 +52,7 @@ export = {
         };
 
         if (!id_2) {
-            await interaction.editReply({ content: data.mybot_manage_accept_not_found });
+            await interaction.reply({ content: data.mybot_manage_accept_not_found });
             return;
         };
 
@@ -69,7 +69,7 @@ export = {
             .catch((e: any) => { }))?.data || 404;
 
         if (bot_1 === 404) {
-            await interaction.editReply({ content: data.mybot_manage_accept_token_error });
+            await interaction.reply({ content: data.mybot_manage_accept_token_error });
             return;
         } else {
 

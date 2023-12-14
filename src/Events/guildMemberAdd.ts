@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { AttachmentBuilder, Client, Guild, GuildChannel, GuildChannelManager, Message, MessageManager } from "discord.js";
+import { AttachmentBuilder, Client, Guild, GuildChannel, GuildChannelManager, GuildMember, GuildTextBasedChannel, Invite, Message, MessageManager, Role } from "discord.js";
 
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
 import axios from 'axios';
@@ -27,14 +27,13 @@ import axios from 'axios';
 import * as apiUrlParser from '../core/functions/apiUrlParser';
 
 import logger from "../core/logger";
-import config from '../files/config';
 
-export = async (client: any, member: any) => {
+export = async (client: any, member: GuildMember) => {
 
     let data = await client.functions.getLanguageData(member.guild.id);
 
     async function joinRoles() {
-        if (!member.guild.members.me.permissions.has(PermissionsBitField.Flags.ManageRoles)) return;
+        if (!member?.guild?.members?.me?.permissions.has(PermissionsBitField.Flags.ManageRoles)) return;
 
         let roleid = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
         let role = member.guild.roles.cache.get(roleid);
@@ -55,10 +54,15 @@ export = async (client: any, member: any) => {
     async function blacklistFetch() {
         try {
             if (await client.db.get(`GLOBAL.BLACKLIST.${member.user.id}.blacklisted`)) {
-                member.send({ content: "You've been banned, because you are blacklisted" }).catch(member.ban({ reason: 'blacklisted!' })).catch(() => { });
-                member.ban({ reason: 'blacklisted!' }).catch(() => { });
+                member.send({ content: "You've been banned, because you are blacklisted" })
+                    .catch(() => { })
+                    .then(() => {
+                        member.ban({ reason: 'blacklisted!' }).catch(() => { });
+                    });
             }
-        } catch { return; };
+        } catch (error) {
+            return;
+        }
     };
 
     async function memberCount() {
@@ -76,21 +80,21 @@ export = async (client: any, member: any) => {
                     .replace("{botcount}", botMembers.size);
 
                 let Fetched = member.guild.channels.cache.get(bot.channel);
-                Fetched.edit({ name: joinmsgreplace });
+                Fetched?.edit({ name: joinmsgreplace });
                 return;
             } else if (member_2) {
                 let joinmsgreplace = member_2.name
                     .replace("{membercount}", member.guild.memberCount);
 
                 let Fetched = member.guild.channels.cache.get(member_2.channel);
-                Fetched.edit({ name: joinmsgreplace });
+                Fetched?.edit({ name: joinmsgreplace });
                 return;
             } else if (roles) {
                 let joinmsgreplace = roles.name
                     .replace("{rolescount}", rolesCount);
 
                 let Fetched = member.guild.channels.cache.get(roles.channel);
-                Fetched.edit({ name: joinmsgreplace });
+                Fetched?.edit({ name: joinmsgreplace });
                 return;
             };
         } catch (e) { return };
@@ -105,34 +109,34 @@ export = async (client: any, member: any) => {
             let oldInvites = client.invites.get(member.guild.id);
             let newInvites = await member.guild.invites.fetch();
 
-            let invite = newInvites.find((i: { uses: number; code: any; }) => i.uses > oldInvites.get(i.code));
+            let invite = newInvites.find((i: Invite) => i.uses && i.uses > (oldInvites.get(i.code) || 0));
             // if(invite.code == isVanity(invite.code)) { };
 
-            let inviter = await client.users.fetch(invite.inviterId);
-            client.invites.get(member.guild.id).set(invite.code, invite.uses);
+            let inviter = await client.users.fetch(invite?.inviterId);
+            client.invites.get(member.guild.id).set(invite?.code, invite?.uses);
 
-            let check = await client.db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES`);
+            let check = await client.db.get(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`);
 
             if (check) {
-                await client.db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.regular`, 1);
-                await client.db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.invites`, 1);
+                await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.regular`, 1);
+                await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.invites`, 1);
             } else {
 
-                await client.db.set(`${invite.guild.id}.USER.${inviter.id}.INVITES`,
+                await client.db.set(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`,
                     {
                         regular: 0, bonus: 0, leaves: 0, invites: 0
                     }
                 );
 
-                await client.db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.regular`, 1);
-                await client.db.add(`${invite.guild.id}.USER.${inviter.id}.INVITES.invites`, 1);
-                check = await client.db.get(`${invite.guild.id}.USER.${inviter.id}.INVITES`);
+                await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.regular`, 1);
+                await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.invites`, 1);
+                check = await client.db.get(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`);
             };
 
-            await client.db.set(`${invite.guild.id}.USER.${member.user.id}.INVITES.BY`,
+            await client.db.set(`${invite?.guild?.id}.USER.${member.user.id}.INVITES.BY`,
                 {
                     inviter: inviter.id,
-                    invite: invite.code,
+                    invite: invite?.code,
                 }
             );
 
@@ -197,7 +201,7 @@ export = async (client: any, member: any) => {
         let sfbuff = Buffer.from((request?.image).split(",")[1], "base64");
         let sfattach = new AttachmentBuilder(sfbuff);
 
-        channel.send({
+        (channel as GuildTextBasedChannel).send({
             content: data.event_security
                 .replace('${member}', member),
             files: [sfattach]
@@ -234,5 +238,19 @@ export = async (client: any, member: any) => {
         });
     };
 
-    blockBot(), joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage(), securityCheck();
+    async function rolesSaver() {
+        if (await client.db.get(`${member.guild.id}.GUILD_CONFIG.rolesaver.enable`)) {
+
+            let array = await client.db.get(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
+
+            array.forEach(async (role: Role) => {
+                member.roles.add(role);
+            });
+
+            await client.db.delete(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
+            return;
+        }
+    };
+
+    blockBot(), joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage(), securityCheck(), rolesSaver();
 };

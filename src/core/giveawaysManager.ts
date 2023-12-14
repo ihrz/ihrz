@@ -25,7 +25,13 @@ import {
     ButtonBuilder,
     ButtonStyle,
     ActionRowBuilder,
-    Client
+    Client,
+    BaseGuildTextChannel,
+    GuildMessageManager,
+    GuildTextBasedChannel,
+    Interaction,
+    InteractionResponse,
+    ChatInputCommandInteraction
 } from 'discord.js';
 
 import { Giveaway } from '../../types/giveaways';
@@ -189,7 +195,7 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         let guild = await client.guilds.fetch(guildId);
         let channel = await guild.channels.fetch(channelId);
 
-        let message = await (channel as any).messages.fetch(messageId).catch(async () => {
+        let message: any = await (channel as GuildTextBasedChannel).messages.fetch(messageId).catch(async () => {
             await db.delete(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
             return;
         })
@@ -247,7 +253,7 @@ async function Reroll(client: Client, data: any) {
                 let guild = await client.guilds.fetch(data.guildId);
                 let channel = await guild.channels.fetch(channelId);
 
-                let message = await (channel as any).messages.fetch(messageId).catch(async () => {
+                let message: any = await (channel as BaseGuildTextChannel).messages.fetch(messageId).catch(async () => {
                     await db.delete(`GIVEAWAYS.${data.guildId}.${channel?.id}.${data.messageId}`);
                     return;
                 })
@@ -364,6 +370,96 @@ async function Refresh(client: Client) {
     }
 };
 
+async function ListEntries(interaction: ChatInputCommandInteraction, data: any) {
+    let drop_all_db = await db.get(`GIVEAWAYS`);
+
+    for (let guildId in drop_all_db) {
+        // guildId: Server Guild ID
+        // b: Giveaway's Message ID
+        // drop_all_db[a][b] : Giveaway Object
+
+        for (let channelId in drop_all_db[guildId]) {
+            for (let messageId in drop_all_db[guildId][channelId]) {
+                if (messageId === data.messageId && guildId === data.guildId) {
+                    var char: Array<string> = drop_all_db[guildId][channelId][messageId].members;
+
+                    if (char.length == 0) {
+                        await interaction.editReply({ content: "There is no entry into this competition." });
+                        return;
+                    };
+
+                    let currentPage = 0;
+                    let usersPerPage = 10;
+                    let pages: { title: string; description: string; }[] = [];
+
+                    for (let i = 0; i < char.length; i += usersPerPage) {
+                        let pageUsers = char.slice(i, i + usersPerPage);
+                        let pageContent = pageUsers.map((userId: any) => `<@${userId}>`).join('\n');
+                        pages.push({
+                            title: `Giveaway's Entries List | Page ${i / usersPerPage + 1}`,
+                            description: pageContent,
+                        });
+                    };
+
+                    let createEmbed = () => {
+                        return new EmbedBuilder()
+                            .setColor("#800080")
+                            .setTitle(pages[currentPage].title)
+                            .setDescription(pages[currentPage].description)
+                            .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: interaction.client.user?.displayAvatarURL() })
+                            .setTimestamp()
+                    };
+
+                    let row = new ActionRowBuilder().addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('previousPage')
+                            .setLabel('⬅️')
+                            .setStyle(ButtonStyle.Secondary),
+                        new ButtonBuilder()
+                            .setCustomId('nextPage')
+                            .setLabel('➡️')
+                            .setStyle(ButtonStyle.Secondary),
+                    );
+
+                    let messageEmbed = await interaction.editReply({
+                        embeds: [createEmbed()], components: [(row as ActionRowBuilder<ButtonBuilder>)]
+                    });
+
+                    let filter = (i: {
+                        user: any; deferUpdate: () => void;
+                    }) => {
+                        i.deferUpdate();
+                        return interaction.user.id === i.user.id;
+                    };
+
+                    let collector = messageEmbed.createMessageComponentCollector({
+                        filter, time: 60000
+                    });
+
+                    collector.on('collect', (interaction: { customId: string; }) => {
+                        if (interaction.customId === 'previousPage') {
+                            currentPage = (currentPage - 1 + pages.length) % pages.length;
+                        } else if (interaction.customId === 'nextPage') {
+                            currentPage = (currentPage + 1) % pages.length;
+                        }
+
+                        messageEmbed.edit({ embeds: [createEmbed()] });
+                    });
+
+                    collector.on('end', () => {
+                        row.components.forEach((component) => {
+                            if (component instanceof ButtonBuilder) {
+                                component.setDisabled(true);
+                            }
+                        });
+                        messageEmbed.edit({ components: [(row as ActionRowBuilder<ButtonBuilder>)] });
+                    });
+                };
+            }
+        }
+    }
+}
+
 export {
     Init,
     isValid,
@@ -374,5 +470,6 @@ export {
     End,
 
     AddEntries,
-    RemoveEntries
+    RemoveEntries,
+    ListEntries
 };

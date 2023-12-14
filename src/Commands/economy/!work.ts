@@ -29,7 +29,7 @@ export = {
         let talkedRecentlyforw = new Set();
 
         if (talkedRecentlyforw.has(interaction.user.id)) {
-            await interaction.editReply({ content: data.work_cooldown_error });
+            await interaction.reply({ content: data.work_cooldown_error });
             return;
         };
 
@@ -47,7 +47,7 @@ export = {
             )
             .setColor("#f1d488");
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
         await client.db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
 
         talkedRecentlyforw.add(interaction.user.id);

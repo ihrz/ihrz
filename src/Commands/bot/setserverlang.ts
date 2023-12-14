@@ -74,20 +74,21 @@ export const command: Command = {
             ],
         }
     ],
+    thinking: false,
     category: 'bot',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
         let type = interaction.options.getString("language");
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.setserverlang_not_admin });
+            await interaction.reply({ content: data.setserverlang_not_admin });
             return;
         };
 
         let already = await client.db.get(`${interaction.guild.id}.GUILD.LANG`);
 
         if (already?.lang === type) {
-            await interaction.editReply({ content: data.setserverlang_already });
+            await interaction.reply({ content: data.setserverlang_already });
             return;
         }
 
@@ -107,7 +108,7 @@ export const command: Command = {
             if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
         } catch (e: any) { logger.err(e) };
 
-        await interaction.editReply({ content: data.setserverlang_command_work_enable.replace(/\${type}/g, type) });
+        await interaction.reply({ content: data.setserverlang_command_work_enable.replace(/\${type}/g, type) });
         return;
     },
 };

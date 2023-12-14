@@ -87,6 +87,7 @@ export const command: Command = {
             ],
         }
     ],
+    thinking: true,
     category: 'invitemanager',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);

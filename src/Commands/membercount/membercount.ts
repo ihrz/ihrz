@@ -62,6 +62,7 @@ export const command: Command = {
             description: `{botcount}, {rolescount}, {membercount}`
         },
     ],
+    thinking: true,
     category: 'membercount',
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);

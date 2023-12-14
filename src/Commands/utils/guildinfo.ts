@@ -30,6 +30,7 @@ export const command: Command = {
     name: 'guildinfo',
     description: 'Get information about the server!',
     category: 'utils',
+    thinking: false,
     run: async (client: Client, interaction: any) => {
         let data = await client.functions.getLanguageData(interaction.guild.id);
 
@@ -67,7 +68,7 @@ export const command: Command = {
             .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
             .setImage(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.banner}.png`);
 
-        await interaction.editReply({ embeds: [embeds] });
+        await interaction.reply({ embeds: [embeds] });
         return;
     },
 };
