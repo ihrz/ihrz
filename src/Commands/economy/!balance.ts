@@ -20,19 +20,20 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     User
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let member: User = interaction.options.getUser('user') || interaction.user;
-        var bal = await client.db.get(`${interaction.guild.id}.USER.${member.id}.ECONOMY.money`);
+        var bal = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`);
 
         if (!bal) {
-            await client.db.set(`${interaction.guild.id}.USER.${member.id}.ECONOMY.money`, 1);
+            await client.db.set(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`, 1);
             await interaction.reply({
                 content: data.balance_he_dont_have_wallet
                     .replace('${user}', interaction.user)
@@ -40,7 +41,7 @@ export = {
             return;
         };
 
-        let totalWallet = (bal || 0) + (await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.bank`) || 0);
+        let totalWallet = (bal || 0) + (await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`) || 0);
         let embed = new EmbedBuilder()
             .setColor('#e3c6ff')
             .setTitle(`\`${member.username}\`'s Wallet`)
@@ -50,8 +51,8 @@ export = {
                 .replace('${user}', member)
             )
             .addFields(
-                { name: data.balance_embed_fields1_name, value: `${await client.db.get(`${interaction.guild.id}.USER.${member.id}.ECONOMY.bank`) || 0}🪙`, inline: true },
-                { name: data.balance_embed_fields2_name, value: `${await client.db.get(`${interaction.guild.id}.USER.${member.id}.ECONOMY.money`) || 0}🪙`, inline: true }
+                { name: data.balance_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.bank`) || 0}🪙`, inline: true },
+                { name: data.balance_embed_fields2_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`) || 0}🪙`, inline: true }
             )
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp()

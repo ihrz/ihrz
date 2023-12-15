@@ -20,14 +20,16 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.removemoney_not_admin });
             return;
         };
@@ -35,11 +37,11 @@ export = {
         var amount = interaction.options.getNumber("amount");
         let user = interaction.options.getUser("member");
 
-        await client.db.sub(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, amount);
-        let bal = await client.db.get(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`);
+        await client.db.sub(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, amount);
+        let bal = await client.db.get(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`);
 
         let embed = new EmbedBuilder()
-            .setAuthor({ name: data.removemoney_embed_title, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
+            .setAuthor({ name: data.removemoney_embed_title, iconURL: interaction.user.displayAvatarURL() })
             .addFields({ name: data.removemoney_embed_fields, value: `${amount}$` },
                 { name: data.removemoney_embed_second_fields, value: `${bal}$` })
             .setColor("#bc0116")
@@ -52,11 +54,11 @@ export = {
                 .setDescription(data.removemoney_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     .replace(/\${amount}/g, amount)
-                    .replace(/\${user\.user\.id}/g, user.id)
+                    .replace(/\${user\.user\.id}/g, user?.id)
                 );
 
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-            if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
+            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
         } catch (e) { return; };
 
         await interaction.reply({ embeds: [embed] });

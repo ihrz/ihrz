@@ -20,6 +20,8 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
@@ -27,10 +29,10 @@ import {
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
         let action = interaction.options.getString('action');
 
-        if (interaction.user.id !== interaction.guild.ownerId) {
+        if (interaction.user.id !== interaction.guild?.ownerId) {
             await interaction.editReply({ content: data.blockbot_not_owner });
             return;
         } else if (action === 'on') {
@@ -42,16 +44,16 @@ export = {
                         .replace(/\${interaction\.user}/g, interaction.user)
                     );
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] })
+                    (logchannel as BaseGuildTextChannel)?.send({ embeds: [logEmbed] })
                 };
             } catch (e: any) {
                 logger.err(e);
             };
 
-            await client.db.set(`${interaction.guild.id}.GUILD.BLOCK_BOT`, true);
+            await client.db.set(`${interaction.guild?.id}.GUILD.BLOCK_BOT`, true);
 
             await interaction.editReply({ content: data.blockbot_command_work_on_enable });
             return;
@@ -64,16 +66,16 @@ export = {
                         .replace(/\${interaction\.user}/g, interaction.user)
                     );
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] });
+                    (logchannel as BaseGuildTextChannel)?.send({ embeds: [logEmbed] });
                 };
             } catch (e: any) {
                 logger.err(e);
             };
 
-            await client.db.delete(`${interaction.guild.id}.GUILD.BLOCK_BOT`);
+            await client.db.delete(`${interaction.guild?.id}.GUILD.BLOCK_BOT`);
 
             await interaction.editReply({ content: data.blockbot_command_work_on_disable });
             return;

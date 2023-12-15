@@ -20,6 +20,8 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
@@ -30,13 +32,13 @@ import logger from '../../core/logger';
 import backup from 'discord-backup';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.backup_not_admin });
             return;
         };
 
-        if (!interaction.guild.members.me.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.guild?.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.backup_i_dont_have_permission });
             return;
         };
@@ -62,7 +64,8 @@ export = {
 
             await client.db.set(`BACKUPS.${interaction.user.id}.${backupData.id}`, elData);
 
-            interaction.channel.send({ content: data.backup_command_work_on_creation });
+            interaction.channel?.send({ content: data.backup_command_work_on_creation });
+
             await interaction.editReply({
                 content: data.backup_command_work_info_on_creation
                     .replace("${backupData.id}", backupData.id)
@@ -76,12 +79,12 @@ export = {
                         .replace('${interaction.user.id}', interaction.user.id)
                     );
 
-                let logchannel = interaction.guild.channels.cache.find((channel: {
+                let logchannel = interaction.guild?.channels.cache.find((channel: {
                     name: string;
                 }) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] });
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
                 };
             } catch (e: any) {
                 logger.err(e)

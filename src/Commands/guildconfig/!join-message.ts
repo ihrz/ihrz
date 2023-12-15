@@ -20,15 +20,17 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setjoinmessage_not_admin });
             return;
         };
@@ -54,7 +56,7 @@ export = {
                     .replaceAll("{membercount}", "{membercount}")
                     .replaceAll("\\n", '\n')
 
-                await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`, joinmsgreplace);
+                await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joinmessage`, joinmsgreplace);
 
                 try {
                     let logEmbed = new EmbedBuilder()
@@ -64,9 +66,9 @@ export = {
                             .replace("${interaction.user.id}", interaction.user.id)
                         )
 
-                    let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                    let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                     if (logchannel) {
-                        logchannel.send({ embeds: [logEmbed] })
+                        (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
                     }
                 } catch (e) {
                 };
@@ -75,7 +77,7 @@ export = {
                 return;
             }
         } else if (type == "off") {
-            await client.db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
+            await client.db.delete(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joinmessage`);
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
@@ -84,10 +86,10 @@ export = {
                         .replace("${interaction.user.id}", interaction.user.id)
                     );
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] })
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
                 };
             } catch (e) {
             };
@@ -95,20 +97,18 @@ export = {
             await interaction.editReply({ content: data.setjoinmessage_command_work_on_disable });
             return;
         } else if (type == "ls") {
-            var ls = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
+            var ls = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joinmessage`);
 
             let embed = new EmbedBuilder()
-                .setAuthor({ name: interaction.user.globalName, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
+                .setAuthor({ name: interaction.user.globalName || interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
                 .setColor('#1481c1')
                 .setDescription(ls || 'None')
                 .setTimestamp()
                 .setTitle(data.setjoinmessage_command_work_ls)
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
-                .setThumbnail(interaction.guild.iconURL({ dynamic: true }));
+                .setThumbnail(interaction.guild?.iconURL() as string);
 
-            await interaction.editReply({
-                embeds: [embed]
-            });
+            await interaction.editReply({ embeds: [embed] });
             return;
         };
 

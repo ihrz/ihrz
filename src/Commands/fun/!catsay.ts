@@ -29,14 +29,15 @@
 
 import {
   AttachmentBuilder,
+  ChatInputCommandInteraction,
   Client,
   EmbedBuilder,
-} from 'discord.js'
+} from 'discord.js';
 
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 export = {
-  run: async (client: Client, interaction: any) => {
+  run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
     let text = interaction.options.getString('text');
     let link = `https://cataas.com/cat/cute/says/${text}`;
@@ -47,14 +48,14 @@ export = {
       .setTimestamp()
       .setFooter({ text: 'iHorizon x ElektraBots', iconURL: client.user?.displayAvatarURL() });
 
-    let imgs;
+    let imgs: AttachmentBuilder;
 
-    await axios.get(link, { responseType: 'arraybuffer' }).then((response: any) => {
+    await axios.get(link, { responseType: 'arraybuffer' }).then((response: AxiosResponse) => {
       imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'all-humans-have-right-elektra.png' });
       embed.setImage(`attachment://all-humans-have-right-elektra.png`);
     });
 
-    await interaction.editReply({ embeds: [embed], files: [imgs] });
+    await interaction.editReply({ embeds: [embed], files: [imgs!] });
     return;
   },
 };

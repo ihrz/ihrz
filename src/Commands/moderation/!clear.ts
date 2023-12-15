@@ -20,6 +20,8 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
@@ -28,24 +30,24 @@ import {
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        let permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)
+        let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)
         var numberx = interaction.options.getNumber("number");
-        
+
         if (!permission) {
             await interaction.editReply({ content: data.clear_dont_have_permission });
             return;
         }
 
-        if (numberx > 100) {
+        if (numberx && numberx > 100) {
             await interaction.editReply({ content: data.clear_max_message_limit });
             return;
         };
 
-        interaction.channel.bulkDelete(numberx, true)
-            .then((messages: { size: any; }) => {
-                interaction.channel.send({
+        (interaction.channel as BaseGuildTextChannel).bulkDelete(numberx as unknown as number, true)
+            .then((messages: { size: number; }) => {
+                interaction.channel?.send({
                     content: data.clear_confirmation_message
                         .replace(/\${messages\.size}/g, messages.size)
                 });
@@ -57,12 +59,12 @@ export = {
                         .setDescription(data.clear_logs_embed_description
                             .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                             .replace(/\${messages\.size}/g, messages.size)
-                            .replace(/\${interaction\.channel\.id}/g, interaction.channel.id)
+                            .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id)
                         )
-                    let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                    let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
                     if (logchannel) {
-                        logchannel.send({ embeds: [logEmbed] });
+                        (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
                     };
                 } catch (e: any) {
                     logger.err(e)

@@ -20,6 +20,8 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
@@ -28,9 +30,9 @@ import {
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setjoinroles_not_admin });
             return;
         };
@@ -57,23 +59,23 @@ export = {
                         .replace("${interaction.user.id}", interaction.user.id)
                     );
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] });
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
                 };
             } catch (e: any) {
                 logger.err(e)
             };
 
             try {
-                let already = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
+                let already = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joinroles`);
                 if (already === roleid.value) {
                     await interaction.editReply({ content: data.setjoinroles_already_on_enable });
                     return;
                 };
 
-                await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`, roleid.value);
+                await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joinroles`, roleid.value);
 
                 await interaction.editReply({
                     content: data.setjoinroles_command_work_enable
@@ -93,16 +95,16 @@ export = {
                         .replace("${interaction.user.id}", interaction.user.id)
                     );
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] });
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
                 };
             } catch (e) {
             }
 
             try {
-                let already = await client.db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
+                let already = await client.db.delete(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joinroles`);
                 if (!already) {
                     await interaction.editReply({ content: data.setjoinroles_dont_need_command_on_disable });
                     return;
@@ -115,7 +117,7 @@ export = {
                 return;
             };
         } else if (query === "ls") {
-            let roles = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
+            let roles = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joinroles`);
             if (!roles) {
                 await interaction.editReply({ content: data.setjoinroles_command_any_set_ls });
                 return;

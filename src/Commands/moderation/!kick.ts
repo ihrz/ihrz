@@ -20,48 +20,51 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
+    GuildMemberRoleManager,
     PermissionsBitField,
 } from 'discord.js';
 
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        let member = interaction.options.getMember("member");
-        let permission = interaction.member.permissions.has([PermissionsBitField.Flags.KickMembers]);
+        let member = interaction.options.getMember("member") as GuildMember;
+        let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.KickMembers);
 
         if (!permission) {
             await interaction.editReply({ content: data.kick_not_permission });
             return;
         };
 
-        if (!interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.KickMembers])) {
+        if (!interaction.guild?.members.me?.permissions.has(PermissionsBitField.Flags.KickMembers)) {
             await interaction.editReply({ content: data.kick_dont_have_permission });
             return;
         };
 
-        if (member.user.id === interaction.member.id) {
+        if (member.user?.id === interaction.user.id) {
             await interaction.editReply({ content: data.kick_attempt_kick_your_self });
             return;
         };
 
-        if (interaction.member.roles.highest.position < member.roles.highest.position) {
+        if ((interaction.member?.roles as GuildMemberRoleManager).highest.position < member?.roles.highest.position) {
             await interaction.editReply({ content: data.kick_attempt_kick_higter_member });
             return;
         };
 
-        member.send({
+        member?.send({
             content: data.kick_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-                .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.globalName)
+                .replace(/\${interaction\.member\.user\.username}/g, interaction.user.globalName)
         }).catch(() => { });
 
         try {
-            await member.kick({ reason: 'kicked by ' + interaction.user.globalName });
-
+            await member?.kick(`Kicked by ${interaction.user.globalName}`);
             let logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
                 .setTitle(data.kick_logs_embed_title)
@@ -71,9 +74,9 @@ export = {
                 );
 
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-            
+
             if (logchannel) {
-                logchannel.send({ embeds: [logEmbed] })
+                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
             };
 
             await interaction.editReply({

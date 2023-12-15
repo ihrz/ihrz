@@ -23,22 +23,25 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
+    GuildMember
 } from 'discord.js';
 
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        let tomute = interaction.options.getMember("user");
-        let permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages);
+        let tomute = interaction.options.getMember("user") as GuildMember;
+        let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages);
 
         if (!permission) {
             await interaction.editReply({ content: data.unmute_dont_have_permission });
             return;
         };
 
-        if (!interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.ManageRoles])) {
+        if (!interaction.guild?.members.me?.permissions.has([PermissionsBitField.Flags.ManageRoles])) {
             await interaction.editReply({ content: data.unmute_i_dont_have_permission });
             return;
         };
@@ -50,7 +53,7 @@ export = {
         
         let muterole = interaction.guild.roles.cache.find((role: { name: string; }) => role.name === 'muted');
 
-        if (!tomute.roles.cache.has(muterole.id)) {
+        if (!tomute.roles.cache.has(muterole?.id!)) {
             await interaction.editReply({ content: data.unmute_not_muted });
             return;
         };
@@ -79,7 +82,7 @@ export = {
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
             if (logchannel) {
-                logchannel.send({ embeds: [logEmbed] });
+                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
             };
         } catch (e: any) {
             logger.err(e)

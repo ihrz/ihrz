@@ -20,23 +20,24 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import * as apiUrlParser from '../../core/functions/apiUrlParser';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let slap = interaction.options.getUser("user");
 
         axios.get(apiUrlParser.SlapURL)
-            .then(async (res: any) => {
+            .then(async (res: AxiosResponse) => {
                 let embed = new EmbedBuilder()
                     .setColor("#42ff08")
                     .setDescription(data.slap_embed_description
-                        .replace(/\${slap\.id}/g, slap.id)
+                        .replace(/\${slap\.id}/g, slap?.id)
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     )
                     .setImage(res.data)

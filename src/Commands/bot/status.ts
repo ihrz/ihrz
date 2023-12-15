@@ -21,48 +21,44 @@
 
 import {
     Client,
-    Collection,
-    ChannelType,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
-    ApplicationCommandOptionType
+    ChatInputCommandInteraction,
+    time
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
-import os from 'os-utils';
+import * as pkg from '../../../package.json';
 import config from '../../files/config';
+import os from 'node:os';
+
+function niceBytes(a: Number) { let b = 0, c = parseInt((a as unknown as string), 10) || 0; for (; 1024 <= c && ++b;)c /= 1024; return c.toFixed(10 > c && 0 < b ? 1 : 0) + " " + ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][b] }
 
 export const command: Command = {
     name: 'status',
     description: 'Get the bot status! (Only for the bot owner)',
     category: 'bot',
     thinking: false,
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
 
         if (interaction.user.id != config.owner.ownerid1 && config.owner.ownerid2) {
             await interaction.reply({ content: data.status_be_bot_dev });
             return;
         };
 
-        os.cpuUsage(function (c) {
-            let embed = new EmbedBuilder()
-                .setColor("#42ff08")
-                .addFields(
-                    { name: "=====================", value: '**Consumed in real time** :', inline: false },
-                    { name: "**CPU USAGE:**", value: 'CPU Usage (%): **' + c + '** %', inline: false },
-                    { name: "**RAM USAGE:**", value: 'MEMORY Usage (%): **' + os.freememPercentage() + '** %', inline: false },
-                    { name: "=====================", value: '**Characteristic of the server** :', inline: false },
-                    { name: "**TOTAL RAM:**", value: 'TOTAL RAM (MB): **' + os.totalmem() + '** MB', inline: false },
-                    { name: "**CPU NAME:**", value: '**AMD RYZEN 7 5700G 8 CORE / 12 THREADS 4.6Ghz**', inline: false },
-                    { name: "=====================", value: '`iHORIZON`', inline: false }
-                )
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+        let embed = new EmbedBuilder()
+            .setColor("#82cda8")
+            .setFields(
+                { name: "Cpu", value: `${os.cpus()[0].model} (${os.machine()})`, inline: false },
+                { name: "Memory", value: `${niceBytes(os.freemem())}/${niceBytes(os.totalmem())}`, inline: false },
+                { name: "Machine Uptime", value: `${time(new Date(Date.now() - os.uptime() * 1000), 'd')}`, inline: false },
+                { name: "OS", value: `${os.platform()} ${os.type()} ${os.release()}`, inline: false },
+                { name: "Bot Version", value: `${pkg.version}`, inline: false },
+            )
+            .setThumbnail(interaction.guild?.iconURL() as string)
+            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
 
-            interaction.reply({ embeds: [embed] });
-            return;
-        })
+        await interaction.reply({ embeds: [embed] });
+        return;
     },
 };

@@ -20,31 +20,33 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
         let question = interaction.options.getString("question");
 
-        let text = question.split(" ");
+        let text = question?.split(" ");
 
-        if (!text[2]) {
+        if (!text?.[2]) {
             await interaction.editReply({ content: data.question_not_full });
             return;
         }
 
-        let reponse = data.question_s
-        let result = Math.floor((Math.random() * reponse.length));
+        let reponses = data.question_s
 
         let embed = new EmbedBuilder()
             .setTitle(data.question_embed_title
                 .replace(/\${interaction\.user\.username}/g, interaction.user.globalName)
             )
             .setColor("#ddd98b")
-            .addFields({ name: data.question_fields_input_embed, value: question, inline: true },
-                { name: data.question_fields_output_embed, value: reponse[result] })
+            .addFields(
+                { name: data.question_fields_input_embed, value: (question as string), inline: true },
+                { name: data.question_fields_output_embed, value: (reponses[Math.floor((Math.random() * reponses.length))] as string) }
+            )
             .setTimestamp();
 
         await interaction.editReply({ embeds: [embed] });

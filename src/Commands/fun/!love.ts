@@ -19,15 +19,15 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, EmbedBuilder, AttachmentBuilder } from 'discord.js';
+import { Client, EmbedBuilder, AttachmentBuilder, ChatInputCommandInteraction } from 'discord.js';
 import { createCanvas, loadImage } from 'canvas';
 import logger from '../../core/logger';
 import config from '../../files/config';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
         var user1 = interaction.options.getUser("user1") || interaction.user;
-        var user2 = interaction.options.getUser("user2") || interaction.guild.members.cache.random().user;
+        var user2 = interaction.options.getUser("user2") || interaction.guild?.members.cache.random()?.user;
 
         let profileImageSize = 512;
         let canvasWidth = profileImageSize * 3;
@@ -38,13 +38,13 @@ export = {
 
         let heartEmojiPath = `${process.cwd()}/src/assets/heart.png`;
 
-        let profileImage1URL = user1.displayAvatarURL({ extension: 'png', size: 512 });
-        let profileImage2URL = user2.displayAvatarURL({ extension: 'png', size: 512 });
+        let profileImage1URL = user1?.displayAvatarURL({ extension: 'png', size: 512 });
+        let profileImage2URL = user2?.displayAvatarURL({ extension: 'png', size: 512 });
 
         try {
             let [profileImage1, profileImage2, heartEmoji] = await Promise.all([
                 loadImage(profileImage1URL),
-                loadImage(profileImage2URL),
+                loadImage(profileImage2URL as string),
                 loadImage(heartEmojiPath)
             ]);
 
@@ -63,9 +63,9 @@ export = {
 
             var found = always100.find(element => {
                 if (
-                    element === `${user1.id}x${user2.id}`
+                    element === `${user1?.id}x${user2?.id}`
                     ||
-                    element === `${user2.id}x${user1.id}`
+                    element === `${user2?.id}x${user1?.id}`
                 ) {
                     return true;
                 }
@@ -85,7 +85,7 @@ export = {
                 .setImage(`attachment://love.png`)
                 .setDescription(data.love_embed_description
                     .replace('${user1.username}', user1.username)
-                    .replace('${user2.username}', user2.username)
+                    .replace('${user2.username}', user2?.username)
                     .replace('${randomNumber}', randomNumber)
                 )
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })

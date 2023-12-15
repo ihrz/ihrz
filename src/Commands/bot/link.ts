@@ -24,6 +24,7 @@ import {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
+    ChatInputCommandInteraction,
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -33,8 +34,8 @@ export const command: Command = {
     description: 'Show all links about iHorizon',
     category: 'bot',
     thinking: false,
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
 
         let websitebutton = new ButtonBuilder()
             .setLabel(data.links_website)
@@ -46,13 +47,9 @@ export const command: Command = {
             .setStyle(ButtonStyle.Link)
             .setURL('https://github.com/ihrz/ihrz')
 
-        let row = new ActionRowBuilder().addComponents(websitebutton, githubbutton);
+        let row = new ActionRowBuilder<ButtonBuilder>().addComponents(websitebutton, githubbutton);
 
-        await interaction.reply({
-            content: data.links_message,
-            components: [row]
-        });
-
+        await interaction.reply({ content: data.links_message, components: [row] });
         return;
     },
 };

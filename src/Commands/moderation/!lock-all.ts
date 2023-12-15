@@ -24,23 +24,27 @@ import {
     EmbedBuilder,
     PermissionsBitField,
     ChannelType,
+    ChatInputCommandInteraction,
+    GuildChannel,
+    GuildTextBasedChannel,
+    BaseGuildTextChannel,
 } from 'discord.js';
 
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
 
-        let permission = interaction.member.permissions.has(PermissionsBitField.Flags.Administrator);
+        let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator);
         if (!permission) {
             await interaction.editReply({ content: data.lockall_dont_have_permission });
             return;
         };
         
-        interaction.guild.channels.cache.forEach((c: { type: ChannelType; permissionOverwrites: { create: (arg0: any, arg1: { SendMessages: boolean; }) => void; }; }) => {
+        interaction.guild?.channels.cache.forEach((c) => {
             if (c.type === ChannelType.GuildText) {
-                c.permissionOverwrites.create(interaction.guild.id, { SendMessages: false })
+                c.permissionOverwrites.create(interaction.guild?.id as string, { SendMessages: false })
             };
         });
 
@@ -59,10 +63,10 @@ export = {
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                 );
 
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
             if (logchannel) {
-                logchannel.send({ embeds: [logEmbed] })
+                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
             };
         } catch (e: any) {
             logger.err(e)

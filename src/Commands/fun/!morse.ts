@@ -20,31 +20,32 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
         let i: number;
 
-        let alpha = " ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split(""),
-            morse = "/,.-,-...,-.-.,-..,.,..-.,--.,....,..,.---,-.-,.-..,--,-.,---,.--.,--.-,.-.,...,-,..-,...-,.--,-..-,-.--,--..,.----,..---,...--,....-,.....,-....,--...,---..,----.,-----".split(","),
-            text = interaction.options.getString("input").toUpperCase();
+        let alpha = " ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
+        let morse = "/,.-,-...,-.-.,-..,.,..-.,--.,....,..,.---,-.-,.-..,--,-.,---,.--.,--.-,.-.,...,-,..-,...-,.--,-..-,-.--,--..,.----,..---,...--,....-,.....,-....,--...,---..,----.,-----".split(",");
+        let text: any = interaction.options.getString("input")?.toUpperCase();
 
-        while (text.includes("Ä") || text.includes("Ö") || text.includes("Ü")) {
-            text = text.replace("Ä", "AE").replace("Ö", "OE").replace("Ü", "UE");
+        while (text?.includes("Ä") || text?.includes("Ö") || text?.includes("Ü")) {
+            text = text?.replace("Ä", "AE").replace("Ö", "OE").replace("Ü", "UE");
         };
 
-        if (text.startsWith(".") || text.startsWith("-")) {
+        if (text?.startsWith(".") || text?.startsWith("-")) {
             text = text.split(" ");
-            let length = text.length;
+            let length = text?.length;
             for (i = 0; i < length; i++) {
                 text[i] = alpha[morse.indexOf(text[i])];
             };
 
-            text = text.join("");
+            text = text?.join("");
         } else {
-            text = text.split("");
+            text = text?.split("");
             let length = text.length;
             for (i = 0; i < length; i++) {
                 text[i] = morse[alpha.indexOf(text[i])];

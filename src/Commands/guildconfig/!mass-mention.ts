@@ -22,7 +22,8 @@
 import {
     Client,
     PermissionsBitField,
-    AutoModerationRuleTriggerType
+    AutoModerationRuleTriggerType,
+    ChatInputCommandInteraction
 } from 'discord.js';
 
 interface Action {
@@ -31,18 +32,17 @@ interface Action {
 };
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let turn = interaction.options.getString("action");
         let max_mention = interaction.options.getNumber('max-mention-allowed') || 3;
         let logs_channel = interaction.options.getChannel('logs-channel');
 
-        let automodRules = await interaction.guild.autoModerationRules.fetch();
+        let automodRules = await interaction.guild?.autoModerationRules.fetch();
 
-        let mentionSpamRule = automodRules
-            .find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.MentionSpam);
+        let mentionSpamRule = automodRules?.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.MentionSpam);
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.blockpub_not_admin });
             return;
 
@@ -70,9 +70,8 @@ export = {
 
                 if (!mentionSpamRule) {
 
-                    await interaction.guild.autoModerationRules.create({
+                    await interaction.guild?.autoModerationRules.create({
                         name: 'Block mass-mention spam by iHorizon',
-                        creatorId: client.user?.id,
                         enabled: true,
                         eventType: 1,
                         triggerType: 5,
@@ -85,7 +84,6 @@ export = {
                     });
                 } else if (mentionSpamRule) {
                     await mentionSpamRule.edit({
-                        creatorId: client.user?.id,
                         triggerMetadata:
                         {
                             mentionTotalLimit: max_mention,
@@ -95,7 +93,7 @@ export = {
                     });
                 };
 
-                await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.mass_mention`, "on");
+                await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.mass_mention`, "on");
                 await interaction.editReply({
                     content: data.automod_block_massmention_command_on
                         .replace('${interaction.user}', interaction.user)
@@ -108,9 +106,9 @@ export = {
             }
         } else if (turn === "off") {
 
-            await mentionSpamRule.setEnabled(false);
+            await mentionSpamRule?.setEnabled(false);
 
-            await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.mass_mention`, "off");
+            await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.mass_mention`, "off");
             await interaction.editReply({
                 content: data.automod_block_massmention_command_off
                     .replace('${interaction.user}', interaction.user)

@@ -20,7 +20,7 @@
 */
 
 import {
-    Client,
+    Client, ChatInputCommandInteraction,
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -30,8 +30,9 @@ export const command: Command = {
     description: 'Get necessary information about my developer, Kisakay',
     category: 'bot',
     thinking: false,
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
+
         await interaction.reply({ content: data.kisakay_message });
         return;
     },

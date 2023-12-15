@@ -20,6 +20,8 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
@@ -30,17 +32,17 @@ import { isValid, End, isEnded } from '../../core/giveawaysManager';
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let inputData = interaction.options.getString("giveaway-id");
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {
             await interaction.editReply({ content: data.end_not_admin });
             return;
         };
 
-        if (!await isValid(inputData, {
-            guildId: interaction.guild.id
+        if (!await isValid((inputData as unknown as number), {
+            guildId: interaction.guild?.id
         })) {
             await interaction.editReply({
                 content: data.end_not_find_giveaway
@@ -49,15 +51,15 @@ export = {
             return;
         };
 
-        if (await isEnded(inputData, {
-            guildId: interaction.guild.id
+        if (await isEnded((inputData as unknown as number), {
+            guildId: interaction.guild?.id
         })) {
             await interaction.editReply({ content: data.end_command_error });
             return;
         };
 
         await End(client, {
-            guildId: interaction.guild.id,
+            guildId: interaction.guild?.id,
             messageId: inputData,
         });
 
@@ -75,9 +77,9 @@ export = {
                     .replace(/\${giveaway\.messageID}/g, inputData)
                 );
 
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) {
-                logchannel.send({ embeds: [logEmbed] })
+                (logchannel as BaseGuildTextChannel)?.send({ embeds: [logEmbed] })
             };
 
         } catch (e: any) {

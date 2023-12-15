@@ -20,12 +20,13 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
         let talkedRecentlyforr = new Set();
 
         if (talkedRecentlyforr.has(interaction.user.id)) {
@@ -33,9 +34,9 @@ export = {
             return;
         };
 
-        let user = interaction.options.getMember("member");
-        let targetuser = await client.db.get(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`);
-        let author = await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`);
+        let user = interaction.options.getUser("member");
+        let targetuser = await client.db.get(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`);
+        let author = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`);
 
         if (author < 250) {
             await interaction.reply({ content: data.rob_dont_enought_error });
@@ -45,7 +46,7 @@ export = {
         if (targetuser < 250) {
             await interaction.reply({
                 content: data.rob_him_dont_enought_error
-                    .replace(/\${user\.user\.username}/g, user.user.globalName)
+                    .replace(/\${user\.user\.username}/g, user?.globalName)
             });
             return;
         };
@@ -55,7 +56,7 @@ export = {
         let embed = new EmbedBuilder()
             .setDescription(data.rob_embed_description
                 .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                .replace(/\${user\.id}/g, user.id)
+                .replace(/\${user\.id}/g, user?.id)
                 .replace(/\${random}/g, random)
             )
             .setColor("#a4cb80")
@@ -63,8 +64,8 @@ export = {
 
         await interaction.reply({ embeds: [embed] });
 
-        await client.db.sub(`${interaction.guild.id}.USER.${user.user.id}.ECONOMY.money`, random);
-        await client.db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, random);
+        await client.db.sub(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, random);
+        await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, random);
 
         talkedRecentlyforr.add(interaction.user.id);
         setTimeout(() => {

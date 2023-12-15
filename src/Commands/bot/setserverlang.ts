@@ -23,7 +23,9 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
-    ApplicationCommandOptionType
+    ApplicationCommandOptionType,
+    ChatInputCommandInteraction,
+    BaseGuildTextChannel
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -76,24 +78,24 @@ export const command: Command = {
     ],
     thinking: false,
     category: 'bot',
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
         let type = interaction.options.getString("language");
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.setserverlang_not_admin });
             return;
         };
 
-        let already = await client.db.get(`${interaction.guild.id}.GUILD.LANG`);
+        let already = await client.db.get(`${interaction.guild?.id}.GUILD.LANG`);
 
         if (already?.lang === type) {
             await interaction.reply({ content: data.setserverlang_already });
             return;
         }
 
-        await client.db.set(`${interaction.guild.id}.GUILD.LANG`, { lang: type });
-        data = await client.functions.getLanguageData(interaction.guild.id);
+        await client.db.set(`${interaction.guild?.id}.GUILD.LANG`, { lang: type });
+        data = await client.functions.getLanguageData(interaction.guild?.id);
 
         try {
             let logEmbed = new EmbedBuilder()
@@ -104,8 +106,8 @@ export const command: Command = {
                     .replace(/\${interaction\.user.id}/g, interaction.user.id)
                 );
 
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-            if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
+            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
         } catch (e: any) { logger.err(e) };
 
         await interaction.reply({ content: data.setserverlang_command_work_enable.replace(/\${type}/g, type) });

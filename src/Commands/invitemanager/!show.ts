@@ -20,14 +20,15 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
-        let member = interaction.options.getMember("member") || interaction.member;
-        let baseData = await client.db.get(`${interaction.guild.id}.USER.${member.user.id}.INVITES`);
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+        let member = interaction.options.getUser("member") || interaction.user;
+        let baseData = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.INVITES`);
 
         let inv = baseData?.invites;
         let leaves = baseData?.leaves;
@@ -38,10 +39,10 @@ export = {
             .setColor("#92A8D1")
             .setTitle(data.invites_confirmation_embed_title)
             .setTimestamp()
-            .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
+            .setThumbnail(member.displayAvatarURL())
             .setDescription(
                 data.invites_confirmation_embed_description
-                    .replace(/\${member\.user\.id}/g, member.user.id)
+                    .replace(/\${member\.user\.id}/g, member.id)
                     .replace(/\${bonus\s*\|\|\s*0}/g, bonus || 0)
                     .replace(/\${leaves\s*\|\|\s*0}/g, leaves || 0)
                     .replace(/\${Regular\s*\|\|\s*0}/g, Regular || 0)

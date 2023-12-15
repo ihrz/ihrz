@@ -21,20 +21,21 @@
 
 import {
     Client,
+    ChatInputCommandInteraction
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
-        let user = interaction.options.getMember("member");
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+        let user = interaction.options.getUser("member");
         let amount = interaction.options.getNumber("amount");
 
-        let member = await client.db.get(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`);
-        if (amount.toString().includes('-')) {
+        let member = await client.db.get(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`);
+        if (amount?.toString().includes('-')) {
             await interaction.reply({ content: data.pay_negative_number_error });
             return;
         };
 
-        if (member < amount.value) {
+        if (amount && member < amount) {
             await interaction.reply({ content: data.pay_dont_have_enought_to_give });
             return;
         }
@@ -42,12 +43,12 @@ export = {
         await interaction.reply({
             content: data.pay_command_work
                 .replace(/\${interaction\.user\.username}/g, interaction.user.globalName)
-                .replace(/\${user\.user\.username}/g, user.user.globalName)
+                .replace(/\${user\.user\.username}/g, user?.globalName)
                 .replace(/\${amount}/g, amount)
         });
 
-        await client.db.add(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, amount);
-        await client.db.sub(`${interaction.guild.id}.USER.${interaction.member.id}.ECONOMY.money`, amount);
+        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, amount);
+        await client.db.sub(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
         return;
     },
 };

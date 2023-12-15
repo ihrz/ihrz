@@ -20,6 +20,8 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
@@ -28,9 +30,9 @@ import {
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        let permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageChannels);
+        let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageChannels);
         if (!permission) {
             await interaction.editReply({ content: data.unlock_dont_have_permission });
             return;
@@ -39,7 +41,7 @@ export = {
             .setColor("#5b3475")
             .setTimestamp()
             .setDescription(data.unlock_embed_message_description);
-        await interaction.channel.permissionOverwrites.create(interaction.guild.id, { SendMessages: true });
+        await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(interaction.guild?.id as string, { SendMessages: true });
 
         try {
             let logEmbed = new EmbedBuilder()
@@ -47,12 +49,12 @@ export = {
                 .setTitle(data.unlock_logs_embed_title)
                 .setDescription(data.unlock_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace(/\${interaction\.channel\.id}/g, interaction.channel.id)
+                    .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id)
                 )
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
             if (logchannel) {
-                logchannel.send({ embeds: [logEmbed] })
+                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
             }
         } catch (e: any) {
             logger.err(e)

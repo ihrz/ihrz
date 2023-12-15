@@ -20,6 +20,8 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
@@ -28,14 +30,14 @@ import {
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.BanMembers)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.BanMembers)) {
             await interaction.editReply({ content: data.unban_dont_have_permission });
             return;
         };
 
-        if (!interaction.guild.members.me.permissions.has([PermissionsBitField.Flags.BanMembers])) {
+        if (!interaction.guild?.members.me?.permissions.has([PermissionsBitField.Flags.BanMembers])) {
             await interaction.editReply({ content: data.unban_bot_dont_have_permission })
             return;
         };
@@ -46,7 +48,7 @@ export = {
         if (!reason) reason = data.unban_reason;
 
         await interaction.guild.bans.fetch()
-            .then(async (bans: { size: number; find: (arg0: (ban: any) => boolean) => any; }) => {
+            .then(async (bans) => {
                 if (bans.size == 0) {
                     await interaction.editReply({ content: data.unban_there_is_nobody_banned });
                     return;
@@ -57,7 +59,7 @@ export = {
                     return;
                 };
 
-                await interaction.guild.bans.remove(userID, reason).catch((err: any) => { });
+                await interaction.guild?.bans.remove(userID as string, reason as string).catch((err: any) => { });
                 await interaction.editReply({
                     content: data.unban_is_now_unbanned
                         .replace(/\${userID}/g, userID)
@@ -73,7 +75,7 @@ export = {
                 )
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) {
-                logchannel.send({ embeds: [logEmbed] });
+                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
             };
         } catch (e: any) {
             logger.err(e);

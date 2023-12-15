@@ -20,33 +20,34 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        let balance = await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`);
+        let balance = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`);
         let toWithdraw = interaction.options.getNumber('how-much');
 
-        if (toWithdraw > balance) {
+        if (toWithdraw && toWithdraw > balance) {
             await interaction.reply({ content: data.withdraw_cannot_abuse });
             return;
         };
 
-        await client.db.sub(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.bank`, toWithdraw);
-        await client.db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, toWithdraw);
+        await client.db.sub(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`, toWithdraw);
+        await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, toWithdraw);
 
         let embed = new EmbedBuilder()
-            .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
+            .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL() })
             .setColor("#a4cb80")
             .setTitle(data.withdraw_embed_title)
             .setDescription(data.withdraw_embed_desc
                 .replace('${interaction.user}', interaction.user)
                 .replace('${toWithdraw}', toWithdraw)
             )
-            .addFields({ name: data.withdraw_embed_fields1_name, value: `${await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.bank`)}🪙` })
+            .addFields({ name: data.withdraw_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`)}🪙` })
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp();
 

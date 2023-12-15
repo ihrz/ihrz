@@ -20,6 +20,8 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
@@ -28,8 +30,8 @@ import {
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setchannels_not_admin });
             return;
         };
@@ -52,22 +54,22 @@ export = {
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     )
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] })
+                    (logchannel as BaseGuildTextChannel)?.send({ embeds: [logEmbed] })
                 }
             } catch (e: any) {
                 logger.err(e)
             };
 
             try {
-                let already = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`);
+                let already = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.join`);
                 if (already === argsid.id) {
                     await interaction.editReply({ content: data.setchannels_already_this_channel_on_join });
                     return;
                 };
-                interaction.client.channels.cache.get(argsid.id).send({ content: data.setchannels_confirmation_message_on_join });
-                await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`, argsid.id);
+                (interaction.client.channels.cache.get(argsid.id) as BaseGuildTextChannel).send({ content: data.setchannels_confirmation_message_on_join });
+                await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.join`, argsid.id);
 
                 await interaction.editReply({
                     content: data.setchannels_command_work_on_join
@@ -85,15 +87,15 @@ export = {
                     return;
                 };
 
-                let already = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`);
+                let already = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.leave`);
 
                 if (already === argsid.id) {
                     await interaction.editReply({ content: data.setchannels_already_this_channel_on_leave });
                     return;
                 };
 
-                interaction.client.channels.cache.get(argsid.id)?.send({ content: data.setchannels_confirmation_message_on_leave });
-                await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`, argsid.id);
+                (interaction.client.channels.cache.get(argsid.id) as BaseGuildTextChannel).send({ content: data.setchannels_confirmation_message_on_leave });
+                await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.leave`, argsid.id);
 
                 try {
                     let logEmbed = new EmbedBuilder()
@@ -104,9 +106,9 @@ export = {
                             .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                         );
 
-                    let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                    let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                     if (logchannel) {
-                        logchannel.send({ embeds: [logEmbed] })
+                        (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
                     }
                 } catch (e: any) {
                     logger.err(e)
@@ -131,24 +133,24 @@ export = {
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     )
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] })
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
                 };
             } catch (e: any) {
                 logger.err(e)
             };
 
-            let leavec: string = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`);
-            let joinc: string = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`);
+            let leavec: string = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.join`);
+            let joinc: string = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.leave`);
             if (!joinc && !leavec) {
                 await interaction.editReply({ content: data.setchannels_already_on_off });
                 return;
             };
 
-            await client.db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.join`);
-            await client.db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.leave`);
+            await client.db.delete(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.join`);
+            await client.db.delete(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.leave`);
             await interaction.editReply({ content: data.setchannels_command_work_on_off });
             return;
         };

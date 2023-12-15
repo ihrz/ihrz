@@ -20,6 +20,7 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
@@ -27,12 +28,12 @@ import {
 import ms from 'ms';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let timeout: number = 2592000000;
         let amount: number = 5000;
 
-        let monthly = await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly`);
+        let monthly = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.monthly`);
 
         if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
             let time = ms(timeout - (Date.now() - monthly));
@@ -41,13 +42,13 @@ export = {
             return;
         } else {
             let embed = new EmbedBuilder()
-                .setAuthor({ name: data.monthly_embed_title, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
+                .setAuthor({ name: data.monthly_embed_title, iconURL: interaction.user.displayAvatarURL() })
                 .setColor("#a4cb80")
                 .setDescription(data.monthly_embed_description)
-                .addFields({ name: data.monthly_embed_fields, value: `${amount}🪙` })
+                .addFields({ name: data.monthly_embed_fields, value: `${amount}🪙` });
             await interaction.reply({ embeds: [embed] });
-            await client.db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
-            await client.db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.monthly`, Date.now());
+            await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
+            await client.db.set(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.monthly`, Date.now());
             return;
         };
     },
