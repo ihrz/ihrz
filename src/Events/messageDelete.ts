@@ -19,10 +19,10 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Attachment, AttachmentBuilder, AttachmentData, Client, Collection, EmbedBuilder, GuildTextBasedChannel, Message, PermissionsBitField } from 'discord.js';
+import { Attachment, AttachmentBuilder, AttachmentData, BaseGuildTextChannel, Client, Collection, EmbedBuilder, GuildTextBasedChannel, Message, PermissionsBitField } from 'discord.js';
 import * as hidden from '../core/functions/maskLink';
 
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 export = async (client: Client, message: Message) => {
     let data = await client.functions.getLanguageData(message.guild?.id);
@@ -48,10 +48,10 @@ export = async (client: Client, message: Message) => {
         let someinfo = await client.db.get(`${message.guild.id}.GUILD.SERVER_LOGS.message`);
         if (!someinfo) return;
 
-        let Msgchannel: any = client.channels.cache.get(someinfo);
+        let Msgchannel = client.channels.cache.get(someinfo);
         if (!Msgchannel) return;
 
-        let iconURL: any = message.author.displayAvatarURL();
+        let iconURL = message.author.displayAvatarURL();
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setAuthor({
@@ -70,45 +70,45 @@ export = async (client: Client, message: Message) => {
             if (!attachment || !attachment.contentType) return;
 
             if (attachments.size >= 2) {
-                let files: any[] = [];
+                let files: AttachmentBuilder[] = [];
 
-                async function getFile(file: any) {
+                async function getFile(file: Attachment) {
                     let response = await axios.get(file?.['attachment'] as string, { responseType: 'arraybuffer' });
                     let attachment = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: file?.name });
                     files.push(attachment);
                 }
 
-                let filePromises = attachments.map(async (file: any) => {
+                let filePromises = attachments.map(async (file) => {
                     await getFile(file);
                 });
 
                 await Promise.all(filePromises);
 
-                await Msgchannel.send({ embeds: [logsEmbed], files: files }).catch(() => { });
+                await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed], files: files }).catch(() => { });
                 return;
             } else if (attachment && attachment.contentType.startsWith('image/')) {
-                let snipedImage;
+                let snipedImage: AttachmentBuilder;
 
-                await axios.get((attachment?.['attachment'] as string), { responseType: 'arraybuffer' }).then((response: any) => {
+                await axios.get((attachment?.['attachment'] as string), { responseType: 'arraybuffer' }).then((response: AxiosResponse) => {
                     snipedImage = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'sniped-image-by-ihorizon.png' });
                     logsEmbed.setImage(`attachment://sniped-image-by-ihorizon.png`);
                 });
 
-                await Msgchannel.send({ embeds: [logsEmbed], files: [snipedImage] }).catch(() => { });
+                await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed], files: [snipedImage!] }).catch(() => { });
                 return;
             } else if (attachment) {
-                let snipedFiles;
+                let snipedFiles: AttachmentBuilder;
 
-                await axios.get((attachment?.['attachment'] as string), { responseType: 'arraybuffer' }).then((response: any) => {
+                await axios.get((attachment?.['attachment'] as string), { responseType: 'arraybuffer' }).then((response: AxiosResponse) => {
                     snipedFiles = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: attachment?.name });
                 });
 
-                await Msgchannel.send({ embeds: [logsEmbed], files: [snipedFiles] }).catch(() => { });
+                await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed], files: [snipedFiles!] }).catch(() => { });
                 return;
             }
         };
 
-        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
+        await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
         return;
     };
 

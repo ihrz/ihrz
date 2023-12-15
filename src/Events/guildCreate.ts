@@ -97,8 +97,8 @@ Thanks for choosing me and let's have some fun together!`);
     async function getInvites() {
         if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
         try {
-            guild.invites.fetch().then((guildInvites: { map: (arg0: (invite: any) => any[]) => Iterable<readonly [unknown, unknown]> | null | undefined; }) => {
-                client.invites.set(guild.id, new Collection(guildInvites.map((invite: any) => [invite.code, invite.uses])));
+            guild.invites.fetch().then((guildInvites) => {
+                client.invites.set(guild.id, new Collection(guildInvites.map((invite) => [invite.code, invite.uses])));
             });
         } catch (error: any) { logger.err(error) };
     };

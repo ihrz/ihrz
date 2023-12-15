@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { AttachmentBuilder, Client, Guild, GuildChannel, GuildChannelManager, GuildMember, GuildTextBasedChannel, Invite, Message, MessageManager, Role } from "discord.js";
+import { AttachmentBuilder, BaseGuildTextChannel, Client, Guild, GuildChannel, GuildChannelManager, GuildMember, GuildTextBasedChannel, Invite, Message, MessageManager, Role } from "discord.js";
 
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
 import axios from 'axios';
@@ -28,7 +28,7 @@ import * as apiUrlParser from '../core/functions/apiUrlParser';
 
 import logger from "../core/logger";
 
-export = async (client: any, member: GuildMember) => {
+export = async (client: Client, member: GuildMember) => {
 
     let data = await client.functions.getLanguageData(member.guild.id);
 
@@ -67,7 +67,7 @@ export = async (client: any, member: GuildMember) => {
 
     async function memberCount() {
         try {
-            let botMembers = member.guild.members.cache.filter((member: { user: { bot: any; }; }) => member.user.bot);
+            let botMembers = member.guild.members.cache.filter((member) => member.user.bot);
             let rolesCount = member.guild.roles.cache.size;
 
             let baseData = await client.db.get(`${member.guild.id}.GUILD.MCOUNT`);
@@ -112,7 +112,7 @@ export = async (client: any, member: GuildMember) => {
             let invite = newInvites.find((i: Invite) => i.uses && i.uses > (oldInvites.get(i.code) || 0));
             // if(invite.code == isVanity(invite.code)) { };
 
-            let inviter = await client.users.fetch(invite?.inviterId);
+            let inviter = await client.users.fetch(invite?.inviterId as string);
             client.invites.get(member.guild.id).set(invite?.code, invite?.uses);
 
             let check = await client.db.get(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`);
@@ -148,7 +148,7 @@ export = async (client: any, member: GuildMember) => {
             let joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
 
             if (!joinMessage) {
-                client.channels.cache.get(wChan).send({
+                (client.channels.cache.get(wChan) as BaseGuildTextChannel).send({
                     content: data.event_welcomer_inviter
                         .replace("${member.id}", member.id)
                         .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
@@ -167,13 +167,13 @@ export = async (client: any, member: GuildMember) => {
                 .replace("{inviter}", inviter.username)
                 .replace("{invites}", invitesAmount);
 
-            client.channels.cache.get(wChan).send({ content: joinMessageFormated }).catch(() => { });
+            (client.channels.cache.get(wChan) as BaseGuildTextChannel).send({ content: joinMessageFormated }).catch(() => { });
             return;
         } catch (e: any) {
             let wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
             if (!wChan || !client.channels.cache.get(wChan)) return;
 
-            client.channels.cache.get(wChan).send({
+            (client.channels.cache.get(wChan) as BaseGuildTextChannel).send({
                 content: data.event_welcomer_default
                     .replace("${member.id}", member.id)
                     .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
@@ -205,13 +205,12 @@ export = async (client: any, member: GuildMember) => {
             content: data.event_security
                 .replace('${member}', member),
             files: [sfattach]
-        }).then(async (msg: any) => {
+        }).then(async (msg) => {
             let filter = (m: Message) => m.author.id === member.id;
             let collector = msg.channel.createMessageCollector({ filter: filter, time: 30000 });
             let passedtest = false;
 
-            collector.on('collect', (m: any) => {
-
+            collector.on('collect', (m) => {
                 m.delete().catch(() => { });
                 if (request.text === m.content) {
                     member.roles.add(baseData?.role).catch(() => { });
@@ -227,7 +226,7 @@ export = async (client: any, member: GuildMember) => {
                 }
             });
 
-            collector.on('end', (collected: { size: any; }) => {
+            collector.on('end', (collected) => {
                 if (passedtest) return;
                 msg.delete().catch(() => { });
                 member.kick().catch(() => { });

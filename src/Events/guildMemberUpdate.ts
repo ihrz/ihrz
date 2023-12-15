@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
+import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Client, GuildMember, BaseGuildTextChannel, AuditLogChange } from 'discord.js';
 
 export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
     let data = await client.functions.getLanguageData(newMember.guild.id);
@@ -32,7 +32,7 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
             limit: 1,
         });
 
-        let firstEntry: any = fetchedLogs.entries.first();
+        let firstEntry = fetchedLogs.entries.first();
 
         if (!firstEntry
             || firstEntry.executorId == client.user?.id
@@ -40,47 +40,51 @@ export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) 
         ) return;
 
         let someinfo = await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.roles`);
-        let Msgchannel: any = client.channels.cache.get(someinfo);
+        let Msgchannel = client.channels.cache.get(someinfo);
 
         if (!someinfo || !Msgchannel) return;
 
-        let newObjects: any[] = [];
-        let removeObjects: any[] = [];
-
-        firstEntry.changes.forEach((item: { key: string; new: any; }) => {
+        interface CustomObject {
+            id: string;
+        }
+        
+        let newObjects: CustomObject[] = [];
+        let removeObjects: CustomObject[] = [];
+        
+        firstEntry.changes.forEach((item) => {
             if (item.key === '$add') {
-                newObjects.push(...item.new);
+                newObjects.push(...<CustomObject[]>item.new);
             } else if (item.key === '$remove') {
-                removeObjects.push(...item.new);
+                removeObjects.push(...<CustomObject[]>item.new);
             }
         });
-
-        newObjects = newObjects.map((obj) => obj.id);
-        removeObjects = removeObjects.map((obj) => obj.id);
-
+        
+        let newObjectsnewObjectIds: string[] = newObjects.map((obj) => obj.id);
+        let removeObjectIds: string[] = removeObjects.map((obj) => obj.id);
+        
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
-            .setAuthor({ name: firstEntry.target.username, iconURL: firstEntry.target.displayAvatarURL({ format: 'png', dynamic: true }) })
+            .setAuthor({ name: firstEntry.target?.username as string, iconURL: firstEntry.target?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
             .setTimestamp();
 
         let desc = ' ';
 
         if (removeObjects.length >= 1) {
             desc += data.event_srvLogs_guildMemberUpdate_description
-                .replace("${firstEntry.executor.id}", firstEntry.executor.id)
-                .replace("${removedRoles}", removeObjects.map(value => `<@&${value}>`))
-                .replace("${oldMember.user.username}", firstEntry.target.username) + '\n';
+                .replace("${firstEntry.executor.id}", firstEntry.executor?.id)
+                .replace("${removedRoles}", removeObjectIds.map(value => `<@&${value}>`))
+                .replace("${oldMember.user.username}", firstEntry.target?.username) + '\n';
         };
 
         if (newObjects.length >= 1) {
             desc += data.event_srvLogs_guildMemberUpdate_2_description
-                .replace("${firstEntry.executor.id}", firstEntry.executor.id)
-                .replace("${addedRoles}", newObjects.map(value => `<@&${value}>`))
-                .replace("${oldMember.user.username}", firstEntry.target.username);
+                .replace("${firstEntry.executor.id}", firstEntry.executor?.id)
+                .replace("${addedRoles}", newObjectsnewObjectIds.map(value => `<@&${value}>`))
+                .replace("${oldMember.user.username}", firstEntry.target?.username);
         };
         logsEmbed.setDescription(desc);
 
-        Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
+        (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
     };
 
     serverLogs();

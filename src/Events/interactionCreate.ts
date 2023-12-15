@@ -22,7 +22,7 @@
 import config from '../files/config';
 import logger from '../core/logger';
 
-import { ApplicationCommand, BaseInteraction, Client, Collection, CommandInteraction, CommandInteractionOptionResolver, EmbedBuilder, GuildChannel, Interaction, InteractionCollector, InteractionResponse, Permissions } from 'discord.js';
+import { Client, CommandInteractionOption, EmbedBuilder, GuildChannel, Interaction } from 'discord.js';
 import { format } from 'date-fns';
 import fs from 'fs';
 
@@ -78,7 +78,7 @@ export = async (client: Client, interaction: Interaction) => {
                 });
                 return;
             };
-            
+
             if (command.thinking) {
                 await interaction.deferReply();
             };
@@ -93,6 +93,7 @@ export = async (client: Client, interaction: Interaction) => {
         if (!interaction.isCommand()
             || !interaction.guild?.channels
             || interaction.user.bot) return;
+
 
         let optionsList: string[] = (interaction as any).options._hoistedOptions.map((element: { name: any; value: any; }) => `${element.name}:"${element.value}"`);
         let subCmd: string = '';

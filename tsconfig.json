@@ -13,7 +13,7 @@
       "importHelpers": true,
       "typeRoots": ["node_modules/@types"],
       "types": ["node"],
-      "strictPropertyInitialization": false
+      "strictPropertyInitialization": false,
   },
   "include": ["./"],
   "exclude": ["/.github", "./dist", "./node_modules", "./src/files/config.example.ts", "./ownihrz"]
