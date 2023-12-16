@@ -33,25 +33,25 @@ export = async (client: Client, channel: GuildChannel) => {
                 limit: 1,
             });
 
-            var firstEntry: any = fetchedLogs.entries.first();
-            if (firstEntry.target.channelId !== channel.id) return;
+            var firstEntry = fetchedLogs.entries.first();
+            if (firstEntry?.target.channelId !== channel.id) return;
             if (firstEntry.executorId === client.user?.id) return;
 
             let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
             if (!baseData) {
                 let webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
-                let myWebhooks = webhooks.filter((webhook: { id: any; }) => webhook.id === firstEntry.target.id);
+                let myWebhooks = webhooks.filter((webhook) => webhook.id === firstEntry?.target.id);
 
                 for (let [id, webhook] of myWebhooks) await webhook.delete("Protect!");
 
-                let user = await channel.guild.members.cache.get(firstEntry.executorId);
+                let user = await channel.guild.members.cache.get(firstEntry.executorId as string);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':
                         break;
                     case 'simply+derank':
-                        user?.guild.roles.cache.forEach((element: any) => {
+                        user?.guild.roles.cache.forEach((element) => {
                             if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
                                 user.roles.remove(element.id);
                             };
