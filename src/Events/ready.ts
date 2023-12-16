@@ -19,26 +19,25 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, Collection, ApplicationCommandType, PermissionsBitField, ActivityType, Guild, Embed, EmbedBuilder } from 'discord.js';
+import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder } from 'discord.js';
 import { Init } from "../core/pfpsManager";
 import logger from "../core/logger";
 import couleurmdr from 'colors';
 import config from "../files/config";
 import register from '../core/slashSync';
 
+import OwnIHRZ from "../core/ownihrzManager";
 import date from 'date-and-time';
 
-import OwnIHRZ from "../core/ownihrzManager";
-
 export = async (client: Client) => {
-    await register(client, client.commands)
+    await register(client, client.commands);
 
     async function term() {
-        logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  ")),
-            logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ")),
-            logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |")),
-            logger.log(couleurmdr.magenta("|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_|" + ` (${client.user?.tag}).`)),
-            logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`));
+        logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  "));
+        logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ "));
+        logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |"));
+        logger.log(couleurmdr.magenta("|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_|" + ` (${client.user?.tag}).`));
+        logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`));
     };
 
     async function fetchInvites() {
@@ -56,7 +55,6 @@ export = async (client: Client) => {
     };
 
     async function refreshDatabaseModel() {
-        await client.db.set('TEST.TEST2_3', "tes");
         await client.db.set(`GLOBAL.OWNER.${config.owner.ownerid1}`, { owner: true });
         await client.db.set(`GLOBAL.OWNER.${config.owner.ownerid2}`, { owner: true });
         await client.db.set(`TEMP`, {});
