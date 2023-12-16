@@ -1,6 +1,6 @@
 {
   "name": "ihrz",
-  "version": "dev@14.8.4",
+  "version": "dev@14.8.6",
   "description": "iHrz in ts!",
   "main": "./dist/index.js",
   "scripts": {
@@ -30,7 +30,7 @@
     "@types/express": "^4.17.17",
     "@types/js-yaml": "^4.0.5",
     "axios": "^1.6.2",
-    "better-sqlite3": "^8.4.0",
+    "better-sqlite3": "^9.2.2",
     "canvas": "^2.11.2",
     "colors": "^1.4.0",
     "crypto-js": "^4.1.1",
