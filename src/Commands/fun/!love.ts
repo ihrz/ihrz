@@ -19,8 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, EmbedBuilder, AttachmentBuilder, ChatInputCommandInteraction } from 'discord.js';
-import { createCanvas, loadImage } from 'canvas';
+import { Client, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
+import Jimp from 'jimp';
 import logger from '../../core/logger';
 import config from '../../files/config';
 
@@ -33,32 +33,24 @@ export = {
         let canvasWidth = profileImageSize * 3;
         let canvasHeight = profileImageSize;
 
-        let canvas = createCanvas(canvasWidth, canvasHeight);
-        let ctx = canvas.getContext('2d');
-
-        let heartEmojiPath = `${process.cwd()}/src/assets/heart.png`;
-
-        let profileImage1URL = user1?.displayAvatarURL({ extension: 'png', size: 512 });
-        let profileImage2URL = user2?.displayAvatarURL({ extension: 'png', size: 512 });
-
         try {
             let [profileImage1, profileImage2, heartEmoji] = await Promise.all([
-                loadImage(profileImage1URL),
-                loadImage(profileImage2URL as string),
-                loadImage(heartEmojiPath)
+                Jimp.read(user1?.displayAvatarURL({ extension: 'png', size: 512 }) as string),
+                Jimp.read(user2?.displayAvatarURL({ extension: 'png', size: 512 }) as string),
+                Jimp.read(`${process.cwd()}/src/assets/heart.png`)
             ]);
 
-            ctx.drawImage(profileImage1, 0, 0, profileImageSize, canvasHeight);
+            profileImage1.resize(profileImageSize, profileImageSize);
+            profileImage2.resize(profileImageSize, profileImageSize);
+            heartEmoji.resize(profileImageSize, profileImageSize);
 
-            let heartX = profileImageSize;
-            let heartY = profileImageSize / 2 - heartEmoji.height / 2;
+            let combinedImage = new Jimp(canvasWidth, canvasHeight);
 
-            ctx.drawImage(heartEmoji, heartX, heartY);
-            ctx.drawImage(profileImage2, profileImageSize * 1 + heartEmoji.width, 0, profileImageSize, canvasHeight);
+            combinedImage.blit(profileImage1, 0, 0);
+            combinedImage.blit(heartEmoji, profileImageSize, profileImageSize / 2 - heartEmoji.bitmap.height / 2);
+            combinedImage.blit(profileImage2, profileImageSize * 2, 1);
 
-            // Convertir le canvas en buffer
-            let buffer = canvas.toBuffer('image/png');
-
+            let buffer = await combinedImage.getBufferAsync(Jimp.MIME_PNG);
             let always100: Array<string> = config.command.alway100;
 
             var found = always100.find(element => {
@@ -72,12 +64,12 @@ export = {
                 return false;
             });
 
-            var randomNumber: Number;
+            var randomNumber: number;
             if (found) {
                 randomNumber = 100;
             } else {
                 randomNumber = Math.floor(Math.random() * 101);
-            };
+            }
 
             var embed = new EmbedBuilder()
                 .setColor("#FFC0CB")
@@ -86,14 +78,12 @@ export = {
                 .setDescription(data.love_embed_description
                     .replace('${user1.username}', user1.username)
                     .replace('${user2.username}', user2?.username)
-                    .replace('${randomNumber}', randomNumber)
+                    .replace('${randomNumber}', randomNumber.toString())
                 )
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                 .setTimestamp();
 
-            let file = new AttachmentBuilder(buffer, { name: 'love.png' });
-
-            await interaction.editReply({ embeds: [embed], files: [file] });
+            await interaction.editReply({ embeds: [embed], files: [{ attachment: buffer, name: 'love.png' }] });
         } catch (error: any) {
             logger.err(error);
             await interaction.editReply({ content: data.love_command_error });
