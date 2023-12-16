@@ -20,19 +20,20 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let embed = new EmbedBuilder()
             .setColor('#c4afed')
             .setTitle(data.banner_guild_embed)
-            .setImage(interaction.guild.bannerURL({ extension: 'png', size: 4096 }))
-            .setThumbnail(interaction.guild.iconURL({ size: 4096 }))
+            .setImage(interaction.guild?.bannerURL({ extension: 'png', size: 4096 }) as string)
+            .setThumbnail(interaction.guild?.iconURL({ size: 4096 }) as string)
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL({ size: 4096 }) })
 
         await interaction.reply({ embeds: [embed] });

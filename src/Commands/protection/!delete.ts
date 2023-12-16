@@ -20,33 +20,35 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        let baseData = await client.db.get(`${interaction.guild.id}.ALLOWLIST`);
+        let baseData = await client.db.get(`${interaction.guild?.id}.ALLOWLIST`);
+        let member = interaction.options.getMember('member') as GuildMember;
 
-        if (interaction.user.id !== interaction.guild.ownerId && baseData.list[interaction.user.id]?.allowed !== true) {
+        if (interaction.user.id !== interaction.guild?.ownerId && baseData.list[interaction.user.id]?.allowed !== true) {
             await interaction.reply({ content: data.allowlist_delete_not_permited });
             return;
         };
 
-        if (interaction.user.id !== interaction.guild.ownerId) {
+        if (interaction.user.id !== interaction.guild?.ownerId) {
             await interaction.reply({ content: data.allowlist_delete_not_owner });
             return;
         };
 
-        let member = interaction.options.getMember('member');
 
         if (!member) {
             await interaction.reply({ content: data.allowlist_delete_member_unreachable });
             return;
         };
 
-        if (member === interaction.guild.ownerId) {
+        if (member.user.id === interaction.guild.ownerId) {
             await interaction.reply({ content: data.allowlist_delete_cant_remove_owner });
             return;
         };

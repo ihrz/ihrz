@@ -20,6 +20,7 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
@@ -27,12 +28,12 @@ import {
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let channel = interaction.options.getChannel('to');
-        let fetch = await client.db.get(`${interaction.guild.id}.PFPS.disable`);
+        let fetch = await client.db.get(`${interaction.guild?.id}.PFPS.disable`);
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({
                 content: data.pfps_channel_not_admin
             });
@@ -40,7 +41,7 @@ export = {
         };
 
         if (!fetch && (channel instanceof TextChannel)) {
-            await client.db.set(`${interaction.guild.id}.PFPS.channel`, channel.id);
+            await client.db.set(`${interaction.guild?.id}.PFPS.channel`, channel.id);
 
             let embed = new EmbedBuilder()
                 .setColor('#333333')

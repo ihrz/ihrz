@@ -24,6 +24,8 @@ import {
     EmbedBuilder,
     PermissionsBitField,
     ApplicationCommandOptionType,
+    ChatInputCommandInteraction,
+    BaseGuildTextChannel,
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
@@ -64,10 +66,10 @@ export const command: Command = {
     ],
     thinking: false,
     category: 'newfeatures',
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.support_not_admin });
             return;
         };
@@ -81,7 +83,7 @@ export const command: Command = {
             return;
         }
         if (action == "true") {
-            await client.db.set(`${interaction.guild.id}.GUILD.SUPPORT`,
+            await client.db.set(`${interaction.guild?.id}.GUILD.SUPPORT`,
                 {
                     input: input,
                     rolesId: roles.id,
@@ -91,7 +93,7 @@ export const command: Command = {
 
             await interaction.reply({
                 content: data.support_command_work
-                    .replace("${interaction.guild.name}", interaction.guild.name)
+                    .replace("${interaction.guild.name}", interaction.guild?.name)
                     .replace("${input}", input)
                     .replace("${roles.id}", roles.id)
             });
@@ -104,15 +106,15 @@ export const command: Command = {
                         .replace("${interaction.user.id}", interaction.user.id)
                     )
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
         } else {
-            await client.db.delete(`${interaction.guild.id}.GUILD.SUPPORT`);
+            await client.db.delete(`${interaction.guild?.id}.GUILD.SUPPORT`);
 
             await interaction.reply({
                 content: data.support_command_work_on_disable
-                    .replace("${interaction.guild.name}", interaction.guild.name)
+                    .replace("${interaction.guild.name}", interaction.guild?.name)
             })
 
             try {
@@ -123,8 +125,8 @@ export const command: Command = {
                         .replace("${interaction.user.id}", interaction.user.id)
                     )
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
             } catch (e: any) { logger.err(e) };
             return;
         };

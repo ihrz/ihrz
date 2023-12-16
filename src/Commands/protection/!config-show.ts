@@ -20,14 +20,15 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        if (interaction.user.id !== interaction.guild.ownerId) {
+        if (interaction.user.id !== interaction.guild?.ownerId) {
             await interaction.editReply({ content: data.authorization_configshow_not_permited });
             return;
         };
@@ -62,7 +63,7 @@ export = {
 
         text2 += data.authorization_configshow_punishement.replace('${okay}', okay);
 
-        let iconURL: any = client.user?.displayAvatarURL();
+        let iconURL = client.user?.displayAvatarURL();
 
         let embed1 = new EmbedBuilder()
             .setColor('#000000')

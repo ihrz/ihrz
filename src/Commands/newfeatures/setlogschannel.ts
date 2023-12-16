@@ -24,6 +24,8 @@ import {
     EmbedBuilder,
     PermissionsBitField,
     ApplicationCommandOptionType,
+    ChatInputCommandInteraction,
+    BaseGuildTextChannel,
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
@@ -54,10 +56,10 @@ export const command: Command = {
     ],
     thinking: false,
     category: 'newfeatures',
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guildId);
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.setlogschannel_not_admin });
             return;
         };
@@ -82,24 +84,24 @@ export const command: Command = {
                         .replace(/\${typeOfLogs}/g, typeOfLogs)
                     );
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
 
             try {
-                let already = await client.db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS.roles`);
+                let already = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS.roles`);
 
                 if (already === argsid.id) {
                     await interaction.reply({ content: data.setlogschannel_already_this_channel });
                     return;
                 };
 
-                interaction.client.channels.cache.get(argsid.id).send({
+                (client.channels.cache.get(argsid.id) as BaseGuildTextChannel).send({
                     content: data.setlogschannel_confirmation_message
                         .replace("${interaction.user.id}", interaction.user.id)
                         .replace("${typeOfLogs}", typeOfLogs)
                 })
-                await client.db.set(`${interaction.guild.id}.GUILD.SERVER_LOGS.roles`, argsid.id);
+                await client.db.set(`${interaction.guildId}.GUILD.SERVER_LOGS.roles`, argsid.id);
 
                 await interaction.reply({
                     content: data.setlogschannel_command_work
@@ -131,24 +133,24 @@ export const command: Command = {
                         .replace(/\${typeOfLogs}/g, typeOfLogs)
                     )
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
             } catch (e: any) { logger.err(e) };
 
             try {
-                let already = await client.db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS.moderation`);
+                let already = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS.moderation`);
 
                 if (already === argsid.id) {
                     await interaction.reply({ content: data.setlogschannel_already_this_channel });
                     return;
                 };
 
-                interaction.client.channels.cache.get(argsid.id).send({
+                (client.channels.cache.get(argsid.id) as BaseGuildTextChannel).send({
                     content: data.setlogschannel_confirmation_message
                         .replace("${interaction.user.id}", interaction.user.id)
                         .replace("${typeOfLogs}", typeOfLogs)
                 })
-                await client.db.set(`${interaction.guild.id}.GUILD.SERVER_LOGS.moderation`, argsid.id);
+                await client.db.set(`${interaction.guildId}.GUILD.SERVER_LOGS.moderation`, argsid.id);
 
                 await interaction.reply({
                     content: data.setlogschannel_command_work
@@ -181,23 +183,23 @@ export const command: Command = {
                         .replace(/\${typeOfLogs}/g, typeOfLogs)
                     )
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
             } catch (e: any) { logger.err(e) };
 
             try {
-                let already = await client.db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS.voice`);
+                let already = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS.voice`);
                 if (already === argsid.id) {
                     await interaction.reply({ content: data.setlogschannel_already_this_channel });
                     return;
                 };
 
-                interaction.client.channels.cache.get(argsid.id).send({
+                (client.channels.cache.get(argsid.id) as BaseGuildTextChannel).send({
                     content: data.setlogschannel_confirmation_message
                         .replace("${interaction.user.id}", interaction.user.id)
                         .replace("${typeOfLogs}", typeOfLogs)
                 })
-                await client.db.set(`${interaction.guild.id}.GUILD.SERVER_LOGS.voice`, argsid.id);
+                await client.db.set(`${interaction.guildId}.GUILD.SERVER_LOGS.voice`, argsid.id);
 
                 await interaction.reply({
                     content: data.setlogschannel_command_work
@@ -230,23 +232,23 @@ export const command: Command = {
                         .replace(/\${typeOfLogs}/g, typeOfLogs)
                     )
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
             } catch (e: any) { logger.err(e) };
 
             try {
-                let already = await client.db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS.message`)
+                let already = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS.message`)
                 if (already === argsid.id) {
                     await interaction.reply({ content: data.setlogschannel_already_this_channel });
                     return;
                 };
 
-                interaction.client.channels.cache.get(argsid.id).send({
+                (client.channels.cache.get(argsid.id) as BaseGuildTextChannel).send({
                     content: data.setlogschannel_confirmation_message
                         .replace("${interaction.user.id}", interaction.user.id)
                         .replace("${typeOfLogs}", typeOfLogs)
                 })
-                await client.db.set(`${interaction.guild.id}.GUILD.SERVER_LOGS.message`, argsid.id);
+                await client.db.set(`${interaction.guildId}.GUILD.SERVER_LOGS.message`, argsid.id);
 
                 await interaction.reply({
                     content: data.setlogschannel_command_work
@@ -270,20 +272,20 @@ export const command: Command = {
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     )
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
             } catch (e: any) { logger.err(e) };
 
-            let checkData = await client.db.get(`${interaction.guild.id}.GUILD.SERVER_LOGS`);
+            let checkData = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS`);
             if (!checkData) {
                 await interaction.reply({ content: data.setlogschannel_already_deleted });
                 return;
             };
 
-            await client.db.delete(`${interaction.guild.id}.GUILD.SERVER_LOGS`);
+            await client.db.delete(`${interaction.guildId}.GUILD.SERVER_LOGS`);
             await interaction.reply({
                 content: data.setlogschannel_command_work_on_delete
-                    .replace("${interaction.guild.name}", interaction.guild.name)
+                    .replace("${interaction.guild.name}", interaction.guild?.name)
             });
             return;
         }

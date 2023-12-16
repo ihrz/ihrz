@@ -20,6 +20,8 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
@@ -28,14 +30,14 @@ import {
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.disablexp_not_admin });
             return;
         };
 
-        let types = interaction.options.get("action").value;
+        let types = interaction.options.getString("action");
 
         if (types == "off") {
             try {
@@ -44,16 +46,16 @@ export = {
                     .setTitle(data.disablexp_logs_embed_title_disable)
                     .setDescription(data.disablexp_logs_embed_description_disable.replace(/\${interaction\.user\.id}/g, interaction.user.id))
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] })
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
                 };
             } catch (e: any) {
                 logger.err(e)
             };
 
-            await client.db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.disable`, false);
+            await client.db.set(`${interaction.guild?.id}.GUILD.XP_LEVELING.disable`, false);
 
             await interaction.reply({ content: data.disablexp_command_work_disable_entierly });
             return;
@@ -64,16 +66,16 @@ export = {
                     .setTitle(data.disablexp_logs_embed_title_disable)
                     .setDescription(data.disablexp_logs_embed_description_disable.replace(/\${interaction\.user\.id}/g, interaction.user.id))
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] })
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
                 };
             } catch (e: any) {
                 logger.err(e)
             };
 
-            await client.db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.disable`, 'disable');
+            await client.db.set(`${interaction.guild?.id}.GUILD.XP_LEVELING.disable`, 'disable');
 
             await interaction.reply({ content: data.disablexp_command_work_disable });
             return;
@@ -84,16 +86,16 @@ export = {
                     .setTitle(data.disablexp_logs_embed_title_enable)
                     .setDescription(data.disablexp_logs_embed_description_enable.replace(/\${interaction\.user\.id}/g, interaction.user.id))
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] })
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
                 };
             } catch (e: any) {
                 logger.err(e)
             };
 
-            await client.db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.disable`, true);
+            await client.db.set(`${interaction.guild?.id}.GUILD.XP_LEVELING.disable`, true);
 
             await interaction.reply({ content: data.disablexp_command_work_enable });
             return;

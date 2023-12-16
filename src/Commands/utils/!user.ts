@@ -20,6 +20,7 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
@@ -29,7 +30,7 @@ import {
 import axios from 'axios';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let user: User | undefined = interaction.options.getUser('user') || interaction.user;
         let format = 'png';

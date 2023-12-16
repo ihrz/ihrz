@@ -22,7 +22,8 @@
 import {
     Client,
     ApplicationCommandOptionType,
-    User
+    User,
+    ChatInputCommandInteraction
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -41,25 +42,24 @@ export const command: Command = {
     ],
     thinking: false,
     category: 'owner',
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
 
-        if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`)
-            !== true) {
+        if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
             await interaction.reply({ content: data.unowner_not_owner });
             return;
         };
 
         var member = interaction.options.getUser('member');
 
-        if ((member.id === config.owner.ownerid1) || (member.id === config.owner.ownerid2)) {
+        if ((member?.id === config.owner.ownerid1) || (member?.id === config.owner.ownerid2)) {
             await interaction.reply({ content: data.unowner_cant_unowner_creator });
             return;
         };
 
-        await client.db.delete(`GLOBAL.OWNER.${member.id}`);
+        await client.db.delete(`GLOBAL.OWNER.${member?.id}`);
 
-        await interaction.reply({ content: data.unowner_command_work.replace(/\${member\.username}/g, member.username) });
+        await interaction.reply({ content: data.unowner_command_work.replace(/\${member\.username}/g, member?.username) });
         return;
     },
 };

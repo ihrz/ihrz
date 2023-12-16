@@ -31,6 +31,10 @@ import {
     ButtonStyle,
     StringSelectMenuOptionBuilder,
     ColorResolvable,
+    ChatInputCommandInteraction,
+    BaseGuildTextChannel,
+    StringSelectMenuInteraction,
+    CacheType,
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
@@ -48,13 +52,13 @@ export const command: Command = {
     ],
     thinking: false,
     category: 'utils',
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
 
         let arg = interaction.options.getString("id");
         let potentialEmbed = await client.db.get(`EMBED.${arg}`);
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.punishpub_not_admin });
             return;
         };
@@ -143,8 +147,8 @@ export const command: Command = {
             content: data.embed_first_message,
             embeds: [__tempEmbed],
             components: [
-                new ActionRowBuilder().addComponents(select),
-                new ActionRowBuilder().addComponents(save, send, cancel)
+                new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
+                new ActionRowBuilder<ButtonBuilder>().addComponents(save, send, cancel)
             ],
         });
 
@@ -153,8 +157,8 @@ export const command: Command = {
             time: 420_000
         });
 
-        collector.on('collect', async (i: { member: { id: any; }; reply: (arg0: { content: string; ephemeral: boolean; }) => any; }) => {
-            if (i.member.id !== interaction.user.id) {
+        collector.on('collect', async (i) => {
+            if (i.user.id !== interaction.user.id) {
                 await i.reply({ content: data.embed_interaction_not_for_you, ephemeral: true })
                 return;
             }
@@ -164,8 +168,7 @@ export const command: Command = {
 
         async function getButton() {
             try {
-                let collectorFilter = (i: { user: { id: any; }; }) => i.user.id === interaction.user.id;
-                let confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 120_000 });
+                let confirmation = await response.awaitMessageComponent({ filter: (i) => i.user.id === interaction.user.id, time: 120_000 });
 
                 switch (confirmation.customId) {
                     case "save":
@@ -192,7 +195,7 @@ export const command: Command = {
                         return;
                 }
             } catch (e) {
-                await interaction.channel.send({
+                await interaction.channel?.send({
                     content: data.embed_timeout_getbtn
                         .replace('${interaction.user.id}', interaction.user.id)
                 });
@@ -207,28 +210,26 @@ export const command: Command = {
 
         var reg = /^#([0-9a-f]{3}){1,2}$/i;
 
-        async function chooseAction(i: { member?: { id: any; }; reply: any; values?: any; }) {
+        async function chooseAction(i: StringSelectMenuInteraction<CacheType>) {
             switch (i.values[0]) {
                 case '0':
                     let i0 = await i.reply({ content: data.embed_choose_0 });
 
-                    let messageFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
-                    let messageCollector = interaction.channel.createMessageCollector({ filter: messageFilter, max: 1, time: 120_000 });
-                    messageCollector.on('collect', (message: { content: string | null; delete: () => any; }) => {
+                    let messageCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 120_000 });
+                    messageCollector?.on('collect', async (message) => {
+                        await i0.delete(); message.delete();
                         __tempEmbed.setDescription(message.content);
                         response.edit({ embeds: [__tempEmbed] })
-                        i0.delete() && message.delete();
                     });
                     break;
                 case '1':
                     let i1 = await i.reply({ content: data.embed_choose_1 });
 
-                    let titleFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
-                    let titleCollector = interaction.channel.createMessageCollector({ filter: titleFilter, max: 1, time: 120_000 });
-                    titleCollector.on('collect', (message: { content: string | null; delete: () => any; }) => {
+                    let titleCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 120_000 });
+                    titleCollector?.on('collect', async (message) => {
                         __tempEmbed.setTitle(message.content);
                         response.edit({ embeds: [__tempEmbed] })
-                        i1.delete() && message.delete();
+                        await i1.delete(); message.delete();
                     });
                     break;
                 case '2':
@@ -239,12 +240,11 @@ export const command: Command = {
                 case '3':
                     let i3 = await i.reply({ content: data.embed_choose_3 });
 
-                    let descriptionFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
-                    let descriptionCollector = interaction.channel.createMessageCollector({ filter: descriptionFilter, max: 1, time: 120_000 });
-                    descriptionCollector.on('collect', (message: { content: string | null; delete: () => any; }) => {
+                    let descriptionCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 120_000 });
+                    descriptionCollector?.on('collect', async (message) => {
                         __tempEmbed.setDescription(message.content);
                         response.edit({ embeds: [__tempEmbed] });
-                        i3.delete() && message.delete();
+                        await i3.delete(); message.delete();
                     });
                     break;
                 case '4':
@@ -255,12 +255,11 @@ export const command: Command = {
                 case '5':
                     let i5 = await i.reply({ content: data.embed_choose_5 });
 
-                    let authorFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
-                    let authorCollector = interaction.channel.createMessageCollector({ filter: authorFilter, max: 1, time: 120_000 });
-                    authorCollector.on('collect', (message: { content: any; delete: () => any; }) => {
+                    let authorCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 120_000 });
+                    authorCollector?.on('collect', async (message) => {
                         __tempEmbed.setAuthor({ name: message.content });
                         response.edit({ embeds: [__tempEmbed] });
-                        i5.delete() && message.delete();
+                        await i5.delete(); message.delete();
                     });
                     break;
                 case '6':
@@ -271,12 +270,11 @@ export const command: Command = {
                 case '7':
                     let i7 = await i.reply({ content: data.embed_choose_7 });
 
-                    let footerFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
-                    let footerCollector = interaction.channel.createMessageCollector({ filter: footerFilter, max: 1, time: 120_000 });
-                    footerCollector.on('collect', (message: { content: any; delete: () => any; }) => {
+                    let footerCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 120_000 });
+                    footerCollector?.on('collect', async (message) => {
                         __tempEmbed.setFooter({ text: message.content });
                         response.edit({ embeds: [__tempEmbed] });
-                        i7.delete() && message.delete();
+                        await i7.delete(); message.delete();
                     });
                     break;
                 case '8':
@@ -288,9 +286,8 @@ export const command: Command = {
                 case '9':
                     let i9 = await i.reply({ content: data.embed_choose_9 });
 
-                    let thumbnailFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
-                    let thumbnailCollector = interaction.channel.createMessageCollector({ filter: thumbnailFilter, max: 1, time: 120_000 });
-                    thumbnailCollector.on('collect', (message: { content: string | string[] | null; delete: () => any; }) => {
+                    let thumbnailCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 120_000 });
+                    thumbnailCollector?.on('collect', async (message) => {
                         if (!links.some(word => message.content?.includes(word))) {
                             __tempEmbed.setThumbnail("https://exemple.com/exemple/png")
                         } else {
@@ -298,15 +295,14 @@ export const command: Command = {
                         };
 
                         response.edit({ embeds: [__tempEmbed] });
-                        i9.delete() && message.delete();
+                        await i9.delete(); message.delete();
                     });
                     break;
                 case '10':
                     let i10 = await i.reply({ content: data.embed_choose_10 });
 
-                    let imageFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
-                    let imageCollector = interaction.channel.createMessageCollector({ filter: imageFilter, max: 1, time: 120_000 });
-                    imageCollector.on('collect', (message: { content: string | string[] | null; delete: () => any; }) => {
+                    let imageCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 120_000 });
+                    imageCollector?.on('collect', async (message) => {
                         if (!links.some(word => message.content?.includes(word))) {
                             __tempEmbed.setImage("https://exemple.com/exemple/png")
                         } else {
@@ -314,36 +310,34 @@ export const command: Command = {
                         };
 
                         response.edit({ embeds: [__tempEmbed] });
-                        i10.delete() && message.delete();
+                        await i10.delete(); message.delete();
                     });
                     break;
                 case '11':
                     let i11 = await i.reply({ content: data.embed_choose_11 });
 
-                    let ttUrlFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
-                    let ttUrlCollector = interaction.channel.createMessageCollector({ filter: ttUrlFilter, max: 1, time: 120_000 });
-                    ttUrlCollector.on('collect', (message: { content: string | string[] | null; delete: () => any; }) => {
+                    let ttUrlCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 120_000 });
+                    ttUrlCollector?.on('collect', async (message) => {
                         if (links.some(word => message.content?.includes(word))) {
                             __tempEmbed.setURL((message.content as string)) && response.edit({ embeds: [__tempEmbed] });
                         };
 
-                        i11.delete() && message.delete();
+                        await i11.delete(); message.delete();
                     });
                     break;
                 case '12':
                     let i12 = await i.reply({ content: data.embed_choose_12 });
 
-                    let colorFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
-                    let colorCollector = interaction.channel.createMessageCollector({ filter: colorFilter, max: 1, time: 120_000 });
-                    colorCollector.on('collect', (message: { content: string | number | readonly [red: number, green: number, blue: number] | null; delete: () => any; }) => {
+                    let colorCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 120_000 });
+                    colorCollector?.on('collect', async (message) => {
                         if (reg.test((message.content as string))) {
                             __tempEmbed.setColor((message.content as ColorResolvable));
                             response.edit({ embeds: [__tempEmbed] });
                         } else {
-                            interaction.channel.send({ content: data.embed_choose_12_error });
+                            interaction.channel?.send({ content: data.embed_choose_12_error });
                         }
 
-                        i12.delete() && message.delete();
+                        await i12.delete(); message.delete();
                     });
                     break;
                 case '13':
@@ -357,14 +351,13 @@ export const command: Command = {
         }
 
         async function sendEmbed() {
-            let seFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
-            let seCollector = interaction.channel.createMessageCollector({ filter: seFilter, max: 1, time: 120_000 });
+            let seCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 120_000 });
 
-            seCollector.on('collect', (message: { content: any; delete: () => void; }) => {
-                let channel = interaction.guild.channels.cache.get(message.content)
+            seCollector?.on('collect', (message) => {
+                let channel = interaction.guild?.channels.cache.get(message.content)
 
                 if (!channel) return;
-                channel.send({ embeds: [__tempEmbed] });
+                (channel as BaseGuildTextChannel).send({ embeds: [__tempEmbed] });
                 message.delete();
                 response.edit({
                     content: data.embed_send_embed_work

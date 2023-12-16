@@ -24,6 +24,8 @@ import {
     EmbedBuilder,
     PermissionsBitField,
     ApplicationCommandOptionType,
+    ChatInputCommandInteraction,
+    BaseGuildTextChannel,
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
@@ -77,10 +79,10 @@ export const command: Command = {
     ],
     thinking: false,
     category: 'newfeatures',
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id as string);
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.punishpub_not_admin });
             return;
         };
@@ -89,7 +91,7 @@ export const command: Command = {
         let amount = interaction.options.getNumber("amount");
         let punishment = interaction.options.getString("punishement");
 
-        if (action == "true") {
+        if (amount && action == "true") {
             if (amount > 50) {
                 await interaction.reply({ content: data.punishpub_too_hight_enable })
                 return;
@@ -103,7 +105,7 @@ export const command: Command = {
                 return;
             };
 
-            await client.db.set(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`,
+            await client.db.set(`${interaction.guildId}.GUILD.PUNISH.PUNISH_PUB`,
                 {
                     amountMax: amount - 1,
                     punishementType: punishment,
@@ -120,8 +122,8 @@ export const command: Command = {
                         .replace("${amount}", amount)
                         .replace("${punishement}", punishment)
                     )
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
             } catch (e) { };
 
             await interaction.reply({
@@ -132,7 +134,7 @@ export const command: Command = {
             });
             return;
         } else {
-            await client.db.delete(`${interaction.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
+            await client.db.delete(`${interaction.guildId}.GUILD.PUNISH.PUNISH_PUB`);
             await interaction.reply({ content: data.punishpub_confirmation_disable })
 
             try {
@@ -142,8 +144,8 @@ export const command: Command = {
                     .setDescription(data.punishpub_logs_embed_description_disable
                         .replace("${interaction.user.id}", interaction.user.id)
                     )
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
             } catch (e) { };
 
             return;

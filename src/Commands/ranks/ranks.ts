@@ -22,6 +22,7 @@
 import {
     Client,
     ApplicationCommandOptionType,
+    ChatInputCommandInteraction,
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
@@ -107,9 +108,9 @@ export const command: Command = {
     ],
     thinking: false,
     category: 'ranks',
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
-        let command: any = interaction.options.getSubcommand();
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let command = interaction.options.getSubcommand();
 
         await require('./!' + command).run(client, interaction, data);
     },

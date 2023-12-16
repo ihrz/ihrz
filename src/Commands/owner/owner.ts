@@ -22,7 +22,9 @@
 import {
     Client,
     EmbedBuilder,
-    ApplicationCommandOptionType
+    ApplicationCommandOptionType,
+    ChatInputCommandInteraction,
+    GuildMember
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -40,8 +42,8 @@ export const command: Command = {
     ],
     thinking: false,
     category: 'owner',
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
 
         var text = "";
         var char = await client.db.get(`GLOBAL.OWNER`);
@@ -55,15 +57,16 @@ export const command: Command = {
             return;
         };
 
-        let iconURL: any = client.user?.displayAvatarURL();
+        let iconURL = client.user?.displayAvatarURL();
 
         let embed = new EmbedBuilder()
             .setColor("#2E2EFE")
             .setAuthor({ name: "Owners" })
-            .setDescription(`${text}`)
+            .setDescription(text)
             .setFooter({ text: 'iHorizon', iconURL: iconURL });
 
-        let member = interaction.options.getMember('member');
+        let member = interaction.options.getMember('member') as GuildMember;
+
         if (!member) {
             await interaction.reply({ embeds: [embed] });
             return;

@@ -26,7 +26,8 @@ import {
     ApplicationCommandOptionType,
     ActionRowBuilder,
     ButtonBuilder,
-    ButtonStyle
+    ButtonStyle,
+    ChatInputCommandInteraction
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -44,8 +45,8 @@ export const command: Command = {
     ],
     thinking: false,
     category: 'utils',
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
         let user = interaction.options.getUser("user") || interaction.user;
 
         // if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
@@ -65,7 +66,7 @@ export const command: Command = {
 
         for (let i = 0; i < char.length; i += usersPerPage) {
             let pageUsers = char.slice(i, i + usersPerPage);
-            let pageContent = pageUsers.map((userId: any) => userId).join('\n');
+            let pageContent = pageUsers.map((userId) => userId).join('\n');
             pages.push({
                 title: `${data.prevnames_embed_title.replace("${user.username}", user.globalName)} | Page ${i / usersPerPage + 1}`,
                 description: pageContent,
@@ -96,15 +97,11 @@ export const command: Command = {
             embeds: [createEmbed()], components: [(row as ActionRowBuilder<ButtonBuilder>)]
         });
 
-        let filter = (i: {
-            user: any; deferUpdate: () => void;
-        }) => {
-            i.deferUpdate();
-            return interaction.user.id === i.user.id;
-        };
-
         let collector = messageEmbed.createMessageComponentCollector({
-            filter, time: 60000
+            filter: (i) => {
+                i.deferUpdate();
+                return interaction.user.id === i.user.id;
+            }, time: 60000
         });
 
         collector.on('collect', (interaction: { customId: string; }) => {

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, ApplicationCommandOptionType, EmbedBuilder, Interaction, BaseInteraction, InteractionResponse, CommandInteractionOptionResolver, CommandInteraction } from 'discord.js';
+import { Client, ApplicationCommandOptionType, EmbedBuilder, CommandInteraction } from 'discord.js';
 import * as apiUrlParser from '../../core/functions/apiUrlParser';
 import { Command } from '../../../types/command';
 import DiscordOauth2 from 'discord-oauth2';

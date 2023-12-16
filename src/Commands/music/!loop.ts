@@ -20,17 +20,19 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
+    Guild,
 } from 'discord.js';
 
 import logger from '../../core/logger';
 import { QueueRepeatMode } from 'discord-player';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         try {
-            let queue = interaction.client.player.nodes.get(interaction.guild);
+            let queue = interaction.client.player.nodes.get(interaction.guild as Guild);
 
             if (!queue || !queue.isPlaying()) {
                 await interaction.editReply({ content: data.loop_no_queue });
@@ -39,7 +41,7 @@ export = {
 
             let loopMode = interaction.options.getNumber("select");
 
-            queue.setRepeatMode(loopMode)
+            queue.setRepeatMode(loopMode as number)
             let mode = loopMode === QueueRepeatMode.TRACK ? `🔂` : loopMode === QueueRepeatMode.QUEUE ? `🔂` : `▶`;
 
             await interaction.editReply({

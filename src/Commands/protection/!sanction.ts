@@ -20,14 +20,15 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        if (interaction.user.id !== interaction.guild.ownerId) {
+        if (interaction.user.id !== interaction.guild?.ownerId) {
             await interaction.editReply({ content: data.authorization_sanction_not_permited });
             return;
         };

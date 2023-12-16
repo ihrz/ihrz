@@ -25,6 +25,7 @@ import {
     ApplicationCommandOptionType,
     CommandInteraction,
     CommandInteractionOptionResolver,
+    ChatInputCommandInteraction,
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
@@ -90,7 +91,7 @@ export const command: Command = {
     ],
     thinking: false,
     category: 'newfeatures',
-    run: async (client: Client, interaction: CommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
         let data = await client.functions.getLanguageData(interaction.guild?.id);
 

@@ -20,22 +20,24 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
 } from 'discord.js';
 
 import { TicketDelete } from '../../core/ticketsManager';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        let blockQ = await client.db.get(`${interaction.guild.id}.GUILD.TICKET.disable`);
+        let blockQ = await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`);
 
         if (blockQ) {
             await interaction.editReply({ content: data.delete_disabled_command });
             return;
         };
 
-        if (interaction.channel.name.includes('ticket-')) {
+        if ((interaction.channel as BaseGuildTextChannel).name.includes('ticket-')) {
             await TicketDelete(interaction);
         } else {
             await interaction.editReply({ content: data.delete_not_in_ticket });

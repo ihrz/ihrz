@@ -23,6 +23,8 @@ import {
     Client,
     EmbedBuilder,
     ApplicationCommandOptionType,
+    ChatInputCommandInteraction,
+    BaseGuildTextChannel,
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
@@ -42,13 +44,13 @@ export const command: Command = {
     ],
     thinking: true,
     category: 'newfeatures',
-    run: async (client: Client, interaction: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
 
         var sentences = interaction.options.getString("message-to-dev")
         let timeout = 18000000
-        let cooldown = await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`);
+        let cooldown = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.REPORT.cooldown`);
 
         if (cooldown !== null && timeout - (Date.now() - cooldown) > 0) {
             let time = ms(timeout - (Date.now() - cooldown));
@@ -59,12 +61,12 @@ export const command: Command = {
             });
             return;
         } else {
-            if (interaction.guild.ownerId != interaction.user.id) {
+            if (interaction.guild?.ownerId != interaction.user.id) {
                 await interaction.editReply({ content: data.report_owner_need });
                 return;
             };
 
-            if (sentences.split(' ').length < 8) {
+            if (sentences && sentences.split(' ').length < 8) {
                 await interaction.editReply({ content: data.report_specify });
                 return;
             };
@@ -74,7 +76,7 @@ export const command: Command = {
                 .setColor("#ff0000")
                 .setDescription(`**${interaction.user.globalName}** (<@${interaction.user.id}>) reported:\n~~--------------------------------~~\n${sentences}\n~~--------------------------------~~\nServer ID: **${interaction.guild.id}**`)
 
-            await interaction.client.channels.cache.get(config.core.reportChannelID).send({ embeds: [embed] });
+            await (client.channels.cache.get(config.core.reportChannelID) as BaseGuildTextChannel).send({ embeds: [embed] });
 
             await client.db.set(`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`, Date.now());
             return;

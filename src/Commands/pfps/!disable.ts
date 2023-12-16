@@ -20,17 +20,18 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let action = interaction.options.getString('action');
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({
                 content: data.pfps_disable_not_admin
             });
@@ -38,7 +39,7 @@ export = {
         };
 
         if (action === 'on') {
-            await client.db.set(`${interaction.guild.id}.PFPS.disable`, false);
+            await client.db.set(`${interaction.guild?.id}.PFPS.disable`, false);
             await interaction.reply({
                 content: data.pfps_disable_command_action_on
                     .replace('${interaction.user}', interaction.user)
@@ -46,7 +47,7 @@ export = {
 
             return;
         } else if (action === 'off') {
-            await client.db.set(`${interaction.guild.id}.PFPS.disable`, true);
+            await client.db.set(`${interaction.guild?.id}.PFPS.disable`, true);
             await interaction.reply({
                 content: data.pfps_disable_command_action_off
                     .replace('${interaction.user}', interaction.user)

@@ -20,14 +20,15 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        if (interaction.user.id !== interaction.guild.ownerId) {
+        if (interaction.user.id !== interaction.guild?.ownerId) {
             await interaction.editReply({ content: data.authorization_actions_not_permited });
             return;
         };
@@ -44,7 +45,7 @@ export = {
             await interaction.editReply({
                 content: data.authorization_actions_rule_set
                     .replace('${interaction.user}', interaction.user)
-                    .replace('${rule.toUpperCase()}', rule.toUpperCase())
+                    .replace('${rule.toUpperCase()}', rule?.toUpperCase())
                     .replace('${allow}', allow)
             });
             return;

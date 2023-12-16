@@ -23,7 +23,9 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
-    ApplicationCommandOptionType
+    ApplicationCommandOptionType,
+    ChatInputCommandInteraction,
+    Role
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -63,8 +65,8 @@ export const command: Command = {
     ],
     thinking: true,
     category: 'utils',
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
 
         let action_1 = interaction.options.getString("action");
         let part_of_nickname = interaction.options.getString("nickname");
@@ -74,7 +76,7 @@ export const command: Command = {
         let s: number = 0;
         let e: number = 0;
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.prevnames_not_admin });
             return;
         };
@@ -82,18 +84,18 @@ export const command: Command = {
         if (action_1 === 'add') {
 
             try {
-                let members = await interaction.guild.members.fetch({ force: true });
+                let members = await interaction.guild?.members.fetch();
                 let promises = [];
 
-                for (let [memberID, member] of members) {
+                for (let [memberID, member] of members!) {
                     if (
                         (
-                            member.user.globalName.includes(part_of_nickname)
-                            || (member.nickname && member.nickname.includes(part_of_nickname))
+                            member.user.globalName?.includes(part_of_nickname as string)
+                            || (member.nickname && member.nickname.includes(part_of_nickname as string))
                         )
-                        && !member.roles.cache.has(role.id)
+                        && !member.roles.cache.has(role?.id!)
                     ) {
-                        let promise = member.roles.add(role)
+                        let promise = member.roles.add(role as Role)
                             .then(() => {
                                 a++;
                             })
@@ -113,7 +115,7 @@ export const command: Command = {
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                 .setColor('#007fff')
                 .setTimestamp()
-                .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
+                .setThumbnail(interaction.guild?.iconURL() as string)
                 .setDescription(data.nickrole_add_command_work
                     .replace('${interaction.user}', interaction.user)
                     .replace('${a}', a)
@@ -128,18 +130,18 @@ export const command: Command = {
 
         } else if (action_1 === 'sub') {
             try {
-                let members = await interaction.guild.members.fetch({ force: true });
+                let members = await interaction.guild?.members.fetch();
                 let promises = [];
 
-                for (let [memberID, member] of members) {
+                for (let [memberID, member] of members!) {
                     if (
                         (
-                            member.user.globalName.includes(part_of_nickname)
-                            || (member.nickname && member.nickname.includes(part_of_nickname))
+                            member.user.globalName?.includes(part_of_nickname as string)
+                            || (member.nickname && member.nickname.includes(part_of_nickname as string))
                         )
-                        && member.roles.cache.has(role.id)
+                        && member.roles.cache.has(role?.id!)
                     ) {
-                        let promise = member.roles.remove(role)
+                        let promise = member.roles.remove(role as Role)
                             .then(() => {
                                 a++;
                             })
@@ -159,7 +161,7 @@ export const command: Command = {
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                 .setColor('#007fff')
                 .setTimestamp()
-                .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
+                .setThumbnail(interaction.guild?.iconURL() as string)
                 .setDescription(data.nickrole_sub_command_work
                     .replace('${interaction.user}', interaction.user)
                     .replace('${a}', a)

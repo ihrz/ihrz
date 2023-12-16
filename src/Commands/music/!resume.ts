@@ -20,16 +20,17 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
 } from 'discord.js';
 
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         try {
-            let queue = interaction.client.player.nodes.get(interaction.guild)
+            let queue = interaction.client.player.nodes.get(interaction.guild as unknown as string)
 
             if (!queue || !queue.isPlaying()) {
                 await interaction.editReply({ content: data.resume_nothing_playing });

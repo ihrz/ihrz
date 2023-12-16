@@ -29,7 +29,12 @@ import {
     ModalBuilder,
     TextInputStyle,
     TextInputBuilder,
-    Collection
+    Collection,
+    ChatInputCommandInteraction,
+    StringSelectMenuInteraction,
+    ModalSubmitInteraction,
+    CacheType,
+    TextInputComponent
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
@@ -42,8 +47,8 @@ export const command: Command = {
     description: "Manager for schedule category!",
     category: 'schedule',
     thinking: false,
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
 
         let select = new StringSelectMenuBuilder()
             .setCustomId('starter')
@@ -70,7 +75,7 @@ export const command: Command = {
         let response = await interaction.reply({
             content: `<@${interaction.user.id}>`,
             components: [
-                new ActionRowBuilder().addComponents(select),
+                new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
             ],
         });
 
@@ -93,25 +98,21 @@ export const command: Command = {
             .setRequired(true)
             .setMaxLength(500);
 
-        let firstActionRow: any = new ActionRowBuilder().addComponents(theScheduleName)
-        let secondActionRow: any = new ActionRowBuilder().addComponents(theScheduleDescription);
+        let firstActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(theScheduleName)
+        let secondActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(theScheduleDescription);
 
         modal.addComponents(firstActionRow, secondActionRow);
-
-        let collectorFilter = (member: any) => {
-            return member.user.id === interaction.user.id;
-        };
 
         try {
 
             let collector = response.createMessageComponentCollector({
-                filter: collectorFilter,
+                filter: (member) => member.user.id === interaction.user.id,
                 componentType: ComponentType.StringSelect,
                 time: 420_000
             });
 
-            collector.on('collect', async (i: { member: { id: any; }; reply: (arg0: { content: string; ephemeral: boolean; }) => any; }) => {
-                if (i.member.id !== interaction.user.id) {
+            collector.on('collect', async (i) => {
+                if (i.member?.user.id !== interaction.user.id) {
                     await i.reply({ content: data.embed_interaction_not_for_you, ephemeral: true })
                     return;
                 }
@@ -122,16 +123,14 @@ export const command: Command = {
             return interaction.reply({ content: data.embed_timeout_getbtn });
         };
 
-        async function chooseAction(i: {
-            deferUpdate?: any; member?: { id: any; }; reply: (arg0: { content: string; ephemeral: boolean; }) => any; values?: any; showModal?: any; awaitModalSubmit?: any;
-        }) {
+        async function chooseAction(i: StringSelectMenuInteraction) {
             switch (i.values[0]) {
                 case '0':
                     await i.showModal(modal);
                     let filter = (i: { customId: string; }) => i.customId === 'modal';
 
                     i.awaitModalSubmit({ filter, time: 60_000 })
-                        .then((interaction: any) => {
+                        .then((interaction) => {
                             executeAfterModal(interaction);
                         })
                         .catch((error: any) => {
@@ -140,23 +139,30 @@ export const command: Command = {
                     break;
                 case '1':
                     let u = await i.reply({ content: data.schedule_delete_question, ephemeral: false });
-                    let deleteFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
-                    let deleteCollector = interaction.channel.createMessageCollector({ filter: deleteFilter, max: 1, time: 120_000 });
 
-                    deleteCollector.on('collect', (message: { content: any; delete: () => any; }) => {
-                        message.delete() && u.delete();
-                        deleteCollector.stop();
+                    let deleteCollector = interaction.channel?.createMessageCollector({
+                        filter: (m) => m.author.id === interaction.user.id,
+                        max: 1,
+                        time: 120_000
+                    });
+
+                    deleteCollector?.on('collect', async (message) => {
+                        await message.delete() && u.delete();
+                        deleteCollector?.stop();
                         __1(message.content);
                     });
                     break;
                 case '2':
                     let u2 = await i.reply({ content: data.schedule_deleteall_question, ephemeral: false });
-                    let deleteAllFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
-                    let deleteAllCollector = interaction.channel.createMessageCollector({ filter: deleteAllFilter, max: 1, time: 120_000 });
+                    let deleteAllCollector = interaction.channel?.createMessageCollector({
+                        filter: (m) => m.author.id === interaction.user.id,
+                        max: 1,
+                        time: 120_000
+                    });
 
-                    deleteAllCollector.on('collect', (message: { content: any; delete: () => any; }) => {
-                        message.delete() && u2.delete();
-                        deleteAllCollector.stop();
+                    deleteAllCollector?.on('collect', async (message) => {
+                        await message.delete() && u2.delete();
+                        deleteAllCollector?.stop();
                         if (message.content.toLowerCase() === 'y' || message.content.toLowerCase() === 'yes') {
                             __2(true);
                         } else {
@@ -178,25 +184,25 @@ export const command: Command = {
                 if (!fetched || !fetched[arg0]) {
                     await response.edit({
                         content: data.schedule_delete_not_found
-                            .replace('${arg0}', arg0), embeds: [], ephemeral: true
+                            .replace('${arg0}', arg0), embeds: []
                     });
                     return;
                 } else {
                     let embed = new EmbedBuilder()
                         .setAuthor({
-                            name: interaction.user.globalName,
-                            iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 })
+                            name: interaction.user.globalName || interaction.user.username,
+                            iconURL: interaction.user.displayAvatarURL({ extension: 'png', size: 512 })
                         })
                         .setTitle(data.schedule_delete_title_embed
                             .replace('${arg0}', arg0)
                         )
-                        .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
+                        .setThumbnail(interaction.guild?.iconURL() as string)
                         .setColor('#ff0a0a')
                         .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                         .setTimestamp();
 
                     await client.db.delete(`SCHEDULE.${interaction.user.id}.${arg0}`);
-                    await response.edit({ content: data.schedule_delete_confirm, embeds: [embed], ephemeral: true });
+                    await response.edit({ content: data.schedule_delete_confirm, embeds: [embed] });
                     return;
                 };
             };
@@ -208,8 +214,8 @@ export const command: Command = {
                     let embed = new EmbedBuilder()
                         .setColor('#ff0a0a')
                         .setAuthor({
-                            name: interaction.user.globalName,
-                            iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 })
+                            name: interaction.user.globalName || interaction.user.username,
+                            iconURL: interaction.user.displayAvatarURL({ extension: 'png', size: 512 })
                         })
                         .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                         .setTitle(data.schedule_deleteall_title_embed)
@@ -217,13 +223,11 @@ export const command: Command = {
 
                     await response.edit({
                         content: data.schedule_deleteall_confirm,
-                        ephemeral: true,
                         embeds: [embed]
                     });
                 } else {
                     await response.edit({
                         content: data.schedule_deleteall_cancel,
-                        ephemeral: true,
                     });
                     return;
                 }
@@ -233,7 +237,7 @@ export const command: Command = {
                 let fetched = await client.db.get(`SCHEDULE.${interaction.user.id}`);
 
                 if (!fetched) {
-                    await response.edit({ content: data.schedule_list_not_schedule, embeds: [], ephemeral: true });
+                    await response.edit({ content: data.schedule_list_not_schedule, embeds: [] });
                     return;
                 };
 
@@ -242,8 +246,8 @@ export const command: Command = {
                     .setTitle(data.schedule_list_title_embed)
                     .setColor('#60BEE0')
                     .setAuthor({
-                        name: interaction.user.globalName,
-                        iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 })
+                        name: interaction.user.globalName || interaction.user.username,
+                        iconURL: interaction.user.displayAvatarURL({ extension: 'png', size: 512 })
                     });
 
                 for (let i in fetched) {
@@ -260,11 +264,10 @@ export const command: Command = {
                 await response.edit({
                     content: data.schedule_list_content_message,
                     embeds: [embed],
-                    ephemeral: true
                 });
             };
 
-            async function executeAfterModal(i: any) {
+            async function executeAfterModal(i: ModalSubmitInteraction<CacheType>) {
                 let collection = i.fields.fields;
                 let nameValue = collection.get('name')?.value;
                 let descValue = collection.get('desc')?.value;
@@ -272,29 +275,32 @@ export const command: Command = {
                 let embed = new EmbedBuilder()
                     .setDescription(`\`\`\`${nameValue}\`\`\`\`\`\`${descValue}\`\`\``)
                     .setAuthor({
-                        name: interaction.user.globalName,
-                        iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 512 })
+                        name: interaction.user.globalName || interaction.user.username,
+                        iconURL: interaction.user.displayAvatarURL({ extension: 'png', size: 512 })
                     })
                     .setTitle(data.schedule_create_title_embed)
-                    .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
+                    .setThumbnail(interaction.guild?.iconURL() as string)
                     .setColor('#00549f')
                     .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                     .setTimestamp();
 
-                await response.edit({ embeds: [embed], ephemeral: true });
+                await response.edit({ embeds: [embed] });
                 let u = await i.reply({ content: data.schedule_create_when_question });
 
-                let dateFilter = (m: { author: { id: any; }; }) => m.author.id === interaction.user.id;
-                let dateCollector = interaction.channel.createMessageCollector({ filter: dateFilter, max: 1, time: 120_000 });
+                let dateCollector = interaction.channel?.createMessageCollector({
+                    filter: (m) => m.author.id === interaction.user.id,
+                    max: 1,
+                    time: 120_000
+                });
 
-                dateCollector.on('collect', (message: { content: any; delete: () => any; }) => {
-                    message.delete() && u.delete();
-                    dateCollector.stop();
-                    __0(ms(message.content), collection);
+                dateCollector?.on('collect', async (message) => {
+                    await message.delete() && u.delete();
+                    dateCollector?.stop();
+                    __0(ms(message.content as unknown as number), collection);
                 });
 
 
-                async function __0(date0: any, collection: Collection<string, any>) {
+                async function __0(date0: string, collection: Collection<string, TextInputComponent>) {
                     var scheduleCode = Math.random().toString(36).slice(-8);
 
                     if (Number.isNaN(date0)) {
@@ -310,7 +316,7 @@ export const command: Command = {
                         embeds: [
                             embed.addFields({
                                 name: data.schedule_create_embed_fields_name_confirm,
-                                value: date.format(date.addMilliseconds(new Date(), date0), 'YYYY/MM/DD HH:mm:ss'), inline: true
+                                value: date.format(date.addMilliseconds(new Date(), date0 as unknown as number), 'YYYY/MM/DD HH:mm:ss'), inline: true
                             }).setTitle(data.schedule_create_embed_title_confirm.replace('${scheduleCode}', scheduleCode))
                         ],
                         content: data.schedule_create_confirm_msg

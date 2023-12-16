@@ -22,6 +22,7 @@
 import { Player, Track, GuildQueue } from 'discord-player';
 import { SpotifyExtractor, SoundCloudExtractor } from '@discord-player/extractor';
 import DeezerExtractor from "discord-player-deezer"
+
 import { Client } from 'discord.js';
 import logger from './logger';
 
