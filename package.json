@@ -29,7 +29,7 @@
     "@types/crypto-js": "^4.1.1",
     "@types/express": "^4.17.17",
     "@types/js-yaml": "^4.0.5",
-    "axios": "^1.4.0",
+    "axios": "^1.6.2",
     "better-sqlite3": "^8.4.0",
     "canvas": "^2.11.2",
     "colors": "^1.4.0",
@@ -42,14 +42,14 @@
     "discord-oauth2": "^2.11.0",
     "discord-player": "^6.6.6",
     "discord-player-deezer": "^1.0.0",
-    "discord.js": "^14.13.0",
+    "discord.js": "^14.14.1",
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
     "https": "^1.0.0",
     "js-yaml": "^4.1.0",
     "mediaplex": "^0.0.6",
     "moment": "^2.29.4",
-    "mongoose": "latest",
+    "mongoose": "^8.0.3",
     "ms": "^3.0.0-canary.1",
     "os-utils": "^0.0.14",
     "ping": "^0.4.4",
@@ -60,7 +60,6 @@
     "soundcloud-scraper": "^5.0.3",
     "toml": "^3.0.0",
     "tslib": "^2.6.0",
-    "typescript": "^5.1.6",
     "wait": "^0.4.2",
     "yarn": "^1.22.19"
   },
@@ -68,6 +67,7 @@
     "@types/ms": "^0.7.31",
     "@types/node": "^20.5.6",
     "@types/os-utils": "^0.0.1",
-    "@types/ping": "^0.4.1"
+    "@types/ping": "^0.4.1",
+    "typescript": "^5.3.3"
   }
 }
