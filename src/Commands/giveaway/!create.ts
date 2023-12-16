@@ -25,6 +25,7 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
+    TextBasedChannel,
 } from 'discord.js';
 
 import { Create } from '../../core/giveawaysManager';
@@ -60,7 +61,7 @@ export = {
             return;
         };
 
-        Create(giveawayChannel, {
+        Create(giveawayChannel as TextBasedChannel, {
             duration: parseInt(giveawayDurationFormated),
             prize: giveawayPrize!,
             winnerCount: giveawayNumberWinners!,

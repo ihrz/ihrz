@@ -37,7 +37,7 @@ export = {
         var amount = interaction.options.getNumber("amount");
         let user = interaction.options.getUser("member");
 
-        await client.db.sub(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, amount);
+        await client.db.sub(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, amount!);
         let bal = await client.db.get(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`);
 
         let embed = new EmbedBuilder()

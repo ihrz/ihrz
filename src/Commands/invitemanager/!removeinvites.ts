@@ -39,7 +39,7 @@ export = {
             return;
         }
 
-        await client.db.sub(`${interaction.guild?.id}.USER.${user?.id}.INVITES.invites`, amount);
+        await client.db.sub(`${interaction.guild?.id}.USER.${user?.id}.INVITES.invites`, amount!);
 
         let finalEmbed = new EmbedBuilder()
             .setDescription(data.removeinvites_confirmation_embed_description
@@ -49,7 +49,7 @@ export = {
             .setColor(`#92A8D1`)
             .setFooter({ text: interaction.guild?.name as string, iconURL: interaction.guild?.iconURL() as string });
 
-        await client.db.sub(`${interaction.guild?.id}.USER.${user?.id}.INVITES.bonus`, amount);
+        await client.db.sub(`${interaction.guild?.id}.USER.${user?.id}.INVITES.bonus`, amount!);
         await interaction.editReply({ embeds: [finalEmbed] });
 
         try {

@@ -52,7 +52,7 @@ export = {
         };
 
         if (await isEnded((inputData as unknown as number), {
-            guildId: interaction.guild?.id
+            guildId: interaction.guild?.id as string
         })) {
             await interaction.editReply({ content: data.end_command_error });
             return;

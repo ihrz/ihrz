@@ -22,7 +22,7 @@
 import config from '../files/config';
 import logger from '../core/logger';
 
-import { Client, CommandInteractionOption, EmbedBuilder, GuildChannel, Interaction } from 'discord.js';
+import { Client, CommandInteractionOption, CommandInteractionOptionResolver, EmbedBuilder, GuildChannel, Interaction } from 'discord.js';
 import { format } from 'date-fns';
 import fs from 'fs';
 
@@ -94,12 +94,12 @@ export = async (client: Client, interaction: Interaction) => {
             || !interaction.guild?.channels
             || interaction.user.bot) return;
 
-
-        let optionsList: string[] = (interaction as any).options._hoistedOptions.map((element: { name: string; value: string; }) => `${element.name}:"${element.value}"`);
+        let optionsList: string[] = (interaction.options as CommandInteractionOptionResolver)["_hoistedOptions"].map(element => `${element.name}:"${element.value}"`)
         let subCmd: string = '';
 
-        if ((interaction as any).options['_subcommand']) {
-            subCmd = (interaction as any).options.getSubcommand();
+        if ((interaction.options as CommandInteractionOptionResolver)["_subcommand"]) {
+            if ((interaction.options as CommandInteractionOptionResolver).getSubcommandGroup()) subCmd += (interaction.options as CommandInteractionOptionResolver).getSubcommandGroup()! + " ";
+            subCmd += (interaction.options as CommandInteractionOptionResolver).getSubcommand()
         };
 
         let logMessage = `[${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}] "${interaction.guild?.name}" #${interaction.channel ? (interaction.channel as GuildChannel).name : 'Unknown Channel'}:\n` +

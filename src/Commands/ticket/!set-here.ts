@@ -44,12 +44,12 @@ export = {
             return;
         };
 
-        await CreatePanel(interaction.channel, {
+        await CreatePanel(interaction, {
             name: panelName,
             author: interaction.user.id,
             description: panelDesc
         });
-
+        
         await interaction.deleteReply();
         await interaction.followUp({ content: data.sethereticket_command_work, ephemeral: true });
         return;

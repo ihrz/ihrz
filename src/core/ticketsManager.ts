@@ -21,26 +21,35 @@
 
 import {
     EmbedBuilder,
-    time,
     ButtonBuilder,
     ButtonStyle,
     ActionRowBuilder,
-    Client,
     ChannelType,
-    PermissionFlagsBits,
     PermissionsBitField,
-    ComponentType,
     UserSelectMenuBuilder,
-    GuildTextBasedChannel
+    ChatInputCommandInteraction,
+    CacheType,
+    ButtonInteraction,
+    TextBasedChannel,
+    BaseGuildTextChannel,
+    User,
+    Interaction,
+    UserSelectMenuInteraction,
 } from 'discord.js';
 
 import * as discordTranscripts from 'discord-html-transcripts';
 import db from './functions/DatabaseModel';
 import logger from './logger';
 
-async function CreatePanel(interaction: any, data: any) {
+interface CreatePanelData {
+    name: string | null;
+    description: string | null;
+    author: string
+}
 
-    let lang = await interaction.client.functions.getLanguageData(interaction.guild.id);
+async function CreatePanel(interaction: ChatInputCommandInteraction<CacheType>, data: CreatePanelData) {
+
+    let lang = await interaction.client.functions.getLanguageData(interaction.guild?.id);
 
     let panel = new EmbedBuilder()
         .setTitle(data.name)
@@ -54,14 +63,12 @@ async function CreatePanel(interaction: any, data: any) {
         .setLabel('Create Ticket')
         .setStyle(ButtonStyle.Secondary);
 
-    interaction.send({
+    interaction.channel?.send({
         embeds: [panel],
-        components: [new ActionRowBuilder()
-            .addComponents(confirm)]
-    }).then(async (message: { react: (arg0: string) => void; guild: { id: any; }; id: any; channel: { id: any; }; }) => {
+        components: [new ActionRowBuilder<ButtonBuilder>().addComponents(confirm)]
+    }).then(async (message) => {
 
-        await db.set(
-            `${message.guild.id}.GUILD.TICKET.${message.id}`,
+        await db.set(`${message.guild?.id}.GUILD.TICKET.${message.id}`,
             {
                 author: data.author,
                 used: true,
@@ -73,8 +80,8 @@ async function CreatePanel(interaction: any, data: any) {
     });
 
     try {
-        let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild.id}.GUILD.TICKET.logs`);
-        TicketLogsChannel = interaction.guild.channels.cache.get(TicketLogsChannel);
+        let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild?.id}.GUILD.TICKET.logs`);
+        TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
         if (!TicketLogsChannel) return;
 
         let embed = new EmbedBuilder()
@@ -92,10 +99,10 @@ async function CreatePanel(interaction: any, data: any) {
     } catch (e) { return };
 };
 
-async function CreateTicketChannel(interaction: any) {
+async function CreateTicketChannel(interaction: ButtonInteraction<CacheType>) {
 
-    let result = await db.get(`${interaction.guild.id}.GUILD.TICKET.${interaction.message.id}`);
-    let userTickets = await db.get(`${interaction.guild.id}.TICKET_ALL.${interaction.user.id}`);
+    let result = await db.get(`${interaction.guild?.id}.GUILD.TICKET.${interaction.message.id}`);
+    let userTickets = await db.get(`${interaction.guild?.id}.TICKET_ALL.${interaction.user.id}`);
 
     if (!result || result.channel !== interaction.message.channelId
         || result.messageID !== interaction.message.id) return;
@@ -108,23 +115,19 @@ async function CreateTicketChannel(interaction: any) {
             interaction,
             result,
         );
-
         return;
     };
 };
 
-async function CreateChannel(interaction: any, result: any) {
-    let lang = await interaction.client.functions.getLanguageData(interaction.guild.id);
+async function CreateChannel(interaction: ButtonInteraction<CacheType>, result: any) {
+    let lang = await interaction.client.functions.getLanguageData(interaction.guild?.id);
     let category = await db.get(`${interaction.message.guildId}.GUILD.TICKET.category`);
 
     await interaction.guild?.channels.create({
         name: `ticket-${interaction.user.username}`,
         type: ChannelType.GuildText,
         parent: category
-    }).then(async (channel: {
-        permissionOverwrites: any;
-        lockPermissions(): unknown; send: (arg0: { content: string; embeds: EmbedBuilder[]; }) => any, id: (string)
-    }) => {
+    }).then(async (channel) => {
         interaction.reply({
             content: lang.event_ticket_whenCreated_msg
                 .replace('${interaction.user}', interaction.user)
@@ -136,14 +139,16 @@ async function CreateChannel(interaction: any, result: any) {
             channel.lockPermissions();
         };
 
-        channel.permissionOverwrites.edit(interaction.guild?.roles.everyone,
+        channel.permissionOverwrites.edit(interaction.guild?.roles.everyone!,
             {
                 ViewChannel: false, SendMessages: false, ReadMessageHistory: false
-            });
+            }
+        );
         channel.permissionOverwrites.edit(interaction.user.id,
             {
                 ViewChannel: true, SendMessages: true, ReadMessageHistory: true, AttachFiles: true
-            });
+            }
+        );
 
         let welcome = new EmbedBuilder()
             .setTitle(result.panelName)
@@ -156,7 +161,7 @@ async function CreateChannel(interaction: any, result: any) {
                 iconURL: interaction.client.user?.displayAvatarURL()
             });
 
-        await db.set(`${interaction.guild.id}.TICKET_ALL.${interaction.user.id}.${channel.id}`,
+        await db.set(`${interaction.guild?.id}.TICKET_ALL.${interaction.user.id}.${channel.id}`,
             {
                 channel: channel.id,
                 author: interaction.user.id,
@@ -182,13 +187,13 @@ async function CreateChannel(interaction: any, result: any) {
             .setMinValues(0)
             .setMaxValues(10);
 
-        (channel as any).send({
+        (channel as BaseGuildTextChannel).send({
             embeds: [welcome],
             content: `${interaction.user}`,
             components: [
-                new ActionRowBuilder()
+                new ActionRowBuilder<UserSelectMenuBuilder>()
                     .addComponents(selectUsersMenu)
-                , new ActionRowBuilder()
+                , new ActionRowBuilder<ButtonBuilder>()
                     .addComponents(transcript_ticket_button)
                     .addComponents(delete_ticket_button)
             ],
@@ -197,8 +202,8 @@ async function CreateChannel(interaction: any, result: any) {
         });
 
         try {
-            let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild.id}.GUILD.TICKET.logs`);
-            TicketLogsChannel = interaction.guild.channels.cache.get(TicketLogsChannel);
+            let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild?.id}.GUILD.TICKET.logs`);
+            TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
             if (!TicketLogsChannel) return;
 
             let embed = new EmbedBuilder()
@@ -217,23 +222,23 @@ async function CreateChannel(interaction: any, result: any) {
     }).catch(() => { });
 };
 
-async function CloseTicket(interaction: any) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
+async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) {
+    let data = await interaction.client.functions.getLanguageData(interaction.guild?.id);
 
     let fetch = await db.get(
-        `${interaction.guild.id}.TICKET_ALL`
+        `${interaction.guild?.id}.TICKET_ALL`
     );
 
     for (let user in fetch) {
         for (let channel in fetch[user]) {
 
-            if (channel === interaction.channel.id) {
-                let member = interaction.guild.members.cache.get(fetch[user][channel]?.author);
+            if (channel === interaction.channel?.id) {
+                let member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
 
-                if (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member.user.id) {
-                    interaction.channel.messages.fetch().then(async (messages: any[]) => {
+                if (interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member?.user.id) {
+                    interaction.channel.messages.fetch().then(async (messages) => {
 
-                        let attachment = await discordTranscripts.createTranscript(interaction.channel, {
+                        let attachment = await discordTranscripts.createTranscript(interaction.channel!, {
                             limit: -1,
                             filename: 'transcript.html',
                             footerText: "Exported {number} message{s}",
@@ -246,16 +251,16 @@ async function CloseTicket(interaction: any) {
                             .setColor('#0014a8');
 
                         try {
-                            interaction.channel.permissionOverwrites.create(member.user, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
+                            (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(member?.user as User, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
                             interaction.editReply({ content: data.close_command_work_notify_channel, files: [attachment], embeds: [embed] });
                         } catch (e: any) {
-                            await interaction.channel.send(data.close_command_error);
+                            await interaction.channel?.send(data.close_command_error);
                             return;
                         };
 
                         try {
-                            let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild.id}.GUILD.TICKET.logs`);
-                            TicketLogsChannel = interaction.guild.channels.cache.get(TicketLogsChannel);
+                            let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild?.id}.GUILD.TICKET.logs`);
+                            TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
                             if (!TicketLogsChannel) return;
 
                             let embed = new EmbedBuilder()
@@ -263,7 +268,7 @@ async function CloseTicket(interaction: any) {
                                 .setTitle(data.event_ticket_logsChannel_onClose_embed_title)
                                 .setDescription(data.event_ticket_logsChannel_onClose_embed_desc
                                     .replace('${interaction.user}', interaction.user)
-                                    .replace('${interaction.channel.id}', interaction.channel.id)
+                                    .replace('${interaction.channel.id}', interaction.channel?.id)
                                 )
                                 .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
                                 .setTimestamp();
@@ -278,22 +283,22 @@ async function CloseTicket(interaction: any) {
     }
 };
 
-async function TicketTranscript(interaction: any) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
+async function TicketTranscript(interaction: ButtonInteraction<CacheType>) {
+    let data = await interaction.client.functions.getLanguageData(interaction.guild?.id);
     let interactionChannel = interaction.channel;
 
     let fetch = await db.get(
-        `${interaction.guild.id}.TICKET_ALL`
+        `${interaction.guild?.id}.TICKET_ALL`
     );
 
     for (let user in fetch) {
         for (let channel in fetch[user]) {
 
-            if (channel === interaction.channel.id) {
-                let member = interaction.guild.members.cache.get(fetch[user][channel]?.author);
+            if (channel === interaction.channel?.id) {
+                let member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
 
-                if (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member.user.id) {
-                    let attachment = await discordTranscripts.createTranscript(interactionChannel, {
+                if (interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member?.user.id) {
+                    let attachment = await discordTranscripts.createTranscript(interactionChannel as TextBasedChannel, {
                         limit: -1,
                         filename: 'transcript.html',
                         footerText: "Exported {number} message{s}",
@@ -317,17 +322,17 @@ async function TicketTranscript(interaction: any) {
     }
 };
 
-async function TicketRemoveMember(interaction: any) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
+async function TicketRemoveMember(interaction: ChatInputCommandInteraction<CacheType>) {
+    let data = await interaction.client.functions.getLanguageData(interaction.guild?.id);
     let member = interaction.options.getUser("user");
 
     try {
-        interaction.channel.permissionOverwrites.create(member, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
-        interaction.editReply({ content: data.remove_command_work.replace(/\${member\.tag}/g, member.username) });
+        (interaction.channel as BaseGuildTextChannel)?.permissionOverwrites.create(member as User, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
+        interaction.editReply({ content: data.remove_command_work.replace(/\${member\.tag}/g, member?.username) });
 
         try {
-            let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild.id}.GUILD.TICKET.logs`);
-            TicketLogsChannel = interaction.guild.channels.cache.get(TicketLogsChannel);
+            let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild?.id}.GUILD.TICKET.logs`);
+            TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
             if (!TicketLogsChannel) return;
 
             let embed = new EmbedBuilder()
@@ -336,7 +341,7 @@ async function TicketRemoveMember(interaction: any) {
                 .setDescription(data.event_ticket_logsChannel_onRemoveMember_embed_desc
                     .replace('${member}', member)
                     .replace('${interaction.user}', interaction.user)
-                    .replace('${interaction.channel.id}', interaction.channel.id)
+                    .replace('${interaction.channel.id}', interaction.channel?.id)
                 )
                 .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
                 .setTimestamp();
@@ -351,8 +356,8 @@ async function TicketRemoveMember(interaction: any) {
     };
 };
 
-async function TicketAddMember(interaction: any) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
+async function TicketAddMember(interaction: ChatInputCommandInteraction<CacheType>) {
+    let data = await interaction.client.functions.getLanguageData(interaction.guild?.id);
     let member = interaction.options.getUser("user");
 
     if (!member) {
@@ -361,12 +366,12 @@ async function TicketAddMember(interaction: any) {
     };
 
     try {
-        interaction.channel.permissionOverwrites.create(member, { ViewChannel: true, SendMessages: true, ReadMessageHistory: true });
+        (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(member, { ViewChannel: true, SendMessages: true, ReadMessageHistory: true });
         await interaction.editReply({ content: data.add_command_work.replace(/\${member\.tag}/g, member.username) });
 
         try {
-            let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild.id}.GUILD.TICKET.logs`);
-            TicketLogsChannel = interaction.guild.channels.cache.get(TicketLogsChannel);
+            let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild?.id}.GUILD.TICKET.logs`);
+            TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
             if (!TicketLogsChannel) return;
 
             let embed = new EmbedBuilder()
@@ -375,7 +380,7 @@ async function TicketAddMember(interaction: any) {
                 .setDescription(data.event_ticket_logsChannel_onAddMember_embed_desc
                     .replace('${member}', member)
                     .replace('${interaction.user}', interaction.user)
-                    .replace('${interaction.channel.id}', interaction.channel.id)
+                    .replace('${interaction.channel.id}', interaction.channel?.id)
                 )
                 .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
                 .setTimestamp();
@@ -390,18 +395,18 @@ async function TicketAddMember(interaction: any) {
     }
 };
 
-async function TicketReOpen(interaction: any) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
-    let fetch = await db.get(`${interaction.guild.id}.TICKET_ALL`);
+async function TicketReOpen(interaction: ChatInputCommandInteraction<CacheType>) {
+    let data = await interaction.client.functions.getLanguageData(interaction.guild?.id);
+    let fetch = await db.get(`${interaction.guild?.id}.TICKET_ALL`);
 
     for (let user in fetch) {
         for (let channel in fetch[user]) {
 
-            if (channel === interaction.channel.id) {
-                let member = interaction.guild.members.cache.get(fetch[user][channel]?.author);
+            if (channel === interaction.channel?.id) {
+                let member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
 
                 try {
-                    interaction.channel.permissionOverwrites.edit(member.user.id, {
+                    (interaction.channel as BaseGuildTextChannel).permissionOverwrites.edit(member?.user.id!, {
                         ViewChannel: true,
                         SendMessages: true,
                         AttachFiles: true,
@@ -416,8 +421,8 @@ async function TicketReOpen(interaction: any) {
                         });
 
                     try {
-                        let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild.id}.GUILD.TICKET.logs`);
-                        TicketLogsChannel = interaction.guild.channels.cache.get(TicketLogsChannel);
+                        let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild?.id}.GUILD.TICKET.logs`);
+                        TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
                         if (!TicketLogsChannel) return;
 
                         let embed = new EmbedBuilder()
@@ -443,25 +448,25 @@ async function TicketReOpen(interaction: any) {
     }
 };
 
-async function TicketDelete(interaction: any) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
-    let fetch = await db.get(`${interaction.guild.id}.TICKET_ALL`);
+async function TicketDelete(interaction: Interaction<CacheType>) {
+    let data = await interaction.client.functions.getLanguageData(interaction.guild?.id);
+    let fetch = await db.get(`${interaction.guild?.id}.TICKET_ALL`);
 
     for (let user in fetch) {
         for (let channel in fetch[user]) {
 
-            let member = interaction.guild.members.cache.get(fetch[user][channel]?.author);
+            let member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
 
-            if (channel === interaction.channel.id
+            if (channel === interaction.channel?.id
                 &&
-                (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member.user.id)) {
+                (interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member?.user.id)) {
 
-                await db.delete(`${interaction.guild.id}.TICKET_ALL.${interaction.user.id}`);
+                await db.delete(`${interaction.guild?.id}.TICKET_ALL.${interaction.user.id}`);
                 interaction.channel.delete();
 
                 try {
-                    let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild.id}.GUILD.TICKET.logs`);
-                    TicketLogsChannel = interaction.guild.channels.cache.get(TicketLogsChannel);
+                    let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild?.id}.GUILD.TICKET.logs`);
+                    TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
                     if (!TicketLogsChannel) return;
 
                     let embed = new EmbedBuilder()
@@ -469,7 +474,7 @@ async function TicketDelete(interaction: any) {
                         .setTitle(data.event_ticket_logsChannel_onDelete_embed_title)
                         .setDescription(data.event_ticket_logsChannel_onDelete_embed_desc
                             .replace('${interaction.user}', interaction.user)
-                            .replace('${interaction.channel.name}', interaction.channel.name)
+                            .replace('${interaction.channel.name}', (interaction.channel as BaseGuildTextChannel)?.name)
                         )
                         .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
                         .setTimestamp();
@@ -482,37 +487,37 @@ async function TicketDelete(interaction: any) {
     }
 };
 
-async function TicketAddMember_2(interaction: any) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guild.id);
-    let owner_ticket = await db.get(`${interaction.guild.id}.TICKET_ALL.${interaction.user.id}.${interaction.channel.id}`);
+async function TicketAddMember_2(interaction: UserSelectMenuInteraction<CacheType>) {
+    let data = await interaction.client.functions.getLanguageData(interaction.guild?.id);
+    let owner_ticket = await db.get(`${interaction.guild?.id}.TICKET_ALL.${interaction.user.id}.${interaction.channel?.id}`);
 
     if (!owner_ticket) {
         await interaction.deferUpdate();
         return;
     };
 
-    let membersArray: any[] = [];
-    let listmembersArray: any[] = [];
+    let membersArray: string[] = [];
+    let listmembersArray: string[] = [];
 
-    await interaction.members.each(async (i: any) => { membersArray.push(i.id) });
+    await interaction.members.each(async (i) => { membersArray.push(i.user?.id as string) });
 
-    interaction.channel.permissionOverwrites.cache
-        .filter((i: any) => i.type === 1).each
-        ((i: any) => { listmembersArray.push(i.id) });
+    (interaction.channel as BaseGuildTextChannel).permissionOverwrites.cache
+        .filter((i) => i.type === 1).each
+        ((i) => { listmembersArray.push(i.id) });
 
-    let addedMembers: any[] = [];
-    let removedMembers: any[] = [];
+    let addedMembers: string[] = [];
+    let removedMembers: string[] = [];
 
     listmembersArray.forEach(async (overwriteId) => {
         if (!membersArray.includes(overwriteId) && owner_ticket?.author !== overwriteId) {
             removedMembers.push(overwriteId);
-            await interaction.channel.permissionOverwrites.delete(overwriteId);
+            await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.delete(overwriteId);
         }
     });
 
     membersArray.forEach(async (memberId) => {
         if (!listmembersArray.includes(memberId)) {
-            interaction.channel.permissionOverwrites.edit(memberId,
+            (interaction.channel as BaseGuildTextChannel).permissionOverwrites.edit(memberId,
                 {
                     ViewChannel: true, SendMessages: true, ReadMessageHistory: true, AttachFiles: true
                 }
@@ -522,7 +527,7 @@ async function TicketAddMember_2(interaction: any) {
     });
 
     if (addedMembers.length > 0) {
-        interaction.channel.send({
+        interaction.channel?.send({
             content: data.event_ticket_add_member
                 .replace('${interaction.user}', interaction.user)
                 .replace("${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')}", addedMembers.map((memberId) => `<@${memberId}>`).join(' '))
@@ -531,7 +536,7 @@ async function TicketAddMember_2(interaction: any) {
     };
 
     if (removedMembers.length > 0) {
-        interaction.channel.send({
+        interaction.channel?.send({
             content: data.event_ticket_del_member
                 .replace('${interaction.user}', interaction.user)
                 .replace("${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')}", removedMembers.map((memberId) => `<@${memberId}>`).join(' '))
@@ -541,8 +546,8 @@ async function TicketAddMember_2(interaction: any) {
     await interaction.deferUpdate();
 
     try {
-        let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild.id}.GUILD.TICKET.logs`);
-        TicketLogsChannel = interaction.guild.channels.cache.get(TicketLogsChannel);
+        let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild?.id}.GUILD.TICKET.logs`);
+        TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
         if (!TicketLogsChannel) return;
 
         let embed = new EmbedBuilder()
