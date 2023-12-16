@@ -19,12 +19,13 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+import { ButtonInteraction, CacheType } from 'discord.js';
 import db from '../core/functions/DatabaseModel';
 import { AddEntries } from '../core/giveawaysManager';
 
-export = async function (interaction: any) {
+export = async function (interaction: ButtonInteraction<CacheType>) {
     if (!await db.get(
-        `GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}`
+        `GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}`
     )) return;
     AddEntries(interaction);
 };

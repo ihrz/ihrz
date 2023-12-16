@@ -56,9 +56,10 @@ export = async (client: Client) => {
     };
 
     async function refreshDatabaseModel() {
-        await client.db.set(`GLOBAL.OWNER.${config.owner.ownerid1}`, { owner: true }),
-            await client.db.set(`GLOBAL.OWNER.${config.owner.ownerid2}`, { owner: true }),
-            await client.db.set(`TEMP`, {});
+        await client.db.set('TEST.TEST2_3', "tes");
+        await client.db.set(`GLOBAL.OWNER.${config.owner.ownerid1}`, { owner: true });
+        await client.db.set(`GLOBAL.OWNER.${config.owner.ownerid2}`, { owner: true });
+        await client.db.set(`TEMP`, {});
     };
 
     async function quotesPresence() {
@@ -122,7 +123,7 @@ export = async (client: Client) => {
     };
     let iHorizon_Container = new OwnIHRZ();
     iHorizon_Container.Startup(client);
-    
+
     setInterval(() => {
         iHorizon_Container.Refresh(client);
     }, 86400000);

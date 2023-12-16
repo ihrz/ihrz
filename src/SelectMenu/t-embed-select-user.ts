@@ -19,10 +19,10 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, UserSelectMenuInteraction } from 'discord.js';
 import { TicketAddMember_2 } from '../core/ticketsManager';
 
-export = async function (interaction: ChatInputCommandInteraction, data: any) {
+export = async function (interaction: UserSelectMenuInteraction) {
     TicketAddMember_2(interaction);
     return;
 };

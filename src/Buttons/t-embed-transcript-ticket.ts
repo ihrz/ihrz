@@ -19,9 +19,10 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+import { ButtonInteraction, CacheType } from 'discord.js';
 import { TicketTranscript } from '../core/ticketsManager';
 
-export = async function (interaction: any, data: any) {
+export = async function (interaction: ButtonInteraction<CacheType>) {
     TicketTranscript(interaction);
     return;
 };

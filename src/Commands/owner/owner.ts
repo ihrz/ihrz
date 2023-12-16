@@ -79,7 +79,7 @@ export const command: Command = {
             return;
         };
 
-        await client.db.set(`GLOBAL.OWNER.${member.user.id}.owner`, true);
+        await client.db.set(`GLOBAL.OWNER.${member.user.id}`, { owner: true });
         await interaction.reply({ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.user.globalName) });
         return;
     },

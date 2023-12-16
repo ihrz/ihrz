@@ -21,11 +21,12 @@
 
 import { CreateTicketChannel } from '../core/ticketsManager';
 import db from '../core/functions/DatabaseModel';
+import { ButtonInteraction, CacheType } from 'discord.js';
 
-export = async function (interaction: any) {
+export = async function (interaction: ButtonInteraction<CacheType>) {
 
     if (!await db.get(
-        `${interaction.guild.id}.GUILD.TICKET.${interaction.message.id}`
+        `${interaction.guild?.id}.GUILD.TICKET.${interaction.message.id}`
     )) return;
     CreateTicketChannel(interaction);
 };

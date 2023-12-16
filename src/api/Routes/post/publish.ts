@@ -139,7 +139,7 @@ export = {
 
         await db.set(`OWNIHRZ.${owner_one}.${code}`,
             {
-                path: path.resolve(process.cwd(), 'ownihrz', code),
+                path: (path.resolve(process.cwd(), 'ownihrz', code)) as string,
                 port: port_range,
                 auth: auth,
                 code: code,

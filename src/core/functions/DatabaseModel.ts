@@ -19,91 +19,73 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import axios from 'axios';
-import config from '../../files/config';
-import CryptoJS from 'crypto-js';
 import dbPromise from '../database';
-import * as apiUrlParser from './apiUrlParser';
 import { QuickDB } from 'quick.db';
+import { TextChannel } from 'discord.js';
 
 interface DatabaseAction {
     id: number;
     key?: string;
-    values?: any;
+    value?: any | string | number | boolean | Number | JSON | undefined | TextChannel;
+    values?: any | string | number | boolean | Number | JSON | undefined | TextChannel;
 }
 
 class DatabaseModel {
-    async useApi(id: Object) {
-        try {
-            let encrypted = CryptoJS.AES.encrypt(JSON.stringify(id), config.api.apiToken).toString();
-            let response = await axios.post(apiUrlParser.DatabaseURL, { text: encrypted }, { headers: { 'Accept': 'application/json' } });
-
-            if (JSON.stringify(response.data) === '{}') return undefined;
-            return response.data.r;
-        } catch (error) {
-            throw error;
-        }
-    }
-
-    async useWrapper(action: DatabaseAction) {
+    private async useWrapper(action: DatabaseAction) {
         let db = (await dbPromise) as QuickDB;
 
         switch (action.id) {
             case 1:
-                return db.set((action.key as string), action.values);
+                return db.set(action.key as string, action.values);
             case 2:
-                return db.push((action.key as string), action.values);
+                return db.push(action.key as string, action.values);
             case 3:
-                return db.sub((action.key as string), action.values);
+                return db.sub(action.key as string, action.values);
             case 4:
-                return await db.add((action.key as string), action.values);
+                return await db.add(action.key as string, action.values);
             case 5:
-                return db.get((action.key as string));
+                return db.get(action.key as string);
             case 6:
-                return db.pull((action.key as string), action.values);
+                return db.pull(action.key as string, action.values);
             case 7:
                 return db.all();
             case 8:
-                return db.delete((action.key as string));
+                return db.delete(action.key as string);
             default:
-                throw new Error(`${action.id} -> Bad json request without ip/key`);
+                throw new Error(`${action.id} -> Mauvaise requête JSON sans IP/clé`);
         }
     }
 
-    async executeAction(action: DatabaseAction) {
-        return this.useWrapper(action);
-    }
-
     async set(key: string, value: any) {
-        return this.executeAction({ id: 1, key, values: value });
+        return this.useWrapper({ id: 1, key, values: value });
     }
 
     async push(key: string, value: any) {
-        return this.executeAction({ id: 2, key, values: value });
+        return this.useWrapper({ id: 2, key, values: value });
     }
 
-    async sub(key: string, value: any) {
-        return this.executeAction({ id: 3, key, values: value });
+    async sub(key: string, value: string) {
+        return this.useWrapper({ id: 3, key, values: value });
     }
 
-    async add(key: string, value: any) {
-        return this.executeAction({ id: 4, key, values: value });
+    async add(key: string, value: string) {
+        return this.useWrapper({ id: 4, key, values: value });
     }
 
     async get(key: string) {
-        return this.executeAction({ id: 5, key });
+        return this.useWrapper({ id: 5, key });
     }
 
-    async pull(key: string, value: any) {
-        return this.executeAction({ id: 6, key, values: value });
+    async pull(key: string, value: DatabaseAction) {
+        return this.useWrapper({ id: 6, key, values: value });
     }
 
     async all() {
-        return this.executeAction({ id: 7 });
+        return this.useWrapper({ id: 7 });
     }
 
     async delete(key: string) {
-        return this.executeAction({ id: 8, key });
+        return this.useWrapper({ id: 8, key });
     }
 }
 

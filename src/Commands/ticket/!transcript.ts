@@ -21,6 +21,8 @@
 
 import {
     BaseGuildTextChannel,
+    ButtonInteraction,
+    CacheType,
     ChatInputCommandInteraction,
     Client,
 } from 'discord.js';
@@ -40,7 +42,7 @@ export = {
         let channel = interaction.channel;
 
         if ((channel as BaseGuildTextChannel).name.includes('ticket-')) {
-            await TicketTranscript(interaction);
+            await TicketTranscript(interaction as unknown as ButtonInteraction<CacheType>);
         } else {
             await interaction.editReply({ content: data.transript_not_in_ticket });
             return;

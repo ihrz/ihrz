@@ -47,8 +47,8 @@ export = {
                 .replace(/\${amount}/g, amount)
         });
 
-        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, amount);
-        await client.db.sub(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
+        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, amount!);
+        await client.db.sub(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount!);
         return;
     },
 };

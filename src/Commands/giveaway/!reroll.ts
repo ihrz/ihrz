@@ -50,7 +50,7 @@ export = {
         };
 
         if (!await isEnded((inputData as unknown as number), {
-            guildId: interaction.guild?.id
+            guildId: interaction.guild?.id as string
         })) {
             await interaction.editReply({ content: data.reroll_giveaway_not_over });
             return;

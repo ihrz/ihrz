@@ -48,8 +48,8 @@ export = {
             return;
         };
 
-        await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`, toDeposit);
-        await client.db.sub(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, toDeposit);
+        await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`, toDeposit!);
+        await client.db.sub(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, toDeposit!);
 
         let embed = new EmbedBuilder()
             .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL() })
