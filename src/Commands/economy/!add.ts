@@ -20,14 +20,16 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.addmoney_not_admin });
             return;
         };
@@ -37,11 +39,11 @@ export = {
 
         await interaction.reply({
             content: data.addmoney_command_work
-                .replace("${user.user.id}", user.id)
-                .replace("${amount.value}", amount.value)
+                .replace("${user.user.id}", user?.id)
+                .replace("${amount.value}", amount?.value)
         });
 
-        await client.db.add(`${interaction.guild.id}.USER.${user.id}.ECONOMY.money`, amount.value);
+        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, amount?.value);
 
         try {
             let logEmbed = new EmbedBuilder()
@@ -49,12 +51,12 @@ export = {
                 .setTitle(data.addmoney_logs_embed_title)
                 .setDescription(data.addmoney_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace(/\${amount\.value}/g, amount.value)
-                    .replace(/\${user\.user\.id}/g, user.id)
+                    .replace(/\${amount\.value}/g, amount?.value)
+                    .replace(/\${user\.user\.id}/g, user?.id)
                 );
 
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-            if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
         } catch (e) { return; };
     },
 };

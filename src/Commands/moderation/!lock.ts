@@ -20,13 +20,15 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let Lockembed = new EmbedBuilder()
             .setColor("#5b3475")
@@ -35,14 +37,14 @@ export = {
                 .replace(/\${interaction\.user\.id}/g, interaction.user.id)
             );
 
-        let permission = interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages);
+        let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages);
 
         if (!permission) {
             await interaction.editReply({ content: data.lock_dont_have_permission });
             return;
         };
 
-        interaction.channel.permissionOverwrites.create(interaction.guild.id, { SendMessages: false }).then(() => {
+        (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(interaction.guild?.id as string, { SendMessages: false }).then(() => {
             interaction.editReply({ embeds: [Lockembed] });
         }).catch(() => { })
 
@@ -52,12 +54,12 @@ export = {
                 .setTitle(data.lock_logs_embed_title)
                 .setDescription(data.lock_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace(/\${interaction\.channel\.id}/g, interaction.channel.id)
+                    .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id)
                 );
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
             if (logchannel) {
-                logchannel.send({ embeds: [logEmbed] });
+                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
             };
         } catch (e) {
             return;

@@ -20,6 +20,7 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js'
@@ -32,16 +33,16 @@ export const command: Command = {
     description: 'Get the bot latency!',
     category: 'bot',
     thinking: false,
-    run: async (client: Client, interaction: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
         await interaction.reply({ content: ':ping_pong:' });
 
-        let network: any = '';
-        network = await ping.promise.probe("google.com").then(result => network = result.time).catch(e => { network = data.ping_down_msg });
+        let network: string = '';
+        let API: string = '';
 
-        let API: any = '';
-        API = await ping.promise.probe("discord.com").then(result => API = result.time).catch(e => { API = data.ping_down_msg });
+        await ping.promise.probe("google.com").then(result => { network = (result.time as string) }).catch(e => { network = data.ping_down_msg });
+        await ping.promise.probe("discord.com").then(result => { API = (result.time as string) }).catch(e => { API = data.ping_down_msg });
 
         let embed = new EmbedBuilder()
             .setColor("#319938")
@@ -49,9 +50,9 @@ export const command: Command = {
             .setDescription(data.ping_embed_desc
                 .replace('${await network}', await network)
                 .replace('${await API}', await API)
-            )
+            );
 
-        await interaction.reply({ content: '', embeds: [embed] });
+        await interaction.editReply({ content: '', embeds: [embed] });
         return;
     },
 };

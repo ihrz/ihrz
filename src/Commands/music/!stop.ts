@@ -20,16 +20,18 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
+    Guild,
 } from 'discord.js';
 
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         try {
-            let queue = interaction.client.player.nodes.get(interaction.guild);
+            let queue = interaction.client.player.nodes.get(interaction.guild as Guild);
 
             if (!queue || !queue.isPlaying()) {
                 await interaction.deleteReply();    
@@ -37,7 +39,7 @@ export = {
                 return;
             };
 
-            interaction.client.player.nodes.delete(interaction.guild?.id);
+            interaction.client.player.nodes.delete(interaction.guild?.id as string);
             await interaction.editReply({ content: data.stop_command_work });
             return;
         } catch (error: any) {

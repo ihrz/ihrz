@@ -20,6 +20,7 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
@@ -30,11 +31,11 @@ import { lyricsExtractor } from '@discord-player/extractor';
 let lyricsFinder = lyricsExtractor();
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         try {
             let title = interaction.options.getString("title");
-            let lyrics = await lyricsFinder.search(title).catch(() => null);
+            let lyrics = await lyricsFinder.search(title as string).catch(() => null);
 
             if (!lyrics) {
                 await interaction.deleteReply();    

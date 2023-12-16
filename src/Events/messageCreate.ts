@@ -143,11 +143,11 @@ export = async (client: Client, message: Message) => {
             || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.ManageRoles) || message.content !== `<@${client.user?.id}>`) return;
 
         let dbGet = await client.db.get(`${message.guild.id}.GUILD.RANK_ROLES.roles`);
-        let fetch = message.guild.roles.cache.find((role: { id: any; }) => role.id === dbGet);
+        let fetch = message.guild.roles.cache.find((role) => role.id === dbGet);
 
         if (fetch) {
-            let target: any = message.guild.members.cache.get(message.author.id);
-            if (target.roles.cache.has(fetch.id)) { return; };
+            let target = message.guild.members.cache.get(message.author.id);
+            if (target?.roles.cache.has(fetch.id)) { return; };
 
             let embed = new EmbedBuilder()
                 .setDescription(data.event_rank_role

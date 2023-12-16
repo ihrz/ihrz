@@ -19,11 +19,11 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, Collection, EmbedBuilder, Guild, Invite, Permissions, PermissionsBitField } from 'discord.js';
+import { Client, Guild, Invite, PermissionsBitField } from 'discord.js';
 
-export = async (client: Client, invite: any) => {
+export = async (client: Client, invite: Invite) => {
     async function inviteManager() {
-        if (!invite.guild || !invite.guild.members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+        if (!invite.guild || !(invite.guild as Guild).members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
         await client.invites.get(invite.guild?.id)?.set(invite.code, invite.uses);
 
         let check = await client.db.get(`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`);

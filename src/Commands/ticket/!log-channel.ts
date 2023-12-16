@@ -20,15 +20,16 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        let blockQ = await client.db.get(`${interaction.guild.id}.GUILD.TICKET.disable`);
+        let blockQ = await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`);
         let channel = interaction.options.getChannel('channel');
 
         if (blockQ) {
@@ -36,12 +37,12 @@ export = {
             return;
         };
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.disableticket_not_admin });
             return;
         };
 
-        client.db.set(`${interaction.guild.id}.GUILD.TICKET.logs`, channel.id);
+        client.db.set(`${interaction.guild?.id}.GUILD.TICKET.logs`, channel?.id);
 
         let embed = new EmbedBuilder()
             .setColor("#008000")

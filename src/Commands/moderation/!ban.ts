@@ -20,17 +20,21 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMemberRoleManager,
     PermissionsBitField,
 } from 'discord.js';
 
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
-        let member = interaction.guild.members.cache.get(interaction.options.get("member").user.id)
-        let permission = interaction.member.permissions.has(PermissionsBitField.Flags.BanMembers)
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+        let member = interaction.guild?.members.cache.get(interaction.options.getUser("member")?.id as string);
+        let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.BanMembers);
+
         if (!permission) {
             await interaction.editReply({ content: data.ban_not_permission });
             return;
@@ -41,17 +45,17 @@ export = {
             return;
         };
 
-        if (!interaction.channel.permissionsFor(client.user).has('BAN_MEMBERS')) {
+        if (!interaction.guild?.members.me?.permissions.has(PermissionsBitField.Flags.BanMembers)) {
             await interaction.editReply({ content: data.ban_dont_have_perm_myself });
             return;
         };
 
-        if (member.user.id === interaction.member.id) {
+        if (member.user.id === interaction.user.id) {
             await interaction.editReply({ content: data.ban_try_to_ban_yourself });
             return;
         };
 
-        if (interaction.member.roles.highest.position < member.roles.highest.position) {
+        if ((interaction.member?.roles as GuildMemberRoleManager).highest.position < member.roles.highest.position) {
             await interaction.editReply({ content: data.ban_attempt_ban_higter_member });
             return;
         };
@@ -64,17 +68,17 @@ export = {
         member.send({
             content: data.ban_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-                .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.globalName)
+                .replace(/\${interaction\.member\.user\.username}/g, interaction.user.globalName)
         })
             .catch(() => {
             })
             .then(() => {
-                member.ban({ reason: 'banned by ' + interaction.user.globalName })
+                member?.ban({ reason: 'banned by ' + interaction.user.globalName })
                     .then((member: { user: { id: any; }; }) => {
                         interaction.editReply({
                             content: data.ban_command_work
                                 .replace(/\${member\.user\.id}/g, member.user.id)
-                                .replace(/\${interaction\.member\.id}/g, interaction.member.id)
+                                .replace(/\${interaction\.member\.id}/g, interaction.user.id)
                         }).catch(() => { });
 
                         try {
@@ -83,12 +87,12 @@ export = {
                                 .setTitle(data.ban_logs_embed_title)
                                 .setDescription(data.ban_logs_embed_description
                                     .replace(/\${member\.user\.id}/g, member.user.id)
-                                    .replace(/\${interaction\.member\.id}/g, interaction.member.id)
+                                    .replace(/\${interaction\.member\.id}/g, interaction.user.id)
                                 )
-                            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
                             if (logchannel) {
-                                logchannel.send({ embeds: [logEmbed] })
+                                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
                             };
                         } catch (e: any) {
                             logger.err(e);

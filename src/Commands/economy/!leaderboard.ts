@@ -19,11 +19,11 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, EmbedBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, Client, EmbedBuilder } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
-        let toAnalyze = await client.db.get(`${interaction.guild.id}.USER`);
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+        let toAnalyze = await client.db.get(`${interaction.guild?.id}.USER`);
 
         // Convert the user data to an array for sorting
         let usersArray = Object.entries(toAnalyze);
@@ -38,7 +38,7 @@ export = {
         let embed = new EmbedBuilder()
             .setColor('#e4b7ff')
             .setTitle(data.economy_leaderboard_embed_title
-                .replace('${interaction.guild.name}', interaction.guild.name)
+                .replace('${interaction.guild.name}', interaction.guild?.name)
             )
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp();

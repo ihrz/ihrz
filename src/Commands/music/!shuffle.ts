@@ -20,14 +20,15 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
 } from 'discord.js';
 
 import { useQueue } from 'discord-player';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
-        let queue = useQueue(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+        let queue = useQueue(interaction.guild?.id as string);
         if (!queue) {
             await interaction.editReply({ content: data.shuffle_no_queue });
             return;

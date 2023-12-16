@@ -25,7 +25,10 @@ import {
     ApplicationCommandOptionType,
     ButtonBuilder,
     ButtonStyle,
-    ActionRowBuilder
+    ActionRowBuilder,
+    ChatInputCommandInteraction,
+    GuildMember,
+    GuildMemberManager
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -43,8 +46,8 @@ export const command: Command = {
     ],
     thinking: false,
     category: 'owner',
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
 
         if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
             await interaction.reply({ content: data.blacklist_not_owner });
@@ -52,7 +55,7 @@ export const command: Command = {
         };
 
         let char = await client.db.get(`GLOBAL.BLACKLIST`);
-        let member = interaction.options.getMember('user');
+        let member = interaction.options.getMember('user') as GuildMember;
         let user = interaction.options.getUser('user');
 
         if (!member && !user) {
@@ -65,7 +68,7 @@ export const command: Command = {
 
             let currentPage = 0;
             let usersPerPage = 5;
-            let pages: { title: any; description: any; }[] = [];
+            let pages: { title: string; description: string; }[] = [];
 
             for (let i = 0; i < blacklistedUsers.length; i += usersPerPage) {
                 let pageUsers = blacklistedUsers.slice(i, i + usersPerPage);
@@ -85,7 +88,7 @@ export const command: Command = {
                     .setTimestamp()
             };
 
-            let row = new ActionRowBuilder().addComponents(
+            let row = new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder()
                     .setCustomId('previousPage')
                     .setLabel('⬅️')
@@ -100,15 +103,11 @@ export const command: Command = {
                 embeds: [createEmbed()], components: [row]
             });
 
-            let filter = (i: {
-                user: any; deferUpdate: () => void; author: { id: any; };
-            }) => {
-                i.deferUpdate();
-                return interaction.user.id === i.user.id;
-            };
-
             let collector = messageEmbed.createMessageComponentCollector({
-                filter, time: 60000
+                filter: (i) => {
+                    i.deferUpdate(); return interaction.user.id === i.user.id;
+                },
+                time: 60000
             });
 
             collector.on('collect', (interaction: { customId: string; }) => {
@@ -143,7 +142,7 @@ export const command: Command = {
                 await client.db.set(`GLOBAL.BLACKLIST.${member.user.id}`, { blacklisted: true });
 
                 if (member.bannable) {
-                    member.ban({ reason: "blacklisted !" });
+                    (member as unknown as GuildMemberManager).ban("blacklisted !");
                     await interaction.reply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, member.user.globalName) });
                     return;
                 } else {

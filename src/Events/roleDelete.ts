@@ -33,8 +33,8 @@ export = async (client: Client, role: Role) => {
                 limit: 1,
             });
 
-            var firstEntry: any = fetchedLogs.entries.first();
-            if (firstEntry.targetId !== role.id) return;
+            var firstEntry = fetchedLogs.entries.first();
+            if (firstEntry?.targetId !== role.id) return;
             if (firstEntry.executorId === client.user?.id) return;
 
             let baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
@@ -51,13 +51,13 @@ export = async (client: Client, role: Role) => {
                     position: role.rawPosition,
                     reason: `Role re-create by Protect (${firstEntry.executorId} break the rule!)`
                 });
-                let user = await role.guild.members.cache.get(firstEntry.executorId);
+                let user = await role.guild.members.cache.get(firstEntry?.executorId as string);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':
                         break;
                     case 'simply+derank':
-                        user?.guild.roles.cache.forEach((element: any) => {
+                        user?.guild.roles.cache.forEach((element) => {
                             if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
                                 user.roles.remove(element.id);
                             };

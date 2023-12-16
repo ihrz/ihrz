@@ -20,6 +20,7 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
@@ -28,17 +29,17 @@ import {
 import { isValid, isEnded, ListEntries } from '../../core/giveawaysManager';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let inputData = interaction.options.getString("giveaway-id");
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {
             await interaction.editReply({ content: data.end_not_admin });
             return;
         };
 
-        if (!await isValid(inputData, {
-            guildId: interaction.guild.id
+        if (!await isValid((inputData as unknown as number), {
+            guildId: interaction.guild?.id
         })) {
             await interaction.editReply({
                 content: data.end_not_find_giveaway
@@ -47,15 +48,15 @@ export = {
             return;
         };
 
-        if (await isEnded(inputData, {
-            guildId: interaction.guild.id
+        if (await isEnded((inputData as unknown as number), {
+            guildId: interaction.guild?.id
         })) {
             await interaction.editReply({ content: data.end_command_error });
             return;
         };
 
         await ListEntries(interaction, {
-            guildId: interaction.guild.id,
+            guildId: interaction.guild?.id,
             messageId: inputData,
         })
 

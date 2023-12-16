@@ -20,27 +20,29 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let id = interaction.options.getString("id");
         let message = interaction.options.getString("reason");
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.suggest_deny_not_admin });
             return;
         };
 
-        let baseData = await client.db.get(`${interaction.guild.id}.SUGGEST`);
-        let fetchId = await client.db.get(`${interaction.guild.id}.SUGGESTION.${id}`);
+        let baseData = await client.db.get(`${interaction.guild?.id}.SUGGEST`);
+        let fetchId = await client.db.get(`${interaction.guild?.id}.SUGGESTION.${id}`);
 
         if (!baseData
-            || baseData?.channel !== interaction.channel.id
+            || baseData?.channel !== interaction.channel?.id
             || baseData?.disable === true) {
             await interaction.deleteReply();
             await interaction.followUp({
@@ -62,16 +64,16 @@ export = {
             return;
         };
 
-        let channel = interaction.guild.channels.cache.get(baseData?.channel);
+        let channel = interaction.guild?.channels.cache.get(baseData?.channel);
 
-        await channel.messages.fetch(fetchId?.msgId).then(async (msg: any) => {
+        await (channel as BaseGuildTextChannel).messages.fetch(fetchId?.msgId).then(async (msg) => {
 
             let embed = new EmbedBuilder(msg.embeds[0].data);
 
             embed.addFields({
                 name: data.suggest_deny_embed_fields_to_put
                     .replace('${interaction.user.username}', interaction.user.globalName),
-                value: message.toString()
+                value: message as string
             });
 
             embed.setColor('#f13b38');
@@ -80,13 +82,13 @@ export = {
             );
 
             await msg.edit({ embeds: [embed] });
-            await client.db.set(`${interaction.guild.id}.SUGGESTION.${id}.replied`, true);
+            await client.db.set(`${interaction.guild?.id}.SUGGESTION.${id}.replied`, true);
 
             await interaction.deleteReply();
             await interaction.followUp({
                 content: data.suggest_deny_command_work
-                    .replace('${interaction.guild.id}', interaction.guild.id)
-                    .replace('${interaction.channel.id}', interaction.channel.id)
+                    .replace('${interaction.guild.id}', interaction.guild?.id)
+                    .replace('${interaction.channel.id}', interaction.channel?.id)
                     .replace('${fetchId?.msgId}', fetchId?.msgId),
                 ephemeral: true
             });

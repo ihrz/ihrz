@@ -20,22 +20,25 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
+    Guild,
     PermissionsBitField,
 } from 'discord.js';
 
 import backup from 'discord-backup';
+import { BackupData } from 'discord-backup/lib/types';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
         let backupID = interaction.options.getString('backup-id');
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.backup_dont_have_perm_on_load });
             return;
         };
 
-        if (!interaction.guild.members.me.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.guild?.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.backup_i_dont_have_perm_on_load });
             return;
         };
@@ -50,21 +53,17 @@ export = {
             return;
         };
 
-        await interaction.channel.send({ content: data.backup_waiting_on_load });
+        await interaction.channel?.send({ content: data.backup_waiting_on_load });
 
         backup.fetch(backupID).then(async () => {
-            backup.load(backupID, interaction.guild).then(() => {
-                backup.remove(backupID);
+            backup.load(backupID as string | BackupData, interaction.guild as Guild).then(() => {
+                backup.remove(backupID as string);
             }).catch((err) => {
-                interaction.channel.send({
-                    content: data.backup_error_on_load
-                        .replace("${backupID}", backupID)
-                    , ephemeral: true
-                });
+                interaction.channel?.send({ content: data.backup_error_on_load.replace("${backupID}", backupID) });
                 return;
             });
         }).catch((err) => {
-            interaction.channel.send({ content: `❌` });
+            interaction.channel?.send({ content: `❌` });
             return;
         });
     },

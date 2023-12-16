@@ -20,12 +20,13 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
         let talkedRecentlyforw = new Set();
 
         if (talkedRecentlyforw.has(interaction.user.id)) {
@@ -39,7 +40,7 @@ export = {
             .setAuthor({
                 name: data.work_embed_author
                     .replace(/\${interaction\.user\.username}/g, interaction.user.globalName),
-                iconURL: interaction.user.displayAvatarURL({ dynamic: true })
+                iconURL: interaction.user.displayAvatarURL()
             })
             .setDescription(data.work_embed_description
                 .replace(/\${interaction\.user\.username}/g, interaction.user.globalName)
@@ -48,7 +49,7 @@ export = {
             .setColor("#f1d488");
 
         await interaction.reply({ embeds: [embed] });
-        await client.db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
+        await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
 
         talkedRecentlyforw.add(interaction.user.id);
         setTimeout(() => {

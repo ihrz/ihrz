@@ -20,6 +20,7 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js'
@@ -31,10 +32,10 @@ export const command: Command = {
     description: 'Get the last message deleted in this channel!',
     category: 'utils',
     thinking: false,
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
 
-        var based = await client.db.get(`${interaction.guild.id}.GUILD.SNIPE.${interaction.channel.id}`);
+        var based = await client.db.get(`${interaction.guild?.id}.GUILD.SNIPE.${interaction.channel?.id}`);
 
         if (!based) {
             await interaction.reply({ content: data.snipe_no_previous_message_deleted });

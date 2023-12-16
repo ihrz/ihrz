@@ -20,6 +20,8 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
@@ -28,31 +30,29 @@ import {
 import { Create } from '../../core/giveawaysManager';
 
 import logger from '../../core/logger';
-import config from '../../files/config';
-
 import ms from 'ms';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {
             await interaction.editReply({ content: data.start_not_perm });
             return;
         };
 
         let giveawayChannel = interaction.channel;
-        var giveawayDuration: any = interaction.options.getString("time");
+        var giveawayDuration = interaction.options.getString("time");
         let giveawayNumberWinners = interaction.options.getNumber("winner");
 
-        if (isNaN(giveawayNumberWinners) || (parseInt(giveawayNumberWinners) <= 0)) {
+        if (isNaN(giveawayNumberWinners as number) || (parseInt(giveawayNumberWinners as unknown as string) <= 0)) {
             await interaction.editReply({ content: data.start_is_not_valid });
             return;
         };
 
         let giveawayPrize = interaction.options.getString("prize");
-        giveawayDuration = ms(giveawayDuration);
+        let giveawayDurationFormated = ms(giveawayDuration as unknown as number);
 
-        if (Number.isNaN(giveawayDuration)) {
+        if (Number.isNaN(giveawayDurationFormated)) {
             await interaction.editReply({
                 content: data.start_time_not_valid
                     .replace('${interaction.user}', interaction.user)
@@ -61,9 +61,9 @@ export = {
         };
 
         Create(giveawayChannel, {
-            duration: giveawayDuration,
-            prize: giveawayPrize,
-            winnerCount: parseInt(giveawayNumberWinners),
+            duration: parseInt(giveawayDurationFormated),
+            prize: giveawayPrize!,
+            winnerCount: giveawayNumberWinners!,
             hostedBy: interaction.user,
         });
 
@@ -76,9 +76,9 @@ export = {
                     .replace(/\${giveawayChannel}/g, giveawayChannel)
                 );
 
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) {
-                logchannel.send({ embeds: [logEmbed] })
+                (logchannel as BaseGuildTextChannel)?.send({ embeds: [logEmbed] })
             };
         } catch (e: any) {
             logger.err(e)

@@ -20,25 +20,27 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        let user = interaction.options.getMember("member");
+        let user = interaction.options.getUser("member");
         let amount = interaction.options.getNumber("amount");
 
         let a = new EmbedBuilder().setColor("#FF0000").setDescription(data.addinvites_not_admin_embed_description);
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ embeds: [a] });
             return;
         };
 
-        await client.db.add(`${interaction.guild.id}.USER.${user.id}.INVITES.invites`, amount);
+        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.INVITES.invites`, amount);
 
         let finalEmbed = new EmbedBuilder()
             .setDescription(data.addinvites_confirmation_embed_description
@@ -46,9 +48,9 @@ export = {
                 .replace(/\${user}/g, user)
             )
             .setColor(`#92A8D1`)
-            .setFooter({ text: interaction.guild.name, iconURL: interaction.guild.iconURL({ dynamic: true }) });
+            .setFooter({ text: interaction.guild?.name as string, iconURL: interaction.guild?.iconURL() as string });
 
-        await client.db.add(`${interaction.guild.id}.USER.${user.id}.INVITES.bonus`, amount);
+        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.INVITES.bonus`, amount);
         await interaction.editReply({ embeds: [finalEmbed] });
 
         try {
@@ -58,13 +60,13 @@ export = {
                 .setDescription(data.addinvites_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     .replace(/\${amount}/g, amount)
-                    .replace(/\${user\.id}/g, user.id)
+                    .replace(/\${user\.id}/g, user?.id)
                 );
 
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
             if (logchannel) {
-                logchannel.send({ embeds: [logEmbed] });
+                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
             };
         } catch (e: any) {
             return;

@@ -20,6 +20,8 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
@@ -28,12 +30,12 @@ import {
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let type = interaction.options.getString("action");
         let argsid = interaction.options.getChannel("channel");
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.setxpchannels_not_admin });
             return;
         };
@@ -51,21 +53,21 @@ export = {
                     .setDescription(data.setxpchannels_logs_embed_description_enable.replace(/\${interaction\.user.id}/g, interaction.user.id)
                         .replace(/\${argsid}/g, argsid.id))
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] });
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
                 };
             } catch (e: any) {
                 logger.err(e)
             };
 
             try {
-                let already = await client.db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`);
+                let already = await client.db.get(`${interaction.guild?.id}.GUILD.XP_LEVELING.xpchannels`);
                 if (already === argsid.id) return interaction.reply({ content: data.setxpchannels_already_with_this_config });
 
-                interaction.client.channels.cache.get(argsid.id)?.send({ content: data.setxpchannels_confirmation_message });
-                await client.db.set(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`, argsid.id);
+                (client.channels.cache.get(argsid.id) as BaseGuildTextChannel).send({ content: data.setxpchannels_confirmation_message });
+                await client.db.set(`${interaction.guild?.id}.GUILD.XP_LEVELING.xpchannels`, argsid.id);
 
                 await interaction.reply({ content: data.setxpchannels_command_work_enable.replace(/\${argsid}/g, argsid.id) });
                 return;
@@ -80,24 +82,24 @@ export = {
                     .setTitle(data.setxpchannels_logs_embed_title_disable)
                     .setDescription(data.setxpchannels_logs_embed_description_disable.replace(/\${interaction\.user.id}/g, interaction.user.id))
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] });
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
                 };
             } catch (e: any) {
                 logger.err(e)
             };
 
             try {
-                let already2 = await client.db.get(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`);
+                let already2 = await client.db.get(`${interaction.guild?.id}.GUILD.XP_LEVELING.xpchannels`);
 
                 if (already2 === "off") {
                     await interaction.reply({ content: data.setxpchannels_already_disabled_disable });
                     return;
                 };
 
-                await client.db.delete(`${interaction.guild.id}.GUILD.XP_LEVELING.xpchannels`);
+                await client.db.delete(`${interaction.guild?.id}.GUILD.XP_LEVELING.xpchannels`);
                 await interaction.reply({ content: data.setxpchannels_command_work_disable });
                 return;
             } catch (e) {

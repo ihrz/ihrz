@@ -19,23 +19,23 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Collection, REST, Routes, ApplicationCommandType } from "discord.js";
+import { Collection, REST, Routes, ApplicationCommandType, Client, ApplicationCommand } from "discord.js";
 import { Command } from '../../types/command';
 import config from "../files/config";
 import couleurmdr from 'colors';
 import logger from "./logger";
 
-export = async (client: any, commands: Collection<string, Command>) => {
+export = async (client: Client, commands: Collection<string, Command>) => {
 
     let rest = new REST().setToken(config.discord.token);
 
     try {
         logger.log(couleurmdr.white(`${config.console.emojis.LOAD} >> Currently ${commands?.size || 0} of application (/) commands awaiting for refreshing.`));
 
-        let data: any = await rest.put(
-            Routes.applicationCommands(client.user.id),
+        let data = await rest.put(
+            Routes.applicationCommands(client.user?.id!),
             {
-                body: client.commands?.map((command: { name: string; description: string; options: JSON }) => ({
+                body: client.commands?.map((command) => ({
                     name: command.name,
                     description: command.description,
                     options: command.options,
@@ -44,7 +44,7 @@ export = async (client: any, commands: Collection<string, Command>) => {
             },
         );
 
-        logger.log(couleurmdr.white(`${config.console.emojis.OK} >> Currently ${data.length} of application (/) commands are now synchronized.`));
+        logger.log(couleurmdr.white(`${config.console.emojis.OK} >> Currently ${data as unknown as ApplicationCommand<{}>[]} of application (/) commands are now synchronized.`));
     } catch (e: any) {
         logger.err(e);
     };

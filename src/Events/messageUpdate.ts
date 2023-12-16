@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, Collection, EmbedBuilder, Message, Options, Permissions, Presence } from 'discord.js';
+import { BaseGuildTextChannel, Client, Collection, EmbedBuilder, Message, Options, Permissions, Presence } from 'discord.js';
 import { cp } from 'node:fs';
 
 export = async (client: Client, oldMessage: Message, newMessage: Message) => {
@@ -36,10 +36,10 @@ export = async (client: Client, oldMessage: Message, newMessage: Message) => {
         if (!someinfo || !oldMessage.content || !newMessage.content
             || oldMessage.content === newMessage.content) return;
 
-        let Msgchannel: any = client.channels.cache.get(someinfo);
+        let Msgchannel = client.channels.cache.get(someinfo);
         if (!Msgchannel) return;
 
-        let icon: any = newMessage.author.displayAvatarURL();
+        let icon = newMessage.author.displayAvatarURL();
 
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
@@ -51,7 +51,7 @@ export = async (client: Client, oldMessage: Message, newMessage: Message) => {
                 { name: data.event_srvLogs_messageUpdate_footer_2, value: ' ' + newMessage.content })
             .setTimestamp();
 
-        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
+        await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
     };
 
     serverLogs();

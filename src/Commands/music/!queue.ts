@@ -20,6 +20,7 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
@@ -27,9 +28,9 @@ import {
 import { useQueue } from 'discord-player';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        let queue = useQueue(interaction.guildId);
+        let queue = useQueue(interaction.guildId as string);
 
         if (!queue) {
             await interaction.editReply({ content: data.queue_iam_not_voicec });
@@ -50,7 +51,7 @@ export = {
             return;
         };
 
-        let embeds: any[] = [];
+        let embeds: EmbedBuilder[] = [];
         let chunkSize = 10;
         let index = 0;
         while (tracks.length > 0) {
@@ -70,10 +71,7 @@ export = {
             index++;
         };
 
-        let message = await interaction.editReply({
-            embeds: [embeds[0]],
-            fetchReply: true
-        })
+        let message = await interaction.editReply({ embeds: [embeds[0]] });
 
         if (embeds.length === 1) return;
 
@@ -81,14 +79,12 @@ export = {
         message.react('➡️');
 
         let collector = message.createReactionCollector({
-            filter: (reaction: { emoji: { name: string; }; }, user: { id: any; }) =>
-                ['⬅️', '➡️'].includes(reaction.emoji.name) &&
-                user.id === interaction.user.id,
+            filter: (reaction, user) => ['⬅️', '➡️'].includes(reaction.emoji.name as string) && user.id === interaction.user.id,
             time: 60000
         });
 
         let currentIndex = 0;
-        collector.on('collect', (reaction: { emoji: { name: any; }; users: { remove: (arg0: any) => Promise<any>; }; }, user: { id: any; }) => {
+        collector.on('collect', (reaction, user) => {
             switch (reaction.emoji.name) {
                 case '⬅️':
                     if (currentIndex === 0) return;
@@ -101,16 +97,12 @@ export = {
                 default:
                     break;
             }
-
-            reaction.users.remove(user.id).catch(() => {
-            });
-
+            reaction.users.remove(user.id).catch(() => { });
             message.edit({ embeds: [embeds[currentIndex]] });
         });
 
         collector.on('end', () => {
-            message.reactions.removeAll().catch(() => {
-            });
+            message.reactions.removeAll().catch(() => { });
         });
     },
 };

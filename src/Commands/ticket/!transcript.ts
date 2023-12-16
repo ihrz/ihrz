@@ -20,17 +20,17 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
-    EmbedBuilder,
-    PermissionsBitField,
 } from 'discord.js';
 
 import { TicketTranscript } from '../../core/ticketsManager';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        let blockQ = await client.db.get(`${interaction.guild.id}.GUILD.TICKET.disable`);
+        let blockQ = await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`);
 
         if (blockQ) {
             await interaction.editReply({ content: data.transript_disabled_command });
@@ -39,7 +39,7 @@ export = {
 
         let channel = interaction.channel;
 
-        if (channel.name.includes('ticket-')) {
+        if ((channel as BaseGuildTextChannel).name.includes('ticket-')) {
             await TicketTranscript(interaction);
         } else {
             await interaction.editReply({ content: data.transript_not_in_ticket });

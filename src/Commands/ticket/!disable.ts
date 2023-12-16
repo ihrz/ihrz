@@ -20,6 +20,8 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
@@ -28,9 +30,9 @@ import {
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.disableticket_not_admin });
             return;
         };
@@ -44,15 +46,15 @@ export = {
                     .setTitle(data.disableticket_logs_embed_title_disable)
                     .setDescription(data.disableticket_logs_embed_description_disable.replace(/\${interaction\.user\.id}/g, interaction.user.id));
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] })
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
                 }
             } catch (e: any) {
                 logger.err(e)
             };
 
-            await client.db.set(`${interaction.guild.id}.GUILD.TICKET.disable`, true);
+            await client.db.set(`${interaction.guild?.id}.GUILD.TICKET.disable`, true);
             await interaction.editReply({ content: data.disableticket_command_work_disable });
             return;
         } else if (type === "on") {
@@ -62,15 +64,15 @@ export = {
                     .setTitle(data.disableticket_logs_embed_title_enable)
                     .setDescription(data.disableticket_logs_embed_description_enable.replace(/\${interaction\.user\.id}/g, interaction.user.id));
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] })
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
                 }
             } catch (e: any) {
                 logger.err(e)
             };
 
-            await client.db.set(`${interaction.guild.id}.GUILD.TICKET.disable`, false);
+            await client.db.set(`${interaction.guild?.id}.GUILD.TICKET.disable`, false);
             await interaction.editReply({ content: data.disableticket_command_work_enable });
             return;
         };

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
+import { Client, ApplicationCommandOptionType, EmbedBuilder, CommandInteraction } from 'discord.js';
 import * as apiUrlParser from '../../core/functions/apiUrlParser';
 import { Command } from '../../../types/command';
 import DiscordOauth2 from 'discord-oauth2';
@@ -31,14 +31,14 @@ import toml from 'toml';
 import fs from 'fs';
 
 let oauth = new DiscordOauth2();
-let emojis = toml.parse(String(fs.readFileSync(process.cwd()+"/src/files/emojis.toml")))
+let emojis = toml.parse(String(fs.readFileSync(process.cwd() + "/src/files/emojis.toml")))
 
 interface Badge {
     Value: number;
     Emoji: string;
 };
 
-let badges: { [key: string]: Badge } = {    
+let badges: { [key: string]: Badge } = {
     Discord_Employee: {
         Value: 1,
         Emoji: emojis.badge.Discord_Employee,
@@ -115,21 +115,21 @@ export const command: Command = {
     ],
     category: 'utils',
     thinking: false,
-    run: async (client: Client, interaction: any) => {
+    run: async (client: Client, interaction: CommandInteraction) => {
 
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
         let member = interaction.options.getUser('user') || interaction.user;
 
         async function sendMessage(description: string) {
             let embed = new EmbedBuilder()
-                .setAuthor({ name: `${member.username}`, iconURL: member.displayAvatarURL({ dynamic: true }) })
+                .setAuthor({ name: `${member.username}`, iconURL: member.displayAvatarURL() })
                 .setFooter({ text: `iHorizon`, iconURL: client.user?.displayAvatarURL() })
-                .setThumbnail(member.displayAvatarURL({ dynamic: true }))
+                .setThumbnail(member.displayAvatarURL())
                 .setTimestamp()
                 .setColor('#0014a8')
                 .setDescription(description);
 
-            await interaction.reply({ embeds: [embed], content: '✅ Fetched !' });
+            await interaction.editReply({ embeds: [embed], content: '✅ Fetched !' });
             return;
         };
 
@@ -161,7 +161,7 @@ export const command: Command = {
                 };
             };
 
-            description = getBadges(member.flags) + nitr0 + `\n**User:** \`${member.username}\`\n**DisplayName:** \`${member.displayName}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\``;
+            description = getBadges((member.flags as unknown as number)) + nitr0 + `\n**User:** \`${member.username}\`\n**DisplayName:** \`${member.displayName}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\``;
             if (nitr0 === '') { description += `\n[My nitro is not shown](${apiUrlParser.LoginURL})`; };
 
             sendMessage(description);
@@ -169,7 +169,7 @@ export const command: Command = {
         } catch (error: any) {
             logger.err(error);
 
-            let description = `${getBadges(member.flags)}\n**User:** \`${member.username}\`\n**DisplayName:** \`${member.displayName}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\`\n[🔴 API DOWN](${apiUrlParser.LoginURL})`;
+            let description = `${getBadges((member.flags as unknown as number))}\n**User:** \`${member.username}\`\n**DisplayName:** \`${member.displayName}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\`\n[🔴 API DOWN](${apiUrlParser.LoginURL})`;
 
             await sendMessage(description);
         };

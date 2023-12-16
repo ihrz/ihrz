@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client, VoiceState, GuildTextBasedChannel } from 'discord.js';
+import { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client, VoiceState, GuildTextBasedChannel, BaseGuildTextChannel } from 'discord.js';
 
 export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
 
@@ -31,7 +31,7 @@ export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
         let someinfo = await client.db.get(`${oldState.guild.id}.GUILD.SERVER_LOGS.voice`);
         if (!someinfo) return;
 
-        let Msgchannel: any = client.channels.cache.get(someinfo);
+        let Msgchannel = client.channels.cache.get(someinfo);
         if (!Msgchannel) return;
 
         var Ouser = oldState.id
@@ -59,7 +59,7 @@ export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${OchannelID}", OchannelID)
             );
-            await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
+            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
             return;
         };
 
@@ -68,7 +68,7 @@ export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${channelID}", channelID)
             );
-            await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
+            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
             return;
         };
 
@@ -78,7 +78,7 @@ export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${channelID}", channelID)
             );
-            await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
+            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
             return;
         };
 
@@ -87,7 +87,7 @@ export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${channelID}", channelID)
             );
-            await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
+            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
             return;
         };
 
@@ -97,7 +97,7 @@ export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${channelID}", channelID)
             );
-            await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
+            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
             return;
         };
 
@@ -106,7 +106,7 @@ export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
                 .replace("${targetUser.id}", targetUser.id)
                 .replace("${channelID}", channelID)
             );
-            await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
+            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
             return;
         };
     };

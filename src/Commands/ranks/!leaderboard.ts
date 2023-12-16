@@ -23,12 +23,13 @@ import {
     Client,
     EmbedBuilder,
     AttachmentBuilder,
+    ChatInputCommandInteraction,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        let char = await client.db.get(`${interaction.guild.id}.USER`);
+        let char = await client.db.get(`${interaction.guild?.id}.USER`);
         let tableau = [];
 
         for (let i in char) {
@@ -36,6 +37,7 @@ export = {
 
             if (a) {
                 let user = await interaction.client.users.cache.get(i);
+
                 if (user) {
                     tableau.push({
                         text: `👤 <@${user.id}> \`(${user.globalName})\`\n⭐ ➥ **Level**: \`${a.level || '0'}\`\n🔱 ➥ **XP Total**: \`${a.xptotal}\``, length: a.xptotal,
@@ -62,9 +64,10 @@ export = {
         let buffer = Buffer.from(o, 'utf-8');
         let attachment = new AttachmentBuilder(buffer, { name: 'leaderboard.txt' })
 
-        embed.setThumbnail(interaction.guild.iconURL({ dynamic: true }));
+        embed.setThumbnail(interaction.guild?.iconURL() as string);
         embed.setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
-        embed.setTitle(`${interaction.guild.name}'s Levels Leaderboard`)
+        embed.setTitle(`${interaction.guild?.name}'s Levels Leaderboard`);
+        
         await interaction.reply({ embeds: [embed], content: ' ', files: [attachment] });
         return;
     },

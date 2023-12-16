@@ -22,8 +22,10 @@
 import { Player, Track, GuildQueue } from 'discord-player';
 import { SpotifyExtractor, SoundCloudExtractor } from '@discord-player/extractor';
 import DeezerExtractor from "discord-player-deezer"
+
 import { Client } from 'discord.js';
 import logger from './logger';
+import { MetadataPlayer } from '../../types/metadaPlayer';
 
 export = async (client: Client) => {
 
@@ -43,7 +45,7 @@ export = async (client: Client) => {
     player.events.on('playerStart', async (queue: GuildQueue, track: Track) => {
         let data = await client.functions.getLanguageData(queue.channel?.guildId);
 
-        (queue.metadata as any).channel.send({
+        (queue.metadata as MetadataPlayer).channel.send({
             content: data.event_mp_playerStart
                 .replace("${track.title}", track.title)
                 .replace("${queue.channel.name}", queue.channel?.name)
@@ -54,7 +56,7 @@ export = async (client: Client) => {
     player.events.on('audioTrackAdd', async (queue: GuildQueue, track: Track) => {
         let data = await client.functions.getLanguageData(queue.channel?.guildId);
 
-        (queue.metadata as any).channel.send({
+        (queue.metadata as MetadataPlayer).channel.send({
             content: data.event_mp_audioTrackAdd
                 .replace("${track.title}", track.title)
         });
@@ -83,14 +85,14 @@ export = async (client: Client) => {
         let data = await client.functions.getLanguageData(queue.channel?.guildId);
 
         player?.nodes.delete(queue);
-        (queue.metadata as any).channel.send({ content: data.event_mp_emptyChannel });
+        (queue.metadata as MetadataPlayer).channel.send({ content: data.event_mp_emptyChannel });
         return;
     });
 
     player.events.on('playerSkip', async (queue: GuildQueue, track: Track) => {
         let data = await client.functions.getLanguageData(queue.channel?.guildId);
 
-        (queue.metadata as any).channel.send({
+        (queue.metadata as MetadataPlayer).channel.send({
             content: data.event_mp_playerSkip
                 .replace("${track.title}", track.title)
         });
@@ -100,7 +102,7 @@ export = async (client: Client) => {
     player.events.on('emptyQueue', async (queue: GuildQueue) => {
         let data = await client.functions.getLanguageData(queue.channel?.guildId);
 
-        (queue.metadata as any).channel.send({ content: data.event_mp_emptyQueue });
+        (queue.metadata as MetadataPlayer).channel.send({ content: data.event_mp_emptyQueue });
         return;
     });
 

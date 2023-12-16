@@ -20,11 +20,12 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
         var age = interaction.options.getNumber("age");
 
         await client.db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.age`, age);

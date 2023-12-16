@@ -20,29 +20,31 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
+    Guild,
+    GuildMember,
 } from 'discord.js';
 
 import logger from '../../core/logger';
 
-import ms from 'ms';
-
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
-        if (!interaction.member.voice.channel) {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+
+        if (!(interaction.member as GuildMember)?.voice.channel) {
             await interaction.editReply({ content: data.skip_not_in_voice_channel });
             return;
         };
 
         try {
-            let queue = interaction.client.player.nodes.get(interaction.guild);
+            let queue = interaction.client.player.nodes.get(interaction.guild as Guild);
 
             if (!queue || !queue.isPlaying()) {
                 await interaction.editReply({ content: data.skip_nothing_playing });
                 return;
             };
 
-            queue.node.skip()
+            queue.node.skip();
             await interaction.editReply({
                 content: data.skip_command_work
                     .replace("{queue}", queue.currentTrack)

@@ -44,21 +44,21 @@ export = async (client: Client, channel: GuildChannel) => {
                 type: AuditLogEvent.ChannelCreate,
                 limit: 1,
             });
-            var firstEntry: any = fetchedLogs.entries.first();
-            if (firstEntry.targetId !== channel.id) return;
+            var firstEntry = fetchedLogs.entries.first();
+            if (firstEntry?.targetId !== channel.id) return;
             if (firstEntry.executorId === client.user?.id) return;
 
             let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
             if (!baseData) {
                 channel.delete();
-                let user = await channel.guild.members.cache.get(firstEntry.executorId);
+                let user = await channel.guild.members.cache.get(firstEntry?.executorId as string);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':
                         break;
                     case 'simply+derank':
-                        user?.guild.roles.cache.forEach((element: any) => {
+                        user?.guild.roles.cache.forEach((element) => {
                             if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
                                 user.roles.remove(element.id);
                             };

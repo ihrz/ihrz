@@ -29,7 +29,7 @@ import * as apiUrlParser from '../../core/functions/apiUrlParser';
 
 import config from '../../files/config';
 import CryptoJS, { enc } from 'crypto-js';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import logger from '../../core/logger';
 
 export = {
@@ -97,7 +97,7 @@ export = {
                 let encrypted = CryptoJS.AES.encrypt(JSON.stringify(id_2), config.api.apiToken).toString();
 
                 axios.post(apiUrlParser.PublishURL, { cryptedJSON: encrypted }, { headers: { 'Accept': 'application/json' } })
-                    .then((response: any) => { })
+                    .then((response: AxiosResponse) => { })
                     .catch(error => {
                         logger.err(error)
                     });

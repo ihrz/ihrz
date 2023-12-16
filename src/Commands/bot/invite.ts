@@ -24,7 +24,8 @@ import {
     EmbedBuilder,
     ButtonBuilder,
     ActionRowBuilder,
-    ButtonStyle
+    ButtonStyle,
+    ChatInputCommandInteraction,
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -34,9 +35,9 @@ export const command: Command = {
     description: 'Get the bot invite link!',
     category: 'bot',
     thinking: false,
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
-        let pp: any = client.user?.displayAvatarURL();
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let pp = client.user?.displayAvatarURL();
 
         let button_add_me = new ButtonBuilder()
             .setStyle(ButtonStyle.Link)
@@ -49,14 +50,11 @@ export const command: Command = {
             .setDescription(data.invite_embed_description)
             .setURL('https://discord.com/api/oauth2/authorize?client_id=' + client.user?.id + '&permissions=8&scope=bot')
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
-            .setThumbnail(pp);
+            .setThumbnail((pp as string));
 
-        await interaction.reply({
-            embeds: [invites], components: [
-                new ActionRowBuilder()
-                    .addComponents(button_add_me)
-            ]
-        });
+        let components = new ActionRowBuilder<ButtonBuilder>().addComponents(button_add_me);
+
+        await interaction.reply({ embeds: [invites], components: [components] });
         return;
     },
 };

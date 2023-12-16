@@ -19,31 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import {
-    ChatInputCommandInteraction,
-    Client,
-    EmbedBuilder,
-    PermissionsBitField
-} from 'discord.js';
-
-export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
-
-        let role = interaction.options.getRole("role");
-
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.security_role_to_give_not_admin });
-            return;
-        };
-
-        await client.db.set(`${interaction.guild?.id}.SECURITY.role`, role?.id);
-
-        await interaction.editReply({
-            content: data.security_role_to_give_command_work
-                .replace('${interaction.user}', interaction.user)
-                .replace('${role}', role)
-        });
-
-        return;
-    },
-};
+export interface MetadataPlayer {
+    channel: TextBasedChannel | null;
+    client: GuildMember | null | undefined;
+    requestedBy: string | null;
+}

@@ -20,22 +20,23 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let channel = interaction.options.getChannel("id");
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.security_channel_not_admin });
             return;
         };
 
-        await client.db.set(`${interaction.guild.id}.SECURITY.channel`, channel.id);
+        await client.db.set(`${interaction.guild?.id}.SECURITY.channel`, channel?.id);
 
         await interaction.editReply({
             content: data.security_channel_command_work

@@ -26,14 +26,18 @@ import {
     ComponentType,
     ButtonBuilder,
     ButtonStyle,
+    ChatInputCommandInteraction,
+    Guild,
 } from 'discord.js';
 
 import { lyricsExtractor } from '@discord-player/extractor';
+import { GuildNodeCreateOptions } from 'discord-player';
+import { MetadataPlayer } from '../../../types/metadaPlayer';
 
 let lyricsFinder = lyricsExtractor();
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let pause = new ButtonBuilder()
             .setCustomId('pause')
@@ -50,13 +54,13 @@ export = {
             .setLabel('📝')
             .setStyle(ButtonStyle.Secondary);
 
-        let btn = new ActionRowBuilder()
+        let btn = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(stop, pause, lyricsButton);
 
-        let queue = interaction.client.player.nodes.get(interaction.guild);
+        let queue = interaction.client.player.nodes.get(interaction.guild as Guild);
 
         if (!queue || !queue.isPlaying()) {
-            await interaction.deleteReply();    
+            await interaction.deleteReply();
             await interaction.followUp({ content: data.nowplaying_no_queue, ephemeral: true });
             return;
         };
@@ -65,10 +69,10 @@ export = {
 
         let embed = new EmbedBuilder()
             .setTitle(data.nowplaying_message_embed_title)
-            .setDescription(`by: <@${queue.currentTrack.requestedBy.id}>\n**[${queue.currentTrack.title}](${queue.currentTrack.url})**, ${queue.currentTrack.author}`)
-            .setThumbnail(`${queue.currentTrack.thumbnail}`)
+            .setDescription(`by: <@${queue.currentTrack?.requestedBy?.id}>\n**[${queue.currentTrack?.title}](${queue.currentTrack?.url})**, ${queue.currentTrack?.author}`)
+            .setThumbnail(`${queue.currentTrack?.thumbnail}`)
             .addFields(
-                { name: '  ', value: progress.replace(/ 0:00/g, 'LIVE') }
+                { name: '  ', value: progress?.replace(/ 0:00/g, 'LIVE') as string }
             );
 
         let response = await interaction.editReply({
@@ -79,30 +83,30 @@ export = {
         var paused: boolean = false;
         try {
             let collector = response.createMessageComponentCollector({ componentType: ComponentType.Button, time: 3_600_000 });
-            collector.on('collect', async (i: { reply: (arg0: { content?: any; ephemeral: boolean; embeds?: EmbedBuilder[]; }) => void; user: { id: any; }; customId: any; deferUpdate: () => void; }) => {
-                let queue = interaction.client.player.nodes.get(interaction.guild);
+            collector.on('collect', async (i) => {
+                let queue = interaction.client.player.nodes.get(interaction.guild as Guild);
 
                 if (!queue || !queue.isPlaying()) {
                     await i.reply({ content: data.nowplaying_no_queue, ephemeral: true });
                     return;
                 };
 
-                if (i.user.id === queue.currentTrack.requestedBy.id) {
+                if (i.user.id === queue.currentTrack?.requestedBy?.id) {
                     switch (i.customId) {
                         case "pause":
                             i.deferUpdate();
                             if (paused) {
-                                queue.node.setPaused(false),
-                                    paused = false,
-                                    queue.metadata.channel.send({ content: `${interaction.user} **resume** the music!` });
+                                queue.node.setPaused(false);
+                                paused = false;
+                                (queue.metadata as MetadataPlayer).channel?.send({ content: `${interaction.user} **resume** the music!` });
                             } else {
-                                queue.node.setPaused(true),
-                                    paused = true,
-                                    queue.metadata.channel.send({ content: `${interaction.user} **pause** the music!` });
+                                queue.node.setPaused(true);
+                                paused = true;
+                                (queue.metadata as MetadataPlayer).channel.send({ content: `${interaction.user} **pause** the music!` });
                             }
                             break;
                         case "lyrics":
-                            let lyrics = await lyricsFinder.search(queue.currentTrack.title).catch(() => null);
+                            let lyrics = await lyricsFinder.search(queue.currentTrack?.title as string).catch(() => null);
                             if (!lyrics) {
                                 i.reply({ content: 'The lyrics for this song were not found', ephemeral: true });
                             } else {
@@ -126,8 +130,8 @@ export = {
                             break;
                         case "stop":
                             i.deferUpdate();
-                            client.player.nodes.delete(interaction.guild?.id);
-                            queue.metadata.channel.send({ content: `${interaction.user} **stop** the music!` });
+                            client.player.nodes.delete(interaction.guildId as unknown as Guild);
+                            (queue.metadata as MetadataPlayer).channel?.send({ content: `${interaction.user} **stop** the music!` });
                             break;
                     }
                 } else {
@@ -136,7 +140,7 @@ export = {
             });
 
         } catch {
-            await interaction.channel.send('⏲️');
+            await interaction.channel?.send('⏲️');
             return;
         };
     },

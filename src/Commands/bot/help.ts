@@ -25,7 +25,9 @@ import {
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
     ActionRowBuilder,
-    ComponentType
+    ComponentType,
+    ChatInputCommandInteraction,
+    StringSelectMenuInteraction
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -35,8 +37,8 @@ export const command: Command = {
     description: 'Get a list of all the commands!',
     category: 'bot',
     thinking: false,
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
         let CONTENT = await client.db.get("BOT.CONTENT");
 
         let categories = [
@@ -65,28 +67,30 @@ export const command: Command = {
         ];
 
         let select = new StringSelectMenuBuilder().setCustomId('starter').setPlaceholder('Make a selection!');
-        categories.forEach((category, index) => { select.addOptions(new StringSelectMenuOptionBuilder().setLabel(category.name).setValue(index.toString()).setEmoji(category.emoji)); });
-        let row = new ActionRowBuilder().addComponents(select);
-        let pp: any = client.user?.displayAvatarURL();
+
+        categories.forEach((category, index) => {
+            select.addOptions(new StringSelectMenuOptionBuilder()
+                .setLabel(category.name)
+                .setValue(index.toString())
+                .setEmoji(category.emoji));
+        });
+        
+        let row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
+        let pp = client.user?.displayAvatarURL();
 
         let embed = new EmbedBuilder()
             .setColor('#001eff')
             .setDescription(data.help_tip_embed)
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
-            .setThumbnail(pp)
+            .setThumbnail((pp as string))
             .setTimestamp();
 
         let response = await interaction.reply({ embeds: [embed], components: [row] });
         let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840_000 });
 
-        collector.on('collect', async (i: {
-            member: { id: any };
-            reply: (arg0: { content: string; ephemeral: boolean }) => any;
-            deferUpdate: () => any;
-            values: (string | number)[];
-        }) => {
+        collector.on('collect', async (i: StringSelectMenuInteraction) => {
 
-            if (i.member.id !== interaction.user.id) {
+            if (i.user.id !== interaction.user.id) {
                 await i.reply({ content: data.help_not_for_you, ephemeral: true });
                 return;
             };
@@ -94,12 +98,12 @@ export const command: Command = {
             await i.deferUpdate();
 
             embed
-                .setTitle(`${categories[i.values[0] as number].emoji}・${categories[i.values[0] as number].name}`)
-                .setDescription(categories[i.values[0] as number].description);
+                .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
+                .setDescription(categories[i.values[0] as unknown as number].description);
 
             embed.setFields({ name: ' ', value: ' ' });
 
-            await categories[i.values[0] as number].value.forEach((element: { cmd: any; desc: any }) => {
+            await categories[i.values[0] as unknown as number].value.forEach((element: { cmd: string; desc: string }) => {
                 embed.addFields({ name: `**/${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
             });
 

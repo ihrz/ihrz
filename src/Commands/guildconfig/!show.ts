@@ -20,19 +20,20 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.guildprofil_not_admin });
             return;
         };
 
-        let baseData = await client.db.get(`${interaction.guild.id}.GUILD`);
+        let baseData = await client.db.get(`${interaction.guild?.id}.GUILD`);
 
         let setchannelsjoin = (baseData?.['GUILD_CONFIG'])?.join;
         let setchannelsleave = (baseData?.['GUILD_CONFIG'])?.leave;
@@ -72,7 +73,7 @@ export = {
                 if (a) {
                     let stringContent = Object.keys(a).map((key) => {
                         let rolesID = a?.[key].rolesID;
-                        var emoji = interaction.guild.emojis.cache.find((emoji: { id: string; }) => emoji.id === key);
+                        var emoji = interaction.guild?.emojis.cache.find((emoji: { id: string; }) => emoji.id === key);
 
                         return data.guildprofil_set_reactionrole
                             .replace(/\${rolesID}/g, rolesID)
@@ -176,7 +177,7 @@ export = {
         let guildc = new EmbedBuilder()
             .setColor("#016c9a")
             .setDescription(data.guildprofil_embed_description
-                .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
+                .replace(/\${interaction\.guild\.name}/g, interaction.guild?.name)
             )
             .addFields(
                 { name: data.guildprofil_embed_fields_joinmessage, value: joinmessage, inline: true },
@@ -193,7 +194,7 @@ export = {
                 { name: data.guildprofil_embed_fields_ranks, value: xpStats, inline: true },
                 { name: data.guildprofil_embed_fields_logs, value: logsStat, inline: true },
                 { name: data.guildprofil_embed_fields_blockbot, value: blockBotStat, inline: true })
-            .setThumbnail(interaction.guild.iconURL({ dynamic: true }));
+            .setThumbnail(interaction.guild?.iconURL() as string);
 
         await interaction.editReply({ embeds: [guildc] });
         return;

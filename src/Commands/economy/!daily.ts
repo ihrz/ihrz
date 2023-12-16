@@ -21,28 +21,17 @@
 
 import {
     Client,
-    Collection,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
-    ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
+    ChatInputCommandInteraction,
 } from 'discord.js';
 
 import ms from 'ms';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
         let timeout = 86400000;
         let amount = 500;
-        let daily = await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.daily`);
+        let daily = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.daily`);
 
         if (daily !== null && timeout - (Date.now() - daily) > 0) {
             let time = ms(timeout - (Date.now() - daily));
@@ -51,14 +40,14 @@ export = {
             return;
         } else {
             let embed = new EmbedBuilder()
-                .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
+                .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL() })
                 .setColor("#a4cb80")
                 .setDescription(data.daily_embed_description)
                 .addFields({ name: data.daily_embed_fields, value: `${amount}🪙` })
 
             await interaction.reply({ embeds: [embed] });
-            await client.db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
-            await client.db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.daily`, Date.now());
+            await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
+            await client.db.set(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.daily`, Date.now());
             return;
         };
     },

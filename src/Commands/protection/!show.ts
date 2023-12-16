@@ -20,41 +20,42 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         var text = "";
 
-        let baseData = await client.db.get(`${interaction.guild.id}.ALLOWLIST`);
+        let baseData = await client.db.get(`${interaction.guild?.id}.ALLOWLIST`);
 
         if (!baseData) {
 
-            await client.db.set(`${interaction.guild.id}.ALLOWLIST`,
+            await client.db.set(`${interaction.guild?.id}.ALLOWLIST`,
                 {
                     enable: false,
                     list: {
-                        [`${interaction.guild.ownerId}`]: { allowed: true },
+                        [`${interaction.guild?.ownerId}`]: { allowed: true },
                     },
                 }
             );
 
-            baseData = await client.db.get(`${interaction.guild.id}.ALLOWLIST`);
+            baseData = await client.db.get(`${interaction.guild?.id}.ALLOWLIST`);
         };
 
         for (var i in baseData.list) {
             text += `<@${i}>\n`
         };
 
-        if (interaction.user.id !== interaction.guild.ownerId && !text.includes(interaction.user.id)) {
+        if (interaction.user.id !== interaction.guild?.ownerId && !text.includes(interaction.user.id)) {
             await interaction.reply({ content: data.allowlist_show_not_permited });
             return;
         };
 
-        let iconURL: any = client.user?.displayAvatarURL();
+        let iconURL = client.user?.displayAvatarURL();
 
         let embed = new EmbedBuilder()
             .setColor("#000000")

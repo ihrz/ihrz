@@ -20,6 +20,7 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
@@ -28,17 +29,17 @@ import {
 import { CreatePanel } from '../../core/ticketsManager';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let panelName = interaction.options.getString("name");
         let panelDesc = interaction.options.getString("description");
 
-        if (await client.db.get(`${interaction.guild.id}.GUILD.TICKET.disable`)) {
+        if (await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`)) {
             await interaction.editReply({ content: data.sethereticket_disabled_command });
             return;
         };
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.sethereticket_not_admin });
             return;
         };

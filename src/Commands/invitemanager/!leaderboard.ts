@@ -20,14 +20,15 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
         var text: string = data.leaderboard_default_text;
-        let char = await client.db.get(`${interaction.guild.id}.USER`);
+        let char = await client.db.get(`${interaction.guild?.id}.USER`);
         let tableau: Array<any> = [];
         let i: number = 1;
 
@@ -48,7 +49,7 @@ export = {
 
         tableau.sort((a: { invCount: number; }, b: { invCount: number; }) => b.invCount - a.invCount);
 
-        tableau.forEach((index: { text: any; }) => {
+        tableau.forEach((index: { text: string; }) => {
             text += `Top #${i} - ${index.text}`;
             i++;
         });
@@ -58,7 +59,7 @@ export = {
             .setDescription(text)
             .setTimestamp()
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
-            .setThumbnail(interaction.guild?.iconURL());
+            .setThumbnail(interaction.guild?.iconURL() as string);
 
         await interaction.editReply({ embeds: [embed] });
         return;

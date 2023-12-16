@@ -20,6 +20,7 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
@@ -28,7 +29,7 @@ import logger from '../../core/logger';
 import axios from 'axios'
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         axios.get('https://dog.ceo/api/breeds/image/random')
             .then(async res => {

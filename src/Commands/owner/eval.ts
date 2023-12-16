@@ -22,7 +22,8 @@
 import {
     Client,
     EmbedBuilder,
-    ApplicationCommandOptionType
+    ApplicationCommandOptionType,
+    ChatInputCommandInteraction
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -41,7 +42,7 @@ export const command: Command = {
     ],
     thinking: false,
     category: 'owner',
-    run: async (client: Client, interaction: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
             await interaction.deleteReply();
@@ -52,13 +53,13 @@ export const command: Command = {
         var result = interaction.options.getString("code");
 
         try {
-            eval(result);
+            eval(result as string);
 
             let embed = new EmbedBuilder()
                 .setColor("#468468")
                 .setTitle("This block was evalued with iHorizon.")
                 .setDescription(`\`\`\`JS\n${result || "None"}\n\`\`\``)
-                .setAuthor({ name: interaction.user.globalName, iconURL: interaction.user.displayAvatarURL() });
+                .setAuthor({ name: (interaction.user.globalName || interaction.user.username) as string, iconURL: interaction.user.displayAvatarURL() });
 
             await interaction.deleteReply();
             await interaction.followUp({ embeds: [embed], ephemeral: true });

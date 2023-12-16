@@ -29,18 +29,19 @@
 
 import {
     AttachmentBuilder,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     User,
 } from 'discord.js'
 
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 export = {
-    run: async (client: Client, interaction: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
-        let args = interaction.options.getString('comment');
-        args = args.split(' ');
+        let entry = interaction.options.getString('comment');
+        let args: Array<string> = entry!.split(' ');
 
         let user: User = interaction.options.getUser('user') || interaction.user;
 
@@ -73,14 +74,14 @@ export = {
             .setTimestamp()
             .setFooter({ text: 'iHorizon x ElektraBots', iconURL: client.user?.displayAvatarURL() });
 
-        let imgs;
+        let imgs: AttachmentBuilder;
 
-        await axios.get(link, { responseType: 'arraybuffer' }).then((response: any) => {
+        await axios.get(link, { responseType: 'arraybuffer' }).then((response: AxiosResponse) => {
             imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'tweet-elektra.png' });
             embed.setImage(`attachment://tweet-elektra.png`);
         });
 
-        await interaction.editReply({ embeds: [embed], files: [imgs] });
+        await interaction.editReply({ embeds: [embed], files: [imgs!] });
         return;
     },
 };

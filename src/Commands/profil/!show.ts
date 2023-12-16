@@ -20,22 +20,23 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let member = interaction.options.getUser('user') || interaction.user;
 
         var description = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.desc`);
         if (!description) var description = data.profil_not_description_set;
 
-        var level: Number = await client.db.get(`${interaction.guild.id}.USER.${member.id}.XP_LEVELING.level`);
+        var level: Number = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.XP_LEVELING.level`);
         if (!level) var level: Number = 0;
 
-        var balance: Number = await client.db.get(`${interaction.guild.id}.USER.${member.id}.ECONOMY.money`);
+        var balance: Number = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`);
         if (!balance) var balance: Number = 0;
 
         var age = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.age`);
@@ -56,7 +57,7 @@ export = {
                 { name: data.profil_embed_fields_age, value: age + data.profil_embed_fields_age_value, inline: false },
                 { name: data.profil_embed_fields_gender, value: `${gender}`, inline: false })
             .setColor("#ffa550")
-            .setThumbnail(member.displayAvatarURL({ format: 'png', dynamic: true, size: 512 }))
+            .setThumbnail(member.displayAvatarURL({ extension: 'png', size: 512 }))
             .setTimestamp()
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
 

@@ -23,7 +23,10 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
-    ApplicationCommandOptionType
+    ApplicationCommandOptionType,
+    ChatInputCommandInteraction,
+    BaseGuildTextChannel,
+    GuildMember
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -64,10 +67,10 @@ export const command: Command = {
     ],
     thinking: true,
     category: 'membercount',
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setmembercount_not_admin });
             return;
         };
@@ -83,9 +86,9 @@ export const command: Command = {
             .addFields({ name: data.setmembercount_helpembed_fields_name, value: data.setmembercount_helpembed_fields_value });
 
         if (type == "on") {
-            let botMembers = interaction.guild.members.cache.filter((member: { user: { bot: any; }; }) => member.user.bot);
-            let rolesCollection = interaction.guild.roles.cache;
-            let rolesCount = rolesCollection.size;
+            let botMembers = interaction.guild?.members.cache.filter((member: GuildMember) => member.user.bot);
+            let rolesCollection = interaction.guild?.roles.cache;
+            let rolesCount = rolesCollection?.size;
 
             if (!messagei) {
                 await interaction.editReply({ embeds: [help_embed] });
@@ -93,21 +96,21 @@ export const command: Command = {
             };
 
             let joinmsgreplace = messagei
-                .replace("{rolescount}", rolesCount)
-                .replace("{membercount}", interaction.guild.memberCount)
-                .replace("{botcount}", botMembers.size);
+                .replace("{rolescount}", rolesCount as unknown as string)
+                .replace("{membercount}", interaction.guild?.memberCount as unknown as string)
+                .replace("{botcount}", botMembers?.size as unknown as string);
 
             if (messagei.includes("member")) {
-                await client.db.set(`${interaction.guild.id}.GUILD.MCOUNT.member`,
-                    { name: messagei, enable: true, event: "member", channel: channel.id }
+                await client.db.set(`${interaction.guild?.id}.GUILD.MCOUNT.member`,
+                    { name: messagei, enable: true, event: "member", channel: channel?.id }
                 );
             } else if (messagei.includes("roles")) {
-                await client.db.set(`${interaction.guild.id}.GUILD.MCOUNT.roles`,
-                    { name: messagei, enable: true, event: "roles", channel: channel.id }
+                await client.db.set(`${interaction.guild?.id}.GUILD.MCOUNT.roles`,
+                    { name: messagei, enable: true, event: "roles", channel: channel?.id }
                 );
             } else if (messagei.includes("bot")) {
-                await client.db.set(`${interaction.guild.id}.GUILD.MCOUNT.bot`,
-                    { name: messagei, enable: true, event: "bot", channel: channel.id }
+                await client.db.set(`${interaction.guild?.id}.GUILD.MCOUNT.bot`,
+                    { name: messagei, enable: true, event: "bot", channel: channel?.id }
                 );
             };
 
@@ -117,21 +120,21 @@ export const command: Command = {
                     .setTitle(data.setmembercount_logs_embed_title_on_enable)
                     .setDescription(data.setmembercount_logs_embed_description_on_enable
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                        .replace(/\${channel\.id}/g, channel.id)
+                        .replace(/\${channel\.id}/g, channel?.id)
                         .replace(/\${messagei}/g, messagei)
                     );
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { logchannel.send({ embeds: [logEmbed] }); };
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }); };
             } catch (e: any) { logger.err(e) };
-            let fetched = interaction.guild.channels.cache.get(channel.id);
+            let fetched = interaction.guild?.channels.cache.get(channel?.id as string);
 
-            fetched.edit({ name: joinmsgreplace });
+            (fetched as BaseGuildTextChannel).edit({ name: joinmsgreplace });
             await interaction.editReply({ content: data.setmembercount_command_work_on_enable });
             return;
 
         } else if (type == "off") {
-            await client.db.delete(`${interaction.guild.id}.GUILD.MCOUNT`);
+            await client.db.delete(`${interaction.guild?.id}.GUILD.MCOUNT`);
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
@@ -139,8 +142,8 @@ export const command: Command = {
                     .setDescription(data.setmembercount_logs_embed_description_on_disable
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     )
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
             } catch (e: any) { logger.err(e) };
 
             await interaction.editReply({ content: data.setmembercount_command_work_on_disable });

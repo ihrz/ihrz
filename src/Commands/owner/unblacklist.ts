@@ -21,7 +21,10 @@
 
 import {
     Client,
-    ApplicationCommandOptionType
+    ApplicationCommandOptionType,
+    ChatInputCommandInteraction,
+    GuildMember,
+    UserResolvable
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -39,8 +42,8 @@ export const command: Command = {
     ],
     thinking: false,
     category: 'owner',
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
 
         if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
             await interaction.reply({ content: data.unblacklist_not_owner });
@@ -48,28 +51,28 @@ export const command: Command = {
         };
 
         let member = interaction.options.getUser('member');
-        let fetched = await client.db.get(`GLOBAL.BLACKLIST.${member.id}`);
+        let fetched = await client.db.get(`GLOBAL.BLACKLIST.${member?.id}`);
 
         if (!fetched) {
-            await interaction.reply({ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member.id) });
+            await interaction.reply({ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member?.id) });
             return;
         };
 
         try {
-            let bannedMember = await client.users.fetch(member.user.id);
+            let bannedMember = await client.users.fetch(member?.id as UserResolvable);
 
             if (!bannedMember) {
                 await interaction.reply({ content: data.unblacklist_user_is_not_exist });
                 return;
             };
 
-            await client.db.delete(`GLOBAL.BLACKLIST.${member.id}`);
-            await interaction.guild.members.unban(bannedMember);
+            await client.db.delete(`GLOBAL.BLACKLIST.${member?.id}`);
+            await interaction.guild?.members.unban(bannedMember);
 
-            await interaction.reply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member.id) });
+            await interaction.reply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member?.id) });
             return;
         } catch (e) {
-            await client.db.delete(`GLOBAL.BLACKLIST.${member.id}`);
+            await client.db.delete(`GLOBAL.BLACKLIST.${member?.id}`);
             await interaction.reply({ content: data.unblacklist_unblacklisted_but_can_unban_him });
             return;
         };

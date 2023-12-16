@@ -20,7 +20,10 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
+    GuildChannel,
     PermissionsBitField,
 } from 'discord.js'
 
@@ -31,28 +34,26 @@ export const command: Command = {
     description: 'Re-created a channels (cloning permission and all configurations). nuke equivalent',
     category: 'utils',
     thinking: false,
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
 
-        if (!interaction.member.permissions.has([PermissionsBitField.Flags.Administrator])) {
+        if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
             await interaction.reply({ content: data.renew_not_administrator });
             return;
         };
 
-        let channel = interaction.channel;
+        let channel = interaction.channel as BaseGuildTextChannel;
 
         try {
-            await channel.delete();
+            await channel?.delete();
 
-            let here = await channel.clone({
+            let here = await channel?.clone({
                 name: channel.name,
-                permissions: channel.permissionsOverwrites,
-                type: channel.type,
-                topic: channel.withTopic,
+                parent: channel.parent,
+                permissionOverwrites: channel.permissionOverwrites.cache!,
+                topic: (channel as BaseGuildTextChannel).topic!,
                 nsfw: channel.nsfw,
-                birate: channel.bitrate,
-                userLimit: channel.userLimit,
-                rateLimitPerUser: channel.rateLimitPerUser,
+                rateLimitPerUser: channel.rateLimitPerUser!,
                 position: channel.rawPosition,
                 reason: `Channel re-create by ${interaction.user} (${interaction.user.id})`
             });

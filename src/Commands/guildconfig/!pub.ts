@@ -22,7 +22,9 @@
 import {
     Client,
     PermissionsBitField,
-    AutoModerationRuleTriggerType
+    AutoModerationRuleTriggerType,
+    ChatInputCommandInteraction,
+    TextChannel
 } from 'discord.js';
 
 interface Action {
@@ -31,16 +33,15 @@ interface Action {
 };
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let turn = interaction.options.getString("action");
         let logs_channel = interaction.options.getChannel('logs-channel');
 
-        let automodRules = await interaction.guild.autoModerationRules.fetch();
-        let KeywordPresetRule = automodRules
-            .find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
+        let automodRules = await interaction.guild?.autoModerationRules.fetch();
+        let KeywordPresetRule = automodRules?.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.blockpub_not_admin });
             return;
 
@@ -65,9 +66,8 @@ export = {
                     });
                 };
 
-                await interaction.guild.autoModerationRules.create({
+                await interaction.guild?.autoModerationRules.create({
                     name: 'Block advertissement message by iHorizon',
-                    creatorId: client.user?.id,
                     enabled: true,
                     eventType: 1,
                     triggerType: 1,
@@ -84,7 +84,6 @@ export = {
             } else if (KeywordPresetRule) {
 
                 KeywordPresetRule.edit({
-                    creatorId: client.user?.id,
                     enabled: true,
                     triggerMetadata:
                     {
@@ -104,14 +103,14 @@ export = {
                         {
                             type: 2,
                             metadata: {
-                                channel: logs_channel,
+                                channel: (logs_channel as unknown as TextChannel)
                             }
                         },
                     ]
                 });
             };
 
-            await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "on");
+            await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.antipub`, "on");
             await interaction.editReply({
                 content: data.automod_block_pub_command_on
                     .replace('${interaction.user}', interaction.user)
@@ -120,9 +119,9 @@ export = {
 
             return;
         } else if (turn === "off") {
-            await KeywordPresetRule.setEnabled(false);
+            await KeywordPresetRule?.setEnabled(false);
 
-            await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.antipub`, "off");
+            await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.antipub`, "off");
             await interaction.editReply({
                 content: data.automod_block_pub_command_off
                     .replace('${interaction.user}', interaction.user)

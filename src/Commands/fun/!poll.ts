@@ -20,16 +20,17 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
         let pollMessage = interaction.options.getString("message");
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.poll_not_admin });
             return;
         };
@@ -44,7 +45,7 @@ export = {
             .setImage("https://cdn.discordapp.com/attachments/610152915063013376/610947097969164310/loading-animation.gif")
             .setTimestamp()
 
-        let msg = await interaction.editReply({ embeds: [pollEmbed], fetchReply: true });
+        let msg = await interaction.editReply({ embeds: [pollEmbed] });
 
         await msg.react('✅');
         await msg.react('❌');

@@ -23,7 +23,9 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
-    ApplicationCommandOptionType
+    ApplicationCommandOptionType,
+    ChatInputCommandInteraction,
+    BaseGuildTextChannel
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -58,13 +60,13 @@ export const command: Command = {
     ],
     category: 'utils',
     thinking: false,
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
 
         let type = interaction.options.getString("action");
         let argsid = interaction.options.getRole("roles");
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.setrankroles_not_admin });
             return;
         };
@@ -84,19 +86,19 @@ export const command: Command = {
                         .replace(/\${argsid}/g, argsid.id)
                     );
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) };
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
 
             try {
-                let already = await client.db.get(`${interaction.guild.id}.GUILD.RANK_ROLES.roles`);
+                let already = await client.db.get(`${interaction.guild?.id}.GUILD.RANK_ROLES.roles`);
 
                 if (already === argsid.id) {
                     await interaction.reply({ content: data.setrankroles_already_this_in_db });
                     return;
                 };
 
-                await client.db.set(`${interaction.guild.id}.GUILD.RANK_ROLES.roles`, argsid.id);
+                await client.db.set(`${interaction.guild?.id}.GUILD.RANK_ROLES.roles`, argsid.id);
 
                 let e = new EmbedBuilder().setDescription(data.setrankroles_command_work.replace(/\${argsid}/g, argsid.id));
 
@@ -117,12 +119,12 @@ export const command: Command = {
                         .replace(/\${interaction\.user.id}/g, interaction.user.id)
                     )
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { logchannel.send({ embeds: [logEmbed] }) }
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
             } catch (e: any) { logger.err(e) };
 
             try {
-                await client.db.delete(`${interaction.guild.id}.GUILD.RANK_ROLES.roles`);
+                await client.db.delete(`${interaction.guild?.id}.GUILD.RANK_ROLES.roles`);
 
                 await interaction.reply({
                     content: data.setrankroles_command_work_disable

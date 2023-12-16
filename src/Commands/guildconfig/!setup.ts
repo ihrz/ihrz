@@ -24,19 +24,21 @@ import {
     PermissionsBitField,
     ChannelType,
     PermissionFlagsBits,
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
 } from 'discord.js';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setup_not_admin });
             return;
         };
 
-        let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+        let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
         if (!logchannel) {
-            interaction.guild.channels.create({
+            interaction.guild?.channels.create({
                 name: 'ihorizon-logs',
                 type: ChannelType.GuildText,
                 permissionOverwrites: [

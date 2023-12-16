@@ -42,13 +42,13 @@ export = async (client: Client) => {
     };
 
     async function fetchInvites() {
-        client.guilds.cache.forEach(async (guild: any) => {
+        client.guilds.cache.forEach(async (guild) => {
             try {
-                if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+                if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
 
                 var firstInvites = await guild.invites.fetch();
 
-                client.invites.set(guild.id, new Collection(firstInvites.map((invite: any) => [invite.code, invite.uses])));
+                client.invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
             } catch (error: any) {
                 logger.err(couleurmdr.red(`Error fetching invites for guild ${guild.id}: ${error}`));
             };

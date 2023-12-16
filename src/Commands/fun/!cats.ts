@@ -20,6 +20,7 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
 } from 'discord.js';
@@ -27,7 +28,7 @@ import {
 import axios from 'axios';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
         
         axios.get('http://edgecats.net/random').then(async res => {
             let emb = new EmbedBuilder()

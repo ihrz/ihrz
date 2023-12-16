@@ -23,7 +23,8 @@ import {
     Client,
     ApplicationCommandOptionType,
     EmbedBuilder,
-    PermissionsBitField
+    PermissionsBitField,
+    ChatInputCommandInteraction
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -41,14 +42,14 @@ export const command: Command = {
         },
     ],
     thinking: true,
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
-        let str = interaction.options.getString('emojis').split(' ');
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let str = (interaction.options.getString('emojis') as string).split(' ');
         let cnt: number = 0;
         let nemj: string = '';
 
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.punishpub_not_admin });
             return;
         };
@@ -58,11 +59,11 @@ export const command: Command = {
             if (match) {
                 let isAnimated = emoji.startsWith('<a:');
 
-                await interaction.guild.emojis.create({
+                await interaction.guild?.emojis.create({
                     attachment: `https://cdn.discordapp.com/emojis/${match[2]}.${isAnimated ? 'gif' : 'png'}`,
                     name: match[1]
-                }).then((emoji: any) => {
-                    interaction.channel.send(data.emoji_send_new_emoji
+                }).then((emoji) => {
+                    interaction.channel?.send(data.emoji_send_new_emoji
                         .replace('${emoji.name}', emoji.name)
                         .replace('${emoji}', emoji)
                     );
@@ -70,8 +71,8 @@ export const command: Command = {
                     cnt++;
                     nemj += `<${isAnimated ? 'a:' : ':'}${emoji.name}:${emoji.id}>`
                 }).catch((err: any) => {
-                    interaction.channel.send(data.emoji_send_err_emoji
-                        .replace('${emoji.name}', emoji.name)
+                    interaction.channel?.send(data.emoji_send_err_emoji
+                        .replace('${emoji.name}', emoji)
                     );
                 });
             }
@@ -83,7 +84,7 @@ export const command: Command = {
             .setTimestamp()
             .setDescription(data.emoji_embed_desc_work
                 .replace('${cnt}', cnt)
-                .replace('${interaction.guild.name}', interaction.guild.name)
+                .replace('${interaction.guild.name}', interaction.guild?.name)
                 .replace('${nemj}', nemj)
             )
 

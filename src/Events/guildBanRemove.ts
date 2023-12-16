@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, GuildChannel, GuildChannelManager, Message, MessageManager } from "discord.js";
+import { BaseGuildTextChannel, Client, GuildChannel, GuildChannelManager, Message, MessageManager } from "discord.js";
 
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
 
@@ -36,23 +36,23 @@ export = async (client: Client, ban: GuildBan) => {
             limit: 1,
         });
 
-        var firstEntry: any = fetchedLogs.entries.first();
+        var firstEntry = fetchedLogs.entries.first();
         let someinfo = await client.db.get(`${ban.guild.id}.GUILD.SERVER_LOGS.moderation`);
 
         if (!someinfo) return;
 
-        let Msgchannel: any = client.channels.cache.get(someinfo);
+        let Msgchannel = client.channels.cache.get(someinfo);
         if (!Msgchannel) return;
 
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setDescription(data.event_srvLogs_banRemove_description
-                .replace("${firstEntry.executor.id}", firstEntry.executor.id)
-                .replace("${firstEntry.target.username}", firstEntry.target.username)
+                .replace("${firstEntry.executor.id}", firstEntry?.executor?.id)
+                .replace("${firstEntry.target.username}", firstEntry?.target?.username)
             )
             .setTimestamp();
 
-        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
+        await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
     };
     serverLogs();
 };

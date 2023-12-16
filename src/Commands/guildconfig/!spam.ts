@@ -22,7 +22,8 @@
 import {
     Client,
     PermissionsBitField,
-    AutoModerationRuleTriggerType
+    AutoModerationRuleTriggerType,
+    ChatInputCommandInteraction
 } from 'discord.js';
 
 interface Action {
@@ -31,17 +32,16 @@ interface Action {
 };
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         let turn = interaction.options.getString("action");
         let logs_channel = interaction.options.getChannel('logs-channel');
 
-        let automodRules = await interaction.guild.autoModerationRules.fetch();
+        let automodRules = await interaction.guild?.autoModerationRules.fetch();
 
-        let spamRule = automodRules
-            .find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Spam);
+        let spamRule = automodRules?.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Spam);
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.blockpub_not_admin });
             return;
         } else if (turn === "on") {
@@ -64,9 +64,8 @@ export = {
             };
 
             if (!spamRule) {
-                await interaction.guild.autoModerationRules.create({
+                await interaction.guild?.autoModerationRules.create({
                     name: 'Block spam by iHorizon',
-                    creatorId: client.user?.id,
                     enabled: true,
                     eventType: 1,
                     triggerType: 3,
@@ -81,7 +80,6 @@ export = {
 
                 await spamRule.edit({
                     name: 'Block spam by iHorizon',
-                    creatorId: client.user?.id,
                     enabled: true,
                     triggerMetadata:
                     {
@@ -91,7 +89,7 @@ export = {
                 });
             };
 
-            await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.spam`, "on");
+            await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.spam`, "on");
             await interaction.editReply({
                 content: data.automod_block_spam_command_on
                     .replace('${interaction.user}', interaction.user)
@@ -100,9 +98,9 @@ export = {
             return;
         } else if (turn === "off") {
 
-            await spamRule.setEnabled(false);
+            await spamRule?.setEnabled(false);
 
-            await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.spam`, "off");
+            await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.spam`, "off");
             await interaction.editReply({
                 content: data.automod_block_spam_command_off
                     .replace('${interaction.user}', interaction.user)

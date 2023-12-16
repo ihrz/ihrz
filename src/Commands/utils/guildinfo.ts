@@ -20,8 +20,11 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
+    GuildVerificationLevel,
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -31,10 +34,10 @@ export const command: Command = {
     description: 'Get information about the server!',
     category: 'utils',
     thinking: false,
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
 
-        let verlvl: any = {
+        let verlvl = {
             0: data.serverinfo_verlvl_NONE,
             1: data.serverinfo_verlvl_LOW,
             2: data.serverinfo_verlvl_MEDIUM,
@@ -46,27 +49,27 @@ export const command: Command = {
             .setColor("#C3B2A1")
             .setAuthor({
                 name: data.serverinfo_embed_author
-                    .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-                , iconURL: interaction.guild.iconURL({ dynamic: true })
+                    .replace(/\${interaction\.guild\.name}/g, interaction.guild?.name)
+                , iconURL: interaction.guild?.iconURL() as string
             })
             .setDescription(data.serverinfo_embed_description
-                .replace(/\${interaction\.guild\.description}/g, interaction.guild.description || 'None'))
+                .replace(/\${interaction\.guild\.description}/g, interaction.guild?.description || 'None'))
             .addFields(
-                { name: data.serverinfo_embed_fields_name, value: `\`${interaction.guild.name}\``, inline: true },
-                { name: data.serverinfo_embed_fields_members, value: `\`${interaction.guild.memberCount}\``, inline: true },
-                { name: data.serverinfo_embed_fields_id, value: `\`${interaction.guild.id}\``, inline: true },
-                { name: data.serverinfo_embed_fields_owner, value: `\<@${interaction.guild.ownerId}>`, inline: true },
-                { name: data.serverinfo_embed_fields_verlvl, value: `\`${verlvl[interaction.guild.verificationLevel]}\``, inline: true },
-                { name: data.serverinfo_embed_fields_region, value: `\`${interaction.guild.preferredLocale}\``, inline: true },
-                { name: data.serverinfo_embed_fields_roles, value: `\`${interaction.guild.roles.cache.size}\``, inline: true },
-                { name: data.serverinfo_embed_fields_channels, value: `\`${interaction.guild.channels.cache.size}\``, inline: true },
-                { name: data.serverinfo_embed_fields_joinat, value: `\`${interaction.member.joinedAt}\``, inline: true },
-                { name: data.serverinfo_embed_fields_createat, value: `\`${interaction.guild.createdAt}\``, inline: true }
+                { name: data.serverinfo_embed_fields_name, value: `\`${interaction.guild?.name}\``, inline: true },
+                { name: data.serverinfo_embed_fields_members, value: `\`${interaction.guild?.memberCount}\``, inline: true },
+                { name: data.serverinfo_embed_fields_id, value: `\`${interaction.guild?.id}\``, inline: true },
+                { name: data.serverinfo_embed_fields_owner, value: `\<@${interaction.guild?.ownerId}>`, inline: true },
+                { name: data.serverinfo_embed_fields_verlvl, value: `\`${verlvl[interaction.guild?.verificationLevel as GuildVerificationLevel]}\``, inline: true },
+                { name: data.serverinfo_embed_fields_region, value: `\`${interaction.guild?.preferredLocale}\``, inline: true },
+                { name: data.serverinfo_embed_fields_roles, value: `\`${interaction.guild?.roles.cache.size}\``, inline: true },
+                { name: data.serverinfo_embed_fields_channels, value: `\`${interaction.guild?.channels.cache.size}\``, inline: true },
+                { name: data.serverinfo_embed_fields_joinat, value: `\`${(interaction.member as GuildMember)?.joinedAt}\``, inline: true },
+                { name: data.serverinfo_embed_fields_createat, value: `\`${interaction.guild?.createdAt}\``, inline: true }
             )
             .setFooter({ text: `iHorizon`, iconURL: client.user?.displayAvatarURL() })
             .setTimestamp()
-            .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
-            .setImage(`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.banner}.png`);
+            .setThumbnail(interaction.guild?.iconURL() as string)
+            .setImage(`https://cdn.discordapp.com/icons/${interaction.guild?.id}/${interaction.guild?.banner}.png`);
 
         await interaction.reply({ embeds: [embeds] });
         return;

@@ -20,20 +20,23 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
+    GuildMember,
 } from 'discord.js';
 
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
-        if (!interaction.member.voice.channel) {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+
+        if (!(interaction.member as GuildMember)?.voice.channel) {
             await interaction.editReply({ content: data.pause_no_queue });
             return;
         };
         
         try {
-            let queue = interaction.client.player.nodes.get(interaction.guild);
+            let queue = interaction.client.player.nodes.get(interaction.guild!);
             if (!queue || !queue.isPlaying()) {
                 await interaction.deleteReply();    
                 await interaction.followUp({ content: data.pause_nothing_playing, ephemeral: true });

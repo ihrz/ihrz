@@ -20,6 +20,8 @@
 */
 
 import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     PermissionsBitField,
@@ -28,9 +30,9 @@ import {
 import logger from '../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setjoindm_not_admin });
             return;
         };
@@ -47,10 +49,10 @@ export = {
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     );
 
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
-                    logchannel.send({ embeds: [logEmbed] })
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
                 };
             } catch (e: any) {
                 logger.err(e)
@@ -62,7 +64,7 @@ export = {
                     return;
                 };
 
-                await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`, dm_msg);
+                await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joindm`, dm_msg);
                 await interaction.editReply({
                     content: data.setjoindm_confirmation_message_on_enable
                         .replace(/\${dm_msg}/g, dm_msg)
@@ -81,20 +83,20 @@ export = {
                     .setDescription(data.setjoindm_logs_embed_description_on_disable
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     )
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                logchannel.send({ embeds: [logEmbed] })
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
             } catch (e) {
                 return;
             };
 
             try {
-                let already_off = await client.db.get(`joindm-${interaction.guild.id}`);
+                let already_off = await client.db.get(`joindm-${interaction.guild?.id}`);
                 if (already_off === "off") {
                     await interaction.editReply({ content: data.setjoindm_already_disable });
                     return;
                 };
-                
-                await client.db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`);
+
+                await client.db.delete(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joindm`);
                 await interaction.editReply({ content: data.setjoindm_confirmation_message_on_disable });
                 return;
 
@@ -104,7 +106,7 @@ export = {
             };
 
         } else if (type === "ls") {
-            let already_off = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joindm`);
+            let already_off = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joindm`);
             if (!already_off) {
                 await interaction.editReply({ content: data.setjoindm_not_setup_ls });
                 return;

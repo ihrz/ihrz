@@ -20,14 +20,14 @@
 */
 
 import {
-    Client, ChannelType, Collection, EmbedBuilder, PermissionFlagsBits,
-    Permissions, PermissionsBitField, User, ReactionEmoji, Message, GuildMember,
-    MessageReaction, ReactionManager, Guild
+    Client,
+    MessageReaction,
+    User,
 } from 'discord.js';
 
 import logger from '../core/logger';
 
-export = async (client: Client, reaction: any, user: User) => {
+export = async (client: Client, reaction: MessageReaction, user: User) => {
     let data = await client.functions.getLanguageData(reaction.message.guildId);
 
     async function reactionRole() {
@@ -39,8 +39,8 @@ export = async (client: Client, reaction: any, user: User) => {
                 let role = reaction.message.guild.roles.cache.get(fetched.rolesID);
                 if (!role) return;
 
-                let member: any = reaction.message.guild.members.cache.get(user.id);
-                await member.roles.add(role).catch(() => { });
+                let member = reaction.message.guild.members.cache.get(user.id);
+                await member?.roles.add(role).catch(() => { });
                 return;
             };
 
@@ -50,8 +50,8 @@ export = async (client: Client, reaction: any, user: User) => {
                 let role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);
                 if (!role) return;
 
-                let member: any = reaction.message.guild.members.cache.get(user.id);
-                await member.roles.add(role).catch(() => { });
+                let member = reaction.message.guild.members.cache.get(user.id);
+                await member?.roles.add(role).catch(() => { });
                 return;
             };
         } catch (e: any) {

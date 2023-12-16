@@ -43,12 +43,13 @@ export const command: Command = {
     thinking: false,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guildId);
-        if (!(interaction as any).member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.setserverlang_not_admin });
             return;
         };
         await interaction.deferReply() && interaction.deleteReply();
-        await (interaction as any).channel.send({
+        await interaction.channel?.send({
             content: `> ${interaction.options.getString('content')}${data.say_footer_msg.replace('${interaction.user}', interaction.user)}`
         });
         return;

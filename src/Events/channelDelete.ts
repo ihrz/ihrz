@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent, GuildChannel, GuildChannelEditOptions, Guild, BaseChannel, GuildTextBasedChannel } from 'discord.js'
+import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent, GuildChannel, GuildChannelEditOptions, Guild, BaseChannel, GuildTextBasedChannel, BaseGuildTextChannel } from 'discord.js'
 
 export = async (client: Client, channel: GuildChannel) => {
 
@@ -32,34 +32,30 @@ export = async (client: Client, channel: GuildChannel) => {
                 type: AuditLogEvent.ChannelDelete,
                 limit: 1,
             });
-            var firstEntry: any = fetchedLogs.entries.first();
-            if (firstEntry.targetId !== channel.id) return;
+            var firstEntry = fetchedLogs.entries.first();
+            if (firstEntry?.targetId !== channel.id) return;
             if (firstEntry.executorId === client.user?.id) return;
 
             let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
             if (!baseData) {
-
-                (await channel.clone({
+                (await channel?.clone({
                     name: channel.name,
-                    permissions: (channel as any).permissionsOverwrites,
-                    type: channel.type,
-                    topic: (channel as any).withTopic,
-                    nsfw: (channel as any).nsfw,
-                    birate: (channel as any).bitrate,
-                    userLimit: (channel as any).userLimit,
-                    rateLimitPerUser: (channel as any).rateLimitPerUser,
+                    parent: channel.parent,
+                    permissionOverwrites: channel.permissionOverwrites.cache!,
+                    topic: (channel as BaseGuildTextChannel).topic!,
+                    nsfw: (channel as BaseGuildTextChannel).nsfw,
+                    rateLimitPerUser: (channel as BaseGuildTextChannel).rateLimitPerUser!,
                     position: channel.rawPosition,
                     reason: `Channel re-create by Protect (${firstEntry.executorId} break the rule!)`
-                } as any) as GuildTextBasedChannel).send(`**PROTECT MODE ON**\n<@${channel.guild.ownerId}>, the channel are recreated, <@${firstEntry.executorId}> attempt to delete the channel!`)
-
-                let user = await channel.guild.members.cache.get(firstEntry.executorId);
+                }) as BaseGuildTextChannel).send(`**PROTECT MODE ON**\n<@${channel.guild.ownerId}>, the channel are recreated, <@${firstEntry.executorId}> attempt to delete the channel!`)
+                let user = await channel.guild.members.cache.get(firstEntry?.executorId as string);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':
                         break;
                     case 'simply+derank':
-                        user?.guild.roles.cache.forEach((element: any) => {
+                        user?.guild.roles.cache.forEach((element) => {
                             if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
                                 user.roles.remove(element.id);
                             };

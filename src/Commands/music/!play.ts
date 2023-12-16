@@ -20,16 +20,19 @@
 */
 
 import {
+    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
+    GuildVoiceChannelResolvable,
 } from 'discord.js';
 
 import { QueryType } from 'discord-player';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        let voiceChannel = interaction.member.voice.channel;
+        let voiceChannel = (interaction.member as GuildMember)?.voice.channel;
         let check = interaction.options.getString("title");
 
         if (!voiceChannel) {
@@ -38,7 +41,7 @@ export = {
         };
         //if (!client.functions.isLinkAllowed(check)) { return interaction.editReply({ content: data.p_not_allowed }) };
 
-        let result = await interaction.client.player.search(check, {
+        let result = await interaction.client.player.search(check as string, {
             requestedBy: interaction.user, searchEngine: QueryType.AUTO
         });
 
@@ -52,7 +55,7 @@ export = {
             return;
         };
 
-        let yes = await interaction.client.player.play(interaction.member.voice.channel?.id, result, {
+        let yes = await interaction.client.player.play((interaction.member as GuildMember).voice.channel?.id as GuildVoiceChannelResolvable, result, {
             nodeOptions: {
                 metadata: {
                     channel: interaction.channel,
@@ -66,13 +69,12 @@ export = {
                 leaveOnStop: true,
                 leaveOnStopCooldown: 30000,
                 leaveOnEmpty: true,
-                leaveOnEmptyCooldown: 300000,
             },
         });
 
         function yess() {
-            let totalDurationMs = yes.track.playlist.tracks.reduce((a: any, c: { durationMS: any; }) => c.durationMS + a, 0)
-            let totalDurationSec = Math.floor(totalDurationMs / 1000);
+            let totalDurationMs = yes.track.playlist?.tracks.reduce((a, c) => c.durationMS + a, 0)
+            let totalDurationSec = Math.floor(totalDurationMs! / 1000);
             let hours = Math.floor(totalDurationSec / 3600);
             let minutes = Math.floor((totalDurationSec % 3600) / 60);
             let seconds = totalDurationSec % 60;

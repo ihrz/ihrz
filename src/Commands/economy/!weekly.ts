@@ -22,15 +22,16 @@
 import {
     Client,
     EmbedBuilder,
+    ChatInputCommandInteraction
 } from 'discord.js';
 
 import ms from 'ms';
 
 export = {
-    run: async (client: Client, interaction: any, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
         let timeout = 604800000;
         let amount = 1000;
-        let weekly = await client.db.get(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.weekly`);
+        let weekly = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.weekly`);
 
         if (weekly !== null && timeout - (Date.now() - weekly) > 0) {
             let time = ms(timeout - (Date.now() - weekly));
@@ -41,14 +42,14 @@ export = {
             })
         } else {
             let embed = new EmbedBuilder()
-                .setAuthor({ name: data.weekly_embed_title, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
+                .setAuthor({ name: data.weekly_embed_title, iconURL: interaction.user.displayAvatarURL() })
                 .setColor("#a4cb80")
                 .setDescription(data.weekly_embed_description)
                 .addFields({ name: data.weekly_embed_fields, value: `${amount}🪙` })
 
 
-            await client.db.add(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
-            await client.db.set(`${interaction.guild.id}.USER.${interaction.user.id}.ECONOMY.weekly`, Date.now());
+            await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
+            await client.db.set(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.weekly`, Date.now());
 
             await interaction.reply({ embeds: [embed] });
             return;

@@ -19,14 +19,14 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan, Client, BaseClient, Channel, GuildChannel, Message, GuildMember, Role } from 'discord.js';
+import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan, Client, BaseClient, Channel, GuildChannel, Message, GuildMember, Role, BaseGuildTextChannel } from 'discord.js';
 
 export = async (client: Client, member: GuildMember) => {
     let data = await client.functions.getLanguageData(member.guild.id);
 
     async function memberCount() {
         try {
-            let botMembers = member.guild.members.cache.filter((member: { user: { bot: any; }; }) => member.user.bot);
+            let botMembers = member.guild.members.cache.filter((member) => member.user.bot);
             let rolesCount = member.guild.roles.cache.size;
 
             let baseData = await client.db.get(`${member.guild.id}.GUILD.MCOUNT`);
@@ -78,15 +78,18 @@ export = async (client: Client, member: GuildMember) => {
             if (!lChan || !client.channels.cache.get(lChan)) return;
 
             let joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leavemessage`);
+
             if (!joinMessage) {
-                let lChanManager: any = client.channels.cache.get(lChan)
-                return lChanManager.send({
+                let lChanManager = client.channels.cache.get(lChan);
+
+                (lChanManager as BaseGuildTextChannel).send({
                     content: data.event_goodbye_inviter
                         .replace("${member.id}", member.id)
                         .replace("${member.guild.name}", member.guild.name)
                         .replace("${inviter.tag}", inviter.username)
                         .replace("${fetched}", invitesAmount)
                 });
+                return;
             };
 
             var joinMessageFormated = joinMessage
@@ -96,15 +99,16 @@ export = async (client: Client, member: GuildMember) => {
                 .replace("{inviter}", inviter.username)
                 .replace("{invites}", invitesAmount);
 
-            let lChanManager: any = client.channels.cache.get(lChan)
-            lChanManager.send({ content: joinMessageFormated }).catch(() => { });
+            let lChanManager = client.channels.cache.get(lChan);
+
+            (lChanManager as BaseGuildTextChannel).send({ content: joinMessageFormated }).catch(() => { });
         } catch (e) {
             let lChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`);
 
             if (!lChan || !client.channels.cache.get(lChan)) return;
-            let lChanManager: any = client.channels.cache.get(lChan)
+            let lChanManager = client.channels.cache.get(lChan);
 
-            await lChanManager.send({
+            await (lChanManager as BaseGuildTextChannel).send({
                 content: data.event_goodbye_default
                     .replace("${member.id}", member.id)
                     .replace("${member.guild.name}", member.guild.name)
@@ -129,7 +133,7 @@ export = async (client: Client, member: GuildMember) => {
         let someinfo = await client.db.get(`${member.guild.id}.GUILD.SERVER_LOGS.moderation`);
         if (!someinfo) return;
 
-        let Msgchannel: any = client.channels.cache.get(someinfo);
+        let Msgchannel = client.channels.cache.get(someinfo);
         if (!Msgchannel) return;
 
         let logsEmbed = new EmbedBuilder()
@@ -140,7 +144,7 @@ export = async (client: Client, member: GuildMember) => {
             )
             .setTimestamp();
 
-        await Msgchannel.send({ embeds: [logsEmbed] }).catch(() => { });
+        await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
     };
 
     async function rolesSaver() {
@@ -155,16 +159,16 @@ export = async (client: Client, member: GuildMember) => {
                     // Ignorer le rôle @everyone
                     return;
                 }
-            
+
                 if (role.permissions.has(PermissionsBitField.Flags.Administrator) && admin === 'no') {
                     // Ignorer le rôle d'administrateur si admin est "no"
                     return;
                 }
-            
+
                 // Ajouter tous les autres rôles
                 rolesArray.push(role.id);
             });
-            
+
             await client.db.set(`${member.guild.id}.ROLE_SAVER.${member.user.id}`, rolesArray);
             return;
         }

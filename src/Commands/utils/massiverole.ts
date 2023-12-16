@@ -23,7 +23,10 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
-    ApplicationCommandOptionType
+    ApplicationCommandOptionType,
+    ChatInputCommandInteraction,
+    Role,
+    Guild
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -57,8 +60,8 @@ export const command: Command = {
     ],
     category: 'utils',
     thinking: true,
-    run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
 
         let action = interaction.options.getString("action");
         let role = interaction.options.getRole("role");
@@ -67,12 +70,12 @@ export const command: Command = {
         let s: number = 0;
         let e: number = 0;
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.prevnames_not_admin });
             return;
         };
 
-        if (interaction.guild.memberCount >= 1500) {
+        if ((interaction.guild as Guild).memberCount >= 1500) {
             await interaction.editReply({ content: data.massiverole_too_much_member });
             return;
         };
@@ -80,12 +83,12 @@ export const command: Command = {
         if (action === 'add') {
 
             try {
-                let members = await interaction.guild.members.fetch();
+                let members = await interaction.guild?.members.fetch();
                 let promises = [];
 
-                for (let [memberID, member] of members) {
-                    if (!member.roles.cache.has(role.id)) {
-                        let promise = member.roles.add(role)
+                for (let [memberID, member] of members!) {
+                    if (!member.roles.cache.has(role?.id!)) {
+                        let promise = member.roles.add(role as Role)
                             .then(() => {
                                 a++;
                             })
@@ -105,7 +108,7 @@ export const command: Command = {
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                 .setColor('#007fff')
                 .setTimestamp()
-                .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
+                .setThumbnail(interaction.guild?.iconURL() as string)
                 .setDescription(data.massiverole_add_command_work
                     .replace('${interaction.user}', interaction.user)
                     .replace('${a}', a)
@@ -119,12 +122,12 @@ export const command: Command = {
         } else if (action === 'sub') {
 
             try {
-                let members = await interaction.guild.members.fetch();
+                let members = await interaction.guild?.members.fetch();
                 let promises = [];
 
-                for (let [memberID, member] of members) {
-                    if (member.roles.cache.has(role.id)) {
-                        let promise = member.roles.remove(role)
+                for (let [memberID, member] of members!) {
+                    if (member.roles.cache.has(role?.id!)) {
+                        let promise = member.roles.remove(role as Role)
                             .then(() => {
                                 a++;
                             })
@@ -144,7 +147,7 @@ export const command: Command = {
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                 .setColor('#007fff')
                 .setTimestamp()
-                .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
+                .setThumbnail(interaction.guild?.iconURL() as string)
                 .setDescription(data.massiverole_sub_command_work
                     .replace('${interaction.user}', interaction.user)
                     .replace('${a}', a)
