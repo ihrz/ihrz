@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder } from 'discord.js';
+import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature } from 'discord.js';
 import { Init } from "../core/pfpsManager";
 import logger from "../core/logger";
 import couleurmdr from 'colors';
@@ -44,10 +44,14 @@ export = async (client: Client) => {
         client.guilds.cache.forEach(async (guild) => {
             try {
                 if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
-
                 var firstInvites = await guild.invites.fetch();
-
                 client.invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
+
+                if (guild.features.includes(GuildFeature.VanityURL)) {
+                    guild.fetchVanityData().then((vanityInvite) => {
+                        client.vanityInvites.set(guild.id, vanityInvite);
+                    });
+                }
             } catch (error: any) {
                 logger.err(couleurmdr.red(`Error fetching invites for guild ${guild.id}: ${error}`));
             };

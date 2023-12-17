@@ -19,22 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Collection } from "discord.js";
-import { clientFunction } from "./clientFunction";
-import { Command } from "./command";
-import { QuickDB } from "quick.db";
-import { Player } from 'discord-player';
-import { DataBase } from "./database";
-
-declare module 'discord.js' {
-    export interface Client {
-        functions: clientFunction,
-        commands: Collection<string, Command>,
-        player: Player,
-        invites: Collection,
-        vanityInvites: Collection<Snowflake, VanityInviteData>,
-        buttons: Collection<string, Function>,
-        selectmenu: Collection<string, Function>,
-        db: DataBase
-    }
+export interface VanityInviteData {
+    uses: number | null,
+    code: string | null,
 };
