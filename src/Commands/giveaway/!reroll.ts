@@ -58,7 +58,7 @@ export = {
 
         await Reroll(client, {
             guildId: interaction.guild?.id,
-            messageId: inputData,
+            messageId: inputData as string,
         });
 
         await interaction.editReply({ content: data.reroll_command_work });

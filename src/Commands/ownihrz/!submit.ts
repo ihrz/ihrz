@@ -42,7 +42,7 @@ export = {
         };
 
         let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, config)
-            .catch((e: any) => { }))?.data || 404;
+            .catch(() => { }))?.data || 404;
 
         if (bot_1 === 404) {
             await interaction.reply({ content: data.mybot_submit_token_invalid });

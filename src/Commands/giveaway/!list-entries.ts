@@ -57,7 +57,7 @@ export = {
 
         await ListEntries(interaction, {
             guildId: interaction.guild?.id,
-            messageId: inputData,
+            messageId: inputData as string,
         })
 
         return;

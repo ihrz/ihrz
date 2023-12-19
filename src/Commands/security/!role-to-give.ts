@@ -32,13 +32,13 @@ export = {
         let role = interaction.options.getRole("role");
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.security_role_to_give_not_admin });
+            await interaction.reply({ content: data.security_role_to_give_not_admin });
             return;
         };
 
         await client.db.set(`${interaction.guild?.id}.SECURITY.role`, role?.id);
 
-        await interaction.editReply({
+        await interaction.reply({
             content: data.security_role_to_give_command_work
                 .replace('${interaction.user}', interaction.user)
                 .replace('${role}', role)

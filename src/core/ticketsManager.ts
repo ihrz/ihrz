@@ -35,6 +35,7 @@ import {
     User,
     Interaction,
     UserSelectMenuInteraction,
+    Role,
 } from 'discord.js';
 
 import * as discordTranscripts from 'discord-html-transcripts';
@@ -119,7 +120,11 @@ async function CreateTicketChannel(interaction: ButtonInteraction<CacheType>) {
     };
 };
 
-async function CreateChannel(interaction: ButtonInteraction<CacheType>, result: any) {
+interface Result {
+    panelName: string
+};
+
+async function CreateChannel(interaction: ButtonInteraction<CacheType>, result: Result) {
     let lang = await interaction.client.functions.getLanguageData(interaction.guild?.id);
     let category = await db.get(`${interaction.message.guildId}.GUILD.TICKET.category`);
 
@@ -139,14 +144,22 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType>, result: 
             channel.lockPermissions();
         };
 
-        channel.permissionOverwrites.edit(interaction.guild?.roles.everyone!,
+        channel.permissionOverwrites.edit(interaction.guild?.roles.everyone as Role,
             {
-                ViewChannel: false, SendMessages: false, ReadMessageHistory: false
+                ViewChannel: false,
+                SendMessages: false,
+                ReadMessageHistory: false
             }
         );
+
         channel.permissionOverwrites.edit(interaction.user.id,
             {
-                ViewChannel: true, SendMessages: true, ReadMessageHistory: true, AttachFiles: true
+                ViewChannel: true,
+                SendMessages: true,
+                ReadMessageHistory: true,
+                AttachFiles: true,
+                UseApplicationCommands: true,
+                SendVoiceMessages: true
             }
         );
 

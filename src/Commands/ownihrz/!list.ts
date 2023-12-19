@@ -52,7 +52,7 @@ export = {
                 };
 
                 let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, config)
-                    .catch((e: any) => { }))?.data || 404;
+                    .catch(() => { }))?.data || 404;
 
                 let utils_msg = data.mybot_list_utils_msg
                     .replace('${data_2[i].bot.id}', data_2[i].bot.id)

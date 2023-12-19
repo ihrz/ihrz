@@ -19,20 +19,20 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { EmbedBuilder } from 'discord.js';
+import { BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
 import logger from "../../logger";
 
-export = function (client: any, args: string) {
+export = function (client: Client, args: string) {
     let args2 = args.split(" ");
     let embed = new EmbedBuilder()
         .setColor('#4dff00')
         .setTitle('@Broadcast message')
         .setDescription(`\`${args2.slice(0).join(" ")}\``)
-        .setFooter({ text: `Kisakay - iHorizon`, iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) });
+        .setFooter({ text: `Kisakay - iHorizon`, iconURL: client.user?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 4096 }) });
 
-    client.guilds.cache.forEach(async (guild: any) => {
+    client.guilds.cache.forEach(async (guild) => {
         let channel = guild.channels.cache.find((role: { name: string; }) => role.name === 'ihorizon-logs'); 
-        if (channel) { channel.send({ content: "@here", embeds: [embed] }) };
+        if (channel) { (channel as BaseGuildTextChannel).send({ content: "@here", embeds: [embed] }) };
     });
 
     logger.legacy(`* All are successfully sended`.gray.bgBlack);

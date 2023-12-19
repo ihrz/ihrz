@@ -60,7 +60,7 @@ export = {
 
         await End(client, {
             guildId: interaction.guild?.id,
-            messageId: inputData,
+            messageId: inputData as string,
         });
 
         await interaction.editReply({

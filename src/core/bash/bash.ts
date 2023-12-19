@@ -26,8 +26,9 @@ import readline from 'readline';
 import fs from 'fs';
 import config from "../../files/config";
 import path from 'path';
+import { Client } from "discord.js";
 
-export = async (client: any) => {
+export = async (client: Client) => {
     if (config.core.bash) {
 
         let rl = readline.createInterface({
@@ -47,14 +48,14 @@ export = async (client: any) => {
         logger.legacy(`* iHorizon has been loaded !`.gray.bgBlack);
 
         let now = new Date();
-        let options: any = {
+
+        let formattedDate = now.toLocaleDateString('fr-FR', {
             day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit',
             minute: '2-digit', second: '2-digit', timeZone: 'UTC'
-        };
+        });
 
-        let formattedDate = now.toLocaleDateString('fr-FR', options),
-            LoadFiles = await client.db.get(`BASH.LAST_LOGIN`) || "None",
-            LoadFiles2 = "127.0.0.1";
+        let LoadFiles = await client.db.get(`BASH.LAST_LOGIN`) || "None";
+        let LoadFiles2 = "127.0.0.1";
 
         let filePath = path.join(process.cwd(), 'src', 'core', 'bash', 'history', '.bash_history'),
             createFiles = fs.createWriteStream(filePath, { flags: 'a' });
@@ -74,7 +75,7 @@ export = async (client: any) => {
 
         rl.setPrompt('kisakay@ihorizon'.green + ":".white + "~".blue + "$ ".white);
         rl.prompt();
-        rl.on('line', (line: { trim: () => { (): any; new(): any; split: { (arg0: string): [any, ...any[]]; new(): any; }; }; }) => {
+        rl.on('line', (line) => {
             let [commandName, ...args] = line.trim().split(' '),
                 commandPath = `${process.cwd()}/dist/src/core/bash/commands/${commandName}.js`;
             if (fs.existsSync(commandPath)) {

@@ -50,11 +50,9 @@ let generate = async (width: number, height: number) => {
   let image = await new Jimp(width, height);
   image.rotate(randomRotation());
   let text = await configureText(image, width, height);
+  let img = await image.getBase64Async(Jimp.MIME_PNG) as string;
 
-  return {
-    image: await image.getBase64Async(Jimp.MIME_PNG).toString(),
-    text: text
-  };
+  return { image: img, text: text };
 };
 
 export = generate;

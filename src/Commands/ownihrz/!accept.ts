@@ -66,7 +66,7 @@ export = {
         };
 
         let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, config_2)
-            .catch((e: any) => { }))?.data || 404;
+            .catch(() => { }))?.data || 404;
 
         if (bot_1 === 404) {
             await interaction.reply({ content: data.mybot_manage_accept_token_error });
