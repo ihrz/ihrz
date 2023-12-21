@@ -26,8 +26,7 @@ import { TextChannel } from 'discord.js';
 interface DatabaseAction {
     id: number;
     key?: string;
-    value?: any | string | number | boolean | Number | JSON | undefined | TextChannel;
-    values?: any | string | number | boolean | Number | JSON | undefined | TextChannel;
+    values?: any | string | number | boolean | Number | JSON | undefined | TextChannel | object;
 }
 
 class DatabaseModel {
@@ -56,11 +55,11 @@ class DatabaseModel {
         }
     }
 
-    async set(key: string, value: any) {
+    async set(key: string, value: DatabaseAction["values"]) {
         return this.useWrapper({ id: 1, key, values: value });
     }
 
-    async push(key: string, value: any) {
+    async push(key: string, value: DatabaseAction["values"]) {
         return this.useWrapper({ id: 2, key, values: value });
     }
 

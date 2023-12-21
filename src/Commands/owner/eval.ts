@@ -28,6 +28,7 @@ import {
 
 import { Command } from '../../../types/command';
 import config from '../../files/config';
+import logger from '../../core/logger';
 
 export const command: Command = {
     name: 'eval',
@@ -44,20 +45,22 @@ export const command: Command = {
     category: 'owner',
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
+        let data = await client.functions.getLanguageData(interaction.guildId);
+
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
             await interaction.reply({ content: "❌", ephemeral: true });
             return;
         };
 
-        var result = interaction.options.getString("code");
+        var code = interaction.options.getString("code");
 
         try {
-            eval(result as string);
+            eval(code as string);
 
             let embed = new EmbedBuilder()
                 .setColor("#468468")
                 .setTitle("This block was evalued with iHorizon.")
-                .setDescription(`\`\`\`JS\n${result || "None"}\n\`\`\``)
+                .setDescription(`\`\`\`JS\n${code || "None"}\n\`\`\``)
                 .setAuthor({ name: (interaction.user.globalName || interaction.user.username) as string, iconURL: interaction.user.displayAvatarURL() });
 
             await interaction.reply({ embeds: [embed], ephemeral: true });
