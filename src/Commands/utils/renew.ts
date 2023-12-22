@@ -20,6 +20,7 @@
 */
 
 import {
+    ApplicationCommandType,
     BaseGuildTextChannel,
     ChatInputCommandInteraction,
     Client,
@@ -34,6 +35,7 @@ export const command: Command = {
     description: 'Re-created a channels (cloning permission and all configurations). nuke equivalent',
     category: 'utils',
     thinking: false,
+    type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
 

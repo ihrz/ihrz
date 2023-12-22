@@ -19,13 +19,10 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { ButtonInteraction, CacheType } from 'discord.js';
-import db from '../core/functions/DatabaseModel';
-import { AddEntries } from '../core/giveawaysManager';
+import { ChatInputCommandInteraction, UserSelectMenuInteraction } from 'discord.js';
+import { TicketAddMember_2 } from '../../core/ticketsManager';
 
-export = async function (interaction: ButtonInteraction<CacheType>) {
-    if (!await db.get(
-        `GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}`
-    )) return;
-    AddEntries(interaction);
+export = async function (interaction: UserSelectMenuInteraction) {
+    TicketAddMember_2(interaction);
+    return;
 };

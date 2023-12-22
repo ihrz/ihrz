@@ -39,7 +39,7 @@ export = async (client: Client, commands: Collection<string, Command>) => {
                     name: command.name,
                     description: command.description,
                     options: command.options,
-                    type: ApplicationCommandType.ChatInput
+                    type: command.type
                 }))
             },
         );

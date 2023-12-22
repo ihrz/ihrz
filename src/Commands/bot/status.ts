@@ -23,7 +23,8 @@ import {
     Client,
     EmbedBuilder,
     ChatInputCommandInteraction,
-    time
+    time,
+    ApplicationCommandType
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -38,6 +39,7 @@ export const command: Command = {
     description: 'Get the bot status! (Only for the bot owner)',
     category: 'bot',
     thinking: false,
+    type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
 

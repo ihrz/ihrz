@@ -20,7 +20,7 @@
 */
 
 import { ButtonInteraction, CacheType } from 'discord.js';
-import { TicketTranscript } from '../core/ticketsManager';
+import { TicketTranscript } from '../../core/ticketsManager';
 
 export = async function (interaction: ButtonInteraction<CacheType>) {
     TicketTranscript(interaction);

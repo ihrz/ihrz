@@ -27,7 +27,8 @@ import {
     ActionRowBuilder,
     ComponentType,
     ChatInputCommandInteraction,
-    StringSelectMenuInteraction
+    StringSelectMenuInteraction,
+    ApplicationCommandType
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -37,6 +38,7 @@ export const command: Command = {
     description: 'Get a list of all the commands!',
     category: 'bot',
     thinking: false,
+    type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
         let CONTENT = await client.db.get("BOT.CONTENT");

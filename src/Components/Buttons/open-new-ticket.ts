@@ -19,15 +19,14 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, Collection } from "discord.js";
-import { readdirSync } from "fs";
+import { CreateTicketChannel } from '../../core/ticketsManager';
+import db from '../../core/functions/DatabaseModel';
+import { ButtonInteraction, CacheType } from 'discord.js';
 
-export = async (client: Client) => {
+export = async function (interaction: ButtonInteraction<CacheType>) {
 
-    client.buttons = new Collection<string, Function>();
-
-    readdirSync(`${process.cwd()}/dist/src/Components/Buttons`).filter(file => file.endsWith(".js")).forEach(file => {
-        client.buttons.set(file.split('.js')[0], require(`${process.cwd()}/dist/src/Components/Buttons/${file}`))
-    });
-
+    if (!await db.get(
+        `${interaction.guild?.id}.GUILD.TICKET.${interaction.message.id}`
+    )) return;
+    CreateTicketChannel(interaction);
 };

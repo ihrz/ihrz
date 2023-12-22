@@ -23,6 +23,7 @@ import {
     Client,
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
+    ApplicationCommandType,
 } from 'discord.js';
 
 import { QueueRepeatMode } from 'discord-player';
@@ -119,6 +120,7 @@ export const command: Command = {
     ],
     thinking: true,
     category: 'music',
+    type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id as string);
         let command = interaction.options.getSubcommand();

@@ -23,6 +23,7 @@ import {
     Client,
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
+    ApplicationCommandType,
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
@@ -182,6 +183,7 @@ export const command: Command = {
     ],
     thinking: false,
     category: 'economy',
+    type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
         let command = interaction.options.getSubcommand();

@@ -35,6 +35,7 @@ declare module 'discord.js' {
         vanityInvites: Collection<Snowflake, VanityInviteData>,
         buttons: Collection<string, Function>,
         selectmenu: Collection<string, Function>,
-        db: DataBase
+        db: DataBase,
+        applicationsCommands: Collection<string, Function>
     }
 };

@@ -19,14 +19,10 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { CreateTicketChannel } from '../core/ticketsManager';
-import db from '../core/functions/DatabaseModel';
 import { ButtonInteraction, CacheType } from 'discord.js';
+import { TicketDelete } from '../../core/ticketsManager';
 
 export = async function (interaction: ButtonInteraction<CacheType>) {
-
-    if (!await db.get(
-        `${interaction.guild?.id}.GUILD.TICKET.${interaction.message.id}`
-    )) return;
-    CreateTicketChannel(interaction);
+    TicketDelete(interaction);
+    return;
 };

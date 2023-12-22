@@ -24,7 +24,8 @@ import {
     ApplicationCommandOptionType,
     EmbedBuilder,
     PermissionsBitField,
-    ChatInputCommandInteraction
+    ChatInputCommandInteraction,
+    ApplicationCommandType
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -42,6 +43,7 @@ export const command: Command = {
         },
     ],
     thinking: true,
+    type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
         let str = (interaction.options.getString('emojis') as string).split(' ');

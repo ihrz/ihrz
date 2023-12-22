@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, ApplicationCommandOptionType, EmbedBuilder, CommandInteraction } from 'discord.js';
+import { Client, ApplicationCommandOptionType, EmbedBuilder, CommandInteraction, ApplicationCommandType } from 'discord.js';
 import * as apiUrlParser from '../../core/functions/apiUrlParser';
 import { Command } from '../../../types/command';
 import DiscordOauth2 from 'discord-oauth2';
@@ -115,6 +115,7 @@ export const command: Command = {
     ],
     category: 'utils',
     thinking: false,
+    type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: CommandInteraction) => {
 
         let data = await client.functions.getLanguageData(interaction.guild?.id);

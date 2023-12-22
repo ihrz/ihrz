@@ -25,7 +25,8 @@ import {
     PermissionsBitField,
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
-    Role
+    Role,
+    ApplicationCommandType
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -65,6 +66,7 @@ export const command: Command = {
     ],
     thinking: true,
     category: 'utils',
+    type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
 

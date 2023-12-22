@@ -20,35 +20,41 @@
 */
 
 import {
-    ApplicationCommandType,
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-} from 'discord.js'
+    User
+} from 'discord.js';
 
-import { Command } from '../../../types/command';
+import axios from 'axios';
 
-export const command: Command = {
-    name: 'snipe',
-    description: 'Get the last message deleted in this channel!',
-    category: 'utils',
-    thinking: false,
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+export = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-        var based = await client.db.get(`${interaction.guild?.id}.GUILD.SNIPE.${interaction.channel?.id}`);
+        let user: User | undefined = interaction.options.getUser('user') || interaction.user;
+        let format = 'png';
 
-        if (!based) {
-            await interaction.reply({ content: data.snipe_no_previous_message_deleted });
-            return;
+        let config = {
+            headers: {
+                Authorization: `Bot ${client.token}`
+            }
+        };
+
+        let user_1 = (await axios.get(`https://discord.com/api/v8/users/${user?.id}`, config))?.data;
+        let banner = user_1?.['banner'];
+
+        if (banner !== null && banner?.substring(0, 2) === 'a_') {
+            format = 'gif'
         };
 
         let embed = new EmbedBuilder()
-            .setColor("#474749")
-            .setAuthor({ name: based.snipeUserInfoTag, iconURL: based.snipeUserInfoPp })
-            .setDescription(`\`${based.snipe || 0}\``)
-            .setTimestamp(based.snipeTimestamp);
+            .setColor('#c4afed')
+            .setTitle(data.banner_user_embed.replace('${user?.username}', user?.username))
+            .setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
+            .setThumbnail((user?.displayAvatarURL() as string))
+            .setFooter({
+                text: 'iHorizon', iconURL: client.user?.displayAvatarURL()
+            });
 
         await interaction.reply({ embeds: [embed] });
         return;

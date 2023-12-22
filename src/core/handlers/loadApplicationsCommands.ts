@@ -19,10 +19,15 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { ButtonInteraction, CacheType } from 'discord.js';
-import { TicketDelete } from '../core/ticketsManager';
+import { Client, Collection } from "discord.js";
+import { readdirSync } from "fs";
 
-export = async function (interaction: ButtonInteraction<CacheType>) {
-    TicketDelete(interaction);
-    return;
+export = async (client: Client) => {
+
+    client.applicationsCommands = new Collection<string, Function>();
+
+    readdirSync(`${process.cwd()}/dist/src/Components/ApplicationsCommands`).filter(file => file.endsWith(".js")).forEach(file => {
+        client.applicationsCommands.set(file.split('.js')[0], require(`${process.cwd()}/dist/src/Components/ApplicationsCommands/${file}`))
+    });
+
 };

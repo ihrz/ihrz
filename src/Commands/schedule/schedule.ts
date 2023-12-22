@@ -34,7 +34,8 @@ import {
     StringSelectMenuInteraction,
     ModalSubmitInteraction,
     CacheType,
-    TextInputComponent
+    TextInputComponent,
+    ApplicationCommandType
 } from 'discord.js';
 
 import { Command } from '../../../types/command';
@@ -47,6 +48,7 @@ export const command: Command = {
     description: "Manager for schedule category!",
     category: 'schedule',
     thinking: false,
+    type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
 

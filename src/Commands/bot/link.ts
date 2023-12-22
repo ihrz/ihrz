@@ -25,6 +25,7 @@ import {
     ButtonBuilder,
     ButtonStyle,
     ChatInputCommandInteraction,
+    ApplicationCommandType,
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -34,6 +35,7 @@ export const command: Command = {
     description: 'Show all links about iHorizon',
     category: 'bot',
     thinking: false,
+    type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
 

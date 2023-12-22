@@ -20,6 +20,7 @@
 */
 
 import {
+    ApplicationCommandType,
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
@@ -34,6 +35,7 @@ export const command: Command = {
     description: 'Get information about the server!',
     category: 'utils',
     thinking: false,
+    type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
 

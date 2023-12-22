@@ -24,7 +24,8 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     GuildMember,
-    UserResolvable
+    UserResolvable,
+    ApplicationCommandType
 } from 'discord.js'
 
 import { Command } from '../../../types/command';
@@ -42,6 +43,7 @@ export const command: Command = {
     ],
     thinking: false,
     category: 'owner',
+    type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
 

@@ -21,6 +21,7 @@
 
 import {
     ApplicationCommandOptionType,
+    ApplicationCommandType,
     ChatInputCommandInteraction,
     Client,
     PermissionsBitField,
@@ -40,6 +41,7 @@ export const command: Command = {
             required: true
         }
     ],
+    type: ApplicationCommandType.ChatInput,
     thinking: false,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guildId);
