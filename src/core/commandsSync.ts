@@ -20,7 +20,10 @@
 */
 
 import { Collection, REST, Routes, ApplicationCommandType, Client, ApplicationCommand, User } from "discord.js";
+
+import { AnotherCommand } from "../../types/anotherCommand";
 import { Command } from '../../types/command';
+
 import config from "../files/config";
 import couleurmdr from 'colors';
 import logger from "./logger";
@@ -31,36 +34,29 @@ export = async (client: Client) => {
 
     try {
         logger.log(couleurmdr.white(`${config.console.emojis.LOAD} >> Currently ${client.commands?.size || 0} of application (/) commands awaiting for refreshing.`));
-        logger.log(couleurmdr.white(`${config.console.emojis.LOAD} >> Currently ${client.applicationsCommands?.size || 0} of application ([@]) commands awaiting for refreshing.`));
+        logger.log(couleurmdr.white(`${config.console.emojis.LOAD} >> Currently ${client.applicationsCommands?.size || 0} of application ([]) commands awaiting for refreshing.`));
 
-        // let data_1 = await rest.put(
-        //     Routes.applicationCommands(client.user?.id as string),
-        //     {
-        //         body: client.commands?.map((command) => ({
-        //             name: command.name,
-        //             description: command.description,
-        //             options: command.options,
-        //             type: command.type
-        //         }))
-        //     },
-        // );
+        let appCmds = (client.applicationsCommands || []).map((command) => ({
+            name: command.name,
+            type: command.type,
+        }));
 
-        let data_2 = await rest.put(
+        let slashCommands = client.commands?.map((command) => ({
+            name: command.name,
+            type: command.type,
+            description: command.description,
+            options: command.options,
+        })) || [];
+
+        let allCommands = [...slashCommands, ...appCmds];
+
+        let data = await rest.put(
             Routes.applicationCommands(client.user?.id as string),
-            {
-                body: client.applicationsCommands?.map((command) => ({
-                    name: command.name,
-                    type: command.type
-                }))
-            },
+            { body: allCommands }
         );
 
-        // logger.log(couleurmdr.white(`${config.console.emojis.OK} >> Currently ${(data_1 as unknown as ApplicationCommand<{}>[]).length} of application (/) commands are now synchronized.`));
-        logger.log(couleurmdr.white(`${config.console.emojis.OK} >> Currently ${(data_2 as unknown as ApplicationCommand<{}>[]).length} of application (/) commands are now synchronized.`));
-
+        logger.log(couleurmdr.white(`${config.console.emojis.OK} >> Currently ${(data as unknown as ApplicationCommand<{}>[]).length} of application are now synchronized.`));
     } catch (error: any) {
-        // logger.err(error)
         console.error(error)
     };
-
 };
