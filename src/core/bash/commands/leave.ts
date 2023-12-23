@@ -19,16 +19,17 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+import { Client } from "discord.js";
 import logger from "../../logger";
 
-export = function (client: any, args: any) {
+export = function (client: Client, args: string) {
     if (!args) {
         return logger.legacy(`[*] I have not received the Guild's ID on the command.`.gray.bgBlack);
     };
 
     let guild = client.guilds.cache.get(args);
 
-    guild.leave().catch(() => {
+    guild?.leave().catch(() => {
         logger.legacy(`* The guild doesn't exist on bot's database.`.gray.bgBlack);
     });
 

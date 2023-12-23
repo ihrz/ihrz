@@ -12,3 +12,5 @@
    12  history
    13  shutdown
    14  shutdown
+   15  help
+   16  history

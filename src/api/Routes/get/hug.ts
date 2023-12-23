@@ -29,8 +29,7 @@ export = {
     run: async (req: Request, res: Response) => {
         let images = fs.readdirSync(`${process.cwd()}/src/assets/hug/`);
 
-        res.send(apiUrlParser.assets + 'hug/' +
-            images[Math.floor(Math.random() * images.length)]);
+        res.send(apiUrlParser.assets + 'hug/' + images[Math.floor(Math.random() * images.length)]);
         return;
     },
 };

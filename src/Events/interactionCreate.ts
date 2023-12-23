@@ -22,13 +22,23 @@
 import config from '../files/config';
 import logger from '../core/logger';
 
-import { Client, CommandInteractionOption, CommandInteractionOptionResolver, EmbedBuilder, GuildChannel, Interaction } from 'discord.js';
+import { Client, CommandInteractionOptionResolver, EmbedBuilder, GuildChannel, Interaction } from 'discord.js';
 import { format } from 'date-fns';
 import fs from 'fs';
 
 var timeout: number = 1000;
 
 export = async (client: Client, interaction: Interaction) => {
+
+    async function commandExecutor() {
+        if (!interaction.isContextMenuCommand()
+            || !interaction.guild?.channels
+            || interaction.user.bot) return;
+
+        let cmd = client.applicationsCommands.get(interaction.commandName);
+        if (cmd?.thinking) { interaction.deferReply() };
+        if (cmd) { cmd.run(client, interaction) };
+    };
 
     async function buttonExecutor() {
         if (!interaction.isButton()
@@ -49,21 +59,20 @@ export = async (client: Client, interaction: Interaction) => {
     };
 
     async function slashExecutor() {
-        if (!interaction.isCommand()
+        if (!interaction.isChatInputCommand()
             || !interaction.guild?.channels
             || interaction.user.bot) return;
 
         let command = client.commands?.get(interaction.commandName);
+
         if (!command) {
-            await interaction.deleteReply();
-            return interaction.followUp({ content: "Connection error.", ephemeral: true });
+            return interaction.reply({ content: "Connection error.", ephemeral: true });
         };
 
         if (await cooldDown()) {
             let data = await client.functions.getLanguageData(interaction.guild.id);
 
-            await interaction.deleteReply();
-            await interaction.followUp({ content: data.Msg_cooldown, ephemeral: true });
+            await interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
             return;
         };
 
@@ -122,5 +131,5 @@ export = async (client: Client, interaction: Interaction) => {
         return false;
     };
 
-    slashExecutor(), buttonExecutor(), selectMenuExecutor(), logsCommands();
+    slashExecutor(), buttonExecutor(), selectMenuExecutor(), commandExecutor(), logsCommands();
 };

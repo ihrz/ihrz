@@ -24,6 +24,7 @@ import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
 import logger from "../logger";
 import config from "../../files/config";
+import { EltType } from "../../../types/eltType";
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     let result = [];
@@ -43,7 +44,7 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
     for (let elt of directoryTree) {
         switch (typeof elt) {
             case "object":
-                for (let subElt of buildPaths((elt as any).name, (elt as any).sub)) {
+                for (let subElt of buildPaths((elt as EltType).name, (elt as EltType).sub)) {
                     paths.push(pathJoin(basePath, subElt));
                 }
                 break;

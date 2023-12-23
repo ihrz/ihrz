@@ -131,7 +131,7 @@ async function RemoveEntries(interaction: ButtonInteraction<CacheType>) {
     return;
 };
 
-async function End(client: Client, data: any) {
+async function End(client: Client, data: Data) {
 
     let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
 
@@ -148,7 +148,7 @@ async function End(client: Client, data: any) {
                     Finnish(
                         client,
                         messageId,
-                        data.guildId,
+                        data.guildId as string,
                         channelId
                     );
                 }
@@ -158,7 +158,12 @@ async function End(client: Client, data: any) {
     };
 };
 
-function SelectWinners(fetch: any, number: number) {
+interface Fetch {
+    members: string | any[];
+    winners: string | string[];
+};
+
+function SelectWinners(fetch: Fetch, number: number) {
     if (fetch.members.length === 0) {
         return undefined;
     };
@@ -247,7 +252,12 @@ async function Finnish(client: Client, messageId: string, guildId: string, chann
     return;
 };
 
-async function Reroll(client: Client, data: any) {
+interface Data {
+    guildId?: string;
+    messageId?: string;
+};
+
+async function Reroll(client: Client, data: Data) {
 
     let lang = await client.functions.getLanguageData(data.guildId);
     let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
@@ -256,7 +266,7 @@ async function Reroll(client: Client, data: any) {
         for (let messageId in fetch[channelId]) {
             if (messageId === data.messageId) {
 
-                let guild = await client.guilds.fetch(data.guildId);
+                let guild = await client.guilds.fetch(data.guildId as string);
                 let channel = await guild.channels.fetch(channelId);
 
                 let message = await (channel as BaseGuildTextChannel).messages.fetch(messageId).catch(async () => {
@@ -309,7 +319,7 @@ function Init(client: Client) {
 };
 
 
-async function isValid(giveawayId: number, data: any) {
+async function isValid(giveawayId: number, data: Data) {
     let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
 
     let dataDict: any = {};
@@ -376,7 +386,7 @@ async function Refresh(client: Client) {
     }
 };
 
-async function ListEntries(interaction: ChatInputCommandInteraction, data: any) {
+async function ListEntries(interaction: ChatInputCommandInteraction, data: Data) {
     let drop_all_db = await db.get(`GIVEAWAYS`);
 
     for (let guildId in drop_all_db) {

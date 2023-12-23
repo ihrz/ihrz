@@ -27,13 +27,14 @@ import bash from './bash/bash';
 import * as errorManager from './errorManager';
 import logger from "./logger";
 
-import { Client, Collection } from "discord.js";
+import { Client, Collection, Snowflake } from "discord.js";
 import { Init } from './giveawaysManager';
 import { execSync } from 'child_process';
 
 import { readdirSync } from "fs";
 import couleurmdr from "colors";
 import path from 'path';
+import { VanityInviteData } from '../../types/vanityUrlData';
 
 export = (client: Client) => {
     logger.legacy(couleurmdr.gray("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz)."));
@@ -63,6 +64,7 @@ export = (client: Client) => {
 
     client.db = db;
     client.invites = new Collection();
+    client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 
     readdirSync(`${process.cwd()}/dist/src/core/handlers`).filter(file => file.endsWith('.js')).forEach(file => {
         require(`${process.cwd()}/dist/src/core/handlers/${file}`)(client);

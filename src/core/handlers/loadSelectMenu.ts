@@ -26,8 +26,8 @@ export = async (client: Client) => {
 
     client.selectmenu = new Collection<string, Function>();
 
-    readdirSync(`${process.cwd()}/dist/src/SelectMenu`).filter(file => file.endsWith(".js")).forEach(file => {
-        client.selectmenu.set(file.split('.js')[0], require(`${process.cwd()}/dist/src/SelectMenu/${file}`))
+    readdirSync(`${process.cwd()}/dist/src/Interaction/Components/SelectMenu`).filter(file => file.endsWith(".js")).forEach(file => {
+        client.selectmenu.set(file.split('.js')[0], require(`${process.cwd()}/dist/src/Interaction/Components/SelectMenu/${file}`))
     });
 
 };
