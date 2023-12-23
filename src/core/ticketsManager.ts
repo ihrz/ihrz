@@ -251,7 +251,7 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) 
                 if (interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member?.user.id) {
                     interaction.channel.messages.fetch().then(async (messages) => {
 
-                        let attachment = await discordTranscripts.createTranscript(interaction.channel!, {
+                        let attachment = await discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
                             limit: -1,
                             filename: 'transcript.html',
                             footerText: "Exported {number} message{s}",
