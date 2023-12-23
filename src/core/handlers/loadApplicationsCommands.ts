@@ -34,7 +34,7 @@ export = async (client: Client) => {
             type: cmd.type,
             run: cmd.run,
             name: cmd.name,
-            thinking: true
+            thinking: cmd.thinking
         });
     });
 
@@ -45,7 +45,7 @@ export = async (client: Client) => {
             type: cmd.type,
             run: cmd.run,
             name: cmd.name,
-            thinking: true
+            thinking: cmd.thinking
         });
     });
 };
