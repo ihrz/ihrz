@@ -19,15 +19,33 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, Collection } from "discord.js";
-import { readdirSync } from "fs";
+import {
+    BaseGuildTextChannel,
+    ButtonInteraction,
+    CacheType,
+    ChatInputCommandInteraction,
+    Client,
+} from 'discord.js';
 
-export = async (client: Client) => {
+import { TicketTranscript } from '../../../core/ticketsManager';
 
-    client.selectmenu = new Collection<string, Function>();
+export = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-    readdirSync(`${process.cwd()}/dist/src/Interaction/Components/SelectMenu`).filter(file => file.endsWith(".js")).forEach(file => {
-        client.selectmenu.set(file.split('.js')[0], require(`${process.cwd()}/dist/src/Interaction/Components/SelectMenu/${file}`))
-    });
+        let blockQ = await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`);
 
+        if (blockQ) {
+            await interaction.editReply({ content: data.transript_disabled_command });
+            return;
+        };
+
+        let channel = interaction.channel;
+
+        if ((channel as BaseGuildTextChannel).name.includes('ticket-')) {
+            await TicketTranscript(interaction as unknown as ButtonInteraction<CacheType>);
+        } else {
+            await interaction.editReply({ content: data.transript_not_in_ticket });
+            return;
+        };
+    },
 };

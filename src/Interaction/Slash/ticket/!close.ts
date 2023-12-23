@@ -19,15 +19,31 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, Collection } from "discord.js";
-import { readdirSync } from "fs";
+import {
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
+    Client,
+    EmbedBuilder,
+    PermissionsBitField,
+} from 'discord.js';
 
-export = async (client: Client) => {
+import { CloseTicket } from '../../../core/ticketsManager';
 
-    client.selectmenu = new Collection<string, Function>();
+export = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-    readdirSync(`${process.cwd()}/dist/src/Interaction/Components/SelectMenu`).filter(file => file.endsWith(".js")).forEach(file => {
-        client.selectmenu.set(file.split('.js')[0], require(`${process.cwd()}/dist/src/Interaction/Components/SelectMenu/${file}`))
-    });
+        let blockQ = await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`);
 
+        if (blockQ) {
+            await interaction.editReply({ content: data.close_disabled_command });
+            return;
+        };
+
+        if ((interaction.channel as BaseGuildTextChannel).name.includes('ticket-')) {
+            await CloseTicket(interaction);
+        } else {
+            await interaction.editReply({ content: data.close_not_in_ticket });
+            return;
+        };
+    },
 };

@@ -26,8 +26,11 @@ export = async (client: Client) => {
 
     client.applicationsCommands = new Collection<string, Function>();
 
-    readdirSync(`${process.cwd()}/dist/src/Components/ApplicationsCommands`).filter(file => file.endsWith(".js")).forEach(file => {
-        client.applicationsCommands.set(file.split('.js')[0], require(`${process.cwd()}/dist/src/Components/ApplicationsCommands/${file}`))
+    readdirSync(`${process.cwd()}/dist/src/Interaction/MessageCommands`).filter(file => file.endsWith(".js")).forEach(file => {
+        client.applicationsCommands.set(file.split('.js')[0], require(`${process.cwd()}/dist/src/Interaction/MessageCommands/${file}`))
     });
 
+    readdirSync(`${process.cwd()}/dist/src/Interaction/UserCommands`).filter(file => file.endsWith(".js")).forEach(file => {
+        client.applicationsCommands.set(file.split('.js')[0], require(`${process.cwd()}/dist/src/Interaction/UserCommands/${file}`))
+    });
 };

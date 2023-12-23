@@ -19,15 +19,30 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, Collection } from "discord.js";
-import { readdirSync } from "fs";
+import {
+    ChatInputCommandInteraction,
+    Client,
+    EmbedBuilder,
+} from 'discord.js';
 
-export = async (client: Client) => {
+import logger from '../../../core/logger';
+import axios from 'axios'
 
-    client.selectmenu = new Collection<string, Function>();
+export = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-    readdirSync(`${process.cwd()}/dist/src/Interaction/Components/SelectMenu`).filter(file => file.endsWith(".js")).forEach(file => {
-        client.selectmenu.set(file.split('.js')[0], require(`${process.cwd()}/dist/src/Interaction/Components/SelectMenu/${file}`))
-    });
+        axios.get('https://dog.ceo/api/breeds/image/random')
+            .then(async res => {
+                let emb = new EmbedBuilder()
+                    .setImage(res.data.message).setTitle(data.dogs_embed_title).setTimestamp();
 
+                await interaction.editReply({ embeds: [emb] });
+                return;
+            })
+            .catch(async err => {
+                logger.err(err);
+                await interaction.editReply({ content: data.dogs_embed_command_error });
+                return;
+            });
+    },
 };

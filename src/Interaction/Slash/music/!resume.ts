@@ -19,15 +19,28 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, Collection } from "discord.js";
-import { readdirSync } from "fs";
+import {
+    ChatInputCommandInteraction,
+    Client,
+} from 'discord.js';
 
-export = async (client: Client) => {
+import logger from '../../../core/logger';
 
-    client.selectmenu = new Collection<string, Function>();
+export = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
-    readdirSync(`${process.cwd()}/dist/src/Interaction/Components/SelectMenu`).filter(file => file.endsWith(".js")).forEach(file => {
-        client.selectmenu.set(file.split('.js')[0], require(`${process.cwd()}/dist/src/Interaction/Components/SelectMenu/${file}`))
-    });
+        try {
+            let queue = interaction.client.player.nodes.get(interaction.guild as unknown as string)
 
+            if (!queue || !queue.isPlaying()) {
+                await interaction.editReply({ content: data.resume_nothing_playing });
+                return;
+            }
+            queue.node.setPaused(false);
+            await interaction.editReply({ content: data.resume_command_work });
+            return;
+        } catch (error: any) {
+            logger.err(error);
+        };
+    },
 };

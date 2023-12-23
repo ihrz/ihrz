@@ -77,7 +77,7 @@ async function processOptions(options: any[], category: string, parentName: stri
     };
 };
 
-async function loadCommands(client: Client, path: string = `${process.cwd()}/dist/src/Commands`): Promise<void> {
+async function loadCommands(client: Client, path: string = `${process.cwd()}/dist/src/Interaction/Slash`): Promise<void> {
 
     await db.set(`BOT.CONTENT`, {});
 
