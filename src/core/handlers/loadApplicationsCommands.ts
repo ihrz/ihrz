@@ -19,18 +19,31 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
+import { AnotherCommand } from "../../../types/anotherCommand";
 import { Client, Collection } from "discord.js";
 import { readdirSync } from "fs";
 
 export = async (client: Client) => {
 
-    client.applicationsCommands = new Collection<string, Function>();
+    client.applicationsCommands = new Collection<string, AnotherCommand>();
 
     readdirSync(`${process.cwd()}/dist/src/Interaction/MessageCommands`).filter(file => file.endsWith(".js")).forEach(file => {
-        client.applicationsCommands.set(file.split('.js')[0], require(`${process.cwd()}/dist/src/Interaction/MessageCommands/${file}`))
+        let cmd = require(`${process.cwd()}/dist/src/Interaction/MessageCommands/${file}`).command;
+
+        client.applicationsCommands.set(cmd.name, {
+            type: cmd.type,
+            run: cmd.run,
+            name: cmd.name
+        });
     });
 
     readdirSync(`${process.cwd()}/dist/src/Interaction/UserCommands`).filter(file => file.endsWith(".js")).forEach(file => {
-        client.applicationsCommands.set(file.split('.js')[0], require(`${process.cwd()}/dist/src/Interaction/UserCommands/${file}`))
+        let cmd = require(`${process.cwd()}/dist/src/Interaction/UserCommands/${file}`).command;
+
+        client.applicationsCommands.set(cmd.name, {
+            type: cmd.type,
+            run: cmd.run,
+            name: cmd.name
+        });
     });
 };

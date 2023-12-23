@@ -25,27 +25,42 @@ import config from "../files/config";
 import couleurmdr from 'colors';
 import logger from "./logger";
 
-export = async (client: Client, commands: Collection<string, Command>) => {
+export = async (client: Client) => {
 
     let rest = new REST().setToken(client.token as string);
 
     try {
-        logger.log(couleurmdr.white(`${config.console.emojis.LOAD} >> Currently ${commands?.size || 0} of application (/) commands awaiting for refreshing.`));
+        logger.log(couleurmdr.white(`${config.console.emojis.LOAD} >> Currently ${client.commands?.size || 0} of application (/) commands awaiting for refreshing.`));
+        logger.log(couleurmdr.white(`${config.console.emojis.LOAD} >> Currently ${client.applicationsCommands?.size || 0} of application ([@]) commands awaiting for refreshing.`));
 
-        let data = await rest.put(
+        // let data_1 = await rest.put(
+        //     Routes.applicationCommands(client.user?.id as string),
+        //     {
+        //         body: client.commands?.map((command) => ({
+        //             name: command.name,
+        //             description: command.description,
+        //             options: command.options,
+        //             type: command.type
+        //         }))
+        //     },
+        // );
+
+        let data_2 = await rest.put(
             Routes.applicationCommands(client.user?.id as string),
             {
-                body: commands?.map((command) => ({
+                body: client.applicationsCommands?.map((command) => ({
                     name: command.name,
-                    description: command.description,
-                    options: command.options,
                     type: command.type
                 }))
             },
         );
 
-        logger.log(couleurmdr.white(`${config.console.emojis.OK} >> Currently ${(data as unknown as ApplicationCommand<{}>[]).length} of application (/) commands are now synchronized.`));
+        // logger.log(couleurmdr.white(`${config.console.emojis.OK} >> Currently ${(data_1 as unknown as ApplicationCommand<{}>[]).length} of application (/) commands are now synchronized.`));
+        logger.log(couleurmdr.white(`${config.console.emojis.OK} >> Currently ${(data_2 as unknown as ApplicationCommand<{}>[]).length} of application (/) commands are now synchronized.`));
+
     } catch (error: any) {
-        logger.err(error)
-    }
+        // logger.err(error)
+        console.error(error)
+    };
+
 };

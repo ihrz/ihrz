@@ -20,8 +20,6 @@
 */
 
 import {
-    Application,
-    ApplicationCommand,
     ApplicationCommandType,
     Client,
     CommandInteraction,
@@ -30,13 +28,8 @@ import {
 } from "discord.js";
 import { Option } from "./option";
 
-export interface Command {
+export interface AnotherCommand {
     name: string,
-    description: string,
-    permission?: bigint | 0,
-    category: string,
-    options?: Option[],
-    thinking: boolean,
     type: ApplicationCommandType
-    async run(client: Client, interaction: CommandInteraction, options?: CommandInteractionOptionResolver): Promise<any>
+    async run(client: Client, interaction: CommandInteraction): Promise<any>
 }

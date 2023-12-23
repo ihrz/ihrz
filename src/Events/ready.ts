@@ -24,13 +24,13 @@ import { Init } from "../core/pfpsManager";
 import logger from "../core/logger";
 import couleurmdr from 'colors';
 import config from "../files/config";
-import register from '../core/slashSync';
+import register from '../core/commandsSync';
 
 import OwnIHRZ from "../core/ownihrzManager";
 import date from 'date-and-time';
 
 export = async (client: Client) => {
-    await register(client, client.commands);
+    await register(client);
 
     async function term() {
         logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  "));
