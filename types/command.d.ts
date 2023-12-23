@@ -19,7 +19,15 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, CommandInteraction, CommandInteractionOptionResolver, PermissionFlagsBits } from "discord.js";
+import {
+    Application,
+    ApplicationCommand,
+    ApplicationCommandType,
+    Client,
+    CommandInteraction,
+    CommandInteractionOptionResolver,
+    PermissionFlagsBits
+} from "discord.js";
 import { Option } from "./option";
 
 export interface Command {
@@ -28,5 +36,7 @@ export interface Command {
     permission?: bigint | 0,
     category: string,
     options?: Option[],
-    async run(client: Client, interaction: CommandInteraction, args: CommandInteractionOptionResolver): Promise<any>
+    thinking: boolean,
+    type: ApplicationCommandType
+    async run(client: Client, interaction: CommandInteraction, options?: CommandInteractionOptionResolver): Promise<any>
 }

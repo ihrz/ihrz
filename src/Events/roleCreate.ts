@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent } from 'discord.js'
+import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent, Role } from 'discord.js'
 
-export = async (client: Client, role: any) => {
+export = async (client: Client, role: Role) => {
 
     async function protect() {
         let data = await client.db.get(`${role.guild.id}.PROTECTION`);
@@ -32,29 +32,29 @@ export = async (client: Client, role: any) => {
                 type: AuditLogEvent.RoleCreate,
                 limit: 1,
             });
-            var firstEntry: any = fetchedLogs.entries.first();
-            if (firstEntry.targetId !== role.id) return;
+            var firstEntry = fetchedLogs.entries.first();
+            if (firstEntry?.targetId !== role.id) return;
             if (firstEntry.executorId === client.user?.id) return;
 
 
             let baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
             if (!baseData) {
-                role.delete({ reason: 'Protect!' });
-                let user = await role.guild.members.cache.get(firstEntry.executorId);
+                role.delete('Protect!');
+                let user = await role.guild.members.cache.get(firstEntry?.executorId as string);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':
                         break;
                     case 'simply+derank':
-                        user.guild.roles.cache.forEach((element: any) => {
-                            if (user.roles.cache.has(element.id) && element.name !== '@everyone') {
+                        user?.guild.roles.cache.forEach((element) => {
+                            if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
                                 user.roles.remove(element.id);
                             };
                         });
                         break;
                     case 'simply+ban':
-                        user.ban({ reason: 'Protect!' }).catch(() => { });
+                        user?.ban({ reason: 'Protect!' }).catch(() => { });
                         break;
                     default:
                         return;

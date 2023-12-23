@@ -20,12 +20,12 @@
 */
 
 export interface DataBase {
-    set(key: string, value: any): Promise<any>,
-    push(key: string, value: any): Promise<any>,
-    sub(key: string, value: any): Promise<any>,
-    add(key: string, value: any): Promise<any>,
+    set(key: string, value: string | number | boolean | Number | JSON | undefined | TextChannel): Promise<any>,
+    push(key: string, value: string | number | boolean | Number | JSON | undefined | TextChannel): Promise<any>,
+    sub(key: string, value: string | number): Promise<any>,
+    add(key: string, value: string | number): Promise<any>,
     get(key: string): Promise<any>,
-    pull(key: string, value: any): Promise<any>,
+    pull(key: string, value: string | number | boolean | Number | JSON | undefined | TextChannel): Promise<any>,
     all(): Promise<any>,
     delete(key: string): Promise<any>
 }

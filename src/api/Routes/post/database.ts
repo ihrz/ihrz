@@ -24,6 +24,7 @@ import logger from '../../../core/logger';
 import config from '../../../files/config';
 import dbPromise from '../../../core/database';
 import { Request, Response } from 'express';
+import { QuickDB } from 'quick.db';
 
 export = {
     type: 'post',
@@ -31,7 +32,7 @@ export = {
     apiPath: '/api/database',
     run: async (req: Request, res: Response) => {
         let { text } = req.body;
-        let db: any = await dbPromise;
+        let db = await dbPromise as QuickDB;
 
         try {
             var bytes = CryptoJS.AES.decrypt(text, config.api.apiToken);
@@ -69,7 +70,7 @@ export = {
                     res.send({ r: await db.all() });
                     break;
                 case 8:
-                    await db.delete(key, values);
+                    await db.delete(key);
                     res.sendStatus(200);
                     break;
                 default:

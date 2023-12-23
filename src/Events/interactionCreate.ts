@@ -22,13 +22,23 @@
 import config from '../files/config';
 import logger from '../core/logger';
 
-import { BaseInteraction, Client, Collection, EmbedBuilder, Interaction, InteractionResponse, Permissions } from 'discord.js';
+import { Client, CommandInteractionOptionResolver, EmbedBuilder, GuildChannel, Interaction } from 'discord.js';
 import { format } from 'date-fns';
 import fs from 'fs';
 
 var timeout: number = 1000;
 
-export = async (client: any, interaction: any) => {
+export = async (client: Client, interaction: Interaction) => {
+
+    async function commandExecutor() {
+        if (!interaction.isContextMenuCommand()
+            || !interaction.guild?.channels
+            || interaction.user.bot) return;
+
+        let cmd = client.applicationsCommands.get(interaction.commandName);
+        if (cmd?.thinking) { interaction.deferReply() };
+        if (cmd) { cmd.run(client, interaction) };
+    };
 
     async function buttonExecutor() {
         if (!interaction.isButton()
@@ -49,37 +59,39 @@ export = async (client: any, interaction: any) => {
     };
 
     async function slashExecutor() {
-        if (!interaction.isCommand()
+        if (!interaction.isChatInputCommand()
             || !interaction.guild?.channels
             || interaction.user.bot) return;
 
         let command = client.commands?.get(interaction.commandName);
+
         if (!command) {
-            await interaction.deleteReply();
-            return interaction.followUp({ content: "Connection error.", ephemeral: true });
+            return interaction.reply({ content: "Connection error.", ephemeral: true });
         };
 
         if (await cooldDown()) {
             let data = await client.functions.getLanguageData(interaction.guild.id);
 
-            await interaction.deleteReply();
-            await interaction.followUp({ content: data.Msg_cooldown, ephemeral: true });
+            await interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
             return;
         };
 
         try {
             if (await client.db.get(`GLOBAL.BLACKLIST.${interaction.user.id}.blacklisted`)) {
-                await interaction.editReply({
+                await interaction.reply({
                     embeds: [
                         new EmbedBuilder()
                             .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0827F5").setTitle(":(")
                             .setImage(config.core.blacklistPictureInEmbed)
-                    ]
+                    ], ephemeral: true
                 });
                 return;
             };
 
-            await interaction.deferReply();
+            if (command.thinking) {
+                await interaction.deferReply();
+            };
+
             await command.run(client, interaction);
         } catch (e: any) {
             logger.err(e);
@@ -91,16 +103,17 @@ export = async (client: any, interaction: any) => {
             || !interaction.guild?.channels
             || interaction.user.bot) return;
 
-        let optionsList: string[] = interaction.options._hoistedOptions.map((element: { name: any; value: any; }) => `${element.name}:"${element.value}"`);
+        let optionsList: string[] = (interaction.options as CommandInteractionOptionResolver)["_hoistedOptions"].map(element => `${element.name}:"${element.value}"`)
         let subCmd: string = '';
 
-        if (interaction.options['_subcommand']) {
-            subCmd = interaction.options.getSubcommand();
+        if ((interaction.options as CommandInteractionOptionResolver)["_subcommand"]) {
+            if ((interaction.options as CommandInteractionOptionResolver).getSubcommandGroup()) subCmd += (interaction.options as CommandInteractionOptionResolver).getSubcommandGroup()! + " ";
+            subCmd += (interaction.options as CommandInteractionOptionResolver).getSubcommand()
         };
 
-        let logMessage = `[${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}] "${interaction.guild?.name}" #${interaction.channel ? interaction.channel.name : 'Unknown Channel'}:\n` +
+        let logMessage = `[${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}] "${interaction.guild?.name}" #${interaction.channel ? (interaction.channel as GuildChannel).name : 'Unknown Channel'}:\n` +
             `${interaction.user.username}:\n` +
-            `/${interaction.commandName} ${subCmd} ${optionsList.join(' ')}\n\n`;
+            `/${interaction.commandName} ${subCmd} ${optionsList?.join(' ')}\n\n`;
 
         fs.appendFile(`${process.cwd()}/src/files/slash.log`, logMessage, (err) => {
             if (err) {
@@ -118,5 +131,5 @@ export = async (client: any, interaction: any) => {
         return false;
     };
 
-    slashExecutor(), buttonExecutor(), selectMenuExecutor(), logsCommands();
+    slashExecutor(), buttonExecutor(), selectMenuExecutor(), commandExecutor(), logsCommands();
 };

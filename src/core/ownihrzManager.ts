@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { ActionRow, ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, Embed, EmbedBuilder } from "discord.js";
+import { Client } from "discord.js";
 import { execSync } from 'child_process';
 import path from "path";
 import fs from 'fs';

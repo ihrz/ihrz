@@ -34,8 +34,8 @@ export = async (client: Client, oldPresence: Presence, newPresence: Presence) =>
         let bio = newPresence.activities[0] || 'null';
         let vanity = oldPresence.guild.vanityURLCode || 'null';
 
-        let fetchedUser: any = await oldPresence.guild.members.cache.get(oldPresence.userId);
-        let fetchedRoles: any = await newPresence.guild.roles.cache.get(someinfo.rolesId);
+        let fetchedUser = await oldPresence.guild.members.cache.get(oldPresence.userId);
+        let fetchedRoles = await newPresence.guild.roles.cache.get(someinfo.rolesId);
 
         if (!fetchedUser || !fetchedRoles) return;
 

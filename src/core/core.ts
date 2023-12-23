@@ -23,16 +23,16 @@ import * as checkSys from './functions/checkSys';
 import { Init } from './giveawaysManager';
 import playerManager from "./playerManager";
 import db from './functions/DatabaseModel';
-import bash from './bash/bash';
 
 import * as errorManager from './errorManager';
 
 import logger from "./logger";
 
-import { Client, Collection } from "discord.js";
+import { Client, Collection, Snowflake } from "discord.js";
 import { readdirSync } from "fs";
 import couleurmdr from "colors";
-import path from 'path';
+
+import { VanityInviteData } from '../../types/vanityUrlData';
 
 
 export = (client: Client) => {
@@ -44,13 +44,13 @@ export = (client: Client) => {
 
     client.db = db;
     client.invites = new Collection();
+    client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 
     readdirSync(`${process.cwd()}/dist/src/core/handlers`).filter(file => file.endsWith('.js')).forEach(file => {
         require(`${process.cwd()}/dist/src/core/handlers/${file}`)(client);
     });
 
     require('../api/server'),
-        bash(client),
         Init(client),
         playerManager(client),
         errorManager.uncaughtExceptionHandler();

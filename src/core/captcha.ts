@@ -19,47 +19,40 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { createCanvas } from 'canvas';
+import Jimp from 'jimp';
 
 let FONTBASE = 200;
 let FONTSIZE = 35;
 
 let relativeFont = (width: number) => {
-  return `${width * (FONTSIZE / FONTBASE)}px serif`; // size = width * ratio(FONTSIZE/FONTBASE)
+  return Jimp.FONT_SANS_16_BLACK; // You can choose the desired Jimp font here
 };
 
 let arbitraryRandom = (min: number, max: number) => Math.random() * (max - min) + min;
-let randomRotation = (degrees = 15) => (arbitraryRandom(-degrees, degrees) * Math.PI) / 180;
+let randomRotation = (degrees = 15) => arbitraryRandom(-degrees, degrees);
 
 let alternateCapitals = (str: string) =>
   [...str].map((char, i) => char?.[`to${i % 2 ? "Upper" : "Lower"}Case`]()).join("");
 
 let randomText = () => alternateCapitals(Math.random().toString(36).substring(2, 8));
 
-let configureText = (ctx: { font: string; textBaseline: string; textAlign: string; fillText: (arg0: string, arg1: number, arg2: number) => void; }, width: number, height: number) => {
-
-  ctx.font = relativeFont(width);
-  ctx.textBaseline = "middle";
-  ctx.textAlign = "center";
+let configureText = async (image: Jimp, width: number, height: number) => {
+  const font = await Jimp.loadFont(relativeFont(width));
 
   let text = randomText();
 
-  ctx.fillText(text, width / 2, height / 2);
+  image.print(font, 0, 0, { text, alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER, alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE }, width, height);
 
   return text;
 };
 
-let generate = (width: number, height: number) => {
-  let canvas = createCanvas(width, height);
-  let ctx = canvas.getContext("2d");
+let generate = async (width: number, height: number) => {
+  let image = await new Jimp(width, height);
+  image.rotate(randomRotation());
+  let text = await configureText(image, width, height);
+  let img = await image.getBase64Async(Jimp.MIME_PNG) as string;
 
-  ctx.rotate(randomRotation());
-  let text = configureText(ctx, width, height);
-
-  return {
-    image: canvas.toDataURL(),
-    text: text
-  };
+  return { image: img, text: text };
 };
 
 export = generate;

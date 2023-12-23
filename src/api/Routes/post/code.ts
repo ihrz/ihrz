@@ -27,7 +27,6 @@ import config from '../../../files/config';
 
 let oauth = new DiscordOauth2();
 
-
 export = {
     type: 'post',
     apiPath: '/api/check',

@@ -19,10 +19,9 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, Collection, EmbedBuilder, Permissions, ReactionEmoji, User } from 'discord.js';
-import logger from '../core/logger';
+import { Client, MessageReaction, User } from 'discord.js';
 
-export = async (client: Client, reaction: any, user: User) => {
+export = async (client: Client, reaction: MessageReaction, user: User) => {
 
     async function reactionRole() {
         try {
@@ -32,10 +31,10 @@ export = async (client: Client, reaction: any, user: User) => {
             let fetched = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
 
             if (fetched) {
-                let role = reaction.message.guild.roles.cache.get(fetched.rolesID);
+                let role = reaction.message.guild?.roles.cache.get(fetched.rolesID);
                 if (!role) return;
 
-                let member = reaction.message.guild.members.cache.get(user.id);
+                let member = reaction.message.guild?.members.cache.get(user.id);
                 await member?.roles.remove(role).catch(() => { });
                 return;
             };
@@ -43,10 +42,10 @@ export = async (client: Client, reaction: any, user: User) => {
             let fetchedForNitro = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
 
             if (fetchedForNitro) {
-                let role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);
+                let role = reaction.message.guild?.roles.cache.get(fetchedForNitro.rolesID);
                 if (!role) return;
 
-                let member = reaction.message.guild.members.cache.get(user.id);
+                let member = reaction.message.guild?.members.cache.get(user.id);
                 await member?.roles.remove(role).catch(() => { });
                 return;
             };

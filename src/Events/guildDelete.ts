@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, Guild, GuildChannel, GuildChannelManager, Message, MessageManager } from "discord.js";
+import { BaseGuildTextChannel, Client, Guild, GuildChannel, GuildChannelManager, Message, MessageManager } from "discord.js";
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
 
 import logger from "../core/logger";
@@ -28,7 +28,7 @@ import config from '../files/config';
 export = async (client: Client, guild: Guild) => {
     async function inviteManager() {
         await client.db.delete(`${guild.id}`);
-        
+
         return client.invites.delete(guild.id);
     };
 
@@ -51,9 +51,9 @@ export = async (client: Client, guild: Guild) => {
                 .setThumbnail(guild.iconURL())
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
-            let channel: any = client.channels.cache.get(config.core.guildLogsChannelID);
+            let channel = client.channels.cache.get(config.core.guildLogsChannelID);
 
-            return channel.send({ embeds: [embed] });
+            return (channel as BaseGuildTextChannel).send({ embeds: [embed] });
         } catch (error: any) {
             logger.err(error);
         };

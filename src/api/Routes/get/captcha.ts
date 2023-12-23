@@ -28,9 +28,12 @@ export = {
     run: async (req: Request, res: Response) => {
         let width = parseInt(req.params.width) || 200;
         let height = parseInt(req.params.height) || 100;
-
-        let { image, text } = captcha(width, height);
-
-        res.send({ image, text });
+        
+        try {
+            let { image, text } = await captcha(width, height);
+            res.send({ image, text });
+        } catch (error) {
+            res.status(500).send({ error: 'Une erreur est survenue lors de la génération du captcha.' });
+        }
     },
 };

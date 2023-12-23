@@ -19,14 +19,14 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
+import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan, Guild, GuildTextBasedChannel, Client, BaseGuildTextChannel, GuildBasedChannel } from 'discord.js';
 
 import logger from "../core/logger";
 import config from '../files/config';
 
-export = async (client: any, guild: any) => {
-    let channel = await guild.channels.cache.get(guild.systemChannelId)
-        || await guild.channels.cache.random();
+export = async (client: Client, guild: Guild) => {
+    let channel = guild.channels.cache.get((guild?.systemChannelId as string))
+        || guild.channels.cache.random();
 
     // async function antiPoubelle() {
     //   let embed = new EmbedBuilder()
@@ -51,19 +51,19 @@ export = async (client: any, guild: any) => {
     // };
 
     async function blacklistLeave() {
-        let channelHr = await guild.channels.cache.get(guild.systemChannelId)
-            || await guild.channels.cache.random();
+        let channelHr = guild.channels.cache.get((guild.systemChannelId as string))
+            || guild.channels.cache.random();
 
         let tqtmonreuf = new EmbedBuilder()
             .setColor('#FF0000')
             .setDescription(`Dear <@${guild.ownerId}>, I'm sorry, but you have been blacklisted by the bot.\nAs a result, I will be leaving your server. If you have any questions or concerns, please contact my developer.\n\nThank you for your understanding`)
             .setTimestamp()
-            .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
+            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL({ extension: 'png', size: 4096 }) })
 
         let isBL = await client.db.get(`GLOBAL.BLACKLIST.${guild.ownerId}.blacklisted`) || false;
 
         if (isBL) {
-            await channelHr.send({ embeds: [tqtmonreuf] }).catch(() => { });
+            await (channelHr as GuildTextBasedChannel).send({ embeds: [tqtmonreuf] }).catch(() => { });
             guild.leave();
             return false;
         } else {
@@ -80,8 +80,8 @@ export = async (client: any, guild: any) => {
         let embed = new EmbedBuilder()
             .setColor("#00FF00").setTimestamp()
             .setTitle(welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)])
-            .setThumbnail(guild.iconURL({ dynamic: true }))
-            .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
+            .setThumbnail(guild.iconURL())
+            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL({ extension: 'png', size: 4096 }) })
             .setDescription(`Hi there! I'm excited to join your server and be a part of your community. 
       
 My name is iHorizon and I'm here to help you with all your needs. Feel free to use my commands and explore all the features I have to offer.
@@ -91,14 +91,14 @@ I'm here to make your experience on this server the best it can be.
 
 Thanks for choosing me and let's have some fun together!`);
 
-        if (channel) { channel.send({ embeds: [embed] }).catch(() => { }); };
+        if (channel) { (channel as GuildTextBasedChannel).send({ embeds: [embed] }).catch(() => { }); };
     };
 
     async function getInvites() {
-        if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+        if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
         try {
-            guild.invites.fetch().then((guildInvites: { map: (arg0: (invite: any) => any[]) => Iterable<readonly [unknown, unknown]> | null | undefined; }) => {
-                client.invites.set(guild.id, new Collection(guildInvites.map((invite: any) => [invite.code, invite.uses])));
+            guild.invites.fetch().then((guildInvites) => {
+                client.invites.set(guild.id, new Collection(guildInvites.map((invite) => [invite.code, invite.uses])));
             });
         } catch (error: any) { logger.err(error) };
     };
@@ -107,10 +107,9 @@ Thanks for choosing me and let's have some fun together!`);
         let i: string = '';
         if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; };
 
-        let channel = await guild.channels.cache.get(guild.systemChannelId)
-            || await guild.channels.cache.random();
+        let channel = guild.channels.cache.get((guild.systemChannelId as string)) || guild.channels.cache.random();
 
-        async function createInvite(chann: any) {
+        async function createInvite(chann: BaseGuildTextChannel) {
             try {
                 let invite = await chann.createInvite();
                 let inviteCode = invite.code;
@@ -129,13 +128,13 @@ Thanks for choosing me and let's have some fun together!`);
                 { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
                 { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
                 { name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
-                { name: "🔗・Invite Link", value: `\`${await createInvite(channel)}\``, inline: true },
+                { name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
                 { name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true })
             .setThumbnail(guild.iconURL())
-            .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL() });
-        client.channels.cache.get(config.core.guildLogsChannelID).send({ embeds: [embed] }).catch(() => { });
+            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
+        (client.channels.cache.get(config.core.guildLogsChannelID) as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
     };
-    
+
     // let c = await antiPoubelle();
     let d = await blacklistLeave();
     if (d) ownerLogs(), messageToServer(), getInvites();

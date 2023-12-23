@@ -25,14 +25,24 @@ import {
     ButtonBuilder,
     ButtonStyle,
     ActionRowBuilder,
-    Client
+    Client,
+    BaseGuildTextChannel,
+    GuildMessageManager,
+    GuildTextBasedChannel,
+    Interaction,
+    InteractionResponse,
+    ChatInputCommandInteraction,
+    TextBasedChannel,
+    ButtonInteraction,
+    CacheType,
+    Embed
 } from 'discord.js';
 
 import { Giveaway } from '../../types/giveaways';
 import date from 'date-and-time';
 import db from './functions/DatabaseModel';
 
-async function Create(channel: any, data: Giveaway) {
+async function Create(channel: TextBasedChannel, data: Giveaway) {
 
     let confirm = new ButtonBuilder()
         .setCustomId('confirm-entry-giveaway')
@@ -40,18 +50,19 @@ async function Create(channel: any, data: Giveaway) {
         .setStyle(ButtonStyle.Primary);
 
     let gw = new EmbedBuilder()
-        .setColor(await db.get(`${channel.guild.id}.GUILD.GUILD_CONFIG.embed_color.gw`) || '#9a5af2')
+        .setColor(await db.get(`${(channel as GuildTextBasedChannel).guildId}.GUILD.GUILD_CONFIG.embed_color.gw`) || '#9a5af2')
         .setTitle(data.prize)
         .setDescription(`Ends: ${time((date.addMilliseconds(new Date(), data.duration)), 'R')} (${time((date.addMilliseconds(new Date(), data.duration)), 'D')})\nHosted by: ${data.hostedBy}\nEntries: **0**\nWinners: **${data.winnerCount}**`)
         .setTimestamp((date.addMilliseconds(new Date(), data.duration)));
 
     let response = await channel.send({
         embeds: [gw],
-        components: [new ActionRowBuilder()
+        components: [new ActionRowBuilder<ButtonBuilder>()
             .addComponents(confirm)]
     });
 
-    await db.set(`GIVEAWAYS.${channel.guild.id}.${channel.id}.${response.id}`,
+    await db.add("test", "s")
+    await db.set(`GIVEAWAYS.${(channel as GuildTextBasedChannel).guildId}.${channel.id}.${response.id}`,
         {
             winnerCount: data.winnerCount,
             prize: data.prize,
@@ -65,23 +76,23 @@ async function Create(channel: any, data: Giveaway) {
     return;
 };
 
-async function AddEntries(interaction: any) {
+async function AddEntries(interaction: ButtonInteraction<CacheType>) {
 
-    let members = await db.get(`GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`);
+    let members = await db.get(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`);
 
     if (members.includes(interaction.user.id)) {
         RemoveEntries(interaction);
         return;
     } else {
 
-        await db.push(`GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`, interaction.user.id);
+        await db.push(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`, interaction.user.id);
 
         await interaction.deferUpdate();
 
         let regex = /Entries: \*\*\d+\*\*/;
 
-        let embedsToEdit = new EmbedBuilder(interaction.message.embeds[0])
-            .setDescription(interaction.message.embeds[0].description
+        let embedsToEdit = EmbedBuilder.from(interaction.message.embeds[0])
+            .setDescription(interaction.message.embeds[0]?.description!
                 .replace(regex, `Entries: **${members.length + 1}**`)
             );
 
@@ -90,18 +101,18 @@ async function AddEntries(interaction: any) {
     return;
 };
 
-async function RemoveEntries(interaction: any) {
+async function RemoveEntries(interaction: ButtonInteraction<CacheType>) {
 
-    let members: Array<string> = await db.get(`GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`);
-    let lang = await interaction.client.functions.getLanguageData(interaction.guild.id);
+    let members: Array<string> = await db.get(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`);
+    let lang = await interaction.client.functions.getLanguageData(interaction.guild?.id);
 
-    function arraySub(arr: Array<any>, value: string) {
+    function arraySub(arr: Array<string>, value: string) {
         return arr.filter(function (toSub) {
             return toSub != value;
         });
     };
 
-    await db.set(`GIVEAWAYS.${interaction.guild.id}.${interaction.channel.id}.${interaction.message.id}.members`, arraySub(members, interaction.user.id));
+    await db.set(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`, arraySub(members, interaction.user.id));
 
     await interaction.reply({
         content: lang.event_gw_removeentries_msg
@@ -111,8 +122,8 @@ async function RemoveEntries(interaction: any) {
 
     let regex = /Entries: \*\*\d+\*\*/;
 
-    let embedsToEdit = new EmbedBuilder(interaction.message.embeds[0])
-        .setDescription(interaction.message.embeds[0].description
+    let embedsToEdit = EmbedBuilder.from(interaction.message.embeds[0])
+        .setDescription(interaction.message.embeds[0]?.description!
             .replace(regex, `Entries: **${arraySub(members, interaction.user.id).length}**`)
         );
 
@@ -120,7 +131,7 @@ async function RemoveEntries(interaction: any) {
     return;
 };
 
-async function End(client: Client, data: any) {
+async function End(client: Client, data: Data) {
 
     let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
 
@@ -137,7 +148,7 @@ async function End(client: Client, data: any) {
                     Finnish(
                         client,
                         messageId,
-                        data.guildId,
+                        data.guildId as string,
                         channelId
                     );
                 }
@@ -147,7 +158,12 @@ async function End(client: Client, data: any) {
     };
 };
 
-function SelectWinners(fetch: any, number: number) {
+interface Fetch {
+    members: string | any[];
+    winners: string | string[];
+};
+
+function SelectWinners(fetch: Fetch, number: number) {
     if (fetch.members.length === 0) {
         return undefined;
     };
@@ -180,7 +196,7 @@ function SelectWinners(fetch: any, number: number) {
     return winners.length > 0 ? winners : undefined;
 };
 
-async function Finnish(client: Client, messageId: any, guildId: any, channelId: any) {
+async function Finnish(client: Client, messageId: string, guildId: string, channelId: string) {
 
     let lang = await client.functions.getLanguageData(guildId);
     let fetch = await db.get(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
@@ -189,12 +205,12 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
         let guild = await client.guilds.fetch(guildId);
         let channel = await guild.channels.fetch(channelId);
 
-        let message = await (channel as any).messages.fetch(messageId).catch(async () => {
+        let message = await (channel as GuildTextBasedChannel).messages.fetch(messageId).catch(async () => {
             await db.delete(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
             return;
         })
 
-        let winner: any = SelectWinners(
+        let winner = SelectWinners(
             fetch,
             fetch.winnerCount
         );
@@ -212,19 +228,20 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
             .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.members.length}**\nWinners: ${winners}`)
             .setTimestamp()
 
-        await message.edit({
-            embeds: [embeds], components: [new ActionRowBuilder()
-                .addComponents(Finnish)]
+        await message?.edit({
+            embeds: [embeds], components: [
+                new ActionRowBuilder<ButtonBuilder>()
+                    .addComponents(Finnish)]
         });
 
         if (winners !== 'None') {
-            await message.reply({
+            await message?.reply({
                 content: lang.event_gw_finnish_msg
                     .replace('${winners}', winners)
                     .replace('${fetch.prize}', fetch.prize)
             })
         } else {
-            await message.reply({
+            await message?.reply({
                 content: lang.event_gw_finnish_cannot_msg
             });
         };
@@ -235,7 +252,12 @@ async function Finnish(client: Client, messageId: any, guildId: any, channelId: 
     return;
 };
 
-async function Reroll(client: Client, data: any) {
+interface Data {
+    guildId?: string;
+    messageId?: string;
+};
+
+async function Reroll(client: Client, data: Data) {
 
     let lang = await client.functions.getLanguageData(data.guildId);
     let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
@@ -244,15 +266,15 @@ async function Reroll(client: Client, data: any) {
         for (let messageId in fetch[channelId]) {
             if (messageId === data.messageId) {
 
-                let guild = await client.guilds.fetch(data.guildId);
+                let guild = await client.guilds.fetch(data.guildId as string);
                 let channel = await guild.channels.fetch(channelId);
 
-                let message = await (channel as any).messages.fetch(messageId).catch(async () => {
+                let message = await (channel as BaseGuildTextChannel).messages.fetch(messageId).catch(async () => {
                     await db.delete(`GIVEAWAYS.${data.guildId}.${channel?.id}.${data.messageId}`);
                     return;
                 })
 
-                let winner: any = SelectWinners(
+                let winner = SelectWinners(
                     fetch[channelId][messageId],
                     fetch[channelId][messageId].winnerCount
                 );
@@ -265,18 +287,18 @@ async function Reroll(client: Client, data: any) {
                     .setDescription(`Ended: ${time(new Date(fetch[channelId][messageId].expireIn), 'R')} (${time(new Date(fetch[channelId][messageId].expireIn), 'D')})\nHosted by: <@${fetch[channelId][messageId].hostedBy}>\nEntries **${fetch[channelId][messageId].members.length}**\nWinners: ${winners}`)
                     .setTimestamp()
 
-                await message.edit({
+                await message?.edit({
                     embeds: [embeds]
                 });
 
-                if (winner !== 'None') {
-                    await message.reply({
+                if (winner && winner[0] !== 'None') {
+                    await message?.reply({
                         content: lang.event_gw_reroll_win_msg
                             .replace('${winners}', winners)
                             .replace('${fetch[channelId][messageId].prize}', fetch[channelId][messageId].prize)
                     });
                 } else {
-                    await message.reply({
+                    await message?.reply({
                         content: lang.event_gw_reroll_cannot_win_msg
                     });
                 };
@@ -288,7 +310,7 @@ async function Reroll(client: Client, data: any) {
 
 };
 
-function Init(client: any) {
+function Init(client: Client) {
     Refresh(client);
 
     setInterval(() => {
@@ -297,7 +319,7 @@ function Init(client: any) {
 };
 
 
-async function isValid(giveawayId: number, data: any) {
+async function isValid(giveawayId: number, data: Data) {
     let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
 
     let dataDict: any = {};
@@ -315,7 +337,7 @@ async function isValid(giveawayId: number, data: any) {
     return false;
 };
 
-async function isEnded(giveawayId: number, data: any) {
+async function isEnded(giveawayId: number, data: { guildId: string }) {
     let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
 
     let dataDict: any = {};
@@ -364,6 +386,92 @@ async function Refresh(client: Client) {
     }
 };
 
+async function ListEntries(interaction: ChatInputCommandInteraction, data: Data) {
+    let drop_all_db = await db.get(`GIVEAWAYS`);
+
+    for (let guildId in drop_all_db) {
+        // guildId: Server Guild ID
+        // b: Giveaway's Message ID
+        // drop_all_db[a][b] : Giveaway Object
+
+        for (let channelId in drop_all_db[guildId]) {
+            for (let messageId in drop_all_db[guildId][channelId]) {
+                if (messageId === data.messageId && guildId === data.guildId) {
+                    var char: Array<string> = drop_all_db[guildId][channelId][messageId].members;
+
+                    if (char.length == 0) {
+                        await interaction.editReply({ content: "There is no entry into this competition." });
+                        return;
+                    };
+
+                    let currentPage = 0;
+                    let usersPerPage = 10;
+                    let pages: { title: string; description: string; }[] = [];
+
+                    for (let i = 0; i < char.length; i += usersPerPage) {
+                        let pageUsers = char.slice(i, i + usersPerPage);
+                        let pageContent = pageUsers.map((userId) => `<@${userId}>`).join('\n');
+                        pages.push({
+                            title: `Giveaway's Entries List | Page ${i / usersPerPage + 1}`,
+                            description: pageContent,
+                        });
+                    };
+
+                    let createEmbed = () => {
+                        return new EmbedBuilder()
+                            .setColor("#800080")
+                            .setTitle(pages[currentPage].title)
+                            .setDescription(pages[currentPage].description)
+                            .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: interaction.client.user?.displayAvatarURL() })
+                            .setTimestamp()
+                    };
+
+                    let row = new ActionRowBuilder().addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('previousPage')
+                            .setLabel('⬅️')
+                            .setStyle(ButtonStyle.Secondary),
+                        new ButtonBuilder()
+                            .setCustomId('nextPage')
+                            .setLabel('➡️')
+                            .setStyle(ButtonStyle.Secondary),
+                    );
+
+                    let messageEmbed = await interaction.editReply({
+                        embeds: [createEmbed()], components: [(row as ActionRowBuilder<ButtonBuilder>)]
+                    });
+
+                    let collector = messageEmbed.createMessageComponentCollector({
+                        filter: (i) => {
+                            i.deferUpdate();
+                            return interaction.user.id === i.user.id;
+                        }, time: 60000
+                    });
+
+                    collector.on('collect', (interaction: { customId: string; }) => {
+                        if (interaction.customId === 'previousPage') {
+                            currentPage = (currentPage - 1 + pages.length) % pages.length;
+                        } else if (interaction.customId === 'nextPage') {
+                            currentPage = (currentPage + 1) % pages.length;
+                        }
+
+                        messageEmbed.edit({ embeds: [createEmbed()] });
+                    });
+
+                    collector.on('end', () => {
+                        row.components.forEach((component) => {
+                            if (component instanceof ButtonBuilder) {
+                                component.setDisabled(true);
+                            }
+                        });
+                        messageEmbed.edit({ components: [(row as ActionRowBuilder<ButtonBuilder>)] });
+                    });
+                };
+            }
+        }
+    }
+}
+
 export {
     Init,
     isValid,
@@ -374,5 +482,6 @@ export {
     End,
 
     AddEntries,
-    RemoveEntries
+    RemoveEntries,
+    ListEntries
 };

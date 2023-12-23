@@ -23,6 +23,8 @@ import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
 import logger from "../core/logger";
 import config from "../files/config";
+import { EltType } from "../../types/eltType";
+import { Express } from "express-serve-static-core";
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     let result = [];
@@ -42,7 +44,7 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
     for (let elt of directoryTree) {
         switch (typeof elt) {
             case "object":
-                for (let subElt of buildPaths((elt as any).name, (elt as any).sub)) {
+                for (let subElt of buildPaths((elt as EltType).name, (elt as EltType).sub)) {
                     paths.push(pathJoin(basePath, subElt));
                 }
                 break;
@@ -56,7 +58,7 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
     return paths;
 };
 
-async function loadRoutes(app: any, path: string = `${process.cwd()}/dist/src/api/Routes/`): Promise<void> {
+async function loadRoutes(app: Express, path: string = `${process.cwd()}/dist/src/api/Routes/`): Promise<void> {
 
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
@@ -79,7 +81,6 @@ async function loadRoutes(app: any, path: string = `${process.cwd()}/dist/src/ap
             } else if (config.database.useDatabaseAPI) {
                 app.post(Routes.apiPath, Routes.run);
             };
-            
         };
     };
 

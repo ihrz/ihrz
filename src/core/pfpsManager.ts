@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { ActionRow, ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, Embed, EmbedBuilder } from "discord.js";
+import { ActionRow, ActionRowBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, Client, Embed, EmbedBuilder } from "discord.js";
 
 async function Init(client: Client) {
     Refresh(client);
@@ -67,7 +67,7 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
         user = guild?.members.cache.filter(user => user?.id !== usr).random();
     } else usr = (user?.id as string);
 
-    let actRow = new ActionRowBuilder();
+    let actRow: ActionRowBuilder<ButtonBuilder> = new ActionRowBuilder();
     let ebds = [];
 
     if (user?.avatarURL() !== null) {
@@ -100,7 +100,7 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
         .setFooter({ text: 'iHorizon' })
     );
 
-    (channel as any).send({
+    (channel as BaseGuildTextChannel).send({
         embeds: ebds, components: [actRow]
     });
     return;
