@@ -36,7 +36,7 @@ export = async (client: Client, interaction: Interaction) => {
             || interaction.user.bot) return;
 
         let cmd = client.applicationsCommands.get(interaction.commandName);
-        if (cmd && cmd.thinking) { interaction.deferReply() };
+        if (cmd && cmd.thinking) { await interaction.deferReply(); };
         if (cmd) { cmd.run(client, interaction) };
     };
 
