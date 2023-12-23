@@ -30,6 +30,7 @@ import { AnotherCommand } from '../../../types/anotherCommand';
 export const command: AnotherCommand = {
     name: "Pose a question!",
     type: ApplicationCommandType.Message,
+    thinking: false,
     run: async (client: Client, interaction: MessageContextMenuCommandInteraction) => {
 
         let data = await client.functions.getLanguageData(interaction.guild?.id);

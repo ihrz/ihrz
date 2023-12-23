@@ -104,6 +104,7 @@ function getBadges(flags: number) {
 export const command: AnotherCommand = {
     name: 'User Lookup',
     type: ApplicationCommandType.User,
+    thinking: false,
     run: async (client: Client, interaction: CommandInteraction) => {
 
         let data = await client.functions.getLanguageData(interaction.guild?.id);

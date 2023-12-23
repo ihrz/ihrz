@@ -30,6 +30,7 @@ import { Option } from "./option";
 
 export interface AnotherCommand {
     name: string,
-    type: ApplicationCommandType
+    type: ApplicationCommandType,
+    thinking: boolean,
     async run(client: Client, interaction: CommandInteraction): Promise<any>
 }

@@ -36,7 +36,8 @@ export = async (client: Client, interaction: Interaction) => {
             || interaction.user.bot) return;
 
         let cmd = client.applicationsCommands.get(interaction.commandName);
-        if (cmd) cmd.run(client, interaction);
+        if (cmd?.thinking) { interaction.deferReply() };
+        if (cmd) { cmd.run(client, interaction) };
     };
 
     async function buttonExecutor() {

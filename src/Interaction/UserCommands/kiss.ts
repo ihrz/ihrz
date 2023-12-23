@@ -30,6 +30,7 @@ import logger from '../../core/logger';
 export const command: AnotherCommand = {
     name: "Estimate the love",
     type: ApplicationCommandType.User,
+    thinking: false,
     run: async (client: Client, interaction: UserContextMenuCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guildId);
         var user1 = interaction.user;

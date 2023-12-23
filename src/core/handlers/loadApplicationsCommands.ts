@@ -33,7 +33,8 @@ export = async (client: Client) => {
         client.applicationsCommands.set(cmd.name, {
             type: cmd.type,
             run: cmd.run,
-            name: cmd.name
+            name: cmd.name,
+            thinking: true
         });
     });
 
@@ -43,7 +44,8 @@ export = async (client: Client) => {
         client.applicationsCommands.set(cmd.name, {
             type: cmd.type,
             run: cmd.run,
-            name: cmd.name
+            name: cmd.name,
+            thinking: true
         });
     });
 };
