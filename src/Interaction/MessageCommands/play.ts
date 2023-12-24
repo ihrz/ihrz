@@ -40,7 +40,16 @@ export const command: AnotherCommand = {
 
         let data = await client.functions.getLanguageData(interaction.guildId);
         let voiceChannel = (interaction.member as GuildMember)?.voice.channel;
-        let check = interaction.options.getMessage("message")?.content || ".";
+
+        let msg = interaction.options.getMessage("message");
+        let check: string;
+
+        if (msg?.attachments) {
+            let firstAttachement = msg.attachments.first();
+
+            check = firstAttachement?.url as string
+        } else { check = msg?.content as string };
+
 
         if (!voiceChannel) {
             await interaction.editReply({ content: data.p_not_in_voice_channel });
