@@ -41,13 +41,13 @@ export const command: AnotherCommand = {
         if (!text?.[2]) {
             await interaction.reply({ content: data.question_not_full });
             return;
-        }
+        };
 
-        let reponses = data.question_s
+        let reponses = data.question_s;
 
         let embed = new EmbedBuilder()
             .setTitle(data.question_embed_title
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName)
+                .replace(/\${interaction\.user\.username}/g, interaction.targetMessage.author.globalName || interaction.targetMessage.author.tag)
             )
             .setColor("#ddd98b")
             .addFields(
