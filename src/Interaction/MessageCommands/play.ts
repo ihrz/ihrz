@@ -42,12 +42,65 @@ export const command: AnotherCommand = {
         let voiceChannel = (interaction.member as GuildMember)?.voice.channel;
 
         let msg = interaction.options.getMessage("message");
-        let check: string;
+        let check: string = "";
 
-        if (msg?.attachments) {
-            let firstAttachement = msg.attachments.first();
+        if (msg && msg.attachments.size >= 1) {
 
-            check = firstAttachement?.url as string
+            if (msg.attachments.size == 1) {
+                let firstAttachement = msg?.attachments.first();
+                check = firstAttachement?.url as string
+            } else if (msg.attachments.size > 1) {
+                msg.attachments.forEach(async content => {
+
+                    let result = await interaction.client.player.search(content.url, {
+                        requestedBy: interaction.user, searchEngine: QueryType.AUTO
+                    });
+
+                    let results = new EmbedBuilder()
+                        .setTitle(data.p_embed_title)
+                        .setColor('#ff0000')
+                        .setTimestamp();
+
+                    if (!result.hasTracks()) {
+                        await interaction.editReply({ embeds: [results] });
+                        return;
+                    };
+
+                    let yes = await interaction.client.player.play((interaction.member as GuildMember).voice.channel?.id as GuildVoiceChannelResolvable, result, {
+                        nodeOptions: {
+                            metadata: {
+                                channel: interaction.channel,
+                                client: interaction.guild?.members.me,
+                                requestedBy: interaction.user.globalName
+                            },
+                            volume: 60,
+                            bufferingTimeout: 3000,
+                            leaveOnEnd: true,
+                            leaveOnEndCooldown: 150000,
+                            leaveOnStop: true,
+                            leaveOnStopCooldown: 30000,
+                            leaveOnEmpty: true,
+                        },
+                    });
+
+                    let embed = new EmbedBuilder()
+                        .setDescription(`${yes.track.playlist ? `**multiple tracks** from: **${yes.track.playlist.title}**` : `**${yes.track.title}**`}`)
+                        .setColor('#00cc1a')
+                        .setTimestamp()
+                        .setFooter({ text: data.p_duration + `${yes.track.playlist ? `${yess()}` : `${yes.track.duration}`}` });
+
+                    embed
+                        .setThumbnail(`${yes.track.playlist ? `${yes.track.playlist.thumbnail}` : `${yes.track.thumbnail}`}`)
+
+                    await interaction.editReply({
+                        content: data.p_loading_message
+                            .replace("{result}", result.playlist ? 'playlist' : 'track'), embeds: [embed]
+                    });
+                });
+
+                return;
+            }
+
         } else { check = msg?.content as string };
 
 
@@ -57,7 +110,7 @@ export const command: AnotherCommand = {
         };
         //if (!client.functions.isLinkAllowed(check)) { return interaction.editReply({ content: data.p_not_allowed }) };
 
-        let result = await interaction.client.player.search(check as string, {
+        let result = await interaction.client.player.search(check, {
             requestedBy: interaction.user, searchEngine: QueryType.AUTO
         });
 
