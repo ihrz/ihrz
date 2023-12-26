@@ -1,31 +1,51 @@
 [badge]
 
-Discord_Employee = "<:STAFF:1139545238340374548>"
+Discord_Employee = "<:iHorizon_Discord_Staff_Badge:1189294148986077344>"
 
-Partnered_Server_Owner = "<:PARTENAIRE:1139545259920068669>"
+Partnered_Server_Owner = "<:iHorizon_Partne_Badger:1189294144703713281>"
 
-HypeSquad_Events = "<:HYPESQUAD_EVENTS:1139545244476657665>"
+HypeSquad_Events = "<:iHorizon_HypeSquad_Event_Badge:1189294137728569354>"
 
-Bug_Hunter_Level_1 = "<:BUG1:1139545246246649926>"
+Bug_Hunter_Level_1 = "<:iHorizon_Bug_Hunter1_Badge:1189294127339274290>"
 
-Bug_Hunter_Level_2 = "<:BUG2:1139545241104425072>"
+Bug_Hunter_Level_2 = "<:iHorizon_Bug_Hunter2_Badge:1189294129629368331>"
 
-Early_Supporter = "<:EARLY:1139545250394820628>"
+Early_Supporter = "<:iHorizon_Early_Supporter_Badge:1189294133634941000>"
 
-Early_Verified_Bot_Developer = "<:EARLY_CERTIFIED_DISCORD_BOT_DEVE:1139545239925833860>"
+Early_Verified_Bot_Developer = "<:iHorizon_ECBDD_Badge:1189294135392358411>"
 
-House_Bravery = "<:BRAVERY:1139545256350715924>"
+House_Bravery = "<:iHorizon_HypeS_Bravery_Bad:1189294122272575640>"
 
-House_Brilliance = "<:BRILLANCE:1139545266710655176>"
+House_Brilliance = "<:iHorizon_HypeS_Brillance_Bad:1189294125028229141>"
 
-House_Balance = "<:BALANCE:1139545247735611564>"
+House_Balance = "<:iHorizon_HypeS_Balance_Bad:1189294116966772917>"
 
-Active_Developers = "<:VERIFIED_DEV:1139545271127253152>"
+Active_Developers = "<:iHorizon_Active_Dev_Badge:1189294151062278336>"
 
-Discord_Moderators = "<:MODERATORS:1139545261165781034>"
+Discord_Moderators = "<:iHorizon_Discord_Moderators_Badg:1189294139901235211>"
 
-Slash_Bot = "<:SLASH_BOTS:1139545263254548631>"
+Slash_Bot = "<:iHorizon_Slash_Bot_Badge:1189294146817638572>"
 
-Nitro = "<:NITRO:1139545249086181488>"
+Nitro = "<:iHorizon_Discord_Nitro_Badge:1189294142220664933>"
 
-Server_Boost_Badge = "<:BOOST:1139545269743141014>"
+Server_Boost_Badge = "<:iHorizon_Discord_Nitro_Boost_Bad:1189294119319769220>"
+
+[icon]
+
+Crown_Logo = "<:iHorizon_Crown:1189294161854201866>"
+
+Boosting_24_Months_Logo = "<:iHorizon_Boosting24Months_Badge:1189294132250816592>"
+
+Discord_Nitro_Animated_Logo = "<a:iHorizon_Discord_Nitro_Animated:1189294154036031580>"
+
+Green_Tick_Logo = "<a:iHorizon_GreenTick:1189294159064989794>"
+
+NodeJS_Logo = "<:iHorizon_NodeJS_logo:1189294156703600732>"
+
+Yes_Logo = "<:iHorizon_Yes:1189307936980353255>"
+
+No_Logo = "<:iHorizon_No:1189307830122074173>"
+
+Stop_Logo = "<:iHorizon_Stop:1189325635894652978>"
+
+Wallet_Logo = "<:iHorizon_Wallet:1189326383462236190>"

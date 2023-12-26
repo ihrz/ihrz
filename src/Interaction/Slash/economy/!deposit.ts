@@ -44,7 +44,9 @@ export = {
         let toDeposit = interaction.options.getNumber('how-much');
 
         if (toDeposit && toDeposit > balance) {
-            await interaction.reply({ content: data.deposit_cannot_abuse });
+            await interaction.reply({
+                content: data.deposit_cannot_abuse.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 

@@ -76,7 +76,9 @@ export = {
                     logger.err(e);
                 };
 
-                await interaction.editReply({ content: data.setleavemessage_command_work_on_enable });
+                await interaction.editReply({
+                    content: data.setleavemessage_command_work_on_enable.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+                });
                 return;
             }
 
@@ -99,7 +101,9 @@ export = {
                 logger.err(e)
             };
 
-            await interaction.editReply({ content: data.setleavemessage_command_work_on_disable });
+            await interaction.editReply({
+                content: data.setleavemessage_command_work_on_disable.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+            });
             return;
         } else if (type == "ls") {
             var ls = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.leavemessage`);

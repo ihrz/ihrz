@@ -120,14 +120,14 @@ unowner_command_work: "${member.username} больше не является в�
 blacklist_not_owner: "Вы не являетесь владельцем проекта iHorizon. Вы не можете использовать эту команду."
 blacklist_bot_lol: "Не могу внести себя в черный список x)"
 blacklist_command_work: "${member.user.username} теперь в черном списке"
-blacklist_blacklisted_but_can_ban_him: "❌ Теперь в черном списке, нельзя заблокировать этого участника здесь, отсутствуют разрешения?"
+blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.icon.No_Logo} Теперь в черном списке, нельзя заблокировать этого участника здесь, отсутствуют разрешения?"
 blacklist_already_blacklisted: "${member.user.username} уже в черном списке!"
 
 # /unblacklist
 unblacklist_not_owner: "Вы не являетесь владельцем проекта iHorizon. Вы не можете использовать эту команду."
 unblacklist_command_work: "<@${member.id}> больше не в черном списке"
 unblacklist_not_blacklisted: "<@${member.id}> не был в черном списке"
-unblacklist_unblacklisted_but_can_unban_him: "❌ Теперь не в черном списке, нельзя разблокировать этого участника здесь, отсутствуют разрешения или он уже разблокирован?"
+unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.icon.No_Logo} Теперь не в черном списке, нельзя разблокировать этого участника здесь, отсутствуют разрешения или он уже разблокирован?"
 unblacklist_user_is_not_exist: "Я не могу найти этого пользователя"
 
 
@@ -298,9 +298,9 @@ addmoney_command_work: "Успешно добавлено `${amount.value}`$ п�
 
 # /balance
 balance_dont_have_wallet: "👛 У вас нет кошелька... !"
-balance_he_dont_have_wallet: "${user} не имеет кошелька... !"
+balance_he_dont_have_wallet: "${client.iHorizon_Emojis.icon.Wallet_Logo} ${user} не имеет кошелька... !"
 balance_have_wallet: "👛 У вас есть ${bal} монет(ы) !"
-balance_he_have_wallet: "👛 У ${user} есть ${bal} монет(ы) !"
+balance_he_have_wallet: "${client.iHorizon_Emojis.icon.Wallet_Logo} У ${user} есть ${bal} монет(ы) !"
 balance_embed_fields1_name: "Банк"
 balance_embed_fields2_name: "В балансе"
 
@@ -347,13 +347,13 @@ work_embed_author: "${interaction.user.username}, это окупилось!"
 work_embed_description: "${interaction.user.username}, вы поработали и заработали ${amount}$ !"
 
 # /withdraw
-withdraw_cannot_abuse: "❌ | Вы не можете снять большую сумму монет, чем у вас в банке!"
+withdraw_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | Вы не можете снять большую сумму монет, чем у вас в банке!"
 withdraw_embed_title: "Снятие с вашего банка"
 withdraw_embed_desc: "${interaction.user}, вы сняли ${toWithdraw}🪙 с вашего `банка`"
 withdraw_embed_fields1_name: "Банк"
 
 # /deposit
-deposit_cannot_abuse: "❌ | Вы не можете внести большую сумму монет, чем у вас в кошельке!"
+deposit_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | Вы не можете внести большую сумму монет, чем у вас в кошельке!"
 deposit_embed_title: "Внесение в ваш банк"
 deposit_embed_desc: "${interaction.user}, вы внесли ${toDeposit}🪙 в ваш `банк`"
 deposit_embed_fields1_name: "Банк"
@@ -409,16 +409,16 @@ serverinfo_embed_fields_joinat: "🚲・**Присоединился:**"
 serverinfo_embed_fields_createat: "⚓・**Создан:**"
 
 # /setrankroles
-setrankroles_not_admin: "❌ Вы не являетесь администратором этого сервера. Вы не можете выполнить эту команду!"
-setrankroles_already_this_in_db: "❎ Роли рангов уже есть в базе данных для этого сервера. "
-setrankroles_not_roles_typed: "❌ Вы не включили ни одной роли в вашей команде!"
+setrankroles_not_admin: "${client.iHorizon_Emojis.icon.No_Logo} Вы не являетесь администратором этого сервера. Вы не можете выполнить эту команду!"
+setrankroles_already_this_in_db: "${client.iHorizon_Emojis.icon.No_Logo} Роли рангов уже есть в базе данных для этого сервера. "
+setrankroles_not_roles_typed: "${client.iHorizon_Emojis.icon.No_Logo} Вы не включили ни одной роли в вашей команде!"
 setrankroles_command_work: "Теперь, когда вы упоминаете меня `@iHorizon`, я добавлю следующие роли: <@&${argsid}>"
 setrankroles_logs_embed_description_enable: "<@${interaction.user.id}> установил роли рангов на <@&${argsid}>"
 setrankroles_logs_embed_title_enable: "Установить роли рангов"
 setrankroles_logs_embed_description_disable: "<@${interaction.user.id}> удалил роль рангов!"
 setrankroles_logs_embed_title_disable: "Установить роли рангов"
 setrankroles_command_work_disable: "<@${interaction.user.id}>, вы удалили роль рангов!"
-setrankroles_command_error: "❌ Команда столкнулась с ошибкой! Попробуйте еще раз позже."
+setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} Команда столкнулась с ошибкой! Попробуйте еще раз позже."
 
 # /snipe
 snipe_no_previous_message_deleted: "В этом канале нет удаленных сообщений!"
@@ -562,10 +562,10 @@ setjoinmessage_help_embed_fields_name: "Как использовать?"
 setjoinmessage_help_embed_fields_value: "Используйте ```/setjoinmessage <Включить / Выключить / Показать установленное сообщение> <сообщение>```\n{user} = Имя участника\n{membercount} = Количество участников сервера\n{createdat} = Дата создания аккаунта участника\n{guild} = Название сервера\n{inviter} = Имя и дискриминатор пригласившего пользователя\n{invites} = Количество приглашений пользователя"
 setjoinmessage_logs_embed_title_on_enable: "Журнал установки сообщения при входе"
 setjoinmessage_logs_embed_description_on_enable: "<@${interaction.user.id}> установил сообщение при входе!"
-setjoinmessage_command_work_on_enable: "✅ | Сообщение при входе успешно установлено."
+setjoinmessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo}  | Сообщение при входе успешно установлено."
 setjoinmessage_logs_embed_title_on_disable: "Журнал отключения сообщения при входе"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> удалил сообщение при входе!"
-setjoinmessage_command_work_on_disable: "✅ | Сообщение при входе успешно удалено."
+setjoinmessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Сообщение при входе успешно удалено."
 setjoinmessage_command_work_ls: "Сообщение при входе:"
 
 # /setjoinroles
@@ -593,21 +593,21 @@ setleavemessage_help_embed_fields_name: "Как использовать?"
 setleavemessage_help_embed_fields_value: "Используйте ```/setleavemessage <Включить / Выключить / Показать установленное сообщение> <сообщение>```\n{user} = Имя участника\n{membercount} = Количество участников сервера\n{guild} = Название сервера"
 setleavemessage_logs_embed_title_on_enable: "Журнал установки сообщения при выходе"
 setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}> установил сообщение при выходе!"
-setleavemessage_command_work_on_enable: "✅ | Успешно установлено пользовательское сообщение при выходе."
+setleavemessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Успешно установлено пользовательское сообщение при выходе."
 setleavemessage_logs_embed_title_on_disable: "Журнал отключения сообщения при выходе"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> удалил сообщение при выходе!"
-setleavemessage_command_work_on_disable: "✅ | Успешно удалено пользовательское сообщение при выходе."
+setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Успешно удалено пользовательское сообщение при выходе."
 setleavemessage_command_work_ls: "Сообщение при выходе:"
 
 # /setup
 setup_not_admin: ":x: | Для выполнения этой команды вы должны быть администратором этого сервера!"
-setup_command_work: "✅ | Настройка каналов"
+setup_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} | Настройка каналов"
 setup_command_error: "Бот уже настроил каналы для журналов! Или у бота нет разрешения..."
 
 # /setlogschannel
 setlogschannel_not_admin:  ":x: | Для выполнения этой команды вы должны быть администратором этого сервера!"
 setlogschannel_not_specified_args: "Вы должны указать допустимый канал для вашего модуля."
-setlogschannel_confirmation_message: "✅ | Теперь `${typeOfLogs}` настроен, установлено пользователем <@${interaction.user.id}> !"
+setlogschannel_confirmation_message: "${client.iHorizon_Emojis.icon.Yes_Logo} | Теперь `${typeOfLogs}` настроен, установлено пользователем <@${interaction.user.id}> !"
 setlogschannel_already_this_channel: "На этом сервере уже есть этот канал для журналов!"
 setlogschannel_already_deleted: "На этом сервере уже нет `SERVER_LOGS`!"
 setlogschannel_command_error: "Ошибка?"
@@ -646,8 +646,8 @@ setmembercount_helpembed_fields_name: "Как использовать?"
 setmembercount_helpembed_fields_value: "Используйте ```/setjoinmessage <Включить / Выключить / Показать установленное сообщение> <сообщение>```\n{membercount} = Количество участников сервера\n{rolescount} = Количество ролей\n{botcount} = Количество ботов на сервере"
 setmembercount_logs_embed_title_on_enable: "Журнал установки счетчика участников"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> установил счетчик участников на <#${channel.id}> в `${messagei}`!"
-setmembercount_command_work_on_enable: "✅ | Успешно установлен счетчик участников."
-setmembercount_command_work_on_disable: "✅ | Успешно удален счетчик участников."
+setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Успешно установлен счетчик участников."
+setmembercount_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Успешно удален счетчик участников."
 setmembercount_logs_embed_title_on_disable: "Журнал удаления счетчика участников"
 setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> удалил счетчик участников с этого сервера!"
 
@@ -739,30 +739,30 @@ avatar_embed_description: "Посмотрите на этот удивитель
 avatar_embed_title: "__**Аватар**__: `${mentionedUser.username}`"
 
 # /ban
-ban_not_permission: "❌ | У вас нет разрешения на бан участников."
+ban_not_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас нет разрешения на бан участников."
 ban_dont_found_member: "🔍 | Не удалось найти этого участника"
-ban_dont_have_perm_myself: "❌ | У меня нет разрешения на бан участников!"
-ban_try_to_ban_yourself: "❌ | Вы не можете забанить сами себя!"
-ban_attempt_ban_higter_member: "🛑 Вы не можете забанить пользователя с более высокой ролью, чем у вас..."
-ban_cant_ban_member: "❌ | Я не могу забанить этого участника"
+ban_dont_have_perm_myself: "${client.iHorizon_Emojis.icon.No_Logo} | У меня нет разрешения на бан участников!"
+ban_try_to_ban_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | Вы не можете забанить сами себя!"
+ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.icon.Stop_Logo} Вы не можете забанить пользователя с более высокой ролью, чем у вас..."
+ban_cant_ban_member: "${client.iHorizon_Emojis.icon.No_Logo} | Я не могу забанить этого участника"
 ban_message_to_the_banned_member: "Вы были забанены на этом сервере: **${interaction.guild.name}** пользователем `${interaction.member.user.username}`"
 ban_command_work: "<@${member.user.id}> забанен пользователем <@${interaction.member.id}>"
 ban_logs_embed_title: "Логи банов"
 ban_logs_embed_description: "<@${member.user.id}> забанен пользователем <@${interaction.member.id}>"
 
 # /kick
-kick_not_permission: "❌ | У вас нет разрешения на кик участников."
-kick_dont_have_permission: "❌ | У меня нет разрешения на кик участников!"
-kick_attempt_kick_your_self: "❌ | Вы не можете выгнать сами себя!"
-kick_attempt_kick_higter_member: "🛑 Вы не можете выгнать пользователя с более высокой ролью, чем у вас..."
+kick_not_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас нет разрешения на кик участников."
+kick_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У меня нет разрешения на кик участников!"
+kick_attempt_kick_your_self: "${client.iHorizon_Emojis.icon.No_Logo} | Вы не можете выгнать сами себя!"
+kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.icon.Stop_Logo} Вы не можете выгнать пользователя с более высокой ролью, чем у вас..."
 kick_message_to_the_banned_member: "Вы были выгнаны с этого сервера: **${interaction.guild.name}** пользователем `${interaction.member.user.username}`"
 kick_command_work: "${member.user} был выгнан пользователем ${interaction.user}"
 kick_logs_embed_title: "Логи киков"
 kick_logs_embed_description: "${member.user} был выгнан пользователем <@${interaction.user.id}>"
 
 # /clear
-clear_dont_have_permission: "❌ | У вас нет разрешения `MANAGE_MESSAGES`."
-clear_max_message_limit: "❌ | Я не могу удалить более 99 сообщений за один раз!"
+clear_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас нет разрешения `MANAGE_MESSAGES`."
+clear_max_message_limit: "${client.iHorizon_Emojis.icon.No_Logo} | Я не могу удалить более 99 сообщений за один раз!"
 clear_channel_message_deleted: "Удалено ${messages.size} сообщений!"
 clear_confirmation_message: "${messages.size} сообщений было удалено!"
 clear_logs_embed_title: "Логи удаления сообщений"
@@ -770,36 +770,36 @@ clear_logs_embed_description: "<@${interaction.user.id}> удалил ${messages
 
 # /lock
 lock_embed_message_description: "Канал заблокирован пользователем <@${interaction.user.id}>."
-lock_dont_have_permission: "❌ | У вас нет разрешения на блокировку каналов."
+lock_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас нет разрешения на блокировку каналов."
 lock_logs_embed_title: "Логи блокировки каналов"
 lock_logs_embed_description: "<@${interaction.user.id}> заблокировал канал <#${interaction.channel.id}>"
 
 # /unlock
 unlock_embed_message_description: "Канал успешно разблокирован!"
-unlock_dont_have_permission: "❌ | У вас нет разрешения на разблокировку канала."
+unlock_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас нет разрешения на разблокировку канала."
 unlock_logs_embed_title: "Логи разблокировки каналов"
 unlock_logs_embed_description: "<@${interaction.user.id}> разблокировал канал <#${interaction.channel.id}>"
 
 # /lockall
-lockall_dont_have_permission: "❌ | У вас нет разрешения на блокировку всех каналов."
+lockall_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас нет разрешения на блокировку всех каналов."
 lockall_embed_message_description: "Все каналы заблокированы пользователем <@${interaction.user.id}>."
 lockall_logs_embed_title: "Логи блокировки всех каналов"
 lockall_logs_embed_description: "<@${interaction.user.id}> заблокировал все каналы!"
 
 # /unban
-unban_dont_have_permission: "❌ | У вас нет разрешения на разбан участников."
-unban_bot_dont_have_permission: "❌ | У меня нет разрешения."
-unban_there_is_nobody_banned: "❌ | **На этом сервере нет забаненных участников!**"
-unban_the_member_is_not_banned: "❌ | **Указанный ID не забанен на этом сервере**!"
+unban_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас нет разрешения на разбан участников."
+unban_bot_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У меня нет разрешения."
+unban_there_is_nobody_banned: "${client.iHorizon_Emojis.icon.No_Logo} | **На этом сервере нет забаненных участников!**"
+unban_the_member_is_not_banned: "${client.iHorizon_Emojis.icon.No_Logo} | **Указанный ID не забанен на этом сервере**!"
 unban_is_now_unbanned: "<@${userID}> теперь разбанен на этом сервере!"
 unban_logs_embed_title: "Логи разбанов"
 unban_logs_embed_description: "<@${userID}> теперь разбанен на сервере пользователем ${interaction.user.id}!"
 unban_reason: "Причина не указана."
 
 # /tempmute
-tempmute_dont_have_permission: "❌ | У вас нет разрешения на временную блокировку участников."
-tempmute_i_dont_have_permission: "❌ | У меня нет разрешения."
-tempmute_cannot_mute_yourself: "❌ | Вы не можете временно заблокировать сами себя!"
+tempmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас нет разрешения на временную блокировку участников."
+tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У меня нет разрешения."
+tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | Вы не можете временно заблокировать сами себя!"
 tempmute_already_muted: "Этот пользователь уже заблокирован!"
 tempmute_command_work: "<@${tomute.id}> был заблокирован на ${ms(ms(mutetime))}"
 tempmute_unmuted_by_time: "<@${tomute.id}> был разблокирован!"
@@ -808,9 +808,9 @@ tempmute_logs_embed_description: "<@${interaction.user.id}> заблокиров
 tempmute_reason_create_roles: "Создана роль для временной блокировки!"
 
 # /unmute
-unmute_dont_have_permission: "❌ | У вас нет разрешения на разблокировку участников."
-unmute_attempt_mute_your_self: "❌ | Вы не можете разблокировать сами себя!"
-unmute_i_dont_have_permission: "❌ | У меня нет разрешения."
+unmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас нет разрешения на разблокировку участников."
+unmute_attempt_mute_your_self: "${client.iHorizon_Emojis.icon.No_Logo} | Вы не можете разблокировать сами себя!"
+unmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У меня нет разрешения."
 unmute_not_muted: "Этот пользователь не заблокирован!"
 unmute_muted_role_doesnt_exist: "Роль `muted` не существует. Пожалуйста, заблокируйте пользователя **перед** созданием ролей для блокировки..."
 unmute_command_work: "<@${tomute.id}> был разблокирован!"
@@ -832,10 +832,10 @@ backup_logs_embed_description_on_creation: "<@${interaction.user.id}> Созда
 backup_dont_have_perm_on_load: ":x: | Вы должны быть администратором сервера, чтобы загрузить резервное копирование!"
 backup_i_dont_have_perm_on_load: "У меня нет разрешения `АДМИНИСТРАТОР`"
 backup_unvalid_id_on_load: ":x: | Вы должны указать действительный ID резервного копирования!"
-backup_waiting_on_load: "✅ - Загрузка..."
+backup_waiting_on_load: "${client.iHorizon_Emojis.icon.Yes_Logo} - Загрузка..."
 backup_error_on_load: ":x: | Извините, произошла ошибка... Пожалуйста, проверьте, что у меня есть права администратора!"
 backup_error_when_fetch_backup_on_load: ":x: | Резервная копия не найдена для ${backupID}!"
-backup_this_is_not_your_backup: "❌ | Это не ваша резервная копия!"
+backup_this_is_not_your_backup: "${client.iHorizon_Emojis.icon.No_Logo} | Это не ваша резервная копия!"
 backup_backup_doesnt_exist: "Ошибка? Резервная копия не существует."
 backup_string_see_v: ":placard:・Количество категорий: `${data.categoryCount}`\n:hash:・Количество каналов: `${data.channelCount}`"
 backup_all_of_your_backup: "**Все ваши резервные копии:**"
@@ -849,7 +849,7 @@ backup_string_see_another_v: ":placard:・Количество категори�
 reactionroles_dont_admin_added: ":x: | Вы должны быть администратором сервера, чтобы запросить эту команду!"
 reactionroles_embed_message_description_added: "__как использовать?__\n/rolesreaction add `<ID сообщения>` `<реакция>` `<ID роли>`\n/rolesreaction remove `<ID сообщения>` `<реакция>`\n/rolesreaction list `<ID сообщения>`"
 reactionroles_missing_reaction_added: "Отсутствует аргумент: Emoji реакции"
-reactionroles_invalid_emote_format_added: "❌ | Вы не можете отправить мне `CUSTOM_EMOJI` в формате `<::xxx>`! Мне нужен только их ID!"
+reactionroles_invalid_emote_format_added: "${client.iHorizon_Emojis.icon.No_Logo} | Вы не можете отправить мне `CUSTOM_EMOJI` в формате `<::xxx>`! Мне нужен только их ID!"
 reactionroles_logs_embed_title_added: "Логи реакций на роли"
 reactionroles_logs_embed_description_added: "<@${interaction.user.id}> установил реакцию на роли: Сообщение: `${messagei}` | Реакция: `${reaction}` | Роль: ${role}"
 reactionroles_command_work_added: "${reaction} была добавлена к сообщению ${messagei} для выдачи роли ${role}"
@@ -935,7 +935,7 @@ embed_choose_9: "Какое изображение миниатюры вы хо�
 embed_choose_10: "Какое изображение вы хотите включить во встраивание?"
 embed_choose_11: "Какой URL заголовка вы хотите включить во встраивание?"
 embed_choose_12: "Какой цвет вы хотите включить во встраивание? **www.color-hex.com**"
-embed_choose_12_error: "❌ | Неверный цвет! Пожалуйста, проверьте **www.color-hex.com**"
+embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | Неверный цвет! Пожалуйста, проверьте **www.color-hex.com**"
 embed_choose_13: "Цвет встраивания успешно удален!"
 embed_send_embed_work: "<@${interaction.user.id}>, **Вы успешно отправили встраивание в канал <#${message.content}>!**"
 
@@ -1150,7 +1150,7 @@ event_mp_playerStart: "🎵 - Сейчас играет `${track.title}` в **${
 event_mp_audioTrackAdd: ":musical_note: - ${track.title} добавлена в очередь!"
 event_mp_playerError: "У меня возникли проблемы с подключением => ${error.message}"
 event_mp_error: "Возникла проблема с очередью песен => ${error.message}"
-event_mp_emptyChannel: "❌ | Никто не находится в голосовом канале, ухожу..."
+event_mp_emptyChannel: "${client.iHorizon_Emojis.icon.No_Logo} | Никто не находится в голосовом канале, ухожу..."
 event_mp_playerSkip: ":musical_note: - Пропускается **${track.title}** !"
 event_mp_emptyQueue: "⚠️ - Музыка остановлена, так как в очереди больше нет музыки!"
 

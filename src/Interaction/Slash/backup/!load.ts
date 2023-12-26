@@ -49,11 +49,15 @@ export = {
         };
 
         if (backupID && !await client.db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {
-            await interaction.editReply({ content: data.backup_this_is_not_your_backup });
+            await interaction.editReply({
+                content: data.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 
-        await interaction.channel?.send({ content: data.backup_waiting_on_load });
+        await interaction.channel?.send({
+            content: data.backup_waiting_on_load.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+        });
 
         backup.fetch(backupID).then(async () => {
             backup.load(backupID as string | BackupData, interaction.guild as Guild).then(() => {
@@ -63,7 +67,7 @@ export = {
                 return;
             });
         }).catch((err) => {
-            interaction.channel?.send({ content: `❌` });
+            interaction.channel?.send({ content: client.iHorizon_Emojis.icon.No_Logo });
             return;
         });
     },

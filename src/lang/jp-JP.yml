@@ -120,14 +120,14 @@ unowner_command_work: "${member.username}はもう所有者ではありません
 blacklist_not_owner: "あなたはiHorizonプロジェクトの所有者ではありません。このコマンドを使用することはできません。"
 blacklist_bot_lol: "自分自身をブラックリストにすることはできません x)"
 blacklist_command_work: "${member.user.username}は今、ブラックリストに登録されています。"
-blacklist_blacklisted_but_can_ban_him: "❌ 現在ブラックリストに登録されています。このメンバーをここでBanすることはできません。パーミッションが足りませんか？"
+blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.icon.No_Logo} 現在ブラックリストに登録されています。このメンバーをここでBanすることはできません。パーミッションが足りませんか？"
 blacklist_already_blacklisted: "${member.user.username}はすでにブラックリストに登録されています！"
 
 # /unblacklist
 unblacklist_not_owner: "あなたはiHorizonプロジェクトの所有者ではありません。このコマンドを使用することはできません。"
 unblacklist_command_work: "<@${member.id}>はもうブラックリストに登録されていません。"
 unblacklist_not_blacklisted: "<@${member.id}>はブラックリストに登録されていませんでした。"
-unblacklist_unblacklisted_but_can_unban_him: "❌現在ブラックリストから削除されています。このメンバーをここでアンバンすることはできません。パーミッションが足りませんか？またはすでにアンバンされていますか？"
+unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.icon.No_Logo} 現在ブラックリストから削除されています。このメンバーをここでアンバンすることはできません。パーミッションが足りませんか？またはすでにアンバンされていますか？"
 unblacklist_user_is_not_exist: "ユーザーを見つけることができませんでした。"
 
 
@@ -298,9 +298,9 @@ addmoney_command_work: "<@${user.user.id}> に `${amount.value}`$ 追加に成�
 
 # /balance
 balance_dont_have_wallet: "👛 財布がありません... !"
-balance_he_dont_have_wallet: "${user} は財布を持っていません... !"
+balance_he_dont_have_wallet: "${client.iHorizon_Emojis.icon.Wallet_Logo} ${user} は財布を持っていません... !"
 balance_have_wallet: "👛 ${bal} コインを持っています！"
-balance_he_have_wallet: "👛 ${user} は ${bal} コインを持っています！"
+balance_he_have_wallet: "${client.iHorizon_Emojis.icon.Wallet_Logo} ${user} は ${bal} コインを持っています！"
 balance_embed_fields1_name: "銀行"
 balance_embed_fields2_name: "バランス中"
 
@@ -347,13 +347,13 @@ work_embed_author: "${interaction.user.username}、報酬がもらえました�
 work_embed_description: "${interaction.user.username}、あなたは働いて${amount}$を稼ぎました！"
 
 # /withdraw
-withdraw_cannot_abuse: "❌ | あなたの銀行にある金額よりも多くのコインを引き出すことはできません！"
+withdraw_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | あなたの銀行にある金額よりも多くのコインを引き出すことはできません！"
 withdraw_embed_title: "あなたの銀行から引き出す"
 withdraw_embed_desc: "${interaction.user}、あなたは`銀行`から${toWithdraw}🪙を引き出しました"
 withdraw_embed_fields1_name: "銀行"
 
 # /deposit
-deposit_cannot_abuse: "❌ | あなたのウォレットにある金額よりも多くのコインを預けることはできません！"
+deposit_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | あなたのウォレットにある金額よりも多くのコインを預けることはできません！"
 deposit_embed_title: "あなたの銀行に預ける"
 deposit_embed_desc: "${interaction.user}、あなたは`銀行`に${toDeposit}🪙を預けました"
 deposit_embed_fields1_name: "銀行"
@@ -409,16 +409,16 @@ serverinfo_embed_fields_joinat: "🚲・**参加日時:**"
 serverinfo_embed_fields_createat: "⚓・**作成日時:**"
 
 # /setrankroles
-setrankroles_not_admin: "❌ このサーバーの管理者ではありません。このコマンドを実行することはできません！"
-setrankroles_already_this_in_db: "❎ ランクロールは既にこのサーバーのデータベースに存在します。"
-setrankroles_not_roles_typed: "❌ コマンドには役職が指定されていません！"
+setrankroles_not_admin: "${client.iHorizon_Emojis.icon.No_Logo} このサーバーの管理者ではありません。このコマンドを実行することはできません！"
+setrankroles_already_this_in_db: "${client.iHorizon_Emojis.icon.No_Logo} ランクロールは既にこのサーバーのデータベースに存在します。"
+setrankroles_not_roles_typed: "${client.iHorizon_Emojis.icon.No_Logo} コマンドには役職が指定されていません！"
 setrankroles_command_work: "今後、`@iHorizon` とメンションすると、以下の役職が追加されます: <@&${argsid}>"
 setrankroles_logs_embed_description_enable: "<@${interaction.user.id}> がランクロールを <@&${argsid}> に設定しました"
 setrankroles_logs_embed_title_enable: "ランクロールの設定"
 setrankroles_logs_embed_description_disable: "<@${interaction.user.id}> がランクロールを削除しました！"
 setrankroles_logs_embed_title_disable: "ランクロールの設定"
 setrankroles_command_work_disable: "<@${interaction.user.id}> さん、ランクロールを削除しました！"
-setrankroles_command_error: "❌ コマンドの実行中にエラーが発生しました！後でもう一度お試しください。"
+setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} コマンドの実行中にエラーが発生しました！後でもう一度お試しください。"
 
 # /snipe
 snipe_no_previous_message_deleted: "このチャンネルで削除されたメッセージはありません！"
@@ -562,10 +562,10 @@ setjoinmessage_help_embed_fields_name: "使い方"
 setjoinmessage_help_embed_fields_value: "```/setjoinmessage <Power on / Power off / Show the message set> <message>```\n{user} = メンバーのユーザー名\n{membercount} = ギルドのメンバー数\n{createdat} = メンバーアカウントの作成日\n{guild} = ギルドの名前\n{inviter} = 招待者のユーザー名＆識別子\n{invites} = 招待数"
 setjoinmessage_logs_embed_title_on_enable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_enable: "<@${interaction.user.id}> が参加メッセージを設定しました！"
-setjoinmessage_command_work_on_enable: "✅ | カスタム参加メッセージの設定に成功しました。"
+setjoinmessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo}  | カスタム参加メッセージの設定に成功しました。"
 setjoinmessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> が参加メッセージを削除しました！"
-setjoinmessage_command_work_on_disable: "✅ | カスタム参加メッセージの削除に成功しました。"
+setjoinmessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | カスタム参加メッセージの削除に成功しました。"
 setjoinmessage_command_work_ls: "参加メッセージは以下の通りです："
 
 # /setjoinroles
@@ -593,21 +593,21 @@ setleavemessage_help_embed_fields_name: "使い方？"
 setleavemessage_help_embed_fields_value: "`/setleavemessage <オン/オフ/設定されたメッセージを表示する> <メッセージ>を使用してください。`\n{user} = メンバーのユーザー名\n{membercount} = ギルドのメンバー数\n{guild} = ギルドの名前"
 setleavemessage_logs_embed_title_on_enable: "SetJoinMessage ログ"
 setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}>が退出メッセージを設定しました！"
-setleavemessage_command_work_on_enable: "✅ | カスタム退出メッセージを正常に設定しました。"
+setleavemessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | カスタム退出メッセージを正常に設定しました。"
 setleavemessage_logs_embed_title_on_disable: "SetJoinMessage ログ"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}>が退出メッセージを削除しました！"
-setleavemessage_command_work_on_disable: "✅ | カスタム退出メッセージを正常に削除しました。"
+setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | カスタム退出メッセージを正常に削除しました。"
 setleavemessage_command_work_ls: "退出メッセージは次のとおりです。"
 
 # /setup
 setup_not_admin: ":x: | このサーバーの管理者である必要があります！"
-setup_command_work: "✅ | チャンネルセットアップ完了"
+setup_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} | チャンネルセットアップ完了"
 setup_command_error: "ボットは既にログチャンネルを設定しています！またはボットに権限がありません..."
 
 # /setlogschannel
 setlogschannel_not_admin:  ":x: | このコマンドを実行するには、サーバーの管理者である必要があります！"
 setlogschannel_not_specified_args: "モジュールに有効なチャンネルを指定する必要があります。"
-setlogschannel_confirmation_message: "✅ | `${typeOfLogs}` は <@${interaction.user.id}> によって設定されました！"
+setlogschannel_confirmation_message: "${client.iHorizon_Emojis.icon.Yes_Logo} | `${typeOfLogs}` は <@${interaction.user.id}> によって設定されました！"
 setlogschannel_already_this_channel: "このサーバーは既にログのためのこのチャンネルを持っています！"
 setlogschannel_already_deleted: "このサーバーは既に `SERVER_LOGS` を持っていません！"
 setlogschannel_command_error: "コマンドの実行中にエラーが発生しましたか？"
@@ -646,8 +646,8 @@ setmembercount_helpembed_fields_name: "使い方？"
 setmembercount_helpembed_fields_value: "`/setjoinmessage <オン/オフ/設定されたメッセージを表示する> <メッセージ>を使用してください。`\n{membercount} = ギルドのメンバー数\n{rolescount} = 役職の数\n{botcount} = ギルドのボットの数"
 setmembercount_logs_embed_title_on_enable: "メンバーカウントログ"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}>さんが <#${channel.id}> チャンネルのメンバーカウントを ${messagei} に設定しました！"
-setmembercount_command_work_on_enable: "✅ | メンバーカウントを設定しました。"
-setmembercount_command_work_on_disable: "✅ | メンバーカウントを削除しました。"
+setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | メンバーカウントを設定しました。"
+setmembercount_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | メンバーカウントを削除しました。"
 setmembercount_logs_embed_title_on_disable: "メンバーカウントの設定ログ"
 setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}>さんがこのサーバーのメンバーカウントを削除しました！"
 
@@ -739,30 +739,30 @@ avatar_embed_description: "素晴らしいアバターをご覧ください！ :
 avatar_embed_title: "__**アバター**__: `${mentionedUser.username}`"
 
 # /ban
-ban_not_permission: "❌ | メンバーをBANする権限がありません。"
+ban_not_permission: "${client.iHorizon_Emojis.icon.No_Logo} | メンバーをBANする権限がありません。"
 ban_dont_found_member: "🔍 | そのメンバーが見つかりません"
-ban_dont_have_perm_myself: "❌ | 私にはメンバーをBANする権限がありません！"
-ban_try_to_ban_yourself: "❌ | 自分自身をBANすることはできません！"
-ban_attempt_ban_higter_member: "🛑 あなたよりも高い役職のユーザーをBANすることはできません..."
-ban_cant_ban_member: "❌ | そのメンバーをBANすることができません"
+ban_dont_have_perm_myself: "${client.iHorizon_Emojis.icon.No_Logo} | 私にはメンバーをBANする権限がありません！"
+ban_try_to_ban_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | 自分自身をBANすることはできません！"
+ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.icon.Stop_Logo} あなたよりも高い役職のユーザーをBANすることはできません..."
+ban_cant_ban_member: "${client.iHorizon_Emojis.icon.No_Logo} | そのメンバーをBANすることができません"
 ban_message_to_the_banned_member: "あなたはこのサーバーからBANされました： `${interaction.member.user.username}`"
 ban_command_work: "<@${member.user.id}> が <@${interaction.member.id}> によってBANされました。"
 ban_logs_embed_title: "BANログ"
 ban_logs_embed_description: "<@${interaction.member.id}> によって <@${member.user.id}> がBANされました。"
 
 # /kick
-kick_not_permission: "❌ | メンバーをキックする権限がありません。"
-kick_dont_have_permission: "❌ | メンバーをキックする権限がありません！"
-kick_attempt_kick_your_self: "❌ | 自分自身をキックすることはできません！"
-kick_attempt_kick_higter_member: "🛑 自分よりも権限が高いユーザーをキックすることはできません..."
+kick_not_permission: "${client.iHorizon_Emojis.icon.No_Logo} | メンバーをキックする権限がありません。"
+kick_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | メンバーをキックする権限がありません！"
+kick_attempt_kick_your_self: "${client.iHorizon_Emojis.icon.No_Logo} | 自分自身をキックすることはできません！"
+kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.icon.Stop_Logo} 自分よりも権限が高いユーザーをキックすることはできません..."
 kick_message_to_the_banned_member: "あなたは `${interaction.member.user.username}` によって、このサーバー：**${interaction.guild.name}** からキックされました。"
 kick_command_work: "${interaction.user} によって ${member.user} がキックされました。"
 kick_logs_embed_title: "キックログ"
 kick_logs_embed_description: "<@${interaction.user.id}> によって ${member.user} がキックされました。"
 
 # /clear
-clear_dont_have_permission: "❌ | `MANAGE_MESSAGES` の権限がありません。"
-clear_max_message_limit: "❌ | 一度に99以上のメッセージを削除することはできません！"
+clear_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | `MANAGE_MESSAGES` の権限がありません。"
+clear_max_message_limit: "${client.iHorizon_Emojis.icon.No_Logo} | 一度に99以上のメッセージを削除することはできません！"
 clear_channel_message_deleted: "${messages.size} 個のメッセージが削除されました！"
 clear_confirmation_message: "${messages.size} 個のメッセージが削除されました！"
 clear_logs_embed_title: "メッセージクリアログ"
@@ -770,36 +770,36 @@ clear_logs_embed_description: "<@${interaction.user.id}> が <#${interaction.cha
 
 # /lock
 lock_embed_message_description: "<@${interaction.user.id}> によってチャンネルがロックされました。"
-lock_dont_have_permission: "❌ | チャンネルをロックする権限がありません。"
+lock_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | チャンネルをロックする権限がありません。"
 lock_logs_embed_title: "ロックログ"
 lock_logs_embed_description: "<@${interaction.user.id}> によって <#${interaction.channel.id}> がロックされました。"
 
 # /unlock
 unlock_embed_message_description: "チャンネルが正常にアンロックされました！"
-unlock_dont_have_permission: "❌ | チャンネルをアンロックする権限がありません。"
+unlock_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | チャンネルをアンロックする権限がありません。"
 unlock_logs_embed_title: "アンロックログ"
 unlock_logs_embed_description: "<@${interaction.user.id}> が <#${interaction.channel.id}> をアンロックしました。"
 
 # /lockall
-lockall_dont_have_permission: "❌ | 全てのチャンネルをロックする権限がありません。"
+lockall_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | 全てのチャンネルをロックする権限がありません。"
 lockall_embed_message_description: "全てのチャンネルが <@${interaction.user.id}> によってロックされました。"
 lockall_logs_embed_title: "ロックオールログ"
 lockall_logs_embed_description: "<@${interaction.user.id}> が全てのチャンネルをロックしました！"
 
 # /unban
-unban_dont_have_permission: "❌ | メンバーをアンバンする権限がありません。"
-unban_bot_dont_have_permission: "❌ | 私には権限がありません。"
-unban_there_is_nobody_banned: "❌ | **このサーバーから誰もBANされていません！**"
-unban_the_member_is_not_banned: "❌ | **指定されたIDは、このサーバーからBANされていません！**"
+unban_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | メンバーをアンバンする権限がありません。"
+unban_bot_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | 私には権限がありません。"
+unban_there_is_nobody_banned: "${client.iHorizon_Emojis.icon.No_Logo} | **このサーバーから誰もBANされていません！**"
+unban_the_member_is_not_banned: "${client.iHorizon_Emojis.icon.No_Logo} | **指定されたIDは、このサーバーからBANされていません！**"
 unban_is_now_unbanned: "<@${userID}> はこのサーバーからアンバンされました！"
 unban_logs_embed_title: "アンバンログ"
 unban_logs_embed_description: "${interaction.user.id}によって<@${userID}>がサーバーからアンバンされました！"
 unban_reason: "理由が提供されませんでした。"
 
 # /tempmute
-tempmute_dont_have_permission: "❌ | メンバーを一時的にミュートする権限がありません。"
-tempmute_i_dont_have_permission: "❌ | 私には権限がありません。"
-tempmute_cannot_mute_yourself: "❌ | 自分自身をミュートすることはできません！"
+tempmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | メンバーを一時的にミュートする権限がありません。"
+tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | 私には権限がありません。"
+tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | 自分自身をミュートすることはできません！"
 tempmute_already_muted: "このユーザーはすでにミュートされています！"
 tempmute_command_work: "<@${tomute.id}>さんが${ms(ms(mutetime))}間ミュートされました。"
 tempmute_unmuted_by_time: "<@${tomute.id}>さんがミュート解除されました！"
@@ -808,9 +808,9 @@ tempmute_logs_embed_description: "<@${interaction.user.id}>さんが<@${tomute.i
 tempmute_reason_create_roles: "一時ミュートのミュート役職を作成してください！"
 
 # /unmute
-unmute_dont_have_permission: "❌ | メンバーをミュート解除する権限がありません。"
-unmute_attempt_mute_your_self: "❌ | 自分自身をミュートすることはできません！"
-unmute_i_dont_have_permission: "❌ | 私には権限がありません。"
+unmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | メンバーをミュート解除する権限がありません。"
+unmute_attempt_mute_your_self: "${client.iHorizon_Emojis.icon.No_Logo} | 自分自身をミュートすることはできません！"
+unmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | 私には権限がありません。"
 unmute_not_muted: "このユーザーはミュートされていません！"
 unmute_muted_role_doesnt_exist: "`muted` 役職が存在しません。ミュート役職を作成してから、ユーザーをミュートしてください..."
 unmute_command_work: "<@${tomute.id}>さんがミュート解除されました！"
@@ -832,10 +832,10 @@ backup_logs_embed_description_on_creation: "<@${interaction.user.id}>さんが�
 backup_dont_have_perm_on_load: ":x: | バックアップを読み込むためには、サーバーの管理者である必要があります！"
 backup_i_dont_have_perm_on_load: "管理者権限が必要です。"
 backup_unvalid_id_on_load: ":x: | 有効なバックアップIDを指定する必要があります！"
-backup_waiting_on_load: "✅ - 読み込み中..."
+backup_waiting_on_load: "${client.iHorizon_Emojis.icon.Yes_Logo} - 読み込み中..."
 backup_error_on_load: ":x: | 申し訳ありませんが、エラーが発生しました... 管理者権限を持っているか確認してください！"
 backup_error_when_fetch_backup_on_load: ":x: | ${backupID} のバックアップは見つかりませんでした！"
-backup_this_is_not_your_backup: "❌ | これはあなたのバックアップではありません！"
+backup_this_is_not_your_backup: "${client.iHorizon_Emojis.icon.No_Logo} | これはあなたのバックアップではありません！"
 backup_backup_doesnt_exist: "ERROR? バックアップが存在しません。"
 backup_string_see_v: ":placard:・カテゴリ数: `${data.categoryCount}`\n:hash:・チャンネル数: `${data.channelCount}`"
 backup_all_of_your_backup: "**すべてのバックアップ:**"
@@ -849,7 +849,7 @@ backup_string_see_another_v: ":placard:・カテゴリ数: `${result.categoryCou
 reactionroles_dont_admin_added: ":x: | このコマンドを使用するには、サーバーの管理者である必要があります！"
 reactionroles_embed_message_description_added: "__使い方__\n/rolesreaction add `<message id>` `<reaction>` `<rolesid>`\n/rolesreaction remove `<message id>` `<reaction>`\n/rolesreaction list `<message id>`"
 reactionroles_missing_reaction_added: "引数が足りません：リアクションの絵文字"
-reactionroles_invalid_emote_format_added: "❌ | `<::xxx>` 形式の `CUSTOM_EMOJI` を送信することはできません！ID のみ必要です！"
+reactionroles_invalid_emote_format_added: "${client.iHorizon_Emojis.icon.No_Logo} | `<::xxx>` 形式の `CUSTOM_EMOJI` を送信することはできません！ID のみ必要です！"
 reactionroles_logs_embed_title_added: "ReactionRoles ログ"
 reactionroles_logs_embed_description_added: "<@${interaction.user.id}> がリアクションロールを設定しました：メッセージ： `${messagei}` | リアクション： `${reaction}` | 役割： ${role}"
 reactionroles_command_work_added: "${reaction} が ${role} を与えるために ${messagei} のメッセージに追加されました"
@@ -935,7 +935,7 @@ embed_choose_9: "埋め込みに含めるサムネイルの画像は何ですか
 embed_choose_10: "埋め込みに含める画像は何ですか？"
 embed_choose_11: "埋め込みに含めるタイトルのURLは何ですか？"
 embed_choose_12: "埋め込みに含める色は何ですか？ **www.color-hex.com**"
-embed_choose_12_error: "❌ | 無効な色です！ www.color-hex.comで調べてください。"
+embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | 無効な色です！ www.color-hex.comで調べてください。"
 embed_choose_13: "埋め込みの色が正常に削除されました！"
 embed_send_embed_work: "<@${interaction.user.id}>さん、**埋め込みを正常に<#${message.content}>チャンネルに送信しました！**"
 
@@ -1150,7 +1150,7 @@ event_mp_playerStart: "🎵 - 現在 **${queue.channel.name}** で `${track.titl
 event_mp_audioTrackAdd: ":musical_note: - ${track.title} をキューに追加しました！"
 event_mp_playerError: "接続に問題があります => ${error.message}"
 event_mp_error: "曲のキューに問題があります => ${error.message}"
-event_mp_emptyChannel: "❌ | 誰もボイスチャンネルにいないため、退出します..."
+event_mp_emptyChannel: "${client.iHorizon_Emojis.icon.No_Logo} | 誰もボイスチャンネルにいないため、退出します..."
 event_mp_playerSkip: ":musical_note: - **${track.title}** をスキップしました！"
 event_mp_emptyQueue: "⚠️ - キューにはもう曲がありません！音楽を停止しました。"
 

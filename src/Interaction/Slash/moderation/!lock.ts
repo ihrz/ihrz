@@ -40,7 +40,9 @@ export = {
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages);
 
         if (!permission) {
-            await interaction.editReply({ content: data.lock_dont_have_permission });
+            await interaction.editReply({
+                content: data.lock_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 

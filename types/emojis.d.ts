@@ -19,21 +19,37 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import captcha from '../../../core/captcha';
-import { Request, Response } from 'express';
+export interface Badge {
+    Discord_Employee: string;
+    Partnered_Server_Owner: string;
+    HypeSquad_Events: string;
+    Bug_Hunter_Level_1: string;
+    Bug_Hunter_Level_2: string;
+    Early_Supporter: string;
+    Early_Verified_Bot_Developer: string;
+    House_Bravery: string;
+    House_Brilliance: string;
+    House_Balance: string;
+    Active_Developers: string;
+    Discord_Moderators: string;
+    Slash_Bot: string;
+    Nitro: string;
+    Server_Boost_Badge: string;
+}
 
-export = {
-    type: 'get',
-    apiPath: '/api/captcha/:width?/:height?/',
-    run: async (req: Request, res: Response) => {
-        let width = parseInt(req.params.width) || 280;
-        let height = parseInt(req.params.height) || 100;
-        
-        try {
-            let { code, image } = await captcha(width, height);
-            res.send({ image, code });
-        } catch (error) {
-            res.status(500).send({ error: 'Une erreur est survenue lors de la génération du captcha.' });
-        }
-    },
-};
+export interface Icon {
+    Crown_Logo: string;
+    Boosting_24_Months_Logo: string;
+    Discord_Nitro_Animated_Logo: string;
+    Green_Tick_Logo: string;
+    NodeJS_Logo: string;
+    Yes_Logo: string;
+    No_Logo: string;
+    Stop_Logo: string;
+    Wallet_Logo: string;
+}
+
+export interface Emojis {
+    badge: Badge;
+    icon: Icon;
+}

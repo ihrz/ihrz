@@ -75,7 +75,9 @@ export const command: Command = {
             return;
         } catch (e) {
             await client.db.delete(`GLOBAL.BLACKLIST.${member?.id}`);
-            await interaction.reply({ content: data.unblacklist_unblacklisted_but_can_unban_him });
+            await interaction.reply({
+                content: data.unblacklist_unblacklisted_but_can_unban_him.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
     },
