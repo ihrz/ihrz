@@ -36,6 +36,7 @@ export = {
             await client.db.set(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`, 1);
             await interaction.reply({
                 content: data.balance_he_dont_have_wallet
+                    .replace("${client.iHorizon_Emojis.icon.Wallet_Logo}", client.iHorizon_Emojis.icon.Wallet_Logo)
                     .replace('${user}', interaction.user)
             });
             return;
@@ -49,6 +50,7 @@ export = {
             .setDescription(data.balance_he_have_wallet
                 .replace(/\${bal}/g, totalWallet)
                 .replace('${user}', member)
+                .replace("${client.iHorizon_Emojis.icon.Wallet_Logo}", client.iHorizon_Emojis.icon.Wallet_Logo)
             )
             .addFields(
                 { name: data.balance_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.bank`) || 0}🪙`, inline: true },

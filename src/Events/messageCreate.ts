@@ -210,8 +210,8 @@ export = async (client: Client, message: Message) => {
             embeds: [suggestionEmbed]
         });
 
-        await msg.react('✅');
-        await msg.react('❌');
+        await msg.react(client.iHorizon_Emojis.icon.Yes_Logo);
+        await msg.react(client.iHorizon_Emojis.icon.No_Logo);
 
         await client.db.set(`${message.guildId}.SUGGESTION.${suggestCode}`,
             {

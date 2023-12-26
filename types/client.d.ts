@@ -26,6 +26,7 @@ import { QuickDB } from "quick.db";
 import { Player } from 'discord-player';
 import { DataBase } from "./database";
 import { AnotherCommand } from "./anotherCommand";
+import { Emojis } from "./emojis";
 
 declare module 'discord.js' {
     export interface Client {
@@ -37,6 +38,7 @@ declare module 'discord.js' {
         buttons: Collection<string, Function>,
         selectmenu: Collection<string, Function>,
         db: DataBase,
-        applicationsCommands: Collection<string, AnotherCommand>
+        applicationsCommands: Collection<string, AnotherCommand>,
+        iHorizon_Emojis: Emojis
     }
 };

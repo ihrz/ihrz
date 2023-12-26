@@ -26,86 +26,82 @@ import config from '../../files/config';
 import logger from '../../core/logger';
 import moment from 'moment';
 import axios from 'axios';
-import toml from 'toml';
-import fs from 'fs';
 
-let emojis = toml.parse(String(fs.readFileSync(process.cwd() + "/src/files/emojis.toml")))
 let oauth = new DiscordOauth2();
-
-interface Badge {
-    Value: number;
-    Emoji: string;
-};
-
-let badges: { [key: string]: Badge } = {
-    Discord_Employee: {
-        Value: 1,
-        Emoji: emojis.badge.Discord_Employee,
-    },
-    Partnered_Server_Owner: {
-        Value: 2,
-        Emoji: emojis.badge.Partnered_Server_Owner,
-    },
-    HypeSquad_Events: {
-        Value: 4,
-        Emoji: emojis.badge.HypeSquad_Events,
-    },
-    Bug_Hunter_Level_1: {
-        Value: 8,
-        Emoji: emojis.badge.Bug_Hunter_Level_1,
-    },
-    Early_Supporter: {
-        Value: 512,
-        Emoji: emojis.badge.Early_Supporter,
-    },
-    Bug_Hunter_Level_2: {
-        Value: 16384,
-        Emoji: emojis.badge.Bug_Hunter_Level_2,
-    },
-    Early_Verified_Bot_Developer: {
-        Value: 131072,
-        Emoji: emojis.badge.Early_Verified_Bot_Developer,
-    },
-    House_Bravery: {
-        Value: 64,
-        Emoji: emojis.badge.House_Bravery,
-    },
-    House_Brilliance: {
-        Value: 128,
-        Emoji: emojis.badge.House_Brilliance,
-    },
-    House_Balance: {
-        Value: 256,
-        Emoji: emojis.badge.House_Balance,
-    },
-    Active_Developers: {
-        Value: 4194304,
-        Emoji: emojis.badge.Active_Developers,
-    },
-    Discord_Moderators: {
-        Value: 262144,
-        Emoji: emojis.badge.Discord_Moderators,
-    },
-    Slash_Bot: {
-        Value: 524288,
-        Emoji: emojis.badge.Slash_Bot,
-    },
-};
-
-// Fonction pour obtenir les badges de l'utilisateur
-function getBadges(flags: number) {
-    let badgeValues = Object.values(badges);
-    return badgeValues
-        .filter(badge => (flags & badge.Value) === badge.Value)
-        .map(badge => badge.Emoji)
-        .join('');
-};
 
 export const command: AnotherCommand = {
     name: 'User Lookup',
     type: ApplicationCommandType.User,
     thinking: false,
     run: async (client: Client, interaction: CommandInteraction) => {
+
+        interface Badge {
+            Value: number;
+            Emoji: string;
+        };
+
+        let badges: { [key: string]: Badge } = {
+            Discord_Employee: {
+                Value: 1,
+                Emoji: client.iHorizon_Emojis.badge.Discord_Employee,
+            },
+            Partnered_Server_Owner: {
+                Value: 2,
+                Emoji: client.iHorizon_Emojis.badge.Partnered_Server_Owner,
+            },
+            HypeSquad_Events: {
+                Value: 4,
+                Emoji: client.iHorizon_Emojis.badge.HypeSquad_Events,
+            },
+            Bug_Hunter_Level_1: {
+                Value: 8,
+                Emoji: client.iHorizon_Emojis.badge.Bug_Hunter_Level_1,
+            },
+            Early_Supporter: {
+                Value: 512,
+                Emoji: client.iHorizon_Emojis.badge.Early_Supporter,
+            },
+            Bug_Hunter_Level_2: {
+                Value: 16384,
+                Emoji: client.iHorizon_Emojis.badge.Bug_Hunter_Level_2,
+            },
+            Early_Verified_Bot_Developer: {
+                Value: 131072,
+                Emoji: client.iHorizon_Emojis.badge.Early_Verified_Bot_Developer,
+            },
+            House_Bravery: {
+                Value: 64,
+                Emoji: client.iHorizon_Emojis.badge.House_Bravery,
+            },
+            House_Brilliance: {
+                Value: 128,
+                Emoji: client.iHorizon_Emojis.badge.House_Brilliance,
+            },
+            House_Balance: {
+                Value: 256,
+                Emoji: client.iHorizon_Emojis.badge.House_Balance,
+            },
+            Active_Developers: {
+                Value: 4194304,
+                Emoji: client.iHorizon_Emojis.badge.Active_Developers,
+            },
+            Discord_Moderators: {
+                Value: 262144,
+                Emoji: client.iHorizon_Emojis.badge.Discord_Moderators,
+            },
+            Slash_Bot: {
+                Value: 524288,
+                Emoji: client.iHorizon_Emojis.badge.Slash_Bot,
+            },
+        };
+
+        function getBadges(flags: number) {
+            let badgeValues = Object.values(badges);
+            return badgeValues
+                .filter(badge => (flags & badge.Value) === badge.Value)
+                .map(badge => badge.Emoji)
+                .join('');
+        };
 
         let data = await client.functions.getLanguageData(interaction.guild?.id);
         let member = interaction.options.getUser('user') || interaction.user;
@@ -119,7 +115,7 @@ export const command: AnotherCommand = {
                 .setColor('#0014a8')
                 .setDescription(description);
 
-            await interaction.editReply({ embeds: [embed], content: '✅ Fetched !' });
+            await interaction.editReply({ embeds: [embed], content: `${client.iHorizon_Emojis.icon.Yes_Logo} Fetched !` });
             return;
         };
 
@@ -143,11 +139,11 @@ export const command: AnotherCommand = {
                 let userData = await oauth.getUser(access_token);
 
                 if (userData.premium_type === 1) {
-                    nitr0 = emojis.badge.Nitro;
+                    nitr0 = client.iHorizon_Emojis.badge.Nitro;
                 } else if (userData.premium_type === 2) {
-                    nitr0 = emojis.badge.Nitro + emojis.badge.Server_Boost_Badge;
+                    nitr0 = client.iHorizon_Emojis.badge.Nitro + client.iHorizon_Emojis.badge.Server_Boost_Badge;
                 } else if (userData.premium_type === 3) {
-                    nitr0 = emojis.badge.Nitro;
+                    nitr0 = client.iHorizon_Emojis.badge.Nitro;
                 };
             };
 

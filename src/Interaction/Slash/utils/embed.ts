@@ -336,7 +336,9 @@ export const command: Command = {
                             __tempEmbed.setColor((message.content as ColorResolvable));
                             response.edit({ embeds: [__tempEmbed] });
                         } else {
-                            interaction.channel?.send({ content: data.embed_choose_12_error });
+                            interaction.channel?.send({
+                                content: data.embed_choose_12_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                            });
                         }
 
                         await i12.delete(); message.delete();

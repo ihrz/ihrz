@@ -20,39 +20,48 @@
 */
 
 import Jimp from 'jimp';
+import { randomInt } from 'crypto';
 
-let FONTBASE = 200;
-let FONTSIZE = 35;
+async function captcha(width: number, height: number): Promise<{ code: string; image: string }> {
+    let captchaCode = generateRandomCode();
+    let image = new Jimp(width, height, '#ffffff');
 
-let relativeFont = (width: number) => {
-  return Jimp.FONT_SANS_16_BLACK; // You can choose the desired Jimp font here
-};
+    for (let i = 0; i < captchaCode.length; i++) {
+        let letterX = 50 + i * 30;
+        let letterY = 50;
+        let letterImage = await createLetterImage(captchaCode[i]);
 
-let arbitraryRandom = (min: number, max: number) => Math.random() * (max - min) + min;
-let randomRotation = (degrees = 15) => arbitraryRandom(-degrees, degrees);
+        letterImage.scan(0, 0, letterImage.bitmap.width, letterImage.bitmap.height, function (x, y, idx) {
+            let newX = x + Math.sin(y / 36) * 5;
+            let newY = y + Math.cos(x / 26) * 5;
+            let newIdx = letterImage.getPixelIndex(newX, newY);
+            for (let j = 0; j < 4; j++) {
+                letterImage.bitmap.data[idx + j] = letterImage.bitmap.data[newIdx + j];
+            }
+        });
 
-let alternateCapitals = (str: string) =>
-  [...str].map((char, i) => char?.[`to${i % 2 ? "Upper" : "Lower"}Case`]()).join("");
+        image.composite(letterImage, letterX, letterY);
+    };
 
-let randomText = () => alternateCapitals(Math.random().toString(36).substring(2, 8));
+    image.blur(1);
 
-let configureText = async (image: Jimp, width: number, height: number) => {
-  const font = await Jimp.loadFont(relativeFont(width));
+    return { code: captchaCode, image: await image.getBase64Async(Jimp.MIME_PNG) };
+}
 
-  let text = randomText();
+function generateRandomCode(): string {
+    let characters = 'ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789';
+    let code = '';
+    for (let i = 0; i < 8; i++) {
+        let randomIndex = randomInt(0, characters.length);
+        code += characters.charAt(randomIndex);
+    }
+    return code;
+}
 
-  image.print(font, 0, 0, { text, alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER, alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE }, width, height);
+async function createLetterImage(letter: string): Promise<Jimp> {
+    let image = await new Jimp(30, 50, '#ffffff');
+    let font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+    return image.print(font, 0, 0, letter);
+}
 
-  return text;
-};
-
-let generate = async (width: number, height: number) => {
-  let image = await new Jimp(width, height);
-  image.rotate(randomRotation());
-  let text = await configureText(image, width, height);
-  let img = await image.getBase64Async(Jimp.MIME_PNG) as string;
-
-  return { image: img, text: text };
-};
-
-export = generate;
+export = captcha;

@@ -44,7 +44,7 @@ export = {
         };
 
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
-            await interaction.reply({ content: "❌", ephemeral: true });
+            await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };
 

@@ -133,7 +133,7 @@ export = {
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     )
 
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild?.channels.cache.find((channel) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
                     (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
@@ -144,6 +144,7 @@ export = {
 
             let leavec: string = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.join`);
             let joinc: string = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.leave`);
+
             if (!joinc && !leavec) {
                 await interaction.editReply({ content: data.setchannels_already_on_off });
                 return;
