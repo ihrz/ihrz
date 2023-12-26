@@ -41,17 +41,23 @@ export = {
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages);
 
         if (!permission) {
-            await interaction.editReply({ content: data.tempmute_dont_have_permission });
+            await interaction.editReply({
+                content: data.tempmute_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 
         if (!interaction.guild?.members.me?.permissions.has([PermissionsBitField.Flags.ManageMessages])) {
-            await interaction.editReply({ content: data.tempmute_i_dont_have_permission });
+            await interaction.editReply({
+                content: data.tempmute_i_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 
         if (tomute?.id === interaction.user.id) {
-            await interaction.editReply({ content: data.tempmute_cannot_mute_yourself });
+            await interaction.editReply({
+                content: data.tempmute_cannot_mute_yourself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         }
 

@@ -36,7 +36,9 @@ export = {
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.BanMembers);
 
         if (!permission) {
-            await interaction.editReply({ content: data.ban_not_permission });
+            await interaction.editReply({
+                content: data.ban_not_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 
@@ -46,22 +48,30 @@ export = {
         };
 
         if (!interaction.guild?.members.me?.permissions.has(PermissionsBitField.Flags.BanMembers)) {
-            await interaction.editReply({ content: data.ban_dont_have_perm_myself });
+            await interaction.editReply({
+                content: data.ban_dont_have_perm_myself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 
         if (member.user.id === interaction.user.id) {
-            await interaction.editReply({ content: data.ban_try_to_ban_yourself });
+            await interaction.editReply({
+                content: data.ban_try_to_ban_yourself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 
         if ((interaction.member?.roles as GuildMemberRoleManager).highest.position < member.roles.highest.position) {
-            await interaction.editReply({ content: data.ban_attempt_ban_higter_member });
+            await interaction.editReply({
+                content: data.ban_attempt_ban_higter_member.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
+            });
             return;
         };
 
         if (!member.bannable) {
-            await interaction.editReply({ content: data.ban_cant_ban_member });
+            await interaction.editReply({
+                content: data.ban_cant_ban_member.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 

@@ -132,7 +132,9 @@ export const command: Command = {
             let fetched = interaction.guild?.channels.cache.get(channel?.id as string);
 
             (fetched as BaseGuildTextChannel).edit({ name: joinmsgreplace });
-            await interaction.editReply({ content: data.setmembercount_command_work_on_enable });
+            await interaction.editReply({
+                content: data.setmembercount_command_work_on_enable.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+            });
             return;
 
         } else if (type == "off") {
@@ -148,7 +150,9 @@ export const command: Command = {
                 if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
             } catch (e: any) { logger.err(e) };
 
-            await interaction.editReply({ content: data.setmembercount_command_work_on_disable });
+            await interaction.editReply({
+                content: data.setmembercount_command_work_on_disable.replace('${client.iHorizon_Emojis.icon.Yes_Logo}', client.iHorizon_Emojis.icon.Yes_Logo)
+            });
             return;
         } else if (!type) {
             await interaction.editReply({ embeds: [help_embed] });

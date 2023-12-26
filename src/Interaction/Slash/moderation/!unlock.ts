@@ -34,9 +34,12 @@ export = {
 
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageChannels);
         if (!permission) {
-            await interaction.editReply({ content: data.unlock_dont_have_permission });
+            await interaction.editReply({
+                content: data.unlock_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
-        }
+        };
+        
         let embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#5b3475")
             .setTimestamp()

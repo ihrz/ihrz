@@ -38,10 +38,12 @@ export = {
 
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator);
         if (!permission) {
-            await interaction.editReply({ content: data.lockall_dont_have_permission });
+            await interaction.editReply({
+                content: data.lockall_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
-        
+
         interaction.guild?.channels.cache.forEach((c) => {
             if (c.type === ChannelType.GuildText) {
                 c.permissionOverwrites.create(interaction.guild?.id as string, { SendMessages: false })

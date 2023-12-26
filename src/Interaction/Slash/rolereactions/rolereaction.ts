@@ -106,7 +106,9 @@ export const command: Command = {
             let check = reaction.toString();
 
             if (check.includes("<") || check.includes(">") || check.includes(":")) {
-                await interaction.reply({ content: data.reactionroles_invalid_emote_format_added })
+                await interaction.reply({
+                    content: data.reactionroles_invalid_emote_format_added.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                })
                 return;
             };
 

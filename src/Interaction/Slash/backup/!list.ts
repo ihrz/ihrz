@@ -30,7 +30,9 @@ export = {
         let backupID = interaction.options.getString('backup-id');
 
         if (backupID && !await client.db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {
-            await interaction.editReply({ content: data.backup_this_is_not_your_backup });
+            await interaction.editReply({
+                content: data.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 
@@ -58,7 +60,7 @@ export = {
 
             for (let i in data2) {
                 let result = await client.db.get(`BACKUPS.${interaction.user.id}.${i}`);
-                
+
                 let v = (data.backup_string_see_another_v
                     .replace('${result.categoryCount}', result.categoryCount)
                     .replace('${result.channelCount}', result.channelCount));

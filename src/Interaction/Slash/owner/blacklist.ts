@@ -149,7 +149,9 @@ export const command: Command = {
                     return;
                 } else {
                     await client.db.set(`GLOBAL.BLACKLIST.${member.user.id}`, { blacklisted: true });
-                    await interaction.reply({ content: data.blacklist_blacklisted_but_can_ban_him });
+                    await interaction.reply({
+                        content: data.blacklist_blacklisted_but_can_ban_him.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                    });
                     return;
                 }
             } else {

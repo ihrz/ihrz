@@ -18,22 +18,16 @@
 
 ・ Copyright © 2020-2023 iHorizon
 */
+import { Emojis } from '../../types/emojis';
+import { Client } from 'discord.js';
 
-import captcha from '../../../core/captcha';
-import { Request, Response } from 'express';
+import toml from 'toml';
+import fs from 'fs';
 
-export = {
-    type: 'get',
-    apiPath: '/api/captcha/:width?/:height?/',
-    run: async (req: Request, res: Response) => {
-        let width = parseInt(req.params.width) || 280;
-        let height = parseInt(req.params.height) || 100;
-        
-        try {
-            let { code, image } = await captcha(width, height);
-            res.send({ image, code });
-        } catch (error) {
-            res.status(500).send({ error: 'Une erreur est survenue lors de la génération du captcha.' });
-        }
-    },
+function emojis(client: Client) {
+    let emojis: Emojis = toml.parse(String(fs.readFileSync(process.cwd() + "/src/files/emojis.toml")))
+
+    client.iHorizon_Emojis = emojis;
 };
+
+export default emojis;

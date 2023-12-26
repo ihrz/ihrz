@@ -69,13 +69,17 @@ export const command: Command = {
         let argsid = interaction.options.getRole("roles");
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.reply({ content: data.setrankroles_not_admin });
+            await interaction.reply({
+                content: data.setrankroles_not_admin.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 
         if (type === "on") {
             if (!argsid) {
-                await interaction.reply({ content: data.setrankroles_not_roles_typed });
+                await interaction.reply({
+                    content: data.setrankroles_not_roles_typed.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                });
                 return;
             };
 
@@ -96,7 +100,9 @@ export const command: Command = {
                 let already = await client.db.get(`${interaction.guild?.id}.GUILD.RANK_ROLES.roles`);
 
                 if (already === argsid.id) {
-                    await interaction.reply({ content: data.setrankroles_already_this_in_db });
+                    await interaction.reply({
+                        content: data.setrankroles_already_this_in_db.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                    });
                     return;
                 };
 
@@ -109,7 +115,9 @@ export const command: Command = {
 
             } catch (e: any) {
                 logger.err(e);
-                await interaction.reply({ content: data.setrankroles_command_error });
+                await interaction.reply({
+                    content: data.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                });
                 return;
             }
         } else if (type == "off") {
@@ -135,7 +143,9 @@ export const command: Command = {
                 return;
             } catch (e: any) {
                 logger.err(e)
-                await interaction.reply({ content: data.setrankroles_command_error });
+                await interaction.reply({
+                    content: data.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                });
                 return;
             }
         }

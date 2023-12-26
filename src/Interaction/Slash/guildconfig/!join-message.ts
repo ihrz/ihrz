@@ -73,7 +73,9 @@ export = {
                 } catch (e) {
                 };
 
-                await interaction.editReply({ content: data.setjoinmessage_command_work_on_enable });
+                await interaction.editReply({
+                    content: data.setjoinmessage_command_work_on_enable.replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo)
+                });
                 return;
             }
         } else if (type == "off") {
@@ -94,7 +96,9 @@ export = {
             } catch (e) {
             };
 
-            await interaction.editReply({ content: data.setjoinmessage_command_work_on_disable });
+            await interaction.editReply({
+                content: data.setjoinmessage_command_work_on_disable.replace('', client.iHorizon_Emojis.icon.Yes_Logo)
+            });
             return;
         } else if (type == "ls") {
             var ls = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joinmessage`);

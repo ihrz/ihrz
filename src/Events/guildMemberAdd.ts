@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { AttachmentBuilder, BaseGuildTextChannel, Client, Guild, GuildChannel, GuildChannelManager, GuildFeature, GuildMember, GuildTextBasedChannel, Invite, Message, MessageManager, Role } from "discord.js";
+import { ActionRowBuilder, AttachmentBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, Client, ComponentBuilder, Guild, GuildChannel, GuildChannelManager, GuildFeature, GuildMember, GuildTextBasedChannel, Invite, Message, MessageManager, Role } from "discord.js";
 
-import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
+import { PermissionsBitField } from 'discord.js';
 import axios from 'axios';
 
 import * as apiUrlParser from '../core/functions/apiUrlParser';
@@ -45,9 +45,20 @@ export = async (client: Client, member: GuildMember) => {
     async function joinDm() {
         try {
             let msg_dm = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`);
-
             if (!msg_dm || msg_dm === "off") return;
-            member.send({ content: "**This is a Join DM from** \`" + member.guild.id + "\`**!**\n" + msg_dm });
+
+            let button = new ButtonBuilder()
+                .setDisabled(true)
+                .setCustomId('join-dm-from-server')
+                .setStyle(ButtonStyle.Secondary)
+                .setLabel(`Message from ${member.guild.id}`);
+
+            member.send({
+                content: msg_dm,
+                components: [
+                    new ActionRowBuilder<ButtonBuilder>().addComponents(button)
+                ]
+            });
         } catch { return; };
     };
 
@@ -207,8 +218,7 @@ export = async (client: Client, member: GuildMember) => {
 
     async function securityCheck() {
         let baseData = await client.db.get(`${member.guild.id}.SECURITY`);
-        if (!baseData
-            || baseData?.disable === true) return;
+        if (!baseData || baseData?.disable === true) return;
 
         let data = await client.functions.getLanguageData(member.guild.id);
         let channel = member.guild.channels.cache.get(baseData?.channel);
@@ -228,7 +238,8 @@ export = async (client: Client, member: GuildMember) => {
 
             collector.on('collect', (m) => {
                 m.delete().catch(() => { });
-                if (request.text === m.content) {
+
+                if (request.code === m.content) {
                     member.roles.add(baseData?.role).catch(() => { });
                     msg.delete().catch(() => { });
                     passedtest = true;

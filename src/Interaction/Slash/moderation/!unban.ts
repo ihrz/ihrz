@@ -33,12 +33,16 @@ export = {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.BanMembers)) {
-            await interaction.editReply({ content: data.unban_dont_have_permission });
+            await interaction.editReply({
+                content: data.unban_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 
         if (!interaction.guild?.members.me?.permissions.has([PermissionsBitField.Flags.BanMembers])) {
-            await interaction.editReply({ content: data.unban_bot_dont_have_permission })
+            await interaction.editReply({
+                content: data.unban_bot_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            })
             return;
         };
 
@@ -50,12 +54,16 @@ export = {
         await interaction.guild.bans.fetch()
             .then(async (bans) => {
                 if (bans.size == 0) {
-                    await interaction.editReply({ content: data.unban_there_is_nobody_banned });
+                    await interaction.editReply({
+                        content: data.unban_there_is_nobody_banned.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                    });
                     return;
                 }
                 let bannedID = bans.find(ban => ban.user.id == userID);
                 if (!bannedID) {
-                    await interaction.editReply({ content: data.unban_the_member_is_not_banned });
+                    await interaction.editReply({
+                        content: data.unban_the_member_is_not_banned.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                    });
                     return;
                 };
 

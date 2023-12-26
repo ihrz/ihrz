@@ -29,10 +29,11 @@ import * as errorManager from './errorManager';
 import logger from "./logger";
 
 import { Client, Collection, Snowflake } from "discord.js";
-import { readdirSync } from "fs";
-import couleurmdr from "colors";
 
 import { VanityInviteData } from '../../types/vanityUrlData';
+import { readdirSync } from "fs";
+import couleurmdr from "colors";
+import emojis from './emojisManager';
 
 
 export = (client: Client) => {
@@ -50,8 +51,9 @@ export = (client: Client) => {
         require(`${process.cwd()}/dist/src/core/handlers/${file}`)(client);
     });
 
-    require('../api/server'),
-        Init(client),
-        playerManager(client),
-        errorManager.uncaughtExceptionHandler();
+    require('../api/server');
+    Init(client);
+    playerManager(client);
+    emojis(client);
+    errorManager.uncaughtExceptionHandler();
 };

@@ -85,7 +85,9 @@ export = async (client: Client) => {
         let data = await client.functions.getLanguageData(queue.channel?.guildId);
 
         player?.nodes.delete(queue);
-        (queue.metadata as MetadataPlayer).channel.send({ content: data.event_mp_emptyChannel });
+        (queue.metadata as MetadataPlayer).channel.send({
+            content: data.event_mp_emptyChannel.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+        });
         return;
     });
 

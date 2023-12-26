@@ -38,22 +38,30 @@ export = {
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.KickMembers);
 
         if (!permission) {
-            await interaction.editReply({ content: data.kick_not_permission });
+            await interaction.editReply({
+                content: data.kick_not_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 
         if (!interaction.guild?.members.me?.permissions.has(PermissionsBitField.Flags.KickMembers)) {
-            await interaction.editReply({ content: data.kick_dont_have_permission });
+            await interaction.editReply({
+                content: data.kick_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 
         if (member.user?.id === interaction.user.id) {
-            await interaction.editReply({ content: data.kick_attempt_kick_your_self });
+            await interaction.editReply({
+                content: data.kick_attempt_kick_your_self.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 
         if ((interaction.member?.roles as GuildMemberRoleManager).highest.position < member?.roles.highest.position) {
-            await interaction.editReply({ content: data.kick_attempt_kick_higter_member });
+            await interaction.editReply({
+                content: data.kick_attempt_kick_higter_member.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
+            });
             return;
         };
 

@@ -49,7 +49,9 @@ export = {
                 ],
             });
 
-            await interaction.editReply({ content: data.setup_command_work });
+            await interaction.editReply({
+                content: data.setup_command_work.replace('${client.iHorizon_Emojis.icon.Yes_Logo}', client.iHorizon_Emojis.icon.Yes_Logo)
+            });
             return;
         } else {
             await interaction.editReply({ content: data.setup_command_error });

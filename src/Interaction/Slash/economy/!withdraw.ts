@@ -32,7 +32,9 @@ export = {
         let toWithdraw = interaction.options.getNumber('how-much');
 
         if (toWithdraw && toWithdraw > balance) {
-            await interaction.reply({ content: data.withdraw_cannot_abuse });
+            await interaction.reply({
+                content: data.withdraw_cannot_abuse.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 

@@ -36,12 +36,16 @@ export = {
         var numberx = interaction.options.getNumber("number");
 
         if (!permission) {
-            await interaction.editReply({ content: data.clear_dont_have_permission });
+            await interaction.editReply({
+                content: data.clear_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         }
 
         if (numberx && numberx > 100) {
-            await interaction.editReply({ content: data.clear_max_message_limit });
+            await interaction.editReply({
+                content: data.clear_max_message_limit.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 
