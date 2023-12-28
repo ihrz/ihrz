@@ -23,9 +23,11 @@ import { Player, Track, GuildQueue } from 'discord-player';
 import { SpotifyExtractor, SoundCloudExtractor } from '@discord-player/extractor';
 import DeezerExtractor from "discord-player-deezer"
 
-import { Client } from 'discord.js';
+import { Client, time } from 'discord.js';
 import logger from './logger';
+
 import { MetadataPlayer } from '../../types/metadaPlayer';
+import db from './functions/DatabaseModel';
 
 export = async (client: Client) => {
 
@@ -55,6 +57,12 @@ export = async (client: Client) => {
 
     player.events.on('audioTrackAdd', async (queue: GuildQueue, track: Track) => {
         let data = await client.functions.getLanguageData(queue.channel?.guildId);
+
+        let buffer = `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}: PLAYED]: { ${track.author} - ${track.title} | ${track.url} } by ${(queue.metadata as MetadataPlayer).requestedBy}`
+        let embed = `${time((new Date(), data.duration), 'R')}: ${track.author} - ${track.title} | ${track.url} by ${(queue.metadata as MetadataPlayer).requestedBy}`
+
+        await db.push(`${queue.guild.id}.MUSIC_HISTORY.buffer`, buffer);
+        await db.push(`${queue.guild.id}.MUSIC_HISTORY.embed`, embed);
 
         (queue.metadata as MetadataPlayer).channel.send({
             content: data.event_mp_audioTrackAdd

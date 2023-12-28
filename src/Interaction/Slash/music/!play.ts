@@ -39,7 +39,8 @@ export = {
             await interaction.editReply({ content: data.p_not_in_voice_channel });
             return;
         };
-        //if (!client.functions.isLinkAllowed(check)) { return interaction.editReply({ content: data.p_not_allowed }) };
+
+        if (client.functions.isAllowedLinks(check)) { return interaction.editReply({ content: data.p_not_allowed }) };
 
         let result = await interaction.client.player.search(check as string, {
             requestedBy: interaction.user, searchEngine: QueryType.AUTO

@@ -38,11 +38,12 @@ let allowedDomains: string[] = [
 function isLinkAllowed(link: string): boolean {
     if (link !== null) {
         let parsedUrl = url.parse(link);
+
         if (parsedUrl.hostname !== null) {
-            return !link.includes("://") || allowedDomains.includes(parsedUrl.hostname);
+            return !allowedDomains.includes(parsedUrl.hostname);
         }
     };
     return false;
 };
 
-export { allowedDomains, isLinkAllowed };
+export = isLinkAllowed;
