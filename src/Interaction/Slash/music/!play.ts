@@ -94,7 +94,9 @@ export = {
 
         await interaction.editReply({
             content: data.p_loading_message
-                .replace("{result}", result.playlist ? 'playlist' : 'track'), embeds: [embed]
+                .replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
+                .replace("{result}", result.playlist ? 'playlist' : 'track')
+            , embeds: [embed]
         });
         return;
     },

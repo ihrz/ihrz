@@ -53,8 +53,8 @@ export = {
                 .replace("${client.iHorizon_Emojis.icon.Wallet_Logo}", client.iHorizon_Emojis.icon.Wallet_Logo)
             )
             .addFields(
-                { name: data.balance_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.bank`) || 0}🪙`, inline: true },
-                { name: data.balance_embed_fields2_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`) || 0}🪙`, inline: true }
+                { name: data.balance_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.bank`) || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true },
+                { name: data.balance_embed_fields2_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`) || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true }
             )
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp()

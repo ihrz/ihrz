@@ -32,7 +32,9 @@ export = {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
 
         if (!(interaction.member as GuildMember)?.voice.channel) {
-            await interaction.editReply({ content: data.skip_not_in_voice_channel });
+            await interaction.editReply({
+                content: data.skip_not_in_voice_channel.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
+            });
             return;
         };
 

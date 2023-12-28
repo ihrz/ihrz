@@ -46,10 +46,11 @@ export = {
             .setColor("#a4cb80")
             .setTitle(data.withdraw_embed_title)
             .setDescription(data.withdraw_embed_desc
+                .replace('${client.iHorizon_Emojis.icon.Coin}', client.iHorizon_Emojis.icon.Coin)
                 .replace('${interaction.user}', interaction.user)
                 .replace('${toWithdraw}', toWithdraw)
             )
-            .addFields({ name: data.withdraw_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`)}🪙` })
+            .addFields({ name: data.withdraw_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp();
 

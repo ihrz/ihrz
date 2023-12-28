@@ -45,7 +45,7 @@ export = {
                 .setAuthor({ name: data.weekly_embed_title, iconURL: interaction.user.displayAvatarURL() })
                 .setColor("#a4cb80")
                 .setDescription(data.weekly_embed_description)
-                .addFields({ name: data.weekly_embed_fields, value: `${amount}🪙` })
+                .addFields({ name: data.weekly_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` })
 
 
             await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);

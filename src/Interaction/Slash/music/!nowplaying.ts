@@ -140,7 +140,7 @@ export = {
             });
 
         } catch {
-            await interaction.channel?.send('⏲️');
+            await interaction.channel?.send(client.iHorizon_Emojis.icon.Timer);
             return;
         };
     },

@@ -94,7 +94,9 @@ export const command: AnotherCommand = {
 
                     await interaction.editReply({
                         content: data.p_loading_message
-                            .replace("{result}", result.playlist ? 'playlist' : 'track'), embeds: [embed]
+                            .replace("{result}", result.playlist ? 'playlist' : 'track')
+                            .replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
+                        , embeds: [embed]
                     });
                 });
 
@@ -162,7 +164,9 @@ export const command: AnotherCommand = {
 
         await interaction.editReply({
             content: data.p_loading_message
-                .replace("{result}", result.playlist ? 'playlist' : 'track'), embeds: [embed]
+                .replace("{result}", result.playlist ? 'playlist' : 'track')
+                .replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
+            , embeds: [embed]
         });
         return;
     },

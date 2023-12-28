@@ -40,7 +40,9 @@ export = {
         };
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.sethereticket_not_admin });
+            await interaction.editReply({
+                content: data.sethereticket_not_admin.replace(":x:", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 
@@ -49,7 +51,7 @@ export = {
             author: interaction.user.id,
             description: panelDesc
         });
-        
+
         await interaction.deleteReply();
         await interaction.followUp({ content: data.sethereticket_command_work, ephemeral: true });
         return;

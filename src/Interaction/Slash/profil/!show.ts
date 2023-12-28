@@ -48,6 +48,7 @@ export = {
         let profil = new EmbedBuilder()
             .setTitle(data.profil_embed_title
                 .replace(/\${member\.tag}/g, member.username)
+                .replace('${client.iHorizon_Emojis.icon.Pin}', client.iHorizon_Emojis.icon.Pin)
             )
             .setDescription(`\`${description}\``)
             .addFields(

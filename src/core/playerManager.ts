@@ -49,6 +49,7 @@ export = async (client: Client) => {
 
         (queue.metadata as MetadataPlayer).channel.send({
             content: data.event_mp_playerStart
+                .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
                 .replace("${track.title}", track.title)
                 .replace("${queue.channel.name}", queue.channel?.name)
         });
@@ -66,6 +67,7 @@ export = async (client: Client) => {
 
         (queue.metadata as MetadataPlayer).channel.send({
             content: data.event_mp_audioTrackAdd
+                .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
                 .replace("${track.title}", track.title)
         });
         return;
@@ -104,6 +106,7 @@ export = async (client: Client) => {
 
         (queue.metadata as MetadataPlayer).channel.send({
             content: data.event_mp_playerSkip
+                .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
                 .replace("${track.title}", track.title)
         });
         return;
@@ -112,7 +115,9 @@ export = async (client: Client) => {
     player.events.on('emptyQueue', async (queue: GuildQueue) => {
         let data = await client.functions.getLanguageData(queue.channel?.guildId);
 
-        (queue.metadata as MetadataPlayer).channel.send({ content: data.event_mp_emptyQueue });
+        (queue.metadata as MetadataPlayer).channel.send({
+            content: data.event_mp_emptyQueue.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
+        });
         return;
     });
 

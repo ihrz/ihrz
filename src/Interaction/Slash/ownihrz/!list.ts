@@ -71,6 +71,7 @@ export = {
                     )
                     .setDescription(
                         data.mybot_list_embed1_desc
+                            .replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
                             .replace('${data_2[i].code}', data_2[i].code)
                             .replace('${expire}', expire)
                             .replace('${utils_msg}', utils_msg)

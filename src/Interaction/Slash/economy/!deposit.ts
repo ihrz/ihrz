@@ -58,10 +58,11 @@ export = {
             .setColor("#a4cb80")
             .setTitle(data.deposit_embed_title)
             .setDescription(data.deposit_embed_desc
+                .replace('${client.iHorizon_Emojis.icon.Coin}', client.iHorizon_Emojis.icon.Coin)
                 .replace('${interaction.user}', interaction.user)
                 .replace('${toDeposit}', toDeposit)
             )
-            .addFields({ name: data.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`)}🪙` })
+            .addFields({ name: data.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp();
 
