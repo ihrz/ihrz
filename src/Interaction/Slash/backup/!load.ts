@@ -28,9 +28,10 @@ import {
 
 import backup from 'discord-backup';
 import { BackupData } from 'discord-backup/lib/types';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let backupID = interaction.options.getString('backup-id');
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
@@ -63,7 +64,7 @@ export = {
             backup.load(backupID as string | BackupData, interaction.guild as Guild).then(() => {
                 backup.remove(backupID as string);
             }).catch((err) => {
-                interaction.channel?.send({ content: data.backup_error_on_load.replace("${backupID}", backupID) });
+                interaction.channel?.send({ content: data.backup_error_on_load.replace("${backupID}", backupID as string) });
                 return;
             });
         }).catch((err) => {

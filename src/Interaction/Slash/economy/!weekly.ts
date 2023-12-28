@@ -25,10 +25,11 @@ import {
     ChatInputCommandInteraction
 } from 'discord.js';
 
+import { LanguageData } from '../../../../types/languageData';
 import ms from 'ms';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let timeout = 604800000;
         let amount = 1000;
         let weekly = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.weekly`);

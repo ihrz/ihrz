@@ -177,7 +177,7 @@ invite_embed_title: "Thank to adding iHorizon !"
 invite_embed_description: "I love you, show me your love for me back! Invite me!"
 
 # /kisakay
-kisakay_message: "✨Kisakay is both my creator and my developer. It is thanks to her and her keyboard that I came into existence. I am deeply grateful to her!✨ ❤️❤️"
+kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay is both my creator and my developer. It is thanks to her and her keyboard that I came into existence. I am deeply grateful to her!✨ ❤️❤️"
 
 # /nayaweb
 nayaweb_message: "😼NayaWeb is my second developer/contributor , NayaWeb x Kisakay ❤️"

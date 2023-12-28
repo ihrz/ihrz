@@ -177,7 +177,7 @@ invite_embed_title: "Vielen Dank, dass du iHorizon hinzugefügt hast!"
 invite_embed_description: "Ich liebe dich, zeig mir deine Liebe zu mir zurück! Lade mich ein!"
 
 # /kisakay
-kisakay_message: "✨Kisakay ist sowohl meine Schöpferin als auch meine Entwicklerin. Dank ihr und ihrer Tastatur bin ich entstanden. Ich bin ihr zutiefst dankbar!✨ ❤️❤️"
+kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay ist sowohl meine Schöpferin als auch meine Entwicklerin. Dank ihr und ihrer Tastatur bin ich entstanden. Ich bin ihr zutiefst dankbar!✨ ❤️❤️"
 
 # /nayaweb
 nayaweb_message: "😼NayaWeb ist meine zweite Entwicklerin/Zuträgerin , NayaWeb x Kisakay ❤️"

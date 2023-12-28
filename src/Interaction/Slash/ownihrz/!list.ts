@@ -27,9 +27,10 @@ import {
 
 import date from 'date-and-time';
 import axios from 'axios';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let data_2 = await client.db.get(`OWNIHRZ.${interaction.user.id}`);
 

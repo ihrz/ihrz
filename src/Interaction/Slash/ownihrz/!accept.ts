@@ -26,6 +26,7 @@ import {
 } from 'discord.js';
 
 import * as apiUrlParser from '../../../core/functions/apiUrlParser';
+import { LanguageData } from '../../../../types/languageData';
 
 import config from '../../../files/config';
 import CryptoJS, { enc } from 'crypto-js';
@@ -33,7 +34,7 @@ import axios, { AxiosResponse } from 'axios';
 import logger from '../../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let id_1 = interaction.options.getString('id');
         let id_2 = await client.db.get(`OWNIHRZ.TEMP`);

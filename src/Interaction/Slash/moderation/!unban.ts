@@ -27,10 +27,11 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
+import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.BanMembers)) {
             await interaction.editReply({
@@ -70,7 +71,7 @@ export = {
                 await interaction.guild?.bans.remove(userID as string, reason as string).catch((err: any) => { });
                 await interaction.editReply({
                     content: data.unban_is_now_unbanned
-                        .replace(/\${userID}/g, userID)
+                        .replace(/\${userID}/g, userID as string)
                 });
             })
             .catch((err: string) => logger.err(err));
@@ -78,7 +79,7 @@ export = {
         try {
             let logEmbed = new EmbedBuilder().setColor("#bf0bb9").setTitle(data.unban_logs_embed_title)
                 .setDescription(data.unban_logs_embed_description
-                    .replace(/\${userID}/g, userID)
+                    .replace(/\${userID}/g, userID as string)
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                 )
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');

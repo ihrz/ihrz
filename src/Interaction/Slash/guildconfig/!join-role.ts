@@ -28,9 +28,10 @@ import {
 } from 'discord.js';
 
 import logger from '../../../core/logger';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setjoinroles_not_admin });
@@ -79,7 +80,7 @@ export = {
 
                 await interaction.editReply({
                     content: data.setjoinroles_command_work_enable
-                        .replace("${roleid}", roleid.value)
+                        .replace("${roleid}", roleid.value as unknown as string)
                 });
                 return;
             } catch (e) {

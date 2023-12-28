@@ -26,9 +26,10 @@ import {
 } from 'discord.js';
 
 import ms from 'ms';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let timeout: number = 2592000000;
         let amount: number = 5000;

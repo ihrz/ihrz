@@ -27,9 +27,10 @@ import {
 
 import axios from 'axios';
 import ms from 'ms';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let discord_bot_token = interaction.options.getString('discord_bot_token');
         let owner_one = interaction.user;

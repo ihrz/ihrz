@@ -25,9 +25,10 @@ import {
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let blockQ = await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`);
         let channel = interaction.options.getChannel('channel');

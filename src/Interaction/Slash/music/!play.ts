@@ -28,9 +28,10 @@ import {
 } from 'discord.js';
 
 import { QueryType } from 'discord-player';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let voiceChannel = (interaction.member as GuildMember)?.voice.channel;
         let check = interaction.options.getString("title");

@@ -27,9 +27,10 @@ import {
 } from 'discord.js';
 
 import { isValid, isEnded, ListEntries } from '../../../core/giveawaysManager';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let inputData = interaction.options.getString("giveaway-id");
 
@@ -43,7 +44,7 @@ export = {
         })) {
             await interaction.editReply({
                 content: data.end_not_find_giveaway
-                    .replace(/\${gw}/g, inputData)
+                    .replace(/\${gw}/g, inputData as string)
             });
             return;
         };

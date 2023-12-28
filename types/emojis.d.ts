@@ -53,6 +53,7 @@ interface Icon {
     Coin: string;
     Pin: string;
     Timer: string;
+    Sparkles: string;
 }
 
 export interface Emojis {

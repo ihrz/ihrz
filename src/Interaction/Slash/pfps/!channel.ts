@@ -26,9 +26,10 @@ import {
     PermissionsBitField,
     TextChannel
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let channel = interaction.options.getChannel('to');
         let fetch = await client.db.get(`${interaction.guild?.id}.PFPS.disable`);
@@ -47,14 +48,14 @@ export = {
                 .setColor('#333333')
                 .setTitle(data.pfps_channel_embed_title)
                 .setDescription(data.pfps_channel_embed_desc
-                    .replace('${interaction.user}', interaction.user)
+                    .replace('${interaction.user}', interaction.user as unknown as string)
                 )
                 .setTimestamp();
 
             await interaction.reply({
                 content: data.pfps_channel_command_work
-                    .replace('${interaction.user}', interaction.user)
-                    .replace('${channel}', channel)
+                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${channel}', channel as unknown as string)
             });
 
             channel.send({ embeds: [embed] });
@@ -63,7 +64,7 @@ export = {
         } else {
             await interaction.reply({
                 content: data.pfps_channel_command_error
-                    .replace('${interaction.user}', interaction.user)
+                    .replace('${interaction.user}', interaction.user as unknown as string)
             });
             return;
         };

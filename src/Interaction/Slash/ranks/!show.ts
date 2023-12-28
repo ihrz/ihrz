@@ -24,9 +24,10 @@ import {
     Client,
     EmbedBuilder,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let user = interaction.options.getUser("user") || interaction.user;
         let baseData = await client.db.get(`${interaction.guild?.id}.USER.${user.id}.XP_LEVELING`);
@@ -38,21 +39,21 @@ export = {
 
         let nivEmbed = new EmbedBuilder()
             .setTitle(data.level_embed_title
-                .replace('${user.username}', user.globalName)
+                .replace('${user.username}', user.globalName as string)
             )
             .setColor('#0014a8')
             .addFields(
                 {
                     name: data.level_embed_fields1_name, value: data.level_embed_fields1_value
                         .replace('${currentxp}', currentxp)
-                        .replace('${xpNeeded}', xpNeeded), inline: true
+                        .replace('${xpNeeded}', xpNeeded as unknown as string), inline: true
                 },
                 {
                     name: data.level_embed_fields2_name, value: data.level_embed_fields2_value
                         .replace('${level}', level), inline: true
                 }
             )
-            .setDescription(data.level_embed_description.replace('${expNeededForLevelUp}', expNeededForLevelUp)
+            .setDescription(data.level_embed_description.replace('${expNeededForLevelUp}', expNeededForLevelUp as unknown as string)
             )
             .setTimestamp()
             .setThumbnail("https://cdn.discordapp.com/attachments/847484098070970388/850684283655946240/discord-icon-new-2021-logo-09772BF096-seeklogo.com.png")

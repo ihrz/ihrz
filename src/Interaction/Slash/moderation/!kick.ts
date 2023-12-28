@@ -29,10 +29,11 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
+import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let member = interaction.options.getMember("member") as GuildMember;
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.KickMembers);
@@ -68,7 +69,7 @@ export = {
         member?.send({
             content: data.kick_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-                .replace(/\${interaction\.member\.user\.username}/g, interaction.user.globalName)
+                .replace(/\${interaction\.member\.user\.username}/g, interaction.user.globalName as string)
         }).catch(() => { });
 
         try {
@@ -77,7 +78,7 @@ export = {
                 .setColor("#bf0bb9")
                 .setTitle(data.kick_logs_embed_title)
                 .setDescription(data.kick_logs_embed_description
-                    .replace(/\${member\.user}/g, member.user)
+                    .replace(/\${member\.user}/g, member.user as unknown as string)
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                 );
 
@@ -89,8 +90,8 @@ export = {
 
             await interaction.editReply({
                 content: data.kick_command_work
-                    .replace(/\${member\.user}/g, member.user)
-                    .replace(/\${interaction\.user}/g, interaction.user)
+                    .replace(/\${member\.user}/g, member.user as unknown as string)
+                    .replace(/\${interaction\.user}/g, interaction.user as unknown as string)
             });
         } catch (e: any) {
             logger.err(e);

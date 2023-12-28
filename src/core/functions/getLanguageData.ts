@@ -22,9 +22,10 @@
 import db from '../functions/DatabaseModel';
 import yaml from 'js-yaml';
 import fs from 'fs';
+import { LanguageData } from '../../../types/languageData';
 
 interface LangsData {
-    [lang: string]: any;
+    [lang: string]: LanguageData;
 }
 
 let LangsData: LangsData = {};
@@ -37,8 +38,9 @@ async function getLanguageData(arg: string): Promise<any> {
     }
     let dat = LangsData[lang];
     if (!dat) {
-        dat = yaml.load(fs.readFileSync(`${process.cwd()}/src/lang/${lang}.yml`, 'utf8'));
-        LangsData[lang] = dat;
+        let fileContent = fs.readFileSync(`${process.cwd()}/src/lang/${lang}.yml`, 'utf8');
+        LangsData[lang] = yaml.load(fileContent) as LanguageData;
+        dat = LangsData[lang];
     };
     return dat;
 };

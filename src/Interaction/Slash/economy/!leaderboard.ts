@@ -20,9 +20,10 @@
 */
 
 import { ChatInputCommandInteraction, Client, EmbedBuilder } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let toAnalyze = await client.db.get(`${interaction.guild?.id}.USER`);
 
         // Convert the user data to an array for sorting
@@ -38,7 +39,7 @@ export = {
         let embed = new EmbedBuilder()
             .setColor('#e4b7ff')
             .setTitle(data.economy_leaderboard_embed_title
-                .replace('${interaction.guild.name}', interaction.guild?.name)
+                .replace('${interaction.guild.name}', interaction.guild?.name as string)
             )
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp();

@@ -25,11 +25,12 @@ import {
     Guild,
 } from 'discord.js';
 
+import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger';
 import { QueueRepeatMode } from 'discord-player';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         try {
             let queue = interaction.client.player.nodes.get(interaction.guild as Guild);

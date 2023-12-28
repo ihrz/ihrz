@@ -23,9 +23,10 @@ import {
     Client,
     ChatInputCommandInteraction
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let user = interaction.options.getUser("member");
         let amount = interaction.options.getNumber("amount");
 
@@ -42,9 +43,9 @@ export = {
 
         await interaction.reply({
             content: data.pay_command_work
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName)
-                .replace(/\${user\.user\.username}/g, user?.globalName)
-                .replace(/\${amount}/g, amount)
+                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName as string)
+                .replace(/\${user\.user\.username}/g, user?.globalName as string)
+                .replace(/\${amount}/g, amount as unknown as string)
         });
 
         await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, amount!);

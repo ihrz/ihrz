@@ -26,9 +26,10 @@ import {
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.removemoney_not_admin });
             return;
@@ -53,8 +54,8 @@ export = {
                 .setTitle(data.removemoney_logs_embed_title)
                 .setDescription(data.removemoney_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace(/\${amount}/g, amount)
-                    .replace(/\${user\.user\.id}/g, user?.id)
+                    .replace(/\${amount}/g, amount as unknown as string)
+                    .replace(/\${user\.user\.id}/g, user?.id as string)
                 );
 
             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
