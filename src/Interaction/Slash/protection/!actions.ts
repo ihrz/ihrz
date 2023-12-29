@@ -24,9 +24,10 @@ import {
     Client,
     EmbedBuilder,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         if (interaction.user.id !== interaction.guild?.ownerId) {
             await interaction.editReply({ content: data.authorization_actions_not_permited });
@@ -44,8 +45,8 @@ export = {
 
             await interaction.editReply({
                 content: data.authorization_actions_rule_set
-                    .replace('${interaction.user}', interaction.user)
-                    .replace('${rule.toUpperCase()}', rule?.toUpperCase())
+                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${rule.toUpperCase()}', rule?.toUpperCase() as unknown as string)
                     .replace('${allow}', allow)
             });
             return;
@@ -54,7 +55,7 @@ export = {
 
             await interaction.editReply({
                 content: data.authorization_actions_rule_clear
-                    .replace('${interaction.user}', interaction.user)
+                    .replace('${interaction.user}', interaction.user as unknown as string)
                     .replace('${interaction.guild.name}', interaction.guild.name)
             });
             return;

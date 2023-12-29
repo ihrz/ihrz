@@ -25,9 +25,10 @@ import {
     EmbedBuilder,
     PermissionsBitField
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let role = interaction.options.getRole("role");
 
@@ -40,8 +41,8 @@ export = {
 
         await interaction.reply({
             content: data.security_role_to_give_command_work
-                .replace('${interaction.user}', interaction.user)
-                .replace('${role}', role)
+                .replace('${interaction.user}', interaction.user as unknown as string)
+                .replace('${role}', role as unknown as string)
         });
 
         return;

@@ -29,12 +29,13 @@ import {
 } from 'discord.js';
 
 import { Create } from '../../../core/giveawaysManager';
+import { LanguageData } from '../../../../types/languageData';
 
 import logger from '../../../core/logger';
 import ms from 'ms';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {
             await interaction.editReply({ content: data.start_not_perm });
@@ -56,7 +57,7 @@ export = {
         if (Number.isNaN(giveawayDurationFormated)) {
             await interaction.editReply({
                 content: data.start_time_not_valid
-                    .replace('${interaction.user}', interaction.user)
+                    .replace('${interaction.user}', interaction.user as unknown as string)
             });
             return;
         };
@@ -74,7 +75,7 @@ export = {
                 .setTitle(data.reroll_logs_embed_title)
                 .setDescription(data.start_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace(/\${giveawayChannel}/g, giveawayChannel)
+                    .replace(/\${giveawayChannel}/g, giveawayChannel as unknown as string)
                 );
 
             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
@@ -87,7 +88,7 @@ export = {
 
         await interaction.editReply({
             content: data.start_confirmation_command
-                .replace(/\${giveawayChannel}/g, giveawayChannel)
+                .replace(/\${giveawayChannel}/g, giveawayChannel as unknown as string)
         });
 
         return;

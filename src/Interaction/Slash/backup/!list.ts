@@ -24,9 +24,10 @@ import {
     Client,
     EmbedBuilder,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let backupID = interaction.options.getString('backup-id');
 
         if (backupID && !await client.db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {

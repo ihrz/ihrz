@@ -26,9 +26,10 @@ import {
 } from 'discord.js';
 
 import { useQueue } from 'discord-player';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let queue = useQueue(interaction.guildId as string);
 
@@ -62,8 +63,8 @@ export = {
                 .setDescription(chunk.join('\n') || data.queue_embed_description_empty)
                 .setFooter({
                     text: data.queue_embed_footer_text
-                        .replace("{index}", index + 1)
-                        .replace("{track}", queue.tracks.size)
+                        .replace("{index}", index + 1 as unknown as string)
+                        .replace("{track}", queue.tracks.size as unknown as string)
                 });
 
             embeds.push(embed);

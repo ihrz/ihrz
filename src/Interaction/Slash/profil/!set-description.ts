@@ -23,9 +23,10 @@ import {
     ChatInputCommandInteraction,
     Client,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         var desc = interaction.options.getString("descriptions");
         
         await client.db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.desc`, desc);

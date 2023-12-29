@@ -30,9 +30,10 @@ interface Action {
     type: number;
     metadata: Record<string, any>;
 };
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let turn = interaction.options.getString("action");
         let max_mention = interaction.options.getNumber('max-mention-allowed') || 3;
@@ -96,9 +97,9 @@ export = {
                 await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.mass_mention`, "on");
                 await interaction.editReply({
                     content: data.automod_block_massmention_command_on
-                        .replace('${interaction.user}', interaction.user)
-                        .replace('${logs_channel}', logs_channel || 'None')
-                        .replace('${max_mention}', max_mention)
+                        .replace('${interaction.user}', interaction.user as unknown as string)
+                        .replace('${logs_channel}', (logs_channel || 'None') as string)
+                        .replace('${max_mention}', max_mention as unknown as string)
                 });
                 return;
             } catch {
@@ -111,7 +112,7 @@ export = {
             await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.mass_mention`, "off");
             await interaction.editReply({
                 content: data.automod_block_massmention_command_off
-                    .replace('${interaction.user}', interaction.user)
+                    .replace('${interaction.user}', interaction.user as unknown as string)
             });
             return;
         };

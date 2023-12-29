@@ -24,9 +24,10 @@ import {
     Client,
     EmbedBuilder,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         if (interaction.user.id !== interaction.guild?.ownerId) {
             await interaction.editReply({ content: data.authorization_sanction_not_permited });
@@ -44,7 +45,7 @@ export = {
 
             await interaction.editReply({
                 content: data.authorization_sanction_command_work
-                    .replace('${interaction.user}', interaction.user)
+                    .replace('${interaction.user}', interaction.user as unknown as string)
                     .replace('${choose}', choose)
             });
             return;

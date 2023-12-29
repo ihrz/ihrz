@@ -26,9 +26,10 @@ import {
     EmbedBuilder,
     PermissionsBitField
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let channel = interaction.options.getChannel("channel");
 
@@ -42,8 +43,8 @@ export = {
         if (fetchOldChannel === channel?.id) {
             await interaction.reply({
                 content: data.setsuggest_channel_already_set_with_that
-                    .replace('${interaction.user}', interaction.user)
-                    .replace('${channel}', channel)
+                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${channel}', channel as unknown as string)
             });
             return;
         };
@@ -57,8 +58,8 @@ export = {
         await client.db.set(`${interaction.guild?.id}.SUGGEST.channel`, channel?.id);
         await interaction.reply({
             content: data.setsuggest_channel_command_work
-                .replace('${interaction.user}', interaction.user)
-                .replace('${channel}', channel)
+                .replace('${interaction.user}', interaction.user as unknown as string)
+                .replace('${channel}', channel as unknown as string)
         });
 
         (channel as BaseGuildTextChannel).send({ embeds: [setupEmbed] });

@@ -36,9 +36,10 @@ import {
     StringSelectMenuOptionBuilder,
     ChatInputCommandInteraction,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let balance = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`);
         let toDeposit = interaction.options.getNumber('how-much');
@@ -58,10 +59,11 @@ export = {
             .setColor("#a4cb80")
             .setTitle(data.deposit_embed_title)
             .setDescription(data.deposit_embed_desc
-                .replace('${interaction.user}', interaction.user)
-                .replace('${toDeposit}', toDeposit)
+                .replace('${client.iHorizon_Emojis.icon.Coin}', client.iHorizon_Emojis.icon.Coin)
+                .replace('${interaction.user}', interaction.user as unknown as string)
+                .replace('${toDeposit}', toDeposit as unknown as string)
             )
-            .addFields({ name: data.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`)}🪙` })
+            .addFields({ name: data.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp();
 

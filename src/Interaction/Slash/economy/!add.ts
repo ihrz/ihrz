@@ -26,9 +26,10 @@ import {
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.addmoney_not_admin });
             return;
@@ -39,8 +40,8 @@ export = {
 
         await interaction.reply({
             content: data.addmoney_command_work
-                .replace("${user.user.id}", user?.id)
-                .replace("${amount.value}", amount?.value)
+                .replace("${user.user.id}", user?.id as string)
+                .replace("${amount.value}", amount?.value as string)
         });
 
         await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, amount?.value as number);
@@ -51,8 +52,8 @@ export = {
                 .setTitle(data.addmoney_logs_embed_title)
                 .setDescription(data.addmoney_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace(/\${amount\.value}/g, amount?.value)
-                    .replace(/\${user\.user\.id}/g, user?.id)
+                    .replace(/\${amount\.value}/g, amount?.value as string)
+                    .replace(/\${user\.user\.id}/g, user?.id as string)
                 );
 
             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');

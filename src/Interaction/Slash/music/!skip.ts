@@ -27,12 +27,15 @@ import {
 } from 'discord.js';
 
 import logger from '../../../core/logger';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         if (!(interaction.member as GuildMember)?.voice.channel) {
-            await interaction.editReply({ content: data.skip_not_in_voice_channel });
+            await interaction.editReply({
+                content: data.skip_not_in_voice_channel.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
+            });
             return;
         };
 
@@ -47,7 +50,7 @@ export = {
             queue.node.skip();
             await interaction.editReply({
                 content: data.skip_command_work
-                    .replace("{queue}", queue.currentTrack)
+                    .replace("{queue}", queue.currentTrack as unknown as string)
             });
             return;
         } catch (error: any) {

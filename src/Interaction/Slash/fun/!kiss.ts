@@ -26,9 +26,10 @@ import {
 } from 'discord.js';
 import axios from 'axios';
 import * as apiUrlParser from '../../../core/functions/apiUrlParser';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let kiss = interaction.options.getUser("user");
 
@@ -37,7 +38,7 @@ export = {
                 let embed = new EmbedBuilder()
                     .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#ff0884")
                     .setDescription(data.kiss_embed_description
-                        .replace(/\${kiss\.id}/g, kiss?.id)
+                        .replace(/\${kiss\.id}/g, kiss?.id as string)
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     )
                     .setImage(res.data)

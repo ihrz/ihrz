@@ -25,9 +25,10 @@ import {
 } from 'discord.js';
 
 import { useQueue } from 'discord-player';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let queue = useQueue(interaction.guild?.id as string);
         if (!queue) {
             await interaction.editReply({ content: data.shuffle_no_queue });

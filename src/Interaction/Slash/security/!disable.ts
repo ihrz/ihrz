@@ -25,9 +25,10 @@ import {
     EmbedBuilder,
     PermissionsBitField
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let action = interaction.options.getString("action");
 
@@ -40,7 +41,7 @@ export = {
             await client.db.set(`${interaction.guild?.id}.SECURITY.disable`, false);
             await interaction.reply({
                 content: data.security_disable_pw_on
-                    .replace('${interaction.user}', interaction.user)
+                    .replace('${interaction.user}', interaction.user as unknown as string)
             });
 
             return;
@@ -48,7 +49,7 @@ export = {
             await client.db.set(`${interaction.guild?.id}.SECURITY.disable`, true);
             await interaction.reply({
                 content: data.security_disable_pw_off
-                    .replace('${interaction.user}', interaction.user)
+                    .replace('${interaction.user}', interaction.user as unknown as string)
             });
 
             return;

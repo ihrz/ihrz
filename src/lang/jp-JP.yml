@@ -177,7 +177,7 @@ invite_embed_title: "iHorizonを追加していただきありがとうござい
 invite_embed_description: "私はあなたを愛しています、私に対するあなたの愛を見せてください！私を招待してください！"
 
 # /kisakay
-kisakay_message: "✨Kisakayは私の創造者であり開発者です。彼女と彼女のキーボードのおかげで生まれました。彼女には深く感謝しています！✨ ❤️❤️"
+kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakayは私の創造者であり開発者です。彼女と彼女のキーボードのおかげで生まれました。彼女には深く感謝しています！✨ ❤️❤️"
 
 # /nayaweb
 nayaweb_message: "😼ナヤウェブは私の2番目の開発者/貢献者 , ナヤウェブ x キサケイ ❤️"
@@ -349,18 +349,18 @@ work_embed_description: "${interaction.user.username}、あなたは働いて${a
 # /withdraw
 withdraw_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | あなたの銀行にある金額よりも多くのコインを引き出すことはできません！"
 withdraw_embed_title: "あなたの銀行から引き出す"
-withdraw_embed_desc: "${interaction.user}、あなたは`銀行`から${toWithdraw}🪙を引き出しました"
+withdraw_embed_desc: "${interaction.user}、あなたは`銀行`から${toWithdraw}${client.iHorizon_Emojis.icon.Coin}を引き出しました"
 withdraw_embed_fields1_name: "銀行"
 
 # /deposit
 deposit_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | あなたのウォレットにある金額よりも多くのコインを預けることはできません！"
 deposit_embed_title: "あなたの銀行に預ける"
-deposit_embed_desc: "${interaction.user}、あなたは`銀行`に${toDeposit}🪙を預けました"
+deposit_embed_desc: "${interaction.user}、あなたは`銀行`に${toDeposit}${client.iHorizon_Emojis.icon.Coin}を預けました"
 deposit_embed_fields1_name: "銀行"
 
 # /leaderboard
 economy_leaderboard_embed_title: "`${interaction.guild.name}`の経済リーダーボード"
-economy_leaderboard_embed_fields_value: "<@${userId}> - 銀行: `${userData.bank || 0}`🪙 | バランス: `${userData.money || 0}`🪙"
+economy_leaderboard_embed_fields_value: "<@${userId}> - 銀行: `${userData.bank || 0}`${client.iHorizon_Emojis.icon.Coin} | バランス: `${userData.money || 0}`${client.iHorizon_Emojis.icon.Coin}"
 
 
 # Profil Customisation commands
@@ -375,7 +375,7 @@ setprofildescriptions_command_work: "**説明が正常に更新されました�
 # /profil
 profil_not_description_set: "説明が設定されていません！"
 profil_unknown: "不明"
-profil_embed_title: "📌 __${member.tag}のプロフィール__"
+profil_embed_title: "${client.iHorizon_Emojis.icon.Pin} __${member.tag}のプロフィール__"
 profil_embed_fields_nickname: "📝 ・ __ニックネーム__"
 profil_embed_fields_money: "🪙 ・ __所持金__"
 profil_embed_fields_money_value: " コイン"
@@ -424,7 +424,7 @@ setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} コマンド
 snipe_no_previous_message_deleted: "このチャンネルで削除されたメッセージはありません！"
 
 # /userinfo
-userinfo_wait_please: "⏲ お待ちください..."
+userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} お待ちください..."
 
 # /renew
 renew_channel_send_success: "${interaction.user} チャンネルが再作成されました！"
@@ -658,7 +658,7 @@ setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}>さ�
 # /p
 p_not_in_voice_channel: "このコマンドを使用するには、ボイスチャンネルに接続する必要があります！"
 p_embed_title: "検索結果がありません"
-p_loading_message: "⏲️  {result}をロード中！"
+p_loading_message: "${client.iHorizon_Emojis.icon.Timer}  {result}をロード中！"
 p_duration: "再生時間："
 p_not_allowed: "このボットではサポートされていないリンクを送信しようとしました。Deezer、Spotify、Youtubeなど、許可された音楽ストリーミングサービスを使用してください。"
 
@@ -671,7 +671,7 @@ nowplaying_no_queue: "再生中の曲はありません"
 nowplaying_message_embed_title: "再生中の曲"
 
 # /pause
-pause_no_queue: "⚠️ - ボイスチャンネルに接続していません！"
+pause_no_queue: "${client.iHorizon_Emojis.icon.Warning_Icon} - ボイスチャンネルに接続していません！"
 pause_nothing_playing: "再生中の曲はありません"
 
 # /resume
@@ -679,7 +679,7 @@ resume_nothing_playing: "再生中の曲はありません"
 resume_command_work: "再生が再開されました"
 
 # /skip
-skip_not_in_voice_channel: "⚠️ - ボイスチャンネルに接続していません！"
+skip_not_in_voice_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} - ボイスチャンネルに接続していません！"
 skip_nothing_playing: "再生中の曲はありません"
 skip_command_work: "{queue} をスキップしました"
 
@@ -1123,7 +1123,7 @@ mybot_list_utils_msg: "__Bot ID__ `${data_2[i].bot.id}`\n__Bot ユーザー名__
 mybot_list_utils_msg_yes: "はい"
 mybot_list_utils_msg_no: "いいえ"
 mybot_list_embed1_title: "あなた自身の iHorizon: ${data_2[i].bot.username}"
-mybot_list_embed1_desc: "あなたのボットコード: ||**${data_2[i].code}**|| ⚠️ **他の人と共有しないでください**！\n**有効期限**：`${expire}`\nあなたのボットに問題がある場合、**サポートサーバーに参加** [ここをクリック](https://discord.gg/ihorizon) してください。\n\n${utils_msg}"
+mybot_list_embed1_desc: "あなたのボットコード: ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.icon.Warning_Icon} **他の人と共有しないでください**！\n**有効期限**：`${expire}`\nあなたのボットに問題がある場合、**サポートサーバーに参加** [ここをクリック](https://discord.gg/ihorizon) してください。\n\n${utils_msg}"
 
 # /mybot 管理 承認
 mybot_manage_accept_not_found: "データベース内のボットが見つかりません。進行できません。"
@@ -1146,13 +1146,13 @@ mybot_instance_deny_embed_desc: "ボットは拒否されました\n\n${utils_ms
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
-event_mp_playerStart: "🎵 - 現在 **${queue.channel.name}** で `${track.title}` を再生中..."
-event_mp_audioTrackAdd: ":musical_note: - ${track.title} をキューに追加しました！"
+event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - 現在 **${queue.channel.name}** で `${track.title}` を再生中..."
+event_mp_audioTrackAdd: "${client.iHorizon_Emojis.icon.Music_Icon} - ${track.title} をキューに追加しました！"
 event_mp_playerError: "接続に問題があります => ${error.message}"
 event_mp_error: "曲のキューに問題があります => ${error.message}"
 event_mp_emptyChannel: "${client.iHorizon_Emojis.icon.No_Logo} | 誰もボイスチャンネルにいないため、退出します..."
-event_mp_playerSkip: ":musical_note: - **${track.title}** をスキップしました！"
-event_mp_emptyQueue: "⚠️ - キューにはもう曲がありません！音楽を停止しました。"
+event_mp_playerSkip: "${client.iHorizon_Emojis.icon.Music_Icon} - **${track.title}** をスキップしました！"
+event_mp_emptyQueue: "${client.iHorizon_Emojis.icon.Warning_Icon} - キューにはもう曲がありません！音楽を停止しました。"
 
 # Channel Create Events
 event_channel_create_message_embed_title: "正常にセットアップされました！"

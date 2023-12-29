@@ -31,9 +31,10 @@ interface Action {
     type: number;
     metadata: Record<string, any>;
 };
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let turn = interaction.options.getString("action");
         let logs_channel = interaction.options.getChannel('logs-channel');
@@ -113,8 +114,8 @@ export = {
             await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.antipub`, "on");
             await interaction.editReply({
                 content: data.automod_block_pub_command_on
-                    .replace('${interaction.user}', interaction.user)
-                    .replace('${logs_channel}', logs_channel || 'None')
+                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${logs_channel}', (logs_channel || 'None') as string)
             });
 
             return;
@@ -124,7 +125,7 @@ export = {
             await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.antipub`, "off");
             await interaction.editReply({
                 content: data.automod_block_pub_command_off
-                    .replace('${interaction.user}', interaction.user)
+                    .replace('${interaction.user}', interaction.user as unknown as string)
             });
 
             return;

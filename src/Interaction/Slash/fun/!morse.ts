@@ -23,9 +23,10 @@ import {
     ChatInputCommandInteraction,
     Client,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let i: number;
 
         let alpha = " ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");

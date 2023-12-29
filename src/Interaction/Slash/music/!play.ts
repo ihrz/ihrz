@@ -28,9 +28,10 @@ import {
 } from 'discord.js';
 
 import { QueryType } from 'discord-player';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let voiceChannel = (interaction.member as GuildMember)?.voice.channel;
         let check = interaction.options.getString("title");
@@ -39,7 +40,8 @@ export = {
             await interaction.editReply({ content: data.p_not_in_voice_channel });
             return;
         };
-        //if (!client.functions.isLinkAllowed(check)) { return interaction.editReply({ content: data.p_not_allowed }) };
+
+        if (client.functions.isAllowedLinks(check)) { return interaction.editReply({ content: data.p_not_allowed }) };
 
         let result = await interaction.client.player.search(check as string, {
             requestedBy: interaction.user, searchEngine: QueryType.AUTO
@@ -93,7 +95,9 @@ export = {
 
         await interaction.editReply({
             content: data.p_loading_message
-                .replace("{result}", result.playlist ? 'playlist' : 'track'), embeds: [embed]
+                .replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
+                .replace("{result}", result.playlist ? 'playlist' : 'track')
+            , embeds: [embed]
         });
         return;
     },

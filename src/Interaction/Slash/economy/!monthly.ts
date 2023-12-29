@@ -26,9 +26,10 @@ import {
 } from 'discord.js';
 
 import ms from 'ms';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let timeout: number = 2592000000;
         let amount: number = 5000;
@@ -45,8 +46,8 @@ export = {
                 .setAuthor({ name: data.monthly_embed_title, iconURL: interaction.user.displayAvatarURL() })
                 .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#a4cb80")
                 .setDescription(data.monthly_embed_description)
-                .addFields({ name: data.monthly_embed_fields, value: `${amount}🪙` });
-                
+                .addFields({ name: data.monthly_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` });
+    
             await interaction.reply({ embeds: [embed] });
             await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
             await client.db.set(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.monthly`, Date.now());

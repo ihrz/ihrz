@@ -24,9 +24,10 @@ import {
     Client,
     EmbedBuilder,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         var text: string = data.leaderboard_default_text;
         let char = await client.db.get(`${interaction.guild?.id}.USER`);
         let tableau: Array<any> = [];

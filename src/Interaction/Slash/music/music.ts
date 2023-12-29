@@ -70,6 +70,11 @@ export const command: Command = {
             ],
         },
         {
+            name: 'history',
+            description: "See the history of all the music played in this guild!",
+            type: 1,
+        },
+        {
             name: 'nowplaying',
             description: 'Get the current playing song!',
             type: 1,

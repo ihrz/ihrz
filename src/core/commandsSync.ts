@@ -57,6 +57,6 @@ export = async (client: Client) => {
 
         logger.log(couleurmdr.white(`${config.console.emojis.OK} >> Currently ${(data as unknown as ApplicationCommand<{}>[]).length} of application are now synchronized.`));
     } catch (error: any) {
-        console.error(error)
+        logger.err(error)
     };
 };

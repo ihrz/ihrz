@@ -29,9 +29,10 @@ import {
 } from 'discord.js';
 
 import logger from '../../../core/logger';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let tomute = interaction.options.getMember("user") as GuildMember;
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages);

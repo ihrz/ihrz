@@ -34,9 +34,10 @@ import { lyricsExtractor } from '@discord-player/extractor';
 import { MetadataPlayer } from '../../../../types/metadaPlayer';
 
 let lyricsFinder = lyricsExtractor();
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let pause = new ButtonBuilder()
             .setCustomId('pause')
@@ -138,7 +139,7 @@ export = {
             });
 
         } catch {
-            await interaction.channel?.send('⏲️');
+            await interaction.channel?.send(client.iHorizon_Emojis.icon.Timer);
             return;
         };
     },

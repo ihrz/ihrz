@@ -24,14 +24,15 @@ import {
     Client,
     EmbedBuilder,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let member = interaction.options.getUser('user') || interaction.user;
 
         var description = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.desc`);
-        if (!description) var description = data.profil_not_description_set;
+        if (!description) description = data.profil_not_description_set;
 
         var level: Number = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.XP_LEVELING.level`);
         if (!level) var level: Number = 0;
@@ -40,14 +41,15 @@ export = {
         if (!balance) var balance: Number = 0;
 
         var age = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.age`);
-        if (!age) var age = data.profil_unknown;
+        if (!age) age = data.profil_unknown;
 
         var gender = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.gender`);
-        if (!gender) var gender = data.profil_unknown;
+        if (!gender) gender = data.profil_unknown;
 
         let profil = new EmbedBuilder()
             .setTitle(data.profil_embed_title
                 .replace(/\${member\.tag}/g, member.username)
+                .replace('${client.iHorizon_Emojis.icon.Pin}', client.iHorizon_Emojis.icon.Pin)
             )
             .setDescription(`\`${description}\``)
             .addFields(

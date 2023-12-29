@@ -28,8 +28,9 @@ import { MongoDriver } from 'quickmongo';
 
 let exec = async (driver: MongoDriver) => {
     let dbProtocolName: string = config.database.useSqlite ? 'SQLite' : 'MongoDB';
-    logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${dbProtocolName})!`);
     await driver.close();
+    logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${dbProtocolName})!`);
+    process.exit();
 };
 
 export const uncaughtExceptionHandler = () => {
@@ -50,7 +51,7 @@ export const uncaughtExceptionHandler = () => {
 };
 
 export let exit = async (driver: MongoDriver) => {
-    process.on('exit', async () => { await exec(driver); return process.exit(1); });
-    process.on('abort', async () => { await exec(driver); return process.exit(1); });
-    process.on('SIGINT', async () => { await exec(driver); return process.exit(1); });
+    process.on('exit', async () => { await exec(driver); });
+    process.on('abort', async () => { await exec(driver); });
+    process.on('SIGINT', async () => { await exec(driver); });
 };

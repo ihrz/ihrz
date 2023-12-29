@@ -31,9 +31,10 @@ import {
 import logger from '../../../core/logger';
 
 import ms, { StringValue } from 'ms';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let mutetime = interaction.options.getString("time")?.split(" ")[0];
         let tomute = interaction.options.getMember("user") as GuildMember;

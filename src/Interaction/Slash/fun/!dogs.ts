@@ -27,9 +27,10 @@ import {
 
 import logger from '../../../core/logger';
 import axios from 'axios'
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         axios.get('https://dog.ceo/api/breeds/image/random')
             .then(async res => {
