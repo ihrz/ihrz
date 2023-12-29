@@ -28,9 +28,10 @@ import {
 } from 'discord.js';
 
 import logger from '../../../core/logger';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let type = interaction.options.getString("action");
         let argsid = interaction.options.getChannel("channel");

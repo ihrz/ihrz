@@ -27,10 +27,11 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
+import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageChannels);
         if (!permission) {
@@ -52,7 +53,7 @@ export = {
                 .setTitle(data.unlock_logs_embed_title)
                 .setDescription(data.unlock_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id)
+                    .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id as unknown as string)
                 )
             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 

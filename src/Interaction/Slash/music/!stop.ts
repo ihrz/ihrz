@@ -26,9 +26,10 @@ import {
 } from 'discord.js';
 
 import logger from '../../../core/logger';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         try {
             let queue = interaction.client.player.nodes.get(interaction.guild as Guild);

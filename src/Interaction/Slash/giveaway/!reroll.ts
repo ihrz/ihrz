@@ -28,10 +28,11 @@ import {
 } from 'discord.js';
 
 import { isValid, isEnded, Reroll } from '../../../core/giveawaysManager';
+import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let inputData = interaction.options.getString("giveaway-id");
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {
@@ -44,7 +45,7 @@ export = {
         })) {
             await interaction.editReply({
                 content: data.reroll_dont_find_giveaway
-                    .replace("{args}", inputData)
+                    .replace("{args}", inputData as string)
             });
             return;
         };
@@ -69,7 +70,7 @@ export = {
                 .setTitle(data.reroll_logs_embed_title)
                 .setDescription(data.reroll_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace(/\${giveaway\.messageID}/g, inputData)
+                    .replace(/\${giveaway\.messageID}/g, inputData as string)
                 )
 
             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');

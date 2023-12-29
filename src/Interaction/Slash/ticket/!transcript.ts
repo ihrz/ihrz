@@ -28,9 +28,10 @@ import {
 } from 'discord.js';
 
 import { TicketTranscript } from '../../../core/ticketsManager';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let blockQ = await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`);
 

@@ -29,9 +29,10 @@ import {
 } from 'discord.js';
 
 import logger from '../../../core/logger';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let member = interaction.guild?.members.cache.get(interaction.options.getUser("member")?.id as string);
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.BanMembers);
 
@@ -78,7 +79,7 @@ export = {
         member.send({
             content: data.ban_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-                .replace(/\${interaction\.member\.user\.username}/g, interaction.user.globalName)
+                .replace(/\${interaction\.member\.user\.username}/g, interaction.user.globalName as string)
         })
             .catch(() => {
             })

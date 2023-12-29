@@ -24,9 +24,10 @@ import {
     Client,
     EmbedBuilder,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let talkedRecentlyforr = new Set();
 
         if (talkedRecentlyforr.has(interaction.user.id)) {
@@ -46,7 +47,7 @@ export = {
         if (targetuser < 250) {
             await interaction.reply({
                 content: data.rob_him_dont_enought_error
-                    .replace(/\${user\.user\.username}/g, user?.globalName)
+                    .replace(/\${user\.user\.username}/g, user?.globalName as string)
             });
             return;
         };
@@ -56,8 +57,8 @@ export = {
         let embed = new EmbedBuilder()
             .setDescription(data.rob_embed_description
                 .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                .replace(/\${user\.id}/g, user?.id)
-                .replace(/\${random}/g, random)
+                .replace(/\${user\.id}/g, user?.id as string)
+                .replace(/\${random}/g, random as unknown as string)
             )
             .setColor("#a4cb80")
             .setTimestamp()

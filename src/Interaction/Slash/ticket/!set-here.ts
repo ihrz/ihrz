@@ -27,9 +27,10 @@ import {
 } from 'discord.js';
 
 import { CreatePanel } from '../../../core/ticketsManager';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let panelName = interaction.options.getString("name");
         let panelDesc = interaction.options.getString("description");
@@ -40,7 +41,9 @@ export = {
         };
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.sethereticket_not_admin });
+            await interaction.editReply({
+                content: data.sethereticket_not_admin.replace(":x:", client.iHorizon_Emojis.icon.No_Logo)
+            });
             return;
         };
 
@@ -49,7 +52,7 @@ export = {
             author: interaction.user.id,
             description: panelDesc
         });
-        
+
         await interaction.deleteReply();
         await interaction.followUp({ content: data.sethereticket_command_work, ephemeral: true });
         return;

@@ -130,7 +130,9 @@ export const command: Command = {
             return;
         };
 
-        await interaction.reply({ content: data.userinfo_wait_please });
+        await interaction.reply({
+            content: data.userinfo_wait_please.replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
+        });
 
         let requestData = {
             tokent: 'want',

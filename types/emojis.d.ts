@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-export interface Badge {
+interface Badge {
     Discord_Employee: string;
     Partnered_Server_Owner: string;
     HypeSquad_Events: string;
@@ -37,7 +37,7 @@ export interface Badge {
     Server_Boost_Badge: string;
 }
 
-export interface Icon {
+interface Icon {
     Crown_Logo: string;
     Boosting_24_Months_Logo: string;
     Discord_Nitro_Animated_Logo: string;
@@ -47,6 +47,13 @@ export interface Icon {
     No_Logo: string;
     Stop_Logo: string;
     Wallet_Logo: string;
+    Music_Icon: string;
+    Disk: string;
+    Warning_Icon: string;
+    Coin: string;
+    Pin: string;
+    Timer: string;
+    Sparkles: string;
 }
 
 export interface Emojis {

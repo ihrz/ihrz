@@ -30,9 +30,10 @@ import { execSync } from 'child_process';
 import config from '../../../files/config';
 import date from 'date-and-time';
 import ms, { StringValue } from 'ms';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let action_to_do = interaction.options.getString('action');
         let id_to_bot = interaction.options.getString('id');

@@ -28,9 +28,10 @@ import {
 } from 'discord.js';
 
 import logger from '../../../core/logger';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)
         var numberx = interaction.options.getNumber("number");
@@ -53,7 +54,7 @@ export = {
             .then((messages: { size: number; }) => {
                 interaction.channel?.send({
                     content: data.clear_confirmation_message
-                        .replace(/\${messages\.size}/g, messages.size)
+                        .replace(/\${messages\.size}/g, messages.size as unknown as string)
                 });
 
                 try {
@@ -62,8 +63,8 @@ export = {
                         .setTitle(data.clear_logs_embed_title)
                         .setDescription(data.clear_logs_embed_description
                             .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                            .replace(/\${messages\.size}/g, messages.size)
-                            .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id)
+                            .replace(/\${messages\.size}/g, messages.size as unknown as string)
+                            .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id as unknown as string)
                         )
                     let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 

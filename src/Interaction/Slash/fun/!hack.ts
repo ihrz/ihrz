@@ -24,9 +24,10 @@ import {
     Client,
     EmbedBuilder,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let victim = interaction.options.getUser("user");
 
         var ip = [
@@ -70,7 +71,7 @@ export = {
         let embed = new EmbedBuilder()
             .setColor("#800000")
             .setDescription(data.hack_embed_description
-                .replace(/\${victim\.id}/g, victim?.id)
+                .replace(/\${victim\.id}/g, victim?.id as string)
                 .replace(/\${interaction\.user\.id}/g, interaction.user.id)
             )
             .addFields({ name: data.hack_embed_fields_ip, value: `\`${generatedIp}\`` },

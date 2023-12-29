@@ -29,9 +29,10 @@ import logger from '../../../core/logger';
 import { lyricsExtractor } from '@discord-player/extractor';
 
 let lyricsFinder = lyricsExtractor();
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         try {
             let title = interaction.options.getString("title");

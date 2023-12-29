@@ -177,7 +177,7 @@ invite_embed_title: "Grazie per aver aggiunto iHorizon!"
 invite_embed_description: "Ti voglio bene, mostrami il tuo amore per me a tua volta! Invitami!"
 
 # /kisakay
-kisakay_message: "✨Kisakay è sia la mia creatrice che la mia sviluppatrice. È grazie a lei e alla sua tastiera che sono nata. Le sono profondamente grata!✨ ❤️❤️"
+kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay è sia la mia creatrice che la mia sviluppatrice. È grazie a lei e alla sua tastiera che sono nata. Le sono profondamente grata!✨ ❤️❤️"
 
 # /nayaweb
 nayaweb_message: "😼NayaWeb è il mio secondo sviluppatore/contribuente , NayaWeb x Kisakay ❤️"
@@ -349,18 +349,18 @@ work_embed_description: "${interaction.user.username}, hai lavorato e guadagnato
 # /withdraw
 withdraw_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | Non puoi prelevare una quantità maggiore di monete di quelle che hai nella tua banca!"
 withdraw_embed_title: "Prelievo dalla tua banca"
-withdraw_embed_desc: "${interaction.user}, hai prelevato ${toWithdraw}🪙 dal tuo `banca`"
+withdraw_embed_desc: "${interaction.user}, hai prelevato ${toWithdraw}${client.iHorizon_Emojis.icon.Coin} dal tuo `banca`"
 withdraw_embed_fields1_name: "Banca"
 
 # /deposit
 deposit_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | Non puoi depositare una quantità maggiore di monete di quelle che hai nel tuo portafoglio!"
 deposit_embed_title: "Deposito nella tua banca"
-deposit_embed_desc: "${interaction.user}, hai depositato ${toDeposit}🪙 nel tuo `banca`"
+deposit_embed_desc: "${interaction.user}, hai depositato ${toDeposit}${client.iHorizon_Emojis.icon.Coin} nel tuo `banca`"
 deposit_embed_fields1_name: "Banca"
 
 # /leaderboard
 economy_leaderboard_embed_title: "Classifica economica di `${interaction.guild.name}`"
-economy_leaderboard_embed_fields_value: "<@${userId}> - Banca: `${userData.bank || 0}`🪙 | Saldo: `${userData.money || 0}`🪙"
+economy_leaderboard_embed_fields_value: "<@${userId}> - Banca: `${userData.bank || 0}`${client.iHorizon_Emojis.icon.Coin} | Saldo: `${userData.money || 0}`${client.iHorizon_Emojis.icon.Coin}"
 
 
 # Profil Customisation commands
@@ -375,7 +375,7 @@ setprofildescriptions_command_work: "**Your description has been updated success
 # /profil
 profil_not_description_set: "Descrizione non impostata!"
 profil_unknown: "Sconosciuto"
-profil_embed_title: "📌 __Profilo di ${member.tag}__"
+profil_embed_title: "${client.iHorizon_Emojis.icon.Pin} __Profilo di ${member.tag}__"
 profil_embed_fields_nickname: "📝 ・ __Nickname__"
 profil_embed_fields_money: "🪙 ・ __Monete__"
 profil_embed_fields_money_value: " __monete__"
@@ -424,7 +424,7 @@ setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} Si è verifi
 snipe_no_previous_message_deleted: "Nessun messaggio eliminato in questo canale!"
 
 # /userinfo
-userinfo_wait_please: "⏲ Attendi per favore..."
+userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} Attendi per favore..."
 
 # /renew
 renew_channel_send_success: "Canale ricreato da ${interaction.user}!"
@@ -658,7 +658,7 @@ setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> ha 
 # /p
 p_not_in_voice_channel: "Devi essere connesso a un canale vocale per utilizzare questo comando!"
 p_embed_title: "Nessun risultato"
-p_loading_message: "⏲️ Caricamento in corso di: {result} !"
+p_loading_message: "${client.iHorizon_Emojis.icon.Timer} Caricamento in corso di: {result} !"
 p_duration: "Durata: "
 p_not_allowed: "Il link che hai inviato non è supportato da questo bot. Si prega di utilizzare i servizi di streaming audio autorizzati come Deezer, Spotify, Youtube, ecc."
 
@@ -671,7 +671,7 @@ nowplaying_no_queue: "Non c'è nulla in riproduzione"
 nowplaying_message_embed_title: "In riproduzione"
 
 # /pause
-pause_no_queue: "⚠️ - You're not in a voice channel !"
+pause_no_queue: "${client.iHorizon_Emojis.icon.Warning_Icon} - You're not in a voice channel !"
 pause_nothing_playing: "There is nothing playing"
 
 # /resume
@@ -679,7 +679,7 @@ resume_nothing_playing: "There is nothing playing"
 resume_command_work: "resumed successfully"
 
 # /skip
-skip_not_in_voice_channel: "⚠️ - Non sei in un canale vocale!"
+skip_not_in_voice_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} - Non sei in un canale vocale!"
 skip_nothing_playing: "Non c'è nulla in riproduzione"
 skip_command_work: "Saltata {queue}"
 
@@ -1123,7 +1123,7 @@ mybot_list_utils_msg: "__ID del Bot__ `${data_2[i].bot.id}`\n__Nome utente del B
 mybot_list_utils_msg_yes: "Sì"
 mybot_list_utils_msg_no: "No"
 mybot_list_embed1_title: "Il tuo iHorizon personale: ${data_2[i].bot.username}"
-mybot_list_embed1_desc: "Il codice del tuo bot: ||**${data_2[i].code}**|| ⚠️ **Non condividerlo con nessuno** !\n**Scade in**: `${expire}`\n**Unisciti al server di supporto** [Clicca qui](https://discord.gg/ihorizon), se hai problemi con il tuo bot.\n\n${utils_msg}"
+mybot_list_embed1_desc: "Il codice del tuo bot: ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.icon.Warning_Icon} **Non condividerlo con nessuno** !\n**Scade in**: `${expire}`\n**Unisciti al server di supporto** [Clicca qui](https://discord.gg/ihorizon), se hai problemi con il tuo bot.\n\n${utils_msg}"
 
 # /mybot gestisci accetta
 mybot_manage_accept_not_found: "Il bot nel database non può essere trovato. Non possiamo procedere."
@@ -1146,13 +1146,13 @@ mybot_instance_deny_embed_desc: "Il bot è stato rifiutato\n\n${utils_msg}"
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
-event_mp_playerStart: "🎵 - Riproduzione in corso di `${track.title}` in `${queue.channel.name}` ..."
-event_mp_audioTrackAdd: ":musical_note: - ${track.title} è stato aggiunto alla coda di riproduzione!"
+event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Riproduzione in corso di `${track.title}` in `${queue.channel.name}` ..."
+event_mp_audioTrackAdd: "${client.iHorizon_Emojis.icon.Music_Icon} - ${track.title} è stato aggiunto alla coda di riproduzione!"
 event_mp_playerError: "Sto avendo problemi di connessione => ${error.message}"
 event_mp_error: "Si è verificato un problema con la coda di riproduzione della canzone => ${error.message}"
 event_mp_emptyChannel: "${client.iHorizon_Emojis.icon.No_Logo} | Nessuno è nel canale vocale, esco..."
-event_mp_playerSkip: ":musical_note: - Salto di `${track.title}` !"
-event_mp_emptyQueue: "⚠️ - La musica si è fermata poiché non ci sono più brani nella coda di riproduzione!"
+event_mp_playerSkip: "${client.iHorizon_Emojis.icon.Music_Icon} - Salto di `${track.title}` !"
+event_mp_emptyQueue: "${client.iHorizon_Emojis.icon.Warning_Icon} - La musica si è fermata poiché non ci sono più brani nella coda di riproduzione!"
 
 # Channel Create Events
 event_channel_create_message_embed_title: "Setup effettuato con successo!"

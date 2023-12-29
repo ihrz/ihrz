@@ -25,8 +25,10 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
+import { LanguageData } from '../../../../types/languageData';
+
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let talkedRecentlyforw = new Set();
 
         if (talkedRecentlyforw.has(interaction.user.id)) {
@@ -39,12 +41,12 @@ export = {
         let embed = new EmbedBuilder()
             .setAuthor({
                 name: data.work_embed_author
-                    .replace(/\${interaction\.user\.username}/g, interaction.user.globalName),
+                    .replace(/\${interaction\.user\.username}/g, interaction.user.globalName as string),
                 iconURL: interaction.user.displayAvatarURL()
             })
             .setDescription(data.work_embed_description
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName)
-                .replace(/\${amount}/g, amount)
+                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName as string)
+                .replace(/\${amount}/g, amount as unknown as string)
             )
             .setColor("#f1d488");
 

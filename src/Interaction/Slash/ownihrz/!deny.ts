@@ -27,9 +27,10 @@ import {
 
 import config from '../../../files/config';
 import axios from 'axios';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let id_1 = interaction.options.getString('id');
 

@@ -57,8 +57,8 @@ export = async (client: Client) => {
         let LoadFiles = await client.db.get(`BASH.LAST_LOGIN`) || "None";
         let LoadFiles2 = "127.0.0.1";
 
-        let filePath = path.join(process.cwd(), 'src', 'core', 'bash', 'history', '.bash_history'),
-            createFiles = fs.createWriteStream(filePath, { flags: 'a' });
+        let filePath = path.join(process.cwd(), 'src', 'core', 'bash', 'history', '.bash_history');
+        let createFiles = fs.createWriteStream(filePath, { flags: 'a' });
 
         await client.db.set(`BASH.LAST_LOGIN`, dateStr);
         logger.legacy(`Welcome to iHorizon Bash
@@ -76,8 +76,9 @@ export = async (client: Client) => {
         rl.setPrompt('kisakay@ihorizon'.green + ":".white + "~".blue + "$ ".white);
         rl.prompt();
         rl.on('line', (line) => {
-            let [commandName, ...args] = line.trim().split(' '),
-                commandPath = `${process.cwd()}/dist/src/core/bash/commands/${commandName}.js`;
+            let [commandName, ...args] = line.trim().split(' ');
+            let commandPath = `${process.cwd()}/dist/src/core/bash/commands/${commandName}.js`;
+            
             if (fs.existsSync(commandPath)) {
                 let command = require(commandPath);
                 command(client, args.join(' '));

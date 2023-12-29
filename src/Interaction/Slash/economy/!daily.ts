@@ -25,10 +25,11 @@ import {
     ChatInputCommandInteraction,
 } from 'discord.js';
 
+import { LanguageData } from '../../../../types/languageData';
 import ms from 'ms';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let timeout = 86400000;
         let amount = 500;
         let daily = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.daily`);
@@ -43,7 +44,7 @@ export = {
                 .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL() })
                 .setColor("#a4cb80")
                 .setDescription(data.daily_embed_description)
-                .addFields({ name: data.daily_embed_fields, value: `${amount}🪙` })
+                .addFields({ name: data.daily_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` })
 
             await interaction.reply({ embeds: [embed] });
             await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);

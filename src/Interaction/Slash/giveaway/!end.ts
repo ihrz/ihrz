@@ -29,10 +29,11 @@ import {
 
 import { isValid, End, isEnded } from '../../../core/giveawaysManager';
 
+import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let inputData = interaction.options.getString("giveaway-id");
 
@@ -46,7 +47,7 @@ export = {
         })) {
             await interaction.editReply({
                 content: data.end_not_find_giveaway
-                    .replace(/\${gw}/g, inputData)
+                    .replace(/\${gw}/g, inputData as string)
             });
             return;
         };
@@ -65,7 +66,7 @@ export = {
 
         await interaction.editReply({
             content: data.end_confirmation_message
-                .replace(/\${timeEstimate}/g, 0)
+                .replace(/\${timeEstimate}/g, "0")
         });
 
         try {
@@ -74,7 +75,7 @@ export = {
                 .setTitle(data.end_logs_embed_title)
                 .setDescription(data.end_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace(/\${giveaway\.messageID}/g, inputData)
+                    .replace(/\${giveaway\.messageID}/g, inputData as string)
                 );
 
             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');

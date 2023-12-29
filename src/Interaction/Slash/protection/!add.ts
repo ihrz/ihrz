@@ -25,9 +25,10 @@ import {
     EmbedBuilder,
     GuildMember,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let baseData = await client.db.get(`${interaction.guild?.id}.ALLOWLIST`);
         let member = interaction.options.getMember('member') as GuildMember;
@@ -55,7 +56,7 @@ export = {
         await client.db.set(`${interaction.guild.id}.ALLOWLIST.list.${member.user.id}`, { allowed: true });
         await interaction.reply({
             content: data.allowlist_add_command_work
-                .replace('${member.user}', member.user)
+                .replace('${member.user}', member.user as unknown as string)
         });
         return;
     },

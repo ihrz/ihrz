@@ -25,9 +25,10 @@ import {
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.guildprofil_not_admin });
             return;
@@ -77,7 +78,7 @@ export = {
 
                         return data.guildprofil_set_reactionrole
                             .replace(/\${rolesID}/g, rolesID)
-                            .replace(/\${emoji\s*\|\|\s*key}/g, emoji || key)
+                            .replace(/\${emoji\s*\|\|\s*key}/g, (emoji || key) as string)
                             .replace(/\${i}/g, i);
                     }).join('\n');
                     text2 = stringContent;
@@ -177,7 +178,7 @@ export = {
         let guildc = new EmbedBuilder()
             .setColor("#016c9a")
             .setDescription(data.guildprofil_embed_description
-                .replace(/\${interaction\.guild\.name}/g, interaction.guild?.name)
+                .replace(/\${interaction\.guild\.name}/g, interaction.guild?.name as string)
             )
             .addFields(
                 { name: data.guildprofil_embed_fields_joinmessage, value: joinmessage, inline: true },

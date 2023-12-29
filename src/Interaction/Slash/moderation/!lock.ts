@@ -26,9 +26,10 @@ import {
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let Lockembed = new EmbedBuilder()
             .setColor("#5b3475")
@@ -56,7 +57,7 @@ export = {
                 .setTitle(data.lock_logs_embed_title)
                 .setDescription(data.lock_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id)
+                    .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id as string)
                 );
             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 

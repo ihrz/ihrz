@@ -26,10 +26,11 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
+import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let action = interaction.options.getString('action');
 
         if (interaction.user.id !== interaction.guild?.ownerId) {
@@ -41,7 +42,7 @@ export = {
                     .setColor("#bf0bb9")
                     .setTitle(data.blockbot_logs_enable_title)
                     .setDescription(data.blockbot_logs_enable_description
-                        .replace(/\${interaction\.user}/g, interaction.user)
+                        .replace(/\${interaction\.user}/g, interaction.user as unknown as string)
                     );
 
                 let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
@@ -63,7 +64,7 @@ export = {
                     .setColor("#bf0bb9")
                     .setTitle(data.blockbot_logs_disable_commmand_work)
                     .setDescription(data.blockbot_logs_disable_description
-                        .replace(/\${interaction\.user}/g, interaction.user)
+                        .replace(/\${interaction\.user}/g, interaction.user as unknown as string)
                     );
 
                 let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');

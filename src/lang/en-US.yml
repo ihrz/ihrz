@@ -177,7 +177,7 @@ invite_embed_title: "Thank to adding iHorizon !"
 invite_embed_description: "I love you, show me your love for me back! Invite me!"
 
 # /kisakay
-kisakay_message: "✨Kisakay is both my creator and my developer. It is thanks to her and her keyboard that I came into existence. I am deeply grateful to her!✨ ❤️❤️"
+kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay is both my creator and my developer. It is thanks to her and her keyboard that I came into existence. I am deeply grateful to her!✨ ❤️❤️"
 
 # /nayaweb
 nayaweb_message: "😼NayaWeb is my second developer/contributor , NayaWeb x Kisakay ❤️"
@@ -349,18 +349,18 @@ work_embed_description: "${interaction.user.username}, you've worked and earned 
 # /withdraw
 withdraw_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | You cannot Withdraw a larger amount of coin as you have in your bank!"
 withdraw_embed_title: "Withdraw from your bank"
-withdraw_embed_desc: "${interaction.user}, you have been withdraw ${toWithdraw}🪙 from your `bank`"
+withdraw_embed_desc: "${interaction.user}, you have been withdraw ${toWithdraw}${client.iHorizon_Emojis.icon.Coin} from your `bank`"
 withdraw_embed_fields1_name: "Bank"
 
 # /deposit
 deposit_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | You cannot deposit a larger amount of coin as you have in your wallet!"
 deposit_embed_title: "Deposit into your bank"
-deposit_embed_desc: "${interaction.user}, you have been deposit ${toDeposit}🪙 in your `bank`"
+deposit_embed_desc: "${interaction.user}, you have been deposit ${toDeposit}${client.iHorizon_Emojis.icon.Coin} in your `bank`"
 deposit_embed_fields1_name: "Bank"
 
 # /leaderboard
 economy_leaderboard_embed_title: "Economy leaderboard of `${interaction.guild.name}`"
-economy_leaderboard_embed_fields_value: "<@${userId}> - Bank: `${userData.bank || 0}`🪙 | Balance: `${userData.money || 0}`🪙"
+economy_leaderboard_embed_fields_value: "<@${userId}> - Bank: `${userData.bank || 0}`${client.iHorizon_Emojis.icon.Coin} | Balance: `${userData.money || 0}`${client.iHorizon_Emojis.icon.Coin}"
 
 
 # Profil Customisation commands
@@ -375,7 +375,7 @@ setprofildescriptions_command_work: "**Your description has been updated success
 # /profil
 profil_not_description_set: "Not descriptions set !"
 profil_unknown: "Unknown"
-profil_embed_title: "📌 __Profile of ${member.tag}__"
+profil_embed_title: "${client.iHorizon_Emojis.icon.Pin} __Profile of ${member.tag}__"
 profil_embed_fields_nickname: "📝 ・ __Nickname__"
 profil_embed_fields_money: "🪙 ・ __Money__"
 profil_embed_fields_money_value: " coins"
@@ -424,7 +424,7 @@ setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} The command 
 snipe_no_previous_message_deleted: "No message deleted in this channel !"
 
 # /userinfo
-userinfo_wait_please: "⏲ Wait please..."
+userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} Wait please..."
 
 # /renew
 renew_channel_send_success: "${interaction.user} channel re-created !"
@@ -658,7 +658,7 @@ setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> rem
 # /p
 p_not_in_voice_channel: "You must be connected to a voice channel to use this command!"
 p_embed_title: "No results"
-p_loading_message:  "⏲️ Loading a : **{result}** !"
+p_loading_message:  "${client.iHorizon_Emojis.icon.Timer} Loading a : **{result}** !"
 p_duration: "Duration: "
 p_not_allowed: "The link you sent is not supported by this bot. Please use authorized music streaming services such as Deezer, Spotify, Youtube, etc."
 
@@ -671,7 +671,7 @@ nowplaying_no_queue: "There is not playing anything"
 nowplaying_message_embed_title: "Now playing"
 
 # /pause
-pause_no_queue: "⚠️ - You're not in a voice channel !"
+pause_no_queue: "${client.iHorizon_Emojis.icon.Warning_Icon} - You're not in a voice channel !"
 pause_nothing_playing: "There is nothing playing"
 
 # /resume
@@ -679,7 +679,7 @@ resume_nothing_playing: "There is nothing playing"
 resume_command_work: "resumed successfully"
 
 # /skip
-skip_not_in_voice_channel: "⚠️ - You're not in a voice channel !"
+skip_not_in_voice_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} - You're not in a voice channel !"
 skip_nothing_playing: "There is nothing playing"
 skip_command_work: "Skipped {queue}"
 
@@ -1123,7 +1123,7 @@ mybot_list_utils_msg: "__Bot ID__ `${data_2[i].bot.id}`\n__Bot username__ `${dat
 mybot_list_utils_msg_yes: "Yes"
 mybot_list_utils_msg_no: "No"
 mybot_list_embed1_title: "Your own iHorizon: ${data_2[i].bot.username}"
-mybot_list_embed1_desc: "Your bot code: ||**${data_2[i].code}**|| ⚠️ **Do not share it with anyone**!\n**Expires in**: `${expire}`\n**Join the support server** [Click Here](https://discord.gg/ihorizon), if you have problems with your bot.\n\n${utils_msg}"
+mybot_list_embed1_desc: "Your bot code: ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.icon.Warning_Icon} **Do not share it with anyone**!\n**Expires in**: `${expire}`\n**Join the support server** [Click Here](https://discord.gg/ihorizon), if you have problems with your bot.\n\n${utils_msg}"
 
 # /mybot manage accept
 mybot_manage_accept_not_found: "The bot in the DB cannot be found. We cannot proceed further."
@@ -1146,13 +1146,13 @@ mybot_instance_deny_embed_desc: "The bot has been refused\n\n${utils_msg}"
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
-event_mp_playerStart: "🎵 - Now playing `${track.title}` into **${queue.channel.name}** ..."
-event_mp_audioTrackAdd: ":musical_note: - ${track.title} has been added to the queue !"
+event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Now playing `${track.title}` into **${queue.channel.name}** ..."
+event_mp_audioTrackAdd: "${client.iHorizon_Emojis.icon.Music_Icon} - ${track.title} has been added to the queue !"
 event_mp_playerError: "I'm having trouble connecting => ${error.message}"
 event_mp_error: "There was a problem with the song queue => ${error.message}"
 event_mp_emptyChannel: "${client.iHorizon_Emojis.icon.No_Logo} | Nobody is in the voice channel, leaving..."
-event_mp_playerSkip: ":musical_note: - Skipping **${track.title}** !"
-event_mp_emptyQueue: "⚠️ - Music stopped as there is no more music in the queue !"
+event_mp_playerSkip: "${client.iHorizon_Emojis.icon.Music_Icon} - Skipping **${track.title}** !"
+event_mp_emptyQueue: "${client.iHorizon_Emojis.icon.Warning_Icon} - Music stopped as there is no more music in the queue !"
 
 # Channel Create Events
 event_channel_create_message_embed_title: "Succefully setup !"

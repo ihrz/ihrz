@@ -25,20 +25,23 @@ import {
     GuildMember,
 } from 'discord.js';
 
+import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         if (!(interaction.member as GuildMember)?.voice.channel) {
-            await interaction.editReply({ content: data.pause_no_queue });
+            await interaction.editReply({
+                content: data.pause_no_queue.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
+            });
             return;
         };
-        
+
         try {
             let queue = interaction.client.player.nodes.get(interaction.guild!);
             if (!queue || !queue.isPlaying()) {
-                await interaction.deleteReply();    
+                await interaction.deleteReply();
                 await interaction.followUp({ content: data.pause_nothing_playing, ephemeral: true });
                 return;
             }

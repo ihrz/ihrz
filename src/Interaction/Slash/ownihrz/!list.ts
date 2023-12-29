@@ -27,9 +27,10 @@ import {
 
 import date from 'date-and-time';
 import axios from 'axios';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let data_2 = await client.db.get(`OWNIHRZ.${interaction.user.id}`);
 
@@ -71,6 +72,7 @@ export = {
                     )
                     .setDescription(
                         data.mybot_list_embed1_desc
+                            .replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
                             .replace('${data_2[i].code}', data_2[i].code)
                             .replace('${expire}', expire)
                             .replace('${utils_msg}', utils_msg)

@@ -20,12 +20,14 @@
 */
 
 import { Client, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
+
 import Jimp from 'jimp';
 import logger from '../../../core/logger';
 import config from '../../../files/config';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         var user1 = interaction.options.getUser("user1") || interaction.user;
         var user2 = interaction.options.getUser("user2") || interaction.guild?.members.cache.random()?.user;
 
@@ -77,7 +79,7 @@ export = {
                 .setImage(`attachment://love.png`)
                 .setDescription(data.love_embed_description
                     .replace('${user1.username}', user1.username)
-                    .replace('${user2.username}', user2?.username)
+                    .replace('${user2.username}', user2?.username as string)
                     .replace('${randomNumber}', randomNumber.toString())
                 )
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })

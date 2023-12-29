@@ -25,9 +25,10 @@ import {
     AttachmentBuilder,
     ChatInputCommandInteraction,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let char = await client.db.get(`${interaction.guild?.id}.USER`);
         let tableau = [];

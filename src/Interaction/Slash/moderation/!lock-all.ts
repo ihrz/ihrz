@@ -30,10 +30,11 @@ import {
     BaseGuildTextChannel,
 } from 'discord.js';
 
+import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
 
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator);

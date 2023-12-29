@@ -25,9 +25,10 @@ import {
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let pollMessage = interaction.options.getString("message");
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
@@ -37,7 +38,7 @@ export = {
 
         let pollEmbed = new EmbedBuilder()
             .setTitle(data.poll_embed_title
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName)
+                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName as string)
             )
             .setColor("#ddd98b")
             .setDescription(pollMessage)

@@ -40,7 +40,8 @@ let f = new Promise((resolve, reject) => {
             .then(() => {
                 logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Connected to the database (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`));
                 db = new QuickDB({ driver });
-                resolve(db), proc.exit(driver);
+                resolve(db);
+                proc.exit(driver);
             })
             .catch((error) => {
                 logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> ${error.toString().split("\n")[0]}`));
@@ -50,7 +51,7 @@ let f = new Promise((resolve, reject) => {
 
                 logger.err(couleurmdr.bgRed(`Exiting the code...`));
 
-                return process.exit(1);
+                return process.exit();
             });
     };
 });

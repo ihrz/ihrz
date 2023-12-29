@@ -26,9 +26,10 @@ import {
     EmbedBuilder,
     PermissionsBitField
 } from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let id = interaction.options.getString("id");
         let message = interaction.options.getString("reason");
@@ -72,13 +73,13 @@ export = {
 
             embed.addFields({
                 name: data.suggest_deny_embed_fields_to_put
-                    .replace('${interaction.user.username}', interaction.user.globalName),
+                    .replace('${interaction.user.username}', interaction.user.globalName as string),
                 value: message as string
             });
 
             embed.setColor('#f13b38');
             embed.setTitle(data.suggest_deny_embed_title_to_put
-                .replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title)
+                .replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title as string)
             );
 
             await msg.edit({ embeds: [embed] });
@@ -87,8 +88,8 @@ export = {
             await interaction.deleteReply();
             await interaction.followUp({
                 content: data.suggest_deny_command_work
-                    .replace('${interaction.guild.id}', interaction.guild?.id)
-                    .replace('${interaction.channel.id}', interaction.channel?.id)
+                    .replace('${interaction.guild.id}', interaction.guild?.id as string)
+                    .replace('${interaction.channel.id}', interaction.channel?.id as string)
                     .replace('${fetchId?.msgId}', fetchId?.msgId),
                 ephemeral: true
             });
