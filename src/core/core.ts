@@ -43,7 +43,7 @@ export = (client: Client) => {
     logger.legacy(couleurmdr.gray("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0"));
 
     process.on('SIGINT', async () => {
-
+        client.destroy();
         let result = await db.get('OWNIHRZ');
 
         for (let i in result) {
