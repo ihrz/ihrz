@@ -202,9 +202,11 @@ async function Finnish(client: Client, messageId: string, guildId: string, chann
     let fetch = await db.get(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
 
     if (!fetch.ended === true || fetch.ended === 'End()') {
-        let guild = await client.guilds.fetch(guildId);
-        if (!guild) return await db.delete(`GIVEAWAYS.${guildId}`);
-        
+        let guild = await client.guilds.fetch(guildId).catch(async () => {
+            await db.delete(`GIVEAWAYS.${guildId}`);
+        });
+        if (!guild) return;
+
         let channel = await guild.channels.fetch(channelId);
 
         let message = await (channel as GuildTextBasedChannel).messages.fetch(messageId).catch(async () => {
