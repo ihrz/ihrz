@@ -62,7 +62,7 @@ export = {
             return;
         };
 
-        if ((interaction.member?.roles as GuildMemberRoleManager).highest.position < member.roles.highest.position) {
+        if ((interaction.member?.roles as GuildMemberRoleManager).highest.position <= member.roles.highest.position) {
             await interaction.editReply({
                 content: data.ban_attempt_ban_higter_member.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
             });
