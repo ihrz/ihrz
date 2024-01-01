@@ -44,7 +44,8 @@ let client = new Client({
             GatewayIntentBits.GuildVoiceStates,
             GatewayIntentBits.GuildWebhooks,
             GatewayIntentBits.MessageContent
-    ], partials: [
+    ], 
+    partials: [
         Partials.Channel,
         Partials.Message,
         Partials.GuildMember,
