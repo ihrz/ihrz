@@ -45,13 +45,13 @@ let client = new Client({
             GatewayIntentBits.GuildWebhooks,
             GatewayIntentBits.MessageContent
     ], partials: [
-        Partials.Message,
         Partials.Channel,
-        Partials.Reaction,
+        Partials.Message,
         Partials.GuildMember,
         Partials.GuildScheduledEvent,
         Partials.User,
-        Partials.ThreadMember,
+        Partials.Reaction,
+        Partials.ThreadMember
     ]
 });
 
