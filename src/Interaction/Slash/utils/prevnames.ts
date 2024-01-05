@@ -45,7 +45,12 @@ export const command: Command = {
         {
             name: 'user',
             type: ApplicationCommandOptionType.User,
+
             description: 'user you want to lookup',
+            description_localizations: {
+                "fr": "user you want to lookup"
+            },
+
             required: false
         }
     ],

@@ -114,13 +114,11 @@ export const command: Command = {
 
             await categories[i.values[0] as unknown as number].value.forEach(async (element: { cmd: any; desc: any; }) => {
 
-                if (guildLang === 'en-US') {
-                    embed.addFields({ name: `**/${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
-                };
-
                 switch (guildLang) {
+                    case "en-US":
+                        embed.addFields({ name: `**/${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
+                        break;
                     case "fr-FR":
-                        console.log(element.desc.lang)
                         embed.addFields({ name: `**/${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
                         break;
                     default:

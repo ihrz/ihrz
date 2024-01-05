@@ -44,6 +44,10 @@ export const command: Command = {
             },
 
             description: "Reply to the suggestion (need admin permission)!",
+            description_localizations: {
+                "fr": "Répondre à la suggestion (nécessite l'autorisation de l'administrateur)"
+            },
+
             type: 1,
             options: [
                 {

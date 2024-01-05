@@ -43,7 +43,12 @@ export const command: Command = {
         {
             name: 'emojis',
             type: ApplicationCommandOptionType.String,
+
             description: 'What the emoji then?',
+            description_localizations: {
+                "fr": "C'est quoi cette emoji alors ?"
+            },
+
             required: true,
         },
     ],

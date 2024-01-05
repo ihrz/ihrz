@@ -50,7 +50,12 @@ export const command: Command = {
                 {
                     name: 'user',
                     type: ApplicationCommandOptionType.User,
+
                     description: 'The user you want to add into your ticket',
+                    description_localizations: {
+                        "fr": "L'utilisateur que vous souhaitez ajouter à votre ticket"
+                    },
+
                     required: true
                 }
             ],
@@ -88,7 +93,12 @@ export const command: Command = {
                 {
                     name: 'action',
                     type: ApplicationCommandOptionType.String,
-                    description: 'What you want to do?',
+
+                    description: 'What you want to do ?',
+                    description_localizations: {
+                        "fr": "Que veux-tu faire? "
+                    },
+
                     required: true,
                     choices: [
                         {
@@ -105,13 +115,23 @@ export const command: Command = {
         },
         {
             name: 'log-channel',
+
             description: "Set a channel where iHorizon sent a logs about tickets!",
+            description_localizations: {
+                "fr": "Définir un canal sur lequel iHorizon a envoyé des journaux sur les tickets"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'channel',
                     type: ApplicationCommandOptionType.Channel,
+
                     description: 'Where you want the logs',
+                    description_localizations: {
+                        "fr": "Où voulez-vous les journaux ?"
+                    },
+
                     required: true
                 }
             ],
@@ -139,7 +159,12 @@ export const command: Command = {
                 {
                     name: 'user',
                     type: ApplicationCommandOptionType.User,
+
                     description: 'The user you want to remove into your ticket',
+                    description_localizations: {
+                        "fr": "L'utilisateur que vous souhaitez supprimer de votre ticket"
+                    },
+
                     required: true
                 }
             ],
@@ -156,13 +181,23 @@ export const command: Command = {
             options: [
                 {
                     name: "name",
+
                     description: "The name of you ticket's panel.",
+                    description_localizations: {
+                        "fr": "Le nom du panneau de votre ticket"
+                    },
+
                     type: ApplicationCommandOptionType.String,
                     required: true,
                 },
                 {
                     name: "description",
+
                     description: "The description of you ticket's panel.",
+                    description_localizations: {
+                        "fr": "La description du panneau de votre ticket"
+                    },
+
                     type: ApplicationCommandOptionType.String,
                     required: false,
                 }
@@ -180,7 +215,12 @@ export const command: Command = {
             options: [
                 {
                     name: "category-name",
+
                     description: "The name of you ticket's panel.",
+                    description_localizations: {
+                        "fr": "Le nom du panneau de votre ticket"
+                    },
+
                     type: ApplicationCommandOptionType.Channel,
                     required: true,
                 }
