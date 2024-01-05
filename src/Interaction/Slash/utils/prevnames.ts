@@ -35,7 +35,12 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'prevnames',
+
     description: 'Lookup an Discord User, and see this previous username !',
+    description_localizations: {
+        "fr": "Recherchez un utilisateur Discord et voyez ces noms d'utilisateur précédent"
+    },
+    
     options: [
         {
             name: 'user',

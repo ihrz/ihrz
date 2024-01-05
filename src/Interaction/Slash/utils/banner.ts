@@ -32,6 +32,9 @@ import { Command } from '../../../../types/command';
 export const command: Command = {
     name: 'banner',
     description: 'Pick the banner of specified things (Server/User)',
+    description_localizations: {
+        "fr": "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
+    },
     category: 'utils',
     options: [
         {

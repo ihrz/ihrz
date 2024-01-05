@@ -33,12 +33,22 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'rolesaver',
+
     description: 'Re-Gave old roles when User re-join the guild!',
+    description_localizations: {
+        "fr": "Ré-attribuer les anciens rôles lorsque l'utilisateur rejoint le serveur"
+    },
+
     options: [
         {
             name: 'action',
             type: ApplicationCommandOptionType.String,
+
             description: 'Do you want to power On/Off the module ?',
+            description_localizations: {
+                "fr": "Voulez-vous activer/désactiver le module ?"
+            },
+
             required: true,
             choices: [
                 {
@@ -54,7 +64,12 @@ export const command: Command = {
         {
             name: 'settings',
             type: ApplicationCommandOptionType.String,
+
             description: 'Re-gave Administrator role ?',
+            description_localizations: {
+                "fr": "Redonner des rôles admin ?"
+            },
+
             required: false,
             choices: [
                 {
@@ -67,26 +82,26 @@ export const command: Command = {
                 }
             ]
         },
-        {
-            name: 'timeout',
-            type: ApplicationCommandOptionType.String,
-            description: 'When the roles-saver timeout ?',
-            required: false,
-            choices: [
-                {
-                    name: "1 hour",
-                    value: "1h"
-                },
-                {
-                    name: "1 day",
-                    value: "1d"
-                },
-                {
-                    name: "1 week",
-                    value: "1w"
-                },
-            ]
-        },
+        // {
+        //     name: 'timeout',
+        //     type: ApplicationCommandOptionType.String,
+        //     description: 'When the roles-saver timeout ?',
+        //     required: false,
+        //     choices: [
+        //         {
+        //             name: "1 hour",
+        //             value: "1h"
+        //         },
+        //         {
+        //             name: "1 day",
+        //             value: "1d"
+        //         },
+        //         {
+        //             name: "1 week",
+        //             value: "1w"
+        //         },
+        //     ]
+        // },
     ],
     thinking: false,
     category: 'newfeatures',

@@ -30,10 +30,19 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: "ranks",
+
     description: "Subcommand for ranks category!",
+    description_localizations: {
+        "fr": "Commande sous-groupé pour la catégorie de niveau (message)"
+    },
+
     options: [
         {
             name: "disable",
+            name_localizations: {
+                "fr": "statut"
+            },
+
             description: "Disable the message when user earn new xp level message!",
             type: 1,
             options: [
@@ -61,6 +70,9 @@ export const command: Command = {
         },
         {
             name: "show",
+            name_localizations: {
+                "fr": "afficher"
+            },
             description: "Get the user's xp level!",
             type: 1,
             options: [
@@ -74,6 +86,9 @@ export const command: Command = {
         },
         {
             name: "set-channel",
+            name_localizations: {
+                "fr": "définir-cannal"
+            },
             description: "Set the channel where user earn new xp level message!",
             type: 1,
             options: [
@@ -103,6 +118,9 @@ export const command: Command = {
         },
         {
             name: "leaderboard",
+            name_localizations: {
+                "fr": "classement"
+            },
             description: "Get the xp's leaderboard of the guild!",
             type: 1,
         },

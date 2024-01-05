@@ -30,10 +30,19 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: "security",
-    description: "Subcommand for suggestion category!",
+    name_localizations: {
+        "fr": "sécurité"
+    },
+    description: "Subcommand for security category!",
+    description_localizations: {
+        "fr": "Commande sous-groupé pour la catégorie de securité"
+    },
     options: [
         {
             name: "channel",
+            name_localizations: {
+                "fr": "définir-cannal"
+            },
             description: "Channel where are been the verification process for new member(s)!",
             type: 1,
             options: [
@@ -47,6 +56,9 @@ export const command: Command = {
         },
         {
             name: "disable",
+            name_localizations: {
+                "fr": "status"
+            },
             description: "Disable or enable the Security Module feature!",
             type: 1,
             options: [
@@ -70,6 +82,9 @@ export const command: Command = {
         },
         {
             name: "role-to-give",
+            name_localizations: {
+                "fr": "role-à-donner"
+            },
             description: "The role that will be given to new member(s) when process to the Captcha verification!",
             type: 1,
             options: [

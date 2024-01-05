@@ -20,12 +20,15 @@
 */
 
 import { ApplicationCommandOptionType } from 'discord.js';
+import { DescriptionLocalizations, NameLocalizations } from './command';
 import { Choice } from "./choice";
 
 export interface Option {
     type: ApplicationCommandOptionType,
     options?: Option[],
     name: string,
+    name_localizations?: NameLocalizations
+    description_localizations: DescriptionLocalizations,
     description: string,
     required?: boolean,
     autocomplete?: boolean,

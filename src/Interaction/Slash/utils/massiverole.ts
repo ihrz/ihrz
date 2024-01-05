@@ -34,7 +34,12 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'massiverole',
+
     description: 'Add/Remove roles to everyone on the server',
+    description_localizations: {
+        "fr": "Ajouter/Supprimer des rôles pour tout le monde sur le serveur"
+    },
+
     options: [
         {
             name: 'action',

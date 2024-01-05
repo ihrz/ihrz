@@ -30,30 +30,55 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: "pfps",
+
     description: "Sending random user avatar in channel!",
+    description_localizations: {
+        "fr": "Envoi d'un avatar d'utilisateur aléatoire dans un canal pré-définis"
+    },
+
     options: [
         {
             name: "channel",
+
             description: "Set the pfps module's channel!",
+            description_localizations: {
+                "fr": "Définir le canal du module pfps"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'to',
                     type: ApplicationCommandOptionType.Channel,
+
                     description: 'The channel!',
+                    description_localizations: {
+                        "fr": "Le channel"
+                    },
+
                     required: true
                 }
             ],
         },
         {
             name: "disable",
+
             description: "Enable or Disable the module!",
+            description_localizations: {
+                "fr": "Activer ou désactiver le module"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'action',
                     type: ApplicationCommandOptionType.String,
+
                     description: 'What do you want to do ?',
+                    description_localizations: {
+                        "fr": "Que voulez-vous faire ?"
+                    },
+        
                     required: true,
                     choices: [
                         {

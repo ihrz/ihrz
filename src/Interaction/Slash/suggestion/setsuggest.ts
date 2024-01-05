@@ -31,6 +31,9 @@ import { Command } from '../../../../types/command';
 export const command: Command = {
     name: "setsuggest",
     description: "Subcommand for suggestion category!",
+    description_localizations: {
+        "fr": "Commande sous-groupé pour la catégorie de suggestion"
+    },
     options: [
         {
             name: "disable",

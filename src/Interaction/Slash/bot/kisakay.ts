@@ -27,7 +27,12 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'kisakay',
+
     description: 'Get necessary information about my developer, Kisakay',
+    description_localizations: {
+        "fr": "Obtenir les informations nécessaires sur ma développeuse, Kisakay"
+    },
+    
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,

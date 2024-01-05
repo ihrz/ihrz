@@ -30,11 +30,21 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: "ticket",
+
     description: "Subcommand for ticket category!",
+    description_localizations: {
+        "fr": "Commande sous-groupé pour la catégorie de ticket"
+    },
+
     options: [
         {
             name: "add",
+
             description: "Add a member into your ticket!",
+            description_localizations: {
+                "fr": "Ajoutez un membre dans votre ticket"
+            },
+
             type: 1,
             options: [
                 {
@@ -47,17 +57,32 @@ export const command: Command = {
         },
         {
             name: "close",
+
             description: "Close a ticket!",
+            description_localizations: {
+                "fr": "Fermer un ticket"
+            },
+
             type: 1,
         },
         {
             name: "delete",
+
             description: "Delete a iHorizon ticket!",
+            description_localizations: {
+                "fr": "Supprimer un ticket"
+            },
+
             type: 1,
         },
         {
             name: "disable",
+
             description: "Disable ticket commands on a guild!",
+            description_localizations: {
+                "fr": "Désactiver les commande de ticket au seins du serveur"
+            },
+
             type: 1,
             options: [
                 {
@@ -93,12 +118,22 @@ export const command: Command = {
         },
         {
             name: "open",
+
             description: "re-open a closed ticket!",
+            description_localizations: {
+                "fr": "Re-ouvrir un ticket fermet"
+            },
+
             type: 1,
         },
         {
             name: 'remove',
+
             description: "Remove a member from your ticket!",
+            description_localizations: {
+                "fr": "Enlever un membre d'un ticket"
+            },
+
             type: 1,
             options: [
                 {
@@ -111,7 +146,12 @@ export const command: Command = {
         },
         {
             name: "set-here",
+
             description: "Make a embed for allowing to user to create a ticket!",
+            description_localizations: {
+                "fr": "Créer un embed pour permettre à l'utilisateur de créer un ticket"
+            },
+
             type: 1,
             options: [
                 {
@@ -130,7 +170,12 @@ export const command: Command = {
         },
         {
             name: "set-category",
-            description: "Set the category where ticket are been create!",
+
+            description: "Set the category where ticket are create!",
+            description_localizations: {
+                "fr": "Définir la catégorie dans laquelle les ticket doivent être créés"
+            },
+
             type: 1,
             options: [
                 {
@@ -143,7 +188,12 @@ export const command: Command = {
         },
         {
             name: "transcript",
+
             description: "Get the transript of a ticket message!",
+            description_localizations: {
+                "fr": "Obtenir la transcription d'un message de ticket"
+            },
+
             type: 1,
         },
     ],

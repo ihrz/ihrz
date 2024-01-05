@@ -32,7 +32,12 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'guildinfo',
+
     description: 'Get information about the server!',
+    description_localizations: {
+        "fr": "Obtenir des informations sur le serveur"
+    },
+    
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,

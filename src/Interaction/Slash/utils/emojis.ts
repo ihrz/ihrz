@@ -32,7 +32,12 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'emojis',
+
     description: 'Add emojis to your server easly',
+    description_localizations: {
+        "fr": "Ajoutez facilement des emojis à votre serveur"
+    },
+    
     category: 'utils',
     options: [
         {

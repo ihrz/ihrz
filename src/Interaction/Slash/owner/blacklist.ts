@@ -36,12 +36,22 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'blacklist',
+
     description: 'Add a user to the blacklist!',
+    description_localizations: {
+        "fr": "Ajoutez un utilisateur à la liste noir"
+    },
+
     options: [
         {
             name: 'user',
             type: ApplicationCommandOptionType.User,
+
             description: 'The user you want to blacklist...',
+            description_localizations: {
+                "fr": "L'utilisateur que vous voulez blacklist"
+            },
+
             required: false
         }
     ],

@@ -33,12 +33,22 @@ import logger from '../../../core/logger';
 
 export const command: Command = {
     name: 'eval',
+
     description: 'Run Javascript program (only for developers)!',
+    description_localizations: {
+        "fr": "Executer du code JavaScript (Seulement pour les dev du bot)"
+    },
+
     options: [
         {
             name: 'code',
             type: ApplicationCommandOptionType.String,
+
             description: 'javascript code',
+            description_localizations: {
+                "fr": "JS Code"
+            },
+
             required: true
         }
     ],

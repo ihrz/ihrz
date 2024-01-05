@@ -27,6 +27,7 @@ import { Command } from "../../../types/command";
 import db from '../functions/DatabaseModel';
 import config from "../../files/config";
 import { EltType } from "../../../types/eltType";
+import { Option } from "../../../types/option";
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     let result = [];
@@ -62,13 +63,15 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
     return paths;
 };
 
-async function processOptions(options: any[], category: string, parentName: string = "") {
+async function processOptions(options: Option[], category: string, parentName: string = "") {
     for (let option of options) {
         let fullName = parentName ? `${parentName} ${option.name}` : option.name;
 
         if (option.type === 1) {
             await db.push(`BOT.CONTENT.${category}`,
-                { cmd: fullName, desc: option.description },
+                {
+                    cmd: fullName, desc: { desc: option.description, lang: option.description_localizations }
+                }
             );
         };
         if (option.options) {
@@ -92,7 +95,11 @@ async function loadCommands(client: Client, path: string = `${process.cwd()}/dis
         i++;
         let command = require(path).command;
 
-        await db.push(`BOT.CONTENT.${command.category}`, { cmd: command.name, desc: command.description });
+        await db.push(`BOT.CONTENT.${command.category}`,
+            {
+                cmd: command.name, desc: { desc: command.description, lang: command.description_localizations }
+            }
+        );
 
         if (command.options) {
             await processOptions(command.options, command.category, command.name);

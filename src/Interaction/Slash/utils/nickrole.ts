@@ -33,7 +33,12 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'nickrole',
+
     description: 'Give a roles to all user who have specified char in their username!',
+    description_localizations: {
+        "fr": "Donnez un rôle à tous les utilisateurs qui ont un caractère spécifique dans leur nom d'utilisateur"
+    },
+    
     options: [
         {
             name: 'action',

@@ -32,12 +32,22 @@ import config from '../../../files/config';
 
 export const command: Command = {
     name: 'unowner',
+
     description: 'The member who wants to delete of the owner list (Only Owner of ihorizon)!',
+    description_localizations: {
+        "fr": "Le membre que vous souhaitez supprimer de la liste des propriétaires (uniquement pour les dev)"
+    },
+    
     options: [
         {
             name: 'member',
             type: ApplicationCommandOptionType.User,
+
             description: 'The member who wants to delete of the owner list',
+            description_localizations: {
+                "fr": "Le membre que vous souhaitez supprimer de la liste des propriétaires"
+            },
+
             required: true
         },
     ],

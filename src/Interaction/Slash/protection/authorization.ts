@@ -30,17 +30,32 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: "authorization",
+
     description: "Subcommand for protection category!",
+    description_localizations: {
+        "fr": "Commande sous-groupé pour la catégorie de protection"
+    },
+
     options: [
         {
             name: "actions",
+
             description: "Choose an actions to Deny/Allow for the user!",
+            description_localizations: {
+                "fr": "Choisissez une action à refuser/autoriser pour l'utilisateur"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'rule',
                     type: ApplicationCommandOptionType.String,
+
                     description: 'Whats is the rule to configure?',
+                    description_localizations: {
+                        "fr": "Quelle est la règle à configurer ?"
+                    },
+
                     required: true,
                     choices: [
                         {
@@ -72,7 +87,12 @@ export const command: Command = {
                 {
                     name: 'allow',
                     type: ApplicationCommandOptionType.String,
+
                     description: 'The rule are bypassable for who?',
+                    description_localizations: {
+                        "fr": "Les règles sont contournables pour qui ?"
+                    },
+
                     required: false,
                     choices: [
                         {
@@ -89,13 +109,23 @@ export const command: Command = {
         },
         {
             name: "sanction",
+
             description: "Choose the sanction to applied for the flagged user!",
+            description_localizations: {
+                "fr": "Choisissez la sanction à appliquer pour l'utilisateur signalé?"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'choose',
                     type: ApplicationCommandOptionType.String,
+
                     description: 'Whats is the sanction then?',
+                    description_localizations: {
+                        "fr": "Quelle est donc la sanction ?"
+                    },
+
                     required: true,
                     choices: [
                         {
@@ -116,7 +146,12 @@ export const command: Command = {
         },
         {
             name: "config-show",
+
             description: "Show the current configuration about protection authorization/rule & allow list!",
+            description_localizations: {
+                "fr": "Afficher la configuration des autorisations/règles de protection pour la liste d'autorisation"
+            },
+
             type: 1,
         },
     ],

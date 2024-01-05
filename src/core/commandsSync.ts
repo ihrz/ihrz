@@ -45,6 +45,8 @@ export = async (client: Client) => {
             name: command.name,
             type: command.type,
             description: command.description,
+            name_localizations: command.name_localizations,
+            description_localizations: command.description_localizations,
             options: command.options,
         })) || [];
 

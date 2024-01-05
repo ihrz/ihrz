@@ -43,6 +43,9 @@ import { Command } from '../../../../types/command';
 export const command: Command = {
     name: 'embed',
     description: 'Create a beautiful embed !',
+    description_localizations: {
+        "fr": "Créez un magnifique embed"
+    },
     options: [
         {
             name: 'id',

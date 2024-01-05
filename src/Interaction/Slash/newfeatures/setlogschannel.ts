@@ -34,12 +34,21 @@ import logger from '../../../core/logger';
 
 export const command: Command = {
     name: 'setlogschannel',
+
     description: 'Set a logs channels for Audits Logs!',
+    description_localizations: {
+        "fr": "Définir des canaux de journaux pour les journaux d'audit"
+    },
     options: [
         {
             name: 'type',
             type: ApplicationCommandOptionType.String,
+
             description: 'Specified logs category',
+            description_localizations: {
+                "fr": "Spécifier le cannal de journaux"
+            },
+            
             required: true,
             choices: [
                 { name: "Delete all settings", value: "off" },
@@ -51,7 +60,12 @@ export const command: Command = {
         {
             name: 'channel',
             type: ApplicationCommandOptionType.Channel,
-            description: "The channel you wan't your logs message !",
+
+            description: "The channel you want your logs message !",
+            description_localizations: {
+                "fr": "Le canal sur lequel vous souhaitez recevoir votre message de journaux"
+            },
+
             required: false
         }
     ],

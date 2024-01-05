@@ -35,6 +35,9 @@ import logger from '../../../core/logger';
 export const command: Command = {
     name: 'rolereaction',
     description: 'Set a roles when user react to a message with specific emoji',
+    description_localizations: {
+        "fr": "Définir des rôles lorsque l'utilisateur réagit à un message avec des emoji spécifiques"
+    },
     options: [
         {
             name: "value",

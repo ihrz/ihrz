@@ -30,56 +30,113 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: "profil",
+
     description: "Subcommand for profil category!",
+    description_localizations: {
+        "fr": "Commande sous-groupé pour la catégorie de visualisation profil"
+    },
+
     options: [
         {
             name: "show",
-            description: "See the iHorizon's profile of the member!",
+            name_localizations: {
+                "fr": "afficher"
+            },
+
+            description: "See the iHorizon's profil of the member!",
+            description_localizations: {
+                "fr": "Voir le profil iHorizon du membre"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'user',
                     type: ApplicationCommandOptionType.User,
-                    description: 'The user you wan\'t to lookup',
+
+                    description: 'The user you want to lookup',
+                    description_localizations: {
+                        "fr": "L'utilisateur que vous souhaitez rechercher"
+                    },
+        
                     required: false
                 }
             ],
         },
         {
             name: "set-age",
-            description: "Set your age on the iHorizon Profil !",
+            name_localizations: {
+                "fr": "définir-âge"
+            },
+
+            description: "Set your age on the iHorizon's Profil !",
+            description_localizations: {
+                "fr": "Définissez votre âge sur le profil iHorizon"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'age',
                     type: ApplicationCommandOptionType.Number,
-                    description: 'you age on the iHorizon profil',
+
+                    description: "Your age on the iHorizon's profil",
+                    description_localizations: {
+                        "fr": "Votre âge sur votre profil iHorizon"
+                    },
+
                     required: true
                 }
             ],
         },
         {
             name: "set-description",
-            description: "Set your description on the iHorizon Profil!",
+            name_localizations: {
+                "fr": "définir-description"
+            },
+
+            description: "Set your description on the iHorizon's Profil!",
+            description_localizations: {
+                "fr": "Définissez votre description sur le profil iHorizon"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'descriptions',
                     type: ApplicationCommandOptionType.String,
-                    description: 'you descriptions on the iHorizon profil',
+
+                    description: "Your descriptions on the iHorizon's profil",
+                    description_localizations: {
+                        "fr": "La description sur votre profil"
+                    },
+
                     required: true
                 }
             ],
         },
         {
             name: "set-gender",
-            description: "Set your gender on the iHorizon Profil!",
+            name_localizations: {
+                "fr": "définir-genre"
+            },
+
+            description: "Set your gender on the iHorizon's Profil!",
+            description_localizations: {
+                "fr": "Définissez votre sexe sur le profil iHorizon"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'gender',
                     type: ApplicationCommandOptionType.String,
-                    description: "Please make your choice.",
+
+                    description: "Faite votre choix",
+                    description_localizations: {
+                        "fr": "L'utilisateur que vous souhaitez rechercher"
+                    },
+
                     required: true,
                     choices: [
                         {
