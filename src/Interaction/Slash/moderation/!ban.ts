@@ -85,7 +85,7 @@ export = {
             })
             .then(() => {
                 member?.ban({ reason: 'banned by ' + interaction.user.globalName })
-                    .then((member: { user: { id: any; }; }) => {
+                    .then((member) => {
                         interaction.editReply({
                             content: data.ban_command_work
                                 .replace(/\${member\.user\.id}/g, member.user.id)

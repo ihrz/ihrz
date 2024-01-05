@@ -29,14 +29,15 @@ import {
     PermissionFlagsBits,
     RESTPostAPIApplicationCommandsJSONBody
 } from "discord.js";
+
 import { Option } from "./option";
 
 export interface NameLocalizations {
-    "fr": string
+    "fr": string;
 }
 
 export interface DescriptionLocalizations {
-    "fr": string
+    "fr": string;
 }
 
 export interface Command {
