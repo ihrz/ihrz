@@ -46,6 +46,9 @@ import logger from '../../../core/logger';
 export const command: Command = {
     name: "schedule",
     description: "Manager for schedule category!",
+    description_localizations: {
+        "fr": "Commande sous-groupé pour la catégorie de message pré-programmer"
+    },
     category: 'schedule',
     thinking: false,
     type: ApplicationCommandType.ChatInput,

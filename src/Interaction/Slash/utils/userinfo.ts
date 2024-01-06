@@ -32,12 +32,22 @@ let oauth = new DiscordOauth2();
 
 export const command: Command = {
     name: 'userinfo',
+
     description: 'Get information about a user!',
+    description_localizations: {
+        "fr": "Obtenir des informations sur un utilisateur"
+    },
+
     options: [
         {
             name: 'user',
             type: ApplicationCommandOptionType.User,
+
             description: 'user you want to lookup',
+            description_localizations: {
+                "fr": "utilisateur que vous souhaitez rechercher"
+            },
+
             required: false,
         },
     ],

@@ -30,22 +30,42 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: "automod",
+
     description: "Subcommand for automod category!",
+    description_localizations: {
+        "fr": "Commande sous-groupé pour la catégorie de protection via l'automod"
+    },
+
     options: [
         {
             name: 'block',
+
             description: 'Block/Protect someting/behaviours into this guild!',
+            description_localizations: {
+                "fr": "Bloquer/Protéger certains comportements/comportements dans ce serveur"
+            },
+
             type: 2,
             options: [
                 {
                     name: 'pub',
+
                     description: 'Allow/Unallow the user to send a advertisement into them messages!',
+                    description_localizations: {
+                        "fr": "Autoriser/Interdire à l'utilisateur d'envoyer une publicité dans ses messages"
+                    },
+
                     type: 1,
                     options: [
                         {
                             name: 'action',
                             type: ApplicationCommandOptionType.String,
+
                             description: 'What you want to do?',
+                            description_localizations: {
+                                "fr": "Que veux-tu faire?"
+                            },
+
                             required: true,
                             choices: [
                                 {
@@ -60,7 +80,12 @@ export const command: Command = {
                         },
                         {
                             name: 'logs-channel',
+
                             description: 'The channel you want logs when user break the rules!',
+                            description_localizations: {
+                                "fr": "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+                            },
+
                             type: ApplicationCommandOptionType.Channel,
                             required: false
                         }
@@ -68,13 +93,23 @@ export const command: Command = {
                 },
                 {
                     name: 'spam',
+
                     description: 'Block the spam message in this server!',
+                    description_localizations: {
+                        "fr": "Bloquer le message spam sur ce serveur"
+                    },
+
                     type: 1,
                     options: [
                         {
                             name: 'action',
                             type: ApplicationCommandOptionType.String,
+
                             description: 'What you want to do?',
+                            description_localizations: {
+                                "fr": "Que veux-tu faire?"
+                            },
+
                             required: true,
                             choices: [
                                 {
@@ -89,7 +124,12 @@ export const command: Command = {
                         },
                         {
                             name: 'logs-channel',
+
                             description: 'The channel you want logs when user break the rules',
+                            description_localizations: {
+                                "fr": "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+                            },
+
                             type: ApplicationCommandOptionType.Channel,
                             required: false
                         }
@@ -97,13 +137,23 @@ export const command: Command = {
                 },
                 {
                     name: 'mass-mention',
+
                     description: 'Block the spam which have mass-mention in this message!',
+                    description_localizations: {
+                        "fr": "Bloquez les spams mentionnés en masse dans ce message"
+                    },
+
                     type: 1,
                     options: [
                         {
                             name: 'action',
                             type: ApplicationCommandOptionType.String,
+
                             description: 'What you want to do?',
+                            description_localizations: {
+                                "fr": "Que voulez-vous faire?"
+                            },
+
                             required: true,
                             choices: [
                                 {
@@ -119,12 +169,22 @@ export const command: Command = {
                         {
                             name: 'max-mention-allowed',
                             type: ApplicationCommandOptionType.Number,
+
                             description: "Max amount of mention allowed in only one message !",
+                            description_localizations: {
+                                "fr": "Nombre maximum de mentions autorisées dans un seul message"
+                            },
+
                             required: false
                         },
                         {
                             name: 'logs-channel',
+
                             description: "The channel you want logs when user break the rules",
+                            description_localizations: {
+                                "fr": "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+                            },
+
                             type: ApplicationCommandOptionType.Channel,
                             required: false
                         }

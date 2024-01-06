@@ -34,20 +34,30 @@ import logger from '../../../core/logger';
 
 export const command: Command = {
     name: 'support',
+
     description: 'Give a roles when guild\'s member have something about your server on them bio!',
+    description_localizations: {
+        "fr": "Donnez un rôle lorsque les membres de la guilde ont quelque chose sur votre serveur dans leur bio"
+    },
+
     options: [
         {
             name: 'action',
             type: ApplicationCommandOptionType.String,
+
             description: 'Choose the action',
+            description_localizations: {
+                "fr": "Quelle action voulez-vous ?"
+            },
+
             required: true,
             choices: [
                 {
-                    name: "POWER ON",
+                    name: "Power On",
                     value: "true"
                 },
                 {
-                    name: "POWER OFF",
+                    name: "Power Off",
                     value: "false"
                 }
             ]
@@ -55,13 +65,22 @@ export const command: Command = {
         {
             name: 'input',
             type: ApplicationCommandOptionType.String,
+
             description: 'Choose the keywords wanted in the bio',
+            description_localizations: {
+                "fr": "Choisissez les mots-clés voulue dans la bio"
+            },
+
             required: false,
         },
         {
             name: 'roles',
             type: ApplicationCommandOptionType.Role,
-            description: 'The wanted roles to give for your member',
+            description: 'The roles to give for our member',
+            description_localizations: {
+                "fr": "Les rôles à donner à vos membre"
+            },
+
             required: false,
         }
     ],

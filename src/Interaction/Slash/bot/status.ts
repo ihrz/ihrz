@@ -36,7 +36,12 @@ function niceBytes(a: Number) { let b = 0, c = parseInt((a as unknown as string)
 
 export const command: Command = {
     name: 'status',
+
     description: 'Get the bot status! (Only for the bot owner)',
+    description_localizations: {
+        "fr": "Obtenez le statut du bot ! (Uniquement pour le propriétaire du bot)"
+    },
+    
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,

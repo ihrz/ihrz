@@ -31,13 +31,27 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'say',
+
     description: 'Sent a message throught the bot!',
+    description_localizations: {
+        "fr": "Envoyer un message via le bot!"
+    },
+
     category: 'bot',
     options: [
         {
             name: 'content',
+            name_localizations: {
+                "fr": "contenu"
+            },
+
             type: ApplicationCommandOptionType.String,
+
             description: 'What you want the bot to say!',
+            description_localizations: {
+                "fr": "Le message que le bot vas dire"
+            },
+
             required: true
         }
     ],
@@ -45,7 +59,7 @@ export const command: Command = {
     thinking: false,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guildId);
-        
+
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.setserverlang_not_admin });
             return;

@@ -35,11 +35,21 @@ import logger from '../../../core/logger';
 
 export const command: Command = {
     name: 'membercount',
+
     description: 'Set a member count channels!',
+    description_localizations: {
+        "fr": "Parametrer un canal vocal pour afficher des statistique"
+    },
+
     options: [
         {
             name: "action",
+
             description: "<Power on /Power off>",
+            description_localizations: {
+                "fr": "<Power on /Power off>"
+            },
+
             type: ApplicationCommandOptionType.String,
             required: true,
             choices: [
@@ -55,7 +65,12 @@ export const command: Command = {
         },
         {
             name: "channel",
+
             description: `The channel to set the member count`,
+            description_localizations: {
+                "fr": "Le cannal pour définir le module membercount"
+            },
+
             type: ApplicationCommandOptionType.Channel,
             required: true,
         },
@@ -63,7 +78,11 @@ export const command: Command = {
             name: 'name',
             required: false,
             type: ApplicationCommandOptionType.String,
-            description: `{botcount}, {rolescount}, {membercount}`
+
+            description: `{botcount}, {rolescount}, {membercount}`,
+            description_localizations: {
+                "fr": "{botcount}, {rolescount}, {membercount}"
+            }
         },
     ],
     thinking: true,

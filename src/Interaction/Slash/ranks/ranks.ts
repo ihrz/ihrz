@@ -30,17 +30,35 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: "ranks",
+
     description: "Subcommand for ranks category!",
+    description_localizations: {
+        "fr": "Commande sous-groupé pour la catégorie de niveau (message)"
+    },
+
     options: [
         {
             name: "disable",
+            name_localizations: {
+                "fr": "statut"
+            },
+
             description: "Disable the message when user earn new xp level message!",
+            description_localizations: {
+                "fr": "Désactivez le message lorsque l'utilisateur gagne un nouveau message de niveau XP"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'action',
                     type: ApplicationCommandOptionType.String,
+
                     description: 'What you want to do?',
+                    description_localizations: {
+                        "fr": "Que voulez-vous faire ?"
+                    },
+
                     required: true,
                     choices: [
                         {
@@ -61,26 +79,52 @@ export const command: Command = {
         },
         {
             name: "show",
+            name_localizations: {
+                "fr": "afficher"
+            },
+
             description: "Get the user's xp level!",
+            description_localizations: {
+                "fr": "Obtenez le niveau XP de l'utilisateur"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'user',
                     type: ApplicationCommandOptionType.User,
+
                     description: 'The user you want to lookup, keep blank if you want to show your stats',
+                    description_localizations: {
+                        "fr": "L'utilisateur que vous souhaitez rechercher."
+                    },
+
                     required: false
                 }
             ],
         },
         {
             name: "set-channel",
+            name_localizations: {
+                "fr": "définir-cannal"
+            },
+
             description: "Set the channel where user earn new xp level message!",
+            description_localizations: {
+                "fr": "Définir le canal sur lequel l'utilisateur gagne un nouveau message de niveau XP"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'action',
                     type: ApplicationCommandOptionType.String,
+
                     description: 'What you want to do?',
+                    description_localizations: {
+                        "fr": "Que voulez-vous faire ?"
+                    },
+
                     required: true,
                     choices: [
                         {
@@ -96,14 +140,27 @@ export const command: Command = {
                 {
                     name: 'channel',
                     type: ApplicationCommandOptionType.Channel,
+
                     description: 'The specific channel for xp message !',
+                    description_localizations: {
+                        "fr": "Le canal spécifique pour le message XP"
+                    },
+
                     required: false
                 }
             ],
         },
         {
             name: "leaderboard",
+            name_localizations: {
+                "fr": "classement"
+            },
+
             description: "Get the xp's leaderboard of the guild!",
+            description_localizations: {
+                "fr": "Obtenez le classement XP du serveur"
+            },
+
             type: 1,
         },
     ],

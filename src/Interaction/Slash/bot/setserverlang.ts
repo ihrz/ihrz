@@ -34,12 +34,29 @@ import logger from '../../../core/logger';
 
 export const command: Command = {
     name: 'setserverlang',
+    name_localizations: {
+        "fr": "setserveurlang"
+    },
+
     description: 'Set the server language!',
+    description_localizations: {
+        "fr": "Choisir la langue du bot discord !"
+    },
+
     options: [
         {
             name: 'language',
+            name_localizations: {
+                "fr": "langue"
+            },
+
             type: ApplicationCommandOptionType.String,
+
             description: 'What language you want ? (soon more)',
+            description_localizations: {
+                "fr": "Quelle language voulez-vous mettre ?"
+            },
+
             required: true,
             choices: [
                 {

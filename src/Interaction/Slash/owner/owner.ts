@@ -32,12 +32,22 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'owner',
+
     description: 'add user to owner list (can\'t be used by normal member)!',
+    description_localizations: {
+        "fr": "Ajoutez un membre dans la liste des propriétaire de iHorizon. (Seulement pour les dev)"
+    },
+
     options: [
         {
             name: 'member',
             type: ApplicationCommandOptionType.User,
+
             description: 'The member you want to made owner of the iHorizon Projects',
+            description_localizations: {
+                "fr": "Le membre que vous souhaitez rendre propriétaire des projets Horizon"
+            },
+
             required: false
         }
     ],

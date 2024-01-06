@@ -30,74 +30,154 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: "suggest",
+
     description: "Subcommand for suggestion category!",
+    description_localizations: {
+        "fr": "Commande sous-groupé pour la catégorie de suggestion"
+    },
+
     options: [
         {
             name: "reply",
+            name_localizations: {
+                "fr": "répondre"
+            },
+
             description: "Reply to the suggestion (need admin permission)!",
+            description_localizations: {
+                "fr": "Répondre à la suggestion (nécessite l'autorisation de l'administrateur)"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'id',
                     type: ApplicationCommandOptionType.String,
+
                     description: 'What the id of the suggestion?',
+                    description_localizations: {
+                        "fr": "Quelle est l'indentifiant de la suggestion ?"
+                    },
+
                     required: true,
                 },
                 {
                     name: 'message',
                     type: ApplicationCommandOptionType.String,
+
                     description: 'What message you want reply?',
+                    description_localizations: {
+                        "fr": "Quelle message vous voulez laissez à la suggestion"
+                    },
+
                     required: true,
                 },
             ],
         },
         {
             name: "deny",
+            name_localizations: {
+                "fr": "refusé"
+            },
+
             description: "Deny an suggestion (need admin permission)!",
+            description_localizations: {
+                "fr": "Refuser une suggestion (Requière les permission Admin)"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'id',
                     type: ApplicationCommandOptionType.String,
+
                     description: 'What the id of the suggestion?',
+                    description_localizations: {
+                        "fr": "Quelle est l'indentifiant de la suggestion ?"
+                    },
+
                     required: true,
                 },
                 {
                     name: 'reason',
+                    name_localizations: {
+                        "fr": "raison"
+                    },
+
                     type: ApplicationCommandOptionType.String,
+
                     description: 'What reason for you denying ?',
+                    description_localizations: {
+                        "fr": "Quelle message vous voulez laissez à la suggestion"
+                    },
+
                     required: true,
                 },
             ],
         },
         {
             name: "accept",
+            name_localizations: {
+                "fr": "accepté"
+            },
+
             description: "Accept an suggestion (need admin permission)!",
+            description_localizations: {
+                "fr": "Accepter une suggestion (Requiert permissions Admin)"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'id',
                     type: ApplicationCommandOptionType.String,
+
                     description: 'What the id of the suggestion?',
+                    description_localizations: {
+                        "fr": "Quelle est l'indentifiant de la suggestion ?"
+                    },
+
                     required: true,
                 },
                 {
                     name: 'reason',
+                    name_localizations: {
+                        "fr": "raison"
+                    },
+
                     type: ApplicationCommandOptionType.String,
+
                     description: 'What reason for you accepting ?',
+                    description_localizations: {
+                        "fr": "Quelle message vous voulez laissez à la suggestion"
+                    },
+
                     required: true,
                 },
             ],
         },
         {
             name: "delete",
+            name_localizations: {
+                "fr": "supprimer"
+            },
+
             description: "Delete an suggestion (need admin permission)!",
+            description_localizations: {
+                "fr": "Supprimer une suggestion (Requiert permissions Admin)"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'id',
                     type: ApplicationCommandOptionType.String,
+
                     description: 'What the id of the suggestion?',
+                    description_localizations: {
+                        "fr": "Quelle est l'indentifiant de la suggestion ?"
+                    },
+
                     required: true,
                 },
             ],

@@ -62,7 +62,7 @@ export = {
             return;
         };
 
-        if ((interaction.member?.roles as GuildMemberRoleManager).highest.position < member.roles.highest.position) {
+        if ((interaction.member?.roles as GuildMemberRoleManager).highest.position <= member.roles.highest.position) {
             await interaction.editReply({
                 content: data.ban_attempt_ban_higter_member.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
             });
@@ -85,7 +85,7 @@ export = {
             })
             .then(() => {
                 member?.ban({ reason: 'banned by ' + interaction.user.globalName })
-                    .then(async (member: { user: { id: any; }; }) => {
+                    .then(async (member) => {
                         interaction.editReply({
                             content: data.ban_command_work
                                 .replace(/\${member\.user\.id}/g, member.user.id)

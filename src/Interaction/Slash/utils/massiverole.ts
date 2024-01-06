@@ -34,12 +34,22 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'massiverole',
+
     description: 'Add/Remove roles to everyone on the server',
+    description_localizations: {
+        "fr": "Ajouter/Supprimer des rôles pour tout le monde sur le serveur"
+    },
+
     options: [
         {
             name: 'action',
             type: ApplicationCommandOptionType.String,
+
             description: 'What you want to do?',
+            description_localizations: {
+                "fr": "Que veux-tu faire?"
+            },
+
             required: true,
             choices: [
                 {
@@ -55,7 +65,12 @@ export const command: Command = {
         {
             name: 'role',
             type: ApplicationCommandOptionType.Role,
-            description: 'The specified role you want to add!',
+
+            description: 'The specified role you want to add',
+            description_localizations: {
+                "fr": "Le rôle spécifié que vous souhaitez ajouter"
+            },
+
             required: true
         }
     ],

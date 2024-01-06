@@ -24,33 +24,35 @@ import config from "../files/config";
 
 let client = new Client({
     intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildBans,
-        GatewayIntentBits.GuildEmojisAndStickers,
-        GatewayIntentBits.GuildIntegrations,
-        GatewayIntentBits.GuildInvites,
-        GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.GuildMessageTyping,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildModeration,
-        GatewayIntentBits.GuildScheduledEvents,
-        GatewayIntentBits.GuildVoiceStates,
-        GatewayIntentBits.GuildWebhooks,
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.MessageContent,
-    ], partials: [
-        Partials.Message,
+            GatewayIntentBits.AutoModerationConfiguration, 
+            GatewayIntentBits.AutoModerationExecution, 
+            GatewayIntentBits.DirectMessageReactions,
+            GatewayIntentBits.DirectMessages,
+            GatewayIntentBits.DirectMessageTyping,
+            GatewayIntentBits.GuildBans,
+            GatewayIntentBits.GuildEmojisAndStickers, 
+            GatewayIntentBits.GuildIntegrations, 
+            GatewayIntentBits.GuildInvites, 
+            GatewayIntentBits.GuildMembers, 
+            GatewayIntentBits.GuildMessageReactions, 
+            GatewayIntentBits.GuildMessages, 
+            GatewayIntentBits.GuildMessageTyping, 
+            GatewayIntentBits.GuildModeration, 
+            GatewayIntentBits.GuildPresences, 
+            GatewayIntentBits.GuildScheduledEvents, 
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildVoiceStates,
+            GatewayIntentBits.GuildWebhooks,
+            GatewayIntentBits.MessageContent
+    ], 
+    partials: [
         Partials.Channel,
-        Partials.Reaction,
+        Partials.Message,
         Partials.GuildMember,
         Partials.GuildScheduledEvent,
         Partials.User,
-        Partials.ThreadMember,
+        Partials.Reaction,
+        Partials.ThreadMember
     ]
 });
 

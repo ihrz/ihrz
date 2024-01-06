@@ -31,6 +31,9 @@ import { Command } from '../../../../types/command';
 export const command: Command = {
     name: 'snipe',
     description: 'Get the last message deleted in this channel!',
+    description_localizations: {
+        "fr": "Obtenez le dernier message supprimé sur ce cannal"
+    },
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,

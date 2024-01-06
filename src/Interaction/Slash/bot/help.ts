@@ -28,14 +28,20 @@ import {
     ComponentType,
     ChatInputCommandInteraction,
     StringSelectMenuInteraction,
-    ApplicationCommandType
+    ApplicationCommandType,
+    RESTPostAPIApplicationCommandsJSONBody
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'help',
+
     description: 'Get a list of all the commands!',
+    description_localizations: {
+        "fr": "Obtenir la liste de toute les commandes"
+    },
+    
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
@@ -76,7 +82,7 @@ export const command: Command = {
                 .setValue(index.toString())
                 .setEmoji(category.emoji));
         });
-        
+
         let row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
         let pp = client.user?.displayAvatarURL();
 
@@ -89,6 +95,7 @@ export const command: Command = {
 
         let response = await interaction.reply({ embeds: [embed], components: [row] });
         let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840_000 });
+        let guildLang = await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`);
 
         collector.on('collect', async (i: StringSelectMenuInteraction) => {
 
@@ -105,8 +112,19 @@ export const command: Command = {
 
             embed.setFields({ name: ' ', value: ' ' });
 
-            await categories[i.values[0] as unknown as number].value.forEach((element: { cmd: string; desc: string }) => {
-                embed.addFields({ name: `**/${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
+            await categories[i.values[0] as unknown as number].value.forEach(async (element: { cmd: any; desc: any; }) => {
+
+                switch (guildLang) {
+                    case "en-US":
+                        embed.addFields({ name: `**/${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
+                        break;
+                    case "fr-FR":
+                        embed.addFields({ name: `**/${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
+                        break;
+                    default:
+                        embed.addFields({ name: `**/${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
+                        break;
+                };
             });
 
             await response.edit({ embeds: [embed] });

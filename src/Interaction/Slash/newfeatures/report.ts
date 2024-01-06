@@ -34,12 +34,22 @@ import ms from 'ms';
 
 export const command: Command = {
     name: 'report',
+
     description: 'Report a bug, error, spell error to the iHorizon\'s dev!',
+    description_localizations: {
+        "fr": "Signaler un bug, une erreur, une faute d'orthographe au développeur d'iHorizon"
+    },
+    
     options: [
         {
             name: 'message-to-dev',
             type: ApplicationCommandOptionType.String,
+
             description: 'What is the problem? Please make a good sentences',
+            description_localizations: {
+                "fr": "Quelle est le problème? S'il vous plaît expliquer le problème."
+            },
+
             required: true
         }
     ],

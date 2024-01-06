@@ -108,12 +108,12 @@ level_embed_description: "`${expNeededForLevelUp}` points d'expérience nécessa
 
 # /owner
 owner_not_owner: "T'es pas le boss du projet iHorizon. Cette commande est pour les vrais boss seulement."
-owner_already_owner: "Ce gars est déjà le patron !"
-owner_is_now_owner: "${member.user.username} est désormais aux commandes des projets iHorizon."
+owner_already_owner: "PTN TES CON IL EST DEJA OWNER WSH VA DEHORS, VA PRENDRE UNE PTN DE DOUCHE!"
+owner_is_now_owner: "Tu vois ${member.user.username} fait gaf c un owner.."
 
 # /unowner
 unowner_not_owner: "T'es pas le patron du projet iHorizon. Cette commande ne marche pas pour toi."
-unowner_cant_unowner_creator: "Impossible de dégager cette personne, c'est le créateur du projet iHorizon."
+unowner_cant_unowner_creator: "Impossible de dégager de fdp, c'est un owner iHorizon"
 unowner_command_work: "${member.username} n'est plus aux commandes."
 
 # /blacklist

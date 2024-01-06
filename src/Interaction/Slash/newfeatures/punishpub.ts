@@ -33,12 +33,22 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'punishpub',
+
     description: 'Punish user when he send too much advertisement!',
+    description_localizations: {
+        "fr": "Punir l'utilisateur lorsqu'il envoie trop de publicité"
+    },
+
     options: [
         {
             name: 'status',
             type: ApplicationCommandOptionType.String,
+
             description: 'Choose the status of the module',
+            description_localizations: {
+                "fr": "Choisir l'état du module"
+            },
+
             required: true,
             choices: [
                 {
@@ -54,13 +64,23 @@ export const command: Command = {
         {
             name: 'amount',
             type: ApplicationCommandOptionType.Number,
+
             description: 'The max amount of flags before punishement',
+            description_localizations: {
+                "fr": "Le nombre maximum de flags avant la punition"
+            },
+
             required: false,
         },
         {
             name: 'punishement',
             type: ApplicationCommandOptionType.String,
+
             description: 'Choose the punishement',
+            description_localizations: {
+                "fr": "Choisir la punition"
+            },
+
             required: false,
             choices: [
                 {

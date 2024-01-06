@@ -33,7 +33,12 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'invite',
+
     description: 'Get the bot invite link!',
+    description_localizations: {
+        "fr": "Obtenir le lien d'invitations du bot iHorizon"
+    },
+    
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,

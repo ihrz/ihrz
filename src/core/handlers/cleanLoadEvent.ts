@@ -61,15 +61,13 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
 async function loadEvents(client: Client, path: string = `${process.cwd()}/dist/src/Events`): Promise<void> {
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
-    var i = 0;
     for (let path of paths) {
         if (!path.endsWith('.js')) return;
-        i++;
         let eevent = require(path);
         let patharray = path.split("/");
         client.on(`${patharray[patharray.length - 1].replace('.js', '')}`, eevent.bind(null, client));
     }
-    logger.log(`${config.console.emojis.OK} >> Loaded ${i} events.`);
+    logger.log(`${config.console.emojis.OK} >> Loaded ${paths.length} events.`);
 };
 
 export = loadEvents;

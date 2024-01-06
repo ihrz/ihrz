@@ -26,13 +26,25 @@ import {
     Client,
     CommandInteraction,
     CommandInteractionOptionResolver,
-    PermissionFlagsBits
+    PermissionFlagsBits,
+    RESTPostAPIApplicationCommandsJSONBody
 } from "discord.js";
+
 import { Option } from "./option";
+
+export interface NameLocalizations {
+    "fr": string;
+}
+
+export interface DescriptionLocalizations {
+    "fr": string;
+}
 
 export interface Command {
     name: string,
     description: string,
+    name_localizations?: NameLocalizations
+    description_localizations: DescriptionLocalizations,
     permission?: bigint | 0,
     category: string,
     options?: Option[],
