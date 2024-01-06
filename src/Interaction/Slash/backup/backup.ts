@@ -30,35 +30,74 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: "backup",
+    
     description: "Subcommand for backup category!",
+    description_localizations: {
+        "fr": "Commande sous-groupé pour la catégorie backup"
+    },
+    
     options: [
         {
             name: "create",
+            name_localizations: {
+                "fr": "créer"
+            },
+
             description: "Create a backup!",
+            description_localizations: {
+                "fr": "Créer une backup"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'save-message',
                     type: ApplicationCommandOptionType.Boolean,
+
                     description: 'Do you want to save message(s) ?',
+                    description_localizations: {
+                        "fr": "Voulez-vous sauvegarder des message(s) ?"
+                    },
+
                     required: true,
                 },
             ],
         },
         {
             name: "list",
+            name_localizations: {
+                "fr": "listé"
+            },
+
             description: "List your backup(s)!",
+            description_localizations: {
+                "fr": "Listé toute vos backup(s)"
+            },
+
             type: 1,
         },
         {
             name: "load",
+            name_localizations: {
+                "fr": "chargé"
+            },
+
             description: "Load your backup to initialize!",
+            description_localizations: {
+                "fr": "Charger une de vos backup(s)"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'backup-id',
                     type: ApplicationCommandOptionType.String,
+
                     description: 'Whats is the backup id?',
+                    description_localizations: {
+                        "fr": "Quelle est l'identifiant de la backup ?"
+                    },
+
                     required: false
                 },
             ],

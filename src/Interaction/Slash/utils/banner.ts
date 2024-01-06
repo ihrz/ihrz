@@ -31,25 +31,45 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'banner',
+
     description: 'Pick the banner of specified things (Server/User)',
+    description_localizations: {
+        "fr": "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
+    },
+
     category: 'utils',
     options: [
         {
             name: "user",
+
             description: "Get the banner of a specified user!",
+            description_localizations: {
+                "fr": "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'user',
                     type: ApplicationCommandOptionType.User,
+
                     description: 'What the user then?',
+                    description_localizations: {
+                        "fr": "Qu'est-ce que l'utilisateur alors ?"
+                    },
+
                     required: false,
                 },
             ],
         },
         {
             name: "server",
+
             description: "Get the banner of the server!",
+            description_localizations: {
+                "fr": "Récupérer la bannière du serveur"
+            },
+
             type: 1,
         },
     ],

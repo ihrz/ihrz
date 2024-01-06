@@ -34,11 +34,21 @@ import logger from '../../../core/logger';
 
 export const command: Command = {
     name: 'rolereaction',
+
     description: 'Set a roles when user react to a message with specific emoji',
+    description_localizations: {
+        "fr": "Définir des rôles lorsque l'utilisateur réagit à un message avec des emoji spécifiques"
+    },
+
     options: [
         {
             name: "value",
+
             description: "Please make your choice.",
+            description_localizations: {
+                "fr": "Merci de faire votre choix"
+            },
+
             type: ApplicationCommandOptionType.String,
             required: true,
             choices: [
@@ -55,19 +65,34 @@ export const command: Command = {
         {
             name: 'messageid',
             type: ApplicationCommandOptionType.String,
-            description: `Please copy the identifiant of the message you want to configure`,
+
+            description: "Please copy the identifiant of the message you want to configure",
+            description_localizations: {
+                "fr": "Veuillez copier l'identifiant du message que vous souhaitez configurer"
+            },
+
             required: true
         },
         {
             name: 'reaction',
             type: ApplicationCommandOptionType.String,
-            description: `The emoji you want`,
+
+            description: `The emojis you want`,
+            description_localizations: {
+                "fr": "Les emojis que tu veux"
+            },
+
             required: false
         },
         {
             name: 'role',
             type: ApplicationCommandOptionType.Role,
-            description: `The role you want to configure`,
+
+            description: 'The role you want to configure',
+            description_localizations: {
+                "fr": "Le rôle que vous souhaitez configurer"
+            },
+
             required: false
         }
     ],

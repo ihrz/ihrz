@@ -34,12 +34,22 @@ import logger from '../../../core/logger';
 
 export const command: Command = {
     name: 'setmentionrole',
+    
     description: 'Give a specific role to the user who pings me!',
+    description_localizations: {
+        "fr": "Donner un rôle spécifique à l'utilisateur qui me ping"
+    },
+
     options: [
         {
             name: 'action',
             type: ApplicationCommandOptionType.String,
+
             description: 'What you want to do?',
+            description_localizations: {
+                "fr": "Que veux-tu faire?"
+            },
+
             required: true,
             choices: [
                 {
@@ -55,7 +65,12 @@ export const command: Command = {
         {
             name: 'roles',
             type: ApplicationCommandOptionType.Role,
+
             description: 'The specific roles to give !',
+            description_localizations: {
+                "fr": "Les rôles spécifiques à donner"
+            },
+
             required: false
         }
     ],

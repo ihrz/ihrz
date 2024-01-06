@@ -30,17 +30,32 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: "setsuggest",
+
     description: "Subcommand for suggestion category!",
+    description_localizations: {
+        "fr": "Commande sous-groupé pour la catégorie de suggestion"
+    },
+
     options: [
         {
             name: "disable",
+
             description: "Disable the suggestion module (need admin permission)!",
+            description_localizations: {
+                "fr": "Désactivez le module de suggestion (besoin de l'autorisation de l'administrateur)"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'action',
                     type: ApplicationCommandOptionType.String,
-                    description: 'What you want to do?',
+
+                    description: 'What you want to do ?',
+                    description_localizations: {
+                        "fr": "Que veux-tu faire ?"
+                    },
+
                     required: true,
                     choices: [
                         {
@@ -57,13 +72,23 @@ export const command: Command = {
         },
         {
             name: "channel",
+
             description: "Set a channel for the Suggestion Module (need admin permission)!",
+            description_localizations: {
+                "fr": "Définir un canal pour le module de suggestion (nécessite une autorisation d'administrateur)"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'channel',
                     type: ApplicationCommandOptionType.Channel,
+
                     description: 'What the channel for the suggestion place?',
+                    description_localizations: {
+                        "fr": "Quel est le channel pour le lieu de suggestion ?"
+                    },
+
                     required: true,
                 },
             ],

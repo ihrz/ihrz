@@ -33,12 +33,22 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'nickrole',
+
     description: 'Give a roles to all user who have specified char in their username!',
+    description_localizations: {
+        "fr": "Donnez un rôle à tous les utilisateurs qui ont un caractère spécifique dans leur nom d'utilisateur"
+    },
+    
     options: [
         {
             name: 'action',
             type: ApplicationCommandOptionType.String,
+
             description: 'The action you want to do',
+            description_localizations: {
+                "fr": "L'action que vous souhaitez faire"
+            },
+
             required: true,
             choices: [
                 {
@@ -54,13 +64,23 @@ export const command: Command = {
         {
             name: 'nickname',
             type: ApplicationCommandOptionType.String,
+
             description: 'The part including in the nickname',
+            description_localizations: {
+                "fr": "La partie incluant dans le pseudo"
+            },
+
             required: true,
         },
         {
             name: 'role',
             type: ApplicationCommandOptionType.Role,
+
             description: 'The role you want to give',
+            description_localizations: {
+                "fr": "Le rôle que vous souhaitez donner"
+            },
+
             required: true,
         },
     ],

@@ -32,12 +32,22 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'unblacklist',
+
     description: 'The user you want to unblacklist (Only Owner of ihorizon)!',
+    description_localizations: {
+        "fr": "Enlever un utilisateur de la liste noir.(Seulement pour les dev)"
+    },
+    
     options: [
         {
             name: 'member',
             type: ApplicationCommandOptionType.User,
+
             description: 'The user you want to unblacklist (Only Owner of ihorizon)',
+            description_localizations: {
+                "fr": "L'utilisateur que vous souhaitez supprimer de la liste noire (uniquement propriétaire d'ihorizon)"
+            },
+
             required: true
         }
     ],

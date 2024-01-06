@@ -42,12 +42,22 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'embed',
+
     description: 'Create a beautiful embed !',
+    description_localizations: {
+        "fr": "Créez un magnifique embed"
+    },
+
     options: [
         {
             name: 'id',
             type: ApplicationCommandOptionType.String,
+
             description: 'If you have a embed\'s ID !',
+            description_localizations: {
+                "fr": "Si vous disposez d'un identifiant d'un embed précèdement enregistrer"
+            },
+
             required: false,
         }
     ],

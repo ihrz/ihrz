@@ -32,7 +32,12 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'links',
+
     description: 'Show all links about iHorizon',
+    description_localizations: {
+        "fr": "Afficher tous les liens en rapport avec iHorizon"
+    },
+    
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,

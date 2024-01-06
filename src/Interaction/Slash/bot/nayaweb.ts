@@ -27,7 +27,12 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'nayaweb',
+
     description: 'Get necessary information about my contributor',
+    description_localizations: {
+        "fr": "Obtenir les informations nécessaires sur mon contributeur"
+    },
+    
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,

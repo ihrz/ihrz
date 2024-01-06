@@ -32,13 +32,23 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'emojis',
+
     description: 'Add emojis to your server easly',
+    description_localizations: {
+        "fr": "Ajoutez facilement des emojis à votre serveur"
+    },
+    
     category: 'utils',
     options: [
         {
             name: 'emojis',
             type: ApplicationCommandOptionType.String,
+
             description: 'What the emoji then?',
+            description_localizations: {
+                "fr": "C'est quoi cette emoji alors ?"
+            },
+
             required: true,
         },
     ],

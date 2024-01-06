@@ -32,7 +32,12 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'renew',
+
     description: 'Re-created a channels (cloning permission and all configurations). nuke equivalent',
+    description_localizations: {
+        "fr": "Recréation d'un canal (autorisation de clonage et toutes les configurations)"
+    },
+    
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,

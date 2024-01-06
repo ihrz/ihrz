@@ -31,7 +31,12 @@ import * as pkg from '../../../../package.json';
 
 export const command: Command = {
     name: 'botinfo',
+    
     description: 'Get information about the bot!',
+    description_localizations: {
+        "fr": "Obtenir les informations supplémentaire par rapport au bot."
+    },
+    
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,

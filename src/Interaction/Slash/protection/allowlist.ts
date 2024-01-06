@@ -30,42 +30,54 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: "allowlist",
+
     description: "Subcommand for protection category!",
+    description_localizations: {
+        "fr": "Commande sous-groupé pour la catégorie de protection"
+    },
+
     options: [
         {
             name: "list",
+
             description: "Make action about the allowlist",
+            description_localizations: {
+                "fr": "Prendre des mesures concernant la liste blanche"
+            },
+
             type: 2,
             options: [
                 {
                     name: "add",
+
                     description: "Adding an user in the allowlist!",
+                    description_localizations: {
+                        "fr": "Ajouter un utilisateur à la liste blanche"
+                    },
+
                     type: 1,
                     options: [
                         {
                             name: 'member',
                             type: ApplicationCommandOptionType.User,
+
                             description: 'Whats is the member then?',
-                            required: true
-                        },
-                    ],
-                },
-                {
-                    name: "delete",
-                    description: "Removing an user of the allowlist!",
-                    type: 1,
-                    options: [
-                        {
-                            name: 'member',
-                            type: ApplicationCommandOptionType.User,
-                            description: 'Whats is the member then?',
+                            description_localizations: {
+                                "fr": "Quel est le membre alors?"
+                            },
+
                             required: true
                         },
                     ],
                 },
                 {
                     name: "show",
+
                     description: "List the users in the allowlist!",
+                    description_localizations: {
+                        "fr": "Lister les utilisateurs dans la liste autorisée"
+                    },
+
                     type: 1,
                 },
             ],

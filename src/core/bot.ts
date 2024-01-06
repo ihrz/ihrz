@@ -30,7 +30,7 @@ let client = new Client({
             GatewayIntentBits.DirectMessages,
             GatewayIntentBits.DirectMessageTyping,
             GatewayIntentBits.GuildBans,
-            atewayIntentBits.GuildEmojisAndStickers, 
+            GatewayIntentBits.GuildEmojisAndStickers, 
             GatewayIntentBits.GuildIntegrations, 
             GatewayIntentBits.GuildInvites, 
             GatewayIntentBits.GuildMembers, 

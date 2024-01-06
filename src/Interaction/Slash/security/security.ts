@@ -30,30 +30,64 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: "security",
-    description: "Subcommand for suggestion category!",
+    name_localizations: {
+        "fr": "sécurité"
+    },
+
+    description: "Subcommand for security category!",
+    description_localizations: {
+        "fr": "Commande sous-groupé pour la catégorie de securité"
+    },
+
     options: [
         {
             name: "channel",
+            name_localizations: {
+                "fr": "définir-cannal"
+            },
+
             description: "Channel where are been the verification process for new member(s)!",
+            description_localizations: {
+                "fr": "Canal où se déroule le processus de vérification pour les nouveaux membres"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'id',
                     type: ApplicationCommandOptionType.Channel,
-                    description: 'What the channel then?',
+
+                    description: 'What the channel ?',
+                    description_localizations: {
+                        "fr": "Quelle est le channel ?"
+                    },
+
                     required: true,
                 },
             ],
         },
         {
             name: "disable",
+            name_localizations: {
+                "fr": "statut"
+            },
+
             description: "Disable or enable the Security Module feature!",
+            description_localizations: {
+                "fr": "Désactiver ou activer la fonctionnalité du module de sécurité"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'action',
                     type: ApplicationCommandOptionType.String,
+
                     description: 'What the action you want to do?',
+                    description_localizations: {
+                        "fr": "Quelle est l'action que vous souhaitez faire ?"
+                    },
+
                     required: true,
                     choices: [
                         {
@@ -70,13 +104,26 @@ export const command: Command = {
         },
         {
             name: "role-to-give",
+            name_localizations: {
+                "fr": "role-à-donner"
+            },
+
             description: "The role that will be given to new member(s) when process to the Captcha verification!",
+            description_localizations: {
+                "fr": "Le rôle qui sera attribué aux nouveaux membre(s) lors du processus de vérification Captcha"
+            },
+
             type: 1,
             options: [
                 {
                     name: 'role',
                     type: ApplicationCommandOptionType.Role,
-                    description: 'What the the role then?',
+
+                    description: 'What the the role ?',
+                    description_localizations: {
+                        "fr": "Quel est le rôle ?"
+                    },
+
                     required: true,
                 },
             ],

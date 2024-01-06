@@ -31,7 +31,12 @@ import ping from 'ping';
 
 export const command: Command = {
     name: 'ping',
+
     description: 'Get the bot latency!',
+    description_localizations: {
+        "fr": "Obtenir la latence du bot"
+    },
+
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
