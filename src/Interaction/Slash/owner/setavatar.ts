@@ -49,12 +49,22 @@ async function isImageUrl(url: string): Promise<boolean> {
 
 export const command: Command = {
     name: 'setavatar',
+
     description: 'Set the avatar of the bot !',
+    description_localizations: {
+        "fr": "Définir l'avatar du bot !"
+    },
+
     options: [
         {
             name: 'pfp',
             type: ApplicationCommandOptionType.String,
+
             description: 'The pfp for the bot',
+            description_localizations: {
+                "fr": "La pp du bot"
+            },
+
             required: true,
         },
     ],

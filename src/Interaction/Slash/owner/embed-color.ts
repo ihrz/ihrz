@@ -31,12 +31,22 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'embed-color',
+
     description: 'Set the embed color !',
+    description_localizations: {
+        "fr": "Changer les couleurs dans les embed d'iHorizon"
+    },
+
     options: [
         {
             name: 'action',
             type: ApplicationCommandOptionType.String,
+
             description: `What do you want to do ?`,
+            description_localizations: {
+                "fr": "Quelle sont les embed concerné ?"
+            }, 
+
             required: true,
             choices: [
                 {
@@ -80,7 +90,12 @@ export const command: Command = {
         {
             name: 'hex-color',
             type: ApplicationCommandOptionType.String,
+
             description: `Use www.color-hex.com`,
+            description_localizations: {
+                "fr": "Veuillez utilisé www.color-hex.com"
+            },
+
             required: false
         },
     ],

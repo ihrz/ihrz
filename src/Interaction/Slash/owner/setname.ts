@@ -33,12 +33,22 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'setname',
+
     description: 'Set the name of the bot !',
+    description_localizations: {
+        "fr": "Définir le noms du bot"
+    },
+
     options: [
         {
             name: 'name',
             type: ApplicationCommandOptionType.String,
+
             description: 'The name for the bot',
+            description_localizations: {
+                "fr": "Le noms du bot"
+            },
+
             required: true,
         },
     ],

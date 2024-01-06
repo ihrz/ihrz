@@ -32,12 +32,22 @@ import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'presence',
+
     description: 'Set the presence of the bot !',
+    description_localizations: {
+        "fr": "Définir le status du bot"
+    },
+
     options: [
         {
             name: 'type',
             type: ApplicationCommandOptionType.String,
+
             description: 'The type of activity you want!',
+            description_localizations:  {
+                "fr": "Quelle type d'activité voulez-vous ?"
+            },
+
             required: true,
             choices: [
                 {
@@ -65,7 +75,12 @@ export const command: Command = {
         {
             name: 'name',
             type: ApplicationCommandOptionType.String,
+
             description: 'The activity text',
+            description_localizations: {
+                "fr": "Le texte du status"
+            },
+
             required: true,
         },
     ],
