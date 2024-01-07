@@ -99,19 +99,8 @@ export = async (client: Client, message: Message) => {
                         message.guild.members.kick(message.author).catch(() => { });
                         break;
                     case 'mute':
-                        let muterole = message.guild.roles.cache.find((role: { name: string; }) => role.name === 'muted');
-
-                        if (muterole) {
-                            await member?.roles.add(muterole.id).catch();
-                            setTimeout(async () => {
-                                if (!muterole?.id) return;
-
-                                if (member?.roles.cache.has(muterole.id)) {
-                                    member.roles.remove(muterole.id);
-                                }
-                                await client.db.set(`TEMP.${message.guildId}.PUNISH_DATA.${message.author.id}`, {});
-                            }, 40000);
-                        }
+                        await member?.timeout(40000, 'Timeout by PunishPUB')
+                        await client.db.set(`TEMP.${message.guildId}.PUNISH_DATA.${message.author.id}`, {});
                         break;
                 }
             };
