@@ -58,19 +58,12 @@ export = {
             return;
         };
 
-        let muterole = interaction.guild.roles.cache.find((role: { name: string; }) => role.name === 'muted');
-
-        if (!tomute.roles.cache.has(muterole?.id!)) {
+        if (!tomute.isCommunicationDisabled() === true) {
             await interaction.editReply({ content: data.unmute_not_muted });
             return;
         };
 
-        if (!muterole) {
-            await interaction.editReply({ content: data.unmute_muted_role_doesnt_exist });
-            return;
-        };
-
-        tomute.roles.remove(muterole.id);
+        tomute.disableCommunicationUntil(Date.now());
 
         await interaction.editReply({
             content: data.unmute_command_work

@@ -62,48 +62,24 @@ export = {
             return;
         }
 
-        let muterole = interaction.guild.roles.cache.find((role: { name: string; }) => role.name === 'muted');
-
-        if (!muterole) {
-            try {
-                muterole = await interaction.guild.roles.create({
-                    name: "muted",
-                    reason: data.tempmute_reason_create_roles
-                })
-
-                interaction.guild.channels.cache.forEach(async (channel) => {
-                    if ((channel as BaseGuildTextChannel).permissionOverwrites) {
-                        await (channel as BaseGuildTextChannel).permissionOverwrites.create(muterole!, {
-                            SendMessages: false,
-                            AddReactions: false,
-                            SendMessagesInThreads: false
-                        });
-                    }
-                });
-            } catch (e) {
-            };
-        }
-        if (tomute.roles.cache.has(muterole?.id!)) {
+        if (tomute.isCommunicationDisabled() === true) {
             await interaction.editReply({ content: data.tempmute_already_muted });
             return;
         };
 
-        await (tomute.roles.add(muterole?.id!).catch(() => { }));
+        await (tomute.timeout(ms(mutetime as StringValue), data.tempmute_logs_embed_title)).catch(() => { });
+
         await interaction.editReply(data.tempmute_command_work
             .replace("${tomute.id}", tomute.id)
             .replace("${ms(ms(mutetime))}", ms(ms(mutetime as StringValue)))
         );
 
         setTimeout(async () => {
-            if (!tomute.roles.cache.has(muterole?.id!)) {
-                return;
-            };
-
-            tomute.roles.remove(muterole?.id!);
             await interaction.channel?.send({
                 content: data.tempmute_unmuted_by_time.replace("${tomute.id}", tomute.id),
             });
         }, ms(mutetime as StringValue));
+        
         try {
             let logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
