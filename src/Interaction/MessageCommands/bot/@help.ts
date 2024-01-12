@@ -105,7 +105,7 @@ export const command: Command = {
                 return;
             };
 
-            await i.deferUpdate();
+            if (!i.replied) await i.deferUpdate();
 
             embed
                 .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
