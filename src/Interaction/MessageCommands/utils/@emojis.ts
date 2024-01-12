@@ -20,50 +20,42 @@
 */
 
 import {
-    Client,
     ApplicationCommandOptionType,
-    EmbedBuilder,
-    PermissionsBitField,
+    ApplicationCommandType,
+    BaseGuildTextChannel,
     ChatInputCommandInteraction,
-    ApplicationCommandType
-} from 'discord.js'
+    Client,
+    EmbedBuilder,
+    GuildMember,
+    GuildVoiceChannelResolvable,
+    Message,
+    PermissionsBitField,
+} from 'discord.js';
 
+import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
 export const command: Command = {
-    
+
     name: 'emojis',
 
     description: 'Add emojis to your server easly',
     description_localizations: {
         "fr": "Ajoutez facilement des emojis à votre serveur"
     },
-    
-    category: 'utils',
-    options: [
-        {
-            name: 'emojis',
-            type: ApplicationCommandOptionType.String,
 
-            description: 'What the emoji then?',
-            description_localizations: {
-                "fr": "C'est quoi cette emoji alors ?"
-            },
-
-            required: true,
-        },
-    ],
     thinking: true,
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
-        let str = (interaction.options.getString('emojis') as string).split(' ');
+    category: 'utils',
+    type: "PREFIX_IHORIZON_COMMAND",
+    run: async (client: Client, interaction: Message, args: string[]) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
+
+        let str = args.join(" ").toString().split(' ');
         let cnt: number = 0;
         let nemj: string = '';
-
-
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.punishpub_not_admin });
+        
+        if (!interaction.member?.permissions?.has(PermissionsBitField.Flags.Administrator)) {
+            await interaction.reply({ content: data.punishpub_not_admin });
             return;
         };
 
@@ -77,8 +69,8 @@ export const command: Command = {
                     name: match[1]
                 }).then((emoji) => {
                     interaction.channel?.send(data.emoji_send_new_emoji
-                        .replace('${emoji.name}', emoji.name)
-                        .replace('${emoji}', emoji)
+                        .replace('${emoji.name}', emoji.name as string)
+                        .replace('${emoji}', emoji as unknown as string)
                     );
 
                     cnt++;
@@ -96,12 +88,12 @@ export const command: Command = {
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
             .setTimestamp()
             .setDescription(data.emoji_embed_desc_work
-                .replace('${cnt}', cnt)
-                .replace('${interaction.guild.name}', interaction.guild?.name)
+                .replace('${cnt}', cnt as unknown as string)
+                .replace('${interaction.guild.name}', interaction.guild?.name as string)
                 .replace('${nemj}', nemj)
             )
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
         return;
     },
 };
