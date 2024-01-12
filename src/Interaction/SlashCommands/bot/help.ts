@@ -41,7 +41,7 @@ export const command: Command = {
     description_localizations: {
         "fr": "Obtenir la liste de toute les commandes"
     },
-    
+
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
@@ -112,19 +112,33 @@ export const command: Command = {
 
             embed.setFields({ name: ' ', value: ' ' });
 
-            await categories[i.values[0] as unknown as number].value.forEach(async (element: { cmd: any; desc: any; }) => {
+            await categories[i.values[0] as unknown as number].value.forEach(async (element: { cmd: any; desc: any; message_command: number | boolean; }) => {
 
-                switch (guildLang) {
-                    case "en-US":
-                        embed.addFields({ name: `**/${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
-                        break;
-                    case "fr-FR":
-                        embed.addFields({ name: `**/${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
-                        break;
-                    default:
-                        embed.addFields({ name: `**/${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
-                        break;
-                };
+                if (element.message_command) {
+                    switch (guildLang) {
+                        case "en-US":
+                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
+                            break;
+                        case "fr-FR":
+                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
+                            break;
+                        default:
+                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
+                            break;
+                    };
+                } else {
+                    switch (guildLang) {
+                        case "en-US":
+                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
+                            break;
+                        case "fr-FR":
+                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
+                            break;
+                        default:
+                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
+                            break;
+                    };
+                }
             });
 
             await response.edit({ embeds: [embed] });

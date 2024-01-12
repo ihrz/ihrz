@@ -54,6 +54,7 @@ interface Icon {
     Pin: string;
     Timer: string;
     Sparkles: string;
+    Prefix_Command: string;
 }
 
 export interface Emojis {

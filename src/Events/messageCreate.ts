@@ -26,6 +26,17 @@ export = async (client: Client, message: Message) => {
 
     let data = await client.functions.getLanguageData(message.guild.id);
 
+    async function MessageCommandExecutor() {
+        if (!message.guild || message.author.bot) return;
+
+        var prefix = `<@${client.user?.id}>`;
+
+        let args = message.content.slice(prefix.length).trim().split(/ +/g);
+        let command = client.message_commands.get(args.shift()?.toLowerCase() as string);
+
+        command?.run(client, message);
+    };
+
     async function xpFetcher() {
         if (!message.guild || message.author.bot || message.channel.type !== ChannelType.GuildText) return;
 
@@ -244,5 +255,5 @@ export = async (client: Client, message: Message) => {
         return;
     };
 
-    xpFetcher(), blockSpam(), rankRole(), createAllowList(), suggestion(), reactToHeyMSG();
+    MessageCommandExecutor(), xpFetcher(), blockSpam(), rankRole(), createAllowList(), suggestion(), reactToHeyMSG();
 };
