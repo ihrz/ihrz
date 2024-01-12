@@ -26,18 +26,24 @@ export = async (client: Client, message: Message) => {
 
     let data = await client.functions.getLanguageData(message.guild.id);
 
-    async function MessageCommandExecutor() {
-        if (!message.guild || message.author.bot) return;
+    async function MessageCommandExecutor(): Promise<boolean> {
+        if (!message.guild || message.author.bot) return false;
 
         var prefix = `<@${client.user?.id}>`;
 
         let args = message.content.slice(prefix.length).trim().split(/ +/g);
         let command = client.message_commands.get(args.shift()?.toLowerCase() as string);
 
-        command?.run(client, message, args);
+        if (command) {
+            command?.run(client, message, args);
+            return true;
+        } else {
+            return false;
+        };
     };
 
     async function xpFetcher() {
+        if (await MessageCommandExecutor()) return;
         if (!message.guild || message.author.bot || message.channel.type !== ChannelType.GuildText) return;
 
         var baseData = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING`);
@@ -255,5 +261,5 @@ export = async (client: Client, message: Message) => {
         return;
     };
 
-    MessageCommandExecutor(), xpFetcher(), blockSpam(), rankRole(), createAllowList(), suggestion(), reactToHeyMSG();
+    xpFetcher(), blockSpam(), rankRole(), createAllowList(), suggestion(), reactToHeyMSG();
 };

@@ -37,9 +37,9 @@ export const command: Command = {
 
     name: "me",
 
-    description: "Subcommand for profil category!",
+    description: "See the iHorizon's profil of the member!",
     description_localizations: {
-        "fr": "Commande sous-groupé pour la catégorie de visualisation profil"
+        "fr": "Voir le profil iHorizon du membre"
     },
 
     thinking: true,
