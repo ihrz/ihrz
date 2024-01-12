@@ -34,7 +34,7 @@ export = async (client: Client, message: Message) => {
         let args = message.content.slice(prefix.length).trim().split(/ +/g);
         let command = client.message_commands.get(args.shift()?.toLowerCase() as string);
 
-        command?.run(client, message);
+        command?.run(client, message, args);
     };
 
     async function xpFetcher() {
