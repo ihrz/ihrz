@@ -98,10 +98,33 @@ export const command: Command = {
                         "fr": "Quelle est l'identifiant de la backup ?"
                     },
 
-                    required: false
+                    required: true
                 },
             ],
         },
+        {
+            name: "delete",
+            
+            description: "Delete your backup from the list",
+            description_localizations: {
+                "fr": "Supprimer une backup de la liste"
+            },
+
+            options: [
+                {
+                    name: "backup-id",
+                    
+                    description: "The ID of your backup you want to delete from the list",
+                    description_localizations: {
+                        "fr": "L'identifiant de la backup que vous voulez supprimer de la liste"
+                    },
+
+                    type: ApplicationCommandOptionType.String,
+                    required: true
+                }
+            ],
+            type: 1
+        }
     ],
     category: 'backup',
     thinking: true,

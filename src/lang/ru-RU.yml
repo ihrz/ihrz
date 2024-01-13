@@ -841,6 +841,14 @@ backup_string_see_v: ":placard:・Количество категорий: `${da
 backup_all_of_your_backup: "**Все ваши резервные копии:**"
 backup_string_see_another_v: ":placard:・Количество категорий: `${result.categoryCount}`\n:hash:・Количество каналов: `${result.channelCount}`"
 
+# /backup delete
+backup_really_want: "${client.iHorizon_Emojis.icon.Warning_Icon} Вы действительно хотите удалить этот бэкап?"
+backup_confirm_button: "Да, удалить этот бэкап"
+backup_cancel_button: "Отменить действие"
+backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.icon.Yes_Logo} Бэкап успешно удален!"
+backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.icon.Yes_Logo} Бэкап сохранен!"
+backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.icon.No_Logo} Время вышло. Бэкап сохранен!"
+
 
 # Реакции ролей
 # /reactionroles

@@ -37,40 +37,21 @@ export = {
             return;
         };
 
-        if (backupID) {
-            let data = await client.db.get(`BACKUPS.${interaction.user.id}.${backupID}`);
+        let em = new EmbedBuilder().setDescription(data.backup_all_of_your_backup).setColor("#bf0bb9").setTimestamp();
+        let data2 = await client.db.get(`BACKUPS.${interaction.user.id}`);
+        let b: number = 1;
 
-            if (!data) {
-                await interaction.editReply({ content: data.backup_backup_doesnt_exist });
-                return;
-            };
+        for (let i in data2) {
+            let result = await client.db.get(`BACKUPS.${interaction.user.id}.${i}`);
 
-            let em = new EmbedBuilder().setColor("#bf0bb9").setTimestamp().addFields({
-                name: `${data.guildName} - (||${backupID}||)`,
-                value: (data.backup_string_see_v
-                    .replace('${data.categoryCount}', data.categoryCount)
-                    .replace('${data.channelCount}', data.channelCount))
-            });
+            let v = (data.backup_string_see_another_v
+                .replace('${result.categoryCount}', result.categoryCount)
+                .replace('${result.channelCount}', result.channelCount));
 
-            await interaction.editReply({ embeds: [em] });
-            return;
-        } else {
-            let em = new EmbedBuilder().setDescription(data.backup_all_of_your_backup).setColor("#bf0bb9").setTimestamp();
-            let data2 = await client.db.get(`BACKUPS.${interaction.user.id}`);
-            let b: number = 1;
-
-            for (let i in data2) {
-                let result = await client.db.get(`BACKUPS.${interaction.user.id}.${i}`);
-
-                let v = (data.backup_string_see_another_v
-                    .replace('${result.categoryCount}', result.categoryCount)
-                    .replace('${result.channelCount}', result.channelCount));
-
-                if (result) em.addFields({ name: `${result.guildName} - (||${i}||)`, value: v }) && b++;
-            };
-
-            await interaction.editReply({ embeds: [em] });
-            return;
+            if (result) em.addFields({ name: `${result.guildName} - (||${i}||)`, value: v }) && b++;
         };
+
+        await interaction.editReply({ embeds: [em] });
+        return;
     },
 };
