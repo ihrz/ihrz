@@ -44,7 +44,7 @@ export const command: Command = {
             type: ApplicationCommandOptionType.String,
 
             description: 'The type of activity you want!',
-            description_localizations:  {
+            description_localizations: {
                 "fr": "Quelle type d'activité voulez-vous ?"
             },
 
@@ -83,6 +83,17 @@ export const command: Command = {
 
             required: true,
         },
+        {
+            name: 'twitch_username',
+            type: ApplicationCommandOptionType.String,
+
+            description: 'The twitch account Username when you choose Streaming type',
+            description_localizations: {
+                "fr": "Le nom d'utilisateur du compte Twitch lorsque vous choisissez le type de streaming"
+            },
+
+            required: false,
+        }
     ],
     category: 'owner',
     thinking: true,
@@ -90,6 +101,7 @@ export const command: Command = {
     run: async (client: Client, interaction: any) => {
         let action_1 = interaction.options.getString("type");
         let action_2 = interaction.options.getString("name");
+        let action_3 = interaction.options.getString("twitch_username") || "anaissaraiva";
 
         if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`)
             !== true) {
@@ -103,11 +115,12 @@ export const command: Command = {
             case 'streaming':
                 client.user?.setActivity(action_2, {
                     type: ActivityType.Streaming,
-                    url: "https://www.twitch.tv/anaissaraiva"
+                    url: `https://www.twitch.tv/${action_3}`
                 });
                 await client.db.set(`BOT.PRESENCE`,
                     {
                         type: ActivityType.Streaming,
+                        twitch_username: action_3,
                         name: action_2
                     }
                 );

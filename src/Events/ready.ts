@@ -64,19 +64,15 @@ export = async (client: Client) => {
     };
 
     async function quotesPresence() {
-        let quotes = [
-            "Custom this Presence with /presence",
-        ];
         let e = await client.db.get(`BOT.PRESENCE`);
 
         if (e) {
             client.user?.setActivity(e.name, {
                 type: e.type,
-                url: "https://www.twitch.tv/anaissaraiva"
+                url: `https://www.twitch.tv/${e.twitch_username}`
             });
         } else {
-            let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-            client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Playing }] });
+            client.user?.setPresence({ activities: [{ name: "Custom this Presence with /presence", type: ActivityType.Custom }] });
         };
     };
 
