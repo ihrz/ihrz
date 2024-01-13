@@ -73,9 +73,10 @@ async function loadCommands(client: Client, path: string = `${process.cwd()}/dis
 
     var i = 0;
     for (let path of paths) {
-        if (!path.endsWith('.js')) return;
+        if (!path.endsWith('.js')) break;
         i++;
-        let command = require(path).command;
+
+        let command = require(path).command; if (!command) break;
 
         await db.push(`BOT.CONTENT.${command.category}`,
             {
