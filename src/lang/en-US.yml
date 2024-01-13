@@ -841,6 +841,14 @@ backup_string_see_v: ":placard:・Category's Count: `${data.categoryCount}`\n:ha
 backup_all_of_your_backup: "**All of your backup:**"
 backup_string_see_another_v: ":placard:・Category's Count: `${result.categoryCount}`\n:hash:・Channel's Count: `${result.channelCount}`"
 
+# /backup delete
+backup_really_want: "${client.iHorizon_Emojis.icon.Warning_Icon} Do you really want to delete this backup ?"
+backup_confirm_button: "Yes, delete this backup"
+backup_cancel_button: "Cancel Action"
+backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.icon.Yes_Logo} The backup was succefully deleted !"
+backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.icon.Yes_Logo} The backup was keeped !"
+backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.icon.No_Logo} Time's UP. The backup was keeped !"
+
 
 # Role Reactions
 # /reactionroles

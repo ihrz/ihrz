@@ -27,7 +27,6 @@ import { Command } from "../../../types/command";
 import db from '../functions/DatabaseModel';
 import config from "../../files/config";
 import { EltType } from "../../../types/eltType";
-import { Option } from "../../../types/option";
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     let result = [];
@@ -63,31 +62,14 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
     return paths;
 };
 
-async function processOptions(options: Option[], category: string, parentName: string = "") {
-    for (let option of options) {
-        let fullName = parentName ? `${parentName} ${option.name}` : option.name;
-
-        if (option.type === 1) {
-            await db.push(`BOT.CONTENT.${category}`,
-                {
-                    cmd: fullName, desc: { desc: option.description, lang: option.description_localizations, message_command: false }
-                }
-            );
-        };
-        if (option.options) {
-            await processOptions(option.options, category, fullName);
-        };
-    };
-};
-
-async function loadCommands(client: Client, path: string = `${process.cwd()}/dist/src/Interaction/SlashCommands`): Promise<void> {
+async function loadCommands(client: Client, path: string = `${process.cwd()}/dist/src/Interaction/MessageCommands`): Promise<void> {
 
     await db.set(`BOT.CONTENT`, {});
 
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
 
-    client.commands = new Collection<string, Command>();
+    client.message_commands = new Collection<string, Command>();
 
     var i = 0;
     for (let path of paths) {
@@ -98,18 +80,14 @@ async function loadCommands(client: Client, path: string = `${process.cwd()}/dis
 
         await db.push(`BOT.CONTENT.${command.category}`,
             {
-                cmd: command.name, desc: { desc: command.description, lang: command.description_localizations }, message_command: false
+                cmd: command.name, desc: { desc: command.description, lang: command.description_localizations }, message_command: true
             }
         );
 
-        if (command.options) {
-            await processOptions(command.options, command.category, command.name);
-        };
-
-        client.commands.set(command.name, command);
+        client.message_commands.set(command.name, command);
     };
 
-    logger.log(`${config.console.emojis.OK} >> Loaded ${i} Slash commands.`);
+    logger.log(`${config.console.emojis.OK} >> Loaded ${i} Message commands.`);
 };
 
 export = loadCommands;

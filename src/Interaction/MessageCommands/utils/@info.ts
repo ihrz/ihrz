@@ -19,9 +19,23 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client, ApplicationCommandOptionType, EmbedBuilder, CommandInteraction, ApplicationCommandType } from 'discord.js';
+import {
+    ApplicationCommandOptionType,
+    ApplicationCommandType,
+    BaseGuildTextChannel,
+    ChatInputCommandInteraction,
+    Client,
+    EmbedBuilder,
+    GuildMember,
+    GuildVoiceChannelResolvable,
+    Message,
+    PermissionsBitField,
+} from 'discord.js';
+
 import * as apiUrlParser from '../../../core/functions/apiUrlParser';
+import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
+
 import DiscordOauth2 from 'discord-oauth2';
 import config from '../../../files/config';
 import logger from '../../../core/logger';
@@ -31,30 +45,19 @@ import axios from 'axios';
 let oauth = new DiscordOauth2();
 
 export const command: Command = {
-    name: 'userinfo',
+
+    name: 'info',
 
     description: 'Get information about a user!',
     description_localizations: {
         "fr": "Obtenir des informations sur un utilisateur"
     },
 
-    options: [
-        {
-            name: 'user',
-            type: ApplicationCommandOptionType.User,
-
-            description: 'user you want to lookup',
-            description_localizations: {
-                "fr": "utilisateur que vous souhaitez rechercher"
-            },
-
-            required: false,
-        },
-    ],
+    thinking: true,
     category: 'utils',
-    thinking: false,
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: CommandInteraction) => {
+    type: "PREFIX_IHORIZON_COMMAND",
+    run: async (client: Client, interaction: Message, args: string[]) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
 
         interface Badge {
             Value: number;
@@ -124,8 +127,7 @@ export const command: Command = {
                 .join('');
         };
 
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
-        let member = interaction.options.getUser('user') || interaction.user;
+        let member = interaction.mentions.users.toJSON()[1] || interaction.author;
 
         async function sendMessage(description: string) {
             let embed = new EmbedBuilder()
@@ -136,7 +138,7 @@ export const command: Command = {
                 .setColor('#0014a8')
                 .setDescription(description);
 
-            await interaction.editReply({ embeds: [embed], content: `${client.iHorizon_Emojis.icon.Yes_Logo} Fetched !` });
+            await interaction.reply({ embeds: [embed], content: `${client.iHorizon_Emojis.icon.Yes_Logo} Fetched !` });
             return;
         };
 

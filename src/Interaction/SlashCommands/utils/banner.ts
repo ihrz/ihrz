@@ -21,90 +21,60 @@
 
 import {
     Client,
+    PermissionsBitField,
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
-    ApplicationCommandType,
-} from 'discord.js';
+    ApplicationCommandType
+} from 'discord.js'
 
 import { Command } from '../../../../types/command';
 
 export const command: Command = {
-    name: "backup",
     
-    description: "Subcommand for backup category!",
+    name: 'banner',
+
+    description: 'Pick the banner of specified things (Server/User)',
     description_localizations: {
-        "fr": "Commande sous-groupé pour la catégorie backup"
+        "fr": "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
     },
-    
+
+    category: 'utils',
     options: [
         {
-            name: "create",
-            name_localizations: {
-                "fr": "créer"
-            },
+            name: "user",
 
-            description: "Create a backup!",
+            description: "Get the banner of a specified user!",
             description_localizations: {
-                "fr": "Créer une backup"
+                "fr": "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
             },
 
             type: 1,
             options: [
                 {
-                    name: 'save-message',
-                    type: ApplicationCommandOptionType.Boolean,
+                    name: 'user',
+                    type: ApplicationCommandOptionType.User,
 
-                    description: 'Do you want to save message(s) ?',
+                    description: 'What the user then?',
                     description_localizations: {
-                        "fr": "Voulez-vous sauvegarder des message(s) ?"
+                        "fr": "Qu'est-ce que l'utilisateur alors ?"
                     },
 
-                    required: true,
+                    required: false,
                 },
             ],
         },
         {
-            name: "list",
-            name_localizations: {
-                "fr": "listé"
-            },
+            name: "server",
 
-            description: "List your backup(s)!",
+            description: "Get the banner of the server!",
             description_localizations: {
-                "fr": "Listé toute vos backup(s)"
+                "fr": "Récupérer la bannière du serveur"
             },
 
             type: 1,
-        },
-        {
-            name: "load",
-            name_localizations: {
-                "fr": "chargé"
-            },
-
-            description: "Load your backup to initialize!",
-            description_localizations: {
-                "fr": "Charger une de vos backup(s)"
-            },
-
-            type: 1,
-            options: [
-                {
-                    name: 'backup-id',
-                    type: ApplicationCommandOptionType.String,
-
-                    description: 'Whats is the backup id?',
-                    description_localizations: {
-                        "fr": "Quelle est l'identifiant de la backup ?"
-                    },
-
-                    required: false
-                },
-            ],
         },
     ],
-    category: 'backup',
-    thinking: true,
+    thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);

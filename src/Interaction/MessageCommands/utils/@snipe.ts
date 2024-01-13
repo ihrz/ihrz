@@ -20,25 +20,35 @@
 */
 
 import {
+    ApplicationCommandOptionType,
     ApplicationCommandType,
+    BaseGuildTextChannel,
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-} from 'discord.js'
+    GuildMember,
+    GuildVoiceChannelResolvable,
+    Message,
+    PermissionsBitField,
+} from 'discord.js';
 
+import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
 export const command: Command = {
+    
     name: 'snipe',
+
     description: 'Get the last message deleted in this channel!',
     description_localizations: {
         "fr": "Obtenez le dernier message supprimé sur ce cannal"
     },
+
+    thinking: true,
     category: 'utils',
-    thinking: false,
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+    type: "PREFIX_IHORIZON_COMMAND",
+    run: async (client: Client, interaction: Message, args: string[]) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
 
         var based = await client.db.get(`${interaction.guild?.id}.GUILD.SNIPE.${interaction.channel?.id}`);
 

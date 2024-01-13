@@ -66,6 +66,7 @@ export = async (client: Client) => {
 
     async function quotesPresence() {
         let quotes = [
+            "Balls",
             "discord.gg/ihorizon",
             "https://ihorizon.me",
             "iHorizon x ElektraBots <3",

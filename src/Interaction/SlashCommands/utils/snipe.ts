@@ -20,65 +20,42 @@
 */
 
 import {
-    Client,
-    PermissionsBitField,
-    ApplicationCommandOptionType,
+    ApplicationCommandType,
     ChatInputCommandInteraction,
-    ApplicationCommandType
+    Client,
+    EmbedBuilder,
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
 
 export const command: Command = {
-    name: 'banner',
+    name: 'snipe',
 
-    description: 'Pick the banner of specified things (Server/User)',
+    description: 'Get the last message deleted in this channel!',
     description_localizations: {
-        "fr": "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
+        "fr": "Obtenez le dernier message supprimé sur ce cannal"
     },
-
+    
     category: 'utils',
-    options: [
-        {
-            name: "user",
-
-            description: "Get the banner of a specified user!",
-            description_localizations: {
-                "fr": "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
-            },
-
-            type: 1,
-            options: [
-                {
-                    name: 'user',
-                    type: ApplicationCommandOptionType.User,
-
-                    description: 'What the user then?',
-                    description_localizations: {
-                        "fr": "Qu'est-ce que l'utilisateur alors ?"
-                    },
-
-                    required: false,
-                },
-            ],
-        },
-        {
-            name: "server",
-
-            description: "Get the banner of the server!",
-            description_localizations: {
-                "fr": "Récupérer la bannière du serveur"
-            },
-
-            type: 1,
-        },
-    ],
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
-        let command = interaction.options.getSubcommand();
 
-        await require('./!' + command).run(client, interaction, data);
+        var based = await client.db.get(`${interaction.guild?.id}.GUILD.SNIPE.${interaction.channel?.id}`);
+
+        if (!based) {
+            await interaction.reply({ content: data.snipe_no_previous_message_deleted });
+            return;
+        };
+
+        let embed = new EmbedBuilder()
+            .setColor("#474749")
+            .setAuthor({ name: based.snipeUserInfoTag, iconURL: based.snipeUserInfoPp })
+            .setDescription(`\`${based.snipe || 0}\``)
+            .setTimestamp(based.snipeTimestamp);
+
+        await interaction.reply({ embeds: [embed] });
+        return;
     },
 };

@@ -841,6 +841,14 @@ backup_string_see_v: ":placard:・カテゴリ数: `${data.categoryCount}`\n:has
 backup_all_of_your_backup: "**すべてのバックアップ:**"
 backup_string_see_another_v: ":placard:・カテゴリ数: `${result.categoryCount}`\n:hash:・チャンネル数: `${result.channelCount}`"
 
+# /backup delete
+backup_really_want: "${client.iHorizon_Emojis.icon.Warning_Icon} 本当にこのバックアップを削除しますか？"
+backup_confirm_button: "はい、このバックアップを削除します"
+backup_cancel_button: "アクションをキャンセル"
+backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.icon.Yes_Logo} バックアップは正常に削除されました！"
+backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.icon.Yes_Logo} バックアップは保持されました！"
+backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.icon.No_Logo} 時間切れです。バックアップは保持されました！"
+
 
 # Role Reactions
 # /reactionroles

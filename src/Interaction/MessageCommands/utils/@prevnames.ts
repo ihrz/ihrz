@@ -20,46 +20,40 @@
 */
 
 import {
-    Client,
-    EmbedBuilder,
-    PermissionsBitField,
-    ApplicationCommandOptionType,
     ActionRowBuilder,
+    ApplicationCommandOptionType,
+    ApplicationCommandType,
+    BaseGuildTextChannel,
     ButtonBuilder,
     ButtonStyle,
     ChatInputCommandInteraction,
-    ApplicationCommandType
-} from 'discord.js'
+    Client,
+    EmbedBuilder,
+    GuildMember,
+    GuildVoiceChannelResolvable,
+    Message,
+    PermissionsBitField,
+} from 'discord.js';
 
+import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
 export const command: Command = {
+
     name: 'prevnames',
 
     description: 'Lookup an Discord User, and see this previous username !',
     description_localizations: {
         "fr": "Recherchez un utilisateur Discord et voyez ces noms d'utilisateur précédent"
     },
-    
-    options: [
-        {
-            name: 'user',
-            type: ApplicationCommandOptionType.User,
 
-            description: 'user you want to lookup',
-            description_localizations: {
-                "fr": "user you want to lookup"
-            },
-
-            required: false
-        }
-    ],
-    thinking: false,
+    thinking: true,
     category: 'utils',
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
-        let user = interaction.options.getUser("user") || interaction.user;
+    type: "PREFIX_IHORIZON_COMMAND",
+    run: async (client: Client, interaction: Message, args: string[]) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
+
+        let user = interaction.mentions.users.toJSON()[1] || interaction.author;
 
         // if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
         //     await interaction.reply({ content: data.prevnames_not_admin });
@@ -80,7 +74,7 @@ export const command: Command = {
             let pageUsers = char.slice(i, i + usersPerPage);
             let pageContent = pageUsers.map((userId) => userId).join('\n');
             pages.push({
-                title: `${data.prevnames_embed_title.replace("${user.username}", user.globalName)} | Page ${i / usersPerPage + 1}`,
+                title: `${data.prevnames_embed_title.replace("${user.username}", user.globalName || user.username)} | Page ${i / usersPerPage + 1}`,
                 description: pageContent,
             });
         };
@@ -112,7 +106,7 @@ export const command: Command = {
         let collector = messageEmbed.createMessageComponentCollector({
             filter: (i) => {
                 i.deferUpdate();
-                return interaction.user.id === i.user.id;
+                return interaction.author.id === i.user.id;
             }, time: 60000
         });
 

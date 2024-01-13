@@ -26,6 +26,7 @@ import {
     Client,
     CommandInteraction,
     CommandInteractionOptionResolver,
+    Message,
     PermissionFlagsBits,
     RESTPostAPIApplicationCommandsJSONBody
 } from "discord.js";
@@ -49,6 +50,6 @@ export interface Command {
     category: string,
     options?: Option[],
     thinking: boolean,
-    type: ApplicationCommandType
-    async run(client: Client, interaction: CommandInteraction, options?: CommandInteractionOptionResolver): Promise<any>
+    type: ApplicationCommandType | 'PREFIX_IHORIZON_COMMAND',
+    async run(client: Client, interaction: CommandInteraction | Message, options?: CommandInteractionOptionResolver | string[]): Promise<any>
 }

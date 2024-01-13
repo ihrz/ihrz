@@ -32,6 +32,7 @@ declare module 'discord.js' {
     export interface Client {
         functions: clientFunction,
         commands: Collection<string, Command>,
+        message_commands: Collection<string, Command>,
         player: Player,
         invites: Collection,
         vanityInvites: Collection<Snowflake, VanityInviteData>,
