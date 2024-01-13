@@ -1204,7 +1204,7 @@ event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **kic
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> removed the ${removedRoles} role from ${oldMember.user.username}"
 event_srvLogs_guildMemberUpdate_2_description: "📥 <@${firstEntry.executor.id}> added the ${addedRoles} role to ${oldMember.user.username}"
 event_srvLogs_messageDelete_description: "**Message deleted in <#${message.channel.id}>**\n${message.content}"
-event_srvLogs_messageUpdate_description: "**Message edited in <#${oldMessage.channelId}>**"
+event_srvLogs_messageUpdate_description: "**Message edited** [in](xxx) **<#${oldMessage.channelId}>**"
 event_srvLogs_messageUpdate_footer_1: "Before"
 event_srvLogs_messageUpdate_footer_2: "After"
 event_srvLogs_voiceStateUpdate_description: "📤 <@${targetUser.id}> left the <#${OchannelID}> channel"

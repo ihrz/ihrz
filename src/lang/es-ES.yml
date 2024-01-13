@@ -1204,7 +1204,7 @@ event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **ha 
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> ha eliminado el rol ${removedRoles} de ${oldMember.user.username}"
 event_srvLogs_guildMemberUpdate_2_description: "📥 <@${firstEntry.executor.id}> ha añadido el rol ${addedRoles} a ${oldMember.user.username}"
 event_srvLogs_messageDelete_description: "**Mensaje eliminado en <#${message.channel.id}>**\n${message.content}"
-event_srvLogs_messageUpdate_description: "**Mensaje editado en <#${oldMessage.channelId}>**"
+event_srvLogs_messageUpdate_description: "**Mensaje editado** [en](xxx) **<#${oldMessage.channelId}>**"
 event_srvLogs_messageUpdate_footer_1: "Antes"
 event_srvLogs_messageUpdate_footer_2: "Después"
 event_srvLogs_voiceStateUpdate_description: "📤 <@${targetUser.id}> ha abandonado el canal <#${OchannelID}>"

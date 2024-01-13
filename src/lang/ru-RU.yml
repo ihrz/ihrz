@@ -1204,7 +1204,7 @@ event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **в�
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> снял роль ${removedRoles} с ${oldMember.user.username}"
 event_srvLogs_guildMemberUpdate_2_description: "📥 <@${firstEntry.executor.id}> добавил роль ${addedRoles} к ${oldMember.user.username}"
 event_srvLogs_messageDelete_description: "**Сообщение удалено в <#${message.channel.id}>**\n${message.content}"
-event_srvLogs_messageUpdate_description: "**Сообщение отредактировано в <#${oldMessage.channelId}>**"
+event_srvLogs_messageUpdate_description: "**Сообщение отредактировано** [в](xxx) **<#${oldMessage.channelId}>**"
 event_srvLogs_messageUpdate_footer_1: "До"
 event_srvLogs_messageUpdate_footer_2: "После"
 event_srvLogs_voiceStateUpdate_description: "📤 <@${targetUser.id}> покинул канал <#${OchannelID}>"

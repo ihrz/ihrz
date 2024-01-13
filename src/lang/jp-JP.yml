@@ -1204,7 +1204,7 @@ event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **が
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> **が${oldMember.user.username}から${removedRoles}役職を削除しました**"
 event_srvLogs_guildMemberUpdate_2_description: "📥 <@${firstEntry.executor.id}> **が${oldMember.user.username}に${addedRoles}役職を追加しました**"
 event_srvLogs_messageDelete_description: "**<#${message.channel.id}>でメッセージが削除されました**\n${message.content}"
-event_srvLogs_messageUpdate_description: "**<#${oldMessage.channelId}>でメッセージが編集されました**"
+event_srvLogs_messageUpdate_description: "**<#${oldMessage.channelId}>**[でメッセ](xxx)**ージが編集されました**"
 event_srvLogs_messageUpdate_footer_1: "編集前"
 event_srvLogs_messageUpdate_footer_2: "編集後"
 event_srvLogs_voiceStateUpdate_description: "📤 <@${targetUser.id}> **が<#${OchannelID}>チャンネルから退出しました**"
