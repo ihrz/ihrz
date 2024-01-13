@@ -30,6 +30,7 @@ import {
 import { Command } from '../../../../types/command';
 
 export const command: Command = {
+    
     name: 'banner',
 
     description: 'Pick the banner of specified things (Server/User)',

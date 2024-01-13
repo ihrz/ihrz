@@ -598,6 +598,12 @@ export interface LanguageData {
     backup_string_see_v: string;
     backup_all_of_your_backup: string;
     backup_string_see_another_v: string;
+    backup_really_want: string;
+    backup_confirm_button: string;
+    backup_cancel_button: string;
+    backup_embed_title_succefully_deleted: string;
+    backup_embed_title_cancel_deletion: string;
+    backup_embed_title_timesup_deletion: string;
     reactionroles_dont_admin_added: string;
     reactionroles_embed_message_description_added: string;
     reactionroles_missing_reaction_added: string;

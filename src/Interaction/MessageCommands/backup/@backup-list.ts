@@ -20,28 +20,53 @@
 */
 
 import {
+    ApplicationCommandOptionType,
+    ApplicationCommandType,
+    BaseGuildTextChannel,
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
+    GuildVoiceChannelResolvable,
+    Message,
+    PermissionsBitField,
 } from 'discord.js';
+
 import { LanguageData } from '../../../../types/languageData';
+import { Command } from '../../../../types/command';
 
-export = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        let backupID = interaction.options.getString('backup-id');
+import logger from '../../../core/logger';
+import backup from 'discord-backup';
 
-        if (backupID && !await client.db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {
-            await interaction.editReply({
+export const command: Command = {
+
+    name: "backup-list",
+
+    description: "List your backup(s)!",
+    description_localizations: {
+        "fr": "Listé toute vos backup(s)"
+    },
+
+    thinking: false,
+    category: 'backup',
+    type: "PREFIX_IHORIZON_COMMAND",
+    run: async (client: Client, interaction: Message, args: string[]) => {
+        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
+
+        let backupID = args[0];
+
+        if (backupID && !await client.db.get(`BACKUPS.${interaction.author.id}.${backupID}`)) {
+            await interaction.reply({
                 content: data.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
-        if (backupID) { 
-            let data = await client.db.get(`BACKUPS.${interaction.user.id}.${backupID}`);
+        if (backupID) {
+            let data = await client.db.get(`BACKUPS.${interaction.author.id}.${backupID}`);
 
             if (!data) {
-                await interaction.editReply({ content: data.backup_backup_doesnt_exist });
+                await interaction.reply({ content: data.backup_backup_doesnt_exist });
                 return;
             };
 
@@ -52,15 +77,15 @@ export = {
                     .replace('${data.channelCount}', data.channelCount))
             });
 
-            await interaction.editReply({ embeds: [em] });
+            await interaction.reply({ embeds: [em] });
             return;
         } else {
             let em = new EmbedBuilder().setDescription(data.backup_all_of_your_backup).setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9").setTimestamp();
-            let data2 = await client.db.get(`BACKUPS.${interaction.user.id}`);
+            let data2 = await client.db.get(`BACKUPS.${interaction.author.id}`);
             let b: number = 1;
 
             for (let i in data2) {
-                let result = await client.db.get(`BACKUPS.${interaction.user.id}.${i}`);
+                let result = await client.db.get(`BACKUPS.${interaction.author.id}.${i}`);
 
                 let v = (data.backup_string_see_another_v
                     .replace('${result.categoryCount}', result.categoryCount)
@@ -69,7 +94,7 @@ export = {
                 if (result) em.addFields({ name: `${result.guildName} - (||${i}||)`, value: v }) && b++;
             };
 
-            await interaction.editReply({ embeds: [em] });
+            await interaction.reply({ embeds: [em] });
             return;
         };
     },

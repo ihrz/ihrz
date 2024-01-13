@@ -841,6 +841,14 @@ backup_string_see_v: ":placard:・Nombre de catégories: `${data.categoryCount}`
 backup_all_of_your_backup: "**Toutes vos sauvegardes :**"
 backup_string_see_another_v: ":placard:・Nombre de catégories: `${result.categoryCount}`\n:hash:・Nombre de canaux: `${result.channelCount}`"
 
+# /backup delete
+backup_really_want: "${client.iHorizon_Emojis.icon.Warning_Icon} Voulez-vous vraiment supprimer cette sauvegarde ?"
+backup_confirm_button: "Oui, supprimer cette sauvegarde"
+backup_cancel_button: "Annuler l'action"
+backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.icon.Yes_Logo} La sauvegarde a été supprimée avec succès !"
+backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.icon.Yes_Logo} La sauvegarde a été conservée !"
+backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.icon.No_Logo} Le délai est écoulé. La sauvegarde a été conservée !"
+
 
 # Role Reactions
 # /reactionroles

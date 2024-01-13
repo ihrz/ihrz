@@ -26,7 +26,24 @@ export = async (client: Client, message: Message) => {
 
     let data = await client.functions.getLanguageData(message.guild.id);
 
+    async function MessageCommandExecutor(): Promise<boolean> {
+        if (!message.guild || message.author.bot) return false;
+
+        var prefix = `<@${client.user?.id}>`;
+
+        let args = message.content.slice(prefix.length).trim().split(/ +/g);
+        let command = client.message_commands.get(args.shift()?.toLowerCase() as string);
+
+        if (command) {
+            command?.run(client, message, args);
+            return true;
+        } else {
+            return false;
+        };
+    };
+
     async function xpFetcher() {
+        if (await MessageCommandExecutor()) return;
         if (!message.guild || message.author.bot || message.channel.type !== ChannelType.GuildText) return;
 
         var baseData = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING`);
@@ -99,19 +116,8 @@ export = async (client: Client, message: Message) => {
                         message.guild.members.kick(message.author).catch(() => { });
                         break;
                     case 'mute':
-                        let muterole = message.guild.roles.cache.find((role: { name: string; }) => role.name === 'muted');
-
-                        if (muterole) {
-                            await member?.roles.add(muterole.id).catch();
-                            setTimeout(async () => {
-                                if (!muterole?.id) return;
-
-                                if (member?.roles.cache.has(muterole.id)) {
-                                    member.roles.remove(muterole.id);
-                                }
-                                await client.db.set(`TEMP.${message.guildId}.PUNISH_DATA.${message.author.id}`, {});
-                            }, 40000);
-                        }
+                        await member?.timeout(40000, 'Timeout by PunishPUB')
+                        await client.db.set(`TEMP.${message.guildId}.PUNISH_DATA.${message.author.id}`, {});
                         break;
                 }
             };

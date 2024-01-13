@@ -31,6 +31,7 @@ import {
 import { Command } from '../../../../types/command';
 
 export const command: Command = {
+    
     name: 'emojis',
 
     description: 'Add emojis to your server easly',
