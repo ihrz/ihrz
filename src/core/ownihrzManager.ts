@@ -127,12 +127,10 @@ class OwnIHRZ {
                 let botPath = path.join(process.cwd(), 'ownihrz', result[i][c].code)
 
                 if (i !== 'TEMP') {
-                    if (fs.existsSync(path.join(botPath, 'dist'))) {
-                        execSync(`rm -r dist`, {
-                            stdio: [0, 1, 2],
-                            cwd: botPath,
-                        });
-                    };
+                    execSync(`rm -r dist`, {
+                        stdio: [0, 1, 2],
+                        cwd: botPath,
+                    });
                     execSync(`git pull`, {
                         stdio: [0, 1, 2],
                         cwd: botPath,
@@ -248,7 +246,10 @@ class OwnIHRZ {
 
         return 0;
     };
+}
+
+class OwnIHRZ_Cluster {
 
 }
 
-export default OwnIHRZ
+export { OwnIHRZ, OwnIHRZ_Cluster }

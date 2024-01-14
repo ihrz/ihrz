@@ -25,18 +25,21 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import * as apiUrlParser from '../../../core/functions/apiUrlParser';
+import { ClusterMethod, OwnIhrzCluster, PublishURL } from '../../../core/functions/apiUrlParser';
 import { LanguageData } from '../../../../types/languageData';
 
 import config from '../../../files/config';
 import axios, { AxiosResponse } from 'axios';
 import logger from '../../../core/logger';
+import path from 'path';
 
 export = {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
+        let cluster = interaction.options.getString("cluster");
         let id_1 = interaction.options.getString('id');
         let id_2 = await client.db.get(`OWNIHRZ.TEMP`);
+        let URL = '';
 
         for (let i in id_2) {
             for (let j in id_2[i]) {
@@ -93,14 +96,33 @@ export = {
 
             await interaction.reply({ embeds: [embed], ephemeral: false });
 
+            if (cluster) {
+                URL = OwnIhrzCluster(cluster as unknown as number, ClusterMethod.CreateContainer)
+            } else {
+                URL = PublishURL;
+            };
+
             try {
-                axios.post(apiUrlParser.PublishURL, id_2, { headers: { 'Accept': 'application/json' } })
-                    .then((response: AxiosResponse) => { })
+                axios.post(URL, id_2, { headers: { 'Accept': 'application/json' } })
+                    .then(async (response: AxiosResponse) => {
+                        if (cluster) {
+                            await client.db.set(`OWNIHRZ.CLUSTER.${cluster}.${id_2.owner_one}.${id_2.code}`,
+                                {
+                                    path: (path.resolve(process.cwd(), 'ownihrz', id_2.code)) as string,
+                                    port: 0,
+                                    auth: id_2.auth,
+                                    code: id_2.code,
+                                    expireIn: id_2.expireIn,
+                                    bot: id_2.bot
+                                }
+                            );
+                        }
+                    })
                     .catch(error => {
                         logger.err(error)
                     });
             } catch (error: any) {
-                logger.err(error)
+                return logger.err(error)
             };
 
             await client.db.delete(`OWNIHRZ.TEMP.${interaction.user.id}`);

@@ -26,7 +26,7 @@ import couleurmdr from 'colors';
 import config from "../files/config";
 import register from '../core/commandsSync';
 
-import OwnIHRZ from "../core/ownihrzManager";
+import { OwnIHRZ } from "../core/ownihrzManager";
 import date from 'date-and-time';
 
 export = async (client: Client) => {

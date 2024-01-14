@@ -28,8 +28,8 @@ import * as errorManager from './errorManager';
 import logger from "./logger";
 
 import { Client, Collection, Snowflake } from "discord.js";
+import { OwnIHRZ } from './ownihrzManager';
 import { Init } from './giveawaysManager';
-import OwnIHRZ from './ownihrzManager';
 import emojis from './emojisManager';
 
 import { VanityInviteData } from '../../types/vanityUrlData';

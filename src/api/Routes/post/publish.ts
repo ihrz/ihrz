@@ -19,8 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Custom_iHorizon } from '../../../../types/ownihrz';
-import OwnIHRZ from '../../../core/ownihrzManager';
+import { OwnIHRZ } from '../../../core/ownihrzManager';
 import config from '../../../files/config';
 
 import { Request, Response } from 'express';

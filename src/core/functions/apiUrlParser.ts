@@ -21,6 +21,13 @@
 
 import config from "../../files/config";
 
+export const ClusterMethod = {
+    CreateContainer: 0,
+    DeleteContainer: 1,
+    StartContainer: 2,
+    StopContainer: 3
+};
+
 export let LoginURL =
     config.api.useProxy ? config.api.proxyUrl :
         config.api.useHttps ? 'https://' : 'http://' +
@@ -65,3 +72,25 @@ export let PublishURL =
     config.api.useProxy ? config.api.proxyUrl + '/api/publish' :
         config.api.useHttps ? 'https://' : 'http://' +
             config.api.domain + ':' + config.api.port + '/api/publish';
+
+export function OwnIhrzCluster(cluster_number: number, cluster_method: number) {
+    var data = config.core.cluster[cluster_number as keyof typeof config.core.cluster];
+
+    data += "/api/instance/"
+    switch (cluster_method) {
+        case 0:
+            data += "create"
+            break;
+        case 1:
+            data += "delete"
+            break;
+        case 2:
+            data += "start"
+            break;
+        case 3:
+            data += "stop"
+            break;
+    }
+
+    return data;
+}

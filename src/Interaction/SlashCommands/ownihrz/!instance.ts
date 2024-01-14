@@ -30,7 +30,7 @@ import ms, { StringValue } from 'ms';
 import date from 'date-and-time';
 
 import { LanguageData } from '../../../../types/languageData';
-import OwnIHRZ from '../../../core/ownihrzManager';
+import { OwnIHRZ } from '../../../core/ownihrzManager';
 
 export = {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
