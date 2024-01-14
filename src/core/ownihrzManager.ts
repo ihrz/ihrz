@@ -112,6 +112,8 @@ class OwnIHRZ {
                 bot: data.Bot
             }
         );
+
+        return 0;
     };
 
     async Startup(client: Client) {
@@ -150,6 +152,8 @@ class OwnIHRZ {
                 };
             }
         }
+
+        return 0;
     };
 
 
@@ -175,6 +179,8 @@ class OwnIHRZ {
                 }
             }
         }
+
+        return 0;
     };
 
 
@@ -239,8 +245,10 @@ class OwnIHRZ {
                 };
             }
         };
+
+        return 0;
     };
-    
+
 }
 
 export default OwnIHRZ
