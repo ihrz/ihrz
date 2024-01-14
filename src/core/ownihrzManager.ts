@@ -19,12 +19,100 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client } from "discord.js";
+import { Custom_iHorizon } from "../../types/ownihrz";
 import { execSync } from 'child_process';
+import config from "../files/config";
+
+import db from "./functions/DatabaseModel";
+import { Client } from "discord.js";
 import path from "path";
 import fs from 'fs';
 
 class OwnIHRZ {
+
+    async Create(data: Custom_iHorizon) {
+        let port_range = 29268;
+
+        let cliArray = [
+            {
+                l: 'git clone --branch ownihrz --depth 1 https://github.com/ihrz/ihrz.git .',
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
+            },
+            {
+                l: 'mv src/files/config.example.ts src/files/config.ts',
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
+            },
+            {
+                l: `sed -i 's/|| "The bot token",/|| "${data.Auth}",/g' config.ts`,
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
+            },
+            {
+                l: `sed -i 's/"The discord User ID of the Owner number One",/"${data.OwnerOne}",/' config.ts`,
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
+            },
+            {
+                l: `sed -i 's/"The discord User ID of the Owner number Two",/"${data.OwnerTwo}",/' config.ts`,
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files'),
+            },
+            {
+                l: `sed -i 's/"login\.domain\.com"/"localhost"/' config.ts`,
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
+            },
+            {
+                l: `sed -i 's/"apiToken": "The API'"'"'s token for create a request (Need to be private for security reason)",/"apiToken": "${config.api.apiToken}",/' config.ts`,
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
+            },
+            {
+                l: `sed -i 's/"useProxy": false/"useProxy": true/' config.ts`,
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
+            },
+            {
+                l: `sed -i 's/"proxyUrl": "https:\\/\\/login\\.example\\.com"/"proxyUrl": "https:\\/\\/srv\\.ihorizon\\.me"/' config.ts`,
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
+            },
+            {
+                l: `sed -i 's/"The client ID of your application"/"${config.api.clientID}"/' config.ts`,
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
+            },
+            {
+                l: `sed -i 's/"3000"/"${port_range}"/' config.ts`,
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
+            },
+            {
+                l: `sed -i 's/"blacklistPictureInEmbed": "The image of the blacklist'\\''s Embed (When blacklisted user attempt to interact with the bot)",/"blacklistPictureInEmbed": "https:\\/\\/media.discordapp.net\\/attachments\\/1099043567659384942\\/1119214828330950706\\/image.png",/' config.ts`,
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
+            },
+            {
+                l: `cp -r ./node_modules/ ./ownihrz/${data.Code}/node_modules/`,
+                cwd: path.resolve(process.cwd())
+            },
+            {
+                l: 'npx tsc',
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
+            },
+            {
+                l: `mv dist/index.js dist/${data.Code}.js`,
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
+            },
+            {
+                l: `pm2 start ./dist/${data.Code}.js -f`,
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
+            }
+        ];
+
+        cliArray.forEach((index) => { execSync(index.l, { stdio: [0, 1, 2], cwd: index.cwd }); });
+
+        await db.set(`OWNIHRZ.${data.OwnerOne}.${data.Code}`,
+            {
+                path: (path.resolve(process.cwd(), 'ownihrz', data.Code)) as string,
+                port: port_range,
+                auth: data.Auth,
+                code: data.Code,
+                expireIn: data.ExpireIn,
+                bot: data.Bot
+            }
+        );
+    };
 
     async Startup(client: Client) {
         let result = await client.db.get("OWNIHRZ");
@@ -87,7 +175,72 @@ class OwnIHRZ {
                 }
             }
         }
-    }
+    };
+
+
+    async ShutDown(id_to_bot: string) {
+
+        execSync(`pm2 stop ${id_to_bot} -f`, {
+            stdio: [0, 1, 2],
+            cwd: process.cwd(),
+        });
+
+        execSync(`pm2 delete ${id_to_bot}`, {
+            stdio: [0, 1, 2],
+            cwd: process.cwd(),
+        });
+
+        return 0;
+    };
+
+
+    async PowerOn(id_to_bot: string) {
+
+        execSync(`pm2 start ./dist/${id_to_bot}.js -f`, {
+            stdio: [0, 1, 2],
+            cwd: path.join(process.cwd(), 'ownihrz', id_to_bot),
+        });
+
+        return 0;
+    };
+
+
+    async Delete(id_to_bot: string) {
+
+        execSync(`pm2 stop ${id_to_bot} -f`, {
+            stdio: [0, 1, 2],
+            cwd: process.cwd(),
+        });
+
+        execSync(`pm2 delete ${id_to_bot}`, {
+            stdio: [0, 1, 2],
+            cwd: process.cwd(),
+        });
+
+        execSync(`rm -rf *`, {
+            stdio: [0, 1, 2],
+            cwd: path.join(process.cwd(), 'ownihrz', id_to_bot),
+        });
+
+        return 0;
+    };
+
+    async QuitProgram() {
+        let result = await db.get('OWNIHRZ');
+
+        for (let i in result) {
+            for (let c in result[i]) {
+                if (i !== 'TEMP' && !result[i][c].power_off) {
+                    let botPath = path.join(process.cwd(), 'ownihrz', result[i][c].code)
+                    execSync(`pm2 stop ${result[i][c]?.code}`, {
+                        stdio: [0, 1, 2],
+                        cwd: botPath,
+                    });
+                };
+            }
+        };
+    };
+    
 }
 
 export default OwnIHRZ

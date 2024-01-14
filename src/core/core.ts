@@ -29,13 +29,12 @@ import logger from "./logger";
 
 import { Client, Collection, Snowflake } from "discord.js";
 import { Init } from './giveawaysManager';
-import { execSync } from 'child_process';
+import OwnIHRZ from './ownihrzManager';
+import emojis from './emojisManager';
 
 import { VanityInviteData } from '../../types/vanityUrlData';
 import { readdirSync } from "fs";
 import couleurmdr from "colors";
-import path from 'path';
-import emojis from './emojisManager';
 
 export = (client: Client) => {
     logger.legacy(couleurmdr.gray("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz)."));
@@ -44,20 +43,7 @@ export = (client: Client) => {
 
     process.on('SIGINT', async () => {
         client.destroy();
-        let result = await db.get('OWNIHRZ');
-
-        for (let i in result) {
-            for (let c in result[i]) {
-                if (i !== 'TEMP' && !result[i][c].power_off) {
-                    let botPath = path.join(process.cwd(), 'ownihrz', result[i][c].code)
-                    execSync(`pm2 stop ${result[i][c]?.code}`, {
-                        stdio: [0, 1, 2],
-                        cwd: botPath,
-                    });
-                };
-            }
-        };
-
+        await new OwnIHRZ().QuitProgram();
         process.exit();
     });
 

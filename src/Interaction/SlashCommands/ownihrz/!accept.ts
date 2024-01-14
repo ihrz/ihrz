@@ -29,7 +29,6 @@ import * as apiUrlParser from '../../../core/functions/apiUrlParser';
 import { LanguageData } from '../../../../types/languageData';
 
 import config from '../../../files/config';
-import CryptoJS, { enc } from 'crypto-js';
 import axios, { AxiosResponse } from 'axios';
 import logger from '../../../core/logger';
 
@@ -95,9 +94,7 @@ export = {
             await interaction.reply({ embeds: [embed], ephemeral: false });
 
             try {
-                let encrypted = CryptoJS.AES.encrypt(JSON.stringify(id_2), config.api.apiToken).toString();
-
-                axios.post(apiUrlParser.PublishURL, { cryptedJSON: encrypted }, { headers: { 'Accept': 'application/json' } })
+                axios.post(apiUrlParser.PublishURL, id_2, { headers: { 'Accept': 'application/json' } })
                     .then((response: AxiosResponse) => { })
                     .catch(error => {
                         logger.err(error)

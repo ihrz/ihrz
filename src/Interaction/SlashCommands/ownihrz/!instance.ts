@@ -25,12 +25,12 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-
-import { execSync } from 'child_process';
 import config from '../../../files/config';
-import date from 'date-and-time';
 import ms, { StringValue } from 'ms';
+import date from 'date-and-time';
+
 import { LanguageData } from '../../../../types/languageData';
+import OwnIHRZ from '../../../core/ownihrzManager';
 
 export = {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -64,19 +64,11 @@ export = {
 
                         await client.db.set(`OWNIHRZ.${userId}.${id_to_bot}.power_off`, true);
 
-                        await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now shutdown.\nNow, the bot container can't be Power On when iHorizon-Prod booting...`, ephemeral: true });
-
-                        execSync(`pm2 stop ${id_to_bot} -f`, {
-                            stdio: [0, 1, 2],
-                            cwd: process.cwd(),
+                        await interaction.reply({
+                            content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now shutdown.\nNow, the bot container can't be Power On when iHorizon-Prod booting...`,
+                            ephemeral: true
                         });
-
-                        execSync(`pm2 delete ${id_to_bot}`, {
-                            stdio: [0, 1, 2],
-                            cwd: process.cwd(),
-                        });
-
-                        return;
+                        return new OwnIHRZ().ShutDown(id_to_bot);
                     }
                 }
             }
@@ -101,13 +93,7 @@ export = {
                         await client.db.set(`OWNIHRZ.${userId}.${id_to_bot}.power_off`, false);
 
                         await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now Power On.\nNow, the bot container can be Power On when iHorizon-Prod booting...`, ephemeral: true });
-
-                        execSync(`pm2 start ./dist/${id_to_bot}.js -f`, {
-                            stdio: [0, 1, 2],
-                            cwd: data_2[userId][botId].path,
-                        });
-
-                        return;
+                        return new OwnIHRZ().PowerOn(id_to_bot);
                     }
                 }
             };
@@ -118,24 +104,11 @@ export = {
                     if (botId === id_to_bot) {
                         await client.db.delete(`OWNIHRZ.${userId}.${id_to_bot}`);
 
-                        await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now deleted.\nThe bot container has been entierly erased...`, ephemeral: true });
-
-                        execSync(`pm2 stop ${id_to_bot} -f`, {
-                            stdio: [0, 1, 2],
-                            cwd: process.cwd(),
+                        await interaction.reply({
+                            content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now deleted.\nThe bot container has been entierly erased...`,
+                            ephemeral: true
                         });
-
-                        execSync(`pm2 delete ${id_to_bot}`, {
-                            stdio: [0, 1, 2],
-                            cwd: process.cwd(),
-                        });
-
-                        execSync(`rm -rf *`, {
-                            stdio: [0, 1, 2],
-                            cwd: data_2[userId][botId].path,
-                        });
-
-                        return;
+                        return new OwnIHRZ().Delete(id_to_bot);
                     }
                 }
             };
@@ -183,8 +156,10 @@ export = {
                             await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`)
                         ), 'ddd, MMM DD YYYY');
 
-                        await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`, ephemeral: true });
-
+                        await interaction.reply({
+                            content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`,
+                            ephemeral: true
+                        });
                         return;
                     };
                 }
