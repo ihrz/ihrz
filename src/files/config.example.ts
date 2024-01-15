@@ -31,9 +31,6 @@ export default {
 
     core: {
 
-        "debug": true,
-        // Debug information about the slash command when he create/remove/update
-
         "devMode": true,
         // true => log's ERROR are been in the console OR false => In the .err_logs folder.
 

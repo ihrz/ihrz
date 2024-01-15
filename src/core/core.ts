@@ -37,7 +37,6 @@ import { readdirSync } from "fs";
 import couleurmdr from "colors";
 import commandsSync from './commandsSync.js';
 import config from '../files/config.js';
-import wait from 'wait';
 
 export default async (client: Client) => {
     logger.legacy(couleurmdr.gray("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz)."));
@@ -63,25 +62,25 @@ export default async (client: Client) => {
 
     let handlerPath = `${process.cwd()}/dist/src/core/handlers`;
     let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
-
+    
     for (const file of handlerFiles) {
-        const module = await import(`${handlerPath}/${file}`);
-        if (module.default && typeof module.default === 'function') {
-            await module.default(client);
+        const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
+        if (handlerFunction && typeof handlerFunction === 'function') {
+            await handlerFunction(client);
         }
     }
 
     bash(client);
-    commandsSync(client);
     Init(client);
     playerManager(client);
     emojis(client);
     errorManager.uncaughtExceptionHandler();
 
-    await wait(1000);
-    logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  "));
-    logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ "));
-    logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |"));
-    logger.log(couleurmdr.magenta("|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_|" + ` (${client.user?.tag}).`));
-    logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`));
+    commandsSync(client).then(() => {
+        logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  "));
+        logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ "));
+        logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |"));
+        logger.log(couleurmdr.magenta("|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_|" + ` (${client.user?.tag}).`));
+        logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`));    
+    });
 };
