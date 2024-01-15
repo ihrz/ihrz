@@ -21,16 +21,13 @@
 
 import { Collection, REST, Routes, ApplicationCommandType, Client, ApplicationCommand, User } from "discord.js";
 
-import { AnotherCommand } from "../../types/anotherCommand";
-import { Command } from '../../types/command';
-
-import config from "../files/config";
+import config from "../files/config.js";
 import couleurmdr from 'colors';
-import logger from "./logger";
+import logger from "./logger.js";
 
-export = async (client: Client) => {
+export default async (client: Client) => {
 
-    let rest = new REST().setToken(client.token as string);
+    let rest = new REST().setToken(config.discord.token as string);
 
     try {
         logger.log(couleurmdr.white(`${config.console.emojis.LOAD} >> Currently ${client.commands?.size || 0} of application (/) commands awaiting for refreshing.`));

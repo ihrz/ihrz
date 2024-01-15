@@ -27,7 +27,7 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let baseData = await client.db.get(`${interaction.guild?.id}.ALLOWLIST`);

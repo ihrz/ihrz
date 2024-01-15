@@ -21,12 +21,11 @@
 
 import { Custom_iHorizon } from "../../types/ownihrz";
 import { execSync } from 'child_process';
-import config from "../files/config";
+import config from "../files/config.js";
 
-import db from "./functions/DatabaseModel";
+import db from "./functions/DatabaseModel.js";
 import { Client } from "discord.js";
 import path from "path";
-import fs from 'fs';
 
 class OwnIHRZ {
 
@@ -102,7 +101,7 @@ class OwnIHRZ {
 
         cliArray.forEach((index) => { execSync(index.l, { stdio: [0, 1, 2], cwd: index.cwd }); });
 
-        await db.set(`OWNIHRZ.${data.OwnerOne}.${data.Code}`,
+        await (await db).set(`OWNIHRZ.${data.OwnerOne}.${data.Code}`,
             {
                 path: (path.resolve(process.cwd(), 'ownihrz', data.Code)) as string,
                 port: port_range,
@@ -159,6 +158,7 @@ class OwnIHRZ {
         let result = await client.db.get("OWNIHRZ");
         let now = new Date().getTime();
 
+        // console.log(result)
         for (let i in result) {
             for (let c in result[i]) {
                 if (!result[i][c].code || result[i][c].expired) break;
@@ -230,12 +230,13 @@ class OwnIHRZ {
     };
 
     async QuitProgram() {
-        let result = await db.get('OWNIHRZ');
+        let result = await (await db).get('OWNIHRZ');
 
         for (let i in result) {
             for (let c in result[i]) {
                 if (i !== 'TEMP' && !result[i][c].power_off) {
-                    let botPath = path.join(process.cwd(), 'ownihrz', result[i][c].code)
+                    let botPath = path.join(process.cwd(), 'ownihrz', result[i][c].code);
+
                     execSync(`pm2 stop ${result[i][c]?.code}`, {
                         stdio: [0, 1, 2],
                         cwd: botPath,

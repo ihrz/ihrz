@@ -28,17 +28,19 @@ import {
 import { ClusterMethod, OwnIhrzCluster, PublishURL } from '../../../core/functions/apiUrlParser';
 import { LanguageData } from '../../../../types/languageData';
 
-import config from '../../../files/config';
+import config from '../../../files/config.js';
 import axios, { AxiosResponse } from 'axios';
-import logger from '../../../core/logger';
+import logger from '../../../core/logger.js';
 import path from 'path';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let cluster = interaction.options.getString("cluster");
         let id_1 = interaction.options.getString('id');
-        let id_2 = await client.db.get(`OWNIHRZ.TEMP`);
+
+        var table_1 = client.db.table("TEMP");
+        let id_2 = await table_1.get(`OWNIHRZ`);
         let URL = '';
 
         for (let i in id_2) {
@@ -106,7 +108,9 @@ export = {
                 axios.post(URL, id_2, { headers: { 'Accept': 'application/json' } })
                     .then(async (response: AxiosResponse) => {
                         if (cluster) {
-                            await client.db.set(`OWNIHRZ.CLUSTER.${cluster}.${id_2.owner_one}.${id_2.code}`,
+                            var table_1 = client.db.table("CLUSTER");
+
+                            await table_1.set(`CL${cluster}.${id_2.owner_one}.${id_2.code}`,
                                 {
                                     path: (path.resolve(process.cwd(), 'ownihrz', id_2.code)) as string,
                                     port: 0,
@@ -125,7 +129,8 @@ export = {
                 return logger.err(error)
             };
 
-            await client.db.delete(`OWNIHRZ.TEMP.${interaction.user.id}`);
+            var table_1 = client.db.table("TEMP");
+            await table_1.delete(`OWNIHRZ.${interaction.user.id}`);
             return;
         };
     },

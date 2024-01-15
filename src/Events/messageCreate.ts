@@ -21,7 +21,7 @@
 
 import { Client, Collection, EmbedBuilder, PermissionsBitField, ChannelType, Message, Role, GuildTextBasedChannel, ClientUser } from 'discord.js';
 
-export = async (client: Client, message: Message) => {
+export default async (client: Client, message: Message) => {
     if (!message.guild || message.author.bot || !message.channel) return;
 
     let data = await client.functions.getLanguageData(message.guild.id);

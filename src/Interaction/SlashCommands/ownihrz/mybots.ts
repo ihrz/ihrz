@@ -27,7 +27,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
-import config from '../../../files/config';
+import config from '../../../files/config.js';
 
 export const command: Command = {
     name: "mybots",
@@ -233,6 +233,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
         let command = interaction.options.getSubcommand();
 
-        await require('./!' + command).run(client, interaction, data);
+        const commandModule = await import(`./!${command}.js`);
+        await commandModule.default.run(client, interaction, data);
     },
 };

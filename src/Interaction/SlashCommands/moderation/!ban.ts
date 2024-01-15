@@ -28,10 +28,10 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import logger from '../../../core/logger';
+import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let member = interaction.guild?.members.cache.get(interaction.options.getUser("member")?.id as string);
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.BanMembers);

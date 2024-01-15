@@ -27,7 +27,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let talkedRecentlyforw = new Set();
 

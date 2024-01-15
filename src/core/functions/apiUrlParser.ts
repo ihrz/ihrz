@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import config from "../../files/config";
+import config from "../../files/config.js";
 
 export const ClusterMethod = {
     CreateContainer: 0,
@@ -93,4 +93,4 @@ export function OwnIhrzCluster(cluster_number: number, cluster_method: number) {
     }
 
     return data;
-}
+};

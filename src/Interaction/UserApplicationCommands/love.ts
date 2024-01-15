@@ -24,8 +24,8 @@ import { AnotherCommand } from '../../../types/anotherCommand';
 
 import Jimp from 'jimp';
 
-import config from '../../files/config';
-import logger from '../../core/logger';
+import config from '../../files/config.js';
+import logger from '../../core/logger.js';
 
 export const command: AnotherCommand = {
     name: "Estimate the love",

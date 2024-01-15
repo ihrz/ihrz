@@ -30,7 +30,7 @@ import {
 import { QueryType } from 'discord-player';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let voiceChannel = (interaction.member as GuildMember)?.voice.channel;

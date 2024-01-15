@@ -20,9 +20,9 @@
 */
 
 import { BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
-import logger from "../../logger";
+import logger from "../../logger.js";
 
-export = function (client: Client, args: string) {
+export default function (client: Client, args: string) {
     let args2 = args.split(" ");
     let embed = new EmbedBuilder()
         .setColor('#4dff00')

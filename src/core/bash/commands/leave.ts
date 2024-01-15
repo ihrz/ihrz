@@ -20,9 +20,9 @@
 */
 
 import { Client } from "discord.js";
-import logger from "../../logger";
+import logger from "../../logger.js";
 
-export = function (client: Client, args: string) {
+export default function (client: Client, args: string) {
     if (!args) {
         return logger.legacy(`[*] I have not received the Guild's ID on the command.`.gray.bgBlack);
     };

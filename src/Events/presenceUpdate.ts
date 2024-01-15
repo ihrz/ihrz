@@ -21,7 +21,7 @@
 
 import { Client, Collection, EmbedBuilder, Guild, GuildApplicationCommandManager, GuildMember, PermissionsBitField, Presence, PresenceManager, Role, RoleManager, User, UserManager } from 'discord.js';
 
-export = async (client: Client, oldPresence: Presence, newPresence: Presence) => {
+export default async (client: Client, oldPresence: Presence, newPresence: Presence) => {
 
     async function supportModule() {
         if (!newPresence.guild?.members.me?.permissions.has([PermissionsBitField.Flags.ManageRoles])) return;

@@ -32,13 +32,13 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import * as apiUrlParser from '../../../core/functions/apiUrlParser';
+import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
 import DiscordOauth2 from 'discord-oauth2';
-import config from '../../../files/config';
-import logger from '../../../core/logger';
+import config from '../../../files/config.js';
+import logger from '../../../core/logger.js';
 import moment from 'moment';
 import axios from 'axios';
 

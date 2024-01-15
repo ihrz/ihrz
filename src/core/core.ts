@@ -19,24 +19,27 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import * as checkSys from './functions/checkSys';
-import playerManager from "./playerManager";
-import db from './functions/DatabaseModel';
-import bash from './bash/bash';
+import * as checkSys from './functions/checkSys.js';
+import playerManager from "./playerManager.js";
+import db from './functions/DatabaseModel.js';
+import bash from './bash/bash.js';
 
-import * as errorManager from './errorManager';
-import logger from "./logger";
+import * as errorManager from './errorManager.js';
+import logger from "./logger.js";
 
 import { Client, Collection, Snowflake } from "discord.js";
-import { OwnIHRZ } from './ownihrzManager';
-import { Init } from './giveawaysManager';
-import emojis from './emojisManager';
+import { OwnIHRZ } from './ownihrzManager.js';
+import { Init } from './giveawaysManager.js';
+import emojis from './emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData';
 import { readdirSync } from "fs";
 import couleurmdr from "colors";
+import commandsSync from './commandsSync.js';
+import config from '../files/config.js';
+import wait from 'wait';
 
-export = (client: Client) => {
+export default async (client: Client) => {
     logger.legacy(couleurmdr.gray("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz)."));
     logger.legacy(couleurmdr.gray("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0."));
     logger.legacy(couleurmdr.gray("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0"));
@@ -49,18 +52,36 @@ export = (client: Client) => {
 
     checkSys.Html();
 
-    client.db = db;
+    // var table_1 = (await db).table("BOT");
+    // await table_1.set(`CONTENT`, {});
+
+    await import('../api/server.js');
+
+    client.db = (await db);
     client.invites = new Collection();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 
-    readdirSync(`${process.cwd()}/dist/src/core/handlers`).filter(file => file.endsWith('.js')).forEach(file => {
-        require(`${process.cwd()}/dist/src/core/handlers/${file}`)(client);
-    });
+    let handlerPath = `${process.cwd()}/dist/src/core/handlers`;
+    let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
 
-    require('../api/server');
+    for (const file of handlerFiles) {
+        const module = await import(`${handlerPath}/${file}`);
+        if (module.default && typeof module.default === 'function') {
+            await module.default(client);
+        }
+    }
+
     bash(client);
+    commandsSync(client);
     Init(client);
     playerManager(client);
     emojis(client);
     errorManager.uncaughtExceptionHandler();
+
+    await wait(1000);
+    logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  "));
+    logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ "));
+    logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |"));
+    logger.log(couleurmdr.magenta("|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_|" + ` (${client.user?.tag}).`));
+    logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`));
 };

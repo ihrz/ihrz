@@ -48,7 +48,9 @@ export const command: Command = {
     type: 'PREFIX_IHORIZON_COMMAND',
     run: async (client: Client, interaction: Message) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
-        let CONTENT = await client.db.get("BOT.CONTENT");
+
+        var table_1 = client.db.table("BOT");
+        let CONTENT = await table_1.get("CONTENT");
 
         let categories = [
             { name: data.help_backup_fields, value: CONTENT.backup, inline: true, description: data.help_backup_dsc, emoji: "🔁" },

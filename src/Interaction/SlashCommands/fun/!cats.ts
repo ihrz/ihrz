@@ -28,7 +28,7 @@ import {
 import axios from 'axios';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         
         axios.get('http://edgecats.net/random').then(async res => {

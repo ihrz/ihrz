@@ -21,7 +21,7 @@
 
 import { Client, MessageReaction, User } from 'discord.js';
 
-export = async (client: Client, reaction: MessageReaction, user: User) => {
+export default async (client: Client, reaction: MessageReaction, user: User) => {
 
     async function reactionRole() {
         try {

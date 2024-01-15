@@ -22,8 +22,8 @@
 import fs from 'fs';
 import couleurmdr from 'colors';
 import axios from 'axios';
-import config from '../../files/config';
-import logger from '../logger';
+import config from '../../files/config.js';
+import logger from '../logger.js';
 
 let INDEX_HTML_LINK: string = 'https://raw.githubusercontent.com/ihrz/ihrz/main/src/api/index.example.html';
 

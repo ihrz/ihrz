@@ -21,26 +21,28 @@
 
 import { QuickDB } from 'quick.db';
 import { MongoDriver } from 'quickmongo';
-import config from '../files/config';
-import logger from './logger';
+import config from '../files/config.js';
+import logger from './logger.js';
 import couleurmdr from 'colors';
-import * as proc from './errorManager';
+import * as proc from './errorManager.js';
 
-let db;
+let dbPromise: Promise<QuickDB>;
 
-let f = new Promise<QuickDB>(async (resolve, reject) => {
-    if (config.database.useSqlite) {
-        db = new QuickDB({ filePath: `${process.cwd()}/src/files/db.sqlite` });
+if (config.database.useSqlite) {
+    dbPromise = new Promise<QuickDB>((resolve, reject) => {
+        const db = new QuickDB({ filePath: `${process.cwd()}/src/files/db.sqlite` });
         logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Connected to the database (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`));
-        resolve(db as QuickDB);
-    } else {
+        resolve(db);
+    });
+} else {
+    dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
         let driver = new MongoDriver(config.database.mongoDb);
 
         try {
             await driver.connect();
             logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Connected to the database (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`));
-            db = new QuickDB({ driver });
-            resolve(db as QuickDB);
+            const db = new QuickDB({ driver });
+            resolve(db);
             proc.exit(driver);
         } catch (error) {
             logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> ${(error as string).split("\n")[0]}`));
@@ -52,7 +54,7 @@ let f = new Promise<QuickDB>(async (resolve, reject) => {
 
             process.exit();
         }
-    }
-});
+    });
+}
 
-export default f;
+export default dbPromise;

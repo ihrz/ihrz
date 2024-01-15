@@ -19,33 +19,33 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { AnotherCommand } from "../../../types/anotherCommand";
-import { Client, Collection } from "discord.js";
-import { readdirSync } from "fs";
+import { AnotherCommand } from '../../../types/anotherCommand';
+import { Client, Collection } from 'discord.js';
+import { readdirSync } from 'fs';
 
-export = async (client: Client) => {
-
+export default async (client: Client) => {
     client.applicationsCommands = new Collection<string, AnotherCommand>();
 
-    readdirSync(`${process.cwd()}/dist/src/Interaction/MessageApplicationCommands`).filter(file => file.endsWith(".js")).forEach(file => {
-        let cmd = require(`${process.cwd()}/dist/src/Interaction/MessageApplicationCommands/${file}`).command;
+    const loadCommands = async (commandType: string) => {
+        const commandPath = `${process.cwd()}/dist/src/Interaction/${commandType}ApplicationCommands`;
 
-        client.applicationsCommands.set(cmd.name, {
-            type: cmd.type,
-            run: cmd.run,
-            name: cmd.name,
-            thinking: cmd.thinking
-        });
-    });
+        const files = await readdirSync(commandPath);
 
-    readdirSync(`${process.cwd()}/dist/src/Interaction/UserApplicationCommands`).filter(file => file.endsWith(".js")).forEach(file => {
-        let cmd = require(`${process.cwd()}/dist/src/Interaction/UserApplicationCommands/${file}`).command;
+        for (const file of files.filter((file: string) => file.endsWith('.js'))) {
+            const { command } = await import(`${commandPath}/${file}`);
 
-        client.applicationsCommands.set(cmd.name, {
-            type: cmd.type,
-            run: cmd.run,
-            name: cmd.name,
-            thinking: cmd.thinking
-        });
-    });
+            client.applicationsCommands.set(command.name, {
+                type: command.type,
+                run: command.run,
+                name: command.name,
+                thinking: command.thinking,
+            });
+        }
+    };
+
+    // Load MessageApplicationCommands
+    await loadCommands('Message');
+
+    // Load UserApplicationCommands
+    await loadCommands('User');
 };

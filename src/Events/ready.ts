@@ -20,25 +20,15 @@
 */
 
 import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature } from 'discord.js';
-import { Init } from "../core/pfpsManager";
-import logger from "../core/logger";
+import { Init } from "../core/pfpsManager.js";
+import logger from "../core/logger.js";
 import couleurmdr from 'colors';
-import config from "../files/config";
-import register from '../core/commandsSync';
+import config from "../files/config.js";
 
-import { OwnIHRZ } from "../core/ownihrzManager";
+import { OwnIHRZ } from "../core/ownihrzManager.js";
 import date from 'date-and-time';
 
-export = async (client: Client) => {
-    await register(client);
-
-    async function term() {
-        logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  "));
-        logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ "));
-        logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |"));
-        logger.log(couleurmdr.magenta("|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_|" + ` (${client.user?.tag}).`));
-        logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`));
-    };
+export default async (client: Client) => {
 
     async function fetchInvites() {
         client.guilds.cache.forEach(async (guild) => {
@@ -129,11 +119,11 @@ export = async (client: Client) => {
 
     setInterval(() => {
         iHorizon_Container.Refresh(client);
-    }, 86400000);
+    }, 3000/*86400000*/);
 
     setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000);
 
-    fetchInvites(), refreshDatabaseModel(), term(), quotesPresence(), refreshSchedule();
+    fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule();
 
     Init(client);
 };

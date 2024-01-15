@@ -46,4 +46,4 @@ function isLinkAllowed(link: string): boolean {
     return false;
 };
 
-export = isLinkAllowed;
+export default isLinkAllowed;

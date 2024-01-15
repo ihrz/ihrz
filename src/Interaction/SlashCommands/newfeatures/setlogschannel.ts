@@ -30,7 +30,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
-import logger from '../../../core/logger';
+import logger from '../../../core/logger.js';
 
 export const command: Command = {
     name: 'setlogschannel',

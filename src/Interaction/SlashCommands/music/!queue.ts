@@ -28,7 +28,7 @@ import {
 import { useQueue } from 'discord-player';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let queue = useQueue(interaction.guildId as string);

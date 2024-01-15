@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import dbPromise from '../database';
+import dbPromise from '../database.js';
 
-export default await dbPromise;
+const db = await dbPromise;
+
+export default db;

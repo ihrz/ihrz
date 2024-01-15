@@ -19,14 +19,14 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { OwnIHRZ } from '../../../core/ownihrzManager';
-import config from '../../../files/config';
+import { OwnIHRZ } from '../../../core/ownihrzManager.js';
+import config from '../../../files/config.js';
 
 import { Request, Response } from 'express';
 import wait from 'wait';
 import fs from 'fs';
 
-export = {
+export default {
     type: 'post',
     apiPath: '/api/publish',
     run: async (req: Request, res: Response) => {

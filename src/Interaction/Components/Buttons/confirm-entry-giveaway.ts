@@ -19,10 +19,10 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { AddEntries } from '../../../core/giveawaysManager';
+import { AddEntries } from '../../../core/giveawaysManager.js';
 import { ButtonInteraction, CacheType } from 'discord.js';
 
-export = async function (interaction: ButtonInteraction<CacheType>) {
+export default async function (interaction: ButtonInteraction<CacheType>) {
     if (!await interaction.client.db.get(
         `GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}`
     )) return;

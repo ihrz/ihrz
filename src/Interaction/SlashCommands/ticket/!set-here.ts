@@ -29,7 +29,7 @@ import {
 import { CreatePanel } from '../../../core/ticketsManager';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let panelName = interaction.options.getString("name");

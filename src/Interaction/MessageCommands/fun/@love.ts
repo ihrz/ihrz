@@ -30,13 +30,12 @@ import {
     Message,
 } from 'discord.js';
 
-import { QueryType } from 'discord-player';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
 import Jimp from 'jimp';
-import logger from '../../../core/logger';
-import config from '../../../files/config';
+import logger from '../../../core/logger.js';
+import config from '../../../files/config.js';
 
 export const command: Command = {
 

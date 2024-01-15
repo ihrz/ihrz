@@ -24,12 +24,12 @@ import { SpotifyExtractor, SoundCloudExtractor } from '@discord-player/extractor
 import DeezerExtractor from "discord-player-deezer"
 
 import { Client, time } from 'discord.js';
-import logger from './logger';
+import logger from './logger.js';
 
 import { MetadataPlayer } from '../../types/metadaPlayer';
-import db from './functions/DatabaseModel';
+import db from './functions/DatabaseModel.js';
 
-export = async (client: Client) => {
+export default async (client: Client) => {
 
     let player = new Player(client, {
         ytdlOptions: {
@@ -62,8 +62,8 @@ export = async (client: Client) => {
         let buffer = `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}: PLAYED]: { ${track.author} - ${track.title} | ${track.url} } by ${(queue.metadata as MetadataPlayer).requestedBy}`
         let embed = `${time((new Date(), data.duration), 'R')}: ${track.author} - ${track.title} | ${track.url} by ${(queue.metadata as MetadataPlayer).requestedBy}`
 
-        await db.push(`${queue.guild.id}.MUSIC_HISTORY.buffer`, buffer);
-        await db.push(`${queue.guild.id}.MUSIC_HISTORY.embed`, embed);
+        await (await db).push(`${queue.guild.id}.MUSIC_HISTORY.buffer`, buffer);
+        await (await db).push(`${queue.guild.id}.MUSIC_HISTORY.embed`, embed);
 
         (queue.metadata as MetadataPlayer).channel.send({
             content: data.event_mp_audioTrackAdd

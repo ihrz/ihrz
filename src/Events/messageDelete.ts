@@ -20,11 +20,11 @@
 */
 
 import { Attachment, AttachmentBuilder, AttachmentData, BaseGuildTextChannel, Client, Collection, EmbedBuilder, GuildTextBasedChannel, Message, PermissionsBitField } from 'discord.js';
-import * as hidden from '../core/functions/maskLink';
+import * as hidden from '../core/functions/maskLink.js';
 
 import axios, { AxiosResponse } from 'axios';
 
-export = async (client: Client, message: Message) => {
+export default async (client: Client, message: Message) => {
     let data = await client.functions.getLanguageData(message.guild?.id);
 
     async function snipeModules() {

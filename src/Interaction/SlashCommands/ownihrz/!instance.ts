@@ -25,14 +25,14 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import config from '../../../files/config';
+import config from '../../../files/config.js';
 import ms, { StringValue } from 'ms';
 import date from 'date-and-time';
 
 import { LanguageData } from '../../../../types/languageData';
 import { OwnIHRZ } from '../../../core/ownihrzManager';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let action_to_do = interaction.options.getString('action');

@@ -29,7 +29,7 @@ import axios from 'axios';
 import ms from 'ms';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let discord_bot_token = interaction.options.getString('discord_bot_token');
@@ -51,7 +51,8 @@ export = {
         } else {
             var code = Math.random().toString(36).slice(-10);
 
-            await client.db.set(`OWNIHRZ.TEMP.${interaction.user.id}.${code}`,
+            var table_1 = client.db.table("TEMP");
+            await table_1.set(`OWNIHRZ.${interaction.user.id}.${code}`,
                 {
                     auth: discord_bot_token,
                     owner_one: owner_one.id,

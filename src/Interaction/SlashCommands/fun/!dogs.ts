@@ -25,11 +25,11 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import logger from '../../../core/logger';
+import logger from '../../../core/logger.js';
 import axios from 'axios'
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         axios.get('https://dog.ceo/api/breeds/image/random')

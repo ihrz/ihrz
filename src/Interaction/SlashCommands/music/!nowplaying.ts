@@ -36,7 +36,7 @@ import { MetadataPlayer } from '../../../../types/metadaPlayer';
 let lyricsFinder = lyricsExtractor();
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let pause = new ButtonBuilder()

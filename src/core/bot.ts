@@ -20,31 +20,31 @@
 */
 
 import { Client, Partials, GatewayIntentBits } from "discord.js";
-import config from "../files/config";
+import config from "../files/config.js";
 
 let client = new Client({
     intents: [
-            GatewayIntentBits.AutoModerationConfiguration, 
-            GatewayIntentBits.AutoModerationExecution, 
-            GatewayIntentBits.DirectMessageReactions,
-            GatewayIntentBits.DirectMessages,
-            GatewayIntentBits.DirectMessageTyping,
-            GatewayIntentBits.GuildBans,
-            GatewayIntentBits.GuildEmojisAndStickers, 
-            GatewayIntentBits.GuildIntegrations, 
-            GatewayIntentBits.GuildInvites, 
-            GatewayIntentBits.GuildMembers, 
-            GatewayIntentBits.GuildMessageReactions, 
-            GatewayIntentBits.GuildMessages, 
-            GatewayIntentBits.GuildMessageTyping, 
-            GatewayIntentBits.GuildModeration, 
-            GatewayIntentBits.GuildPresences, 
-            GatewayIntentBits.GuildScheduledEvents, 
-            GatewayIntentBits.Guilds,
-            GatewayIntentBits.GuildVoiceStates,
-            GatewayIntentBits.GuildWebhooks,
-            GatewayIntentBits.MessageContent
-    ], 
+        GatewayIntentBits.AutoModerationConfiguration,
+        GatewayIntentBits.AutoModerationExecution,
+        GatewayIntentBits.DirectMessageReactions,
+        GatewayIntentBits.DirectMessages,
+        GatewayIntentBits.DirectMessageTyping,
+        GatewayIntentBits.GuildBans,
+        GatewayIntentBits.GuildEmojisAndStickers,
+        GatewayIntentBits.GuildIntegrations,
+        GatewayIntentBits.GuildInvites,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMessageTyping,
+        GatewayIntentBits.GuildModeration,
+        GatewayIntentBits.GuildPresences,
+        GatewayIntentBits.GuildScheduledEvents,
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildWebhooks,
+        GatewayIntentBits.MessageContent
+    ],
     partials: [
         Partials.Channel,
         Partials.Message,
@@ -56,5 +56,7 @@ let client = new Client({
     ]
 });
 
-require('./core')(client);
 client.login(config.discord.token);
+
+import core from './core.js';
+core(client);
