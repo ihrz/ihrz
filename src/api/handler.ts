@@ -66,21 +66,17 @@ async function loadRoutes(app: Express, path: string = `${process.cwd()}/dist/sr
     var i = 0;
     for (let path of paths) {
         if (!path.endsWith('.js')) return;
-        i++;
 
-        let Routes = await import(path);
+        let Routes = await import(path).then(data => data.default);
 
         if (Routes?.type === 'get') {
             app.get(Routes.apiPath, Routes.run);
+            i++;
 
         } else if (Routes?.type === 'post') {
+            app.post(Routes.apiPath, Routes.run);
+            i++;
 
-            if (Routes?.name !== 'database') {
-                app.post(Routes.apiPath, Routes.run);
-
-            } else if (config.database.useDatabaseAPI) {
-                app.post(Routes.apiPath, Routes.run);
-            };
         };
     };
 

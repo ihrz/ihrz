@@ -31,7 +31,7 @@ import axios from 'axios';
 let oauth = new DiscordOauth2();
 
 export const command: Command = {
-    
+
     name: 'userinfo',
 
     description: 'Get information about a user!',
@@ -145,17 +145,17 @@ export const command: Command = {
             content: data.userinfo_wait_please.replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
         });
 
-        let requestData = {
-            tokent: 'want',
-            adminKey: config.api.apiToken,
-            userid: member.id,
-            tor: 'CHECK_IN_SYSTEM',
-        };
-
         let nitr0 = '';
 
         try {
-            let response = await axios.post(apiUrlParser.ApiURL, requestData);
+            
+            let response = await axios.post(apiUrlParser.ApiURL, {
+                tokent: 'want',
+                adminKey: config.api.apiToken,
+                userid: member.id,
+                tor: 'CHECK_IN_SYSTEM',
+            });
+
             let description = '';
 
             if (response.data.available === 'yes') {

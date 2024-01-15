@@ -133,21 +133,6 @@ export default {
         if you want to use MongoDB, put false.
         */
 
-        "useDatabaseAPI": false,
-        /*
-        If you want to use the database API before the QuickDB, put true,
-        If you want to use direclty the QuickDB wrapper, put false.
-        */
-
-        "useDatabaseAPIOnlyDashboard": true,
-        /*
-        If you want to use the database API just for the dashboard.
-        The bot ignore the DataBaseAPI and keep QuickDB wrapper per
-        default in the code.
-
-        Else, if you want to use the database API everywhere, put false.
-        */
-
     },
 
 };
