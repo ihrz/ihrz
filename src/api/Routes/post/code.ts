@@ -45,7 +45,7 @@ export default {
             };
 
             if (adminKey != config.api.apiToken) return;
-            let value = await (await db).get(`API.TOKEN.${userid}`);
+            let value = await db.get(`API.TOKEN.${userid}`);
             if (!value) {
                 res.json({ available: "no", id: userid, adminKey: "ok" });
                 return;
@@ -54,7 +54,7 @@ export default {
             try {
                 await oauth.getUser(value.token); res.json({ connectionToken: value.token, available: "yes", id: userid, adminKey: "ok" });
             } catch (e) {
-                await (await db).delete(`API.TOKEN.${userid}`);
+                await db.delete(`API.TOKEN.${userid}`);
 
                 return res.json({ available: "no", id: "deleted", adminKey: "ok" });
             };

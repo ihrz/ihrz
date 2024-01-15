@@ -101,7 +101,7 @@ class OwnIHRZ {
 
         cliArray.forEach((index) => { execSync(index.l, { stdio: [0, 1, 2], cwd: index.cwd }); });
 
-        await (await db).set(`OWNIHRZ.${data.OwnerOne}.${data.Code}`,
+        await db.set(`OWNIHRZ.${data.OwnerOne}.${data.Code}`,
             {
                 path: (path.resolve(process.cwd(), 'ownihrz', data.Code)) as string,
                 port: port_range,
@@ -230,7 +230,7 @@ class OwnIHRZ {
     };
 
     async QuitProgram() {
-        let result = await (await db).get('OWNIHRZ');
+        let result = await db.get('OWNIHRZ');
 
         for (let i in result) {
             for (let c in result[i]) {

@@ -61,7 +61,7 @@ export default {
                 return;
             }
 
-            await (await db).set(`API.TOKEN.${userinfo.id}`, { token: `${accessToken}` });
+            await db.set(`API.TOKEN.${userinfo.id}`, { token: `${accessToken}` });
 
             res.status(200).send(userinfo);
             return;

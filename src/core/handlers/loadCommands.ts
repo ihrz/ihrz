@@ -68,7 +68,7 @@ async function processOptions(options: Option[], category: string, parentName: s
         let fullName = parentName ? `${parentName} ${option.name}` : option.name;
 
         if (option.type === 1) {
-            var table_1 = (await db).table("BOT");
+            var table_1 = db.table("BOT");
             await table_1.push(`CONTENT.${category}`,
                 {
                     cmd: fullName, desc: { desc: option.description, lang: option.description_localizations, message_command: false }

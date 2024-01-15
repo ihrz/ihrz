@@ -62,8 +62,8 @@ export default async (client: Client) => {
         let buffer = `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}: PLAYED]: { ${track.author} - ${track.title} | ${track.url} } by ${(queue.metadata as MetadataPlayer).requestedBy}`
         let embed = `${time((new Date(), data.duration), 'R')}: ${track.author} - ${track.title} | ${track.url} by ${(queue.metadata as MetadataPlayer).requestedBy}`
 
-        await (await db).push(`${queue.guild.id}.MUSIC_HISTORY.buffer`, buffer);
-        await (await db).push(`${queue.guild.id}.MUSIC_HISTORY.embed`, embed);
+        await db.push(`${queue.guild.id}.MUSIC_HISTORY.buffer`, buffer);
+        await db.push(`${queue.guild.id}.MUSIC_HISTORY.embed`, embed);
 
         (queue.metadata as MetadataPlayer).channel.send({
             content: data.event_mp_audioTrackAdd

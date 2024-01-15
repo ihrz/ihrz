@@ -21,6 +21,10 @@
 
 import dbPromise from '../database.js';
 
-const db = await dbPromise;
+let db;
 
-export default db;
+if (!db) {
+    db = dbPromise
+}
+
+export default await db;

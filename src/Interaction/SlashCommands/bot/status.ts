@@ -27,7 +27,8 @@ import {
     ApplicationCommandType
 } from 'discord.js'
 
-import * as pkg from '../../../../package.json' assert { type: "json" };
+import pkg from '../../../../package.json' assert { type: "json" };
+
 import { Command } from '../../../../types/command';
 import config from '../../../files/config.js';
 import os from 'node:os';
@@ -41,7 +42,7 @@ export const command: Command = {
     description_localizations: {
         "fr": "Obtenez le statut du bot ! (Uniquement pour le propriétaire du bot)"
     },
-    
+
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,

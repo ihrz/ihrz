@@ -52,12 +52,12 @@ export default async (client: Client) => {
 
     checkSys.Html();
 
-    // var table_1 = (await db).table("BOT");
-    // await table_1.set(`CONTENT`, {});
+    var table_1 = db.table("BOT");
+    await table_1.set(`CONTENT`, {});
 
     await import('../api/server.js');
 
-    client.db = (await db);
+    client.db = db;
     client.invites = new Collection();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 

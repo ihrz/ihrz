@@ -61,7 +61,7 @@ async function Create(channel: TextBasedChannel, data: Giveaway) {
             .addComponents(confirm)]
     });
 
-    await (await db).set(`GIVEAWAYS.${(channel as GuildTextBasedChannel).guildId}.${channel.id}.${response.id}`,
+    await db.set(`GIVEAWAYS.${(channel as GuildTextBasedChannel).guildId}.${channel.id}.${response.id}`,
         {
             winnerCount: data.winnerCount,
             prize: data.prize,
@@ -77,14 +77,14 @@ async function Create(channel: TextBasedChannel, data: Giveaway) {
 
 async function AddEntries(interaction: ButtonInteraction<CacheType>) {
 
-    let members = await (await db).get(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`);
+    let members = await db.get(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`);
 
     if (members.includes(interaction.user.id)) {
         RemoveEntries(interaction);
         return;
     } else {
 
-        await (await db).push(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`, interaction.user.id);
+        await db.push(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`, interaction.user.id);
 
         await interaction.deferUpdate();
 
@@ -102,7 +102,7 @@ async function AddEntries(interaction: ButtonInteraction<CacheType>) {
 
 async function RemoveEntries(interaction: ButtonInteraction<CacheType>) {
 
-    let members: Array<string> = await (await db).get(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`) || [];
+    let members: Array<string> = await db.get(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`) || [];
     let lang = await interaction.client.functions.getLanguageData(interaction.guild?.id);
 
     function arraySub(arr: Array<string>, value: string) {
@@ -111,7 +111,7 @@ async function RemoveEntries(interaction: ButtonInteraction<CacheType>) {
         });
     };
 
-    await (await db).set(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`, arraySub(members, interaction.user.id));
+    await db.set(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`, arraySub(members, interaction.user.id));
 
     await interaction.reply({
         content: lang.event_gw_removeentries_msg
@@ -132,17 +132,17 @@ async function RemoveEntries(interaction: ButtonInteraction<CacheType>) {
 
 async function End(client: Client, data: Data) {
 
-    let fetch = await (await db).get(`GIVEAWAYS.${data.guildId}`);
+    let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
 
     for (let channelId in fetch) {
         for (let messageId in fetch[channelId]) {
 
             if (messageId === data.messageId) {
 
-                let ended = await (await db).get(`GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.ended`);
+                let ended = await db.get(`GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.ended`);
 
                 if (ended !== true) {
-                    await (await db).set(`GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.ended`, 'End()');
+                    await db.set(`GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.ended`, 'End()');
 
                     Finnish(
                         client,
@@ -198,18 +198,18 @@ function SelectWinners(fetch: Fetch, number: number) {
 async function Finnish(client: Client, messageId: string, guildId: string, channelId: string) {
 
     let lang = await client.functions.getLanguageData(guildId);
-    let fetch = await (await db).get(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
+    let fetch = await db.get(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
 
     if (!fetch.ended === true || fetch.ended === 'End()') {
         let guild = await client.guilds.fetch(guildId).catch(async () => {
-            await (await db).delete(`GIVEAWAYS.${guildId}`);
+            await db.delete(`GIVEAWAYS.${guildId}`);
         });
         if (!guild) return;
 
         let channel = await guild.channels.fetch(channelId);
 
         let message = await (channel as GuildTextBasedChannel).messages.fetch(messageId).catch(async () => {
-            await (await db).delete(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
+            await db.delete(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
             return;
         });
 
@@ -249,8 +249,8 @@ async function Finnish(client: Client, messageId: string, guildId: string, chann
             });
         };
 
-        await (await db).set(`GIVEAWAYS.${guildId}.${channelId}.${messageId}.ended`, true);
-        await (await db).set(`GIVEAWAYS.${guildId}.${channelId}.${messageId}.winner`, winner || 'None');
+        await db.set(`GIVEAWAYS.${guildId}.${channelId}.${messageId}.ended`, true);
+        await db.set(`GIVEAWAYS.${guildId}.${channelId}.${messageId}.winner`, winner || 'None');
     };
     return;
 };
@@ -263,7 +263,7 @@ interface Data {
 async function Reroll(client: Client, data: Data) {
 
     let lang = await client.functions.getLanguageData(data.guildId);
-    let fetch = await (await db).get(`GIVEAWAYS.${data.guildId}`);
+    let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
 
     for (let channelId in fetch) {
         for (let messageId in fetch[channelId]) {
@@ -273,7 +273,7 @@ async function Reroll(client: Client, data: Data) {
                 let channel = await guild.channels.fetch(channelId);
 
                 let message = await (channel as BaseGuildTextChannel).messages.fetch(messageId).catch(async () => {
-                    await (await db).delete(`GIVEAWAYS.${data.guildId}.${channel?.id}.${data.messageId}`);
+                    await db.delete(`GIVEAWAYS.${data.guildId}.${channel?.id}.${data.messageId}`);
                     return;
                 })
 
@@ -306,7 +306,7 @@ async function Reroll(client: Client, data: Data) {
                     });
                 };
 
-                await (await db).set(`GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.winner`, winner || 'None');
+                await db.set(`GIVEAWAYS.${data.guildId}.${channelId}.${messageId}.winner`, winner || 'None');
             };
         };
     };
@@ -323,7 +323,7 @@ function Init(client: Client) {
 
 
 async function isValid(giveawayId: number, data: Data) {
-    let fetch = await (await db).get(`GIVEAWAYS.${data.guildId}`);
+    let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
 
     let dataDict: any = {};
 
@@ -341,7 +341,7 @@ async function isValid(giveawayId: number, data: Data) {
 };
 
 async function isEnded(giveawayId: number, data: { guildId: string }) {
-    let fetch = await (await db).get(`GIVEAWAYS.${data.guildId}`);
+    let fetch = await db.get(`GIVEAWAYS.${data.guildId}`);
 
     let dataDict: any = {};
 
@@ -359,7 +359,7 @@ async function isEnded(giveawayId: number, data: { guildId: string }) {
 };
 
 async function Refresh(client: Client) {
-    let drop_all_db = await (await db).get(`GIVEAWAYS`);
+    let drop_all_db = await db.get(`GIVEAWAYS`);
 
     for (let guildId in drop_all_db) {
         // guildId: Server Guild ID
@@ -382,7 +382,7 @@ async function Refresh(client: Client) {
                 };
 
                 if (cooldownTime >= 345_600_000) {
-                    await (await db).delete(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
+                    await db.delete(`GIVEAWAYS.${guildId}.${channelId}.${messageId}`);
                 };
             }
         }
@@ -390,7 +390,7 @@ async function Refresh(client: Client) {
 };
 
 async function ListEntries(interaction: ChatInputCommandInteraction, data: Data) {
-    let drop_all_db = await (await db).get(`GIVEAWAYS`);
+    let drop_all_db = await db.get(`GIVEAWAYS`);
 
     for (let guildId in drop_all_db) {
         // guildId: Server Guild ID

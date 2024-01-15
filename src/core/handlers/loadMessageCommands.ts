@@ -76,7 +76,7 @@ async function loadCommands(client: Client, path: string = `${process.cwd()}/dis
 
         let { command } = await import(path); if (!command) break;
 
-        var table_1 = (await db).table("BOT");
+        var table_1 = db.table("BOT");
 
         await table_1.push(`CONTENT.${command.category}`,
             {
