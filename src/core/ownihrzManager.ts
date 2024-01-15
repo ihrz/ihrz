@@ -123,29 +123,27 @@ class OwnIHRZ {
                 if (result[owner_id][bot_id].power_off || !result[owner_id][bot_id].code) continue;
 
                 let botPath = path.join(process.cwd(), 'ownihrz', result[owner_id][bot_id].code)
-
-                if (owner_id !== 'TEMP') {
-                    execSync(`rm -r dist`, {
-                        stdio: [0, 1, 2],
-                        cwd: botPath,
-                    });
-                    execSync(`git pull`, {
-                        stdio: [0, 1, 2],
-                        cwd: botPath,
-                    });
-                    execSync(`npx tsc`, {
-                        stdio: [0, 1, 2],
-                        cwd: botPath,
-                    });
-                    execSync(`mv dist/index.js dist/${result[owner_id][bot_id].code}.js`, {
-                        stdio: [0, 1, 2],
-                        cwd: botPath,
-                    });
-                    execSync(`pm2 start dist/${result[owner_id][bot_id].code}.js -f`, {
-                        stdio: [0, 1, 2],
-                        cwd: botPath,
-                    });
-                };
+                
+                execSync(`rm -r dist`, {
+                    stdio: [0, 1, 2],
+                    cwd: botPath,
+                });
+                execSync(`git pull`, {
+                    stdio: [0, 1, 2],
+                    cwd: botPath,
+                });
+                execSync(`npx tsc`, {
+                    stdio: [0, 1, 2],
+                    cwd: botPath,
+                });
+                execSync(`mv dist/index.js dist/${result[owner_id][bot_id].code}.js`, {
+                    stdio: [0, 1, 2],
+                    cwd: botPath,
+                });
+                execSync(`pm2 start dist/${result[owner_id][bot_id].code}.js -f`, {
+                    stdio: [0, 1, 2],
+                    cwd: botPath,
+                });
             }
         }
 
