@@ -119,10 +119,10 @@ class OwnIHRZ {
         let result = await client.db.get("OWNIHRZ");
 
         for (let owner_id in result) {
-            for (let c in result[owner_id]) {
-                if (result[owner_id][c].power_off || !result[owner_id][c].code) continue;
+            for (let bot_id in result[owner_id]) {
+                if (result[owner_id][bot_id].power_off || !result[owner_id][bot_id].code) continue;
 
-                let botPath = path.join(process.cwd(), 'ownihrz', result[owner_id][c].code)
+                let botPath = path.join(process.cwd(), 'ownihrz', result[owner_id][bot_id].code)
 
                 if (owner_id !== 'TEMP') {
                     execSync(`rm -r dist`, {
@@ -137,11 +137,11 @@ class OwnIHRZ {
                         stdio: [0, 1, 2],
                         cwd: botPath,
                     });
-                    execSync(`mv dist/index.js dist/${result?.[owner_id]?.[c]?.code}.js`, {
+                    execSync(`mv dist/index.js dist/${result[owner_id][bot_id].code}.js`, {
                         stdio: [0, 1, 2],
                         cwd: botPath,
                     });
-                    execSync(`pm2 start dist/${result?.[owner_id]?.[c]?.code}.js -f`, {
+                    execSync(`pm2 start dist/${result[owner_id][bot_id].code}.js -f`, {
                         stdio: [0, 1, 2],
                         cwd: botPath,
                     });
@@ -235,7 +235,7 @@ class OwnIHRZ {
                 if (i !== 'TEMP' && !result[i][c].power_off) {
                     let botPath = path.join(process.cwd(), 'ownihrz', result[i][c].code);
 
-                    execSync(`pm2 stop ${result[i][c]?.code}`, {
+                    execSync(`pm2 stop ${result[i][c].code}`, {
                         stdio: [0, 1, 2],
                         cwd: botPath,
                     });
