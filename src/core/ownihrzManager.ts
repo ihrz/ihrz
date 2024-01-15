@@ -32,7 +32,7 @@ class OwnIHRZ {
     async Create(data: Custom_iHorizon) {
         let port_range = 29268;
 
-        let cliArray = [
+        [
             {
                 l: 'git clone --branch ownihrz --depth 1 https://github.com/ihrz/ihrz.git .',
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
@@ -97,9 +97,7 @@ class OwnIHRZ {
                 l: `pm2 start ./dist/${data.Code}.js -f`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
             }
-        ];
-
-        cliArray.forEach((index) => { execSync(index.l, { stdio: [0, 1, 2], cwd: index.cwd }); });
+        ].forEach((index) => { execSync(index.l, { stdio: [0, 1, 2], cwd: index.cwd }); });
 
         await db.set(`OWNIHRZ.${data.OwnerOne}.${data.Code}`,
             {
@@ -121,10 +119,8 @@ class OwnIHRZ {
         for (let owner_id in result) {
             for (let bot_id in result[owner_id]) {
                 if (result[owner_id][bot_id].power_off || !result[owner_id][bot_id].code) continue;
-
-                let botPath = path.join(process.cwd(), 'ownihrz', result[owner_id][bot_id].code)
-
-                let cliArray = [
+                let botPath = path.join(process.cwd(), 'ownihrz', result[owner_id][bot_id].code);
+                [
                     {
                         line: 'rm -r dist',
                         cwd: botPath
@@ -145,9 +141,7 @@ class OwnIHRZ {
                         line: `pm2 start dist/${result[owner_id][bot_id].code}.js -f`,
                         cwd: botPath
                     },
-                ];
-
-                cliArray.forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); });
+                ].forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); })
             }
         }
 
@@ -165,15 +159,16 @@ class OwnIHRZ {
                 if (now >= result[i][c].expireIn) {
                     await client.db.set(`OWNIHRZ.${i}.${c}.power_off`, true);
                     await client.db.set(`OWNIHRZ.${i}.${c}.expired`, true);
-
-                    execSync(`pm2 stop ${result[i][c].code} -f`, {
-                        stdio: [0, 1, 2],
-                        cwd: process.cwd(),
-                    });
-                    execSync(`pm2 delete ${result[i][c].code}`, {
-                        stdio: [0, 1, 2],
-                        cwd: process.cwd(),
-                    });
+                    [
+                        {
+                            line: `pm2 stop ${result[i][c].code} -f`,
+                            cwd: process.cwd()
+                        },
+                        {
+                            line: `pm2 delete ${result[i][c].code}`,
+                            cwd: process.cwd()
+                        },
+                    ].forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); });
                 }
             }
         }
@@ -183,8 +178,7 @@ class OwnIHRZ {
 
 
     async ShutDown(id_to_bot: string) {
-
-        let cliArray = [
+        [
             {
                 line: `pm2 stop ${id_to_bot} -f`,
                 cwd: process.cwd()
@@ -193,9 +187,8 @@ class OwnIHRZ {
                 line: `pm2 delete ${id_to_bot}`,
                 cwd: process.cwd()
             },
-        ];
+        ].forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); });
 
-        cliArray.forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); });
         return 0;
     };
 
@@ -212,8 +205,7 @@ class OwnIHRZ {
 
 
     async Delete(id_to_bot: string) {
-        
-        let cliArray = [
+        [
             {
                 line: `pm2 stop ${id_to_bot} -f`,
                 cwd: process.cwd()
@@ -226,9 +218,7 @@ class OwnIHRZ {
                 line: 'rm -rf *',
                 cwd: process.cwd()
             },
-        ];
-
-        cliArray.forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); });
+        ].forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); });
         return 0;
     };
 
