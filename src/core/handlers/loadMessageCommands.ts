@@ -71,10 +71,10 @@ async function loadCommands(client: Client, path: string = `${process.cwd()}/dis
 
     var i = 0;
     for (let path of paths) {
-        if (!path.endsWith('.js')) break;
+        if (!path.endsWith('.js')) continue;
         i++;
 
-        let { command } = await import(path); if (!command) break;
+        let { command } = await import(path); if (!command) continue;
 
         var table_1 = db.table("BOT");
 

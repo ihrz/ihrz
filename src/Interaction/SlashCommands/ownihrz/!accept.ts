@@ -25,7 +25,7 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import { ClusterMethod, OwnIhrzCluster, PublishURL } from '../../../core/functions/apiUrlParser';
+import { ClusterMethod, OwnIhrzCluster, PublishURL } from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData';
 
 import config from '../../../files/config.js';

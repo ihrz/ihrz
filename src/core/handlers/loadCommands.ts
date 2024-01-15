@@ -91,7 +91,7 @@ export default async function loadCommands(client: Client, path: string = `${pro
 
     var i = 0;
     for (let path of paths) {
-        if (!path.endsWith('.js')) break;
+        if (!path.endsWith('.js')) continue;
         i++;
 
         let module = await import(path).then((module) => module);
