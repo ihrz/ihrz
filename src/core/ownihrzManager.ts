@@ -123,27 +123,31 @@ class OwnIHRZ {
                 if (result[owner_id][bot_id].power_off || !result[owner_id][bot_id].code) continue;
 
                 let botPath = path.join(process.cwd(), 'ownihrz', result[owner_id][bot_id].code)
-                
-                execSync(`rm -r dist`, {
-                    stdio: [0, 1, 2],
-                    cwd: botPath,
-                });
-                execSync(`git pull`, {
-                    stdio: [0, 1, 2],
-                    cwd: botPath,
-                });
-                execSync(`npx tsc`, {
-                    stdio: [0, 1, 2],
-                    cwd: botPath,
-                });
-                execSync(`mv dist/index.js dist/${result[owner_id][bot_id].code}.js`, {
-                    stdio: [0, 1, 2],
-                    cwd: botPath,
-                });
-                execSync(`pm2 start dist/${result[owner_id][bot_id].code}.js -f`, {
-                    stdio: [0, 1, 2],
-                    cwd: botPath,
-                });
+
+                let cliArray = [
+                    {
+                        line: 'rm -r dist',
+                        cwd: botPath
+                    },
+                    {
+                        line: 'git pull',
+                        cwd: botPath
+                    },
+                    {
+                        line: `npx tsc`,
+                        cwd: botPath
+                    },
+                    {
+                        line: `mv dist/index.js dist/${result[owner_id][bot_id].code}.js`,
+                        cwd: botPath
+                    },
+                    {
+                        line: `pm2 start dist/${result[owner_id][bot_id].code}.js -f`,
+                        cwd: botPath
+                    },
+                ];
+
+                cliArray.forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); });
             }
         }
 
@@ -180,16 +184,18 @@ class OwnIHRZ {
 
     async ShutDown(id_to_bot: string) {
 
-        execSync(`pm2 stop ${id_to_bot} -f`, {
-            stdio: [0, 1, 2],
-            cwd: process.cwd(),
-        });
+        let cliArray = [
+            {
+                line: `pm2 stop ${id_to_bot} -f`,
+                cwd: process.cwd()
+            },
+            {
+                line: `pm2 delete ${id_to_bot}`,
+                cwd: process.cwd()
+            },
+        ];
 
-        execSync(`pm2 delete ${id_to_bot}`, {
-            stdio: [0, 1, 2],
-            cwd: process.cwd(),
-        });
-
+        cliArray.forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); });
         return 0;
     };
 
@@ -206,22 +212,23 @@ class OwnIHRZ {
 
 
     async Delete(id_to_bot: string) {
+        
+        let cliArray = [
+            {
+                line: `pm2 stop ${id_to_bot} -f`,
+                cwd: process.cwd()
+            },
+            {
+                line: `pm2 delete ${id_to_bot}`,
+                cwd: process.cwd()
+            },
+            {
+                line: 'rm -rf *',
+                cwd: process.cwd()
+            },
+        ];
 
-        execSync(`pm2 stop ${id_to_bot} -f`, {
-            stdio: [0, 1, 2],
-            cwd: process.cwd(),
-        });
-
-        execSync(`pm2 delete ${id_to_bot}`, {
-            stdio: [0, 1, 2],
-            cwd: process.cwd(),
-        });
-
-        execSync(`rm -rf *`, {
-            stdio: [0, 1, 2],
-            cwd: path.join(process.cwd(), 'ownihrz', id_to_bot),
-        });
-
+        cliArray.forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); });
         return 0;
     };
 
