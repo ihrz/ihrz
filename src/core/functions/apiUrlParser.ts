@@ -24,8 +24,8 @@ import config from "../../files/config.js";
 export const ClusterMethod = {
     CreateContainer: 0,
     DeleteContainer: 1,
-    StartContainer: 2,
-    StopContainer: 3
+    StartupContainer: 2,
+    ShutdownContainer: 3
 };
 
 export let LoginURL =
@@ -85,10 +85,10 @@ export function OwnIhrzCluster(cluster_number: number, cluster_method: number) {
             data += "delete"
             break;
         case 2:
-            data += "start"
+            data += "startup"
             break;
         case 3:
-            data += "stop"
+            data += "shutdown"
             break;
     }
 
