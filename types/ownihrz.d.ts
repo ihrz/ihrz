@@ -25,7 +25,7 @@ export interface Custom_iHorizon {
     OwnerOne: string
     OwnerTwo: string
     Bot: {
-        ID: string
+        Id: string
         Name: string
         Public: boolean
     }

@@ -28,28 +28,22 @@ import {
 import { ClusterMethod, OwnIhrzCluster, PublishURL } from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData';
 
+import { OwnIHRZ } from '../../../core/ownihrzManager.js';
 import config from '../../../files/config.js';
 import axios, { AxiosResponse } from 'axios';
 import logger from '../../../core/logger.js';
 import path from 'path';
+import wait from 'wait';
+import fs from 'fs';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let cluster = interaction.options.getString("cluster");
-        let id_1 = interaction.options.getString('id');
+        let id = interaction.options.getString('id');
 
         var table_1 = client.db.table("TEMP");
-        let id_2 = await table_1.get('OWNIHRZ');
-        let URL = '';
-
-        for (let i in id_2) {
-            for (let j in id_2[i]) {
-                if (id_1 === j) {
-                    id_2 = id_2?.[i]?.[j];
-                }
-            }
-        };
+        let id_2 = await table_1.get(`OWNIHRZ.${interaction.user.id}.${id}`);
 
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
@@ -61,20 +55,18 @@ export default {
             return;
         };
 
-        id_2.admin_key = config.api.apiToken;
-        id_2.code = id_1;
+        id_2.AdminKey = config.api.apiToken;
+        id_2.Code = id;
 
-        let config_2 = {
+        let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, {
             headers: {
-                Authorization: `Bot ${id_2.auth}`
+                Authorization: `Bot ${id_2.Auth}`
             }
-        };
-
-        let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, config_2)
-            .catch(() => { }))?.data || 404;
+        }).catch(() => { }))?.data || 404;
 
         if (bot_1 === 404) {
             await interaction.reply({ content: data.mybot_manage_accept_token_error });
+            await table_1.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
             return;
         } else {
 
@@ -97,41 +89,57 @@ export default {
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
             await interaction.reply({ embeds: [embed], ephemeral: false });
-
+            
             if (cluster) {
-                URL = OwnIhrzCluster(cluster as unknown as number, ClusterMethod.CreateContainer)
+                try {
+                    axios.post(OwnIhrzCluster(cluster as unknown as number, ClusterMethod.CreateContainer), id_2, { headers: { 'Accept': 'application/json' } })
+                        .then(async (response: AxiosResponse) => {
+                            if (cluster) {
+                                var table_1 = client.db.table('OWNIHRZ');
+    
+                                await table_1.set(`CLUSTER.${id_2.OwnerOne}.${id_2.Code}`,
+                                    {
+                                        Path: (path.resolve(process.cwd(), 'ownihrz', id_2.Code)) as string,
+                                        Auth: id_2.Auth,
+                                        port: 0,
+                                        Cluster: cluster,
+                                        ExpireIn: id_2.ExpireIn,
+                                        Bot: id_2.Bot,
+                                        Code: id_2.Code,
+                                    }
+                                );
+                            }
+                        })
+                        .catch(error => {
+                            logger.err(error)
+                        });
+                } catch (error: any) {
+                    return logger.err(error)
+                };
+    
             } else {
-                URL = PublishURL;
+                await fs.mkdir(`${process.cwd()}/ownihrz/${id_2.Code}`, { recursive: true }, (err) => {
+                    if (err) throw err;
+                });
+                await wait(1000)
+
+                return new OwnIHRZ().Create({
+                    Auth: id_2.Auth,
+                    AdminKey: id_2.AdminKey,
+                    OwnerOne: id_2.OwnerOne,
+                    OwnerTwo: id_2.OwnerTwo,
+                    Bot: {
+                        Id: id_2.Bot.Id,
+                        Name: id_2.Bot.Name,
+                        Public: id_2.Bot.Public
+                    },
+                    ExpireIn: id_2.ExpireIn,
+                    Code: id_2.Code
+                });
+
             };
 
-            try {
-                axios.post(URL, id_2, { headers: { 'Accept': 'application/json' } })
-                    .then(async (response: AxiosResponse) => {
-                        if (cluster) {
-                            var table_1 = client.db.table('OWNIHRZ');
-
-                            await table_1.set(`CLUSTER.${id_2.owner_one}.${id_2.code}`,
-                                {
-                                    path: (path.resolve(process.cwd(), 'ownihrz', id_2.code)) as string,
-                                    port: 0,
-                                    cluster: cluster,
-                                    auth: id_2.auth,
-                                    code: id_2.code,
-                                    expireIn: id_2.expireIn,
-                                    bot: id_2.bot
-                                }
-                            );
-                        }
-                    })
-                    .catch(error => {
-                        logger.err(error)
-                    });
-            } catch (error: any) {
-                return logger.err(error)
-            };
-
-            var table_1 = client.db.table("TEMP");
-            await table_1.delete(`OWNIHRZ.${interaction.user.id}`);
+            await table_1.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
             return;
         };
     },

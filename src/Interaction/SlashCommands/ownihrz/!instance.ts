@@ -55,14 +55,14 @@ export default {
             for (let userId in data_2) {
                 for (let botId in data_2[userId]) {
                     if (botId === id_to_bot) {
-                        let fetch = await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.power_off`);
+                        let fetch = await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.PowerOff`);
 
                         if (fetch) {
                             await interaction.reply({ content: `OwnIHRZ of <@${userId}>, is already shutdown...`, ephemeral: true });
                             return;
                         };
 
-                        await client.db.set(`OWNIHRZ.${userId}.${id_to_bot}.power_off`, true);
+                        await client.db.set(`OWNIHRZ.${userId}.${id_to_bot}.PowerOff`, true);
 
                         await interaction.reply({
                             content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now shutdown.\nNow, the bot container can't be Power On when iHorizon-Prod booting...`,
@@ -83,14 +83,14 @@ export default {
             for (let userId in data_2) {
                 for (let botId in data_2[userId]) {
                     if (botId === id_to_bot) {
-                        let fetch = await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.power_off`);
+                        let fetch = await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.PowerOff`);
 
                         if (!fetch) {
                             await interaction.reply({ content: `OwnIHRZ of <@${userId}>, is already Power On...`, ephemeral: true });
                             return;
                         };
 
-                        await client.db.set(`OWNIHRZ.${userId}.${id_to_bot}.power_off`, false);
+                        await client.db.set(`OWNIHRZ.${userId}.${id_to_bot}.PowerOff`, false);
 
                         await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now Power On.\nNow, the bot container can be Power On when iHorizon-Prod booting...`, ephemeral: true });
                         return new OwnIHRZ().PowerOn(id_to_bot);

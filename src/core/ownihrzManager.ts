@@ -104,12 +104,14 @@ class OwnIHRZ {
 
         await db.set(`OWNIHRZ.${data.OwnerOne}.${data.Code}`,
             {
-                path: (path.resolve(process.cwd(), 'ownihrz', data.Code)) as string,
-                port: port_range,
-                auth: data.Auth,
-                code: data.Code,
-                expireIn: data.ExpireIn,
-                bot: data.Bot
+                Path: (path.resolve(process.cwd(), 'ownihrz', data.Code)) as string,
+                Auth: data.Auth,
+                AdminKey: data.AdminKey,
+                OwnerOne: data.OwnerOne,
+                OwnerTwo: data.OwnerTwo,
+                Bot: data.Bot,
+                ExpireIn: data.ExpireIn,
+                Code: data.Code
             }
         );
 
@@ -121,8 +123,8 @@ class OwnIHRZ {
 
         for (let owner_id in result) {
             for (let bot_id in result[owner_id]) {
-                if (result[owner_id][bot_id].power_off || !result[owner_id][bot_id].code) continue;
-                let botPath = path.join(process.cwd(), 'ownihrz', result[owner_id][bot_id].code);
+                if (result[owner_id][bot_id].PowerOff || !result[owner_id][bot_id].Code) continue;
+                let botPath = path.join(process.cwd(), 'ownihrz', result[owner_id][bot_id].Code);
                 [
                     {
                         line: 'rm -r dist',
@@ -137,11 +139,11 @@ class OwnIHRZ {
                         cwd: botPath
                     },
                     {
-                        line: `mv dist/index.js dist/${result[owner_id][bot_id].code}.js`,
+                        line: `mv dist/index.js dist/${result[owner_id][bot_id].Code}.js`,
                         cwd: botPath
                     },
                     {
-                        line: `pm2 start dist/${result[owner_id][bot_id].code}.js -f`,
+                        line: `pm2 start dist/${result[owner_id][bot_id].Code}.js -f`,
                         cwd: botPath
                     },
                 ].forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); })
@@ -159,10 +161,10 @@ class OwnIHRZ {
 
             for (let owner_id in cluster_ownihrz) {
                 for (let bot_id in cluster_ownihrz[owner_id]) {
-                    if (cluster_ownihrz[owner_id][bot_id].power_off || !cluster_ownihrz[owner_id][bot_id].code) continue;
+                    if (cluster_ownihrz[owner_id][bot_id].PowerOff || !cluster_ownihrz[owner_id][bot_id].Code) continue;
 
                     axios.get(OwnIhrzCluster(
-                        cluster_ownihrz[owner_id][bot_id].cluster as unknown as number,
+                        cluster_ownihrz[owner_id][bot_id].Cluster as unknown as number,
                         ClusterMethod.StartupContainer,
                         bot_id,
                         config.api.apiToken
@@ -180,17 +182,17 @@ class OwnIHRZ {
 
         for (let i in result) {
             for (let c in result[i]) {
-                if (!result[i][c].code || result[i][c].expired) continue;
+                if (!result[i][c].Code || result[i][c].Expired) continue;
                 if (now >= result[i][c].expireIn) {
-                    await client.db.set(`OWNIHRZ.${i}.${c}.power_off`, true);
-                    await client.db.set(`OWNIHRZ.${i}.${c}.expired`, true);
+                    await client.db.set(`OWNIHRZ.${i}.${c}.PowerOff`, true);
+                    await client.db.set(`OWNIHRZ.${i}.${c}.Expired`, true);
                     [
                         {
-                            line: `pm2 stop ${result[i][c].code} -f`,
+                            line: `pm2 stop ${result[i][c].Code} -f`,
                             cwd: process.cwd()
                         },
                         {
-                            line: `pm2 delete ${result[i][c].code}`,
+                            line: `pm2 delete ${result[i][c].Code}`,
                             cwd: process.cwd()
                         },
                     ].forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); });
@@ -210,11 +212,11 @@ class OwnIHRZ {
 
             for (let owner_id in cluster_ownihrz) {
                 for (let bot_id in cluster_ownihrz[owner_id]) {
-                    if (cluster_ownihrz[owner_id][bot_id].power_off || !cluster_ownihrz[owner_id][bot_id].code) continue;
+                    if (cluster_ownihrz[owner_id][bot_id].PowerOff || !cluster_ownihrz[owner_id][bot_id].Code) continue;
 
                     if (now >= cluster_ownihrz[owner_id][bot_id].expireIn) {
                         let table_1 = client.db.table("OWNIHRZ");
-                        await table_1.set(`CLUSTER.${owner_id}.${bot_id}.power_off`, true);
+                        await table_1.set(`CLUSTER.${owner_id}.${bot_id}.PowerOff`, true);
                         await table_1.set(`CLUSTER.${owner_id}.${bot_id}.expired`, true);
 
                         axios.get(OwnIhrzCluster(
@@ -281,10 +283,10 @@ class OwnIHRZ {
 
         for (let i in result) {
             for (let c in result[i]) {
-                if (i !== 'TEMP' && !result[i][c].power_off) {
-                    let botPath = path.join(process.cwd(), 'ownihrz', result[i][c].code);
+                if (i !== 'TEMP' && !result[i][c].PowerOff) {
+                    let botPath = path.join(process.cwd(), 'ownihrz', result[i][c].Code);
 
-                    execSync(`pm2 stop ${result[i][c].code}`, {
+                    execSync(`pm2 stop ${result[i][c].Code}`, {
                         stdio: [0, 1, 2],
                         cwd: botPath,
                     });

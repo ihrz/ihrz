@@ -31,29 +31,30 @@ import axios from 'axios';
 
 async function buildEmbed(client: Client, data: any, botId: number, lang: LanguageData) {
 
+    console.log(data)
     let config = {
         headers: {
-            Authorization: `Bot ${data.auth}`
+            Authorization: `Bot ${data.Auth}`
         }
     };
 
     let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, config).catch(() => { }))?.data || 404;
 
     let utils_msg = lang.mybot_list_utils_msg
-        .replace('${data_2[i].bot.id}', data.bot.id)
-        .replace('${data_2[i].bot.username}', data.bot.username)
-        .replace("${data_2[i].bot_public ? 'Yes' : 'No'}", data.bot_public ? lang.mybot_list_utils_msg_yes : lang.mybot_list_utils_msg_no);
+        .replace('${data_2[i].bot.id}', data.Bot.Id)
+        .replace('${data_2[i].bot.username}', data.Bot.Name)
+        .replace("${data_2[i].bot_public ? 'Yes' : 'No'}", data.Bot.Public ? lang.mybot_list_utils_msg_yes : lang.mybot_list_utils_msg_no);
 
-    let expire = date.format(new Date(data.expireIn), 'ddd, MMM DD YYYY');
+    let expire = date.format(new Date(data.ExpireIn), 'ddd, MMM DD YYYY');
 
     return new EmbedBuilder()
         .setColor('#ff7f50')
-        .setThumbnail(`https://cdn.discordapp.com/avatars/${data.bot.id}/${bot_1?.bot.avatar}.png`)
-        .setTitle(lang.mybot_list_embed1_title.replace('${data_2[i].bot.username}', data.bot.username))
+        .setThumbnail(`https://cdn.discordapp.com/avatars/${data.Bot.Id}/${bot_1?.bot.avatar}.png`)
+        .setTitle(lang.mybot_list_embed1_title.replace('${data_2[i].bot.username}', data.Bot.Name))
         .setDescription(
             lang.mybot_list_embed1_desc
                 .replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
-                .replace('${data_2[i].code}', data.code)
+                .replace('${data_2[i].code}', data.Code)
                 .replace('${expire}', expire)
                 .replace('${utils_msg}', utils_msg)
         )
@@ -76,7 +77,7 @@ export default {
 
         for (let botId in data_2) {
             if (data_2[botId]) {
-                let embed = await buildEmbed(client, data_2, botId as unknown as number, data);
+                let embed = await buildEmbed(client, data_2[botId], botId as unknown as number, data);
                 lsEmbed.push(embed);
             }
         }
