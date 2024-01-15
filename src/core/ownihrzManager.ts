@@ -152,10 +152,9 @@ class OwnIHRZ {
     };
 
     async Startup_Cluster(client: Client) {
-        var table_1 = client.db.table("CLUSTER");
+        var table_1 = client.db.table("OWNIHRZ");
 
         (await table_1.all()).forEach(owner_one => {
-            var cluster_id = owner_one.id.split("CL")[1];
             var cluster_ownihrz = owner_one.value;
 
             for (let owner_id in cluster_ownihrz) {
@@ -163,7 +162,7 @@ class OwnIHRZ {
                     if (cluster_ownihrz[owner_id][bot_id].power_off || !cluster_ownihrz[owner_id][bot_id].code) continue;
 
                     axios.get(OwnIhrzCluster(
-                        cluster_id as unknown as number,
+                        cluster_ownihrz[owner_id][bot_id].cluster as unknown as number,
                         ClusterMethod.StartupContainer,
                         bot_id,
                         config.api.apiToken
@@ -203,11 +202,10 @@ class OwnIHRZ {
     };
 
     async Refresh_Cluster(client: Client) {
-        var table_1 = client.db.table("CLUSTER");
+        var table_1 = client.db.table("OWNIHRZ");
         let now = new Date().getTime();
 
         (await table_1.all()).forEach(async owner_one => {
-            var cluster_id = owner_one.id.split("CL")[1];
             var cluster_ownihrz = owner_one.value;
 
             for (let owner_id in cluster_ownihrz) {
@@ -215,12 +213,12 @@ class OwnIHRZ {
                     if (cluster_ownihrz[owner_id][bot_id].power_off || !cluster_ownihrz[owner_id][bot_id].code) continue;
 
                     if (now >= cluster_ownihrz[owner_id][bot_id].expireIn) {
-                        let table_1 = client.db.table("CLUSTER");
-                        await table_1.set(`${owner_id}.${bot_id}.power_off`, true);
-                        await table_1.set(`${owner_id}.${bot_id}.expired`, true);
+                        let table_1 = client.db.table("OWNIHRZ");
+                        await table_1.set(`CLUSTER.${owner_id}.${bot_id}.power_off`, true);
+                        await table_1.set(`CLUSTER.${owner_id}.${bot_id}.expired`, true);
 
                         axios.get(OwnIhrzCluster(
-                            cluster_id as unknown as number,
+                            cluster_ownihrz[owner_id][bot_id].cluster as unknown as number,
                             ClusterMethod.ShutdownContainer,
                             bot_id,
                             config.api.apiToken

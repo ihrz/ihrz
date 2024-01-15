@@ -40,7 +40,7 @@ export default {
         let id_1 = interaction.options.getString('id');
 
         var table_1 = client.db.table("TEMP");
-        let id_2 = await table_1.get(`OWNIHRZ`);
+        let id_2 = await table_1.get('OWNIHRZ');
         let URL = '';
 
         for (let i in id_2) {
@@ -108,12 +108,13 @@ export default {
                 axios.post(URL, id_2, { headers: { 'Accept': 'application/json' } })
                     .then(async (response: AxiosResponse) => {
                         if (cluster) {
-                            var table_1 = client.db.table("CLUSTER");
+                            var table_1 = client.db.table('OWNIHRZ');
 
-                            await table_1.set(`CL${cluster}.${id_2.owner_one}.${id_2.code}`,
+                            await table_1.set(`CLUSTER.${id_2.owner_one}.${id_2.code}`,
                                 {
                                     path: (path.resolve(process.cwd(), 'ownihrz', id_2.code)) as string,
                                     port: 0,
+                                    cluster: cluster,
                                     auth: id_2.auth,
                                     code: id_2.code,
                                     expireIn: id_2.expireIn,
