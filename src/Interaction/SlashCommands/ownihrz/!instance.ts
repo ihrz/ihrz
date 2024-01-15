@@ -134,12 +134,14 @@ export = {
 
                         await client.db.add(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`, ms((time as StringValue)));
 
-                        let expire = date.format(new Date(
-                            await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`)
-                        ), 'ddd, MMM DD YYYY');
+                        let expireIn = await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`);
+                        let expire: string | null = null;
+
+                        if (expireIn !== null) {
+                            expire = date.format(new Date(expireIn), 'ddd, MMM DD YYYY');
+                        }
 
                         await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`, ephemeral: true });
-
                         return;
                     };
                 }
@@ -152,9 +154,12 @@ export = {
 
                         await client.db.sub(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`, ms((time as StringValue)));
 
-                        let expire = date.format(new Date(
-                            await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`)
-                        ), 'ddd, MMM DD YYYY');
+                        let expireIn = await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`);
+                        let expire: string | null = null;
+
+                        if (expireIn !== null) {
+                            expire = date.format(new Date(expireIn), 'ddd, MMM DD YYYY');
+                        };
 
                         await interaction.reply({
                             content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`,

@@ -143,8 +143,8 @@ export = {
                 logger.err(e)
             };
 
-            let leavec: string = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.join`);
-            let joinc: string = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.leave`);
+            let leavec = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.join`);
+            let joinc = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.leave`);
 
             if (!joinc && !leavec) {
                 await interaction.editReply({ content: data.setchannels_already_on_off });

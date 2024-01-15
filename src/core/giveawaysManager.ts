@@ -61,7 +61,6 @@ async function Create(channel: TextBasedChannel, data: Giveaway) {
             .addComponents(confirm)]
     });
 
-    await db.add("test", "s")
     await db.set(`GIVEAWAYS.${(channel as GuildTextBasedChannel).guildId}.${channel.id}.${response.id}`,
         {
             winnerCount: data.winnerCount,
@@ -103,7 +102,7 @@ async function AddEntries(interaction: ButtonInteraction<CacheType>) {
 
 async function RemoveEntries(interaction: ButtonInteraction<CacheType>) {
 
-    let members: Array<string> = await db.get(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`);
+    let members: Array<string> = await db.get(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`) || [];
     let lang = await interaction.client.functions.getLanguageData(interaction.guild?.id);
 
     function arraySub(arr: Array<string>, value: string) {

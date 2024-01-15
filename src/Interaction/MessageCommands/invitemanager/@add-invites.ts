@@ -60,7 +60,7 @@ export const command: Command = {
             return;
         };
 
-        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.INVITES.invites`, amount!);
+        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.INVITES.invites`, amount as unknown as number);
 
         let finalEmbed = new EmbedBuilder()
             .setDescription(data.addinvites_confirmation_embed_description
@@ -70,7 +70,7 @@ export const command: Command = {
             .setColor(`#92A8D1`)
             .setFooter({ text: interaction.guild?.name as string, iconURL: interaction.guild?.iconURL() as string });
 
-        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.INVITES.bonus`, amount!);
+        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.INVITES.bonus`, amount as unknown as number);
         await interaction.reply({ embeds: [finalEmbed] });
 
         try {

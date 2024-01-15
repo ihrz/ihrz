@@ -28,32 +28,31 @@ import * as proc from './errorManager';
 
 let db;
 
-let f = new Promise((resolve, reject) => {
+let f = new Promise<QuickDB>(async (resolve, reject) => {
     if (config.database.useSqlite) {
         db = new QuickDB({ filePath: `${process.cwd()}/src/files/db.sqlite` });
         logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Connected to the database (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`));
-        resolve(db);
+        resolve(db as QuickDB);
     } else {
         let driver = new MongoDriver(config.database.mongoDb);
 
-        driver.connect()
-            .then(() => {
-                logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Connected to the database (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`));
-                db = new QuickDB({ driver });
-                resolve(db);
-                proc.exit(driver);
-            })
-            .catch((error) => {
-                logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> ${error.toString().split("\n")[0]}`));
-                logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> Database is unreachable (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`));
-                logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> Please use a different database than ${config.database.useSqlite ? 'SQLite' : 'MongoDB'} !`));
-                logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> in the /src/files/config.ts at: 'database.useSqlite'.`));
+        try {
+            await driver.connect();
+            logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Connected to the database (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`));
+            db = new QuickDB({ driver });
+            resolve(db as QuickDB);
+            proc.exit(driver);
+        } catch (error) {
+            logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> ${(error as string).split("\n")[0]}`));
+            logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> Database is unreachable (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`));
+            logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> Please use a different database than ${config.database.useSqlite ? 'SQLite' : 'MongoDB'} !`));
+            logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> in the /src/files/config.ts at: 'database.useSqlite'.`));
 
-                logger.err(couleurmdr.bgRed(`Exiting the code...`));
+            logger.err(couleurmdr.bgRed(`Exiting the code...`));
 
-                return process.exit();
-            });
-    };
+            process.exit();
+        }
+    }
 });
 
 export default f;
