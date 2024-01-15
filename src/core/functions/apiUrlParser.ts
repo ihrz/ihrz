@@ -25,7 +25,8 @@ export const ClusterMethod = {
     CreateContainer: 0,
     DeleteContainer: 1,
     StartupContainer: 2,
-    ShutdownContainer: 3
+    ShutdownContainer: 3,
+    PowerOnContainer: 4
 };
 
 export let LoginURL =
@@ -73,7 +74,7 @@ export let PublishURL =
         config.api.useHttps ? 'https://' : 'http://' +
             config.api.domain + ':' + config.api.port + '/api/publish';
 
-export function OwnIhrzCluster(cluster_number: number, cluster_method: number) {
+export function OwnIhrzCluster(cluster_number: number, cluster_method: number, bot_id?: string, admin_key?: string) {
     var data = config.core.cluster[cluster_number as keyof typeof config.core.cluster];
 
     data += "/api/instance/"
@@ -82,13 +83,24 @@ export function OwnIhrzCluster(cluster_number: number, cluster_method: number) {
             data += "create"
             break;
         case 1:
-            data += "delete"
+            data += `delete`
+            if (bot_id) data += `/${bot_id}`
+            if (admin_key) data += `/${admin_key}`
             break;
         case 2:
-            data += "startup"
+            data += `startup`
+            if (bot_id) data += `/${bot_id}`
+            if (admin_key) data += `/${admin_key}`
             break;
         case 3:
-            data += "shutdown"
+            data += `shutdown`
+            if (bot_id) data += `/${bot_id}`
+            if (admin_key) data += `/${admin_key}`
+            break;
+        case 4:
+            data += `poweron`
+            if (bot_id) data += `/${bot_id}`
+            if (admin_key) data += `/${admin_key}`
             break;
     }
 

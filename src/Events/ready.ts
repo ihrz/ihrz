@@ -116,10 +116,12 @@ export default async (client: Client) => {
     };
     let iHorizon_Container = new OwnIHRZ();
     iHorizon_Container.Startup(client);
+    iHorizon_Container.Startup_Cluster(client);
 
     setInterval(() => {
         iHorizon_Container.Refresh(client);
-    }, 3000/*86400000*/);
+        iHorizon_Container.Refresh_Cluster(client)
+    }, 6000/*86400000*/);
 
     setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000);
 

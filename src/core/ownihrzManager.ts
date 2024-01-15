@@ -23,8 +23,11 @@ import { Custom_iHorizon } from "../../types/ownihrz";
 import { execSync } from 'child_process';
 import config from "../files/config.js";
 
+import { OwnIhrzCluster, ClusterMethod } from "./functions/apiUrlParser.js";
 import db from "./functions/DatabaseModel.js";
 import { Client } from "discord.js";
+import axios from "axios";
+import logger from "./logger.js";
 import path from "path";
 
 class OwnIHRZ {
@@ -148,6 +151,29 @@ class OwnIHRZ {
         return 0;
     };
 
+    async Startup_Cluster(client: Client) {
+        var table_1 = client.db.table("CLUSTER");
+
+        (await table_1.all()).forEach(owner_one => {
+            var cluster_id = owner_one.id.split("CL")[1];
+            var cluster_ownihrz = owner_one.value;
+
+            for (let owner_id in cluster_ownihrz) {
+                for (let bot_id in cluster_ownihrz[owner_id]) {
+                    if (cluster_ownihrz[owner_id][bot_id].power_off || !cluster_ownihrz[owner_id][bot_id].code) continue;
+
+                    axios.get(OwnIhrzCluster(
+                        cluster_id as unknown as number,
+                        ClusterMethod.StartupContainer,
+                        bot_id,
+                        config.api.apiToken
+                    )).then(function (response) {
+                        logger.log(response.data as unknown as string)
+                    }).catch(function (error) { logger.err(error); });
+                }
+            };
+        })
+    };
 
     async Refresh(client: Client) {
         let result = await client.db.get("OWNIHRZ");
@@ -176,6 +202,36 @@ class OwnIHRZ {
         return 0;
     };
 
+    async Refresh_Cluster(client: Client) {
+        var table_1 = client.db.table("CLUSTER");
+        let now = new Date().getTime();
+
+        (await table_1.all()).forEach(async owner_one => {
+            var cluster_id = owner_one.id.split("CL")[1];
+            var cluster_ownihrz = owner_one.value;
+
+            for (let owner_id in cluster_ownihrz) {
+                for (let bot_id in cluster_ownihrz[owner_id]) {
+                    if (cluster_ownihrz[owner_id][bot_id].power_off || !cluster_ownihrz[owner_id][bot_id].code) continue;
+
+                    if (now >= cluster_ownihrz[owner_id][bot_id].expireIn) {
+                        let table_1 = client.db.table("CLUSTER");
+                        await table_1.set(`${owner_id}.${bot_id}.power_off`, true);
+                        await table_1.set(`${owner_id}.${bot_id}.expired`, true);
+
+                        axios.get(OwnIhrzCluster(
+                            cluster_id as unknown as number,
+                            ClusterMethod.ShutdownContainer,
+                            bot_id,
+                            config.api.apiToken
+                        )).then(function (response) {
+                            logger.log(response.data as unknown as string)
+                        }).catch(function (error) { logger.err(error); });
+                    }
+                }
+            };
+        })
+    };
 
     async ShutDown(id_to_bot: string) {
         [
