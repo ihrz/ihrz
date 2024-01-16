@@ -78,12 +78,10 @@ export default {
             for (let index of ownihrzClusterData) {
                 for (let userId in index.value) {
                     for (let botId in index.value[userId]) {
-                        console.log(index.value[userId][botId])
-
                         if (botId === id_to_bot) {
-                            let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}.PowerOff`);
+                            let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
 
-                            if (fetch) {
+                            if (fetch.PowerOff) {
                                 await interaction.reply({ content: `OwnIHRZ of <@${userId}>, is already shutdown...`, ephemeral: true });
                                 return;
                             };
@@ -94,7 +92,8 @@ export default {
                                 content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now shutdown.\nNow, the bot container can't be Power On when iHorizon-Prod booting...`,
                                 ephemeral: true
                             });
-                            return new OwnIHRZ().ShutDown(id_to_bot);
+
+                            return new OwnIHRZ().ShutDown_Cluster(fetch.Cluster, id_to_bot);
                         }
                     }
                 }

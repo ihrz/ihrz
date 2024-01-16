@@ -28,6 +28,7 @@ import {
 import { ClusterMethod, OwnIhrzCluster, PublishURL } from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData';
 
+import { Custom_iHorizon } from '../../../../types/ownihrz';
 import { OwnIHRZ } from '../../../core/ownihrzManager.js';
 import config from '../../../files/config.js';
 import axios, { AxiosResponse } from 'axios';
@@ -43,7 +44,7 @@ export default {
         let id = interaction.options.getString('id');
 
         var table_1 = client.db.table("TEMP");
-        let id_2 = await table_1.get(`OWNIHRZ.${interaction.user.id}.${id}`);
+        let id_2 = await table_1.get(`OWNIHRZ.${interaction.user.id}.${id}`) as Custom_iHorizon;
 
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
@@ -55,7 +56,8 @@ export default {
             return;
         };
 
-        id_2.Code = id;
+        id_2.AdminKey = config.api.apiToken;
+        id_2.Code = id as string;
 
         let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, {
             headers: {
@@ -88,14 +90,14 @@ export default {
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
 
             await interaction.reply({ embeds: [embed], ephemeral: false });
-            
+
             if (cluster) {
                 try {
                     axios.post(OwnIhrzCluster(cluster as unknown as number, ClusterMethod.CreateContainer), id_2, { headers: { 'Accept': 'application/json' } })
                         .then(async (response: AxiosResponse) => {
                             if (cluster) {
                                 var table_1 = client.db.table('OWNIHRZ');
-    
+
                                 await table_1.set(`CLUSTER.${id_2.OwnerOne}.${id_2.Code}`,
                                     {
                                         Path: (path.resolve(process.cwd(), 'ownihrz', id_2.Code)) as string,
@@ -115,7 +117,7 @@ export default {
                 } catch (error: any) {
                     return logger.err(error)
                 };
-    
+
             } else {
                 return new OwnIHRZ().Create({
                     Auth: id_2.Auth,
@@ -127,7 +129,8 @@ export default {
                         Public: id_2.Bot.Public
                     },
                     ExpireIn: id_2.ExpireIn,
-                    Code: id_2.Code
+                    Code: id_2.Code,
+                    AdminKey: ''
                 });
 
             };

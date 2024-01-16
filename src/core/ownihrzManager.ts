@@ -34,6 +34,7 @@ import wait from "wait";
 
 class OwnIHRZ {
 
+    //Working
     async Create(data: Custom_iHorizon) {
         await fs.mkdir(`${process.cwd()}/ownihrz/${data.Code}`, { recursive: true }, (err) => {
             if (err) throw err;
@@ -125,6 +126,7 @@ class OwnIHRZ {
         return 0;
     };
 
+    // Working
     async Startup(client: Client) {
         let table_1 = db.table("OWNIHRZ")
         let result = await table_1.get("MAIN");
@@ -161,6 +163,7 @@ class OwnIHRZ {
         return 0;
     };
 
+    // Working
     async Startup_Cluster(client: Client) {
         var table_1 = client.db.table("OWNIHRZ");
 
@@ -245,18 +248,31 @@ class OwnIHRZ {
         })
     };
 
+    // Working
     async ShutDown(id_to_bot: string) {
         [
             {
                 line: `pm2 stop ${id_to_bot} -f`,
-                cwd: process.cwd()
+                cwd: process.cwd(),
             },
             {
                 line: `pm2 delete ${id_to_bot}`,
-                cwd: process.cwd()
+                cwd: process.cwd(),
             },
         ].forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); });
 
+        return 0;
+    };
+
+    async ShutDown_Cluster(cluster_id: number, id_to_bot: string) {
+        axios.get(OwnIhrzCluster(
+            cluster_id,
+            ClusterMethod.ShutdownContainer,
+            id_to_bot,
+            config.api.apiToken
+        )).then(function (response) {
+            logger.log(response.data as unknown as string)
+        }).catch(function (error) { logger.err(error); });
         return 0;
     };
 
@@ -283,8 +299,8 @@ class OwnIHRZ {
                 cwd: process.cwd()
             },
             {
-                line: 'rm -rf *',
-                cwd: path.join(process.cwd(), 'ownihrz', id_to_bot)
+                line: `rm ${id_to_bot} -r`,
+                cwd: path.join(process.cwd(), 'ownihrz')
             },
         ].forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); });
         return 0;
