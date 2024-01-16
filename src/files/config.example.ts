@@ -48,8 +48,17 @@ export default {
         cluster: {
             0: "https://cluster0.domain.com",
             1: "https://cluster1.domain.com"
-        }
+        },
         // The Clusters's URL for the OwnIHRZ-ClusterManager
+
+        shutdownClusterWhenStop: false
+        /*
+        This option permit to,
+        
+        * Every OWNIhrz which are hosted by a Cluster to be shutdown
+        When the bot are stoped
+        */
+       
     },
 
     command: {

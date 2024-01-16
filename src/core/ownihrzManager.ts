@@ -347,20 +347,21 @@ class OwnIHRZ {
             }
         };
 
-        for (let userId in ownihrzClusterData as any) {
-            for (let botId in ownihrzClusterData[userId]) {
-                if (ownihrzClusterData[userId][botId].PowerOff || !ownihrzClusterData[userId][botId].Code) continue;
-                await axios.get(OwnIhrzCluster(
-                    ownihrzClusterData[userId][botId].Cluster as unknown as number,
-                    ClusterMethod.ShutdownContainer,
-                    botId,
-                    config.api.apiToken
-                )).then(function (response) {
-                    logger.log(response.data as unknown as string)
-                }).catch(function (error) { logger.err(error); });
-            }
-        };
-
+        if (config.core.shutdownClusterWhenStop) {
+            for (let userId in ownihrzClusterData as any) {
+                for (let botId in ownihrzClusterData[userId]) {
+                    if (ownihrzClusterData[userId][botId].PowerOff || !ownihrzClusterData[userId][botId].Code) continue;
+                    await axios.get(OwnIhrzCluster(
+                        ownihrzClusterData[userId][botId].Cluster as unknown as number,
+                        ClusterMethod.ShutdownContainer,
+                        botId,
+                        config.api.apiToken
+                    )).then(function (response) {
+                        logger.log(response.data as unknown as string)
+                    }).catch(function (error) { logger.err(error); });
+                }
+            };
+        }
         return 0;
     };
 }
