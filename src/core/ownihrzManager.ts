@@ -195,10 +195,10 @@ class OwnIHRZ {
 
         for (let i in result) {
             for (let c in result[i]) {
-                if (!result[i][c].Code || result[i][c].Expired) continue;
+                if (!result[i][c].Code || result[i][c].PowerOff) continue;
                 if (now >= result[i][c].ExpireIn) {
                     await client.db.set(`OWNIHRZ.${i}.${c}.PowerOff`, true);
-                    await client.db.set(`OWNIHRZ.${i}.${c}.Expired`, true);
+
                     [
                         {
                             line: `pm2 stop ${result[i][c].Code} -f`,
@@ -217,35 +217,33 @@ class OwnIHRZ {
     };
 
     async Refresh_Cluster(client: Client) {
-        var table_1 = client.db.table("OWNIHRZ");
-        let result = await table_1.get("CLUSTER");
+        var tableOWNIHRZ = client.db.table("OWNIHRZ");
+        let ownihrzClusterData = await tableOWNIHRZ.get("CLUSTER");
 
         let now = new Date().getTime();
 
-        (await table_1.all()).forEach(async owner_one => {
-            var cluster_ownihrz = owner_one.value;
+        for (let userId in ownihrzClusterData as any) {
+            for (let botId in ownihrzClusterData[userId]) {
+                if (ownihrzClusterData[userId][botId].PowerOff || !ownihrzClusterData[userId][botId].Code) continue;
 
-            for (let owner_id in cluster_ownihrz) {
-                for (let bot_id in cluster_ownihrz[owner_id]) {
-                    if (cluster_ownihrz[owner_id][bot_id].PowerOff || !cluster_ownihrz[owner_id][bot_id].Code) continue;
+                if (now >= ownihrzClusterData[userId][botId].ExpireIn) {
+                    console.log(botId, " est expirée")
 
-                    if (now >= cluster_ownihrz[owner_id][bot_id].ExpireIn) {
-                        let table_1 = client.db.table("OWNIHRZ");
-                        await table_1.set(`CLUSTER.${owner_id}.${bot_id}.PowerOff`, true);
-                        await table_1.set(`CLUSTER.${owner_id}.${bot_id}.Expired`, true);
+                    await tableOWNIHRZ.set(`CLUSTER.${userId}.${botId}.PowerOff`, true);
 
-                        axios.get(OwnIhrzCluster(
-                            cluster_ownihrz[owner_id][bot_id].cluster as unknown as number,
-                            ClusterMethod.ShutdownContainer,
-                            bot_id,
-                            config.api.apiToken
-                        )).then(function (response) {
-                            logger.log(response.data as unknown as string)
-                        }).catch(function (error) { logger.err(error); });
-                    }
+                    axios.get(OwnIhrzCluster(
+                        ownihrzClusterData[userId][botId].Cluster as unknown as number,
+                        ClusterMethod.ShutdownContainer,
+                        botId,
+                        config.api.apiToken
+                    )).then(function (response) {
+                        logger.log(response.data as unknown as string)
+                    }).catch(function (error) { logger.err(error); });
+                } else {
+                    console.log(botId, " n'est pas expirée")
                 }
-            };
-        })
+            }
+        };
     };
 
     // Working
