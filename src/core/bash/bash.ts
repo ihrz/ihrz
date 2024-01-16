@@ -91,14 +91,5 @@ export default async (client: Client) => {
             }
             rl.prompt();
         });
-
-        process.on('SIGINT', () => {
-            logger.legacy(`\n* Please shutdown with the command the next time`.gray.bgBlack)
-            process.exit(1);
-        });
-        process.on('SIGQUIT', () => {
-            logger.legacy(`\n* Please shutdown with the command`.gray.bgBlack)
-            process.exit(1);
-        });
     }
 };

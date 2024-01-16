@@ -328,20 +328,36 @@ class OwnIHRZ {
         return 0;
     };
 
+    // Working
     async QuitProgram() {
         let table_1 = db.table("OWNIHRZ")
-        let result = await table_1.get("MAIN");
+        let dataMain = await table_1.get("MAIN");
+        let ownihrzClusterData = await table_1.get("CLUSTER");
 
-        for (let i in result) {
-            for (let c in result[i]) {
-                if (i !== 'TEMP' && !result[i][c].PowerOff) {
-                    let botPath = path.join(process.cwd(), 'ownihrz', result[i][c].Code);
+        for (let i in dataMain) {
+            for (let c in dataMain[i]) {
+                if (i !== 'TEMP' && !dataMain[i][c].PowerOff) {
+                    let botPath = path.join(process.cwd(), 'ownihrz', dataMain[i][c].Code);
 
-                    execSync(`pm2 stop ${result[i][c].Code}`, {
+                    execSync(`pm2 stop ${dataMain[i][c].Code}`, {
                         stdio: [0, 1, 2],
                         cwd: botPath,
                     });
                 };
+            }
+        };
+
+        for (let userId in ownihrzClusterData as any) {
+            for (let botId in ownihrzClusterData[userId]) {
+                if (ownihrzClusterData[userId][botId].PowerOff || !ownihrzClusterData[userId][botId].Code) continue;
+                await axios.get(OwnIhrzCluster(
+                    ownihrzClusterData[userId][botId].Cluster as unknown as number,
+                    ClusterMethod.ShutdownContainer,
+                    botId,
+                    config.api.apiToken
+                )).then(function (response) {
+                    logger.log(response.data as unknown as string)
+                }).catch(function (error) { logger.err(error); });
             }
         };
 
