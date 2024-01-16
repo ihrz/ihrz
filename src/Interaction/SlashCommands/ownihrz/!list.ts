@@ -31,7 +31,6 @@ import axios from 'axios';
 
 async function buildEmbed(client: Client, data: any, botId: number, lang: LanguageData) {
 
-    console.log(data)
     let config = {
         headers: {
             Authorization: `Bot ${data.Auth}`

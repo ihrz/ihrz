@@ -55,7 +55,6 @@ export default {
             return;
         };
 
-        id_2.admin_key = config.api.apiToken;
         id_2.code = id_1;
 
         let config_2 = {

@@ -29,10 +29,17 @@ import { Client } from "discord.js";
 import axios from "axios";
 import logger from "./logger.js";
 import path from "path";
+import fs from 'fs';
+import wait from "wait";
 
 class OwnIHRZ {
 
     async Create(data: Custom_iHorizon) {
+        await fs.mkdir(`${process.cwd()}/ownihrz/${data.Code}`, { recursive: true }, (err) => {
+            if (err) throw err;
+        });
+        await wait(1000)
+
         let port_range = 29268;
 
         [
@@ -102,11 +109,11 @@ class OwnIHRZ {
             }
         ].forEach((index) => { execSync(index.l, { stdio: [0, 1, 2], cwd: index.cwd }); });
 
-        await db.set(`OWNIHRZ.${data.OwnerOne}.${data.Code}`,
+        let table_1 = db.table("OWNIHRZ");
+        await table_1.set(`MAIN.${data.OwnerOne}.${data.Code}`,
             {
                 Path: (path.resolve(process.cwd(), 'ownihrz', data.Code)) as string,
                 Auth: data.Auth,
-                AdminKey: data.AdminKey,
                 OwnerOne: data.OwnerOne,
                 OwnerTwo: data.OwnerTwo,
                 Bot: data.Bot,
@@ -119,7 +126,8 @@ class OwnIHRZ {
     };
 
     async Startup(client: Client) {
-        let result = await client.db.get("OWNIHRZ");
+        let table_1 = db.table("OWNIHRZ")
+        let result = await table_1.get("MAIN");
 
         for (let owner_id in result) {
             for (let bot_id in result[owner_id]) {
@@ -177,7 +185,9 @@ class OwnIHRZ {
     };
 
     async Refresh(client: Client) {
-        let result = await client.db.get("OWNIHRZ");
+        let table_1 = db.table("OWNIHRZ")
+        let result = await table_1.get("MAIN");
+
         let now = new Date().getTime();
 
         for (let i in result) {
@@ -205,6 +215,8 @@ class OwnIHRZ {
 
     async Refresh_Cluster(client: Client) {
         var table_1 = client.db.table("OWNIHRZ");
+        let result = await table_1.get("CLUSTER");
+
         let now = new Date().getTime();
 
         (await table_1.all()).forEach(async owner_one => {
@@ -279,7 +291,8 @@ class OwnIHRZ {
     };
 
     async QuitProgram() {
-        let result = await db.get('OWNIHRZ');
+        let table_1 = db.table("OWNIHRZ")
+        let result = await table_1.get("MAIN");
 
         for (let i in result) {
             for (let c in result[i]) {

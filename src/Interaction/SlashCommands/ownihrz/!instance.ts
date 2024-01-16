@@ -25,12 +25,12 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import config from '../../../files/config.js';
-import ms, { StringValue } from 'ms';
 import date from 'date-and-time';
 
 import { LanguageData } from '../../../../types/languageData';
 import { OwnIHRZ } from '../../../core/ownihrzManager.js';
+import config from '../../../files/config.js';
+import ms, { StringValue } from 'ms';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -43,7 +43,8 @@ export default {
             return;
         };
 
-        let data_2 = await client.db.get(`OWNIHRZ`);
+        let table_1 = client.db.table("OWNIHRZ")
+        let data_2 = await table_1.get('MAIN');
 
         if (action_to_do === 'shutdown') {
             if (!id_to_bot) {
@@ -55,14 +56,14 @@ export default {
             for (let userId in data_2) {
                 for (let botId in data_2[userId]) {
                     if (botId === id_to_bot) {
-                        let fetch = await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.PowerOff`);
+                        let fetch = await table_1.get(`MAIN.${userId}.${id_to_bot}.PowerOff`);
 
                         if (fetch) {
                             await interaction.reply({ content: `OwnIHRZ of <@${userId}>, is already shutdown...`, ephemeral: true });
                             return;
                         };
 
-                        await client.db.set(`OWNIHRZ.${userId}.${id_to_bot}.PowerOff`, true);
+                        await table_1.set(`MAIN.${userId}.${id_to_bot}.PowerOff`, true);
 
                         await interaction.reply({
                             content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now shutdown.\nNow, the bot container can't be Power On when iHorizon-Prod booting...`,
@@ -83,14 +84,14 @@ export default {
             for (let userId in data_2) {
                 for (let botId in data_2[userId]) {
                     if (botId === id_to_bot) {
-                        let fetch = await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.PowerOff`);
+                        let fetch = await table_1.get(`MAIN.${userId}.${id_to_bot}.PowerOff`);
 
                         if (!fetch) {
                             await interaction.reply({ content: `OwnIHRZ of <@${userId}>, is already Power On...`, ephemeral: true });
                             return;
                         };
 
-                        await client.db.set(`OWNIHRZ.${userId}.${id_to_bot}.PowerOff`, false);
+                        await table_1.set(`MAIN.${userId}.${id_to_bot}.PowerOff`, false);
 
                         await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now Power On.\nNow, the bot container can be Power On when iHorizon-Prod booting...`, ephemeral: true });
                         return new OwnIHRZ().PowerOn(id_to_bot);
@@ -102,7 +103,7 @@ export default {
             for (let userId in data_2) {
                 for (let botId in data_2[userId]) {
                     if (botId === id_to_bot) {
-                        await client.db.delete(`OWNIHRZ.${userId}.${id_to_bot}`);
+                        await table_1.delete(`MAIN.${userId}.${id_to_bot}`);
 
                         await interaction.reply({
                             content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now deleted.\nThe bot container has been entierly erased...`,
@@ -113,18 +114,20 @@ export default {
                 }
             };
         } else if (action_to_do === 'ls') {
-            let data_3 = 'Instance:\n';
+            let emb = new EmbedBuilder().setColor('#000000').setDescription("OWNIHRZ");
 
             for (let i in data_2) {
                 if (i !== 'TEMP') {
                     for (let j in data_2[i]) {
-                        data_3 +=
-                            `[OWNIHRZ] (${j}) - **Owner**: <@${i}> | **BotId**: \`${data_2[i][j].bot?.id}\` | **BotName**: \`${data_2[i][j].bot?.username}\` | **Expire In**: \`${date.format(new Date(data_2[i][j].expireIn), 'ddd, MMM DD YYYY')}\`\r\n`
+                        let toAdd =
+                            `**Owner**: <@${i}>\n**Bot's ID**: \`${data_2[i][j].Bot?.Id}\`\n**Bot's Name**: \`${data_2[i][j].Bot.Name}\`\n**Expire In**: \`${date.format(new Date(data_2[i][j].ExpireIn), 'ddd, MMM DD YYYY')}\`\r\n`
+
+                        emb.addFields({ name: j, value: toAdd, inline: false })
                     };
                 };
             };
 
-            await interaction.reply({ embeds: [new EmbedBuilder().setDescription(data_3).setColor('#000000')], ephemeral: true });
+            await interaction.reply({ embeds: [emb], ephemeral: true });
             return;
         } else if (action_to_do === 'add-expire') {
             for (let userId in data_2) {
@@ -132,9 +135,9 @@ export default {
                     if (botId === id_to_bot) {
                         let time = interaction.options.getString('time') || '0d';
 
-                        await client.db.add(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`, ms((time as StringValue)));
+                        await table_1.add(`MAIN.${userId}.${id_to_bot}.expireIn`, ms((time as StringValue)));
 
-                        let expireIn = await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`);
+                        let expireIn = await client.db.get(`MAIN.${userId}.${id_to_bot}.expireIn`);
                         let expire: string | null = null;
 
                         if (expireIn !== null) {
@@ -152,9 +155,9 @@ export default {
                     if (botId === id_to_bot) {
                         let time = interaction.options.getString('time') || '0d';
 
-                        await client.db.sub(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`, ms((time as StringValue)));
+                        await table_1.sub(`MAIN.${userId}.${id_to_bot}.expireIn`, ms((time as StringValue)));
 
-                        let expireIn = await client.db.get(`OWNIHRZ.${userId}.${id_to_bot}.expireIn`);
+                        let expireIn = await table_1.get(`MAIN.${userId}.${id_to_bot}.expireIn`);
                         let expire: string | null = null;
 
                         if (expireIn !== null) {

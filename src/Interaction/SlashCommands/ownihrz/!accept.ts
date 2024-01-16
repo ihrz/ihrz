@@ -55,7 +55,6 @@ export default {
             return;
         };
 
-        id_2.AdminKey = config.api.apiToken;
         id_2.Code = id;
 
         let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, {
@@ -118,14 +117,8 @@ export default {
                 };
     
             } else {
-                await fs.mkdir(`${process.cwd()}/ownihrz/${id_2.Code}`, { recursive: true }, (err) => {
-                    if (err) throw err;
-                });
-                await wait(1000)
-
                 return new OwnIHRZ().Create({
                     Auth: id_2.Auth,
-                    AdminKey: id_2.AdminKey,
                     OwnerOne: id_2.OwnerOne,
                     OwnerTwo: id_2.OwnerTwo,
                     Bot: {
