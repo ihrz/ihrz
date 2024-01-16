@@ -45,6 +45,11 @@ export default {
         "reportChannelID": "The Discord Channel's ID for logs when bugs/message are reported",
         // The channel where the robot informs of a bug reported by a user of the bot.
 
+        cluster: {
+            0: "https://cluster0.domain.com",
+            1: "https://cluster1.domain.com"
+        }
+        // The Clusters's URL for the OwnIHRZ-ClusterManager
     },
 
     command: {
