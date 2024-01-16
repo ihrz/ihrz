@@ -47,6 +47,7 @@ export default {
         let ownihrzData = await tableOWNIHRZ.get('MAIN');
         let ownihrzClusterData = await tableOWNIHRZ.get('CLUSTER');
 
+        // Working with Cluster
         if (action_to_do === 'shutdown') {
             if (!id_to_bot) {
                 await interaction.reply({
@@ -75,31 +76,32 @@ export default {
                 }
             };
 
-            for (let index of ownihrzClusterData) {
-                for (let userId in index.value) {
-                    for (let botId in index.value[userId]) {
-                        if (botId === id_to_bot) {
-                            let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
+            for (let userId in ownihrzClusterData as any) {
+                let botData = ownihrzClusterData[userId];
+                for (let botId in botData) {
+                    if (botId === id_to_bot) {
+                        let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
 
-                            if (fetch.PowerOff) {
-                                await interaction.reply({ content: `OwnIHRZ of <@${userId}>, is already shutdown...`, ephemeral: true });
-                                return;
-                            };
-
-                            await tableOWNIHRZ.set(`CLUSTER.${userId}.${id_to_bot}.PowerOff`, true);
-
-                            await interaction.reply({
-                                content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now shutdown.\nNow, the bot container can't be Power On when iHorizon-Prod booting...`,
-                                ephemeral: true
-                            });
-
-                            return new OwnIHRZ().ShutDown_Cluster(fetch.Cluster, id_to_bot);
+                        if (fetch.PowerOff) {
+                            await interaction.reply({ content: `OwnIHRZ of <@${userId}>, is already shutdown...`, ephemeral: true });
+                            return;
                         }
+
+                        await tableOWNIHRZ.set(`CLUSTER.${userId}.${id_to_bot}.PowerOff`, true);
+
+                        await interaction.reply({
+                            content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now shutdown.\nNow, the bot container can't be Power On when iHorizon-Prod booting...`,
+                            ephemeral: true
+                        });
+
+                        return new OwnIHRZ().ShutDown_Cluster(fetch.Cluster, id_to_bot);
                     }
                 }
             }
 
+            // Working with Cluster
         } else if (action_to_do === 'poweron') {
+
             if (!id_to_bot) {
                 await interaction.reply({
                     content: `${interaction.user}, you have forgot the ID of the bot!`
@@ -124,6 +126,26 @@ export default {
                 }
             };
 
+            for (let userId in ownihrzClusterData as any) {
+                let botData = ownihrzClusterData[userId];
+                for (let botId in botData) {
+                    if (botId === id_to_bot) {
+                        let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
+
+                        if (!fetch.PowerOff) {
+                            await interaction.reply({ content: `OwnIHRZ of <@${userId}>, is already up...`, ephemeral: true });
+                            return;
+                        }
+
+                        await tableOWNIHRZ.set(`CLUSTER.${userId}.${id_to_bot}.PowerOff`, false);
+
+                        await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now Power On.\nNow, the bot container can be Power On when iHorizon-Prod booting...`, ephemeral: true });
+                        return new OwnIHRZ().PowerOn_Cluster(fetch.Cluster, id_to_bot);
+                    }
+                }
+            }
+
+            // Working with cluster
         } else if (action_to_do === 'delete') {
             for (let userId in ownihrzData) {
                 for (let botId in ownihrzData[userId]) {
@@ -138,6 +160,25 @@ export default {
                     }
                 }
             };
+
+            for (let userId in ownihrzClusterData as any) {
+                let botData = ownihrzClusterData[userId];
+                for (let botId in botData) {
+                    if (botId === id_to_bot) {
+                        let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
+
+                        await tableOWNIHRZ.delete(`CLUSTER.${userId}.${id_to_bot}`);
+
+                        await interaction.reply({
+                            content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now deleted.\nThe bot container has been entierly erased...`,
+                            ephemeral: true
+                        });
+                        return new OwnIHRZ().Delete_Cluster(fetch.Cluster, id_to_bot);
+                    }
+                }
+            }
+
+            // Working with Cluster
         } else if (action_to_do === 'ls') {
             let emb = new EmbedBuilder().setColor('#000000').setDescription("OWNIHRZ");
 
@@ -150,6 +191,16 @@ export default {
                         emb.addFields({ name: j, value: toAdd, inline: false })
                     };
                 };
+            };
+
+            for (let userId in ownihrzClusterData as any) {
+                let botData = ownihrzClusterData[userId];
+                for (let botId in botData) {
+                    let toAdd =
+                        `**Owner**: <@${userId}>\n**Bot's ID**: \`${botData[botId].Bot?.Id}\`\n**Bot's Name**: \`${botData[botId].Bot.Name}\`\n**Expire In**: \`${date.format(new Date(botData[botId].ExpireIn), 'ddd, MMM DD YYYY')}\`\r\n`
+
+                    emb.addFields({ name: botId, value: toAdd, inline: false })
+                }
             };
 
             await interaction.reply({ embeds: [emb], ephemeral: true });

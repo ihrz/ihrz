@@ -264,6 +264,7 @@ class OwnIHRZ {
         return 0;
     };
 
+    // Working
     async ShutDown_Cluster(cluster_id: number, id_to_bot: string) {
         axios.get(OwnIhrzCluster(
             cluster_id,
@@ -276,7 +277,7 @@ class OwnIHRZ {
         return 0;
     };
 
-
+    // Working
     async PowerOn(id_to_bot: string) {
 
         execSync(`pm2 start ./dist/${id_to_bot}.js -f`, {
@@ -287,7 +288,20 @@ class OwnIHRZ {
         return 0;
     };
 
+    // Working
+    async PowerOn_Cluster(cluster_id: number, id_to_bot: string) {
+        axios.get(OwnIhrzCluster(
+            cluster_id,
+            ClusterMethod.PowerOnContainer,
+            id_to_bot,
+            config.api.apiToken
+        )).then(function (response) {
+            logger.log(response.data as unknown as string)
+        }).catch(function (error) { logger.err(error); });
+        return 0;
+    };
 
+    // Working
     async Delete(id_to_bot: string) {
         [
             {
@@ -303,6 +317,19 @@ class OwnIHRZ {
                 cwd: path.join(process.cwd(), 'ownihrz')
             },
         ].forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); });
+        return 0;
+    };
+
+    // Working
+    async Delete_Cluster(cluster_id: number, id_to_bot: string) {
+        axios.get(OwnIhrzCluster(
+            cluster_id,
+            ClusterMethod.DeleteContainer,
+            id_to_bot,
+            config.api.apiToken
+        )).then(function (response) {
+            logger.log(response.data as unknown as string)
+        }).catch(function (error) { logger.err(error); });
         return 0;
     };
 
