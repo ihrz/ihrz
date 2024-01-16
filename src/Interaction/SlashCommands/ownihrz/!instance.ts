@@ -205,7 +205,10 @@ export default {
 
             await interaction.reply({ embeds: [emb], ephemeral: true });
             return;
+
+            // Working with Cluster
         } else if (action_to_do === 'add-expire') {
+
             for (let userId in ownihrzData) {
                 for (let botId in ownihrzData[userId]) {
                     if (botId === id_to_bot) {
@@ -213,7 +216,27 @@ export default {
 
                         await tableOWNIHRZ.add(`MAIN.${userId}.${id_to_bot}.ExpireIn`, ms((time as StringValue)));
 
-                        let ExpireIn = await client.db.get(`MAIN.${userId}.${id_to_bot}.ExpireIn`);
+                        let ExpireIn = await tableOWNIHRZ.get(`MAIN.${userId}.${id_to_bot}.ExpireIn`);
+                        let expire: string | null = null;
+
+                        if (ExpireIn !== null) {
+                            expire = date.format(new Date(ExpireIn), 'ddd, MMM DD YYYY');
+                        };
+
+                        await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`, ephemeral: true });
+                        return;
+                    };
+                }
+            };
+
+            for (let userId in ownihrzClusterData as any) {
+                for (let botId in ownihrzClusterData[userId]) {
+                    if (botId === id_to_bot) {
+                        let time = interaction.options.getString('time') || '0d';
+
+                        await tableOWNIHRZ.add(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`, ms((time as StringValue)));
+
+                        let ExpireIn = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`);
                         let expire: string | null = null;
 
                         if (ExpireIn !== null) {
@@ -222,10 +245,13 @@ export default {
 
                         await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`, ephemeral: true });
                         return;
-                    };
+                    }
                 }
             };
+
+            // Working with Cluster
         } else if (action_to_do === 'sub-expire') {
+
             for (let userId in ownihrzData) {
                 for (let botId in ownihrzData[userId]) {
                     if (botId === id_to_bot) {
@@ -246,6 +272,29 @@ export default {
                         });
                         return;
                     };
+                }
+            };
+
+            for (let userId in ownihrzClusterData as any) {
+                for (let botId in ownihrzClusterData[userId]) {
+                    if (botId === id_to_bot) {
+                        let time = interaction.options.getString('time') || '0d';
+
+                        await tableOWNIHRZ.sub(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`, ms((time as StringValue)));
+
+                        let ExpireIn = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`);
+                        let expire: string | null = null;
+
+                        if (ExpireIn !== null) {
+                            expire = date.format(new Date(ExpireIn), 'ddd, MMM DD YYYY');
+                        }
+
+                        await interaction.reply({
+                            content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`,
+                            ephemeral: true
+                        });
+                        return;
+                    }
                 }
             };
         }
