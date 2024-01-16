@@ -308,7 +308,7 @@ class OwnIHRZ {
                 cwd: process.cwd()
             },
             {
-                line: `rm ${id_to_bot} -r`,
+                line: `rm -r --interactive=never ${id_to_bot}`,
                 cwd: path.join(process.cwd(), 'ownihrz')
             },
         ].forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); });
