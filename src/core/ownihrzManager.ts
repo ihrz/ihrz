@@ -193,7 +193,7 @@ class OwnIHRZ {
         for (let i in result) {
             for (let c in result[i]) {
                 if (!result[i][c].Code || result[i][c].Expired) continue;
-                if (now >= result[i][c].expireIn) {
+                if (now >= result[i][c].ExpireIn) {
                     await client.db.set(`OWNIHRZ.${i}.${c}.PowerOff`, true);
                     await client.db.set(`OWNIHRZ.${i}.${c}.Expired`, true);
                     [
@@ -226,10 +226,10 @@ class OwnIHRZ {
                 for (let bot_id in cluster_ownihrz[owner_id]) {
                     if (cluster_ownihrz[owner_id][bot_id].PowerOff || !cluster_ownihrz[owner_id][bot_id].Code) continue;
 
-                    if (now >= cluster_ownihrz[owner_id][bot_id].expireIn) {
+                    if (now >= cluster_ownihrz[owner_id][bot_id].ExpireIn) {
                         let table_1 = client.db.table("OWNIHRZ");
                         await table_1.set(`CLUSTER.${owner_id}.${bot_id}.PowerOff`, true);
-                        await table_1.set(`CLUSTER.${owner_id}.${bot_id}.expired`, true);
+                        await table_1.set(`CLUSTER.${owner_id}.${bot_id}.Expired`, true);
 
                         axios.get(OwnIhrzCluster(
                             cluster_ownihrz[owner_id][bot_id].cluster as unknown as number,
@@ -284,7 +284,7 @@ class OwnIHRZ {
             },
             {
                 line: 'rm -rf *',
-                cwd: process.cwd()
+                cwd: path.join(process.cwd(), 'ownihrz', id_to_bot)
             },
         ].forEach((index) => { execSync(index.line, { stdio: [0, 1, 2], cwd: index.cwd }); });
         return 0;

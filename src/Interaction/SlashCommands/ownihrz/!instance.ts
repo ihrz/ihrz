@@ -43,8 +43,9 @@ export default {
             return;
         };
 
-        let table_1 = client.db.table("OWNIHRZ")
-        let data_2 = await table_1.get('MAIN');
+        let tableOWNIHRZ = client.db.table("OWNIHRZ")
+        let ownihrzData = await tableOWNIHRZ.get('MAIN');
+        let ownihrzClusterData = await tableOWNIHRZ.get('CLUSTER');
 
         if (action_to_do === 'shutdown') {
             if (!id_to_bot) {
@@ -53,23 +54,48 @@ export default {
                 })
             };
 
-            for (let userId in data_2) {
-                for (let botId in data_2[userId]) {
+            for (let userId in ownihrzData) {
+                for (let botId in ownihrzData[userId]) {
                     if (botId === id_to_bot) {
-                        let fetch = await table_1.get(`MAIN.${userId}.${id_to_bot}.PowerOff`);
+                        let fetch = await tableOWNIHRZ.get(`MAIN.${userId}.${id_to_bot}.PowerOff`);
 
                         if (fetch) {
                             await interaction.reply({ content: `OwnIHRZ of <@${userId}>, is already shutdown...`, ephemeral: true });
                             return;
                         };
 
-                        await table_1.set(`MAIN.${userId}.${id_to_bot}.PowerOff`, true);
+                        await tableOWNIHRZ.set(`MAIN.${userId}.${id_to_bot}.PowerOff`, true);
 
                         await interaction.reply({
                             content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now shutdown.\nNow, the bot container can't be Power On when iHorizon-Prod booting...`,
                             ephemeral: true
                         });
                         return new OwnIHRZ().ShutDown(id_to_bot);
+                    }
+                }
+            };
+
+            for (let index of ownihrzClusterData) {
+                for (let userId in index.value) {
+                    for (let botId in index.value[userId]) {
+                        console.log(index.value[userId][botId])
+
+                        if (botId === id_to_bot) {
+                            let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}.PowerOff`);
+
+                            if (fetch) {
+                                await interaction.reply({ content: `OwnIHRZ of <@${userId}>, is already shutdown...`, ephemeral: true });
+                                return;
+                            };
+
+                            await tableOWNIHRZ.set(`CLUSTER.${userId}.${id_to_bot}.PowerOff`, true);
+
+                            await interaction.reply({
+                                content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now shutdown.\nNow, the bot container can't be Power On when iHorizon-Prod booting...`,
+                                ephemeral: true
+                            });
+                            return new OwnIHRZ().ShutDown(id_to_bot);
+                        }
                     }
                 }
             }
@@ -81,17 +107,17 @@ export default {
                 })
             };
 
-            for (let userId in data_2) {
-                for (let botId in data_2[userId]) {
+            for (let userId in ownihrzData) {
+                for (let botId in ownihrzData[userId]) {
                     if (botId === id_to_bot) {
-                        let fetch = await table_1.get(`MAIN.${userId}.${id_to_bot}.PowerOff`);
+                        let fetch = await tableOWNIHRZ.get(`MAIN.${userId}.${id_to_bot}.PowerOff`);
 
                         if (!fetch) {
                             await interaction.reply({ content: `OwnIHRZ of <@${userId}>, is already Power On...`, ephemeral: true });
                             return;
                         };
 
-                        await table_1.set(`MAIN.${userId}.${id_to_bot}.PowerOff`, false);
+                        await tableOWNIHRZ.set(`MAIN.${userId}.${id_to_bot}.PowerOff`, false);
 
                         await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now Power On.\nNow, the bot container can be Power On when iHorizon-Prod booting...`, ephemeral: true });
                         return new OwnIHRZ().PowerOn(id_to_bot);
@@ -100,10 +126,10 @@ export default {
             };
 
         } else if (action_to_do === 'delete') {
-            for (let userId in data_2) {
-                for (let botId in data_2[userId]) {
+            for (let userId in ownihrzData) {
+                for (let botId in ownihrzData[userId]) {
                     if (botId === id_to_bot) {
-                        await table_1.delete(`MAIN.${userId}.${id_to_bot}`);
+                        await tableOWNIHRZ.delete(`MAIN.${userId}.${id_to_bot}`);
 
                         await interaction.reply({
                             content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now deleted.\nThe bot container has been entierly erased...`,
@@ -116,11 +142,11 @@ export default {
         } else if (action_to_do === 'ls') {
             let emb = new EmbedBuilder().setColor('#000000').setDescription("OWNIHRZ");
 
-            for (let i in data_2) {
+            for (let i in ownihrzData) {
                 if (i !== 'TEMP') {
-                    for (let j in data_2[i]) {
+                    for (let j in ownihrzData[i]) {
                         let toAdd =
-                            `**Owner**: <@${i}>\n**Bot's ID**: \`${data_2[i][j].Bot?.Id}\`\n**Bot's Name**: \`${data_2[i][j].Bot.Name}\`\n**Expire In**: \`${date.format(new Date(data_2[i][j].ExpireIn), 'ddd, MMM DD YYYY')}\`\r\n`
+                            `**Owner**: <@${i}>\n**Bot's ID**: \`${ownihrzData[i][j].Bot?.Id}\`\n**Bot's Name**: \`${ownihrzData[i][j].Bot.Name}\`\n**Expire In**: \`${date.format(new Date(ownihrzData[i][j].ExpireIn), 'ddd, MMM DD YYYY')}\`\r\n`
 
                         emb.addFields({ name: j, value: toAdd, inline: false })
                     };
@@ -130,12 +156,12 @@ export default {
             await interaction.reply({ embeds: [emb], ephemeral: true });
             return;
         } else if (action_to_do === 'add-expire') {
-            for (let userId in data_2) {
-                for (let botId in data_2[userId]) {
+            for (let userId in ownihrzData) {
+                for (let botId in ownihrzData[userId]) {
                     if (botId === id_to_bot) {
                         let time = interaction.options.getString('time') || '0d';
 
-                        await table_1.add(`MAIN.${userId}.${id_to_bot}.ExpireIn`, ms((time as StringValue)));
+                        await tableOWNIHRZ.add(`MAIN.${userId}.${id_to_bot}.ExpireIn`, ms((time as StringValue)));
 
                         let ExpireIn = await client.db.get(`MAIN.${userId}.${id_to_bot}.ExpireIn`);
                         let expire: string | null = null;
@@ -150,14 +176,14 @@ export default {
                 }
             };
         } else if (action_to_do === 'sub-expire') {
-            for (let userId in data_2) {
-                for (let botId in data_2[userId]) {
+            for (let userId in ownihrzData) {
+                for (let botId in ownihrzData[userId]) {
                     if (botId === id_to_bot) {
                         let time = interaction.options.getString('time') || '0d';
 
-                        await table_1.sub(`MAIN.${userId}.${id_to_bot}.ExpireIn`, ms((time as StringValue)));
+                        await tableOWNIHRZ.sub(`MAIN.${userId}.${id_to_bot}.ExpireIn`, ms((time as StringValue)));
 
-                        let ExpireIn = await table_1.get(`MAIN.${userId}.${id_to_bot}.ExpireIn`);
+                        let ExpireIn = await tableOWNIHRZ.get(`MAIN.${userId}.${id_to_bot}.ExpireIn`);
                         let expire: string | null = null;
 
                         if (ExpireIn !== null) {
