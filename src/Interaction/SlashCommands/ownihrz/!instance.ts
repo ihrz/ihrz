@@ -135,13 +135,13 @@ export default {
                     if (botId === id_to_bot) {
                         let time = interaction.options.getString('time') || '0d';
 
-                        await table_1.add(`MAIN.${userId}.${id_to_bot}.expireIn`, ms((time as StringValue)));
+                        await table_1.add(`MAIN.${userId}.${id_to_bot}.ExpireIn`, ms((time as StringValue)));
 
-                        let expireIn = await client.db.get(`MAIN.${userId}.${id_to_bot}.expireIn`);
+                        let ExpireIn = await client.db.get(`MAIN.${userId}.${id_to_bot}.ExpireIn`);
                         let expire: string | null = null;
 
-                        if (expireIn !== null) {
-                            expire = date.format(new Date(expireIn), 'ddd, MMM DD YYYY');
+                        if (ExpireIn !== null) {
+                            expire = date.format(new Date(ExpireIn), 'ddd, MMM DD YYYY');
                         }
 
                         await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`, ephemeral: true });
@@ -155,13 +155,13 @@ export default {
                     if (botId === id_to_bot) {
                         let time = interaction.options.getString('time') || '0d';
 
-                        await table_1.sub(`MAIN.${userId}.${id_to_bot}.expireIn`, ms((time as StringValue)));
+                        await table_1.sub(`MAIN.${userId}.${id_to_bot}.ExpireIn`, ms((time as StringValue)));
 
-                        let expireIn = await table_1.get(`MAIN.${userId}.${id_to_bot}.expireIn`);
+                        let ExpireIn = await table_1.get(`MAIN.${userId}.${id_to_bot}.ExpireIn`);
                         let expire: string | null = null;
 
-                        if (expireIn !== null) {
-                            expire = date.format(new Date(expireIn), 'ddd, MMM DD YYYY');
+                        if (ExpireIn !== null) {
+                            expire = date.format(new Date(ExpireIn), 'ddd, MMM DD YYYY');
                         };
 
                         await interaction.reply({

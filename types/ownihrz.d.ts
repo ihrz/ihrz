@@ -21,7 +21,6 @@
 
 export interface Custom_iHorizon {
     Auth: string
-    AdminKey: string
     OwnerOne: string
     OwnerTwo: string
     Bot: {
