@@ -216,6 +216,7 @@ class OwnIHRZ {
         return 0;
     };
 
+    // Working
     async Refresh_Cluster(client: Client) {
         var tableOWNIHRZ = client.db.table("OWNIHRZ");
         let ownihrzClusterData = await tableOWNIHRZ.get("CLUSTER");
@@ -227,8 +228,6 @@ class OwnIHRZ {
                 if (ownihrzClusterData[userId][botId].PowerOff || !ownihrzClusterData[userId][botId].Code) continue;
 
                 if (now >= ownihrzClusterData[userId][botId].ExpireIn) {
-                    console.log(botId, " est expirée")
-
                     await tableOWNIHRZ.set(`CLUSTER.${userId}.${botId}.PowerOff`, true);
 
                     axios.get(OwnIhrzCluster(
@@ -239,9 +238,7 @@ class OwnIHRZ {
                     )).then(function (response) {
                         logger.log(response.data as unknown as string)
                     }).catch(function (error) { logger.err(error); });
-                } else {
-                    console.log(botId, " n'est pas expirée")
-                }
+                };
             }
         };
     };
