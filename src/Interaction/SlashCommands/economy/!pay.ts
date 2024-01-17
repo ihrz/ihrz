@@ -43,7 +43,7 @@ export default {
 
         await interaction.reply({
             content: data.pay_command_work
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName as string)
+                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username as string)
                 .replace(/\${user\.user\.username}/g, user?.globalName as string)
                 .replace(/\${amount}/g, amount as unknown as string)
         });

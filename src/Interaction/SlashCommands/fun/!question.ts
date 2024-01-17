@@ -41,7 +41,7 @@ export default {
 
         let embed = new EmbedBuilder()
             .setTitle(data.question_embed_title
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName as string)
+                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username as string)
             )
             .setColor("#ddd98b")
             .addFields(

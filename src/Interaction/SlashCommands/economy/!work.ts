@@ -41,11 +41,11 @@ export default {
         let embed = new EmbedBuilder()
             .setAuthor({
                 name: data.work_embed_author
-                    .replace(/\${interaction\.user\.username}/g, interaction.user.globalName as string),
+                    .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username as string),
                 iconURL: interaction.user.displayAvatarURL()
             })
             .setDescription(data.work_embed_description
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName as string)
+                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username as string)
                 .replace(/\${amount}/g, amount as unknown as string)
             )
             .setColor("#f1d488");

@@ -79,12 +79,12 @@ export default {
         member.send({
             content: data.ban_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-                .replace(/\${interaction\.member\.user\.username}/g, interaction.user.globalName as string)
+                .replace(/\${interaction\.member\.user\.username}/g, interaction.user.globalName || interaction.user.username as string)
         })
             .catch(() => {
             })
             .then(() => {
-                member?.ban({ reason: 'banned by ' + interaction.user.globalName })
+                member?.ban({ reason: 'banned by ' + interaction.user.globalName || interaction.user.username })
                     .then((member) => {
                         interaction.editReply({
                             content: data.ban_command_work
