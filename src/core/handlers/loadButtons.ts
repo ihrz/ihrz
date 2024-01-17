@@ -27,8 +27,8 @@ export default async (client: Client) => {
     client.buttons = new Collection<string, Function>();
 
     readdirSync(`${process.cwd()}/dist/src/Interaction/Components/Buttons`).filter(file => file.endsWith(".js")).forEach(async file => {
-        const buttons = await import(`${process.cwd()}/dist/src/Interaction/Components/Buttons/${file}`)
-        client.buttons.set(file.split('.js')[0], buttons)
+        const buttons = await import(`${process.cwd()}/dist/src/Interaction/Components/Buttons/${file}`);
+        client.buttons.set(file.split('.js')[0], buttons.default || buttons);
     });
 
 };
