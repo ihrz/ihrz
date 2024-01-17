@@ -313,7 +313,7 @@ async function Reroll(client: Client, data: Data) {
 
 };
 
-function Init(client: Client) {
+function GiveawaysManager_Init(client: Client) {
     Refresh(client);
 
     setInterval(() => {
@@ -476,7 +476,7 @@ async function ListEntries(interaction: ChatInputCommandInteraction, data: Data)
 }
 
 export {
-    Init,
+    GiveawaysManager_Init,
     isValid,
     isEnded,
 

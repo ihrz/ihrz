@@ -29,7 +29,7 @@ import logger from "./logger.js";
 
 import { Client, Collection, Snowflake } from "discord.js";
 import { OwnIHRZ } from './ownihrzManager.js';
-import { Init } from './giveawaysManager.js';
+import { GiveawaysManager_Init } from './giveawaysManager.js';
 import emojis from './emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData';
@@ -71,7 +71,7 @@ export default async (client: Client) => {
     }
 
     bash(client);
-    Init(client);
+    GiveawaysManager_Init(client);
     playerManager(client);
     emojis(client);
     errorManager.uncaughtExceptionHandler();

@@ -20,7 +20,7 @@
 */
 
 import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature } from 'discord.js';
-import { Init } from "../core/pfpsManager.js";
+import { PfpsManager_Init } from "../core/pfpsManager.js";
 import logger from "../core/logger.js";
 import couleurmdr from 'colors';
 import config from "../files/config.js";
@@ -127,5 +127,5 @@ export default async (client: Client) => {
 
     fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule();
 
-    Init(client);
+    PfpsManager_Init(client);
 };
