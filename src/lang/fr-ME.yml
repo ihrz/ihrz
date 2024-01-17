@@ -435,6 +435,7 @@ renew_not_administrator: ":x: **Faut etre le boss pour faire ca , revient quand 
 prevnames_embed_title: "Liste de tous les pseudos de ${user.username}"
 prevnames_undetected: "Aucune donnée trouvée !"
 prevnames_not_admin: "Il te faut la perm admin encore une fois, essaie /nayaweb c une super commande bg."
+prevnames_data_erased: "Vos ancien pseudo ont entièrement été supprimer sur votre demande p'tit con!"
 
 # /blockbot
 blockbot_not_owner: ":x: **Tu n'est pas le propriétaire du serveur grosse merde !**"

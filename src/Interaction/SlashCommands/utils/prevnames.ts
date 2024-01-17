@@ -32,34 +32,35 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
-    
+
     name: 'prevnames',
 
     description: 'Lookup an Discord User, and see this previous username !',
     description_localizations: {
         "fr": "Recherchez un utilisateur Discord et voyez ces noms d'utilisateur précédent"
     },
-    
+
     options: [
         {
             name: 'user',
             type: ApplicationCommandOptionType.User,
 
-            description: 'user you want to lookup',
+            description: "L'utilisateur que vous voulez rechercher",
             description_localizations: {
-                "fr": "user you want to lookup"
+                "fr": "user you want to see this previous username"
             },
 
             required: false
-        }
+        },
     ],
     thinking: false,
     category: 'utils',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guild?.id) as LanguageData;
         let user = interaction.options.getUser("user") || interaction.user;
 
         // if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
@@ -81,7 +82,7 @@ export const command: Command = {
             let pageUsers = char.slice(i, i + usersPerPage);
             let pageContent = pageUsers.map((userId) => userId).join('\n');
             pages.push({
-                title: `${data.prevnames_embed_title.replace("${user.username}", user.globalName)} | Page ${i / usersPerPage + 1}`,
+                title: `${data.prevnames_embed_title.replace("${user.username}", user.globalName as string)} | Page ${i / usersPerPage + 1}`,
                 description: pageContent,
             });
         };
@@ -104,6 +105,10 @@ export const command: Command = {
                 .setCustomId('nextPage')
                 .setLabel('➡️')
                 .setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder()
+                .setCustomId("trash-prevnames-embed")
+                .setLabel("🗑️")
+                .setStyle(ButtonStyle.Danger)
         );
 
         let messageEmbed = await interaction.reply({
@@ -117,11 +122,17 @@ export const command: Command = {
             }, time: 60000
         });
 
-        collector.on('collect', (interaction: { customId: string; }) => {
-            if (interaction.customId === 'previousPage') {
+        collector.on('collect', async (interaction_2: { customId: string; }) => {
+            if (interaction_2.customId === 'previousPage') {
                 currentPage = (currentPage - 1 + pages.length) % pages.length;
-            } else if (interaction.customId === 'nextPage') {
+            } else if (interaction_2.customId === 'nextPage') {
                 currentPage = (currentPage + 1) % pages.length;
+            } else if (interaction_2.customId === 'trash-prevnames-embed') {
+                if (interaction.user.id === user.id) {
+                    await client.db.delete(`DB.PREVNAMES.${user.id}`);
+                    messageEmbed.edit({ embeds: [], components: [], content: data.prevnames_data_erased })
+                    return;
+                }
             }
 
             messageEmbed.edit({ embeds: [createEmbed()] });
