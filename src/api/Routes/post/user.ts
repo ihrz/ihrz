@@ -22,13 +22,13 @@
 import { URLSearchParams } from 'url';
 import axios from 'axios';
 import couleurmdr from 'colors';
-import logger from '../../../core/logger';
-import config from '../../../files/config';
-import * as apiUrlParser from '../../../core/functions/apiUrlParser';
+import logger from '../../../core/logger.js';
+import config from '../../../files/config.js';
+import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { Request, Response } from 'express';
-import db from '../../../core/functions/DatabaseModel';
+import db from '../../../core/functions/DatabaseModel.js';
 
-export = {
+export default {
     type: 'post',
     apiPath: '/api/user',
     run: async (req: Request, res: Response) => {

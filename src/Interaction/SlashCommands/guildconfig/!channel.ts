@@ -28,9 +28,9 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
-import logger from '../../../core/logger';
+import logger from '../../../core/logger.js';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setchannels_not_admin });
@@ -143,8 +143,8 @@ export = {
                 logger.err(e)
             };
 
-            let leavec: string = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.join`);
-            let joinc: string = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.leave`);
+            let leavec = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.join`);
+            let joinc = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.leave`);
 
             if (!joinc && !leavec) {
                 await interaction.editReply({ content: data.setchannels_already_on_off });

@@ -90,6 +90,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
         let command = interaction.options.getSubcommand();
 
-        await require('./!' + command).run(client, interaction, data);
+        const commandModule = await import(`./!${command}.js`);
+        await commandModule.default.run(client, interaction, data);
     },
 };

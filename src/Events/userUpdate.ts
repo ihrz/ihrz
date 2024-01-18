@@ -21,7 +21,7 @@
 
 import { Client, User, time } from "discord.js";
 
-export = async (client: Client, oldUser: User) => {
+export default async (client: Client, oldUser: User) => {
     async function prevNames() {
         var newUser = await client.users.fetch(oldUser.id);
 

@@ -28,13 +28,13 @@ import {
     TextBasedChannel,
 } from 'discord.js';
 
-import { Create } from '../../../core/giveawaysManager';
+import { Create } from '../../../core/giveawaysManager.js';
 import { LanguageData } from '../../../../types/languageData';
 
-import logger from '../../../core/logger';
+import logger from '../../../core/logger.js';
 import ms from 'ms';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {

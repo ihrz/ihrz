@@ -19,46 +19,47 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Collection, REST, Routes, ApplicationCommandType, Client, ApplicationCommand, User } from "discord.js";
-
-import { AnotherCommand } from "../../types/anotherCommand";
-import { Command } from '../../types/command';
-
-import config from "../files/config";
+import { REST, Routes, Client, ApplicationCommand } from "discord.js";
+import config from "../files/config.js";
 import couleurmdr from 'colors';
-import logger from "./logger";
+import logger from "./logger.js";
 
-export = async (client: Client) => {
+const synchronizeCommands = async (client: Client): Promise<void> => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let rest = new REST().setToken(config.discord.token as string);
 
-    let rest = new REST().setToken(client.token as string);
+            logger.log(couleurmdr.white(`${config.console.emojis.LOAD} >> Currently ${client.commands?.size || 0} of application (/) commands awaiting for refreshing.`));
+            logger.log(couleurmdr.white(`${config.console.emojis.LOAD} >> Currently ${client.applicationsCommands?.size || 0} of application ([]) commands awaiting for refreshing.`));
 
-    try {
-        logger.log(couleurmdr.white(`${config.console.emojis.LOAD} >> Currently ${client.commands?.size || 0} of application (/) commands awaiting for refreshing.`));
-        logger.log(couleurmdr.white(`${config.console.emojis.LOAD} >> Currently ${client.applicationsCommands?.size || 0} of application ([]) commands awaiting for refreshing.`));
+            let appCmds = (client.applicationsCommands || []).map((command) => ({
+                name: command.name,
+                type: command.type,
+            }));
 
-        let appCmds = (client.applicationsCommands || []).map((command) => ({
-            name: command.name,
-            type: command.type,
-        }));
+            let slashCommands = client.commands?.map((command) => ({
+                name: command.name,
+                type: command.type,
+                description: command.description,
+                name_localizations: command.name_localizations,
+                description_localizations: command.description_localizations,
+                options: command.options,
+            })) || [];
 
-        let slashCommands = client.commands?.map((command) => ({
-            name: command.name,
-            type: command.type,
-            description: command.description,
-            name_localizations: command.name_localizations,
-            description_localizations: command.description_localizations,
-            options: command.options,
-        })) || [];
+            let allCommands = [...slashCommands, ...appCmds];
 
-        let allCommands = [...slashCommands, ...appCmds];
+            let data = await rest.put(
+                Routes.applicationCommands(client.user?.id as string),
+                { body: allCommands }
+            );
 
-        let data = await rest.put(
-            Routes.applicationCommands(client.user?.id as string),
-            { body: allCommands }
-        );
-
-        logger.log(couleurmdr.white(`${config.console.emojis.OK} >> Currently ${(data as unknown as ApplicationCommand<{}>[]).length} of application are now synchronized.`));
-    } catch (error: any) {
-        logger.err(error)
-    };
+            logger.log(couleurmdr.white(`${config.console.emojis.OK} >> Currently ${(data as unknown as ApplicationCommand<{}>[]).length} of application are now synchronized.`));
+            resolve();
+        } catch (error: any) {
+            logger.err(error);
+            reject(error);
+        }
+    });
 };
+
+export default synchronizeCommands;

@@ -25,25 +25,20 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import logger from '../../../core/logger';
-import axios from 'axios'
+import axios from 'axios';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        
+        axios.get('http://edgecats.net/random').then(async res => {
+            let emb = new EmbedBuilder()
+                .setImage(res.data)
+                .setTitle(data.cats_embed_title)
+                .setTimestamp();
 
-        axios.get('https://dog.ceo/api/breeds/image/random')
-            .then(async res => {
-                let emb = new EmbedBuilder()
-                    .setImage(res.data.message).setTitle(data.dogs_embed_title).setTimestamp();
-
-                await interaction.editReply({ embeds: [emb] });
-                return;
-            })
-            .catch(async err => {
-                logger.err(err);
-                await interaction.editReply({ content: data.dogs_embed_command_error });
-                return;
-            });
+            await interaction.editReply({ embeds: [emb] });
+            return;
+        });
     },
 };

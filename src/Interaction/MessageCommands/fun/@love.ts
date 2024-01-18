@@ -30,13 +30,12 @@ import {
     Message,
 } from 'discord.js';
 
-import { QueryType } from 'discord-player';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
 import Jimp from 'jimp';
-import logger from '../../../core/logger';
-import config from '../../../files/config';
+import logger from '../../../core/logger.js';
+import config from '../../../files/config.js';
 
 export const command: Command = {
 
@@ -82,7 +81,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
 
         var user1 = interaction.author;
-        var user2 = interaction.mentions.members?.toJSON()[1] || interaction.guild?.members.cache.random()?.user;
+        var user2 = interaction.mentions.users?.toJSON()[1] || interaction.guild?.members.cache.random()?.user;
 
         let profileImageSize = 512;
         let canvasWidth = profileImageSize * 3;
@@ -131,8 +130,8 @@ export const command: Command = {
                 .setTitle("💕")
                 .setImage(`attachment://love.png`)
                 .setDescription(data.love_embed_description
-                    .replace('${user1.username}', user1.username)
-                    .replace('${user2.username}', user2?.displayName as string)
+                    .replace('${user1.username}', user1.username || user1.globalName as string)
+                    .replace('${user2.username}', user2?.globalName as string)
                     .replace('${randomNumber}', randomNumber.toString())
                 )
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })

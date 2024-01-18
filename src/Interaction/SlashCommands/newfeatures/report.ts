@@ -29,7 +29,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
-import config from '../../../files/config';
+import config from '../../../files/config.js';
 import ms from 'ms';
 
 export const command: Command = {
@@ -86,7 +86,7 @@ export const command: Command = {
             interaction.editReply({ content: data.report_command_work });
             var embed = new EmbedBuilder()
                 .setColor("#ff0000")
-                .setDescription(`**${interaction.user.globalName}** (<@${interaction.user.id}>) reported:\n~~--------------------------------~~\n${sentences}\n~~--------------------------------~~\nServer ID: **${interaction.guild.id}**`)
+                .setDescription(`**${interaction.user.globalName || interaction.user.username}** (<@${interaction.user.id}>) reported:\n~~--------------------------------~~\n${sentences}\n~~--------------------------------~~\nServer ID: **${interaction.guild.id}**`)
 
             await (client.channels.cache.get(config.core.reportChannelID) as BaseGuildTextChannel).send({ embeds: [embed] });
 

@@ -19,8 +19,8 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import config from '../files/config';
-import logger from '../core/logger';
+import config from '../files/config.js';
+import logger from '../core/logger.js';
 
 import { Client, CommandInteractionOptionResolver, EmbedBuilder, GuildChannel, Interaction } from 'discord.js';
 import { format } from 'date-fns';
@@ -28,7 +28,7 @@ import fs from 'fs';
 
 var timeout: number = 1000;
 
-export = async (client: Client, interaction: Interaction) => {
+export default async (client: Client, interaction: Interaction) => {
 
     async function commandExecutor() {
         if (!interaction.isContextMenuCommand()

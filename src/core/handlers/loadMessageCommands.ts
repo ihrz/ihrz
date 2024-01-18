@@ -22,10 +22,10 @@
 import { Client, Collection } from "discord.js";
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
-import logger from "../logger";
+import logger from "../logger.js";
 import { Command } from "../../../types/command";
-import db from '../functions/DatabaseModel';
-import config from "../../files/config";
+import db from '../functions/DatabaseModel.js';
+import config from "../../files/config.js";
 import { EltType } from "../../../types/eltType";
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
@@ -64,8 +64,6 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
 
 async function loadCommands(client: Client, path: string = `${process.cwd()}/dist/src/Interaction/MessageCommands`): Promise<void> {
 
-    await db.set(`BOT.CONTENT`, {});
-
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
 
@@ -73,12 +71,14 @@ async function loadCommands(client: Client, path: string = `${process.cwd()}/dis
 
     var i = 0;
     for (let path of paths) {
-        if (!path.endsWith('.js')) break;
+        if (!path.endsWith('.js')) continue;
         i++;
 
-        let command = require(path).command; if (!command) break;
+        let { command } = await import(path); if (!command) continue;
 
-        await db.push(`BOT.CONTENT.${command.category}`,
+        var table_1 = db.table("BOT");
+
+        await table_1.push(`CONTENT.${command.category}`,
             {
                 cmd: command.name, desc: { desc: command.description, lang: command.description_localizations }, message_command: true
             }
@@ -90,4 +90,4 @@ async function loadCommands(client: Client, path: string = `${process.cwd()}/dis
     logger.log(`${config.console.emojis.OK} >> Loaded ${i} Message commands.`);
 };
 
-export = loadCommands;
+export default loadCommands;

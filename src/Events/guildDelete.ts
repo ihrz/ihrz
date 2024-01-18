@@ -22,10 +22,10 @@
 import { BaseGuildTextChannel, Client, Guild, GuildChannel, GuildChannelManager, Message, MessageManager } from "discord.js";
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
 
-import logger from "../core/logger";
-import config from '../files/config';
+import logger from "../core/logger.js";
+import config from '../files/config.js';
 
-export = async (client: Client, guild: Guild) => {
+export default async (client: Client, guild: Guild) => {
     async function inviteManager() {
         await client.db.delete(`${guild.id}`);
 

@@ -27,7 +27,7 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
-import * as pkg from '../../../../package.json';
+import pkg from '../../../../package.json' assert { type: "json" };
 
 export const command: Command = {
     name: 'botinfo',

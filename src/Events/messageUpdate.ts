@@ -20,9 +20,8 @@
 */
 
 import { BaseGuildTextChannel, Client, Collection, EmbedBuilder, Message, Options, Permissions, Presence } from 'discord.js';
-import { cp } from 'node:fs';
 
-export = async (client: Client, oldMessage: Message, newMessage: Message) => {
+export default async (client: Client, oldMessage: Message, newMessage: Message) => {
     let data = await client.functions.getLanguageData(oldMessage.guild?.id)
     async function serverLogs() {
         if (!oldMessage || !oldMessage.guild) return;

@@ -21,7 +21,7 @@
 
 import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent, Role } from 'discord.js'
 
-export = async (client: Client, role: Role) => {
+export default async (client: Client, role: Role) => {
 
     async function protect() {
         let data = await client.db.get(`${role.guild.id}.PROTECTION`);

@@ -25,7 +25,7 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let user = interaction.options.getUser("member");
         let amount = interaction.options.getNumber("amount");
@@ -43,7 +43,7 @@ export = {
 
         await interaction.reply({
             content: data.pay_command_work
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName as string)
+                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username as string)
                 .replace(/\${user\.user\.username}/g, user?.globalName as string)
                 .replace(/\${amount}/g, amount as unknown as string)
         });

@@ -31,9 +31,6 @@ export default {
 
     core: {
 
-        "debug": true,
-        // Debug information about the slash command when he create/remove/update
-
         "devMode": true,
         // true => log's ERROR are been in the console OR false => In the .err_logs folder.
 
@@ -48,6 +45,20 @@ export default {
         "reportChannelID": "The Discord Channel's ID for logs when bugs/message are reported",
         // The channel where the robot informs of a bug reported by a user of the bot.
 
+        cluster: {
+            0: "https://cluster0.domain.com",
+            1: "https://cluster1.domain.com"
+        },
+        // The Clusters's URL for the OwnIHRZ-ClusterManager
+
+        shutdownClusterWhenStop: false
+        /*
+        This option permit to,
+        
+        * Every OWNIhrz which are hosted by a Cluster to be shutdown
+        When the bot are stoped
+        */
+       
     },
 
     command: {
@@ -131,21 +142,6 @@ export default {
         /*
         If you want to use SQLite, put true, 
         if you want to use MongoDB, put false.
-        */
-
-        "useDatabaseAPI": false,
-        /*
-        If you want to use the database API before the QuickDB, put true,
-        If you want to use direclty the QuickDB wrapper, put false.
-        */
-
-        "useDatabaseAPIOnlyDashboard": true,
-        /*
-        If you want to use the database API just for the dashboard.
-        The bot ignore the DataBaseAPI and keep QuickDB wrapper per
-        default in the code.
-
-        Else, if you want to use the database API everywhere, put false.
         */
 
     },

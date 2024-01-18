@@ -21,7 +21,7 @@
 
 import { ActionRow, ActionRowBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, Client, Embed, EmbedBuilder } from "discord.js";
 
-async function Init(client: Client) {
+async function PfpsManager_Init(client: Client) {
     Refresh(client);
 
     setInterval(() => {
@@ -107,5 +107,5 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
 }
 
 export {
-    Init
+    PfpsManager_Init
 }

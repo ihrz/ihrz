@@ -26,7 +26,7 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let member = interaction.options.getUser('user') || interaction.user;
@@ -34,11 +34,11 @@ export = {
         var description = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.desc`);
         if (!description) description = data.profil_not_description_set;
 
-        var level: Number = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.XP_LEVELING.level`);
-        if (!level) var level: Number = 0;
+        var level = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.XP_LEVELING.level`);
+        if (!level) level = 0;
 
-        var balance: Number = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`);
-        if (!balance) var balance: Number = 0;
+        var balance = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`);
+        if (!balance) balance = 0;
 
         var age = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.age`);
         if (!age) age = data.profil_unknown;

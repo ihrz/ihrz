@@ -21,7 +21,7 @@
 
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Client, GuildMember, BaseGuildTextChannel, AuditLogChange } from 'discord.js';
 
-export = async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
+export default async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
     let data = await client.functions.getLanguageData(newMember.guild.id);
 
     async function serverLogs() {

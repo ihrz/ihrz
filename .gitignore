@@ -133,5 +133,6 @@ demo
 yarn.lock
 .vscode/extensions.json
 
-# OwnIHRZ
+# OwniHrz
 /ownihrz
+bun.lockb

@@ -22,12 +22,13 @@
 import { Client, Collection } from "discord.js";
 import { readdirSync } from "fs";
 
-export = async (client: Client) => {
+export default async (client: Client) => {
 
     client.buttons = new Collection<string, Function>();
 
-    readdirSync(`${process.cwd()}/dist/src/Interaction/Components/Buttons`).filter(file => file.endsWith(".js")).forEach(file => {
-        client.buttons.set(file.split('.js')[0], require(`${process.cwd()}/dist/src/Interaction/Components/Buttons/${file}`))
+    readdirSync(`${process.cwd()}/dist/src/Interaction/Components/Buttons`).filter(file => file.endsWith(".js")).forEach(async file => {
+        const buttons = await import(`${process.cwd()}/dist/src/Interaction/Components/Buttons/${file}`);
+        client.buttons.set(file.split('.js')[0], buttons.default || buttons);
     });
 
 };

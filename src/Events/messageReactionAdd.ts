@@ -25,9 +25,9 @@ import {
     User,
 } from 'discord.js';
 
-import logger from '../core/logger';
+import logger from '../core/logger.js';
 
-export = async (client: Client, reaction: MessageReaction, user: User) => {
+export default async (client: Client, reaction: MessageReaction, user: User) => {
     let data = await client.functions.getLanguageData(reaction.message.guildId);
 
     async function reactionRole() {

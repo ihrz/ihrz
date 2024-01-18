@@ -32,13 +32,13 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import * as apiUrlParser from '../../../core/functions/apiUrlParser';
+import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
 import DiscordOauth2 from 'discord-oauth2';
-import config from '../../../files/config';
-import logger from '../../../core/logger';
+import config from '../../../files/config.js';
+import logger from '../../../core/logger.js';
 import moment from 'moment';
 import axios from 'axios';
 
@@ -172,7 +172,7 @@ export const command: Command = {
                 };
             };
 
-            description = getBadges((member.flags as unknown as number)) + nitr0 + `\n**User:** \`${member.username}\`\n**DisplayName:** \`${member.displayName}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\``;
+            description = getBadges((member.flags as unknown as number)) + nitr0 + `\n**User:** \`${member.username}\`\n**DisplayName:** \`${member.globalName || member.username}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\``;
             if (nitr0 === '') { description += `\n[My nitro is not shown](${apiUrlParser.LoginURL})`; };
 
             sendMessage(description);
@@ -180,7 +180,7 @@ export const command: Command = {
         } catch (error: any) {
             logger.err(error);
 
-            let description = `${getBadges((member.flags as unknown as number))}\n**User:** \`${member.username}\`\n**DisplayName:** \`${member.displayName}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\`\n[🔴 API DOWN](${apiUrlParser.LoginURL})`;
+            let description = `${getBadges((member.flags as unknown as number))}\n**User:** \`${member.username}\`\n**DisplayName:** \`${member.globalName || member.username}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${moment(member.createdAt)}\`\n[🔴 API DOWN](${apiUrlParser.LoginURL})`;
 
             await sendMessage(description);
         };

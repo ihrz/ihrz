@@ -435,6 +435,7 @@ renew_not_administrator: ":x: **このコマンドを使用するための管理
 prevnames_embed_title: "${user.username} のニックネームのリスト"
 prevnames_undetected: "データが見つかりませんでした！"
 prevnames_not_admin: "このコマンドを実行するための `ADMINISTRATOR` 権限がありません！"
+prevnames_data_erased: "以前のユーザー名は、あなたの要望に基づいて完全に削除されました！"
 
 # /blockbot
 blockbot_not_owner: ":x: **サーバーのオーナーではありません！**"

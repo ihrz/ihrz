@@ -300,6 +300,7 @@ export interface LanguageData {
     prevnames_embed_title: string;
     prevnames_undetected: string;
     prevnames_not_admin: string;
+    prevnames_data_erased: string;
     blockbot_not_owner: string;
     blockbot_logs_enable_title: string;
     blockbot_logs_enable_description: string;

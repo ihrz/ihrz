@@ -24,11 +24,12 @@ import {
     Client,
     EmbedBuilder,
 } from 'discord.js';
+
 import axios, { AxiosResponse } from 'axios';
-import * as apiUrlParser from '../../../core/functions/apiUrlParser';
+import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let slap = interaction.options.getUser("user");

@@ -22,10 +22,12 @@
 import { Client } from "discord.js";
 import { readdirSync } from "fs";
 
-export = async (client: Client) => {
+export default async (client: Client) => {
     client.functions = {};
-    
-    readdirSync(`${process.cwd()}/dist/src/core/functions`).filter(file => file.endsWith(".js")).forEach(file => {
-        client.functions[file.split('.js')[0]] = require(`${process.cwd()}/dist/src/core/functions/${file}`);
+
+    readdirSync(`${process.cwd()}/dist/src/core/functions`).filter(file => file.endsWith(".js")).forEach(async file => {
+        const functions = await import(`${process.cwd()}/dist/src/core/functions/${file}`);
+
+        client.functions[file.split('.js')[0]] = functions.default || functions;
     });
 };

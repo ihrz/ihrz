@@ -21,8 +21,8 @@
 
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
-import logger from "../core/logger";
-import config from "../files/config";
+import logger from "../core/logger.js";
+import config from "../files/config.js";
 import { EltType } from "../../types/eltType";
 import { Express } from "express-serve-static-core";
 
@@ -66,25 +66,21 @@ async function loadRoutes(app: Express, path: string = `${process.cwd()}/dist/sr
     var i = 0;
     for (let path of paths) {
         if (!path.endsWith('.js')) return;
-        i++;
 
-        let Routes = require(path);
+        let Routes = await import(path).then(data => data.default);
 
         if (Routes?.type === 'get') {
             app.get(Routes.apiPath, Routes.run);
+            i++;
 
         } else if (Routes?.type === 'post') {
+            app.post(Routes.apiPath, Routes.run);
+            i++;
 
-            if (Routes?.name !== 'database') {
-                app.post(Routes.apiPath, Routes.run);
-
-            } else if (config.database.useDatabaseAPI) {
-                app.post(Routes.apiPath, Routes.run);
-            };
         };
     };
 
     logger.log(`${config.console.emojis.HOST} >> Loaded ${i} Routes for the API.`);
 };
 
-export = loadRoutes;
+export default loadRoutes;

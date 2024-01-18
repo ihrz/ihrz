@@ -28,10 +28,10 @@ import {
     GuildMember
 } from 'discord.js';
 
-import logger from '../../../core/logger';
+import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let tomute = interaction.options.getMember("user") as GuildMember;

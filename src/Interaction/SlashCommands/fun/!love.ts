@@ -20,12 +20,13 @@
 */
 
 import { Client, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
-import config from '../../../files/config';
-import logger from '../../../core/logger';
-import Jimp from 'jimp';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+import Jimp from 'jimp';
+import logger from '../../../core/logger.js';
+import config from '../../../files/config.js';
+
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         var user1 = interaction.options.getUser("user1") || interaction.user;
         var user2 = interaction.options.getUser("user2") || interaction.guild?.members.cache.random()?.user;

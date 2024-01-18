@@ -64,4 +64,4 @@ async function createLetterImage(letter: string): Promise<Jimp> {
     return image.print(font, 0, 0, letter);
 }
 
-export = captcha;
+export default captcha;

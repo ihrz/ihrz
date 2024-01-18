@@ -35,7 +35,6 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
-import logger from '../../../core/logger';
 import backup from 'discord-backup';
 
 export const command: Command = {

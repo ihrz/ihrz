@@ -24,12 +24,12 @@ import { SpotifyExtractor, SoundCloudExtractor } from '@discord-player/extractor
 import DeezerExtractor from "discord-player-deezer"
 
 import { Client, time } from 'discord.js';
-import logger from './logger';
+import logger from './logger.js';
 
 import { MetadataPlayer } from '../../types/metadaPlayer';
-import db from './functions/DatabaseModel';
+import db from './functions/DatabaseModel.js';
 
-export = async (client: Client) => {
+export default async (client: Client) => {
 
     let player = new Player(client, {
         ytdlOptions: {

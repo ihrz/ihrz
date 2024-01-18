@@ -21,7 +21,7 @@
 
 import { Client, Guild, Invite, PermissionsBitField } from 'discord.js';
 
-export = async (client: Client, invite: Invite) => {
+export default async (client: Client, invite: Invite) => {
     async function inviteManager() {
         if (!invite.guild || !(invite.guild as Guild).members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
         await client.invites.get(invite.guild?.id)?.set(invite.code, invite.uses);

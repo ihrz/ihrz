@@ -21,7 +21,7 @@
 
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan, Client, BaseClient, Channel, GuildChannel, Message, GuildMember, Role, BaseGuildTextChannel } from 'discord.js';
 
-export = async (client: Client, member: GuildMember) => {
+export default async (client: Client, member: GuildMember) => {
     let data = await client.functions.getLanguageData(member.guild.id);
 
     async function memberCount() {
@@ -73,7 +73,7 @@ export = async (client: Client, member: GuildMember) => {
             };
 
             var invitesAmount = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`);
-            var lChan: string = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`);
+            var lChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`);
 
             if (!lChan || !client.channels.cache.get(lChan)) return;
 

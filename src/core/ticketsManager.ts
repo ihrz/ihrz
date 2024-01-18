@@ -39,8 +39,8 @@ import {
 } from 'discord.js';
 
 import * as discordTranscripts from 'discord-html-transcripts';
-import db from './functions/DatabaseModel';
-import logger from './logger';
+import db from './functions/DatabaseModel.js';
+import logger from './logger.js';
 
 interface CreatePanelData {
     name: string | null;
@@ -522,7 +522,7 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<CacheTyp
     let removedMembers: string[] = [];
 
     listmembersArray.forEach(async (overwriteId) => {
-        if (!membersArray.includes(overwriteId) && owner_ticket?.author !== overwriteId) {
+        if (!membersArray.includes(overwriteId) && owner_ticket.author !== overwriteId) {
             removedMembers.push(overwriteId);
             await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.delete(overwriteId);
         }

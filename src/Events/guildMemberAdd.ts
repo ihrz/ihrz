@@ -24,11 +24,10 @@ import { ActionRowBuilder, AttachmentBuilder, BaseGuildTextChannel, ButtonBuilde
 import { PermissionsBitField } from 'discord.js';
 import axios from 'axios';
 
-import * as apiUrlParser from '../core/functions/apiUrlParser';
+import * as apiUrlParser from '../core/functions/apiUrlParser.js';
+import logger from "../core/logger.js";
 
-import logger from "../core/logger";
-
-export = async (client: Client, member: GuildMember) => {
+export default async (client: Client, member: GuildMember) => {
 
     let data = await client.functions.getLanguageData(member.guild.id);
 

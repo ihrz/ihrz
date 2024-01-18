@@ -28,11 +28,11 @@ import {
 } from 'discord.js';
 
 
-import logger from '../../../core/logger';
+import logger from '../../../core/logger.js';
 import backup from 'discord-backup';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.backup_not_admin });
