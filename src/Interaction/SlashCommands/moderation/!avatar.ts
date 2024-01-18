@@ -26,7 +26,7 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let mentionedUser = interaction.options.getUser("user") || interaction.user;
 

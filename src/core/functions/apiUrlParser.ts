@@ -19,7 +19,15 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import config from "../../files/config";
+import config from "../../files/config.js";
+
+export const ClusterMethod = {
+    CreateContainer: 0,
+    DeleteContainer: 1,
+    StartupContainer: 2,
+    ShutdownContainer: 3,
+    PowerOnContainer: 4
+};
 
 export let LoginURL =
     config.api.useProxy ? config.api.proxyUrl :
@@ -65,3 +73,36 @@ export let PublishURL =
     config.api.useProxy ? config.api.proxyUrl + '/api/publish' :
         config.api.useHttps ? 'https://' : 'http://' +
             config.api.domain + ':' + config.api.port + '/api/publish';
+
+export function OwnIhrzCluster(cluster_number: number, cluster_method: number, bot_id?: string, admin_key?: string) {
+    var data = config.core.cluster[cluster_number as keyof typeof config.core.cluster];
+
+    data += "/api/instance/"
+    switch (cluster_method) {
+        case 0:
+            data += "create"
+            break;
+        case 1:
+            data += `delete`
+            if (bot_id) data += `/${bot_id}`
+            if (admin_key) data += `/${admin_key}`
+            break;
+        case 2:
+            data += `startup`
+            if (bot_id) data += `/${bot_id}`
+            if (admin_key) data += `/${admin_key}`
+            break;
+        case 3:
+            data += `shutdown`
+            if (bot_id) data += `/${bot_id}`
+            if (admin_key) data += `/${admin_key}`
+            break;
+        case 4:
+            data += `poweron`
+            if (bot_id) data += `/${bot_id}`
+            if (admin_key) data += `/${admin_key}`
+            break;
+    }
+
+    return data;
+};

@@ -20,14 +20,14 @@
 */
 
 import DiscordOauth2 from 'discord-oauth2';
-import logger from '../../../core/logger';
+import logger from '../../../core/logger.js';
 import { Request, Response } from 'express';
-import db from '../../../core/functions/DatabaseModel';
-import config from '../../../files/config';
+import db from '../../../core/functions/DatabaseModel.js';
+import config from '../../../files/config.js';
 
 let oauth = new DiscordOauth2();
 
-export = {
+export default {
     type: 'post',
     apiPath: '/api/check',
     run: async (req: Request, res: Response) => {

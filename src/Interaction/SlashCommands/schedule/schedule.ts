@@ -41,7 +41,7 @@ import {
 import { Command } from '../../../../types/command';
 import date from 'date-and-time';
 import ms from 'ms';
-import logger from '../../../core/logger';
+import logger from '../../../core/logger.js';
 
 export const command: Command = {
     name: "schedule",

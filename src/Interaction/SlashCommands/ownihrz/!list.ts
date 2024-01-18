@@ -25,63 +25,71 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
+import { LanguageData } from '../../../../types/languageData';
 import date from 'date-and-time';
 import axios from 'axios';
-import { LanguageData } from '../../../../types/languageData';
 
-export = {
+async function buildEmbed(client: Client, data: any, botId: number, lang: LanguageData) {
+
+    let config = {
+        headers: {
+            Authorization: `Bot ${data.Auth}`
+        }
+    };
+
+    let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, config).catch(() => { }))?.data || 404;
+
+    let utils_msg = lang.mybot_list_utils_msg
+        .replace('${data_2[i].bot.id}', data.Bot.Id)
+        .replace('${data_2[i].bot.username}', data.Bot.Name)
+        .replace("${data_2[i].bot_public ? 'Yes' : 'No'}", data.Bot.Public ? lang.mybot_list_utils_msg_yes : lang.mybot_list_utils_msg_no);
+
+    let expire = date.format(new Date(data.ExpireIn), 'ddd, MMM DD YYYY');
+
+    return new EmbedBuilder()
+        .setColor('#ff7f50')
+        .setThumbnail(`https://cdn.discordapp.com/avatars/${data.Bot.Id}/${bot_1?.bot.avatar}.png`)
+        .setTitle(lang.mybot_list_embed1_title.replace('${data_2[i].bot.username}', data.Bot.Name))
+        .setDescription(
+            lang.mybot_list_embed1_desc
+                .replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
+                .replace('${data_2[i].code}', data.Code)
+                .replace('${expire}', expire)
+                .replace('${utils_msg}', utils_msg)
+        )
+        .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+        .setTimestamp();
+}
+
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-
         let data_2 = await client.db.get(`OWNIHRZ.${interaction.user.id}`);
+        let table_1 = client.db.table("OWNIHRZ");
 
-        let lsEmbed: Array<EmbedBuilder> = [];
-
-        lsEmbed.push(
+        let lsEmbed: EmbedBuilder[] = [
             new EmbedBuilder()
                 .setTitle(data.mybot_list_embed0_title)
                 .setColor('#000000')
                 .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
                 .setTimestamp()
-        );
+        ];
 
-        for (let i in data_2) {
-            if (data_2[i]) {
-                let config = {
-                    headers: {
-                        Authorization: `Bot ${data_2[i].auth}`
-                    }
-                };
-
-                let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, config)
-                    .catch(() => { }))?.data || 404;
-
-                let utils_msg = data.mybot_list_utils_msg
-                    .replace('${data_2[i].bot.id}', data_2[i].bot.id)
-                    .replace('${data_2[i].bot.username}', data_2[i].bot.username)
-                    .replace("${data_2[i].bot_public ? 'Yes' : 'No'}",
-                        data_2[i].bot_public ? data.mybot_list_utils_msg_yes : data.mybot_list_utils_msg_no
-                    );
-
-                let expire = date.format(new Date(data_2[i].expireIn), 'ddd, MMM DD YYYY');
-
-                let embed = new EmbedBuilder()
-                    .setColor('#ff7f50')
-                    .setThumbnail(`https://cdn.discordapp.com/avatars/${data_2[i].bot.id}/${bot_1?.bot.avatar}.png`)
-                    .setTitle(data.mybot_list_embed1_title
-                        .replace('${data_2[i].bot.username}', data_2[i].bot.username)
-                    )
-                    .setDescription(
-                        data.mybot_list_embed1_desc
-                            .replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
-                            .replace('${data_2[i].code}', data_2[i].code)
-                            .replace('${expire}', expire)
-                            .replace('${utils_msg}', utils_msg)
-                    )
-                    .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
-                    .setTimestamp()
-
+        for (let botId in data_2) {
+            if (data_2[botId]) {
+                let embed = await buildEmbed(client, data_2[botId], botId as unknown as number, data);
                 lsEmbed.push(embed);
-            };
+            }
+        }
+
+        let allData = await table_1.all();
+
+        for (let index of allData) {
+            for (let ownerId in index.value) {
+                for (let botId in index.value[ownerId]) {
+                    let embed = await buildEmbed(client, index.value[ownerId][botId], botId as unknown as number, data);
+                    lsEmbed.push(embed);
+                }
+            }
         }
 
         await interaction.reply({ embeds: lsEmbed, ephemeral: true });

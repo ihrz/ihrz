@@ -22,10 +22,10 @@
 import { Client, Collection } from "discord.js";
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
-import logger from "../logger";
+import logger from "../logger.js";
 import { Command } from "../../../types/command";
-import db from '../functions/DatabaseModel';
-import config from "../../files/config";
+import db from '../functions/DatabaseModel.js';
+import config from "../../files/config.js";
 import { EltType } from "../../../types/eltType";
 import { Option } from "../../../types/option";
 
@@ -68,7 +68,8 @@ async function processOptions(options: Option[], category: string, parentName: s
         let fullName = parentName ? `${parentName} ${option.name}` : option.name;
 
         if (option.type === 1) {
-            await db.push(`BOT.CONTENT.${category}`,
+            var table_1 = db.table("BOT");
+            await table_1.push(`CONTENT.${category}`,
                 {
                     cmd: fullName, desc: { desc: option.description, lang: option.description_localizations, message_command: false }
                 }
@@ -80,36 +81,37 @@ async function processOptions(options: Option[], category: string, parentName: s
     };
 };
 
-async function loadCommands(client: Client, path: string = `${process.cwd()}/dist/src/Interaction/SlashCommands`): Promise<void> {
-
-    await db.set(`BOT.CONTENT`, {});
+export default async function loadCommands(client: Client, path: string = `${process.cwd()}/dist/src/Interaction/SlashCommands`): Promise<void> {
 
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
+    var table_1 = client.db.table("BOT");
 
     client.commands = new Collection<string, Command>();
 
     var i = 0;
     for (let path of paths) {
-        if (!path.endsWith('.js')) break;
+        if (!path.endsWith('.js')) continue;
         i++;
 
-        let command = require(path).command; if (!command) break;
+        let module = await import(path).then((module) => module);
 
-        await db.push(`BOT.CONTENT.${command.category}`,
-            {
-                cmd: command.name, desc: { desc: command.description, lang: command.description_localizations }, message_command: false
-            }
-        );
+        if (module && module.command) {
+            const { command } = module;
 
-        if (command.options) {
-            await processOptions(command.options, command.category, command.name);
-        };
+            if (command.options) {
+                await processOptions(command.options, command.category, command.name);
+            };
 
-        client.commands.set(command.name, command);
+            await table_1.push(`CONTENT.${command.category}`,
+                {
+                    cmd: command.name, desc: { desc: command.description, lang: command.description_localizations }, message_command: false
+                }
+            );
+
+            client.commands.set(command.name, command);
+        }
     };
 
     logger.log(`${config.console.emojis.OK} >> Loaded ${i} Slash commands.`);
 };
-
-export = loadCommands;

@@ -22,7 +22,7 @@
 import { ChatInputCommandInteraction, Client, EmbedBuilder } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let toAnalyze = await client.db.get(`${interaction.guild?.id}.USER`);
 

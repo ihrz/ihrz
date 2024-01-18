@@ -21,11 +21,11 @@
 
 import fs from 'fs';
 import path from 'path';
-import logger from '../../logger';
+import logger from '../../logger.js';
 
 let filePath = path.join(process.cwd(), 'src', 'core', 'bash', 'history', '.bash_history')
 
-export = function () {
+export default function () {
   fs.readFile(filePath, 'utf-8', (err, data) => {
     if (err) throw err;
     logger.legacy("\n" + data + "\n[Press Enter]");

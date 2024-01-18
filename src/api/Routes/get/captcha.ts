@@ -19,10 +19,10 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import captcha from '../../../core/captcha';
+import captcha from '../../../core/captcha.js';
 import { Request, Response } from 'express';
 
-export = {
+export default {
     type: 'get',
     apiPath: '/api/captcha/:width?/:height?/',
     run: async (req: Request, res: Response) => {

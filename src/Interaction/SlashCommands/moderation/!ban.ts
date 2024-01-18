@@ -28,10 +28,10 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import logger from '../../../core/logger';
+import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let member = interaction.guild?.members.cache.get(interaction.options.getUser("member")?.id as string);
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.BanMembers);
@@ -79,12 +79,12 @@ export = {
         member.send({
             content: data.ban_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-                .replace(/\${interaction\.member\.user\.username}/g, interaction.user.globalName as string)
+                .replace(/\${interaction\.member\.user\.username}/g, interaction.user.globalName || interaction.user.username as string)
         })
             .catch(() => {
             })
             .then(() => {
-                member?.ban({ reason: 'banned by ' + interaction.user.globalName })
+                member?.ban({ reason: 'banned by ' + interaction.user.globalName || interaction.user.username })
                     .then((member) => {
                         interaction.editReply({
                             content: data.ban_command_work

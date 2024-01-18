@@ -28,7 +28,7 @@ import {
 import ms from 'ms';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let timeout: number = 2592000000;

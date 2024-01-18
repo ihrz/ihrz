@@ -38,7 +38,7 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let balance = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`);

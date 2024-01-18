@@ -25,16 +25,17 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import config from '../../../files/config';
+import config from '../../../files/config.js';
 import axios from 'axios';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let id_1 = interaction.options.getString('id');
 
-        let id_2 = await client.db.get(`OWNIHRZ.TEMP.${interaction.user.id}.${id_1}`);
+        var table_1 = client.db.table("TEMP");
+        let id_2 = await table_1.get(`OWNIHRZ.${interaction.user.id}.${id_1}`);
 
         for (let i in id_2) {
             for (let j in id_2[i]) {
@@ -54,7 +55,6 @@ export = {
             return;
         };
 
-        id_2.admin_key = config.api.apiToken;
         id_2.code = id_1;
 
         let config_2 = {
@@ -89,7 +89,8 @@ export = {
 
             await interaction.reply({ embeds: [embed], ephemeral: false });
 
-            await client.db.delete(`OWNIHRZ.TEMP.${interaction.user.id}`);
+            var table_1 = client.db.table("TEMP");
+            await table_1.delete(`OWNIHRZ.${interaction.user.id}`);
             return;
         };
     },

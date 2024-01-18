@@ -27,11 +27,11 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import { isValid, isEnded, Reroll } from '../../../core/giveawaysManager';
+import { isValid, isEnded, Reroll } from '../../../core/giveawaysManager.js';
 import { LanguageData } from '../../../../types/languageData';
-import logger from '../../../core/logger';
+import logger from '../../../core/logger.js';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let inputData = interaction.options.getString("giveaway-id");
 

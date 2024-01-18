@@ -30,7 +30,7 @@ import {
 import { QueryType } from 'discord-player';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let voiceChannel = (interaction.member as GuildMember)?.voice.channel;
@@ -62,7 +62,7 @@ export = {
                 metadata: {
                     channel: interaction.channel,
                     client: interaction.guild?.members.me,
-                    requestedBy: interaction.user.globalName
+                    requestedBy: interaction.user.globalName || interaction.user.username
                 },
                 volume: 60,
                 bufferingTimeout: 3000,

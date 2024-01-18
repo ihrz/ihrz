@@ -21,8 +21,8 @@
 
 import fs from 'fs';
 import date from 'date-and-time';
-import config from '../files/config';
-import logger from './logger';
+import config from '../files/config.js';
+import logger from './logger.js';
 import couleurmdr from 'colors';
 import { MongoDriver } from 'quickmongo';
 

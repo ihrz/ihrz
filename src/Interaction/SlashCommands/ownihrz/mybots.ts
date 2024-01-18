@@ -27,6 +27,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
+import config from '../../../files/config.js';
 
 export const command: Command = {
     name: "mybots",
@@ -111,6 +112,20 @@ export const command: Command = {
                             },
 
                             required: true
+                        },
+                        {
+                            name: 'cluster',
+                            type: ApplicationCommandOptionType.String,
+
+                            description: 'The cluster where you want to host the bot!',
+                            description_localizations: {
+                                "fr": "Le cluster où seras localisé l'ownihrz"
+                            },
+                            choices: Object.entries(config.core.cluster).map(([key, value]) => ({
+                                name: `Cluster ${key} - ${value}`,
+                                value: key,
+                            })),
+                            required: false
                         }
                     ],
                 },
@@ -121,7 +136,7 @@ export const command: Command = {
                     description_localizations: {
                         "fr": "Seulement pour les propriétaire d'iHorizon"
                     },
-        
+
                     type: 1,
                     options: [
                         {
@@ -150,7 +165,7 @@ export const command: Command = {
                         {
                             name: 'action',
                             type: ApplicationCommandOptionType.String,
-                            
+
                             description: 'What do you want to do',
                             description_localizations: {
                                 "fr": "Qu'est-ce que vous voulez faire"
@@ -218,6 +233,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
         let command = interaction.options.getSubcommand();
 
-        await require('./!' + command).run(client, interaction, data);
+        const commandModule = await import(`./!${command}.js`);
+        await commandModule.default.run(client, interaction, data);
     },
 };

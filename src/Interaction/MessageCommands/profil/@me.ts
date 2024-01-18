@@ -48,16 +48,16 @@ export const command: Command = {
     run: async (client: Client, interaction: Message, args: string[]) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
 
-        let member = interaction.mentions.members?.toJSON()[1] || interaction.author;
+        let member = interaction.mentions.users?.toJSON()[1] || interaction.author;
 
         var description = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.desc`);
         if (!description) description = data.profil_not_description_set;
 
-        var level: Number = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.XP_LEVELING.level`);
-        if (!level) var level: Number = 0;
+        var level = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.XP_LEVELING.level`);
+        if (!level) level = 0;
 
-        var balance: Number = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`);
-        if (!balance) var balance: Number = 0;
+        var balance = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`);
+        if (!balance) balance = 0;
 
         var age = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.age`);
         if (!age) age = data.profil_unknown;
@@ -67,12 +67,12 @@ export const command: Command = {
 
         let profil = new EmbedBuilder()
             .setTitle(data.profil_embed_title
-                .replace(/\${member\.tag}/g, member.displayName)
+                .replace(/\${member\.tag}/g, member.globalName || member.username)
                 .replace('${client.iHorizon_Emojis.icon.Pin}', client.iHorizon_Emojis.icon.Pin)
             )
             .setDescription(`\`${description}\``)
             .addFields(
-                { name: data.profil_embed_fields_nickname, value: member.displayName, inline: false },
+                { name: data.profil_embed_fields_nickname, value: member.globalName || member.username, inline: false },
                 { name: data.profil_embed_fields_money, value: balance + data.profil_embed_fields_money_value, inline: false },
                 { name: data.profil_embed_fields_xplevels, value: level + data.profil_embed_fields_xplevels_value, inline: false },
                 { name: data.profil_embed_fields_age, value: age + data.profil_embed_fields_age_value, inline: false },

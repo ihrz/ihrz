@@ -20,13 +20,13 @@
 */
 
 import CryptoJS from 'crypto-js';
-import logger from '../../../core/logger';
-import config from '../../../files/config';
-import dbPromise from '../../../core/database';
+import logger from '../../../core/logger.js';
+import config from '../../../files/config.js';
+import dbPromise from '../../../core/database.js';
 import { Request, Response } from 'express';
 import { QuickDB } from 'quick.db';
 
-export = {
+export default {
     type: 'post',
     name: 'database',
     apiPath: '/api/database',

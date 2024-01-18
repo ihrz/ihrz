@@ -22,7 +22,7 @@
 import { BaseGuildTextChannel, Client, GuildChannel, GuildChannelManager } from "discord.js";
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
 
-export = async (client: Client, ban: GuildBan) => {
+export default async (client: Client, ban: GuildBan) => {
     let data = await client.functions.getLanguageData(ban.guild.id);
 
     async function serverLogs() {

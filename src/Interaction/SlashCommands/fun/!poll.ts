@@ -27,7 +27,7 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let pollMessage = interaction.options.getString("message");
 
@@ -38,7 +38,7 @@ export = {
 
         let pollEmbed = new EmbedBuilder()
             .setTitle(data.poll_embed_title
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName as string)
+                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username as string)
             )
             .setColor("#ddd98b")
             .setDescription(pollMessage)

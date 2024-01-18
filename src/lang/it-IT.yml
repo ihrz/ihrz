@@ -435,6 +435,7 @@ renew_not_administrator: ":x: **Non sei un amministratore per utilizzare questo 
 prevnames_embed_title: "Elenco di tutti i soprannomi di ${user.username}"
 prevnames_undetected: "Nessun dato trovato!"
 prevnames_not_admin: "Non hai il permesso `ADMINISTRATOR` per eseguire questo comando!"
+prevnames_data_erased: "I tuoi vecchi nomi utente sono stati completamente eliminati su tua richiesta!"
 
 # /blockbot
 blockbot_not_owner: ":x: **¡No eres el propietario del servidor!**"

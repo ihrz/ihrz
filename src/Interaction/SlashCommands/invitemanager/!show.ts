@@ -26,7 +26,7 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let member = interaction.options.getUser("member") || interaction.user;
         let baseData = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.INVITES`);

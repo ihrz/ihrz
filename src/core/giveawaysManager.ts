@@ -40,7 +40,7 @@ import {
 
 import { Giveaway } from '../../types/giveaways';
 import date from 'date-and-time';
-import db from './functions/DatabaseModel';
+import db from './functions/DatabaseModel.js';
 
 async function Create(channel: TextBasedChannel, data: Giveaway) {
 
@@ -61,7 +61,6 @@ async function Create(channel: TextBasedChannel, data: Giveaway) {
             .addComponents(confirm)]
     });
 
-    await db.add("test", "s")
     await db.set(`GIVEAWAYS.${(channel as GuildTextBasedChannel).guildId}.${channel.id}.${response.id}`,
         {
             winnerCount: data.winnerCount,
@@ -103,7 +102,7 @@ async function AddEntries(interaction: ButtonInteraction<CacheType>) {
 
 async function RemoveEntries(interaction: ButtonInteraction<CacheType>) {
 
-    let members: Array<string> = await db.get(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`);
+    let members: Array<string> = await db.get(`GIVEAWAYS.${interaction.guild?.id}.${interaction.channel?.id}.${interaction.message.id}.members`) || [];
     let lang = await interaction.client.functions.getLanguageData(interaction.guild?.id);
 
     function arraySub(arr: Array<string>, value: string) {
@@ -314,7 +313,7 @@ async function Reroll(client: Client, data: Data) {
 
 };
 
-function Init(client: Client) {
+function GiveawaysManager_Init(client: Client) {
     Refresh(client);
 
     setInterval(() => {
@@ -477,7 +476,7 @@ async function ListEntries(interaction: ChatInputCommandInteraction, data: Data)
 }
 
 export {
-    Init,
+    GiveawaysManager_Init,
     isValid,
     isEnded,
 

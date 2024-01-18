@@ -20,9 +20,9 @@
 */
 
 import wait from 'wait';
-import logger from '../../logger';
+import logger from '../../logger.js';
 
-export = async function () {
+export default async function () {
     logger.legacy(`* Closed session...`.gray.bgBlack);
 
     await wait(1000);

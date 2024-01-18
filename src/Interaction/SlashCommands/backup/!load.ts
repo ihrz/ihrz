@@ -30,7 +30,7 @@ import backup from 'discord-backup';
 import { BackupData } from 'discord-backup/lib/types';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let backupID = interaction.options.getString('backup-id');
 

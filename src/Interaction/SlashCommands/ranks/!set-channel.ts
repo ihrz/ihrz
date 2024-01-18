@@ -27,10 +27,10 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import logger from '../../../core/logger';
+import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let type = interaction.options.getString("action");

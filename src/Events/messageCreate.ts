@@ -21,15 +21,15 @@
 
 import { Client, Collection, EmbedBuilder, PermissionsBitField, ChannelType, Message, Role, GuildTextBasedChannel, ClientUser } from 'discord.js';
 
-export = async (client: Client, message: Message) => {
+export default async (client: Client, message: Message) => {
     if (!message.guild || message.author.bot || !message.channel) return;
 
     let data = await client.functions.getLanguageData(message.guild.id);
 
     async function MessageCommandExecutor(): Promise<boolean> {
-        if (!message.guild || message.author.bot) return false;
-
         var prefix = `<@${client.user?.id}>`;
+
+        if (!message.guild || message.author.bot || !message.content.toString().startsWith(prefix)) return false;
 
         let args = message.content.slice(prefix.length).trim().split(/ +/g);
         let command = client.message_commands.get(args.shift()?.toLowerCase() as string);

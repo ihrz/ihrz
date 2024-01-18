@@ -21,7 +21,7 @@
 
 import { Request, Response } from 'express';
 
-export = {
+export default {
     type: 'get',
     apiPath: '/',
     run: async (req: Request, res: Response) => {

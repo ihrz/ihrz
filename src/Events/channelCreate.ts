@@ -21,7 +21,7 @@
 
 import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent, GuildChannel, GuildTextBasedChannel } from 'discord.js'
 
-export = async (client: Client, channel: GuildChannel) => {
+export default async (client: Client, channel: GuildChannel) => {
 
     async function ihrzLogs() {
         if (channel.name !== "ihorizon-logs") return;

@@ -21,7 +21,7 @@
 
 import { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client, VoiceState, GuildTextBasedChannel, BaseGuildTextChannel } from 'discord.js';
 
-export = async (client: Client, oldState: VoiceState, newState: VoiceState) => {
+export default async (client: Client, oldState: VoiceState, newState: VoiceState) => {
 
     let data = await client.functions.getLanguageData(oldState.guild.id);
 

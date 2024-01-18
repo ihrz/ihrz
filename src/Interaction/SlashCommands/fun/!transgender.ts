@@ -36,7 +36,7 @@ import {
 
 import axios, { AxiosResponse } from 'axios';
 
-export = {
+export default {
   run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
     let user = interaction.options.getUser('user') || interaction.user;

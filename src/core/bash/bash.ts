@@ -19,16 +19,16 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import logger from "../logger";
+import logger from "../logger.js";
 import wait from 'wait';
 import os from 'os-utils';
 import readline from 'readline';
 import fs from 'fs';
-import config from "../../files/config";
+import config from "../../files/config.js";
 import path from 'path';
 import { Client } from "discord.js";
 
-export = async (client: Client) => {
+export default async (client: Client) => {
     if (config.core.bash) {
 
         let rl = readline.createInterface({
@@ -75,12 +75,12 @@ export = async (client: Client) => {
 
         rl.setPrompt('kisakay@ihorizon'.green + ":".white + "~".blue + "$ ".white);
         rl.prompt();
-        rl.on('line', (line) => {
+        rl.on('line', async (line) => {
             let [commandName, ...args] = line.trim().split(' ');
             let commandPath = `${process.cwd()}/dist/src/core/bash/commands/${commandName}.js`;
             
             if (fs.existsSync(commandPath)) {
-                let command = require(commandPath);
+                let command = await import(commandPath);
                 command(client, args.join(' '));
 
                 var data = fs.readFileSync(filePath);
@@ -90,15 +90,6 @@ export = async (client: Client) => {
                 if (!commandName) { } else { logger.legacy(`Command not found: ${commandName}`); };
             }
             rl.prompt();
-        });
-
-        process.on('SIGINT', () => {
-            logger.legacy(`\n* Please shutdown with the command the next time`.gray.bgBlack)
-            process.exit(1);
-        });
-        process.on('SIGQUIT', () => {
-            logger.legacy(`\n* Please shutdown with the command`.gray.bgBlack)
-            process.exit(1);
         });
     }
 };

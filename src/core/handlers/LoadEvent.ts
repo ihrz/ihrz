@@ -19,12 +19,12 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Client } from "discord.js";
-import { opendir } from "fs/promises";
-import { join as pathJoin } from "node:path";
-import logger from "../logger";
-import config from "../../files/config";
-import { EltType } from "../../../types/eltType";
+import { Client } from 'discord.js';
+import { opendir } from 'fs/promises';
+import { join as pathJoin } from 'node:path';
+import logger from '../logger.js';
+import config from '../../files/config.js';
+import { EltType } from '../../../types/eltType';
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     let result = [];
@@ -37,18 +37,18 @@ async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
         }
     }
     return result;
-};
+}
 
 function buildPaths(basePath: string, directoryTree: (string | object)[]): string[] {
     let paths = [];
     for (let elt of directoryTree) {
         switch (typeof elt) {
-            case "object":
+            case 'object':
                 for (let subElt of buildPaths((elt as EltType).name, (elt as EltType).sub)) {
                     paths.push(pathJoin(basePath, subElt));
                 }
                 break;
-            case "string":
+            case 'string':
                 paths.push(pathJoin(basePath, elt));
                 break;
             default:
@@ -56,18 +56,25 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
         }
     }
     return paths;
-};
+}
 
 async function loadEvents(client: Client, path: string = `${process.cwd()}/dist/src/Events`): Promise<void> {
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
-    for (let path of paths) {
-        if (!path.endsWith('.js')) return;
-        let eevent = require(path);
-        let patharray = path.split("/");
-        client.on(`${patharray[patharray.length - 1].replace('.js', '')}`, eevent.bind(null, client));
-    }
-    logger.log(`${config.console.emojis.OK} >> Loaded ${paths.length} events.`);
-};
 
-export = loadEvents;
+    await Promise.all(paths.map(async (filePath) => {
+        if (!filePath.endsWith('.js')) return;
+
+        try {
+            const { default: eevent } = await import(filePath);
+            let pathArray = filePath.split('/');
+            client.on(`${pathArray[pathArray.length - 1].replace('.js', '')}`, eevent.bind(null, client));
+        } catch (error) {
+            console.error(`Error loading event from file: ${filePath}`, error);
+        }
+    }));
+
+    logger.log(`${config.console.emojis.OK} >> Loaded ${paths.length} events.`);
+}
+
+export default loadEvents;

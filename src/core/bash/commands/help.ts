@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import logger from "../../logger";
+import logger from "../../logger.js";
 
-export = function () {
+export default function () {
     logger.legacy(`iHorizon bash,
 These shell commands are defined internally.  Type 'help' to see this list.
 

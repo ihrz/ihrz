@@ -29,7 +29,7 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {

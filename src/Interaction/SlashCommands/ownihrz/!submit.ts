@@ -29,12 +29,10 @@ import axios from 'axios';
 import ms from 'ms';
 import { LanguageData } from '../../../../types/languageData';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let discord_bot_token = interaction.options.getString('discord_bot_token');
-        let owner_one = interaction.user;
-        let owner_two = interaction.options.getUser('owner_two') || owner_one;
 
         let config = {
             headers: {
@@ -51,16 +49,17 @@ export = {
         } else {
             var code = Math.random().toString(36).slice(-10);
 
-            await client.db.set(`OWNIHRZ.TEMP.${interaction.user.id}.${code}`,
+            var table_1 = client.db.table("TEMP");
+            await table_1.set(`OWNIHRZ.${interaction.user.id}.${code}`,
                 {
-                    auth: discord_bot_token,
-                    owner_one: owner_one.id,
-                    owner_two: owner_two.id,
-                    expireIn: Date.now() + ms('30d'),
-                    bot: {
-                        id: bot_1.bot.id,
-                        username: bot_1.bot.username,
-                        public: bot_1.bot_public
+                    Auth: discord_bot_token,
+                    OwnerOne: interaction.user.id,
+                    OwnerTwo: interaction.options.getUser('owner_two') || interaction.user.id,
+                    ExpireIn: Date.now() + ms('30d'),
+                    Bot: {
+                        Id: bot_1.bot.id,
+                        Name: bot_1.bot.username,
+                        Public: bot_1.bot_public
                     }
                 }
             );

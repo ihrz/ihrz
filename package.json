@@ -15,6 +15,7 @@
   "keywords": [
     "discordbot"
   ],
+  "type": "module",
   "author": "Kisakay",
   "license": "Creative Commons Attribution-NonCommercial-ShareAlike 2.0",
   "bugs": {
@@ -54,7 +55,7 @@
     "os-utils": "^0.0.14",
     "ping": "^0.4.4",
     "process": "^0.11.10",
-    "quick.db": "^9.1.6",
+    "quick.db": "^9.1.7",
     "quickmongo": "^5.2.0",
     "serialize-javascript": "^6.0.1",
     "soundcloud-scraper": "^5.0.3",
@@ -64,6 +65,7 @@
     "yarn": "^1.22.19"
   },
   "devDependencies": {
+    "@types/dockerode": "^3.3.23",
     "@types/ms": "^0.7.31",
     "@types/node": "^20.5.6",
     "@types/os-utils": "^0.0.1",

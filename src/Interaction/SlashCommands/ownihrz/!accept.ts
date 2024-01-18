@@ -25,27 +25,26 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import * as apiUrlParser from '../../../core/functions/apiUrlParser';
+import { ClusterMethod, OwnIhrzCluster, PublishURL } from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData';
 
-import config from '../../../files/config';
-import CryptoJS, { enc } from 'crypto-js';
+import { Custom_iHorizon } from '../../../../types/ownihrz';
+import { OwnIHRZ } from '../../../core/ownihrzManager.js';
+import config from '../../../files/config.js';
 import axios, { AxiosResponse } from 'axios';
-import logger from '../../../core/logger';
+import logger from '../../../core/logger.js';
+import path from 'path';
+import wait from 'wait';
+import fs from 'fs';
 
-export = {
+export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let id_1 = interaction.options.getString('id');
-        let id_2 = await client.db.get(`OWNIHRZ.TEMP`);
+        let cluster = interaction.options.getString("cluster");
+        let id = interaction.options.getString('id');
 
-        for (let i in id_2) {
-            for (let j in id_2[i]) {
-                if (id_1 === j) {
-                    id_2 = id_2?.[i]?.[j];
-                }
-            }
-        };
+        var table_1 = client.db.table("TEMP");
+        let id_2 = await table_1.get(`OWNIHRZ.${interaction.user.id}.${id}`) as Custom_iHorizon;
 
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
@@ -57,20 +56,18 @@ export = {
             return;
         };
 
-        id_2.admin_key = config.api.apiToken;
-        id_2.code = id_1;
+        id_2.AdminKey = config.api.apiToken;
+        id_2.Code = id as string;
 
-        let config_2 = {
+        let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, {
             headers: {
-                Authorization: `Bot ${id_2.auth}`
+                Authorization: `Bot ${id_2.Auth}`
             }
-        };
-
-        let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, config_2)
-            .catch(() => { }))?.data || 404;
+        }).catch(() => { }))?.data || 404;
 
         if (bot_1 === 404) {
             await interaction.reply({ content: data.mybot_manage_accept_token_error });
+            await table_1.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
             return;
         } else {
 
@@ -94,19 +91,51 @@ export = {
 
             await interaction.reply({ embeds: [embed], ephemeral: false });
 
-            try {
-                let encrypted = CryptoJS.AES.encrypt(JSON.stringify(id_2), config.api.apiToken).toString();
+            if (cluster) {
+                try {
+                    axios.post(OwnIhrzCluster(cluster as unknown as number, ClusterMethod.CreateContainer), id_2, { headers: { 'Accept': 'application/json' } })
+                        .then(async (response: AxiosResponse) => {
+                            if (cluster) {
+                                var table_1 = client.db.table('OWNIHRZ');
 
-                axios.post(apiUrlParser.PublishURL, { cryptedJSON: encrypted }, { headers: { 'Accept': 'application/json' } })
-                    .then((response: AxiosResponse) => { })
-                    .catch(error => {
-                        logger.err(error)
-                    });
-            } catch (error: any) {
-                logger.err(error)
+                                await table_1.set(`CLUSTER.${id_2.OwnerOne}.${id_2.Code}`,
+                                    {
+                                        Path: (path.resolve(process.cwd(), 'ownihrz', id_2.Code)) as string,
+                                        Auth: id_2.Auth,
+                                        port: 0,
+                                        Cluster: cluster,
+                                        ExpireIn: id_2.ExpireIn,
+                                        Bot: id_2.Bot,
+                                        Code: id_2.Code,
+                                    }
+                                );
+                            }
+                        })
+                        .catch(error => {
+                            logger.err(error)
+                        });
+                } catch (error: any) {
+                    return logger.err(error)
+                };
+
+            } else {
+                return new OwnIHRZ().Create({
+                    Auth: id_2.Auth,
+                    OwnerOne: id_2.OwnerOne,
+                    OwnerTwo: id_2.OwnerTwo,
+                    Bot: {
+                        Id: id_2.Bot.Id,
+                        Name: id_2.Bot.Name,
+                        Public: id_2.Bot.Public
+                    },
+                    ExpireIn: id_2.ExpireIn,
+                    Code: id_2.Code,
+                    AdminKey: ''
+                });
+
             };
 
-            await client.db.delete(`OWNIHRZ.TEMP.${interaction.user.id}`);
+            await table_1.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
             return;
         };
     },
