@@ -22,13 +22,11 @@
 import * as checkSys from './functions/checkSys.js';
 import playerManager from "./playerManager.js";
 import db from './functions/DatabaseModel.js';
-import bash from './bash/bash.js';
 
 import * as errorManager from './errorManager.js';
 import logger from "./logger.js";
 
 import { Client, Collection, Snowflake } from "discord.js";
-import { OwnIHRZ } from './ownihrzManager.js';
 import { GiveawaysManager_Init } from './giveawaysManager.js';
 import emojis from './emojisManager.js';
 
