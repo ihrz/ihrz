@@ -24,7 +24,7 @@ import { opendir } from 'fs/promises';
 import { join as pathJoin } from 'node:path';
 import logger from '../logger.js';
 import config from '../../files/config.js';
-import { EltType } from '../../../types/eltType';
+import { EltType } from '../../../types/eltType.js';
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     let result = [];
