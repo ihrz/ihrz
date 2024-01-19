@@ -70,7 +70,7 @@ async function loadEvents(client: Client, path: string = `${process.cwd()}/dist/
             let pathArray = filePath.split('/');
             client.on(`${pathArray[pathArray.length - 1].replace('.js', '')}`, eevent.bind(null, client));
         } catch (error) {
-            console.error(`Error loading event from file: ${filePath}`, error);
+            logger.err(`Error loading event from file: ${filePath}`);
         }
     }));
 
