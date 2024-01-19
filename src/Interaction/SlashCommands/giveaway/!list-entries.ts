@@ -26,7 +26,7 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import { isValid, isEnded, ListEntries } from '../../../core/managers/giveawaysManager.js';
+import { isValid, isEnded, ListEntries } from '../../../core/giveawaysManager.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {

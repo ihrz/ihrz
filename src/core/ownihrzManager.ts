@@ -19,15 +19,15 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Custom_iHorizon } from "../../../types/ownihrz.js";
+import { Custom_iHorizon } from "../../types/ownihrz";
 import { execSync } from 'child_process';
-import config from "../../files/config.js";
+import config from "../files/config.js";
 
-import { OwnIhrzCluster, ClusterMethod } from "../functions/apiUrlParser.js";
-import db from "../functions/DatabaseModel.js";
+import { OwnIhrzCluster, ClusterMethod } from "./functions/apiUrlParser.js";
+import db from "./functions/DatabaseModel.js";
 import { Client } from "discord.js";
 import axios from "axios";
-import logger from "../logger.js";
+import logger from "./logger.js";
 import path from "path";
 import fs from 'fs';
 import wait from "wait";

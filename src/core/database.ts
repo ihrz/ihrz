@@ -24,7 +24,7 @@ import { MongoDriver } from 'quickmongo';
 import config from '../files/config.js';
 import logger from './logger.js';
 import couleurmdr from 'colors';
-import * as proc from './managers/errorManager.js';
+import * as proc from './errorManager.js';
 
 let dbPromise: Promise<QuickDB>;
 
