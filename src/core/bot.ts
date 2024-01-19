@@ -55,8 +55,7 @@ let client = new Client({
         Partials.ThreadMember
     ]
 });
-
-client.login(config.discord.token);
-
 import core from './core.js';
 core(client);
+
+client.login(config.discord.token);
