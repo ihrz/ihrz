@@ -25,8 +25,8 @@ import logger from "../core/logger.js";
 import couleurmdr from 'colors';
 import config from "../files/config.js";
 
-import { OwnIHRZ } from "../core/ownihrzManager.js";
 import date from 'date-and-time';
+import { OwnIHRZ } from "../core/ownihrzManager.js";
 
 export default async (client: Client) => {
 
