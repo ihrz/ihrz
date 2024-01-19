@@ -27,9 +27,8 @@ import couleurmdr from 'colors';
 import { MongoDriver } from 'quickmongo';
 
 let exec = async (driver: MongoDriver) => {
-    let dbProtocolName: string = config.database.useSqlite ? 'SQLite' : 'MongoDB';
     await driver.close();
-    logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${dbProtocolName})!`);
+    logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database.useSqlite ? 'SQLite' : 'MongoDB'})!`);
     process.exit();
 };
 

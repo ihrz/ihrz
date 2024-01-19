@@ -41,6 +41,11 @@ export default async (client: Client) => {
     logger.legacy(couleurmdr.gray("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0."));
     logger.legacy(couleurmdr.gray("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0"));
 
+    process.on('SIGINT', async () => {
+        client.destroy();
+        process.exit();
+    });
+
     checkSys.Html();
 
     var table_1 = db.table("BOT");
@@ -54,7 +59,7 @@ export default async (client: Client) => {
 
     let handlerPath = `${process.cwd()}/dist/src/core/handlers`;
     let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
-    
+
     for (const file of handlerFiles) {
         const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
         if (handlerFunction && typeof handlerFunction === 'function') {
@@ -67,11 +72,13 @@ export default async (client: Client) => {
     emojis(client);
     errorManager.uncaughtExceptionHandler();
 
-    commandsSync(client).then(() => {
-        logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  "));
-        logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ "));
-        logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |"));
-        logger.log(couleurmdr.magenta("|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_|" + ` (${client.user?.tag}).`));
-        logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`));    
+    client.login(config.discord.token).then(() => {
+        commandsSync(client).then(() => {
+            logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  "));
+            logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ "));
+            logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |"));
+            logger.log(couleurmdr.magenta(`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`));
+            logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`));
+        });
     });
 };
