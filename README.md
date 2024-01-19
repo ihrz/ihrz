@@ -20,8 +20,6 @@ IHorizon have a large variety of features, including moderation, invite manageme
 - [Kisakay](https://github.com/Kisakay) (She/Her)
 - [NayaWeb](https://github.com/belugafr) (She/Her)
 - [Noémie](https://github.com/name-shitty-github-profile) (She/Her)
-- [Maxine](https://github.com/mxi1n) (She/Her)
-- [Wyene](https://github.com/WyeneCloud) (He/him)
 
 ## Origin
 
@@ -76,7 +74,7 @@ npm build && npm start
 # About the bot
 
 Trusted by **+238k** users!
-Used by 300+ servers as their only bot!
+Used by 100+ servers as their only bot!
 iHorizon is now certified by Discord. We have achieved our goal of +75 servers before starting the certification process!
 
 To join the Official Discord Support Server, please visit our website at [Official Server Link](http://discord.ihorizon.me/) or click on this link: [Other Link](https://discord.gg/ZpBPGNsAsu).
