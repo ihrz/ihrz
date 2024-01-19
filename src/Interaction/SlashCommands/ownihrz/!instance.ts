@@ -28,7 +28,7 @@ import {
 import date from 'date-and-time';
 
 import { LanguageData } from '../../../../types/languageData';
-import { OwnIHRZ } from '../../../core/ownihrzManager.js';
+import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 import config from '../../../files/config.js';
 import ms, { StringValue } from 'ms';
 

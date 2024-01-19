@@ -39,8 +39,8 @@ import {
 } from 'discord.js';
 
 import * as discordTranscripts from 'discord-html-transcripts';
-import db from './functions/DatabaseModel.js';
-import logger from './logger.js';
+import db from '../functions/DatabaseModel.js';
+import logger from '../logger.js';
 
 interface CreatePanelData {
     name: string | null;

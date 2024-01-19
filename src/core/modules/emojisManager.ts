@@ -18,7 +18,7 @@
 
 ・ Copyright © 2020-2023 iHorizon
 */
-import { Emojis } from '../../types/emojis';
+import { Emojis } from '../../../types/emojis';
 import { Client } from 'discord.js';
 
 import toml from 'toml';
