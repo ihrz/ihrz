@@ -27,7 +27,7 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import { CloseTicket } from '../../../core/ticketsManager';
+import { CloseTicket } from '../../../core/managers/ticketsManager';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {

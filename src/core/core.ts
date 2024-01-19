@@ -20,15 +20,15 @@
 */
 
 import * as checkSys from './functions/checkSys.js';
-import playerManager from "./playerManager.js";
+import playerManager from "./managers/playerManager.js";
 import db from './functions/DatabaseModel.js';
 
-import * as errorManager from './errorManager.js';
+import * as errorManager from './managers/errorManager.js';
 import logger from "./logger.js";
 
 import { Client, Collection, Snowflake } from "discord.js";
-import { GiveawaysManager_Init } from './giveawaysManager.js';
-import emojis from './emojisManager.js';
+import { GiveawaysManager_Init } from './managers/giveawaysManager.js';
+import emojis from './managers/emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData';
 import { readdirSync } from "fs";
@@ -71,7 +71,7 @@ export default async (client: Client) => {
         logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  "));
         logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ "));
         logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |"));
-        logger.log(couleurmdr.magenta("|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_|" + ` (${client.user?.tag}).`));
+        logger.log(couleurmdr.magenta(`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`));
         logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`));    
     });
 };

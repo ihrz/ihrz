@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { CreateTicketChannel } from '../../../core/ticketsManager.js';
+import { CreateTicketChannel } from '../../../core/managers/ticketsManager.js';
 import { ButtonInteraction, CacheType } from 'discord.js';
 
 export default async function (interaction: ButtonInteraction<CacheType>) {
