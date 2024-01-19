@@ -27,7 +27,7 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import { isValid, isEnded, Reroll } from '../../../core/giveawaysManager.js';
+import { isValid, isEnded, Reroll } from '../../../core/managers/giveawaysManager.js';
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
 
