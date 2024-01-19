@@ -76,11 +76,13 @@ export default async (client: Client) => {
     emojis(client);
     errorManager.uncaughtExceptionHandler();
 
-    commandsSync(client).then(() => {
-        logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  "));
-        logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ "));
-        logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |"));
-        logger.log(couleurmdr.magenta(`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`));
-        logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`));
+    client.login(config.discord.token).then(() => {
+        commandsSync(client).then(() => {
+            logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  "));
+            logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ "));
+            logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |"));
+            logger.log(couleurmdr.magenta(`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`));
+            logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`));
+        });
     });
 };
