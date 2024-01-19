@@ -26,13 +26,13 @@ import { readdirSync } from 'fs';
 export default async (client: Client) => {
     client.applicationsCommands = new Collection<string, AnotherCommand>();
 
-    const loadCommands = async (commandType: string) => {
-        const commandPath = `${process.cwd()}/dist/src/Interaction/${commandType}ApplicationCommands`;
+    let loadCommands = async (commandType: string) => {
+        let commandPath = `${process.cwd()}/dist/src/Interaction/${commandType}ApplicationCommands`;
 
-        const files = await readdirSync(commandPath);
+        let files = await readdirSync(commandPath);
 
-        for (const file of files.filter((file: string) => file.endsWith('.js'))) {
-            const { command } = await import(`${commandPath}/${file}`);
+        for (let file of files.filter((file: string) => file.endsWith('.js'))) {
+            let { command } = await import(`${commandPath}/${file}`);
 
             client.applicationsCommands.set(command.name, {
                 type: command.type,

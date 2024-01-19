@@ -20,17 +20,17 @@
 */
 
 import * as checkSys from './functions/checkSys.js';
-import playerManager from "./playerManager.js";
+import playerManager from "./modules/playerManager.js";
 import db from './functions/DatabaseModel.js';
 import bash from './bash/bash.js';
 
-import * as errorManager from './errorManager.js';
+import * as errorManager from './modules/errorManager.js';
 import logger from "./logger.js";
 
 import { Client, Collection, Snowflake } from "discord.js";
-import { OwnIHRZ } from './ownihrzManager.js';
-import { GiveawaysManager_Init } from './giveawaysManager.js';
-import emojis from './emojisManager.js';
+import { OwnIHRZ } from './modules/ownihrzManager.js';
+import { GiveawaysManager_Init } from './modules/giveawaysManager.js';
+import emojis from './modules/emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData';
 import { readdirSync } from "fs";
@@ -44,8 +44,8 @@ export default async (client: Client) => {
     logger.legacy(couleurmdr.gray("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0"));
 
     process.on('SIGINT', async () => {
-        await new OwnIHRZ().QuitProgram();
         client.destroy();
+        await new OwnIHRZ().QuitProgram();
         process.exit();
     });
 
@@ -62,7 +62,7 @@ export default async (client: Client) => {
 
     let handlerPath = `${process.cwd()}/dist/src/core/handlers`;
     let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
-    
+
     for (const file of handlerFiles) {
         const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
         if (handlerFunction && typeof handlerFunction === 'function') {
@@ -76,11 +76,13 @@ export default async (client: Client) => {
     emojis(client);
     errorManager.uncaughtExceptionHandler();
 
-    commandsSync(client).then(() => {
-        logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  "));
-        logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ "));
-        logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |"));
-        logger.log(couleurmdr.magenta(`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`));
-        logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`));    
+    client.login(config.discord.token).then(() => {
+        commandsSync(client).then(() => {
+            logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  "));
+            logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ "));
+            logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |"));
+            logger.log(couleurmdr.magenta(`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`));
+            logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`));
+        });
     });
 };
