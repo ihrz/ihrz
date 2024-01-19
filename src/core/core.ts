@@ -20,15 +20,15 @@
 */
 
 import * as checkSys from './functions/checkSys.js';
-import playerManager from "./playerManager.js";
+import playerManager from "./modules/playerManager.js";
 import db from './functions/DatabaseModel.js';
 
-import * as errorManager from './errorManager.js';
+import * as errorManager from './modules/errorManager.js';
 import logger from "./logger.js";
 
 import { Client, Collection, Snowflake } from "discord.js";
-import { GiveawaysManager_Init } from './giveawaysManager.js';
-import emojis from './emojisManager.js';
+import { GiveawaysManager_Init } from './modules/giveawaysManager.js';
+import emojis from './modules/emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData';
 import { readdirSync } from "fs";

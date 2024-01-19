@@ -25,7 +25,7 @@ import {
     Client,
 } from 'discord.js';
 
-import { TicketDelete } from '../../../core/ticketsManager';
+import { TicketDelete } from '../../../core/modules/ticketsManager';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {

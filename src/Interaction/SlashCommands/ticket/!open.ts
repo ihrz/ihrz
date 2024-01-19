@@ -25,7 +25,7 @@ import {
     Client,
 } from 'discord.js';
 
-import { TicketReOpen } from '../../../core/ticketsManager';
+import { TicketReOpen } from '../../../core/modules/ticketsManager';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {

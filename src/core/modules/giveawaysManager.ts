@@ -38,9 +38,9 @@ import {
     Embed
 } from 'discord.js';
 
-import { Giveaway } from '../../types/giveaways';
+import { Giveaway } from '../../../types/giveaways.js';
 import date from 'date-and-time';
-import db from './functions/DatabaseModel.js';
+import db from '../functions/DatabaseModel.js';
 
 async function Create(channel: TextBasedChannel, data: Giveaway) {
 
