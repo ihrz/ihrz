@@ -20,12 +20,22 @@
 */
 
 import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature } from 'discord.js';
+<<<<<<< HEAD:src/Events/bot/ready.ts
 import { PfpsManager_Init } from "../../core/managers/pfpsManager.js";
 import logger from "../../core/logger.js";
+=======
+import { PfpsManager_Init } from "../core/pfpsManager.js";
+import logger from "../core/logger.js";
+>>>>>>> parent of 1fb4a08 (Okay why not):src/Events/ready.ts
 import couleurmdr from 'colors';
 import config from "../../files/config.js";
 
+<<<<<<< HEAD:src/Events/bot/ready.ts
 import { OwnIHRZ } from "../../core/managers/ownihrzManager.js";
+=======
+import { OwnIHRZ } from "../core/ownihrzManager.js";
+import date from 'date-and-time';
+>>>>>>> parent of 1fb4a08 (Okay why not):src/Events/ready.ts
 
 export default async (client: Client) => {
 

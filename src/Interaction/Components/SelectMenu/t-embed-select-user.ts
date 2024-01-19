@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { TicketAddMember_2 } from '../../../core/managers/ticketsManager.js';
+import { TicketAddMember_2 } from '../../../core/ticketsManager.js';
 import { UserSelectMenuInteraction } from 'discord.js';
 
 export default async function (interaction: UserSelectMenuInteraction) {
