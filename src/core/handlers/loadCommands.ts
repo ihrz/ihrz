@@ -23,11 +23,11 @@ import { Client, Collection } from "discord.js";
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
 import logger from "../logger.js";
-import { Command } from "../../../types/command";
+import { Command } from "../../../types/command.js";
 import db from '../functions/DatabaseModel.js';
 import config from "../../files/config.js";
-import { EltType } from "../../../types/eltType";
-import { Option } from "../../../types/option";
+import { EltType } from "../../../types/eltType.js";
+import { Option } from "../../../types/option.js";
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     let result = [];
