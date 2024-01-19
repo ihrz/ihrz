@@ -19,32 +19,12 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import {
-    BaseGuildTextChannel,
-    ChatInputCommandInteraction,
-    Client,
-    EmbedBuilder,
-    PermissionsBitField,
-} from 'discord.js';
+import { Client, Invite } from "discord.js";
 
-import { CloseTicket } from '../../../core/ticketsManager';
-import { LanguageData } from '../../../../types/languageData';
+export default async (client: Client, invite: Invite) => {
+    async function inviteManager() {
+        await client.invites.get(invite.guild?.id).delete(invite.code);
+    };
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-
-        let blockQ = await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`);
-
-        if (blockQ) {
-            await interaction.editReply({ content: data.close_disabled_command });
-            return;
-        };
-
-        if ((interaction.channel as BaseGuildTextChannel).name.includes('ticket-')) {
-            await CloseTicket(interaction);
-        } else {
-            await interaction.editReply({ content: data.close_not_in_ticket });
-            return;
-        };
-    },
+    inviteManager();
 };

@@ -19,32 +19,26 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import {
-    BaseGuildTextChannel,
-    ChatInputCommandInteraction,
-    Client,
-    EmbedBuilder,
-    PermissionsBitField,
-} from 'discord.js';
+import { Client, User, time } from "discord.js";
 
-import { CloseTicket } from '../../../core/ticketsManager';
-import { LanguageData } from '../../../../types/languageData';
+export default async (client: Client, oldUser: User) => {
+    async function prevNames() {
+        var newUser = await client.users.fetch(oldUser.id);
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        let oldUsertag = oldUser.username;
+        let oldUserGlbl = oldUser.globalName;
 
-        let blockQ = await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`);
+        if (!oldUser) return;
 
-        if (blockQ) {
-            await interaction.editReply({ content: data.close_disabled_command });
-            return;
+        if (oldUser.globalName !== newUser.globalName) {
+
+            await client.db.push(`DB.PREVNAMES.${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUserGlbl}`);
+
+        } else if (oldUser.username !== newUser.username) {
+
+            await client.db.push(`DB.PREVNAMES.${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUsertag}`);
         };
+    };
 
-        if ((interaction.channel as BaseGuildTextChannel).name.includes('ticket-')) {
-            await CloseTicket(interaction);
-        } else {
-            await interaction.editReply({ content: data.close_not_in_ticket });
-            return;
-        };
-    },
+    prevNames();
 };

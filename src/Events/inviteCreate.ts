@@ -19,32 +19,23 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import {
-    BaseGuildTextChannel,
-    ChatInputCommandInteraction,
-    Client,
-    EmbedBuilder,
-    PermissionsBitField,
-} from 'discord.js';
+import { Client, Guild, Invite, PermissionsBitField } from 'discord.js';
 
-import { CloseTicket } from '../../../core/ticketsManager';
-import { LanguageData } from '../../../../types/languageData';
+export default async (client: Client, invite: Invite) => {
+    async function inviteManager() {
+        if (!invite.guild || !(invite.guild as Guild).members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+        await client.invites.get(invite.guild?.id)?.set(invite.code, invite.uses);
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        let check = await client.db.get(`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`);
 
-        let blockQ = await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`);
-
-        if (blockQ) {
-            await interaction.editReply({ content: data.close_disabled_command });
-            return;
+        if (!check) {
+            await client.db.set(`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`,
+                {
+                    regular: 0, bonus: 0, leaves: 0, invites: 0
+                }
+            );
         };
+    };
 
-        if ((interaction.channel as BaseGuildTextChannel).name.includes('ticket-')) {
-            await CloseTicket(interaction);
-        } else {
-            await interaction.editReply({ content: data.close_not_in_ticket });
-            return;
-        };
-    },
+    inviteManager();
 };

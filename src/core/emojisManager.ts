@@ -18,33 +18,16 @@
 
 ・ Copyright © 2020-2023 iHorizon
 */
+import { Emojis } from '../../types/emojis';
+import { Client } from 'discord.js';
 
-import {
-    BaseGuildTextChannel,
-    ChatInputCommandInteraction,
-    Client,
-    EmbedBuilder,
-    PermissionsBitField,
-} from 'discord.js';
+import toml from 'toml';
+import fs from 'fs';
 
-import { CloseTicket } from '../../../core/ticketsManager';
-import { LanguageData } from '../../../../types/languageData';
+function emojis(client: Client) {
+    let emojis: Emojis = toml.parse(String(fs.readFileSync(process.cwd() + "/src/files/emojis.toml")))
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-
-        let blockQ = await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`);
-
-        if (blockQ) {
-            await interaction.editReply({ content: data.close_disabled_command });
-            return;
-        };
-
-        if ((interaction.channel as BaseGuildTextChannel).name.includes('ticket-')) {
-            await CloseTicket(interaction);
-        } else {
-            await interaction.editReply({ content: data.close_not_in_ticket });
-            return;
-        };
-    },
+    client.iHorizon_Emojis = emojis;
 };
+
+export default emojis;
