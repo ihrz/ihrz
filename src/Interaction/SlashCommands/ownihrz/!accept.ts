@@ -29,7 +29,7 @@ import { ClusterMethod, OwnIhrzCluster, PublishURL } from '../../../core/functio
 import { LanguageData } from '../../../../types/languageData';
 
 import { Custom_iHorizon } from '../../../../types/ownihrz';
-import { OwnIHRZ } from '../../../core/ownihrzManager.js';
+import { OwnIHRZ } from '../../../core/managers/ownihrzManager.js';
 import config from '../../../files/config.js';
 import axios, { AxiosResponse } from 'axios';
 import logger from '../../../core/logger.js';

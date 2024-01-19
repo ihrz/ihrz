@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { AddEntries } from '../../../core/giveawaysManager.js';
+import { AddEntries } from '../../../core/managers/giveawaysManager.js';
 import { ButtonInteraction, CacheType } from 'discord.js';
 
 export default async function (interaction: ButtonInteraction<CacheType>) {

@@ -28,7 +28,7 @@ import {
     TextBasedChannel,
 } from 'discord.js';
 
-import { Create } from '../../../core/giveawaysManager.js';
+import { Create } from '../../../core/managers/giveawaysManager.js';
 import { LanguageData } from '../../../../types/languageData';
 
 import logger from '../../../core/logger.js';
