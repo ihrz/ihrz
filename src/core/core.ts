@@ -46,8 +46,6 @@ export default async (client: Client) => {
         process.exit();
     });
 
-    checkSys.Html();
-
     var table_1 = db.table("BOT");
     await table_1.set(`CONTENT`, {});
 
