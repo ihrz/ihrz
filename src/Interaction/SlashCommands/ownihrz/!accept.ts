@@ -31,7 +31,7 @@ import { LanguageData } from '../../../../types/languageData';
 import { Custom_iHorizon } from '../../../../types/ownihrz';
 import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 import config from '../../../files/config.js';
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse, all } from 'axios';
 import logger from '../../../core/logger.js';
 import path from 'path';
 import wait from 'wait';
@@ -44,7 +44,20 @@ export default {
         let id = interaction.options.getString('id');
 
         var table_1 = client.db.table("TEMP");
-        let id_2 = await table_1.get(`OWNIHRZ.${interaction.user.id}.${id}`) as Custom_iHorizon;
+        let allData = await table_1.get(`OWNIHRZ`);
+
+        function getData() {
+            for (let ownerId in allData) {
+                for (let botId in allData[ownerId]) {
+                    if (botId !== id) continue;
+                    return allData[ownerId][botId];
+                }
+            }
+        }
+        let id_2 = getData() as Custom_iHorizon;
+
+        id_2.AdminKey = config.api.apiToken;
+        id_2.Code = id as string;
 
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
@@ -55,9 +68,6 @@ export default {
             await interaction.reply({ content: data.mybot_manage_accept_not_found });
             return;
         };
-
-        id_2.AdminKey = config.api.apiToken;
-        id_2.Code = id as string;
 
         let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, {
             headers: {
