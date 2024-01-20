@@ -37,7 +37,7 @@
     "date-and-time": "^3.0.2",
     "date-fns": "^2.30.0",
     "deepmerge-ts": "^5.1.0",
-    "discord-backup": "^3.3.2",
+    "discord-rebackup": "file://..//discord-rebackup/",
     "discord-html-transcripts": "^3.2.0",
     "discord-oauth2": "^2.11.0",
     "discord-player": "^6.6.6",
