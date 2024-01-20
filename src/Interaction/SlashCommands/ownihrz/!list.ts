@@ -63,8 +63,8 @@ async function buildEmbed(client: Client, data: any, botId: number, lang: Langua
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        let data_2 = await client.db.get(`OWNIHRZ.${interaction.user.id}`);
         let table_1 = client.db.table("OWNIHRZ");
+        let data_2 = await client.db.get(`MAIN.${interaction.user.id}`);
 
         let lsEmbed: EmbedBuilder[] = [
             new EmbedBuilder()
@@ -81,16 +81,14 @@ export default {
             }
         }
 
-        let allData = await table_1.all();
+        let allData = await table_1.get("CLUSTER");
 
-        for (let index of allData) {
-            for (let ownerId in index.value) {
-                for (let botId in index.value[ownerId]) {
-                    let embed = await buildEmbed(client, index.value[ownerId][botId], botId as unknown as number, data);
-                    lsEmbed.push(embed);
-                }
+        if (allData) {
+            for (let botId in allData[interaction.user.id]) {
+                let embed = await buildEmbed(client, allData[interaction.user.id][botId], botId as unknown as number, data);
+                lsEmbed.push(embed);
             }
-        }
+        };
 
         await interaction.reply({ embeds: lsEmbed, ephemeral: true });
         return;

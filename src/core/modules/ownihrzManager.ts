@@ -127,7 +127,7 @@ class OwnIHRZ {
     };
 
     // Working
-    async Startup(client: Client) {
+    async Startup() {
         let table_1 = db.table("OWNIHRZ")
         let result = await table_1.get("MAIN");
 
@@ -164,8 +164,8 @@ class OwnIHRZ {
     };
 
     // Working
-    async Startup_Cluster(client: Client) {
-        var table_1 = client.db.table("OWNIHRZ");
+    async Startup_Cluster() {
+        var table_1 = db.table("OWNIHRZ");
 
         (await table_1.all()).forEach(owner_one => {
             var cluster_ownihrz = owner_one.value;

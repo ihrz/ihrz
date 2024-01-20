@@ -19,11 +19,11 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import couleurmdr from 'colors';
+import 'colors';
 import { ShardingManager } from 'discord.js';
 import config from './src/files/config.js';
 import logger from './src/core/logger.js';
 
 let manager = new ShardingManager('./dist/src/core/bot.js', { totalShards: "auto", token: config.discord.token });
-manager.on("shardCreate", (shard) => logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> The Shard number ${shard.id} is launched !`)));
+manager.on("shardCreate", (shard) => logger.log(`${config.console.emojis.HOST} >> The Shard number ${shard.id} is launched !`.green));
 manager.spawn();

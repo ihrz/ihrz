@@ -34,10 +34,10 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
-import { BackupData } from 'discord-backup/lib/types';
+import { BackupData } from 'discord-rebackup/lib/types';
 import { Command } from '../../../../types/command';
 
-import backup from 'discord-backup';
+import backup from 'discord-rebackup';
 
 export const command: Command = {
 

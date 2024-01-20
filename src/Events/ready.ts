@@ -115,8 +115,8 @@ export default async (client: Client) => {
         };
     };
     let iHorizon_Container = new OwnIHRZ();
-    iHorizon_Container.Startup(client);
-    iHorizon_Container.Startup_Cluster(client);
+    iHorizon_Container.Startup();
+    iHorizon_Container.Startup_Cluster();
 
     setInterval(() => {
         iHorizon_Container.Refresh(client);

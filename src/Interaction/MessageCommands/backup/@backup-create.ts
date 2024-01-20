@@ -20,14 +20,10 @@
 */
 
 import {
-    ApplicationCommandOptionType,
-    ApplicationCommandType,
     BaseGuildTextChannel,
-    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-    GuildMember,
-    GuildVoiceChannelResolvable,
+    Guild,
     Message,
     PermissionsBitField,
 } from 'discord.js';
@@ -36,7 +32,7 @@ import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
 import logger from '../../../core/logger.js';
-import backup from 'discord-backup';
+import backup from 'discord-rebackup';
 
 export const command: Command = {
 
@@ -68,7 +64,7 @@ export const command: Command = {
 
         let svMsg = args[0];
 
-        backup.create(interaction.guild, {
+        backup.create(interaction.guild as Guild, {
             maxMessagesPerChannel: svMsg ? 10 : 0,
             jsonBeautify: true
         }).then(async (backupData) => {

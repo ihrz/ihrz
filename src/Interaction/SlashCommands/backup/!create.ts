@@ -29,7 +29,7 @@ import {
 
 
 import logger from '../../../core/logger.js';
-import backup from 'discord-backup';
+import backup from 'discord-rebackup';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {

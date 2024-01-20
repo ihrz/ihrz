@@ -29,7 +29,7 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
-import backup from "discord-backup";
+import backup from "discord-rebackup";
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
