@@ -51,8 +51,6 @@ export default async (client: Client) => {
     var table_1 = db.table("BOT");
     await table_1.set(`CONTENT`, {});
 
-    await import('../api/server.js');
-
     client.db = db;
     client.invites = new Collection();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
