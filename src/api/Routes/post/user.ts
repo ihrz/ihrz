@@ -21,7 +21,7 @@
 
 import { URLSearchParams } from 'url';
 import axios from 'axios';
-import couleurmdr from 'colors';
+import 'colors';
 import logger from '../../../core/logger.js';
 import config from '../../../files/config.js';
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
@@ -53,7 +53,7 @@ export default {
 
             var userinfo = getUserInfo.data;
 
-            logger.log(couleurmdr.green(`${config.console.emojis.OK} >> ${userinfo.username} -> ${accessToken}`));
+            logger.log(`${config.console.emojis.OK} >> ${userinfo.username} -> ${accessToken}`.green);
 
             if (!accessToken) {
                 logger.warn(`${config.console.emojis.OK} >> Error Code 500`.gray);

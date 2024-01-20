@@ -26,8 +26,8 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import backup from 'discord-backup';
-import { BackupData } from 'discord-backup/lib/types';
+import backup from 'discord-rebackup';
+import { BackupData } from 'discord-rebackup/lib/types';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
