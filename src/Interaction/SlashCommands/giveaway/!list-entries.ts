@@ -26,7 +26,6 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import { isValid, isEnded, ListEntries } from '../../../core/modules/giveawaysManager.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
@@ -39,9 +38,7 @@ export default {
             return;
         };
 
-        if (!await isValid((inputData as unknown as number), {
-            guildId: interaction.guild?.id
-        })) {
+        if (!await client.giveawaysManager.isValid(inputData as string)) {
             await interaction.editReply({
                 content: data.end_not_find_giveaway
                     .replace(/\${gw}/g, inputData as string)
@@ -49,18 +46,12 @@ export default {
             return;
         };
 
-        if (await isEnded((inputData as unknown as number), {
-            guildId: interaction.guild?.id as string
-        })) {
+        if (await client.giveawaysManager.isEnded(inputData as string)) {
             await interaction.editReply({ content: data.end_command_error });
             return;
         };
 
-        await ListEntries(interaction, {
-            guildId: interaction.guild?.id,
-            messageId: inputData as string,
-        })
-
+        await client.giveawaysManager.listEntries(interaction, inputData as string)
         return;
     },
 };

@@ -27,6 +27,7 @@ import { Player } from 'discord-player';
 import { DataBase } from "./database";
 import { AnotherCommand } from "./anotherCommand";
 import { Emojis } from "./emojis";
+import { GiveawayManager } from "discord-regiveaways";
 
 declare module 'discord.js' {
     export interface Client {
@@ -40,6 +41,7 @@ declare module 'discord.js' {
         selectmenu: Collection<string, Function>,
         db: QuickDB,
         applicationsCommands: Collection<string, AnotherCommand>,
-        iHorizon_Emojis: Emojis
+        iHorizon_Emojis: Emojis,
+        giveawaysManager: GiveawayManager
     }
 };

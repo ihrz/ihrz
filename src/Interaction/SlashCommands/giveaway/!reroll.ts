@@ -27,7 +27,6 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import { isValid, isEnded, Reroll } from '../../../core/modules/giveawaysManager.js';
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
 
@@ -40,9 +39,7 @@ export default {
             return;
         };
 
-        if (!await isValid((inputData as unknown as number), {
-            guildId: interaction.guild?.id
-        })) {
+        if (!client.giveawaysManager.isValid(inputData as string)) {
             await interaction.editReply({
                 content: data.reroll_dont_find_giveaway
                     .replace("{args}", inputData as string)
@@ -50,17 +47,12 @@ export default {
             return;
         };
 
-        if (!await isEnded((inputData as unknown as number), {
-            guildId: interaction.guild?.id as string
-        })) {
+        if (!client.giveawaysManager.isEnded(inputData as string)) {
             await interaction.editReply({ content: data.reroll_giveaway_not_over });
             return;
         };
 
-        await Reroll(client, {
-            guildId: interaction.guild?.id,
-            messageId: inputData as string,
-        });
+        await client.giveawaysManager.reroll(client, inputData as string);
 
         await interaction.editReply({ content: data.reroll_command_work });
 

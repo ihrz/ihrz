@@ -29,7 +29,6 @@ import logger from "./logger.js";
 
 import { Client, Collection, Snowflake } from "discord.js";
 import { OwnIHRZ } from './modules/ownihrzManager.js';
-import { GiveawaysManager_Init } from './modules/giveawaysManager.js';
 import emojis from './modules/emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData';
@@ -37,11 +36,25 @@ import { readdirSync } from "fs";
 import couleurmdr from "colors";
 import commandsSync from './commandsSync.js';
 import config from '../files/config.js';
+import { GiveawayManager } from 'discord-regiveaways';
 
 export default async (client: Client) => {
     logger.legacy(couleurmdr.gray("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz)."));
     logger.legacy(couleurmdr.gray("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0."));
     logger.legacy(couleurmdr.gray("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0"));
+
+    client.giveawaysManager = new GiveawayManager(client, {
+        // storage: "ee",
+        config: {
+            botsCanWin: false,
+            embedColor: '#FF0000',
+            embedColorEnd: '#000000',
+            reaction: '💫',
+            botName: "Giveaway Bot",
+            forceUpdateEvery: 3600,
+            endedGiveawaysLifetime: 1_600_000,
+        }
+    });
 
     process.on('SIGINT', async () => {
         client.destroy();
@@ -71,7 +84,6 @@ export default async (client: Client) => {
     }
 
     bash(client);
-    GiveawaysManager_Init(client);
     playerManager(client);
     emojis(client);
     errorManager.uncaughtExceptionHandler();

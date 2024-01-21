@@ -28,7 +28,6 @@ import {
     TextBasedChannel,
 } from 'discord.js';
 
-import { Create } from '../../../core/modules/giveawaysManager.js';
 import { LanguageData } from '../../../../types/languageData';
 
 import logger from '../../../core/logger.js';
@@ -62,11 +61,12 @@ export default {
             return;
         };
 
-        Create(giveawayChannel as TextBasedChannel, {
+        client.giveawaysManager.create(giveawayChannel as TextBasedChannel, {
             duration: parseInt(giveawayDurationFormated),
-            prize: giveawayPrize!,
-            winnerCount: giveawayNumberWinners!,
-            hostedBy: interaction.user,
+            prize: giveawayPrize,
+            winnerCount: giveawayNumberWinners,
+            hostedBy: interaction.user.id,
+            embedImageURL: interaction.options.getString('imageURL') || undefined
         });
 
         try {
