@@ -46,17 +46,15 @@ export const command: Command = {
         await interaction.reply({ content: ':ping_pong:' });
 
         let network: string = '';
-        let API: string = '';
 
         await ping.promise.probe("google.com").then(result => { network = (result.time as string) }).catch(e => { network = data.ping_down_msg });
-        await ping.promise.probe("discord.com").then(result => { API = (result.time as string) }).catch(e => { API = data.ping_down_msg });
 
         let embed = new EmbedBuilder()
             .setColor("#319938")
             .setTitle("Pong! 🏓")
             .setDescription(data.ping_embed_desc
                 .replace('${await network}', await network)
-                .replace('${await API}', await API)
+                .replace('${await API}', client.ws.ping)
             );
 
         await interaction.editReply({ content: '', embeds: [embed] });

@@ -55,7 +55,7 @@ export default {
                 embed.addFields({
                     name: `#${index + 1}`,
                     value: data.economy_leaderboard_embed_fields_value
-                        .replace('${client.iHorizon_Emojis.icon.Coin}', client.iHorizon_Emojis.icon.Coin)
+                        .replaceAll('${client.iHorizon_Emojis.icon.Coin}', client.iHorizon_Emojis.icon.Coin)
                         .replace('${userId}', userId)
                         .replace('${userData.bank || 0}', userData.bank || 0)
                         .replace('${userData.money || 0}', userData.money || 0)

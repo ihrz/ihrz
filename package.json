@@ -42,6 +42,7 @@
     "discord-player": "^6.6.6",
     "discord-player-deezer": "^1.0.0",
     "discord-rebackup": "^3.3.6",
+    "discord-regiveaways": "^1.1.5",
     "discord.js": "^14.14.1",
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
