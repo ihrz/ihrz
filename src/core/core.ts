@@ -44,16 +44,15 @@ export default async (client: Client) => {
     logger.legacy(couleurmdr.gray("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0"));
 
     client.giveawaysManager = new GiveawayManager(client, {
-        // storage: "ee",
         config: {
             botsCanWin: false,
-            embedColor: '#FF0000',
-            embedColorEnd: '#000000',
-            reaction: '💫',
-            botName: "Giveaway Bot",
+            embedColor: '#9a5af2',
+            embedColorEnd: '#2f3136',
+            reaction: '🎉',
+            botName: "iHorizon",
             forceUpdateEvery: 3600,
-            endedGiveawaysLifetime: 1_600_000,
-        }
+            endedGiveawaysLifetime: 345_600_000,
+        },
     });
 
     process.on('SIGINT', async () => {
