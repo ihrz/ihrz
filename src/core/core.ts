@@ -27,7 +27,6 @@ import * as errorManager from './modules/errorManager.js';
 import logger from "./logger.js";
 
 import { Client, Collection, Snowflake } from "discord.js";
-import { GiveawaysManager_Init } from './modules/giveawaysManager.js';
 import emojis from './modules/emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData';
@@ -77,7 +76,6 @@ export default async (client: Client) => {
         }
     }
 
-    GiveawaysManager_Init(client);
     playerManager(client);
     emojis(client);
     errorManager.uncaughtExceptionHandler();
