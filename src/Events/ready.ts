@@ -76,7 +76,7 @@ export default async (client: Client) => {
             "I'm just Jack..",
             "Where I see loves he sees a friend"
         ];
-        let randomStatus = quotes[Math.floor(Math.random() * quotes.length)];
+        let randomStatus = quotes[Math.floor(Math.random() * status.length)];
         client.user?.setPresence({ activities: [{ name: randomStatus, type: ActivityType.Custom }] });
     };
 
