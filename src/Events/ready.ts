@@ -74,7 +74,13 @@ export default async (client: Client) => {
             "WHAT THE FRICK IS A DATABASE DO I EVEN NEED ONE???? NAHHHH MEN I'M GOOD",
             "20 bucks for my token",
             "I'm just Jack..",
-            "Where I see loves he sees a friend"
+            "Where I see loves he sees a friend",
+            "Burn the Erdtree to the ground",
+            "and incinerate all that divides and distinguishes",
+            "Ahhh, may chaos take the world!"
+            "MAY CHAOS TAKE THE WORLD",
+            "t'as-tu dja vu ça une vache qui fait d'la post-combustion",
+            "Uncle Jack is touching me (on github)"
         ];
         let randomStatus = quotes[Math.floor(Math.random() * status.length)];
         client.user?.setPresence({ activities: [{ name: randomStatus, type: ActivityType.Custom }] });
