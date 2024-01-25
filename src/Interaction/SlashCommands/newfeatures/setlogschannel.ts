@@ -31,6 +31,7 @@ import {
 
 import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'setlogschannel',
@@ -75,7 +76,7 @@ export const command: Command = {
     category: 'newfeatures',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.setlogschannel_not_admin });
@@ -358,7 +359,7 @@ export const command: Command = {
             await client.db.delete(`${interaction.guildId}.GUILD.SERVER_LOGS`);
             await interaction.reply({
                 content: data.setlogschannel_command_work_on_delete
-                    .replace("${interaction.guild.name}", interaction.guild?.name)
+                    .replace("${interaction.guild.name}", interaction.guild?.name as string)
             });
             return;
         }

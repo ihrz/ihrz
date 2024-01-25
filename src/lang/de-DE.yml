@@ -1252,4 +1252,8 @@ event_gw_finnish_cannot_msg: "Keine gültigen Teilnehmer, daher konnte kein Gewi
 event_gw_finnish_button_title: "Gewinnspiel beendet"
 event_gw_removeentries_msg: "${interaction.user}, du hast an diesem Gewinnspiel teilgenommen!"
 
+# Ereignisprotokoll für Boosts
+event_boostlog_add: "<@${newMember.user.id}> **hat gerade den Server geboostet**! (**${newMember.guild.premiumSubscriptionCount}** insgesamt)"
+event_boostlog_sub: "<@${newMember.user.id}> **hat gerade seinen Boost vom Server entfernt**! (**${newMember.guild.premiumSubscriptionCount}** insgesamt)"
+
 # -----------------------------\ /-----------------------------

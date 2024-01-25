@@ -455,6 +455,7 @@ export interface LanguageData {
     setlogschannel_var_mods: string;
     setlogschannel_var_voice: string;
     setlogschannel_var_msg: string;
+    setlogschannel_var_boost: string;
     automod_block_massmention_command_off: string;
     automod_block_massmention_command_on: string;
     automod_block_pub_command_on: string;
@@ -886,4 +887,6 @@ export interface LanguageData {
     event_gw_finnish_cannot_msg: string;
     event_gw_finnish_button_title: string;
     event_gw_removeentries_msg: string;
+    event_boostlog_add: string;
+    event_boostlog_sub: string;
 }

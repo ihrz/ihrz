@@ -104,12 +104,18 @@ export default async (client: Client, oldMember: GuildMember, newMember: GuildMe
             !oldMember.roles.cache.get(boosterRoleId)
             && newMember.roles.cache.get(boosterRoleId)
         ) {
-            embed.setDescription(`<@${newMember.user.id}> **viens de boosté** le serveur! (**${newMember.guild.premiumSubscriptionCount}** boosts total)`)
+            embed.setDescription(data.event_boostlog_add
+                .replace('${newMember.user.id}', newMember.user.id)
+                .replace('${newMember.guild.premiumSubscriptionCount}', newMember.guild.premiumSubscriptionCount)
+            );
         } else if (
             oldMember.roles.cache.get(boosterRoleId)
             && !newMember.roles.cache.get(boosterRoleId)
         ) {
-            embed.setDescription(`<@${newMember.user.id}> **viens d'enlever sont boost** du serveur! (**${newMember.guild.premiumSubscriptionCount}** boosts total)`)
+            embed.setDescription(data.event_boostlog_sub
+                .replace('${newMember.user.id}', newMember.user.id)
+                .replace('${newMember.guild.premiumSubscriptionCount}', newMember.guild.premiumSubscriptionCount)
+            );
         }
 
         (Msgchannel as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });

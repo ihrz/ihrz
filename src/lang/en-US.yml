@@ -1252,4 +1252,8 @@ event_gw_finnish_cannot_msg: "No valid entrants, so a winner could not be determ
 event_gw_finnish_button_title: "Giveaway Finished"
 event_gw_removeentries_msg: "${interaction.user} you have leave this giveaways !"
 
+# Boost Logs Event
+event_boostlog_add: "<@${newMember.user.id}> **just boosted** the server! (**${newMember.guild.premiumSubscriptionCount}** total boosts)"
+event_boostlog_sub: "<@${newMember.user.id}> **just removed their boost** from the server! (**${newMember.guild.premiumSubscriptionCount}** total boosts)"
+
 # -----------------------------\ /-----------------------------
