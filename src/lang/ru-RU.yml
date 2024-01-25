@@ -1252,4 +1252,8 @@ event_gw_finnish_cannot_msg: "Нет действительных участни
 event_gw_finnish_button_title: "Розыгрыш завершен"
 event_gw_removeentries_msg: "${interaction.user}, вы покинули этот конкурс!"
 
+# Событие логов улучшения
+event_boostlog_add: "<@${newMember.user.id}> **только что улучшил(а)** сервер! (**${newMember.guild.premiumSubscriptionCount}** всего улучшений)"
+event_boostlog_sub: "<@${newMember.user.id}> **только что убрал(а) свой улучшение** с сервера! (**${newMember.guild.premiumSubscriptionCount}** всего улучшений)"
+
 # -----------------------------/ \-----------------------------
