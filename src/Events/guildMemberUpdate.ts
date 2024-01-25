@@ -47,10 +47,10 @@ export default async (client: Client, oldMember: GuildMember, newMember: GuildMe
         interface CustomObject {
             id: string;
         }
-        
+
         let newObjects: CustomObject[] = [];
         let removeObjects: CustomObject[] = [];
-        
+
         firstEntry.changes.forEach((item) => {
             if (item.key === '$add') {
                 newObjects.push(...<CustomObject[]>item.new);
@@ -58,10 +58,10 @@ export default async (client: Client, oldMember: GuildMember, newMember: GuildMe
                 removeObjects.push(...<CustomObject[]>item.new);
             }
         });
-        
+
         let newObjectsnewObjectIds: string[] = newObjects.map((obj) => obj.id);
         let removeObjectIds: string[] = removeObjects.map((obj) => obj.id);
-        
+
         let logsEmbed = new EmbedBuilder()
             .setColor(await client.db.get(`${oldMember.guild?.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`)  || "#000000")
             .setAuthor({ name: firstEntry.target?.username as string, iconURL: firstEntry.target?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
@@ -87,5 +87,35 @@ export default async (client: Client, oldMember: GuildMember, newMember: GuildMe
         (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
     };
 
+    async function serverLogs_Boost() {
+        if (!newMember.guild.roles.premiumSubscriberRole) return;
+        let boosterRoleId = newMember.guild.roles.premiumSubscriberRole as unknown as string;
+        let someinfo = await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.boosts`);
+        let Msgchannel = newMember.guild.channels.cache.get(someinfo);
+
+        if (!someinfo || !Msgchannel) return;
+
+        let embed = new EmbedBuilder()
+            .setColor("#a27cec")
+            .setAuthor({ name: newMember?.user.username as string, iconURL: newMember?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
+            .setTimestamp();
+
+        if (
+            !oldMember.roles.cache.get(boosterRoleId)
+            && newMember.roles.cache.get(boosterRoleId)
+        ) {
+            embed.setDescription(`<@${newMember.user.id}> **viens de boosté** le serveur! (**${newMember.guild.premiumSubscriptionCount}** boosts total)`)
+        } else if (
+            oldMember.roles.cache.get(boosterRoleId)
+            && !newMember.roles.cache.get(boosterRoleId)
+        ) {
+            embed.setDescription(`<@${newMember.user.id}> **viens d'enlever sont boost** du serveur! (**${newMember.guild.premiumSubscriptionCount}** boosts total)`)
+        }
+
+        (Msgchannel as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
+        return;
+    };
+
+    serverLogs_Boost();
     serverLogs();
 };

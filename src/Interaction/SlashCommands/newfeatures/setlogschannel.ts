@@ -48,14 +48,16 @@ export const command: Command = {
             description_localizations: {
                 "fr": "Spécifier le cannal de journaux"
             },
-            
+
             required: true,
             choices: [
                 { name: "Delete all settings", value: "off" },
                 { name: "Roles Logs", value: "1" },
                 { name: "Moderation Logs", value: "2" },
                 { name: "Voice Logs", value: "3" },
-                { name: "Messages Logs", value: "4" }]
+                { name: "Messages Logs", value: "4" },
+                { name: "Boost Logs", value: "5" }
+            ]
         },
         {
             name: 'channel',
@@ -281,6 +283,57 @@ export const command: Command = {
                 return;
             };
         };
+
+        /*                                        BOOST LOGS                                                */
+
+        if (type === "5") {
+            let typeOfLogs = data.setlogschannel_var_boost;
+            if (!argsid) {
+                await interaction.reply({ content: data.setlogschannel_not_specified_args });
+                return;
+            };
+
+            try {
+                let logEmbed = new EmbedBuilder()
+                    .setColor("#bf0bb9")
+                    .setTitle(data.setlogschannel_logs_embed_title)
+                    .setDescription(data.setlogschannel_logs_embed_description_on_enable
+                        .replace(/\${argsid\.id}/g, argsid.id)
+                        .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                        .replace(/\${typeOfLogs}/g, typeOfLogs)
+                    )
+
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
+            } catch (e: any) { logger.err(e) };
+
+            try {
+                let already = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS.boosts`)
+                if (already === argsid.id) {
+                    await interaction.reply({ content: data.setlogschannel_already_this_channel });
+                    return;
+                };
+
+                (client.channels.cache.get(argsid.id) as BaseGuildTextChannel).send({
+                    content: data.setlogschannel_confirmation_message
+                        .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+                        .replace("${interaction.user.id}", interaction.user.id)
+                        .replace("${typeOfLogs}", typeOfLogs)
+                })
+                await client.db.set(`${interaction.guildId}.GUILD.SERVER_LOGS.boosts`, argsid.id);
+
+                await interaction.reply({
+                    content: data.setlogschannel_command_work
+                        .replace("${argsid.id}", argsid.id)
+                        .replace("${typeOfLogs}", typeOfLogs)
+                });
+                return;
+            } catch (e) {
+                await interaction.reply({ content: data.setlogschannel_command_error });
+                return;
+            };
+        };
+
 
         /*                                        DELETE LOGS                                                */
         if (type === "off") {
