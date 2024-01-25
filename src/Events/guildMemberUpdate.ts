@@ -108,6 +108,10 @@ export default async (client: Client, oldMember: GuildMember, newMember: GuildMe
                 .replace('${newMember.user.id}', newMember.user.id)
                 .replace('${newMember.guild.premiumSubscriptionCount}', newMember.guild.premiumSubscriptionCount)
             );
+
+            (Msgchannel as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
+            return;
+            
         } else if (
             oldMember.roles.cache.get(boosterRoleId)
             && !newMember.roles.cache.get(boosterRoleId)
@@ -116,10 +120,10 @@ export default async (client: Client, oldMember: GuildMember, newMember: GuildMe
                 .replace('${newMember.user.id}', newMember.user.id)
                 .replace('${newMember.guild.premiumSubscriptionCount}', newMember.guild.premiumSubscriptionCount)
             );
-        }
 
-        (Msgchannel as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
-        return;
+            (Msgchannel as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
+            return;
+        }
     };
 
     serverLogs_Boost();
