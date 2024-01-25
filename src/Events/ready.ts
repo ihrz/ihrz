@@ -55,7 +55,7 @@ export default async (client: Client) => {
     };
 
     async function quotesPresence() {
-        let quotes = [
+        let status = [
             "Balls",
             "discord.gg/ihorizon",
             "https://ihorizon.me",
@@ -72,10 +72,18 @@ export default async (client: Client) => {
             "I removed my own database (THE VOICES ARE GETTING LOUDER)",
             "PEOPLE ARE TOUCHING MY INSIDES ON GITHUB",
             "WHAT THE FRICK IS A DATABASE DO I EVEN NEED ONE???? NAHHHH MEN I'M GOOD",
-            "20 bucks for my token"
+            "20 bucks for my token",
+            "I'm just Jack..",
+            "Where I see loves he sees a friend",
+            "Burn the Erdtree to the ground",
+            "and incinerate all that divides and distinguishes",
+            "Ahhh, may chaos take the world!"
+            "MAY CHAOS TAKE THE WORLD",
+            "t'as-tu dja vu ça une vache qui fait d'la post-combustion",
+            "Uncle Jack is touching me (on github)"
         ];
-        let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        client.user?.setPresence({ activities: [{ name: randomQuote, type: ActivityType.Custom }] });
+        let randomStatus = quotes[Math.floor(Math.random() * status.length)];
+        client.user?.setPresence({ activities: [{ name: randomStatus, type: ActivityType.Custom }] });
     };
 
     async function refreshSchedule() {
