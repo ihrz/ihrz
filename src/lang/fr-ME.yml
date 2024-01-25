@@ -622,6 +622,7 @@ setlogschannel_var_roles: "Logs des rôles"
 setlogschannel_var_mods: "Logs de modération"
 setlogschannel_var_voice: "Logs vocaux"
 setlogschannel_var_msg: "Logs des messages"
+setlogschannel_var_boost: "Logs de Boost"
 
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, tu avez désactivé la règle `AutoModération de Mention Massive` à **false**.\nMaintenant, les utilisateurs peuvent envoyer des mentions dans leurs messages.\nAutoMod x iHorizon a été désactivé sur ton serveur !"

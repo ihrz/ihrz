@@ -622,6 +622,7 @@ setlogschannel_var_roles: "役職のログ"
 setlogschannel_var_mods: "モデレーションログ"
 setlogschannel_var_voice: "音声ログ"
 setlogschannel_var_msg: "メッセージログ"
+setlogschannel_var_boost: "ブーストログ"
 
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, あなたは`Mass-Mention AutoModルール`を**false**に設定しました。\n今、ユーザーはメッセージにメンションを送信できます。\nAutoMod x iHorizonはサーバーで無効になっています！"
