@@ -105,7 +105,8 @@ export default async (client: Client, message: Message) => {
 
         if (type === "on") {
             let LOG = await client.db.get(`${message.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
-            let LOGfetched = await client.db.get(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`);
+            let table = client.db.table("TEMP");
+            let LOGfetched = await table.get(`${message.guild.id}.PUNISH_DATA.${message.author.id}`);
 
             if (LOG?.amountMax === LOGfetched?.flags && LOG?.state === "true") {
                 switch (LOG.punishementType) {
@@ -117,7 +118,7 @@ export default async (client: Client, message: Message) => {
                         break;
                     case 'mute':
                         await member?.timeout(40000, 'Timeout by PunishPUB')
-                        await client.db.set(`TEMP.${message.guildId}.PUNISH_DATA.${message.author.id}`, {});
+                        await table.set(`${message.guildId}.PUNISH_DATA.${message.author.id}`, {});
                         break;
                 }
             };
@@ -125,14 +126,14 @@ export default async (client: Client, message: Message) => {
             try {
                 let blacklist = ["https://", "http://", "://", ".com", ".xyz", ".fr", "www.", ".gg", "g/", ".gg/", "youtube.be", "/?"];
                 let contentLower = message.content.toLowerCase();
+                let table = client.db.table("TEMP");
 
                 for (let word of blacklist) {
                     if (contentLower.includes(word)) {
-                        let FLAGS_FETCH = await client.db.get(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}.flags`);
+                        let FLAGS_FETCH = await table.get(`${message.guild.id}.PUNISH_DATA.${message.author.id}.flags`);
                         FLAGS_FETCH = FLAGS_FETCH || 0;
 
-                        await client.db.set(`TEMP.${message.guild.id}.PUNISH_DATA.${message.author.id}`, { flags: FLAGS_FETCH + 1 });
-
+                        await table.set(`${message.guild.id}.PUNISH_DATA.${message.author.id}`, { flags: FLAGS_FETCH + 1 });
                         await message.delete();
                         break;
                     }

@@ -54,13 +54,14 @@ export default async (client: Client) => {
             minute: '2-digit', second: '2-digit', timeZone: 'UTC'
         });
 
-        let LoadFiles = await client.db.get(`BASH.LAST_LOGIN`) || "None";
+        let table = client.db.table('BASH');
+        let LoadFiles = await table.get(`BASH.LAST_LOGIN`) || "None";
         let LoadFiles2 = "127.0.0.1";
 
         let filePath = path.join(process.cwd(), 'src', 'core', 'bash', 'history', '.bash_history');
         let createFiles = fs.createWriteStream(filePath, { flags: 'a' });
 
-        await client.db.set(`BASH.LAST_LOGIN`, dateStr);
+        await table.set(`BASH.LAST_LOGIN`, dateStr);
         logger.legacy(`Welcome to iHorizon Bash
     
     * Documentation:  https://github.com/ihrz/ihrz/

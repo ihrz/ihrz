@@ -31,7 +31,18 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 
 import logger from '../../../core/logger.js';
+import axios from 'axios';
 import ms from 'ms';
+
+async function isImageUrl(url: string): Promise<boolean> {
+    try {
+        const response = await axios.head(url);
+        const contentType = response.headers["content-type"];
+        return contentType.startsWith("image/");
+    } catch (error) {
+        return false;
+    }
+};
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -44,6 +55,7 @@ export default {
         let giveawayChannel = interaction.channel;
         var giveawayDuration = interaction.options.getString("time");
         let giveawayNumberWinners = interaction.options.getNumber("winner");
+        var imageUrl = interaction.options.getString('image');
 
         if (isNaN(giveawayNumberWinners as number) || (parseInt(giveawayNumberWinners as unknown as string) <= 0)) {
             await interaction.editReply({ content: data.start_is_not_valid });
@@ -60,13 +72,13 @@ export default {
             });
             return;
         };
-
+        
         client.giveawaysManager.create(giveawayChannel as TextBasedChannel, {
             duration: parseInt(giveawayDurationFormated),
             prize: giveawayPrize,
             winnerCount: giveawayNumberWinners,
             hostedBy: interaction.user.id,
-            embedImageURL: interaction.options.getString('imageURL') || undefined
+            embedImageURL: await isImageUrl(imageUrl as string) ? imageUrl : undefined
         });
 
         try {

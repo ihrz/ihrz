@@ -1,6 +1,6 @@
 {
   "name": "ihrz",
-  "version": "dev_15.2.0b",
+  "version": "dev_15.1.0",
   "description": "iHrz in ts!",
   "main": "./dist/index.js",
   "scripts": {
@@ -35,14 +35,14 @@
     "colors": "^1.4.0",
     "crypto-js": "^4.1.1",
     "date-and-time": "^3.0.2",
-    "date-fns": "^2.30.0",
+    "date-fns": "3.3.1",
     "deepmerge-ts": "^5.1.0",
     "discord-html-transcripts": "^3.2.0",
     "discord-oauth2": "^2.11.0",
     "discord-player": "^6.6.6",
     "discord-player-deezer": "^1.0.0",
     "discord-rebackup": "^3.3.6",
-    "discord-regiveaways": "^1.1.5",
+    "discord-regiveaways": "^1.1.7",
     "discord.js": "^14.14.1",
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
@@ -69,7 +69,7 @@
     "@types/dockerode": "^3.3.23",
     "@types/ms": "^0.7.31",
     "@types/node": "^20.5.6",
-    "@types/os-utils": "^0.0.1",
+    "@types/os-utils": "0.0.4",
     "@types/ping": "^0.4.1",
     "typescript": "^5.3.3"
   }
