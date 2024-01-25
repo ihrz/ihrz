@@ -136,3 +136,4 @@ yarn.lock
 # OwniHrz
 /ownihrz
 bun.lockb
+src/core/handlers/loadFunctions.ts
