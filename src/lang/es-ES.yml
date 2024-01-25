@@ -1252,4 +1252,8 @@ event_gw_finnish_cannot_msg: "No hay participantes válidos, por lo que no se pu
 event_gw_finnish_button_title: "Sorteo Finalizado"
 event_gw_removeentries_msg: "${interaction.user}, ¡has abandonado este sorteo!"
 
+# Evento de Registros de Impulso
+event_boostlog_add: "<@${newMember.user.id}> **acaba de potenciar** el servidor. (Total de impulsos: **${newMember.guild.premiumSubscriptionCount}**)"
+event_boostlog_sub: "<@${newMember.user.id}> **acaba de quitar su impulso** del servidor. (Total de impulsos: **${newMember.guild.premiumSubscriptionCount}**)"
+
 # -----------------------------\ /-----------------------------

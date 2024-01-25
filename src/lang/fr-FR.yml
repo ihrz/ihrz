@@ -1252,4 +1252,8 @@ event_gw_finnish_cannot_msg: "Aucun participant valide, donc un gagnant n'a pas 
 event_gw_finnish_button_title: "Giveaway Terminé"
 event_gw_removeentries_msg: "${interaction.user}, vous avez quitté ce giveaway !"
 
+# Événement de Boost Logs
+event_boostlog_add: "<@${newMember.user.id}> **viens de boosté** le serveur! (**${newMember.guild.premiumSubscriptionCount}** boosts total)"
+event_boostlog_sub: "<@${newMember.user.id}> **viens d'enlever sont boost** du serveur! (**${newMember.guild.premiumSubscriptionCount}** boosts total)"
+
 # -----------------------------\ /-----------------------------

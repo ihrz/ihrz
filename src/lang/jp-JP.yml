@@ -1252,4 +1252,8 @@ event_gw_finnish_cannot_msg: "有効な応募者がいないため、受賞者�
 event_gw_finnish_button_title: "ギブアウェイ終了"
 event_gw_removeentries_msg: "${interaction.user}さん、このギブアウェイから退出しました！"
 
+# ブーストログイベント
+event_boostlog_add: "<@${newMember.user.id}> **がサーバーをブーストしました**！（合計**${newMember.guild.premiumSubscriptionCount}**ブースト）"
+event_boostlog_sub: "<@${newMember.user.id}> **がサーバーからブーストを解除しました**！（合計**${newMember.guild.premiumSubscriptionCount}**ブースト）"
+
 # -----------------------------\ /-----------------------------
