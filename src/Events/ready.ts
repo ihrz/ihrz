@@ -77,12 +77,12 @@ export default async (client: Client) => {
             "Where I see loves he sees a friend",
             "Burn the Erdtree to the ground",
             "and incinerate all that divides and distinguishes",
-            "Ahhh, may chaos take the world!"
+            "Ahhh, may chaos take the world!",
             "MAY CHAOS TAKE THE WORLD",
             "t'as-tu dja vu ça une vache qui fait d'la post-combustion",
             "Uncle Jack is touching me (on github)"
         ];
-        let randomStatus = quotes[Math.floor(Math.random() * status.length)];
+        let randomStatus = status[Math.floor(Math.random() * status.length)];
         client.user?.setPresence({ activities: [{ name: randomStatus, type: ActivityType.Custom }] });
     };
 
