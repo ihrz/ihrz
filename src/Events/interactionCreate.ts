@@ -124,10 +124,11 @@ export default async (client: Client, interaction: Interaction) => {
 
     async function cooldDown() {
         let tn = Date.now();
-        var fetch = await client.db.get(`TEMP.COOLDOWN.${interaction.user.id}`);
+        let table = client.db.table("TEMP");
+        var fetch = await table.get(`COOLDOWN.${interaction.user.id}`);
         if (fetch !== null && timeout - (tn - fetch) > 0) return true;
 
-        await client.db.set(`TEMP.COOLDOWN.${interaction.user.id}`, tn);
+        await table.set(`COOLDOWN.${interaction.user.id}`, tn);
         return false;
     };
 

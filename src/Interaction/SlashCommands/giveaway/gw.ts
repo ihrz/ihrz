@@ -80,6 +80,17 @@ export const command: Command = {
                     },
 
                     required: true
+                },
+                {
+                    name: 'image',
+                    type: ApplicationCommandOptionType.String,
+
+                    description: 'Image showed on the giveaway\'s embed',
+                    description_localizations: {
+                        "fr": "le lien d'une image qui seras inclu dans l'embed du giveaway"
+                    },
+
+                    required: false
                 }
             ]
         },
