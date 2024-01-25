@@ -45,7 +45,7 @@ if (config.database.useSqlite) {
             resolve(db);
             proc.exit(driver);
         } catch (error) {
-            logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> ${(error as string).split("\n")[0]}`));
+            logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> ${(error as string).toString().split('\n')[0]}`));
             logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> Database is unreachable (${config.database.useSqlite ? 'SQLite' : 'MongoDB'}) !`));
             logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> Please use a different database than ${config.database.useSqlite ? 'SQLite' : 'MongoDB'} !`));
             logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> in the /src/files/config.ts at: 'database.useSqlite'.`));
