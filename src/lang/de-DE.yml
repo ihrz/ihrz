@@ -622,6 +622,7 @@ setlogschannel_var_roles: "Rollenprotokolle"
 setlogschannel_var_mods: "Moderationsprotokolle"
 setlogschannel_var_voice: "Sprachprotokolle"
 setlogschannel_var_msg: "Nachrichtenprotokolle"
+setlogschannel_var_boost: "Boost-Protokolle"
 
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, du hast die `Massen-Erwähnungs-AutoMod-Regel` auf **false** gesetzt.\nJetzt können Benutzer Erwähnungen in ihren Nachrichten senden.\nAutoMod x iHorizon wurde auf deinem Server deaktiviert!"
