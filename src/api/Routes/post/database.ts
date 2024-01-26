@@ -19,7 +19,6 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import CryptoJS from 'crypto-js';
 import logger from '../../../core/logger.js';
 import config from '../../../files/config.js';
 import dbPromise from '../../../core/database.js';
@@ -31,17 +30,14 @@ export default {
     name: 'database',
     apiPath: '/api/database',
     run: async (req: Request, res: Response) => {
-        let { text } = req.body;
+        let { id, key, values, code } = req.body;
         let db = await dbPromise as QuickDB;
 
+        if (code !== config.api.apiToken) {
+            return res.send(500);
+        };
+        
         try {
-            var bytes = CryptoJS.AES.decrypt(text, config.api.apiToken);
-            var decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-
-            var id = decryptedData.id;
-            var key = decryptedData.key;
-            var values = decryptedData.values || decryptedData.value;
-
             switch (id) {
                 case 1:
                     await db.set(key, values);

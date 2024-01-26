@@ -23,7 +23,6 @@ import config from '../files/config.js';
 import logger from '../core/logger.js';
 
 import { Client, CommandInteractionOptionResolver, EmbedBuilder, GuildChannel, Interaction } from 'discord.js';
-import { format } from 'date-fns';
 import fs from 'fs';
 
 var timeout: number = 1000;
@@ -110,8 +109,8 @@ export default async (client: Client, interaction: Interaction) => {
             if ((interaction.options as CommandInteractionOptionResolver).getSubcommandGroup()) subCmd += (interaction.options as CommandInteractionOptionResolver).getSubcommandGroup()! + " ";
             subCmd += (interaction.options as CommandInteractionOptionResolver).getSubcommand()
         };
-
-        let logMessage = `[${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}] "${interaction.guild?.name}" #${interaction.channel ? (interaction.channel as GuildChannel).name : 'Unknown Channel'}:\n` +
+        
+        let logMessage = `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}}] "${interaction.guild?.name}" #${interaction.channel ? (interaction.channel as GuildChannel).name : 'Unknown Channel'}:\n` +
             `${interaction.user.username}:\n` +
             `/${interaction.commandName} ${subCmd} ${optionsList?.join(' ')}\n\n`;
 

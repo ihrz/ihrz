@@ -21,7 +21,7 @@
 
 import logger from "../logger.js";
 import wait from 'wait';
-import os from 'os-utils';
+import os from 'node:os';
 import readline from 'readline';
 import fs from 'fs';
 import config from "../../files/config.js";
@@ -67,7 +67,7 @@ export default async (client: Client) => {
     * Documentation:  https://github.com/ihrz/ihrz/
     
      System information as of mar.  ${formattedDate}
-     Memory usage:                  ${os.freememPercentage()}%
+     Memory usage:                  ${os.freemem}%
      IPv4 address for eth0:         ${'localhost'}
      IPv6 address for eth0:         None
     
