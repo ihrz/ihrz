@@ -84,13 +84,13 @@ async function CreatePanel(interaction: ChatInputCommandInteraction<CacheType>, 
         let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild?.id}.GUILD.TICKET.logs`);
         TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
         if (!TicketLogsChannel) return;
-
+        
         let embed = new EmbedBuilder()
             .setColor("#008000")
             .setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
             .setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc
-                .replace('${interaction}', interaction)
-                .replace('${interaction}', interaction)
+                .replace('${data.name}', data.name)
+                .replace('${interaction}', interaction.channel)
             )
             .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
             .setTimestamp();
