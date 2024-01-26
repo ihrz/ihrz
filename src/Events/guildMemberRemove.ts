@@ -99,9 +99,10 @@ export default async (client: Client, member: GuildMember) => {
                 .replace("{inviter}", inviter.username)
                 .replace("{invites}", invitesAmount);
 
-            let lChanManager = client.channels.cache.get(lChan);
+            let lChanManager = client.channels.cache.get(lChan) as BaseGuildTextChannel;
 
-            (lChanManager as BaseGuildTextChannel).send({ content: joinMessageFormated }).catch(() => { });
+            lChanManager.send({ content: joinMessageFormated }).catch(() => { });
+            return;
         } catch (e) {
             let lChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`);
 
