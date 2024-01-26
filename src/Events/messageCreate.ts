@@ -70,19 +70,22 @@ export default async (client: Client, message: Message) => {
                 || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)) return;
 
             let xpChan = await client.db.get(`${message.guild.id}.GUILD.XP_LEVELING.xpchannels`);
+            let MsgChannel = message.guild.channels.cache.get(xpChan) as GuildTextBasedChannel;
 
-            if (!xpChan) return message.channel.send({
+            if (!xpChan) {
+                message.channel.send({
+                    content: data.event_xp_level_earn
+                        .replace("${message.author.id}", message.author.id)
+                        .replace("${newLevel}", newLevel)
+                })
+                return;
+            }
+
+            MsgChannel.send({
                 content: data.event_xp_level_earn
                     .replace("${message.author.id}", message.author.id)
                     .replace("${newLevel}", newLevel)
-            }).catch(() => { });
-
-            (client.channels.cache.get(xpChan) as GuildTextBasedChannel).send({
-                content: data.event_xp_level_earn
-                    .replace("${message.author.id}", message.author.id)
-                    .replace("${newLevel}", newLevel)
-            }).catch(() => { });
-
+            });
             return;
         }
     };

@@ -37,8 +37,9 @@ export default async (client: Client, ban: GuildBan) => {
 
         if (!someinfo) return;
 
-        let Msgchannel = client.channels.cache.get(someinfo);
+        let Msgchannel = ban.guild.channels.cache.get(someinfo);
         if (!Msgchannel) return;
+        
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setDescription(data.event_srvLogs_banAdd_description

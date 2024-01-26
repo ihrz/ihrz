@@ -89,7 +89,6 @@ export default async (client: Client, oldMember: GuildMember, newMember: GuildMe
 
     async function serverLogs_Boost() {
         if (!newMember.guild.roles.premiumSubscriberRole) return;
-        let boosterRoleId = newMember.guild.roles.premiumSubscriberRole as unknown as string;
         let someinfo = await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.boosts`);
         let Msgchannel = newMember.guild.channels.cache.get(someinfo);
 
@@ -101,8 +100,8 @@ export default async (client: Client, oldMember: GuildMember, newMember: GuildMe
             .setTimestamp();
 
         if (
-            !oldMember.roles.cache.get(boosterRoleId)
-            && newMember.roles.cache.get(boosterRoleId)
+            !oldMember.premiumSince
+            && newMember.premiumSince
         ) {
             embed.setDescription(data.event_boostlog_add
                 .replace('${newMember.user.id}', newMember.user.id)
@@ -113,8 +112,8 @@ export default async (client: Client, oldMember: GuildMember, newMember: GuildMe
             return;
             
         } else if (
-            oldMember.roles.cache.get(boosterRoleId)
-            && !newMember.roles.cache.get(boosterRoleId)
+            oldMember.premiumSince
+            && !newMember.premiumSince
         ) {
             embed.setDescription(data.event_boostlog_sub
                 .replace('${newMember.user.id}', newMember.user.id)
