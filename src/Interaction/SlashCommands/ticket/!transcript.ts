@@ -27,7 +27,7 @@ import {
     Client,
 } from 'discord.js';
 
-import { TicketTranscript } from '../../../core/modules/ticketsManager';
+import { TicketTranscript } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
