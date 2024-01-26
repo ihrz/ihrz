@@ -279,7 +279,8 @@ export default async (client: Client, member: GuildMember) => {
         if (await client.db.get(`${member.guild.id}.GUILD_CONFIG.rolesaver.enable`)) {
 
             let array = await client.db.get(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
-
+            if (!array) return;
+            
             array.forEach(async (role: Role) => {
                 member.roles.add(role);
             });
