@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import { Attachment, AttachmentBuilder, AttachmentData, BaseGuildTextChannel, Client, Collection, EmbedBuilder, GuildTextBasedChannel, Message, PermissionsBitField } from 'discord.js';
+import { Attachment, AttachmentBuilder, AttachmentData, BaseGuildTextChannel, Client, Collection, Embed, EmbedBuilder, GuildTextBasedChannel, Message, PermissionsBitField } from 'discord.js';
 import * as hidden from '../core/functions/maskLink.js';
 
 import axios, { AxiosResponse } from 'axios';
@@ -52,6 +52,7 @@ export default async (client: Client, message: Message) => {
         if (!Msgchannel) return;
 
         let iconURL = message.author.displayAvatarURL();
+        let saves_emb: EmbedBuilder[] = [];
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setAuthor({
@@ -106,9 +107,13 @@ export default async (client: Client, message: Message) => {
                 await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed], files: [snipedFiles!] }).catch(() => { });
                 return;
             }
-        };
+        } else if (message.embeds) {
+            for (let embed in message.embeds) {
+                saves_emb.push(EmbedBuilder.from(message.embeds[embed]))
+            }
+        }
 
-        await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
+        await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed, ...saves_emb] }).catch(() => { });
         return;
     };
 
