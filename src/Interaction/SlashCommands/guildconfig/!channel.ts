@@ -104,7 +104,7 @@ export default {
             if (i.customId === 'guildconfig-channel-panel-change-join-channel') {
 
                 let i2 = await i.reply({
-                    content: data.setchannels_wich_channel.replace('${interaction.user.id}', interaction.user.id)
+                    content: data.setchannels_which_channel.replace('${interaction.user.id}', interaction.user.id)
                 });
                 let i2Collector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 20_000 });
 
@@ -172,7 +172,7 @@ export default {
             } else if (i.customId === 'guildconfig-channel-panel-change-leave-channel') {
 
                 let i2 = await i.reply({
-                    content: data.setchannels_wich_channel.replace('${interaction.user.id}', interaction.user.id)
+                    content: data.setchannels_which_channel.replace('${interaction.user.id}', interaction.user.id)
                 });
                 let i2Collector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 20_000 });
 

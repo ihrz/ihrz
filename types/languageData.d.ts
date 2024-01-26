@@ -391,7 +391,7 @@ export interface LanguageData {
     setchannels_embed_fields_value_join: string;
     setchannels_embed_fields_value_leave: string;
     setchannels_not_a_text_channel: string;
-    setchannels_wich_channel: string;
+    setchannels_which_channel: string;
     setjoindm_not_admin: string;
     setjoindm_logs_embed_title_on_enable: string;
     setjoindm_logs_embed_description_on_enable: string;

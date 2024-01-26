@@ -545,7 +545,7 @@ setchannels_button_delete: "Delete Config"
 setchannels_embed_fields_value_join: "Join Channel"
 setchannels_embed_fields_value_leave: "Leave Channel"
 setchannels_not_a_text_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} The specified channel is not an text channel !"
-setchannels_wich_channel: "<@${interaction.user.id}>, Which channel do you want to install ?"
+setchannels_which_channel: "<@${interaction.user.id}>, Which channel do you want to install ?"
 setchannels_title_embed_panel: "Configuration Panel for GuildConfig's Channel"
 
 # /setjoindm
