@@ -546,6 +546,7 @@ setchannels_embed_fields_value_join: "参加チャンネル"
 setchannels_embed_fields_value_leave: "退出チャンネル"
 setchannels_not_a_text_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} 指定されたチャンネルはテキストチャンネルではありません！"
 setchannels_which_channel: "<@${interaction.user.id}>, どのチャンネルに設定しますか？"
+setchannels_title_embed_panel: "ギルド構成のチャンネルの設定パネル"
 
 # /setjoindm
 setjoindm_not_admin: ":x: | 管理者である必要があります！"

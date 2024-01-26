@@ -384,6 +384,7 @@ export interface LanguageData {
     setchannels_command_work_on_off: string;
     setchannels_logs_embed_title_on_off: string;
     setchannels_logs_embed_description_on_off: string;
+    setchannels_title_embed_panel: string;
     setchannels_button_join: string;
     setchannels_button_leave: string;
     setchannels_button_delete: string;

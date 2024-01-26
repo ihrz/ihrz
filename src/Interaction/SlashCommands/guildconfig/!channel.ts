@@ -60,7 +60,7 @@ export default {
         let embed = new EmbedBuilder()
             .setColor('#6e819a')
             .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
-            .setTitle("Configuration Panel for GuildConfig's Channel")
+            .setTitle(data.setchannels_title_embed_panel)
             .setThumbnail((interaction.guild?.iconURL() as string))
             .setTimestamp()
             .addFields(

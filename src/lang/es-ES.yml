@@ -546,6 +546,7 @@ setchannels_embed_fields_value_join: "Canal de entrada"
 setchannels_embed_fields_value_leave: "Canal de salida"
 setchannels_not_a_text_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} ¡El canal especificado no es un canal de texto!"
 setchannels_which_channel: "<@${interaction.user.id}>, ¿Qué canal deseas configurar?"
+setchannels_title_embed_panel: "Panel de configuración para los canales de la configuración del gremio"
 
 # /setjoindm
 setjoindm_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questo comando!"

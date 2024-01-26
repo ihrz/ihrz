@@ -546,6 +546,7 @@ setchannels_embed_fields_value_join: "Beitrittskanal"
 setchannels_embed_fields_value_leave: "Austrittskanal"
 setchannels_not_a_text_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} Der angegebene Kanal ist kein Textkanal!"
 setchannels_which_channel: "<@${interaction.user.id}>, Welchen Kanal möchten Sie einrichten?"
+setchannels_title_embed_panel: "Konfigurationspanel für Kanäle der Gildenkonfiguration"
 
 # /setjoindm
 setjoindm_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"

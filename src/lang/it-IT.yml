@@ -546,6 +546,7 @@ setchannels_embed_fields_value_join: "Canale di ingresso"
 setchannels_embed_fields_value_leave: "Canale di uscita"
 setchannels_not_a_text_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} Il canale specificato non è un canale di testo!"
 setchannels_which_channel: "<@${interaction.user.id}>, Quale canale desideri installare?"
+setchannels_title_embed_panel: "Pannello di configurazione per i canali della configurazione della gilda"
 
 # /setjoindm
 setjoindm_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questo comando!"
