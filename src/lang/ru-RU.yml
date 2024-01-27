@@ -539,6 +539,14 @@ setchannels_already_on_off: "Каналы входа и выхода уже от
 setchannels_command_work_on_off: "Вы успешно отключили каналы входа и выхода!"
 setchannels_logs_embed_title_on_off: "Настройка журнала каналов"
 setchannels_logs_embed_description_on_off: "<@${interaction.user.id}> удалил все настройки каналов входа и выхода!"
+setchannels_button_join: "Изменить канал присоединения"
+setchannels_button_leave: "Изменить канал выхода"
+setchannels_button_delete: "Удалить конфигурацию"
+setchannels_embed_fields_value_join: "Канал присоединения"
+setchannels_embed_fields_value_leave: "Канал выхода"
+setchannels_not_a_text_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} Указанный канал не является текстовым каналом!"
+setchannels_which_channel: "<@${interaction.user.id}>, Какой канал вы хотите установить?"
+setchannels_title_embed_panel: "Панель конфигурации каналов для настроек гильдии"
 
 # /setjoindm
 setjoindm_not_admin: ":x: | Для выполнения этой команды вы должны быть администратором этого сервера!"

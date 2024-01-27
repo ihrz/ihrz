@@ -539,6 +539,14 @@ setchannels_already_on_off: "Il canale di ingresso e di uscita è già disabilit
 setchannels_command_work_on_off: "Hai disabilitato con successo i canali di ingresso e di uscita!"
 setchannels_logs_embed_title_on_off: "Impostazioni del canale"
 setchannels_logs_embed_description_on_off: "<@${interaction.user.id}> ha eliminato tutte le configurazioni del canale di ingresso/uscita!"
+setchannels_button_join: "Cambiar canal de entrada"
+setchannels_button_leave: "Cambiar canal de salida"
+setchannels_button_delete: "Eliminar configuración"
+setchannels_embed_fields_value_join: "Canal de entrada"
+setchannels_embed_fields_value_leave: "Canal de salida"
+setchannels_not_a_text_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} ¡El canal especificado no es un canal de texto!"
+setchannels_which_channel: "<@${interaction.user.id}>, ¿Qué canal deseas configurar?"
+setchannels_title_embed_panel: "Panel de configuración para los canales de la configuración del gremio"
 
 # /setjoindm
 setjoindm_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questo comando!"

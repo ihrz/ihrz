@@ -539,6 +539,14 @@ setchannels_already_on_off: "Die Beitritts- und Austrittskanäle sind bereits de
 setchannels_command_work_on_off: "Sie haben die Beitritts- und Austrittskanäle erfolgreich deaktiviert!"
 setchannels_logs_embed_title_on_off: "Setze Kanalprotokolle"
 setchannels_logs_embed_description_on_off: "<@${interaction.user.id}> hat alle Einstellungen für Beitritts- und Austrittskanäle gelöscht!"
+setchannels_button_join: "Ändere Beitrittskanal"
+setchannels_button_leave: "Ändere Austrittskanal"
+setchannels_button_delete: "Konfiguration löschen"
+setchannels_embed_fields_value_join: "Beitrittskanal"
+setchannels_embed_fields_value_leave: "Austrittskanal"
+setchannels_not_a_text_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} Der angegebene Kanal ist kein Textkanal!"
+setchannels_which_channel: "<@${interaction.user.id}>, Welchen Kanal möchten Sie einrichten?"
+setchannels_title_embed_panel: "Konfigurationspanel für Kanäle der Gildenkonfiguration"
 
 # /setjoindm
 setjoindm_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"

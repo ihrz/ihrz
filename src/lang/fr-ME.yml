@@ -539,6 +539,14 @@ setchannels_already_on_off: "Les salons de départ et d'arrivé sont maintenant 
 setchannels_command_work_on_off: "Ta désactivé les canaux de bienvenue et de départ !"
 setchannels_logs_embed_title_on_off: "Logs de config de salons"
 setchannels_logs_embed_description_on_off: "<@${interaction.user.id}> a supprimé toutes les configurations des canaux de bienvenue/départ !"
+setchannels_button_join: "Changer le canal d'arrivée batar"
+setchannels_button_leave: "Changer le canal de départ"
+setchannels_button_delete: "Supprimer la configuration"
+setchannels_embed_fields_value_join: "Canal d'arrivée"
+setchannels_embed_fields_value_leave: "Canal de départ"
+setchannels_not_a_text_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} Mais t con batar? Cpa un salons textuelle bouffon !"
+setchannels_which_channel: "<@${interaction.user.id}> chère esclave, quelle salon est à installer ?"
+setchannels_title_embed_panel: "Panneau de configuration des canaux pour la configuration de la guilde"
 
 # /setjoindm
 setjoindm_not_admin: ":x: | Tu devez être administrateur de ce serveur pour demander cette commande !"

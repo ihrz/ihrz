@@ -539,6 +539,14 @@ setchannels_already_on_off: "参加と退出のチャンネルはすでに無効
 setchannels_command_work_on_off: "参加と退出のチャンネルを正常に無効にしました！"
 setchannels_logs_embed_title_on_off: "チャンネル設定ログ"
 setchannels_logs_embed_description_on_off: "<@${interaction.user.id}> がすべての参加/退出チャンネルの設定を削除しました！"
+setchannels_button_join: "参加チャンネルを変更"
+setchannels_button_leave: "退出チャンネルを変更"
+setchannels_button_delete: "設定を削除"
+setchannels_embed_fields_value_join: "参加チャンネル"
+setchannels_embed_fields_value_leave: "退出チャンネル"
+setchannels_not_a_text_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} 指定されたチャンネルはテキストチャンネルではありません！"
+setchannels_which_channel: "<@${interaction.user.id}>, どのチャンネルに設定しますか？"
+setchannels_title_embed_panel: "ギルド構成のチャンネルの設定パネル"
 
 # /setjoindm
 setjoindm_not_admin: ":x: | 管理者である必要があります！"
