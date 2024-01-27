@@ -84,7 +84,6 @@ export default {
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId('guildconfig-channel-panel-erase-data')
-                    .setEmoji('🗑️')
                     .setLabel(data.setchannels_button_delete)
                     .setStyle(ButtonStyle.Danger)
             );
