@@ -539,6 +539,14 @@ setchannels_already_on_off: "Il canale di ingresso e uscita è già disabilitato
 setchannels_command_work_on_off: "Hai disabilitato con successo il canale di ingresso e uscita!"
 setchannels_logs_embed_title_on_off: "Registri del canale impostati"
 setchannels_logs_embed_description_on_off: "<@${interaction.user.id}> ha eliminato tutte le configurazioni dei canali di ingresso e uscita!"
+setchannels_button_join: "Cambia canale di ingresso"
+setchannels_button_leave: "Cambia canale di uscita"
+setchannels_button_delete: "Elimina configurazione"
+setchannels_embed_fields_value_join: "Canale di ingresso"
+setchannels_embed_fields_value_leave: "Canale di uscita"
+setchannels_not_a_text_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} Il canale specificato non è un canale di testo!"
+setchannels_which_channel: "<@${interaction.user.id}>, Quale canale desideri installare?"
+setchannels_title_embed_panel: "Pannello di configurazione per i canali della configurazione della gilda"
 
 # /setjoindm
 setjoindm_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questo comando!"

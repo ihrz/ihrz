@@ -121,44 +121,6 @@ export const command: Command = {
                     },
 
                     type: 1,
-                    options: [
-                        {
-                            name: 'type',
-                            type: ApplicationCommandOptionType.String,
-
-                            description: '<On join/On leave/Delete all settings>',
-                            description_localizations: {
-                                "fr": "<En rejoignant/En partant/Supprimer tous les paramètres>"
-                            },
-
-                            required: true,
-                            choices: [
-                                {
-                                    name: "On join",
-                                    value: "join"
-                                },
-                                {
-                                    name: "On leave",
-                                    value: "leave"
-                                },
-                                {
-                                    name: "Delete all settings",
-                                    value: "off"
-                                }
-                            ]
-                        },
-                        {
-                            name: 'channel',
-                            type: ApplicationCommandOptionType.Channel,
-
-                            description: "The channel you wan't your welcome/goodbye message !",
-                            description_localizations: {
-                                "fr": "La chaîne sur laquelle vous souhaitez recevoir votre message de bienvenue/au revoir"
-                            },
-
-                            required: false
-                        }
-                    ],
                 },
                 {
                     name: 'join-dm',
