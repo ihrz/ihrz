@@ -36,6 +36,14 @@ export default {
 
         let monthly = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.monthly`);
 
+        if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+            await interaction.reply({
+                content: data.economy_disable_msg
+                    .replace('${interaction.user.id}', interaction.user.id)
+            });
+            return;
+        };
+        
         if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
             let time = ms(timeout - (Date.now() - monthly));
 

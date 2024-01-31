@@ -26,6 +26,14 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let toAnalyze = await client.db.get(`${interaction.guild?.id}.USER`);
 
+        if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+            await interaction.reply({
+                content: data.economy_disable_msg
+                    .replace('${interaction.user.id}', interaction.user.id)
+            });
+            return;
+        };
+        
         // Convert the user data to an array for sorting
         let usersArray = Object.entries(toAnalyze);
 

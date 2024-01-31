@@ -30,10 +30,19 @@ import ms from 'ms';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+
         let timeout = 86400000;
         let amount = 500;
         let daily = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.daily`);
 
+        if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+            await interaction.reply({
+                content: data.economy_disable_msg
+                    .replace('${interaction.user.id}', interaction.user.id)
+            });
+            return;
+        };
+        
         if (daily !== null && timeout - (Date.now() - daily) > 0) {
             let time = ms(timeout - (Date.now() - daily));
 

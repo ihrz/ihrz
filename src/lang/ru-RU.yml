@@ -362,6 +362,15 @@ deposit_embed_fields1_name: "Банк"
 economy_leaderboard_embed_title: "Экономическое лидерство `${interaction.guild.name}`"
 economy_leaderboard_embed_fields_value: "<@${userId}> - Банк: `${userData.bank || 0}`${client.iHorizon_Emojis.icon.Coin} | Баланс: `${userData.money || 0}`${client.iHorizon_Emojis.icon.Coin}"
 
+# /economy disable
+economy_disable_not_admin: ":x: | Вы должны быть администратором этого сервера, чтобы выполнить эту команду!"
+economy_disable_already_disable: "<@${interaction.user.id}>, Модуль Экономики уже **отключен**!"
+economy_disable_already_enable: "<@${interaction.user.id}>, Модуль Экономики уже **включен**!"
+economy_disable_set_enable: "<@${interaction.user.id}>, вы успешно **включили** Модуль Экономики!"
+economy_disable_set_disable: "<@${interaction.user.id}>, вы успешно **отключили** Модуль Экономики!"
+economy_disable_logs_embed_desc: "<@${interaction.user.id}> изменил(а) состояние Модуля Экономики на `${state}`!"
+economy_disable_logs_embed_title: "Логи Экономики"
+
 
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
@@ -1263,5 +1272,8 @@ event_gw_removeentries_msg: "${interaction.user}, вы покинули этот
 # Событие логов улучшения
 event_boostlog_add: "<@${newMember.user.id}> **только что улучшил(а)** сервер! (**${newMember.guild.premiumSubscriptionCount}** всего улучшений)"
 event_boostlog_sub: "<@${newMember.user.id}> **только что убрал(а) свой улучшение** с сервера! (**${newMember.guild.premiumSubscriptionCount}** всего улучшений)"
+
+# Модуль Экономики
+economy_disable_msg: "<@${interaction.user.id}>, `Модуль Экономики` на этом сервере **отключен**. Теперь вы не можете использовать модуль экономики!"
 
 # -----------------------------/ \-----------------------------
