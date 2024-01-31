@@ -26,43 +26,61 @@ import {
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
+
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.reply({ content: data.addmoney_not_admin });
+        if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
+            await interaction.reply({ content: data.economy_disable_not_admin });
             return;
         };
 
-        if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+        let state = interaction.options.getString("action") as string;
+        let current_state = await client.db.get(`${interaction.guildId}.ECONOMY.disabled`);
+
+        if (state === 'on') {
+
+            if (!current_state) {
+                await interaction.reply({
+                    content: data.economy_disable_already_enable
+                        .replace('${interaction.user.id}', interaction.user.id)
+                });
+                return;
+            };
+
+            await client.db.set(`${interaction.guildId}.ECONOMY.disabled`, false);
+
             await interaction.reply({
-                content: data.economy_disable_msg
+                content: data.economy_disable_set_enable
                     .replace('${interaction.user.id}', interaction.user.id)
             });
-            return;
+        } else if (state === 'off') {
+
+            if (current_state) {
+                await interaction.reply({
+                    content: data.economy_disable_already_disable
+                        .replace('${interaction.user.id}', interaction.user.id)
+                });
+                return;
+            };
+
+            await client.db.set(`${interaction.guildId}.ECONOMY.disabled`, true);
+
+            await interaction.reply({
+                content: data.economy_disable_set_disable
+                    .replace('${interaction.user.id}', interaction.user.id)
+            });
         };
-
-        let amount = interaction.options.get("amount");
-        let user = interaction.options.getUser("member");
-
-        await interaction.reply({
-            content: data.addmoney_command_work
-                .replace("${user.user.id}", user?.id as string)
-                .replace("${amount.value}", amount?.value as string)
-        });
-
-        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, amount?.value as number);
 
         try {
             let logEmbed = new EmbedBuilder()
-                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                .setTitle(data.addmoney_logs_embed_title)
-                .setDescription(data.addmoney_logs_embed_description
+                .setColor("#bf0bb9")
+                .setTitle(data.economy_disable_logs_embed_title)
+                .setDescription(data.economy_disable_logs_embed_desc
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace(/\${amount\.value}/g, amount?.value as string)
-                    .replace(/\${user\.user\.id}/g, user?.id as string)
+                    .replace('${state}', state as string)
                 );
 
             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');

@@ -362,6 +362,15 @@ deposit_embed_fields1_name: "Bank"
 economy_leaderboard_embed_title: "Economy leaderboard of `${interaction.guild.name}`"
 economy_leaderboard_embed_fields_value: "<@${userId}> - Bank: `${userData.bank || 0}`${client.iHorizon_Emojis.icon.Coin} | Balance: `${userData.money || 0}`${client.iHorizon_Emojis.icon.Coin}"
 
+# /economy disable
+economy_disable_not_admin: ":x: | You must be an administrator of this server to do this command!"
+economy_disable_already_disable: "<@${interaction.user.id}>, the Economy Module are already **disable** !"
+economy_disable_already_enable: "<@${interaction.user.id}>, the Economy Module are already **enable** !"
+economy_disable_set_enable: "<@${interaction.user.id}>, you have succeffully **enable** the Economy Module !"
+economy_disable_set_disable: "<@${interaction.user.id}>, you have succeffully **disable** the Economy Module !"
+economy_disable_logs_embed_desc: "<@${interaction.user.id}> have put to `${state}` the Economy Module !"
+economy_disable_logs_embed_title: "Economy Logs"
+
 
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
@@ -1263,5 +1272,8 @@ event_gw_removeentries_msg: "${interaction.user} you have leave this giveaways !
 # Boost Logs Event
 event_boostlog_add: "<@${newMember.user.id}> **just boosted** the server! (**${newMember.guild.premiumSubscriptionCount}** total boosts)"
 event_boostlog_sub: "<@${newMember.user.id}> **just removed their boost** from the server! (**${newMember.guild.premiumSubscriptionCount}** total boosts)"
+
+# Economy Module
+economy_disable_msg: "<@${interaction.user.id}>, the `Economy Module` in this guild are **disable**. You can't use economy module anymore!"
 
 # -----------------------------\ /-----------------------------

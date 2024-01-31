@@ -21,19 +21,7 @@
 
 import {
     Client,
-    Collection,
     EmbedBuilder,
-    Permissions,
-    ApplicationCommandType,
-    PermissionsBitField,
-    ApplicationCommandOptionType,
-    ActionRowBuilder,
-    SelectMenuBuilder,
-    ComponentType,
-    StringSelectMenuBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    StringSelectMenuOptionBuilder,
     ChatInputCommandInteraction,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
@@ -44,6 +32,14 @@ export default {
         let balance = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`);
         let toDeposit = interaction.options.getNumber('how-much');
 
+        if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+            await interaction.reply({
+                content: data.economy_disable_msg
+                    .replace('${interaction.user.id}', interaction.user.id)
+            });
+            return;
+        };
+        
         if (toDeposit && toDeposit > balance) {
             await interaction.reply({
                 content: data.deposit_cannot_abuse.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)

@@ -362,6 +362,15 @@ deposit_embed_fields1_name: "銀行"
 economy_leaderboard_embed_title: "`${interaction.guild.name}`の経済リーダーボード"
 economy_leaderboard_embed_fields_value: "<@${userId}> - 銀行: `${userData.bank || 0}`${client.iHorizon_Emojis.icon.Coin} | バランス: `${userData.money || 0}`${client.iHorizon_Emojis.icon.Coin}"
 
+# /economy disable
+economy_disable_not_admin: ":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！"
+economy_disable_already_disable: "<@${interaction.user.id}>、経済モジュールは既に **無効** になっています！"
+economy_disable_already_enable: "<@${interaction.user.id}>、経済モジュールは既に **有効** になっています！"
+economy_disable_set_enable: "<@${interaction.user.id}>、経済モジュールを正常に **有効化** しました！"
+economy_disable_set_disable: "<@${interaction.user.id}>、経済モジュールを正常に **無効化** しました！"
+economy_disable_logs_embed_desc: "<@${interaction.user.id}> が経済モジュールの状態を `${state}` に変更しました！"
+economy_disable_logs_embed_title: "経済ログ"
+
 
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
@@ -1263,5 +1272,8 @@ event_gw_removeentries_msg: "${interaction.user}さん、このギブアウェ�
 # ブーストログイベント
 event_boostlog_add: "<@${newMember.user.id}> **がサーバーをブーストしました**！（合計**${newMember.guild.premiumSubscriptionCount}**ブースト）"
 event_boostlog_sub: "<@${newMember.user.id}> **がサーバーからブーストを解除しました**！（合計**${newMember.guild.premiumSubscriptionCount}**ブースト）"
+
+# 経済モジュール
+economy_disable_msg: "<@${interaction.user.id}>、このギルドの `経済モジュール` は**無効**になっています。もう経済モジュールは使えません！"
 
 # -----------------------------\ /-----------------------------

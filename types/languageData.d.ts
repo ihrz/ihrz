@@ -252,6 +252,13 @@ export interface LanguageData {
     deposit_embed_fields1_name: string;
     economy_leaderboard_embed_title: string;
     economy_leaderboard_embed_fields_value: string;
+    economy_disable_not_admin: string;
+    economy_disable_already_disable: string;
+    economy_disable_already_enable: string;
+    economy_disable_set_enable: string;
+    economy_disable_set_disable: string;
+    economy_disable_logs_embed_desc: string;
+    economy_disable_logs_embed_title: string;
     setprofilage_command_work: string;
     setprofildescriptions_command_work: string;
     profil_not_description_set: string;
@@ -897,4 +904,5 @@ export interface LanguageData {
     event_gw_removeentries_msg: string;
     event_boostlog_add: string;
     event_boostlog_sub: string;
+    economy_disable_msg: string;
 }

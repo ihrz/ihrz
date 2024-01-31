@@ -31,6 +31,15 @@ export default {
         let amount = interaction.options.getNumber("amount");
 
         let member = await client.db.get(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`);
+
+        if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+            await interaction.reply({
+                content: data.economy_disable_msg
+                    .replace('${interaction.user.id}', interaction.user.id)
+            });
+            return;
+        };
+        
         if (amount?.toString().includes('-')) {
             await interaction.reply({ content: data.pay_negative_number_error });
             return;

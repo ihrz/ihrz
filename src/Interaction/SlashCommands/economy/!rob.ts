@@ -30,6 +30,14 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let talkedRecentlyforr = new Set();
 
+        if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+            await interaction.reply({
+                content: data.economy_disable_msg
+                    .replace('${interaction.user.id}', interaction.user.id)
+            });
+            return;
+        };
+        
         if (talkedRecentlyforr.has(interaction.user.id)) {
             await interaction.reply({ content: data.rob_cooldown_error });
             return;

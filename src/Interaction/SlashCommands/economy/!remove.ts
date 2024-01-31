@@ -30,11 +30,20 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.removemoney_not_admin });
             return;
         };
 
+        if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+            await interaction.reply({
+                content: data.economy_disable_msg
+                    .replace('${interaction.user.id}', interaction.user.id)
+            });
+            return;
+        };
+        
         var amount = interaction.options.getNumber("amount");
         let user = interaction.options.getUser("member");
 
