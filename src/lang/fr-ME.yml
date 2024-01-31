@@ -362,6 +362,15 @@ deposit_embed_fields1_name: "Banque"
 economy_leaderboard_embed_title: "Classement économique de `${interaction.guild.name}`"
 economy_leaderboard_embed_fields_value: "<@${userId}> - Banque : `${userData.bank || 0}`${client.iHorizon_Emojis.icon.Coin} | Solde : `${userData.money || 0}`${client.iHorizon_Emojis.icon.Coin}"
 
+# /economy disable
+economy_disable_not_admin: ":x: | t pa admin boloss, et ouais! Vas sucer les owner ptêtre il te rank."
+economy_disable_already_disable: "<@${interaction.user.id}>, le Module Économie est déjà **désactivé** salle imbécile !"
+economy_disable_already_enable: "<@${interaction.user.id}>, le Module Économie est déjà **activé** mais t con !"
+economy_disable_set_enable: "<@${interaction.user.id}>, vous avez activé avec succès le Module Économie! Le capitalisme peut reprendre les enculers !!!"
+economy_disable_set_disable: "<@${interaction.user.id}>, vous avez désactivé avec succès le Module Économie ! Maintenant plus personne peut gagner de la thune...."
+economy_disable_logs_embed_desc: "<@${interaction.user.id}> a mis le Module Économie à l'état `${state}` !"
+economy_disable_logs_embed_title: "Logs Économiques dla Hess"
+
 
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
@@ -1263,5 +1272,8 @@ event_gw_removeentries_msg: "${interaction.user}, vous avez quitté ce giveaway 
 # Événement de Logs de Boost
 event_boostlog_add: "<@${newMember.user.id}> **vient de claquer toute ces thune** pour enculé la barre de boost du serveur (**${newMember.guild.premiumSubscriptionCount}** boosts au total)"
 event_boostlog_sub: "<@${newMember.user.id}> **vient de retirer son boost telle un gros rat** c'batard ! (**${newMember.guild.premiumSubscriptionCount}** boosts au total)"
+
+# Module Économie
+economy_disable_msg: "<@${interaction.user.id}>, le `Module Économie` sur ce serveur est **désactivé**. Vous ne pouvez plus utiliser le module d'économie ! Putain!!!! LA THUNE BATARD"
 
 # -----------------------------\ /-----------------------------

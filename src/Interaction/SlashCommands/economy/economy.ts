@@ -144,6 +144,42 @@ export const command: Command = {
             ],
         },
         {
+            name: "disable",
+
+            description: "Disable the economy module into your guild",
+            description_localizations: {
+                "fr": "Désactiver entièrement le module d'économie sur un serveur"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand,
+
+            options: [
+                {
+                    name: "action",
+
+                    description: "What do you want to do ?",
+                    description_localizations: {
+                        "fr": "Que voulez-vous faire ?"
+                    },
+                
+                    type: ApplicationCommandOptionType.String,
+
+                    choices: [
+                        {
+                            name: 'Enable the module',
+                            value: "on"
+                        },
+                        {
+                            name: "Disable the module",
+                            value: "off"
+                        },
+                    ],
+
+                    required: true
+                }
+            ]
+        },
+        {
             name: 'leaderboard',
 
             description: "Get the users balance's leaderboard of the guild!",

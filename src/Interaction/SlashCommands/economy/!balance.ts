@@ -30,6 +30,14 @@ import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
+        if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+            await interaction.reply({
+                content: data.economy_disable_msg
+                    .replace('${interaction.user.id}', interaction.user.id)
+            });
+            return;
+        };
+        
         let member: User = interaction.options.getUser('user') || interaction.user;
         var bal = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`);
 
