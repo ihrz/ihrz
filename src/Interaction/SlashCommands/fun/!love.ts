@@ -82,10 +82,16 @@ export default {
                     .replace('${user2.username}', user2?.username as string)
                     .replace('${randomNumber}', randomNumber.toString())
                 )
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
-            await interaction.editReply({ embeds: [embed], files: [{ attachment: buffer, name: 'love.png' }] });
+            await interaction.editReply({
+                embeds: [embed],
+                files: [
+                    { attachment: buffer, name: 'love.png' },
+                    { attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png'},
+                ]
+            });
         } catch (error: any) {
             logger.err(error);
             await interaction.editReply({ content: data.love_command_error });

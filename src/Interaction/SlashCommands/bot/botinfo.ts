@@ -31,12 +31,12 @@ import pkg from '../../../../package.json' assert { type: "json" };
 
 export const command: Command = {
     name: 'botinfo',
-    
+
     description: 'Get information about the bot!',
     description_localizations: {
         "fr": "Obtenir les informations supplémentaire par rapport au bot."
     },
-    
+
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
@@ -44,10 +44,10 @@ export const command: Command = {
 
         let data = await client.functions.getLanguageData(interaction.guild?.id);
         let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
-        
+
         let clientembed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#f0d020")
-            .setThumbnail((client.user?.displayAvatarURL() as string))
+            .setThumbnail("attachment://icon.png")
             .addFields(
                 { name: data.botinfo_embed_fields_myname, value: `:green_circle: ${client.user?.username}`, inline: false },
                 { name: data.botinfo_embed_fields_mychannels, value: `:green_circle: ${client.channels.cache.size}`, inline: false },
@@ -58,10 +58,10 @@ export const command: Command = {
                 { name: data.botinfo_embed_fields_created_by, value: ":green_circle: <@171356978310938624>", inline: false },
             )
             .setTimestamp()
-            .setFooter({ text: `iHorizon ${pkg.version}`, iconURL: client.user?.displayAvatarURL() })
+            .setFooter({ text: `iHorizon ${pkg.version}`, iconURL: "attachment://icon.png" })
             .setTimestamp()
 
-        await interaction.reply({ embeds: [clientembed] });
+        await interaction.reply({ embeds: [clientembed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
         return;
     },
 };

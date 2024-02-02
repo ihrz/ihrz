@@ -64,9 +64,12 @@ export const command: Command = {
                 { name: "Bot Version", value: `${pkg.version}`, inline: false },
             )
             .setThumbnail(interaction.guild?.iconURL() as string)
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.reply({
+            embeds: [embed],
+            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

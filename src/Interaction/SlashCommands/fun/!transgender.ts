@@ -46,16 +46,15 @@ export default {
       .setColor('#000000')
       .setImage('attachment://all-human-have-rights-elektra.png')
       .setTimestamp()
-      .setFooter({ text: 'iHorizon x ElektraBots', iconURL: client.user?.displayAvatarURL() });
+      .setFooter({ text: 'iHorizon x ElektraBots', iconURL: "attachment://icon.png" });
 
-    let imgs: AttachmentBuilder;
+    let imgs: AttachmentBuilder | undefined;
 
-    await axios.get(link, { responseType: 'arraybuffer' }).then((response: AxiosResponse) => {
-      imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'all-humans-have-right-elektra.png' });
-      embed.setImage(`attachment://all-humans-have-right-elektra.png`);
-    });
+    let response: AxiosResponse = await axios.get(link, { responseType: 'arraybuffer' })
+    imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'all-humans-have-right-elektra.png' });
+    embed.setImage(`attachment://all-humans-have-right-elektra.png`);
 
-    await interaction.editReply({ embeds: [embed], files: [imgs!] });
+    await interaction.editReply({ embeds: [embed], files: [imgs, { attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
     return;
   },
 };

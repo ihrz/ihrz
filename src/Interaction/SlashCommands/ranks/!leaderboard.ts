@@ -66,10 +66,14 @@ export default {
         let attachment = new AttachmentBuilder(buffer, { name: 'leaderboard.txt' })
 
         embed.setThumbnail(interaction.guild?.iconURL() as string);
-        embed.setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
+        embed.setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
         embed.setTitle(`${interaction.guild?.name}'s Levels Leaderboard`);
-        
-        await interaction.reply({ embeds: [embed], content: ' ', files: [attachment] });
+
+        await interaction.reply({
+            embeds: [embed],
+            content: ' ',
+            files: [attachment, { attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

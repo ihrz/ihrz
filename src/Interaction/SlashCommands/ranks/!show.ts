@@ -56,9 +56,12 @@ export default {
             .setDescription(data.level_embed_description.replace('${expNeededForLevelUp}', expNeededForLevelUp as unknown as string)
             )
             .setTimestamp()
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
-        await interaction.reply({ embeds: [nivEmbed] });
+        await interaction.reply({
+            embeds: [nivEmbed],
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

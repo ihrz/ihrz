@@ -85,7 +85,7 @@ export const command: Command = {
 
         let embed = new EmbedBuilder()
             .setColor('#bea9de')
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTimestamp()
             .setDescription(data.emoji_embed_desc_work
                 .replace('${cnt}', cnt as unknown as string)
@@ -93,7 +93,7 @@ export const command: Command = {
                 .replace('${nemj}', nemj)
             )
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
         return;
     },
 };

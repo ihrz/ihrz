@@ -59,7 +59,7 @@ export default {
 
         let embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#6e819a")
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTitle(data.setchannels_title_embed_panel)
             .setThumbnail((interaction.guild?.iconURL() as string))
             .setTimestamp()
@@ -90,7 +90,8 @@ export default {
 
         let response = await interaction.editReply({
             embeds: [embed],
-            components: [action_row]
+            components: [action_row],
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
 
         let collector = response.createMessageComponentCollector({

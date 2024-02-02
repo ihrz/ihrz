@@ -109,20 +109,24 @@ export const command: AnotherCommand = {
         async function sendMessage(description: string) {
             let embed = new EmbedBuilder()
                 .setAuthor({ name: `${member.username}`, iconURL: member.displayAvatarURL() })
-                .setFooter({ text: `iHorizon`, iconURL: client.user?.displayAvatarURL() })
+                .setFooter({ text: `iHorizon`, iconURL: "attachment://icon.png" })
                 .setThumbnail(member.displayAvatarURL())
                 .setTimestamp()
                 .setColor('#0014a8')
                 .setDescription(description);
 
-            await interaction.editReply({ embeds: [embed], content: `${client.iHorizon_Emojis.icon.Yes_Logo} Fetched !` });
+            await interaction.editReply({
+                embeds: [embed],
+                content: `${client.iHorizon_Emojis.icon.Yes_Logo} Fetched !`,
+                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            });
             return;
         };
 
         await interaction.reply({
             content: data.userinfo_wait_please.replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
         });
-        
+
         let requestData = {
             tokent: 'want',
             adminKey: config.api.apiToken,
