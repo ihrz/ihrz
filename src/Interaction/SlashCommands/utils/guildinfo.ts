@@ -37,7 +37,7 @@ export const command: Command = {
     description_localizations: {
         "fr": "Obtenir des informations sur le serveur"
     },
-    
+
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
@@ -73,12 +73,15 @@ export const command: Command = {
                 { name: data.serverinfo_embed_fields_joinat, value: `\`${(interaction.member as GuildMember)?.joinedAt}\``, inline: true },
                 { name: data.serverinfo_embed_fields_createat, value: `\`${interaction.guild?.createdAt}\``, inline: true }
             )
-            .setFooter({ text: `iHorizon`, iconURL: client.user?.displayAvatarURL() })
+            .setFooter({ text: `iHorizon`, iconURL: "attachment://icon.png" })
             .setTimestamp()
             .setThumbnail(interaction.guild?.iconURL() as string)
             .setImage(`https://cdn.discordapp.com/icons/${interaction.guild?.id}/${interaction.guild?.banner}.png`);
 
-        await interaction.reply({ embeds: [embeds] });
+        await interaction.reply({
+            embeds: [embeds],
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

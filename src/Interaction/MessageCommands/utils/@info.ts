@@ -132,13 +132,17 @@ export const command: Command = {
         async function sendMessage(description: string) {
             let embed = new EmbedBuilder()
                 .setAuthor({ name: `${member.username}`, iconURL: member.displayAvatarURL() })
-                .setFooter({ text: `iHorizon`, iconURL: client.user?.displayAvatarURL() })
+                .setFooter({ text: `iHorizon`, iconURL: "attachment://icon.png" })
                 .setThumbnail(member.displayAvatarURL())
                 .setTimestamp()
                 .setColor('#0014a8')
                 .setDescription(description);
 
-            await interaction.reply({ embeds: [embed], content: `${client.iHorizon_Emojis.icon.Yes_Logo} Fetched !` });
+            await interaction.reply({
+                embeds: [embed],
+                content: `${client.iHorizon_Emojis.icon.Yes_Logo} Fetched !`,
+                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            });
             return;
         };
 

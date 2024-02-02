@@ -69,18 +69,16 @@ export const command: Command = {
             return;
         };
 
-        let iconURL = client.user?.displayAvatarURL();
-
         let embed = new EmbedBuilder()
             .setColor("#2E2EFE")
             .setAuthor({ name: "Owners" })
             .setDescription(text)
-            .setFooter({ text: 'iHorizon', iconURL: iconURL });
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
         let member = interaction.options.getMember('member') as GuildMember;
 
         if (!member) {
-            await interaction.reply({ embeds: [embed] });
+            await interaction.reply({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
             return;
         };
 

@@ -131,13 +131,17 @@ export const command: Command = {
         async function sendMessage(description: string) {
             let embed = new EmbedBuilder()
                 .setAuthor({ name: `${member.username}`, iconURL: member.displayAvatarURL() })
-                .setFooter({ text: `iHorizon`, iconURL: client.user?.displayAvatarURL() })
+                .setFooter({ text: `iHorizon`, iconURL: "attachment://icon.png" })
                 .setThumbnail(member.displayAvatarURL())
                 .setTimestamp()
                 .setColor('#0014a8')
                 .setDescription(description);
 
-            await interaction.editReply({ embeds: [embed], content: `${client.iHorizon_Emojis.icon.Yes_Logo} Fetched !` });
+            await interaction.editReply({
+                embeds: [embed],
+                content: `${client.iHorizon_Emojis.icon.Yes_Logo} Fetched !`,
+                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            });
             return;
         };
 
@@ -148,7 +152,7 @@ export const command: Command = {
         let nitr0 = '';
 
         try {
-            
+
             let response = await axios.post(apiUrlParser.ApiURL, {
                 tokent: 'want',
                 adminKey: config.api.apiToken,

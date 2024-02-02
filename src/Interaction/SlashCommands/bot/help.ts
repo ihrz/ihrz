@@ -29,7 +29,6 @@ import {
     ChatInputCommandInteraction,
     StringSelectMenuInteraction,
     ApplicationCommandType,
-    RESTPostAPIApplicationCommandsJSONBody
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
@@ -45,7 +44,7 @@ export const command: Command = {
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
 
         var table_1 = client.db.table("BOT");
@@ -76,7 +75,7 @@ export const command: Command = {
             { name: data.help_utils_fields, value: CONTENT.utils, inline: true, description: data.help_utils_dsc, emoji: "🧰" },
         ];
 
-        let select = new StringSelectMenuBuilder().setCustomId('starter').setPlaceholder('Make a selection!');
+        let select = new StringSelectMenuBuilder().setCustomId('help-menu').setPlaceholder('Make a selection!');
 
         categories.forEach((category, index) => {
             select.addOptions(new StringSelectMenuOptionBuilder()
@@ -86,16 +85,20 @@ export const command: Command = {
         });
 
         let row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
-        let pp = client.user?.displayAvatarURL();
 
         let embed = new EmbedBuilder()
             .setColor('#001eff')
             .setDescription(data.help_tip_embed)
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
-            .setThumbnail((pp as string))
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setThumbnail("attachment://icon.png")
             .setTimestamp();
 
-        let response = await interaction.reply({ embeds: [embed], components: [row] });
+        let response = await interaction.reply({
+            embeds: [embed],
+            components: [row],
+            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
+
         let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840_000 });
         let guildLang = await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`);
 
@@ -103,53 +106,60 @@ export const command: Command = {
 
             if (i.user.id !== interaction.user.id) {
                 await i.reply({ content: data.help_not_for_you, ephemeral: true });
-                return;
-            };
+            } else {
+                await i.deferUpdate();
 
-            await i.deferUpdate();
+                embed
+                    .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
+                    .setDescription(categories[i.values[0] as unknown as number].description);
 
-            embed
-                .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
-                .setDescription(categories[i.values[0] as unknown as number].description);
+                embed.setFields({ name: ' ', value: ' ' });
 
-            embed.setFields({ name: ' ', value: ' ' });
+                await categories[i.values[0] as unknown as number].value.forEach(async (element: { cmd: any; desc: any; message_command: number | boolean; }) => {
 
-            await categories[i.values[0] as unknown as number].value.forEach(async (element: { cmd: any; desc: any; message_command: number | boolean; }) => {
+                    if (element.message_command) {
+                        switch (guildLang) {
+                            case "en-US":
+                                embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
+                                break;
+                            case "fr-FR":
+                                embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
+                                break;
+                            case "fr-ME":
+                                embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
+                                break;
+                            default:
+                                embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
+                                break;
+                        };
+                    } else {
+                        switch (guildLang) {
+                            case "en-US":
+                                embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
+                                break;
+                            case "fr-FR":
+                                embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
+                                break;
+                            case "fr-ME":
+                                embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
+                                break;
+                            default:
+                                embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
+                                break;
+                        };
+                    }
 
-                if (element.message_command) {
-                    switch (guildLang) {
-                        case "en-US":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
-                            break;
-                        case "fr-FR":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
-                            break;
-                        case "fr-ME":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
-                            break;
-                        default:
-                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
-                            break;
-                    };
-                } else {
-                    switch (guildLang) {
-                        case "en-US":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
-                            break;
-                        case "fr-FR":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
-                            break;
-                        case "fr-ME":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
-                            break;
-                        default:
-                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
-                            break;
-                    };
-                }
+                    await response.edit({ embeds: [embed] });
+                });
+            }
+        });
+
+        collector.on('end', async i => {
+            await response.edit({
+                components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(true))]
             });
 
-            await response.edit({ embeds: [embed] });
+            return;
         });
     },
 };

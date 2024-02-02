@@ -106,11 +106,12 @@ export default async (client: Client) => {
                         .setDescription(desc)
                         .setThumbnail((member?.displayAvatarURL() as string))
                         .setTimestamp()
-                        .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
+                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
                     member?.send({
                         content: `<@${member.id}>`,
-                        embeds: [embed]
+                        embeds: [embed],
+                        files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
                     }).catch(() => { });
 
                     await client.db.delete(`SCHEDULE.${user}.${code}`);

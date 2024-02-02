@@ -39,7 +39,7 @@ export default {
             });
             return;
         };
-        
+
         if (toDeposit && toDeposit > balance) {
             await interaction.reply({
                 content: data.deposit_cannot_abuse.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
@@ -60,10 +60,13 @@ export default {
                 .replace('${toDeposit}', toDeposit as unknown as string)
             )
             .addFields({ name: data.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTimestamp();
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.reply({
+            embeds: [embed],
+            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

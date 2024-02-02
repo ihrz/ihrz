@@ -31,14 +31,14 @@ import {
 import { Command } from '../../../../types/command';
 
 export const command: Command = {
-    
+
     name: 'emojis',
 
     description: 'Add emojis to your server easly',
     description_localizations: {
         "fr": "Ajoutez facilement des emojis à votre serveur"
     },
-    
+
     category: 'utils',
     options: [
         {
@@ -93,7 +93,7 @@ export const command: Command = {
 
         let embed = new EmbedBuilder()
             .setColor('#bea9de')
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTimestamp()
             .setDescription(data.emoji_embed_desc_work
                 .replace('${cnt}', cnt)
@@ -101,7 +101,10 @@ export const command: Command = {
                 .replace('${nemj}', nemj)
             )
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.editReply({
+            embeds: [embed],
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

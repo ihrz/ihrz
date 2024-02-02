@@ -39,7 +39,7 @@ export default {
             let lyrics = await lyricsFinder.search(title as string).catch(() => null);
 
             if (!lyrics) {
-                await interaction.deleteReply();    
+                await interaction.deleteReply();
                 await interaction.followUp({ content: 'No lyrics found', ephemeral: true });
                 return;
             }
@@ -57,9 +57,12 @@ export default {
                 })
                 .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
                 .setColor('#cd703a')
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
-            await interaction.editReply({ embeds: [embed] });
+            await interaction.editReply({
+                embeds: [embed],
+                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            });
             return;
 
         } catch (error: any) {

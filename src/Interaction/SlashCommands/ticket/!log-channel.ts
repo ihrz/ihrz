@@ -49,10 +49,13 @@ export default {
             .setColor("#008000")
             .setTitle('Ticket Logs Channel')
             .setDescription(`${interaction.user}, you have been set the Ticket Module's Channel logs to ${channel}!`)
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTimestamp();
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.editReply({
+            embeds: [embed],
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

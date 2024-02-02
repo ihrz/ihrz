@@ -64,23 +64,24 @@ export default {
 
         text2 += data.authorization_configshow_punishement.replace('${okay}', okay);
 
-        let iconURL = client.user?.displayAvatarURL();
-
         let embed1 = new EmbedBuilder()
             .setColor('#000000')
             .setAuthor({ name: data.authorization_configshow_embed1_author })
             .setDescription(text2)
-            .setFooter({ text: 'iHorizon', iconURL: iconURL })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTimestamp();
 
         let embed2 = new EmbedBuilder()
             .setColor("#000000")
             .setAuthor({ name: data.authorization_configshow_embed2_author })
             .setDescription(text)
-            .setFooter({ text: 'iHorizon', iconURL: iconURL })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTimestamp();
 
-        await interaction.editReply({ embeds: [embed1, embed2] });
+        await interaction.editReply({
+            embeds: [embed1, embed2],
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

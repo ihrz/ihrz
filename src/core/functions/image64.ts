@@ -19,28 +19,24 @@
 ・ Copyright © 2020-2023 iHorizon
 */
 
-import {
-    ChatInputCommandInteraction,
-    Client,
-    EmbedBuilder,
-    PermissionsBitField
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData';
+import axios from 'axios';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+async function isImageUrl(url: string): Promise<boolean> {
+    try {
+        let response = await axios.head(url);
+        let contentType = response.headers["content-type"];
+        return contentType.startsWith("image/");
+    } catch (error) {
+        return false;
+    }
+};
 
-        let embed = new EmbedBuilder()
-            .setColor('#c4afed')
-            .setTitle(data.banner_guild_embed)
-            .setImage(interaction.guild?.bannerURL({ extension: 'png', size: 4096 }) as string)
-            .setThumbnail(interaction.guild?.iconURL({ size: 4096 }) as string)
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+export default async function image64(arg: string): Promise<Buffer | undefined> {
+    let response = await axios.get(arg, { responseType: 'arraybuffer' });
 
-        await interaction.reply({
-            embeds: [embed],
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
-        });
-        return;
-    },
+    if (await isImageUrl(arg)) {
+        return Buffer.from(response.data, 'base64');
+    };
+
+    return undefined;
 };

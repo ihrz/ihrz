@@ -38,13 +38,12 @@ export const command: Command = {
     description_localizations: {
         "fr": "Obtenir le lien d'invitations du bot iHorizon"
     },
-    
+
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
-        let pp = client.user?.displayAvatarURL();
 
         let button_add_me = new ButtonBuilder()
             .setStyle(ButtonStyle.Link)
@@ -56,12 +55,16 @@ export const command: Command = {
             .setTitle(data.invite_embed_title)
             .setDescription(data.invite_embed_description)
             .setURL('https://discord.com/api/oauth2/authorize?client_id=' + client.user?.id + '&permissions=8&scope=bot')
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
-            .setThumbnail((pp as string));
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setThumbnail("attachment://icon.png");
 
         let components = new ActionRowBuilder<ButtonBuilder>().addComponents(button_add_me);
 
-        await interaction.reply({ embeds: [invites], components: [components] });
+        await interaction.reply({
+            embeds: [invites],
+            components: [components],
+            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

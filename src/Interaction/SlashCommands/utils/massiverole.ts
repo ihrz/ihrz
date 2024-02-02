@@ -122,7 +122,7 @@ export const command: Command = {
             } catch (error) { };
 
             let embed = new EmbedBuilder()
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                 .setColor('#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild?.iconURL() as string)
@@ -134,7 +134,10 @@ export const command: Command = {
                     .replaceAll('${role}', role)
                 );
 
-            await interaction.editReply({ embeds: [embed] });
+            await interaction.editReply({
+                embeds: [embed],
+                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            });
             return;
         } else if (action === 'sub') {
 
@@ -161,7 +164,7 @@ export const command: Command = {
             } catch (error) { };
 
             let embed = new EmbedBuilder()
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                 .setColor('#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild?.iconURL() as string)
@@ -173,7 +176,10 @@ export const command: Command = {
                     .replaceAll('${role}', role)
                 );
 
-            await interaction.editReply({ embeds: [embed] });
+            await interaction.editReply({
+                embeds: [embed],
+                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            });
             return;
         };
 

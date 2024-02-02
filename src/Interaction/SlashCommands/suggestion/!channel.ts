@@ -52,14 +52,15 @@ export default {
         let setupEmbed = new EmbedBuilder()
             .setColor('#000000')
             .setTitle(data.setsuggest_channel_embed_title)
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setDescription(data.setsuggest_channel_embed_desc);
 
         await client.db.set(`${interaction.guild?.id}.SUGGEST.channel`, channel?.id);
         await interaction.reply({
             content: data.setsuggest_channel_command_work
                 .replace('${interaction.user}', interaction.user as unknown as string)
-                .replace('${channel}', channel as unknown as string)
+                .replace('${channel}', channel as unknown as string),
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
 
         (channel as BaseGuildTextChannel).send({ embeds: [setupEmbed] });

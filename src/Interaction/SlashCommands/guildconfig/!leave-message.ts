@@ -115,11 +115,12 @@ export default {
                 .setDescription(ls || 'None')
                 .setTimestamp()
                 .setTitle(data.setleavemessage_command_work_ls)
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                 .setThumbnail(interaction.guild?.iconURL() as string);
 
             await interaction.editReply({
-                embeds: [embed]
+                embeds: [embed],
+                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
             });
 
             return;

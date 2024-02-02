@@ -58,12 +58,15 @@ export default async (client: Client, guild: Guild) => {
             .setColor('#FF0000')
             .setDescription(`Dear <@${guild.ownerId}>, I'm sorry, but you have been blacklisted by the bot.\nAs a result, I will be leaving your server. If you have any questions or concerns, please contact my developer.\n\nThank you for your understanding`)
             .setTimestamp()
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL({ extension: 'png', size: 4096 }) })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
 
         let isBL = await client.db.get(`GLOBAL.BLACKLIST.${guild.ownerId}.blacklisted`) || false;
 
         if (isBL) {
-            await (channelHr as GuildTextBasedChannel).send({ embeds: [tqtmonreuf] }).catch(() => { });
+            await (channelHr as GuildTextBasedChannel).send({
+                embeds: [tqtmonreuf],
+                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            }).catch(() => { });
             guild.leave();
             return false;
         } else {
@@ -81,7 +84,7 @@ export default async (client: Client, guild: Guild) => {
             .setColor("#00FF00").setTimestamp()
             .setTitle(welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)])
             .setThumbnail(guild.iconURL())
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL({ extension: 'png', size: 4096 }) })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setDescription(`Hi there! I'm excited to join your server and be a part of your community. 
       
 My name is iHorizon and I'm here to help you with all your needs. Feel free to use my commands and explore all the features I have to offer.
@@ -91,7 +94,12 @@ I'm here to make your experience on this server the best it can be.
 
 Thanks for choosing me and let's have some fun together!`);
 
-        if (channel) { (channel as GuildTextBasedChannel).send({ embeds: [embed] }).catch(() => { }); };
+        if (channel) {
+            (channel as GuildTextBasedChannel).send({
+                embeds: [embed],
+                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            }).catch(() => { });
+        };
     };
 
     async function getInvites() {
@@ -131,8 +139,12 @@ Thanks for choosing me and let's have some fun together!`);
                 { name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
                 { name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true })
             .setThumbnail(guild.iconURL())
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
-        (client.channels.cache.get(config.core.guildLogsChannelID) as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+
+        (client.channels.cache.get(config.core.guildLogsChannelID) as BaseGuildTextChannel).send({
+            embeds: [embed],
+            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+        }).catch(() => { });
     };
 
     // let c = await antiPoubelle();

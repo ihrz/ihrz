@@ -72,7 +72,7 @@ export default {
             .setColor('#000000')
             .setImage('attachment://tweet-elektra.png')
             .setTimestamp()
-            .setFooter({ text: 'iHorizon x ElektraBots', iconURL: client.user?.displayAvatarURL() });
+            .setFooter({ text: 'iHorizon x ElektraBots', iconURL: "attachment://icon.png" });
 
         let imgs: AttachmentBuilder;
 
@@ -81,7 +81,7 @@ export default {
             embed.setImage(`attachment://tweet-elektra.png`);
         });
 
-        await interaction.editReply({ embeds: [embed], files: [imgs!] });
+        await interaction.editReply({ embeds: [embed], files: [imgs!, { attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
         return;
     },
 };

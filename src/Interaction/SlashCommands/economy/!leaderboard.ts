@@ -33,7 +33,7 @@ export default {
             });
             return;
         };
-        
+
         // Convert the user data to an array for sorting
         let usersArray = Object.entries(toAnalyze);
 
@@ -49,7 +49,7 @@ export default {
             .setTitle(data.economy_leaderboard_embed_title
                 .replace('${interaction.guild.name}', interaction.guild?.name as string)
             )
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTimestamp();
 
         usersArray = usersArray.slice(0, 10);
@@ -73,7 +73,10 @@ export default {
             }
         });
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.reply({
+            embeds: [embed],
+            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

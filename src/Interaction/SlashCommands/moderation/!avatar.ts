@@ -38,9 +38,12 @@ export default {
             )
             .setDescription(data.avatar_embed_description)
             .setTimestamp()
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.editReply({
+            embeds: [embed],
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

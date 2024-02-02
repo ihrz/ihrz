@@ -51,14 +51,17 @@ export default {
         await client.db.set(`${interaction.guild?.id}.GUILD.TICKET.category`, category.id);
 
         let embed = new EmbedBuilder()
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setColor('#00FFFF')
             .setDescription(data.setticketcategory_command_work
                 .replace('${category.name}', category.name)
                 .replace('${interaction.user.id}', interaction.user.id)
             );
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.editReply({
+            embeds: [embed],
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

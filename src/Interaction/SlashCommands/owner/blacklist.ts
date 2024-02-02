@@ -96,7 +96,7 @@ export const command: Command = {
                     .setColor("#2E2EFE")
                     .setTitle(pages[currentPage].title)
                     .setDescription(pages[currentPage].description)
-                    .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: client.user?.displayAvatarURL() })
+                    .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: "attachment://icon.png" })
                     .setTimestamp()
             };
 
@@ -112,7 +112,9 @@ export const command: Command = {
             );
 
             let messageEmbed = await interaction.reply({
-                embeds: [createEmbed()], components: [row]
+                embeds: [createEmbed()],
+                components: [row],
+                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
             });
 
             let collector = messageEmbed.createMessageComponentCollector({

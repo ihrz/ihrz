@@ -97,9 +97,13 @@ export default {
                 .setDescription(data.mybot_manage_accept_embed_desc
                     .replace('${utils_msg}', utils_msg)
                 )
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
-            await interaction.reply({ embeds: [embed], ephemeral: false });
+            await interaction.reply({
+                embeds: [embed],
+                ephemeral: false,
+                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            });
 
             if (cluster) {
                 try {

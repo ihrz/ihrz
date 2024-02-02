@@ -84,7 +84,7 @@ export const command: Command = {
                 .setColor("#000000")
                 .setTitle(pages[currentPage].title)
                 .setDescription(pages[currentPage].description)
-                .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: interaction.client.user?.displayAvatarURL() })
+                .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: "attachment://icon.png" })
                 .setTimestamp()
         };
 
@@ -100,7 +100,9 @@ export const command: Command = {
         );
 
         let messageEmbed = await interaction.reply({
-            embeds: [createEmbed()], components: [(row as ActionRowBuilder<ButtonBuilder>)]
+            embeds: [createEmbed()], 
+            components: [(row as ActionRowBuilder<ButtonBuilder>)],
+            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({

@@ -81,10 +81,13 @@ export const command: Command = {
             .setColor("#FFB6C1")
             .setDescription(text)
             .setTimestamp()
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setThumbnail(interaction.guild?.iconURL() as string);
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.reply({
+            embeds: [embed],
+            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

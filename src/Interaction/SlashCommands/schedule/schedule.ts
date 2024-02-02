@@ -203,11 +203,14 @@ export const command: Command = {
                         )
                         .setThumbnail(interaction.guild?.iconURL() as string)
                         .setColor('#ff0a0a')
-                        .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                         .setTimestamp();
 
                     await client.db.delete(`SCHEDULE.${interaction.user.id}.${arg0}`);
-                    await response.edit({ content: data.schedule_delete_confirm, embeds: [embed] });
+                    await response.edit({
+                        content: data.schedule_delete_confirm, embeds: [embed],
+                        files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                    });
                     return;
                 };
             };
@@ -222,13 +225,14 @@ export const command: Command = {
                             name: interaction.user.globalName || interaction.user.username,
                             iconURL: interaction.user.displayAvatarURL({ extension: 'png', size: 512 })
                         })
-                        .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                         .setTitle(data.schedule_deleteall_title_embed)
                         .setDescription(data.schedule_deleteall_desc_embed)
 
                     await response.edit({
                         content: data.schedule_deleteall_confirm,
-                        embeds: [embed]
+                        embeds: [embed],
+                        files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
                     });
                 } else {
                     await response.edit({
@@ -247,7 +251,7 @@ export const command: Command = {
                 };
 
                 let embed = new EmbedBuilder()
-                    .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                     .setTitle(data.schedule_list_title_embed)
                     .setColor('#60BEE0')
                     .setAuthor({
@@ -269,6 +273,7 @@ export const command: Command = {
                 await response.edit({
                     content: data.schedule_list_content_message,
                     embeds: [embed],
+                    files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
                 });
             };
 
@@ -286,10 +291,10 @@ export const command: Command = {
                     .setTitle(data.schedule_create_title_embed)
                     .setThumbnail(interaction.guild?.iconURL() as string)
                     .setColor('#00549f')
-                    .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                     .setTimestamp();
 
-                await response.edit({ embeds: [embed] });
+                await response.edit({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
                 let u = await i.reply({ content: data.schedule_create_when_question });
 
                 let dateCollector = interaction.channel?.createMessageCollector({
