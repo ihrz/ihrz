@@ -43,21 +43,20 @@ export default async (client: Client, oldPresence: Presence, newPresence: Presen
             return;
         };
 
+        if (newPresence.status === 'offline') return;
+
         if (!bio.state) {
             if (fetchedUser?.roles.cache.has(someinfo.rolesId)) return fetchedUser.roles.remove(someinfo.rolesId);
             return;
         };
 
-        if (bio.state.toString().toLowerCase().includes(someinfo.input.toString().toLowerCase()) || bio.state.toString().toLowerCase().includes(vanity.toString().toLowerCase())) {
-            try {
-                return fetchedUser?.roles.add(someinfo.rolesId).catch(() => { });
-            } catch (err) { return; };
-        };
-
-        if (fetchedUser?.roles.cache.has(someinfo.rolesId)) {
-            try {
-                fetchedUser?.roles.remove(someinfo.rolesId).catch(() => { });
-            } catch (err) { return; };
+        if (
+            bio.state?.toString().toLowerCase().includes(someinfo.input.toString().toLowerCase())
+            || bio.state?.toString().toLowerCase().includes(vanity.toString().toLowerCase())
+        ) {
+            return fetchedUser?.roles.add(someinfo.rolesId).catch(() => { });
+        } else {
+            return fetchedUser?.roles.remove(someinfo.rolesId).catch(() => { });
         };
     };
 
