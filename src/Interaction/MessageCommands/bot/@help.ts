@@ -87,16 +87,20 @@ export const command: Command = {
         });
 
         let row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
-        let pp = client.user?.displayAvatarURL();
 
         let embed = new EmbedBuilder()
             .setColor('#001eff')
             .setDescription(data.help_tip_embed)
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
-            .setThumbnail((pp as string))
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setThumbnail("attachment://icon.png")
             .setTimestamp();
 
-        let response = await interaction.reply({ embeds: [embed], components: [row] });
+        let response = await interaction.reply({
+            embeds: [embed], 
+            components: [row],
+            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
+        
         let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840_000 });
         let guildLang = await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`);
 

@@ -56,16 +56,17 @@ export default {
             return;
         };
 
-        let iconURL = client.user?.displayAvatarURL();
-
         let embed = new EmbedBuilder()
             .setColor("#000000")
             .setAuthor({ name: data.allowlist_show_embed_author })
             .setDescription(`${text}`)
-            .setFooter({ text: 'iHorizon', iconURL: iconURL })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTimestamp();
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.reply({
+            embeds: [embed],
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

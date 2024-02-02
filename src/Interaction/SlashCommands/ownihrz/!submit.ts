@@ -82,9 +82,13 @@ export default {
                         .replace('${code}', code)
                         .replace('${utils_msg}', utils_msg)
                 )
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            await interaction.reply({
+                embeds: [embed],
+                ephemeral: true,
+                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            });
             return;
         };
     },

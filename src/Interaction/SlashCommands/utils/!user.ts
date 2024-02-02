@@ -55,10 +55,13 @@ export default {
             .setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
             .setThumbnail((user?.displayAvatarURL() as string))
             .setFooter({
-                text: 'iHorizon', iconURL: client.user?.displayAvatarURL()
+                text: 'iHorizon', iconURL: "attachment://icon.png"
             });
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.reply({
+            embeds: [embed],
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

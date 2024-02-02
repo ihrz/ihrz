@@ -49,11 +49,11 @@ export default async (client: Client, guild: Guild) => {
                     { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
                     { name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true })
                 .setThumbnail(guild.iconURL())
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
             let channel = client.channels.cache.get(config.core.guildLogsChannelID);
 
-            return (channel as BaseGuildTextChannel).send({ embeds: [embed] });
+            return (channel as BaseGuildTextChannel).send({ embeds: [embed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
         } catch (error: any) {
             logger.err(error);
         };

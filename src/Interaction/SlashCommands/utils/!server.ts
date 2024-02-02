@@ -35,9 +35,12 @@ export default {
             .setTitle(data.banner_guild_embed)
             .setImage(interaction.guild?.bannerURL({ extension: 'png', size: 4096 }) as string)
             .setThumbnail(interaction.guild?.iconURL({ size: 4096 }) as string)
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL({ size: 4096 }) })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.reply({
+            embeds: [embed],
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

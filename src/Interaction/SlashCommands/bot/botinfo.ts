@@ -47,7 +47,7 @@ export const command: Command = {
         
         let clientembed = new EmbedBuilder()
             .setColor("#f0d020")
-            .setThumbnail((client.user?.displayAvatarURL() as string))
+            .setThumbnail("attachment://icon.png")
             .addFields(
                 { name: data.botinfo_embed_fields_myname, value: `:green_circle: ${client.user?.username}`, inline: false },
                 { name: data.botinfo_embed_fields_mychannels, value: `:green_circle: ${client.channels.cache.size}`, inline: false },
@@ -58,10 +58,10 @@ export const command: Command = {
                 { name: data.botinfo_embed_fields_created_by, value: ":green_circle: <@171356978310938624>", inline: false },
             )
             .setTimestamp()
-            .setFooter({ text: `iHorizon ${pkg.version}`, iconURL: client.user?.displayAvatarURL() })
+            .setFooter({ text: `iHorizon ${pkg.version}`, iconURL: "attachment://icon.png" })
             .setTimestamp()
 
-        await interaction.reply({ embeds: [clientembed] });
+        await interaction.reply({ embeds: [clientembed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
         return;
     },
 };

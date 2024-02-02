@@ -59,10 +59,10 @@ export default {
             .setColor("#FFB6C1")
             .setDescription(text)
             .setTimestamp()
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setThumbnail(interaction.guild?.iconURL() as string);
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.editReply({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
         return;
     },
 };

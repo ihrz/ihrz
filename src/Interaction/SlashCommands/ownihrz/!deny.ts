@@ -85,9 +85,13 @@ export default {
                 .setDescription(data.mybot_instance_deny_embed_desc
                     .replace('${utils_msg}', utils_msg)
                 )
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
-            await interaction.reply({ embeds: [embed], ephemeral: false });
+            await interaction.reply({
+                embeds: [embed],
+                ephemeral: false,
+                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            });
 
             var table_1 = client.db.table("TEMP");
             await table_1.delete(`OWNIHRZ.${interaction.user.id}`);

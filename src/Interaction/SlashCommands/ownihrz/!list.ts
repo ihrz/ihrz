@@ -57,7 +57,7 @@ async function buildEmbed(client: Client, data: any, botId: number, lang: Langua
                 .replace('${expire}', expire)
                 .replace('${utils_msg}', utils_msg)
         )
-        .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
         .setTimestamp();
 }
 
@@ -70,7 +70,7 @@ export default {
             new EmbedBuilder()
                 .setTitle(data.mybot_list_embed0_title)
                 .setColor('#000000')
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                 .setTimestamp()
         ];
 
@@ -90,7 +90,11 @@ export default {
             }
         };
 
-        await interaction.reply({ embeds: lsEmbed, ephemeral: true });
+        await interaction.reply({
+            embeds: lsEmbed,
+            ephemeral: true,
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

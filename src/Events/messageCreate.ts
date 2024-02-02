@@ -164,11 +164,14 @@ export default async (client: Client, message: Message) => {
                     .replace("${message.author.id}", message.author.id)
                     .replace("${fetch.id}", fetch.id)
                 )
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
             message.member?.roles.add(fetch).catch(() => { });
-            message.channel.send({ embeds: [embed] }).catch(() => { });
+            message.channel.send({
+                embeds: [embed],
+                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            }).catch(() => { });
             return;
         };
     };
@@ -207,7 +210,7 @@ export default async (client: Client, message: Message) => {
             })
             .setDescription(suggestionContent.toString())
             .setThumbnail((message.guild?.iconURL() as string))
-            .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTimestamp();
 
         message.delete();
@@ -217,7 +220,8 @@ export default async (client: Client, message: Message) => {
 
         let msg = await message.channel.send({
             content: `<@${message.author.id}>`,
-            embeds: [suggestionEmbed]
+            embeds: [suggestionEmbed],
+            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
 
         await msg.react(client.iHorizon_Emojis.icon.Yes_Logo);

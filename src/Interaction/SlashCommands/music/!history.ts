@@ -69,7 +69,7 @@ export default {
                 .setTimestamp()
                 .setTitle(pages[currentPage].title)
                 .setDescription(pages[currentPage].description)
-                .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: interaction.client.user?.displayAvatarURL() })
+                .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: "attachment://icon.png" })
                 .setTimestamp()
         };
 
@@ -85,7 +85,9 @@ export default {
         );
 
         let messageEmbed = await interaction.editReply({
-            embeds: [createEmbed()], components: [(row as ActionRowBuilder<ButtonBuilder>)], files: [attachment]
+            embeds: [createEmbed()],
+            components: [(row as ActionRowBuilder<ButtonBuilder>)],
+            files: [attachment, { attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({

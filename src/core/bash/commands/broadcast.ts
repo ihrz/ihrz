@@ -28,11 +28,17 @@ export default function (client: Client, args: string) {
         .setColor('#4dff00')
         .setTitle('@Broadcast message')
         .setDescription(`\`${args2.slice(0).join(" ")}\``)
-        .setFooter({ text: `Kisakay - iHorizon`, iconURL: client.user?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 4096 }) });
+        .setFooter({ text: `Kisakay - iHorizon`, iconURL: "attachment://icon.png" });
 
     client.guilds.cache.forEach(async (guild) => {
-        let channel = guild.channels.cache.find((role: { name: string; }) => role.name === 'ihorizon-logs'); 
-        if (channel) { (channel as BaseGuildTextChannel).send({ content: "@here", embeds: [embed] }) };
+        let channel = guild.channels.cache.find((role: { name: string; }) => role.name === 'ihorizon-logs');
+        if (channel) {
+            (channel as BaseGuildTextChannel).send({
+                content: "@here",
+                embeds: [embed],
+                files: [{ attachment: await guild.client.functions.image64(client.user?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 4096 })), name: 'icon.png' }]
+            })
+        };
     });
 
     logger.legacy(`* All are successfully sended`.gray.bgBlack);

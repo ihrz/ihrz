@@ -56,7 +56,7 @@ async function CreatePanel(interaction: ChatInputCommandInteraction<CacheType>, 
         .setTitle(data.name)
         .setColor("#3b8f41")
         .setDescription(data.description || lang.sethereticket_description_embed)
-        .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
 
     let confirm = new ButtonBuilder()
         .setCustomId('open-new-ticket')
@@ -66,7 +66,8 @@ async function CreatePanel(interaction: ChatInputCommandInteraction<CacheType>, 
 
     interaction.channel?.send({
         embeds: [panel],
-        components: [new ActionRowBuilder<ButtonBuilder>().addComponents(confirm)]
+        components: [new ActionRowBuilder<ButtonBuilder>().addComponents(confirm)],
+        files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
     }).then(async (message) => {
 
         await db.set(`${message.guild?.id}.GUILD.TICKET.${message.id}`,
@@ -84,7 +85,7 @@ async function CreatePanel(interaction: ChatInputCommandInteraction<CacheType>, 
         let TicketLogsChannel = await interaction.client.db.get(`${interaction.guild?.id}.GUILD.TICKET.logs`);
         TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
         if (!TicketLogsChannel) return;
-        
+
         let embed = new EmbedBuilder()
             .setColor("#008000")
             .setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
@@ -92,10 +93,10 @@ async function CreatePanel(interaction: ChatInputCommandInteraction<CacheType>, 
                 .replace('${data.name}', data.name)
                 .replace('${interaction}', interaction.channel)
             )
-            .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTimestamp();
 
-        TicketLogsChannel.send({ embeds: [embed] });
+        TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
         return;
     } catch (e) { return };
 };
@@ -171,7 +172,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType>, result: 
             )
             .setFooter({
                 text: 'iHorizon',
-                iconURL: interaction.client.user?.displayAvatarURL()
+                iconURL: "attachment://icon.png"
             });
 
         await db.set(`${interaction.guild?.id}.TICKET_ALL.${interaction.user.id}.${channel.id}`,
@@ -210,6 +211,9 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType>, result: 
                     .addComponents(transcript_ticket_button)
                     .addComponents(delete_ticket_button)
             ],
+            files: [
+                { attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }
+            ]
         }).catch((err: any) => {
             logger.err(err)
         });
@@ -226,10 +230,10 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType>, result: 
                     .replace('${interaction.user}', interaction.user)
                     .replace('${channel.id}', channel.id)
                 )
-                .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
-            TicketLogsChannel.send({ embeds: [embed] });
+            TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
             return;
         } catch (e) { return };
     }).catch(() => { });
@@ -283,10 +287,10 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) 
                                     .replace('${interaction.user}', interaction.user)
                                     .replace('${interaction.channel.id}', interaction.channel?.id)
                                 )
-                                .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+                                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                                 .setTimestamp();
 
-                            TicketLogsChannel.send({ embeds: [embed], files: [attachment] });
+                            TicketLogsChannel.send({ embeds: [embed], files: [attachment, { attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
                             return;
                         } catch (e) { return };
                     });
@@ -356,10 +360,10 @@ async function TicketRemoveMember(interaction: ChatInputCommandInteraction<Cache
                     .replace('${interaction.user}', interaction.user)
                     .replace('${interaction.channel.id}', interaction.channel?.id)
                 )
-                .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
-            TicketLogsChannel.send({ embeds: [embed] });
+            TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
             return;
         } catch (e) { return };
 
@@ -395,10 +399,10 @@ async function TicketAddMember(interaction: ChatInputCommandInteraction<CacheTyp
                     .replace('${interaction.user}', interaction.user)
                     .replace('${interaction.channel.id}', interaction.channel?.id)
                 )
-                .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
-            TicketLogsChannel.send({ embeds: [embed] });
+            TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
             return;
         } catch (e) { return };
 
@@ -445,10 +449,10 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<CacheType>)
                                 .replace('${interaction.user}', interaction.user)
                                 .replace('${interaction.channel.id}', interaction.channel.id)
                             )
-                            .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+                            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                             .setTimestamp();
 
-                        TicketLogsChannel.send({ embeds: [embed] });
+                        TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
                         return;
                     } catch (e) { return };
 
@@ -489,10 +493,10 @@ async function TicketDelete(interaction: Interaction<CacheType>) {
                             .replace('${interaction.user}', interaction.user)
                             .replace('${interaction.channel.name}', (interaction.channel as BaseGuildTextChannel)?.name)
                         )
-                        .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                         .setTimestamp();
 
-                    TicketLogsChannel.send({ embeds: [embed] });
+                    TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
                     return;
                 } catch (e) { return };
             }
@@ -573,10 +577,10 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<CacheTyp
                 .replace('${interaction.channel}', interaction.channel)
 
             )
-            .setFooter({ text: 'iHorizon', iconURL: interaction.client.user?.displayAvatarURL() })
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTimestamp();
 
-        TicketLogsChannel.send({ embeds: [embed] });
+        TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]  });
         return;
     } catch (e) { return };
 };

@@ -126,9 +126,9 @@ export const command: Command = {
                     { name: "Re-Gave Admin Roles", value: `\`${settings}\``, inline: false },
                     { name: "Timeout", value: `\`${timeout}\``, inline: false }
                 )
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
-            await interaction.reply({ embeds: [embed] });
+            await interaction.reply({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
             await client.db.set(`${interaction.guild?.id}.GUILD_CONFIG.rolesaver.enable`, true);
             await client.db.set(`${interaction.guild?.id}.GUILD_CONFIG.rolesaver.timeout`, timeout);
             await client.db.set(`${interaction.guild?.id}.GUILD_CONFIG.rolesaver.admin`, settings);
@@ -148,9 +148,12 @@ export const command: Command = {
                 .addFields(
                     { name: "Enable", value: `\`${action}\``, inline: false },
                 )
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() });
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
-            await interaction.reply({ embeds: [embed] });
+            await interaction.reply({
+                embeds: [embed],
+                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            });
             await client.db.delete(`${interaction.guild?.id}.GUILD_CONFIG.rolesaver`);
             return;
         }
