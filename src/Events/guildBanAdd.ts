@@ -26,7 +26,10 @@ export default async (client: Client, ban: GuildBan) => {
     let data = await client.functions.getLanguageData(ban.guild.id);
 
     async function serverLogs() {
-        if (!ban.guild.members.me || !ban.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+        if (!ban.guild.members.me || !ban.guild.members.me.permissions.has([
+            PermissionsBitField.Flags.ViewAuditLog,
+            PermissionsBitField.Flags.ManageGuild
+        ])) return;
         let fetchedLogs = await ban.guild.fetchAuditLogs({
             type: AuditLogEvent.MemberBanAdd,
             limit: 1,
@@ -39,7 +42,7 @@ export default async (client: Client, ban: GuildBan) => {
 
         let Msgchannel = ban.guild.channels.cache.get(someinfo);
         if (!Msgchannel) return;
-        
+
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setDescription(data.event_srvLogs_banAdd_description

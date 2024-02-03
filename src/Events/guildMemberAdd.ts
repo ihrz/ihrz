@@ -111,7 +111,8 @@ export default async (client: Client, member: GuildMember) => {
     };
 
     async function welcomeMessage() {
-        // try {
+        if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
+
         let oldInvites = client.invites.get(member.guild.id);
         let newInvites = await member.guild.invites.fetch();
 
@@ -278,9 +279,9 @@ export default async (client: Client, member: GuildMember) => {
     async function rolesSaver() {
         if (await client.db.get(`${member.guild.id}.GUILD_CONFIG.rolesaver.enable`)) {
 
-            let array = await client.db.get(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
-            if (!array) return;
-            
+            let array: Role[] | null = await client.db.get(`${member.guild.id}.ROLE_SAVER.${member.user.id}`)
+            if (!array || array.length >= 0) return;
+
             array.forEach(async (role: Role) => {
                 member.roles.add(role);
             });

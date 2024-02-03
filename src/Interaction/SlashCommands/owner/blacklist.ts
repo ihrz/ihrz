@@ -153,14 +153,15 @@ export const command: Command = {
             let fetched = await client.db.get(`GLOBAL.BLACKLIST.${member.user.id}`);
 
             if (!fetched) {
-                await client.db.set(`GLOBAL.BLACKLIST.${member.user.id}`, { blacklisted: true });
+                await client.db.set(`GLOBAL.BLACKLIST.${member.user.id}.blacklisted`, true);
 
                 if (member.bannable) {
                     (member as unknown as GuildMemberManager).ban("blacklisted !");
                     await interaction.reply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, member.user.globalName) });
                     return;
                 } else {
-                    await client.db.set(`GLOBAL.BLACKLIST.${member.user.id}`, { blacklisted: true });
+
+                    await client.db.set(`GLOBAL.BLACKLIST.${member.user.id}.blacklisted`, true);
                     await interaction.reply({
                         content: data.blacklist_blacklisted_but_can_ban_him.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                     });
@@ -180,7 +181,7 @@ export const command: Command = {
             let fetched = await client.db.get(`GLOBAL.BLACKLIST.${user.id}`);
 
             if (!fetched) {
-                await client.db.set(`GLOBAL.BLACKLIST.${user.id}`, { blacklisted: true });
+                await client.db.set(`GLOBAL.BLACKLIST.${user.id}.blacklisted`, true);
 
                 await interaction.reply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, user.globalName || user.username) }); return;
             } else {

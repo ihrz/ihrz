@@ -75,12 +75,12 @@ export default async (client: Client, member: GuildMember) => {
             var invitesAmount = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`);
             var lChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`);
 
-            if (!lChan || !client.channels.cache.get(lChan)) return;
+            if (!lChan || !member.guild.channels.cache.get(lChan)) return;
 
             let joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leavemessage`);
 
             if (!joinMessage) {
-                let lChanManager = client.channels.cache.get(lChan);
+                let lChanManager = member.guild.channels.cache.get(lChan);
 
                 (lChanManager as BaseGuildTextChannel).send({
                     content: data.event_goodbye_inviter
@@ -99,17 +99,17 @@ export default async (client: Client, member: GuildMember) => {
                 .replace("{inviter}", inviter.username)
                 .replace("{invites}", invitesAmount);
 
-            let lChanManager = client.channels.cache.get(lChan) as BaseGuildTextChannel;
+            let lChanManager = member.guild.channels.cache.get(lChan) as BaseGuildTextChannel;
 
             lChanManager.send({ content: joinMessageFormated }).catch(() => { });
             return;
         } catch (e) {
             let lChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`);
 
-            if (!lChan || !client.channels.cache.get(lChan)) return;
-            let lChanManager = client.channels.cache.get(lChan);
+            if (!lChan || !member.guild.channels.cache.get(lChan)) return;
+            let lChanManager = member.guild.channels.cache.get(lChan);
 
-            await (lChanManager as BaseGuildTextChannel).send({
+            (lChanManager as BaseGuildTextChannel).send({
                 content: data.event_goodbye_default
                     .replace("${member.id}", member.id)
                     .replace("${member.guild.name}", member.guild.name)
@@ -121,7 +121,11 @@ export default async (client: Client, member: GuildMember) => {
     async function serverLogs() {
         if (!member.guild) return;
         if (!member.guild.members.me) return;
-        if (!member.guild.members.me.permissions.has([PermissionsBitField.Flags.ViewAuditLog])) return;
+        
+        if (!member.guild.members.me.permissions.has([
+            PermissionsBitField.Flags.ViewAuditLog,
+            PermissionsBitField.Flags.ManageGuild
+        ])) return;
 
         let fetchedLogs = await member.guild.fetchAuditLogs({
             type: AuditLogEvent.MemberKick,
