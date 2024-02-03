@@ -51,15 +51,17 @@ export const command: Command = {
     category: 'utils',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
 
+        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
         let user = interaction.mentions.users.toJSON()[1] || interaction.author;
+        let table = client.db.table("PREVNAMES");
 
         // if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
         //     await interaction.reply({ content: data.prevnames_not_admin });
         //     return;
         // };
-        var char: Array<string> = await client.db.get(`DB.PREVNAMES.${user.id}`) || [];
+        
+        var char: Array<string> = await table.get(`${user.id}`) || [];
 
         if (char.length == 0) {
             await interaction.reply({ content: `${data.prevnames_undetected}` });
@@ -100,7 +102,7 @@ export const command: Command = {
         );
 
         let messageEmbed = await interaction.reply({
-            embeds: [createEmbed()], 
+            embeds: [createEmbed()],
             components: [(row as ActionRowBuilder<ButtonBuilder>)],
             files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
         });

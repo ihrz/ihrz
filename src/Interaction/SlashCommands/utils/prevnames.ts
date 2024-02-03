@@ -67,10 +67,12 @@ export const command: Command = {
         //     await interaction.reply({ content: data.prevnames_not_admin });
         //     return;
         // };
-        var char: Array<string> = await client.db.get(`DB.PREVNAMES.${user.id}`) || [];
+
+        var table = client.db.table("PREVNAMES")
+        var char: Array<string> = await table.get(`${user.id}`) || [];
 
         if (char.length == 0) {
-            await interaction.reply({ content: `${data.prevnames_undetected}` });
+            await interaction.reply({ content: data.prevnames_undetected });
             return;
         };
 
@@ -131,8 +133,15 @@ export const command: Command = {
                 currentPage = (currentPage + 1) % pages.length;
             } else if (interaction_2.customId === 'trash-prevnames-embed') {
                 if (interaction.user.id === user.id) {
-                    await client.db.delete(`DB.PREVNAMES.${user.id}`);
-                    messageEmbed.edit({ embeds: [], components: [], content: data.prevnames_data_erased })
+                    let table = client.db.table("PREVNAMES");
+
+                    await table.delete(`${user.id}`);
+                    
+                    messageEmbed.edit({
+                        embeds: [],
+                        components: [],
+                        content: data.prevnames_data_erased
+                    })
                     return;
                 }
             }

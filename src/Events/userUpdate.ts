@@ -27,16 +27,17 @@ export default async (client: Client, oldUser: User) => {
 
         let oldUsertag = oldUser.username;
         let oldUserGlbl = oldUser.globalName;
+        let table = client.db.table("PREVNAMES");
 
         if (!oldUser) return;
 
         if (oldUser.globalName !== newUser.globalName) {
 
-            await client.db.push(`DB.PREVNAMES.${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUserGlbl}`);
+            await table.push(`${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUserGlbl}`);
 
         } else if (oldUser.username !== newUser.username) {
 
-            await client.db.push(`DB.PREVNAMES.${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUsertag}`);
+            await table.push(`${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUsertag}`);
         };
     };
 
