@@ -442,7 +442,7 @@ renew_not_administrator: ":x: **You are not an administrator for use this comman
 
 # /prevnames
 prevnames_embed_title: "List of all ${user.username}'s nickname"
-prevnames_undetected: "Nothing Data founded!"
+prevnames_undetected: "No Data founded!"
 prevnames_not_admin: "You don't have the `ADMINISTRATOR` permission to execute this command!"
 prevnames_data_erased: "Your previous usernames have been completely deleted upon your request!"
 
