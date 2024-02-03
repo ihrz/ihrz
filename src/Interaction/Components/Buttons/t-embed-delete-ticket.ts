@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2023 iHorizon
+・ Copyright © 2020-2024 iHorizon
 */
 import { TicketDelete } from '../../../core/modules/ticketsManager.js';
 import { ButtonInteraction, CacheType } from 'discord.js';

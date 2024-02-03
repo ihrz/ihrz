@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2023 iHorizon
+・ Copyright © 2020-2024 iHorizon
 */
 
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan, Guild, GuildTextBasedChannel, Client, BaseGuildTextChannel, GuildBasedChannel } from 'discord.js';
