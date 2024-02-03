@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2023 iHorizon
+・ Copyright © 2020-2024 iHorizon
 */
 
 import { Client, Collection, EmbedBuilder, Guild, GuildApplicationCommandManager, GuildMember, PermissionsBitField, Presence, PresenceManager, Role, RoleManager, User, UserManager } from 'discord.js';
