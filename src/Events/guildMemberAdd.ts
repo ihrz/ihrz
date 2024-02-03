@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2023 iHorizon
+・ Copyright © 2020-2024 iHorizon
 */
 
 import { ActionRowBuilder, AttachmentBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, Client, ComponentBuilder, Guild, GuildChannel, GuildChannelManager, GuildFeature, GuildMember, GuildTextBasedChannel, Invite, Message, MessageManager, Role } from "discord.js";

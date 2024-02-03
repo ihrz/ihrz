@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2023 iHorizon
+・ Copyright © 2020-2024 iHorizon
 */
 
 import { BaseGuildTextChannel, Client, Collection, EmbedBuilder, Message, Options, Permissions, Presence } from 'discord.js';
