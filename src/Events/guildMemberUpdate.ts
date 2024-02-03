@@ -25,7 +25,10 @@ export default async (client: Client, oldMember: GuildMember, newMember: GuildMe
     let data = await client.functions.getLanguageData(newMember.guild.id);
 
     async function serverLogs() {
-        if (!newMember.guild.members.me?.permissions.has([PermissionsBitField.Flags.ViewAuditLog])) return;
+        if (!newMember.guild.members.me?.permissions.has([
+            PermissionsBitField.Flags.ViewAuditLog,
+            PermissionsBitField.Flags.ManageGuild
+        ])) return;
 
         let fetchedLogs = await newMember.guild.fetchAuditLogs({
             type: AuditLogEvent.MemberRoleUpdate,
@@ -110,7 +113,7 @@ export default async (client: Client, oldMember: GuildMember, newMember: GuildMe
 
             (Msgchannel as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
             return;
-            
+
         } else if (
             oldMember.premiumSince
             && !newMember.premiumSince

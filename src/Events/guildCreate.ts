@@ -94,12 +94,10 @@ I'm here to make your experience on this server the best it can be.
 
 Thanks for choosing me and let's have some fun together!`);
 
-        if (channel) {
-            (channel as GuildTextBasedChannel).send({
-                embeds: [embed],
-                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
-            }).catch(() => { });
-        };
+        (channel as GuildTextBasedChannel)?.send({
+            embeds: [embed],
+            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+        }).catch(() => { });
     };
 
     async function getInvites() {
