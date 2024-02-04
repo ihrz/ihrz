@@ -32,17 +32,13 @@ import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {
             await interaction.editReply({ content: data.end_not_admin });
             return;
         };
 
         let giveawayId = interaction.options.getString("giveaway-id");
-
         let giveawayData = client.giveawaysManager.getGiveawayData(giveawayId as string);
-
-        console.log(giveawayData);
 
         let embed = new EmbedBuilder()
             .setAuthor({

@@ -87,22 +87,25 @@ export default async (client: Client) => {
     };
 
     async function refreshSchedule() {
-        let listAll = await client.db.get(`SCHEDULE`);
+        let table = client.db.table("SCHEDULE");
+        let listAll = await table.all();
+
         let dateNow = Date.now();
         let desc: string = '';
 
-        for (let user in listAll) {
-            let member = client.users.cache.get(user);
+        Object.entries(listAll).forEach(async ([userId, array]) => {
 
-            for (let code in listAll[user]) {
-                if (listAll[user][code]?.expired <= dateNow) {
-                    desc += `${date.format(new Date(listAll[user][code]?.expired), 'YYYY/MM/DD HH:mm:ss')}`;
-                    desc += `\`\`\`${listAll[user][code]?.title}\`\`\``;
-                    desc += `\`\`\`${listAll[user][code]?.description}\`\`\``;
+            let member = client.users.cache.get(array.id);
+
+            for (let ScheduleId in array.value) {
+                if (array.value[ScheduleId]?.expired <= dateNow) {
+                    desc += `${date.format(new Date(array.value[ScheduleId]?.expired), 'YYYY/MM/DD HH:mm:ss')}`;
+                    desc += `\`\`\`${array.value[ScheduleId]?.title}\`\`\``;
+                    desc += `\`\`\`${array.value[ScheduleId]?.description}\`\`\``;
 
                     let embed = new EmbedBuilder()
                         .setColor('#56a0d3')
-                        .setTitle(`#${code} Schedule has been expired!`)
+                        .setTitle(`#${ScheduleId} Schedule has been expired!`)
                         .setDescription(desc)
                         .setThumbnail((member?.displayAvatarURL() as string))
                         .setTimestamp()
@@ -114,10 +117,11 @@ export default async (client: Client) => {
                         files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
                     }).catch(() => { });
 
-                    await client.db.delete(`SCHEDULE.${user}.${code}`);
+                    await table.delete(`${array.id}.${ScheduleId}`);
                 };
-            };
-        };
+
+            }
+        });
     };
     let iHorizon_Container = new OwnIHRZ();
     iHorizon_Container.Startup();

@@ -53,7 +53,9 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+
         let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let table = client.db.table("SCHEDULE");
 
         let select = new StringSelectMenuBuilder()
             .setCustomId('starter')
@@ -116,7 +118,7 @@ export const command: Command = {
                 time: 420_000
             });
 
-            collector.on('collect', async (i) => {
+            collector.on('collect', async i => {
                 if (i.member?.user.id !== interaction.user.id) {
                     await i.reply({ content: data.embed_interaction_not_for_you, ephemeral: true })
                     return;
@@ -184,7 +186,7 @@ export const command: Command = {
             };
 
             async function __1(arg0: string) {
-                let fetched = await client.db.get(`SCHEDULE.${interaction.user.id}`);
+                let fetched = await table.get(`${interaction.user.id}`);
 
                 if (!fetched || !fetched[arg0]) {
                     await response.edit({
@@ -206,7 +208,7 @@ export const command: Command = {
                         .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                         .setTimestamp();
 
-                    await client.db.delete(`SCHEDULE.${interaction.user.id}.${arg0}`);
+                    await table.delete(`${interaction.user.id}.${arg0}`);
                     await response.edit({
                         content: data.schedule_delete_confirm, embeds: [embed],
                         files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
@@ -217,7 +219,7 @@ export const command: Command = {
 
             async function __2(arg0: boolean) {
                 if (arg0) {
-                    await client.db.delete(`SCHEDULE.${interaction.user.id}`);
+                    await table.delete(`${interaction.user.id}`);
 
                     let embed = new EmbedBuilder()
                         .setColor('#ff0a0a')
@@ -243,7 +245,7 @@ export const command: Command = {
             };
 
             async function __3() {
-                let fetched = await client.db.get(`SCHEDULE.${interaction.user.id}`);
+                let fetched = await table.get(`${interaction.user.id}`);
 
                 if (!fetched) {
                     await response.edit({ content: data.schedule_list_not_schedule, embeds: [] });
@@ -334,7 +336,7 @@ export const command: Command = {
                             .replace('${scheduleCode}', scheduleCode)
                     });
 
-                    await client.db.set(`SCHEDULE.${interaction.user.id}.${scheduleCode}`,
+                    await table.set(`${interaction.user.id}.${scheduleCode}`,
                         {
                             title: collection.get('name')?.value,
                             description: collection.get('desc')?.value,
