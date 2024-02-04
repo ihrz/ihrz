@@ -172,6 +172,32 @@ export const command: Command = {
                 }
             ],
         },
+        {
+            name: 'get-data',
+            name_localizations: {
+                "fr": "get-data"
+            },
+
+            description: 'Get informations about a giveaway (JSON Body)',
+            description_localizations: {
+                "fr": "Obtenir des informations à propos d'un giveaways! (Format JSON)"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+                {
+                    name: "giveaway-id",
+
+                    description: "Giveaway's ID",
+                    description_localizations: {
+                        "fr": "L'identifiant du giveaways"
+                    },
+
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                }
+            ]
+        }
     ],
     thinking: true,
     category: 'giveaway',
