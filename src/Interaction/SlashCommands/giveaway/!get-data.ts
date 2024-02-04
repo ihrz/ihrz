@@ -103,21 +103,5 @@ export default {
         }
         await interaction.editReply({ embeds: [embed] });
         return;
-
-        // if (!await client.giveawaysManager.isValid(inputData as string)) {
-        //     await interaction.editReply({
-        //         content: data.end_not_find_giveaway
-        //             .replace(/\${gw}/g, inputData as string)
-        //     });
-        //     return;
-        // };
-
-        // if (await client.giveawaysManager.isEnded(inputData as string)) {
-        //     await interaction.editReply({ content: data.end_command_error });
-        //     return;
-        // };
-
-        // await client.giveawaysManager.listEntries(interaction, inputData as string)
-        // return;
     },
 };
