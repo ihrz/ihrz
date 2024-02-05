@@ -30,7 +30,7 @@
     "@types/express": "^4.17.17",
     "@types/js-yaml": "^4.0.5",
     "axios": "1.6.7",
-    "better-sqlite3": "^9.2.2",
+    "better-sqlite3": "^9.4.0",
     "colors": "^1.4.0",
     "date-and-time": "^3.0.2",
     "discord-html-transcripts": "^3.2.0",
