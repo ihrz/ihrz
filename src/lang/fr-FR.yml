@@ -7,62 +7,62 @@
 # /add
 add_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé les commandes de ticket!"
 add_incorrect_syntax: "Syntaxe incorrecte! **Utilisation correcte**: .add <membre>"
-add_command_work: "Membre ${member.tag} ajouté avec succès à votre ticket!"
+add_command_work: "Membre ${member.tag} ajouté avec succès au ticket!"
 add_command_error: "Une erreur est survenue, veuillez réessayer."
 
 # /close
-close_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé les commandes de ticket !"
+close_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé cette commande !"
 close_title_sourcebin: "Transcription du ticket par iHorizon"
 close_description_sourcebin: " "
 close_error_command: "Une erreur s'est produite, veuillez réessayer !"
-close_command_work_channel: "Vous avez fermé votre ticket. iHorizon vous a envoyé la transcription."
+close_command_work_channel: "Vous avez fermé ce ticket. iHorizon vous a envoyé la transcription."
 close_command_work_notify_channel: "Le ticket a été fermé avec succès !"
 close_command_error: "Une erreur s'est produite, veuillez réessayer !"
-close_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un canal de ticket !"
+close_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un ticket !"
 
 # /delete
-delete_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé les commandes de ticket !"
-delete_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un salon de ticket !"
+delete_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé cette commande !"
+delete_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un ticket !"
 
 # /sethereticket
-sethereticket_disabled_command: "Vous ne pouvez pas utiliser cette commande car un autre administrateur a désactivé les commandes de ticket !"
-sethereticket_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour demander cette commande !"
+sethereticket_disabled_command: "Vous ne pouvez pas utiliser cette commande car un autre administrateur a désactivé cette commande !"
+sethereticket_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour executer cette commande !"
 sethereticket_description_embed: "Pour créer un nouveau ticket, veuillez réagir avec 📩"
 sethereticket_command_work: "Le panneau de ticket a été configuré avec succès !"
 
 # /open
-open_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé les commandes de ticket!"
+open_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé cette commande !"
 open_command_work: "Le ticket ${interaction.channel} a été réouvert avec succès."
 open_command_error: "Une erreur est survenue, veuillez réessayer!"
-open_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un salon de ticket!"
+open_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un ticket !"
 
 # /remove
-remove_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé les commandes de ticket !"
-remove_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un canal de ticket !"
+remove_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé cette commande !"
+remove_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un ticket !"
 remove_command_error: "Une erreur est survenue, veuillez réessayer !"
 remove_command_work: "${member.tag} a été retiré avec succès de votre ticket !"
 
-# /transript
-transript_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé les commandes de ticket !"
+# /transcript
+transript_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé cette commande !"
 transript_name_sourcebin: " "
 transript_title_sourcebin: "Transcription du chat de ticket pour ${channel.name}"
 transript_command_error: "Une erreur s'est produite, veuillez réessayer !"
-transript_command_work: "Vous avez fermé votre ticket. iHorizon vous a envoyé la transcription."
-transript_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un canal de ticket !"
+transript_command_work: "Voici la transcription du ticket, ${interaction.user} !"
+transript_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un ticket !"
 
 # /disableticket
 disableticket_not_admin: ":x: | Vous devez être administrateur de ce serveur pour utiliser cette commande !"
-disableticket_logs_embed_title_disable: "Logs de désactivation des tickets"
+disableticket_logs_embed_title_disable: "Logs de désactivation des commandes"
 disableticket_logs_embed_description_disable: "<@${interaction.user.id}> a désactivé les commandes de ticket !"
 disableticket_command_work_disable: "Vous avez désactivé avec succès les commandes de ticket !"
-disableticket_logs_embed_title_enable: "Logs d'activation des tickets"
+disableticket_logs_embed_title_enable: "Logs d'activation des commandes"
 disableticket_logs_embed_description_enable: "<@${interaction.user.id}> a activé les commandes de ticket !"
 disableticket_command_work_enable: "Vous avez activé avec succès les commandes de ticket !"
 
 # /setticketcategory
-setticketcategory_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour demander cette commande !"
-setticketcategory_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé les commandes de ticket !"
-setticketcategory_not_a_category: "Le canal spécifié n'est pas une catégorie, veuillez réessayer."
+setticketcategory_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour utiliser cette commande !"
+setticketcategory_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé cette commande !"
+setticketcategory_not_a_category: "Le salon spécifié n'est pas une catégorie, veuillez réessayer."
 setticketcategory_command_work: "<@${interaction.user.id}>, vous avez défini la catégorie du canal de ticket sur `${category.name}` !"
 
 
@@ -71,27 +71,27 @@ setticketcategory_command_work: "<@${interaction.user.id}>, vous avez défini la
 
 # /disablexp
 disablexp_not_admin: ":x: | Vous devez être administrateur de ce serveur pour utiliser cette commande!"
-disablexp_logs_embed_title_disable: "Logs de désactivation XP"
-disablexp_logs_embed_description_disable: "<@${interaction.user.id}> a désactivé XP!"
-disablexp_command_work_disable: "Vous avez réussi à désactiver le message de niveau (XP)"
-disablexp_logs_embed_title_enable: "Logs d'activation XP"
-disablexp_logs_embed_description_enable: "<@${interaction.user.id}> a activé XP!"
-disablexp_command_work_enable: "Vous avez réussi à activer le message de niveau (XP)"
+disablexp_logs_embed_title_disable: "Logs de désactivation d'XP"
+disablexp_logs_embed_description_disable: "<@${interaction.user.id}> a désactivé l'XP!"
+disablexp_command_work_disable: "Vous avez réussi à désactiver le niveaux (XP)"
+disablexp_logs_embed_title_enable: "Logs d'activation d'XP"
+disablexp_logs_embed_description_enable: "<@${interaction.user.id}> a activé l'XP!"
+disablexp_command_work_enable: "Vous avez réussi à activer les niveaux (XP)"
 disablexp_command_work_disable_entierly: "Vous avez désactivé avec succès le module des rangs ! (Plus de messages, et les utilisateurs ne gagnent pas de niveaux)"
 
 # /setxpchannels
 setxpchannels_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour utiliser cette commande !"
-setxpchannels_logs_embed_title_disable: "Logs SetXpChannels"
-setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> a désactivé les canaux d'XP personnalisés. J'ai remis les paramètres par défaut..."
+setxpchannels_logs_embed_title_disable: "Logs de définition de salon pour l'XP"
+setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> a désactivé les canaux d'XP personnalisés. Les paramètres d'XP ont été remis à zero..."
 setxpchannels_already_disabled_disable: "Les canaux d'XP personnalisés sont déjà désactivés !"
 setxpchannels_command_work_disable: "Vous avez désactivé avec succès les canaux d'XP personnalisés !"
-setxpchannels_command_error_disable: "Erreur : autorisations manquantes ou canal introuvable."
-setxpchannels_logs_embed_title_enable: "Logs SetXpChannels"
+setxpchannels_command_error_disable: "Erreur : autorisations manquantes ou salon introuvable."
+setxpchannels_logs_embed_title_enable: "Logs de définition de salon pour l'XP"
 setxpchannels_logs_embed_description_enable: "<@${interaction.user.id}> a défini les canaux d'XP personnalisés sur : <#${argsid}>"
-setxpchannels_valid_channel_message: "Vous devez spécifier un canal valide pour vos configurations."
-setxpchannels_already_with_this_config: "Les canaux d'XP personnalisés sont déjà configurés avec cet identifiant de canal !"
-setxpchannels_confirmation_message: "**Canaux d'XP personnalisés définis ici !**"
-setxpchannels_command_work_enable: "Vous avez défini avec succès les canaux d'XP personnalisés sur <#${argsid}>"
+setxpchannels_valid_channel_message: "Vous devez spécifier un salon valide pour vos configurations."
+setxpchannels_already_with_this_config: "Les canaux d'XP personnalisés sont déjà configurés avec ce salon !"
+setxpchannels_confirmation_message: "**Canaux d'XP personnalisés définis !**"
+setxpchannels_command_work_enable: "Vous avez défini avec succès les canaux d'XP personnalisés dans <#${argsid}>"
 setxpchannels_command_error_enable: "Erreur : autorisations manquantes ou canal introuvable."
 
 # /level
@@ -107,27 +107,27 @@ level_embed_description: "`${expNeededForLevelUp}` **points d'expérience néces
 # /owner, /unowner, /blacklist, /unblacklist
 
 # /owner
-owner_not_owner: "Vous n'êtes pas propriétaire du projets iHorizon. Vous ne pouvez pas utiliser cette commande."
+owner_not_owner: "Vous n'êtes pas propriétaire du robot. Vous ne pouvez pas utiliser cette commande."
 owner_already_owner: "Cet utilisateur est déjà propriétaire !"
-owner_is_now_owner: "${member.user.username} est désormais propriétaire des projets iHorizon."
+owner_is_now_owner: "${member.user.username} est désormais propriétaire du robot."
 
 # /unowner
-unowner_not_owner: "Vous n'êtes pas propriétaire du projet iHorizon. Vous ne pouvez pas utiliser cette commande."
-unowner_cant_unowner_creator: "Il n'est pas possible de supprimer cette perssonne, car elle est créateur du projet iHorizon."
+unowner_not_owner: "Vous n'êtes pas propriétaire du robot. Vous ne pouvez pas utiliser cette commande."
+unowner_cant_unowner_creator: "Il n'est pas possible de supprimer cette perssonne, car elle est créateur du bot."
 unowner_command_work: "${member.username} n'est plus propriétaire."
 
 # /blacklist
-blacklist_not_owner: "Vous n'êtes pas propriétaire du projet iHorizon. Vous ne pouvez pas utiliser cette commande."
+blacklist_not_owner: "Vous n'êtes pas propriétaire du robot. Vous ne pouvez pas utiliser cette commande."
 blacklist_bot_lol: "Je ne peux pas me blacklister moi-même x)"
-blacklist_command_work: "${member.user.username} est maintenant blacklisté"
-blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.icon.No_Logo} Est maintenant blacklisté, impossible de bannir ce membre ici, permission manquante ?"
-blacklist_already_blacklisted: "${member.user.username} est déjà blacklisté !"
+blacklist_command_work: "${member.user.username} est maintenant sur liste noire."
+blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.icon.No_Logo} est maintenant sur liste noire, impossible de bannir ce membre ici, permission manquante ?"
+blacklist_already_blacklisted: "${member.user.username} est déjà sur liste noire !"
 
 # /unblacklist
-unblacklist_not_owner: "Vous n'êtes pas propriétaire du projet iHorizon. Vous ne pouvez pas utiliser cette commande."
-unblacklist_command_work: "<@${member.id}> n'est plus sur la liste noire"
-unblacklist_not_blacklisted: "<@${member.id}> n'était pas sur la liste noire"
-unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.icon.No_Logo} A été retiré de la liste noire, impossible de débannir ce membre ici, permission manquante ou déjà débanni ?"
+unblacklist_not_owner: "Vous n'êtes pas propriétaire du robot. Vous ne pouvez pas utiliser cette commande."
+unblacklist_command_work: "<@${member.id}> n'est plus sur liste noire."
+unblacklist_not_blacklisted: "<@${member.id}> n'était pas sur liste noire."
+unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.icon.No_Logo} a été retiré de la liste noire, impossible de débannir ce membre ici, permission manquante ou déjà débanni ?"
 unblacklist_user_is_not_exist: "Je n'ai pas pu trouver l'utilisateur"
 
 
@@ -137,7 +137,7 @@ unblacklist_user_is_not_exist: "Je n'ai pas pu trouver l'utilisateur"
 # /addinvites
 addinvites_not_admin_embed_description: "Vous avez besoin d'être administrateur pour utiliser cette commande !"
 addinvites_confirmation_embed_description: "Ajout de ${amount} invitations pour ${user}"
-addinvites_logs_embed_title: "Logs Gestionnaire d'invitations"
+addinvites_logs_embed_title: "Logs du gestionnaire d'invitations"
 addinvites_logs_embed_description: "<@${interaction.user.id}> a ajouté ${amount} invitations à <@${user.id}> !"
 
 # /invites
@@ -150,7 +150,7 @@ leaderboard_default_text: "Classement :\n"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "Vous devez être un administrateur pour utiliser cette commande !"
-removeinvites_confirmation_embed_description: "Supprimer ${amount} invitations pour ${user}"
+removeinvites_confirmation_embed_description: "${amount} invitations ont été enlevé à ${user}"
 removeinvites_logs_embed_title: "Logs du gestionnaire d'invitations"
 removeinvites_logs_embed_description: "<@${interaction.user.id}> a supprimé ${amount} invitations à <@${user.id}> !"
 
@@ -165,7 +165,7 @@ links_github: "Mon Github"
 
 # /botinfo
 botinfo_embed_fields_myname: "Mon nom :"
-botinfo_embed_fields_mychannels: "Mes chaînes :"
+botinfo_embed_fields_mychannels: "Mes salons :"
 botinfo_embed_fields_myservers: "Mes serveurs :"
 botinfo_embed_fields_members: "Membres :"
 botinfo_embed_fields_libraires: "Librairies :"
@@ -413,7 +413,7 @@ serverinfo_embed_fields_owner: "👑・**Propriétaire** :"
 serverinfo_embed_fields_verlvl: "🎚 ・**Niveau de vérification** :"
 serverinfo_embed_fields_region: "🌍・**Région** :"
 serverinfo_embed_fields_roles: "📇・**Nombre de rôle(s)** :"
-serverinfo_embed_fields_channels: "✍・**Nombre de chaîne(s)** :"
+serverinfo_embed_fields_channels: "✍・**Nombre de salon(s)** :"
 serverinfo_embed_fields_joinat: "🚲・**Rejoint le** :"
 serverinfo_embed_fields_createat: "⚓・**Créé le** :"
 
