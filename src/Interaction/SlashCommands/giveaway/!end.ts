@@ -49,7 +49,7 @@ export default {
             return;
         };
 
-        if (client.giveawaysManager.isEnded(inputData as string)) {
+        if (await client.giveawaysManager.isEnded(inputData as string)) {
             await interaction.editReply({ content: data.end_command_error });
             return;
         };

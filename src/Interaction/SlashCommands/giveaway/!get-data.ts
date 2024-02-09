@@ -38,7 +38,7 @@ export default {
         };
 
         let giveawayId = interaction.options.getString("giveaway-id");
-        let giveawayData = client.giveawaysManager.getGiveawayData(giveawayId as string);
+        let giveawayData = await client.giveawaysManager.getGiveawayData(giveawayId as string);
 
         let embed = new EmbedBuilder()
             .setAuthor({
