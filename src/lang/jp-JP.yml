@@ -748,6 +748,26 @@ reroll_logs_embed_description: "<@${interaction.user.id}> がこのIDのギブ�
 reroll_command_error: "エラー！"
 reroll_giveaway_not_over: "このプレゼントは終了していません！"
 
+# /get-all
+gw_getall_embed_title: "${interaction.guild?.name}のギブアウェイリスト"
+gw_getall_embed_fields: "${Channel} [こちらをご覧ください](${MessageURL}) \n**有効期限** ${ExpireIn}"
+
+# /get-data
+gw_getdata_embed_title: "ギブアウェイ情報！"
+gw_getdata_embed_fields_channel: "チャンネル"
+gw_getdata_embed_fields_amountWinner: "当選者数"
+gw_getdata_embed_fields_value_amountWinner: "`${giveawayData.winnerCount}`人の当選者"
+gw_getdata_embed_fields_prize: "賞品"
+gw_getdata_embed_fields_value_prize: "`${giveawayData.prize}`"
+gw_getdata_embed_fields_hostedBy: "主催者"
+gw_getdata_embed_fields_isEnded: "終了済み？"
+gw_getdata_embed_fields_isValid: "有効？"
+gw_getdata_embed_fields_time: "終了日時"
+gw_getdata_embed_fields_entriesAmount: "応募数"
+gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (詳細は `/gw list-entries giveaway-id:${giveawayId}` をご利用ください)"
+gw_getdata_yes: "`はい`"
+gw_getdata_no: "`いいえ`"
+
 
 # Moderation commands
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,

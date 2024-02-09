@@ -37,8 +37,8 @@ export default {
             return;
         };
 
-        let giveawayId = interaction.options.getString("giveaway-id");
-        let giveawayData = client.giveawaysManager.getGiveawayData(giveawayId as string);
+        let giveawayId = interaction.options.getString("giveaway-id") as string;
+        let giveawayData = await client.giveawaysManager.getGiveawayData(giveawayId as string);
 
         let embed = new EmbedBuilder()
             .setAuthor({
@@ -46,46 +46,50 @@ export default {
                 iconURL: interaction.guild?.iconURL({ size: 512, forceStatic: false }) as string
             })
             .setColor("#0099ff")
-            .setTitle("Giveaway Info!")
+            .setTitle(data.gw_getdata_embed_title)
             .setFields(
                 {
-                    name: "Channel",
+                    name: data.gw_getdata_embed_fields_channel,
                     value: `<#${giveawayData.channelId}>`,
                     inline: true
                 },
                 {
-                    name: "Winners Amount",
-                    value: `\`${giveawayData.winnerCount}\` winner(s)`,
+                    name: data.gw_getdata_embed_fields_amountWinner,
+                    value: data.gw_getdata_embed_fields_value_amountWinner
+                        .replace('${giveawayData.winnerCount}', giveawayData.winnerCount),
                     inline: true
                 },
                 {
-                    name: "Entries Amount",
-                    value: `**${(giveawayData.entries as string[]).length}** (use \`/gw list-entries\` for more info)`
-                },
-                {
-                    name: "Prize",
-                    value: `\`${giveawayData.prize}\``,
+                    name: data.gw_getdata_embed_fields_prize,
+                    value: data.gw_getdata_embed_fields_value_prize
+                        .replace('${giveawayData.prize}', giveawayData.prize),
                     inline: true
                 },
                 {
-                    name: "Hosted by",
+                    name: data.gw_getdata_embed_fields_hostedBy,
                     value: `<@${giveawayData.hostedBy}>`,
                     inline: true
                 },
                 {
-                    name: "Is Ended ?",
-                    value: giveawayData.ended ? "`Yes`" : "`No`",
+                    name: data.gw_getdata_embed_fields_isEnded,
+                    value: giveawayData.ended ? data.gw_getdata_yes : data.gw_getdata_no,
                     inline: true
                 },
                 {
-                    name: "Is Valid ?",
-                    value: giveawayData.isValid ? "`Yes`" : "`No`",
+                    name: data.gw_getdata_embed_fields_isValid,
+                    value: giveawayData.isValid ? data.gw_getdata_yes : data.gw_getdata_no,
                     inline: true
                 },
                 {
-                    name: "End at",
+                    name: data.gw_getdata_embed_fields_time,
                     value: time(new Date(giveawayData.expireIn), 'd'),
                     inline: true
+                },
+                {
+                    name: data.gw_getdata_embed_fields_entriesAmount,
+                    value: data.gw_getdata_embed_fields_value_entriesAmount
+                        .replace('${(giveawayData.entries as string[]).length}', (giveawayData.entries as string[]).length as unknown as string)
+                        .replace('${giveawayId}', giveawayId)
                 },
             )
 

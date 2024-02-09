@@ -748,6 +748,26 @@ reroll_logs_embed_description: "<@${interaction.user.id}> reroll giveaways with 
 reroll_command_error: "Error !"
 reroll_giveaway_not_over: "¡Este sorteo no ha terminado!"
 
+# /get-all
+gw_getall_embed_title: "Lista de Sorteo(s) para ${interaction.guild?.name}"
+gw_getall_embed_fields: "${Canal} [Ver aquí](${MessageURL}) \n**Expira en** ${ExpireIn}"
+
+# /get-data
+gw_getdata_embed_title: "¡Información del Sorteo!"
+gw_getdata_embed_fields_channel: "Canal"
+gw_getdata_embed_fields_amountWinner: "Cantidad de Ganadores"
+gw_getdata_embed_fields_value_amountWinner: "`${giveawayData.winnerCount}` ganador(es)"
+gw_getdata_embed_fields_prize: "Premio"
+gw_getdata_embed_fields_value_prize: "`${giveawayData.prize}`"
+gw_getdata_embed_fields_hostedBy: "Organizado por"
+gw_getdata_embed_fields_isEnded: "¿Ha terminado?"
+gw_getdata_embed_fields_isValid: "¿Es válido?"
+gw_getdata_embed_fields_time: "Termina en"
+gw_getdata_embed_fields_entriesAmount: "Cantidad de Entradas"
+gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (usa `/gw list-entries giveaway-id:${giveawayId}` para más información)"
+gw_getdata_yes: "`Sí`"
+gw_getdata_no: "`No`"
+
 
 # Moderation commands
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,

@@ -55,7 +55,7 @@ export default {
         let giveawayChannel = interaction.channel;
         var giveawayDuration = interaction.options.getString("time");
         let giveawayNumberWinners = interaction.options.getNumber("winner");
-        var imageUrl = interaction.options.getString('image');
+        var imageUrl = interaction.options.getString('image') as string;
 
         if (isNaN(giveawayNumberWinners as number) || (parseInt(giveawayNumberWinners as unknown as string) <= 0)) {
             await interaction.editReply({ content: data.start_is_not_valid });
@@ -73,12 +73,12 @@ export default {
             return;
         };
         
-        client.giveawaysManager.create(giveawayChannel as TextBasedChannel, {
+        await client.giveawaysManager.create(giveawayChannel as TextBasedChannel, {
             duration: parseInt(giveawayDurationFormated),
-            prize: giveawayPrize,
-            winnerCount: giveawayNumberWinners,
+            prize: giveawayPrize as string,
+            winnerCount: giveawayNumberWinners as number,
             hostedBy: interaction.user.id,
-            embedImageURL: await isImageUrl(imageUrl as string) ? imageUrl : undefined
+            embedImageURL: await isImageUrl(imageUrl) ? imageUrl : null
         });
 
         try {

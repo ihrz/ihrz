@@ -748,6 +748,26 @@ reroll_logs_embed_description: "<@${interaction.user.id}> перезапусти
 reroll_command_error: "Error !"
 reroll_giveaway_not_over: "Этая раздача еще не завершена!"
 
+# /get-all
+gw_getall_embed_title: "Список розыгрышей для ${interaction.guild?.name}"
+gw_getall_embed_fields: "${Channel} [Смотреть здесь](${MessageURL}) \n**Истекает через** ${ExpireIn}"
+
+# /get-data
+gw_getdata_embed_title: "Информация о розыгрыше!"
+gw_getdata_embed_fields_channel: "Канал"
+gw_getdata_embed_fields_amountWinner: "Количество победителей"
+gw_getdata_embed_fields_value_amountWinner: "`${giveawayData.winnerCount}` победителя(ей)"
+gw_getdata_embed_fields_prize: "Приз"
+gw_getdata_embed_fields_value_prize: "`${giveawayData.prize}`"
+gw_getdata_embed_fields_hostedBy: "Организатор"
+gw_getdata_embed_fields_isEnded: "Завершено?"
+gw_getdata_embed_fields_isValid: "Действителен?"
+gw_getdata_embed_fields_time: "Заканчивается в"
+gw_getdata_embed_fields_entriesAmount: "Количество участников"
+gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (используйте `/gw list-entries giveaway-id:${giveawayId}` для получения дополнительной информации)"
+gw_getdata_yes: "`Да`"
+gw_getdata_no: "`Нет`"
+
 
 # Команды модерации
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
