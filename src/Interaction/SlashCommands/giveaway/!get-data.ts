@@ -59,10 +59,6 @@ export default {
                     inline: true
                 },
                 {
-                    name: "Entries Amount",
-                    value: `**${(giveawayData.entries as string[]).length}** (use \`/gw list-entries\` for more info)`
-                },
-                {
                     name: "Prize",
                     value: `\`${giveawayData.prize}\``,
                     inline: true
@@ -86,6 +82,10 @@ export default {
                     name: "End at",
                     value: time(new Date(giveawayData.expireIn), 'd'),
                     inline: true
+                },
+                {
+                    name: "Entries Amount",
+                    value: `**${(giveawayData.entries as string[]).length}** (use \`/gw list-entries giveaway-id:${giveawayId}\` for more info)`
                 },
             )
 

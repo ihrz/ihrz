@@ -141,7 +141,7 @@ export const command: Command = {
                     description_localizations: {
                         "fr": "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
                     },
-                    
+
                     required: true
                 }
             ],
@@ -197,6 +197,19 @@ export const command: Command = {
                     required: true,
                 }
             ]
+        },
+        {
+            name: 'get-all',
+            name_localizations: {
+                "fr": "get-all"
+            },
+
+            description: 'Get informations about all giveaways in a guild (JSON Body)',
+            description_localizations: {
+                "fr": "Obtenir des informations à propos de tout les giveaways d'un serveur! (Format JSON)"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand,
         }
     ],
     thinking: true,
