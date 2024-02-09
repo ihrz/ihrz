@@ -748,6 +748,26 @@ reroll_logs_embed_description: "<@${interaction.user.id}> reroll giveaways with 
 reroll_command_error: "Error !"
 reroll_giveaway_not_over: "This giveaway is not over!"
 
+# /get-all
+gw_getall_embed_title: "Giveaway(s) List for ${interaction.guild?.name}"
+gw_getall_embed_fields: "${Channel} [See Here](${MessageURL}) \n**Expire In** ${ExpireIn}"
+
+# /get-data
+gw_getdata_embed_title: "Giveaway Info!"
+gw_getdata_embed_fields_channel: "Channel"
+gw_getdata_embed_fields_amountWinner: "Winners Amount"
+gw_getdata_embed_fields_value_amountWinner: "`${giveawayData.winnerCount}` winner(s)"
+gw_getdata_embed_fields_prize: "Prize"
+gw_getdata_embed_fields_value_prize: "`${giveawayData.prize}`"
+gw_getdata_embed_fields_hostedBy: "Hosted by"
+gw_getdata_embed_fields_isEnded: "Is Ended ?"
+gw_getdata_embed_fields_isValid: "Is Valid ?"
+gw_getdata_embed_fields_time: "End at"
+gw_getdata_embed_fields_entriesAmount: "Entries Amount"
+gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (use `/gw list-entries giveaway-id:${giveawayId}` for more info)"
+gw_getdata_yes: "`Yes`"
+gw_getdata_no: "`No`"
+
 
 # Moderation commands
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,

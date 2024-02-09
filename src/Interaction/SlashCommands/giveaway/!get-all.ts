@@ -44,7 +44,9 @@ export default {
         let embed = new EmbedBuilder()
             .setColor("#2986cc")
             .setTimestamp()
-            .setTitle(`Giveaway(s) List for ${interaction.guild?.name}`)
+            .setTitle(data.gw_getall_embed_title
+                .replace('${interaction.guild?.name}', interaction.guild?.name as string)
+            )
             .setAuthor(
                 {
                     name: (interaction.guild?.name as string),
@@ -59,12 +61,19 @@ export default {
             );
 
         filtered.forEach(index => {
+            let Channel = `<#${index.giveawayData.channelId}>`;
+            let MessageURL = `https://discord.com/channels/${interaction.guildId}/${index.giveawayData.channelId}/${index.giveawayId}`;
+            let ExpireIn = `${time(new Date(index.giveawayData.expireIn), 'd')}`;
+
             embed.addFields(
                 {
                     name: `\`${index.giveawayId}\``,
-                    value: `<#${index.giveawayData.channelId}> [See here](https://discord.com/channels/${interaction.guildId}/${index.giveawayData.channelId}/${index.giveawayId}) \n**Expire In** ${time(new Date(index.giveawayData.expireIn), 'd')}`
+                    value: data.gw_getall_embed_fields
+                        .replace('${MessageURL}', MessageURL)
+                        .replace('${ExpireIn}', ExpireIn)
+                        .replace('${Channel}', Channel)
                 }
-            )
+            );
         });
 
         await interaction.editReply(
