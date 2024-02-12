@@ -20,6 +20,8 @@ IHorizon have a large variety of features, including moderation, invite manageme
 - [Kisakay](https://github.com/Kisakay) (She/Her)
 - [NayaWeb](https://github.com/belugafr) (She/Her)
 - [Noémie](https://github.com/name-shitty-github-profile) (She/Her)
+- [Maxine](https://github.com/mxi1n) (She/Her)
+- [Wyene](https://github.com/WyeneCloud) (He/Him)
 
 ## Origin
 

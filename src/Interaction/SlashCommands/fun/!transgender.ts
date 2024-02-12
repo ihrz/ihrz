@@ -40,7 +40,7 @@ export default {
   run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
     let user = interaction.options.getUser('user') || interaction.user;
-    let link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(user.displayAvatarURL({ extension: 'png' }))}`;
+    let link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(user.displayAvatarURL({ extension: 'png', size: 1024 }))}`;
 
     let embed = new EmbedBuilder()
       .setColor('#000000')
@@ -54,7 +54,15 @@ export default {
     imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'all-humans-have-right-elektra.png' });
     embed.setImage(`attachment://all-humans-have-right-elektra.png`);
 
-    await interaction.editReply({ embeds: [embed], files: [imgs, { attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
+    await interaction.editReply({
+      embeds: [embed],
+      files: [
+        imgs,
+        {
+          attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png'
+        }
+      ]
+    });
     return;
   },
 };

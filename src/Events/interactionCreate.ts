@@ -23,7 +23,7 @@ import config from '../files/config.js';
 import logger from '../core/logger.js';
 
 import { Client, CommandInteractionOptionResolver, EmbedBuilder, GuildChannel, Interaction } from 'discord.js';
-import fs from 'fs';
+import fs from 'node:fs';
 
 var timeout: number = 1000;
 

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import fs from 'fs';
+import fs from 'node:fs';
 import date from 'date-and-time';
 import config from '../../files/config.js';
 import logger from '../logger.js';

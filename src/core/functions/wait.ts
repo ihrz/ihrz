@@ -19,28 +19,10 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import db from '../functions/DatabaseModel.js';
-import yaml from 'js-yaml';
-import fs from 'node:fs';
-import { LanguageData } from '../../../types/languageData.js';
-
-interface LangsData {
-    [lang: string]: LanguageData;
-}
-
-let LangsData: LangsData = {};
-
-export default async function getLanguageData(arg: string): Promise<any> {
-    let fetched = await db.get(`${arg}.GUILD.LANG`);
-    let lang: string = 'en-US';
-    if (fetched) {
-        lang = fetched.lang;
-    }
-    let dat = LangsData[lang];
-    if (!dat) {
-        let fileContent = fs.readFileSync(`${process.cwd()}/src/lang/${lang}.yml`, 'utf8');
-        LangsData[lang] = yaml.load(fileContent) as LanguageData;
-        dat = LangsData[lang];
-    };
-    return dat;
+function wait(milliseconds: number) {
+    return new Promise(resolve => {
+        setTimeout(resolve, milliseconds);
+    });
 };
+
+export default wait;

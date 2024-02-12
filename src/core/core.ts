@@ -30,7 +30,7 @@ import { Client, Collection, Snowflake } from "discord.js";
 import emojis from './modules/emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData';
-import { readdirSync } from "fs";
+import { readdirSync } from "node:fs";
 import couleurmdr from "colors";
 import commandsSync from './commandsSync.js';
 import config from '../files/config.js';
