@@ -23,7 +23,7 @@ import logger from "../logger.js";
 import wait from 'wait';
 import os from 'node:os';
 import readline from 'readline';
-import fs from 'fs';
+import fs from 'node:fs';
 import config from "../../files/config.js";
 import path from 'path';
 import { Client } from "discord.js";

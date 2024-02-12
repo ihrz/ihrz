@@ -35,7 +35,7 @@ import axios, { AxiosResponse, all } from 'axios';
 import logger from '../../../core/logger.js';
 import path from 'path';
 import wait from 'wait';
-import fs from 'fs';
+import fs from 'node:fs';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {

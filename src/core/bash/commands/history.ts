@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import fs from 'fs';
+import fs from 'node:fs';
 import path from 'path';
 import logger from '../../logger.js';
 

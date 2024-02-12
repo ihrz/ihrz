@@ -21,7 +21,7 @@
 
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { Request, Response } from 'express';
-import fs from 'fs';
+import fs from 'node:fs';
 
 export default {
     type: 'get',

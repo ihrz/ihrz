@@ -27,7 +27,7 @@ import bodyParser from 'body-parser';
 import 'colors';
 import logger from '../core/logger.js';
 import config from '../files/config.js';
-import fs from 'fs';
+import fs from 'node:fs';
 
 let app = express();
 

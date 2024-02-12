@@ -21,7 +21,7 @@
 
 import { AnotherCommand } from '../../../types/anotherCommand';
 import { Client, Collection } from 'discord.js';
-import { readdirSync } from 'fs';
+import { readdirSync } from 'node:fs';
 
 export default async (client: Client) => {
     client.applicationsCommands = new Collection<string, AnotherCommand>();

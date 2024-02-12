@@ -21,7 +21,7 @@
 
 import db from '../functions/DatabaseModel.js';
 import yaml from 'js-yaml';
-import fs from 'fs';
+import fs from 'node:fs';
 import { LanguageData } from '../../../types/languageData.js';
 
 interface LangsData {

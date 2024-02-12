@@ -29,7 +29,7 @@ import { Client } from "discord.js";
 import axios from "axios";
 import logger from "../logger.js";
 import path from "path";
-import fs from 'fs';
+import fs from 'node:fs';
 import wait from "wait";
 
 class OwnIHRZ {

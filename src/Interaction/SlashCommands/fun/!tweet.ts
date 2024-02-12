@@ -66,7 +66,7 @@ export default {
             username = username.substring(0, 15);
         };
 
-        let link = `https://some-random-api.com/canvas/misc/tweet?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png' }) as string))}&username=${encodeURIComponent((username as string))}&comment=${encodeURIComponent(args.join(' '))}&displayname=${encodeURIComponent((displayname as string))}`;
+        let link = `https://some-random-api.com/canvas/misc/tweet?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 }) as string))}&username=${encodeURIComponent((username as string))}&comment=${encodeURIComponent(args.join(' '))}&displayname=${encodeURIComponent((displayname as string))}`;
 
         let embed = new EmbedBuilder()
             .setColor('#000000')
