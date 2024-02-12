@@ -30,7 +30,7 @@ import axios from "axios";
 import logger from "../logger.js";
 import path from "path";
 import fs from 'node:fs';
-import wait from "wait";
+import wait from "../functions/wait.js";
 
 class OwnIHRZ {
 

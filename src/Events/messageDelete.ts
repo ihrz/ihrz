@@ -19,8 +19,8 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Attachment, AttachmentBuilder, AttachmentData, BaseGuildTextChannel, Client, Collection, Embed, EmbedBuilder, GuildTextBasedChannel, Message, PermissionsBitField } from 'discord.js';
-import * as hidden from '../core/functions/maskLink.js';
+import { Attachment, AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuilder, Message } from 'discord.js';
+import hidden from '../core/functions/maskLink.js';
 
 import axios, { AxiosResponse } from 'axios';
 
@@ -33,7 +33,7 @@ export default async (client: Client, message: Message) => {
 
         await client.db.set(`${message.guild.id}.GUILD.SNIPE.${message.channel.id}`,
             {
-                snipe: `${await hidden.maskLink(message.content)}`,
+                snipe: `${hidden(message.content)}`,
                 snipeUserInfoTag: `${message.author.username} (${message.author.id} )`,
                 snipeUserInfoPp: `${message.author.displayAvatarURL()}`,
                 snipeTimestamp: Date.now()

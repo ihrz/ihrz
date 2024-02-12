@@ -50,8 +50,7 @@
     "ping": "^0.4.4",
     "quick.db": "^9.1.7",
     "quickmongo": "^5.2.0",
-    "toml": "^3.0.0",
-    "wait": "^0.4.2"
+    "toml": "^3.0.0"
   },
   "devDependencies": {
     "@types/dockerode": "^3.3.23",

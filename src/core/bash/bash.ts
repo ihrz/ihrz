@@ -20,7 +20,6 @@
 */
 
 import logger from "../logger.js";
-import wait from 'wait';
 import os from 'node:os';
 import readline from 'readline';
 import fs from 'node:fs';
@@ -40,11 +39,11 @@ export default async (client: Client) => {
         let dateStr = `${now2.toLocaleString('default', { day: '2-digit' })} ${now2.toLocaleString('default', { month: 'short' })} ${now2.getFullYear().toString().substr(-2)} ${now2.toLocaleTimeString('en-US', { hour12: false })} 2023`.toString();
 
         logger.legacy(`* iHorizon bash terminal is in power on...`.gray.bgBlack);
-        await wait(1000);
+        await client.functions.wait(1000);
         logger.legacy(`* iHorizon bash terminal is in booting...`.gray.bgBlack);
-        await wait(1000);
+        await client.functions.wait(1000);
         logger.legacy(`* iHorizon bash terminal is in loading...`.gray.bgBlack);
-        await wait(1000);
+        await client.functions.wait(1000);
         logger.legacy(`* iHorizon has been loaded !`.gray.bgBlack);
 
         let now = new Date();

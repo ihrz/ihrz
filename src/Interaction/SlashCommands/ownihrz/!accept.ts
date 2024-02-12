@@ -25,17 +25,15 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import { ClusterMethod, OwnIhrzCluster, PublishURL } from '../../../core/functions/apiUrlParser.js';
+import { ClusterMethod, OwnIhrzCluster } from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData';
 
 import { Custom_iHorizon } from '../../../../types/ownihrz';
 import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 import config from '../../../files/config.js';
-import axios, { AxiosResponse, all } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import logger from '../../../core/logger.js';
 import path from 'path';
-import wait from 'wait';
-import fs from 'node:fs';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {

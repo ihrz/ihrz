@@ -19,18 +19,10 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import wait from '../../functions/wait.js';
-import logger from '../../logger.js';
-
-export default async function () {
-    logger.legacy(`* Closed session...`.gray.bgBlack);
-
-    await wait(1000);
-    logger.legacy(`\n* Unload all script...`.gray.bgBlack);
-
-    await wait(1000);
-    logger.legacy(`* All are successfully unloaded`.gray.bgBlack);
-
-    logger.legacy(`* Power off...`.red.bgBlack);
-    process.exit(1);
+function wait(milliseconds: number) {
+    return new Promise(resolve => {
+        setTimeout(resolve, milliseconds);
+    });
 };
+
+export default wait;

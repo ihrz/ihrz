@@ -32,4 +32,4 @@ function maskLink(input: string): string {
     return input;
 };
 
-export { maskLink };
+export default maskLink;
