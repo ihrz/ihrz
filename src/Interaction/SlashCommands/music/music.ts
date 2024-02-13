@@ -26,7 +26,6 @@ import {
     ApplicationCommandType,
 } from 'discord.js';
 
-import { QueueRepeatMode } from 'discord-player';
 import { Command } from '../../../../types/command';
 
 export const command: Command = {
@@ -67,11 +66,11 @@ export const command: Command = {
                     choices: [
                         {
                             name: 'Off',
-                            value: QueueRepeatMode.OFF
+                            value: 0
                         },
                         {
                             name: 'On',
-                            value: QueueRepeatMode.TRACK
+                            value: 1
                         }
                     ]
                 }

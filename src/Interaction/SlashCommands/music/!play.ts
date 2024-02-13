@@ -27,7 +27,6 @@ import {
     GuildVoiceChannelResolvable,
 } from 'discord.js';
 
-import { QueryType } from 'discord-player';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
@@ -41,41 +40,39 @@ export default {
             return;
         };
 
-        if (client.functions.isAllowedLinks(check)) { return interaction.editReply({ content: data.p_not_allowed }) };
+        if (client.functions.isAllowedLinks(check)) {
+            return interaction.editReply({ content: data.p_not_allowed })
+        };
 
-        let result = await interaction.client.player.search(check as string, {
-            requestedBy: interaction.user, searchEngine: QueryType.AUTO
-        });
+        let result = await client.player.search(check as string, interaction.user);
 
-        let results = new EmbedBuilder()
-            .setTitle(data.p_embed_title)
-            .setColor('#ff0000')
-            .setTimestamp();
+        if (!result) {
+            let results = new EmbedBuilder()
+                .setTitle(data.p_embed_title)
+                .setColor('#ff0000')
+                .setTimestamp();
 
-        if (!result.hasTracks()) {
             await interaction.editReply({ embeds: [results] });
             return;
         };
 
-        let yes = await interaction.client.player.play((interaction.member as GuildMember).voice.channel?.id as GuildVoiceChannelResolvable, result, {
-            nodeOptions: {
-                metadata: {
-                    channel: interaction.channel,
-                    client: interaction.guild?.members.me,
-                    requestedBy: interaction.user.globalName || interaction.user.username
-                },
-                volume: 60,
-                bufferingTimeout: 3000,
-                leaveOnEnd: true,
-                leaveOnEndCooldown: 150000,
-                leaveOnStop: true,
-                leaveOnStopCooldown: 30000,
-                leaveOnEmpty: true,
-            },
+        const player = client.player.create({
+            guild: interaction.guild?.id as string,
+            voiceChannel: voiceChannel.id,
+            textChannel: interaction.channel?.id as string,
         });
 
-        function yess() {
-            let totalDurationMs = yes.track.playlist?.tracks.reduce((a, c) => c.durationMS + a, 0)
+        player.connect();
+        player.queue.add(result.tracks[0]);
+
+        if (
+            !player.playing
+            && !player.paused
+            && !player.queue.size
+        ) player.play();
+
+        function timeCalcultator() {
+            let totalDurationMs = yes.duration
             let totalDurationSec = Math.floor(totalDurationMs! / 1000);
             let hours = Math.floor(totalDurationSec / 3600);
             let minutes = Math.floor((totalDurationSec % 3600) / 60);
@@ -84,14 +81,14 @@ export default {
             return durationStr;
         };
 
+        let yes = result.tracks[0];
+
         let embed = new EmbedBuilder()
-            .setDescription(`${yes.track.playlist ? `**multiple tracks** from: **${yes.track.playlist.title}**` : `**${yes.track.title}**`}`)
+            .setDescription(`**${yes.title}**`)
             .setColor('#00cc1a')
             .setTimestamp()
-            .setFooter({ text: data.p_duration + `${yes.track.playlist ? `${yess()}` : `${yes.track.duration}`}` });
-
-        embed
-            .setThumbnail(`${yes.track.playlist ? `${yes.track.playlist.thumbnail}` : `${yes.track.thumbnail}`}`)
+            .setFooter({ text: data.p_duration + `${timeCalcultator()}` })
+            .setThumbnail(yes.thumbnail);
 
         await interaction.editReply({
             content: data.p_loading_message
@@ -99,6 +96,12 @@ export default {
                 .replace("{result}", result.playlist ? 'playlist' : 'track')
             , embeds: [embed]
         });
+
+        function deleteContent() {
+            interaction.editReply({ content: ' ' });
+        };
+
+        setTimeout(deleteContent, 4000)
         return;
     },
 };
