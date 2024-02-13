@@ -19,14 +19,10 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
+import { BaseGuildTextChannel, Client } from 'discord.js';
 import { Manager } from 'erela.js';
 
-import { BaseGuildTextChannel, Channel, Client, time } from 'discord.js';
 import logger from '../logger.js';
-
-import { MetadataPlayer } from '../../../types/metadaPlayer.js';
-import db from '../functions/DatabaseModel.js';
-import config from '../../files/config.js';
 
 export default async (client: Client) => {
 
@@ -43,7 +39,7 @@ export default async (client: Client) => {
         send: (id, payload) => {
             const guild = client.guilds.cache.get(id);
             if (guild) guild.shard.send(payload);
-        }
+        },
     });
 
     client.player.on("nodeConnect", node => {

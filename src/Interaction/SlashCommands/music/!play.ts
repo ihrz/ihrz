@@ -46,7 +46,7 @@ export default {
 
         let result = await client.player.search(check as string, interaction.user);
 
-        if (!result) {
+        if (result.tracks.length === 0) {
             let results = new EmbedBuilder()
                 .setTitle(data.p_embed_title)
                 .setColor('#ff0000')
