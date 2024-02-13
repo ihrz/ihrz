@@ -26,16 +26,19 @@ import logger from '../logger.js';
 
 export default async (client: Client) => {
 
-    let nodes = [
-        {
-            host: "127.0.0.1",
-            password: "password",
-            port: 2333,
-        }
-    ];
-
     client.player = new Manager({
-        nodes,
+        allowedLinksRegexes: Object.values(Manager.regex),
+        nodes: [
+            {
+                identifier: "MyNode1",
+                host: "127.0.0.1",
+                port: 2333,
+                password: "password",
+                version: "v4",
+                useVersionPath: true,
+                secure: false,
+            }
+        ],
         send: (id, payload) => {
             const guild = client.guilds.cache.get(id);
             if (guild) guild.shard.send(payload);

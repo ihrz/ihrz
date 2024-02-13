@@ -9,10 +9,10 @@ plugins:
 #    another_key: another_value
 lavalink:
   plugins:
-  #    - dependency: "com.github.example:example-plugin:1.0.0" # required, the coordinates of your plugin
-  #      repository: "https://maven.example.com/releases" # optional, defaults to the Lavalink releases repository by default
-  #      snapshot: false # optional, defaults to false, used to tell Lavalink to use the snapshot repository instead of the release repository
-  #  pluginsDir: "./plugins" # optional, defaults to "./plugins"
+    - dependency: "com.github.topi314.lavasrc:lavasrc-plugin:4.0.1"
+      repository: "https://maven.lavalink.dev/rueleases"
+      snapshot: false
+  pluginsDir: "./plugins" # optional, defaults to "./plugins"
   #  defaultPluginRepository: "https://maven.lavalink.dev/releases" # optional, defaults to the Lavalink release repository
   #  defaultPluginSnapshotRepository: "https://maven.lavalink.dev/snapshots" # optional, defaults to the Lavalink snapshot repository
   server:
@@ -20,6 +20,7 @@ lavalink:
     sources:
       youtube: true
       bandcamp: true
+      spotify: true
       soundcloud: true
       twitch: true
       vimeo: true
