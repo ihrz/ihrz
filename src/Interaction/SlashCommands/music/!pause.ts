@@ -25,7 +25,7 @@ import {
     GuildMember,
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
 
 export default {
@@ -39,14 +39,18 @@ export default {
         };
 
         try {
-            let queue = interaction.client.player.nodes.get(interaction.guild!);
-            if (!queue || !queue.isPlaying()) {
+            let voiceChannel = (interaction.member as GuildMember).voice.channel;
+            let player = client.player.getPlayer(interaction.guild?.id as string);
+
+            if (!player || !player.playing || !voiceChannel) {
                 await interaction.deleteReply();
                 await interaction.followUp({ content: data.pause_nothing_playing, ephemeral: true });
                 return;
-            }
-            let paused = queue.node.setPaused(true);
-            await interaction.editReply({ content: paused ? 'paused' : "something went wrong" });
+            };
+
+            player.pause();
+
+            await interaction.editReply({ content: player.paused ? 'paused' : "something went wrong" });
             return;
         } catch (error: any) {
             logger.err(error);

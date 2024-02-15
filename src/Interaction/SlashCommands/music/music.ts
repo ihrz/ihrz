@@ -55,7 +55,7 @@ export const command: Command = {
             options: [
                 {
                     name: 'mode',
-                    type: ApplicationCommandOptionType.Integer,
+                    type: ApplicationCommandOptionType.String,
 
                     description: 'Loop Type',
                     description_localizations: {
@@ -66,11 +66,11 @@ export const command: Command = {
                     choices: [
                         {
                             name: 'Off',
-                            value: 0
+                            value: 'off'
                         },
                         {
                             name: 'On',
-                            value: 1
+                            value: 'track'
                         }
                     ]
                 }

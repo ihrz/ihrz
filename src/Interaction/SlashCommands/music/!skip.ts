@@ -25,9 +25,8 @@ import {
     Guild,
     GuildMember,
 } from 'discord.js';
-
-import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData';
+import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -40,17 +39,23 @@ export default {
         };
 
         try {
-            let queue = interaction.client.player.nodes.get(interaction.guild as Guild);
+            let voiceChannel = (interaction.member as GuildMember).voice.channel;
+            let player = client.player.getPlayer(interaction.guild?.id as string);
 
-            if (!queue || !queue.isPlaying()) {
+            if (!player || !player.playing || !voiceChannel) {
                 await interaction.editReply({ content: data.skip_nothing_playing });
                 return;
             };
 
-            queue.node.skip();
+            if (player.queue.tracks.length >= 1) {
+                player.skip();
+            } else {
+                player.stopPlaying();
+            }
+
             await interaction.editReply({
                 content: data.skip_command_work
-                    .replace("{queue}", queue.currentTrack as unknown as string)
+                    .replace("{queue}", player.queue.current?.info.title as string)
             });
             return;
         } catch (error: any) {

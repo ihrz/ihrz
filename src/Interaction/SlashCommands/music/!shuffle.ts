@@ -22,25 +22,26 @@
 import {
     ChatInputCommandInteraction,
     Client,
+    GuildMember,
 } from 'discord.js';
-
-import { useQueue } from 'discord-player';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        let queue = useQueue(interaction.guild?.id as string);
-        if (!queue) {
+        let voiceChannel = (interaction.member as GuildMember).voice.channel;
+        let player = client.player.getPlayer(interaction.guild?.id as string);
+
+        if (!player || !player.playing || !voiceChannel) {
             await interaction.editReply({ content: data.shuffle_no_queue });
             return;
         };
 
-        if (queue.tracks.size < 2) {
+        if (player.queue.tracks.length < 2) {
             await interaction.editReply({ content: data.shuffle_no_enought });
             return;
         };
 
-        await queue.tracks.shuffle();
+        await player.queue.shuffle();
 
         await interaction.editReply({ content: data.shuffle_command_work });
         return;

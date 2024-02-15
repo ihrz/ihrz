@@ -28,13 +28,13 @@ import {
     ButtonStyle,
     ChatInputCommandInteraction,
     Guild,
+    GuildMember,
+    BaseGuildTextChannel,
 } from 'discord.js';
 
-import { lyricsExtractor } from '@discord-player/extractor';
 import { MetadataPlayer } from '../../../../types/metadaPlayer';
-
-let lyricsFinder = lyricsExtractor();
 import { LanguageData } from '../../../../types/languageData';
+import lyricsSearcher from "lyrics-searcher";
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -57,20 +57,21 @@ export default {
         let btn = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(stop, pause, lyricsButton);
 
-        let queue = interaction.client.player.nodes.get(interaction.guild as Guild);
+        let player = client.player.getPlayer(interaction.guild?.id as string);
+        let voiceChannel = (interaction.member as GuildMember).voice.channel;
 
-        if (!queue || !queue.isPlaying()) {
+        if (!player || !player.playing || !voiceChannel) {
             await interaction.deleteReply();
             await interaction.followUp({ content: data.nowplaying_no_queue, ephemeral: true });
             return;
         };
 
-        let progress = queue.node.createProgressBar();
+        let progress = client.functions.generateProgressBar(player.position, player.queue.current?.info.duration)
 
         let embed = new EmbedBuilder()
             .setTitle(data.nowplaying_message_embed_title)
-            .setDescription(`by: <@${queue.currentTrack?.requestedBy?.id}>\n**[${queue.currentTrack?.title}](${queue.currentTrack?.url})**, ${queue.currentTrack?.author}`)
-            .setThumbnail(`${queue.currentTrack?.thumbnail}`)
+            .setDescription(`by: ${player.queue.current?.requester}\n**[${player.queue.current?.info.title}](${player.queue.current?.info?.uri})**, ${player.queue.current?.info?.author}`)
+            .setThumbnail(`${player.queue.current?.info?.artworkUrl}`)
             .addFields(
                 { name: '  ', value: progress?.replace(/ 0:00/g, 'LIVE') as string }
             );
@@ -81,70 +82,82 @@ export default {
         });
 
         var paused: boolean = false;
+        let collector = response.createMessageComponentCollector({ componentType: ComponentType.Button, time: 3_600_000 });
+
         try {
-            let collector = response.createMessageComponentCollector({ componentType: ComponentType.Button, time: 3_600_000 });
+
             collector.on('collect', async (i) => {
-                let queue = interaction.client.player.nodes.get(interaction.guild as Guild);
 
-                if (!queue || !queue.isPlaying()) {
-                    await i.reply({ content: data.nowplaying_no_queue, ephemeral: true });
-                    return;
-                };
+                if (player || voiceChannel) {
 
-                if (i.user.id === queue.currentTrack?.requestedBy?.id) {
-                    switch (i.customId) {
-                        case "pause":
-                            i.deferUpdate();
-                            if (paused) {
-                                queue.node.setPaused(false);
-                                paused = false;
-                                (queue.metadata as MetadataPlayer).channel?.send({ content: `${interaction.user} **resume** the music!` });
-                            } else {
-                                queue.node.setPaused(true);
-                                paused = true;
-                                (queue.metadata as MetadataPlayer).channel.send({ content: `${interaction.user} **pause** the music!` });
-                            }
-                            break;
-                        case "lyrics":
-                            let lyrics = await lyricsFinder.search(queue.currentTrack?.title as string).catch(() => null);
-                            if (!lyrics) {
-                                i.reply({ content: 'The lyrics for this song were not found', ephemeral: true });
-                            } else {
-                                let trimmedLyrics = lyrics.lyrics.substring(0, 1997);
-                                let embed = new EmbedBuilder()
-                                    .setTitle(lyrics.title)
-                                    .setURL(lyrics.url)
-                                    .setTimestamp()
-                                    .setThumbnail(lyrics.thumbnail)
-                                    .setAuthor({
-                                        name: lyrics.artist.name,
-                                        iconURL: lyrics.artist.image,
-                                        url: lyrics.artist.url
-                                    })
-                                    .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
-                                    .setColor('#cd703a')
-                                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
-                                i.reply({
-                                    embeds: [embed],
-                                    ephemeral: true,
-                                    files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
-                                });
-                            };
-                            break;
-                        case "stop":
-                            i.deferUpdate();
-                            client.player.nodes.delete(interaction.guildId as unknown as Guild);
-                            (queue.metadata as MetadataPlayer).channel?.send({ content: `${interaction.user} **stop** the music!` });
-                            break;
+                    if (!player || !player.playing || !voiceChannel) {
+                        await i.reply({ content: data.nowplaying_no_queue, ephemeral: true });
+                        return;
+                    };
+
+                    let channel = client.channels.cache.get(player.textChannelId as string);
+                    let requesterId = (player.queue.current?.requester as any).id
+
+                    if (i.user.id === requesterId) {
+                        switch (i.customId) {
+                            case "pause":
+                                i.deferUpdate();
+                                if (paused) {
+                                    player.resume();
+                                    paused = false;
+                                    (channel as BaseGuildTextChannel)?.send({ content: `${interaction.user} **resume** the music!` });
+                                } else {
+                                    player.pause();
+                                    paused = true;
+                                    (channel as BaseGuildTextChannel)?.send({ content: `${interaction.user} **pause** the music!` });
+                                }
+                                break;
+                            case "lyrics":
+                                var lyrics = await lyricsSearcher(
+                                    player.queue.current?.info?.title as string,
+                                    player.queue.current?.info?.author as string
+                                ).catch((err) => {
+                                    lyrics = "not found"
+                                })
+
+                                if (!lyrics) {
+                                    i.reply({ content: 'The lyrics for this song were not found', ephemeral: true });
+                                } else {
+                                    let trimmedLyrics = lyrics.substring(0, 1997);
+                                    let embed = new EmbedBuilder()
+                                        .setTitle(player.queue.current?.info?.title as string)
+                                        .setURL(player.queue.current?.info?.uri as string)
+                                        .setTimestamp()
+                                        .setThumbnail(player.queue.current?.info?.artworkUrl as string)
+                                        .setAuthor({
+                                            name: player.queue.current?.info?.author as string,
+                                            iconURL: player.queue.current?.info?.artworkUrl as string,
+                                        })
+                                        .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
+                                        .setColor('#cd703a')
+                                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+                                    i.reply({
+                                        embeds: [embed],
+                                        ephemeral: true,
+                                        files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                                    });
+                                };
+                                break;
+                            case "stop":
+                                i.deferUpdate();
+                                player.destroy();
+                                (channel as BaseGuildTextChannel)?.send({ content: `${interaction.user} **stop** the music!` });
+                                break;
+                        }
+
+                    } else {
+                        await i.reply({ content: ':no_entry_sign:', ephemeral: true });
                     }
-                } else {
-                    await i.reply({ content: ':no_entry_sign:', ephemeral: true });
                 }
             });
-
         } catch {
             await interaction.channel?.send(client.iHorizon_Emojis.icon.Timer);
             return;
         };
-    },
+    }
 };

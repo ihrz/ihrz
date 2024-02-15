@@ -44,9 +44,15 @@ export default {
             return interaction.editReply({ content: data.p_not_allowed })
         };
 
-        let result = await client.player.search(check as string, interaction.user);
+        let player = client.player.createPlayer({
+            guildId: interaction.guildId as string,
+            voiceChannelId: voiceChannel.id,
+            textChannelId: interaction.channelId,
+        });
 
-        if (result.tracks.length === 0) {
+        let res = await player.search({ query: check as string }, interaction.user)
+
+        if (res.tracks.length === 0) {
             let results = new EmbedBuilder()
                 .setTitle(data.p_embed_title)
                 .setColor('#ff0000')
@@ -56,23 +62,20 @@ export default {
             return;
         };
 
-        const player = client.player.create({
-            guild: interaction.guild?.id as string,
-            voiceChannel: voiceChannel.id,
-            textChannel: interaction.channel?.id as string,
-        });
+        if (!player.connected) {
+            await player.connect();
+        };
 
-        player.connect();
-        player.queue.add(result.tracks[0]);
+        await player.queue.add(res.tracks[0]);
 
-        if (
-            !player.playing
-            && !player.paused
-            && !player.queue.size
-        ) player.play();
+        if (!player.playing) {
+            await player.play();
+        }
+
+        let yes = res.tracks[0];
 
         function timeCalcultator() {
-            let totalDurationMs = yes.duration
+            let totalDurationMs = yes.info.duration
             let totalDurationSec = Math.floor(totalDurationMs! / 1000);
             let hours = Math.floor(totalDurationSec / 3600);
             let minutes = Math.floor((totalDurationSec % 3600) / 60);
@@ -81,19 +84,17 @@ export default {
             return durationStr;
         };
 
-        let yes = result.tracks[0];
-
         let embed = new EmbedBuilder()
-            .setDescription(`**${yes.title}**`)
+            .setDescription(`**${yes.info.title}**`)
             .setColor('#00cc1a')
             .setTimestamp()
             .setFooter({ text: data.p_duration + `${timeCalcultator()}` })
-            .setThumbnail(yes.thumbnail);
+            .setThumbnail(yes.info.artworkUrl as string);
 
         await interaction.editReply({
             content: data.p_loading_message
                 .replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
-                .replace("{result}", result.playlist ? 'playlist' : 'track')
+                .replace("{result}", res.playlist ? 'playlist' : 'track')
             , embeds: [embed]
         });
 
