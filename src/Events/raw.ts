@@ -21,6 +21,6 @@
 
 import { Client, Presence } from 'discord.js';
 
-export default async (client: Client, d: any) => {
-    client.player.updateVoiceState(d);
+export default async (client: Client, data: any) => {
+    client.player.sendRawData(data);
 };

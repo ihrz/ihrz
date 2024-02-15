@@ -70,6 +70,10 @@ export default async (client: Client) => {
 
     await import('../api/server.js');
 
+    playerManager(client);
+    bash(client);
+    emojis(client);
+    
     client.db = db;
     client.invites = new Collection();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
@@ -83,10 +87,6 @@ export default async (client: Client) => {
             await handlerFunction(client);
         }
     }
-
-    playerManager(client);
-    bash(client);
-    emojis(client);
 
     client.login(config.discord.token).then(() => {
         commandsSync(client).then(() => {

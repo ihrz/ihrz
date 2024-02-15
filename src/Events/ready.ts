@@ -124,9 +124,7 @@ export default async (client: Client) => {
         });
     };
 
-    async function player() {
-        client.player.init(client.user?.id);
-    };
+    await client.player.init({ ...client.user! });
 
     let iHorizon_Container = new OwnIHRZ();
     iHorizon_Container.Startup();
@@ -139,7 +137,7 @@ export default async (client: Client) => {
 
     setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000);
 
-    fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule(), player();
+    fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule();
 
     PfpsManager_Init(client);
 };
