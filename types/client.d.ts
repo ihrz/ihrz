@@ -27,14 +27,14 @@ import { DataBase } from "./database";
 import { AnotherCommand } from "./anotherCommand";
 import { Emojis } from "./emojis";
 import { GiveawayManager } from "discord-regiveaways";
-import { Manager } from "erela.js";
+import { QueueChangesWatcher, LavalinkManager } from "lavalink-client";
 
 declare module 'discord.js' {
     export interface Client {
         functions: clientFunction,
         commands: Collection<string, Command>,
         message_commands: Collection<string, Command>,
-        player: Manager,
+        player: LavalinkManager,
         invites: Collection,
         vanityInvites: Collection<Snowflake, VanityInviteData>,
         buttons: Collection<string, Function>,
