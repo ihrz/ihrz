@@ -26,42 +26,51 @@ import {
 } from 'discord.js';
 
 import logger from '../../../core/logger.js';
-import { lyricsExtractor } from '@discord-player/extractor';
-
-let lyricsFinder = lyricsExtractor();
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
+import lyricsSearcher from "lyrics-searcher";
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         try {
             let title = interaction.options.getString("title");
-            let lyrics = await lyricsFinder.search(title as string).catch(() => null);
+
+            var lyrics = await lyricsSearcher(
+                title as string,
+                ' '
+            ).catch((err) => {
+                lyrics = "not found"
+            })
 
             if (!lyrics) {
                 await interaction.deleteReply();
                 await interaction.followUp({ content: 'No lyrics found', ephemeral: true });
                 return;
             }
-            let trimmedLyrics = lyrics.lyrics.substring(0, 1997);
+            let trimmedLyrics = lyrics.substring(0, 1997);
 
             let embed = new EmbedBuilder()
-                .setTitle(lyrics.title)
-                .setURL(lyrics.url)
+                .setTitle('lyrics.title')
+                .setURL('lyrics.url')
                 .setTimestamp()
-                .setThumbnail(lyrics.thumbnail)
-                .setAuthor({
-                    name: lyrics.artist.name,
-                    iconURL: lyrics.artist.image,
-                    url: lyrics.artist.url
-                })
+                .setThumbnail('lyrics.thumbnail')
+                // .setAuthor({
+                //     name: lyrics.artist.name,
+                //     iconURL: lyrics.artist.image,
+                //     url: lyrics.artist.url
+                // })
                 .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
                 .setColor('#cd703a')
                 .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
             await interaction.editReply({
                 embeds: [embed],
-                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                files: [
+                    {
+                        attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
+                        name: 'icon.png'
+                    }
+                ]
             });
             return;
 
