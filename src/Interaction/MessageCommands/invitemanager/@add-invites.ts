@@ -20,14 +20,9 @@
 */
 
 import {
-    ApplicationCommandOptionType,
-    ApplicationCommandType,
     BaseGuildTextChannel,
-    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-    GuildMember,
-    GuildVoiceChannelResolvable,
     Message,
     PermissionsBitField,
 } from 'discord.js';
