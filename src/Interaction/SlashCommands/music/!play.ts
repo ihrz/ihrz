@@ -20,11 +20,13 @@
 */
 
 import {
+    BaseGuildTextChannel,
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     GuildMember,
     GuildVoiceChannelResolvable,
+    time,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
@@ -70,7 +72,7 @@ export default {
 
         if (!player.playing) {
             await player.play();
-        }
+        };
 
         let yes = res.tracks[0];
 
@@ -102,6 +104,19 @@ export default {
             interaction.editReply({ content: ' ' });
         };
 
+        await client.db.push(`${player.guildId}.MUSIC_HISTORY.buffer`,
+            `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}: PLAYED]: { ${player.queue.current?.requester} - ${player.queue.current?.info.title as string} | ${player.queue.current?.info.uri} } by ${player.queue.current?.requester}`);
+        await client.db.push(`${player.guildId}.MUSIC_HISTORY.embed`,
+            `${time(new Date(), 'R')}: ${player.queue.current?.requester} - ${player.queue.current?.info.title} | ${player.queue.current?.info.uri} by ${player.queue.current?.requester}`
+        );
+
+        let channel = client.channels.cache.get(player.textChannelId as string);
+
+        (channel as BaseGuildTextChannel)?.send({
+            content: data.event_mp_audioTrackAdd
+                .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
+                .replace("${track.title}", player.queue.current?.info.title as string)
+        });
         setTimeout(deleteContent, 4000)
         return;
     },

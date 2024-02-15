@@ -20,6 +20,7 @@
 */
 
 import {
+    BaseGuildTextChannel,
     ChatInputCommandInteraction,
     Client,
     Guild,
@@ -41,6 +42,8 @@ export default {
         try {
             let voiceChannel = (interaction.member as GuildMember).voice.channel;
             let player = client.player.getPlayer(interaction.guild?.id as string);
+            let oldName = player.queue.current?.info.title;
+            let channel = client.channels.cache.get(player.textChannelId as string);
 
             if (!player || !player.playing || !voiceChannel) {
                 await interaction.editReply({ content: data.skip_nothing_playing });
@@ -57,6 +60,13 @@ export default {
                 content: data.skip_command_work
                     .replace("{queue}", player.queue.current?.info.title as string)
             });
+
+            (channel as BaseGuildTextChannel).send({
+                content: data.event_mp_playerSkip
+                    .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
+                    .replace("${track.title}", oldName as string)
+            });
+
             return;
         } catch (error: any) {
             logger.err(error)

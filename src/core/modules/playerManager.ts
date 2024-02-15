@@ -19,106 +19,52 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client } from 'discord.js';
-import { Manager } from 'erela.js';
+import { BaseGuildTextChannel, Client, time } from 'discord.js';
+import { QueueChangesWatcher, LavalinkManager } from "lavalink-client";
 
+import db from '../functions/DatabaseModel.js';
 import logger from '../logger.js';
+import config from '../../files/config.js';
 
 export default async (client: Client) => {
 
-    client.player = new Manager({
-        allowedLinksRegexes: Object.values(Manager.regex),
+    client.player = new LavalinkManager({
         nodes: [
             {
-                identifier: "MyNode1",
+                id: "testnode",
                 host: "127.0.0.1",
                 port: 2333,
-                password: "password",
-                version: "v4",
-                useVersionPath: true,
-                secure: false,
+                authorization: "password",
             }
         ],
-        send: (id, payload) => {
-            const guild = client.guilds.cache.get(id);
-            if (guild) guild.shard.send(payload);
+        sendToShard(id, payload) {
+            return client.guilds.cache.get(id)?.shard?.send(payload);
+        },
+        client: {
+            id: config.api.clientID as string,
+            username: "iHorizon"
         },
     });
 
-    client.player.on("nodeConnect", node => {
-        logger.log(`Node "${node.options.identifier}" connected.`.gray)
-    })
-
-    client.player.on("nodeError", (node, error) => {
-        console.log(`Node "${node.options.identifier}" encountered an error: ${error.message}.`)
-    })
-
     client.player.on("trackStart", async (player, track) => {
-        let data = await client.functions.getLanguageData(player.guild);
+        let data = await client.functions.getLanguageData(player.guildId);
 
-        const channel = client.channels.cache.get(player.textChannel as string);
+        const channel = client.channels.cache.get(player.textChannelId as string);
         (channel as BaseGuildTextChannel).send({
             content: data.event_mp_playerStart
                 .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-                .replace("${track.title}", track.title)
-                .replace("${queue.channel.name}", `<#${player.voiceChannel}>`)
+                .replace("${track.title}", track.info.title)
+                .replace("${queue.channel.name}", `<#${player.voiceChannelId}>`)
         });
     });
 
     client.player.on("queueEnd", async player => {
-        let data = await client.functions.getLanguageData(player.guild);
+        let data = await client.functions.getLanguageData(player.guildId);
 
-        const channel = client.channels.cache.get(player.textChannel as string);
+        const channel = client.channels.cache.get(player.textChannelId as string);
         (channel as BaseGuildTextChannel).send({
             content: data.event_mp_emptyQueue.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
         });
         return;
     });
-
-    client.player.on('trackError', async (player, err, error) => {
-        let data = await client.functions.getLanguageData(player.guild);
-
-        logger.err(data.event_mp_playerError
-            .replace("${error.message}", error)
-        );
-        return;
-    });
-
-    // player.events.on('audioTrackAdd', async (queue: GuildQueue, track: Track) => {
-    //     let data = await client.functions.getLanguageData(queue.channel?.guildId);
-
-    //     let buffer = `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}: PLAYED]: { ${track.author} - ${track.title} | ${track.url} } by ${(queue.metadata as MetadataPlayer).requestedBy}`
-    //     let embed = `${time((new Date(), data.duration), 'R')}: ${track.author} - ${track.title} | ${track.url} by ${(queue.metadata as MetadataPlayer).requestedBy}`
-
-    //     await db.push(`${queue.guild.id}.MUSIC_HISTORY.buffer`, buffer);
-    //     await db.push(`${queue.guild.id}.MUSIC_HISTORY.embed`, embed);
-
-    //     (queue.metadata as MetadataPlayer).channel.send({
-    //         content: data.event_mp_audioTrackAdd
-    //             .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-    //             .replace("${track.title}", track.title)
-    //     });
-    //     return;
-    // });
-    // player.events.on('emptyChannel', async (queue: GuildQueue) => {
-    //     let data = await client.functions.getLanguageData(queue.channel?.guildId);
-
-    //     player?.nodes.delete(queue);
-    //     (queue.metadata as MetadataPlayer).channel.send({
-    //         content: data.event_mp_emptyChannel.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
-    //     });
-    //     return;
-    // });
-
-    // player.events.on('playerSkip', async (queue: GuildQueue, track: Track) => {
-    //     let data = await client.functions.getLanguageData(queue.channel?.guildId);
-
-    //     (queue.metadata as MetadataPlayer).channel.send({
-    //         content: data.event_mp_playerSkip
-    //             .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-    //             .replace("${track.title}", track.title)
-    //     });
-    //     return;
-    // });
-
 };
