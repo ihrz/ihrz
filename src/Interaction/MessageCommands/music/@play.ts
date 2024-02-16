@@ -22,15 +22,16 @@
 import {
     ApplicationCommandOptionType,
     ApplicationCommandType,
+    BaseGuildTextChannel,
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     GuildMember,
     GuildVoiceChannelResolvable,
     Message,
+    time,
 } from 'discord.js';
 
-import { QueryType } from 'discord-player';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
@@ -70,41 +71,42 @@ export const command: Command = {
             return;
         };
 
-        if (client.functions.isAllowedLinks(check)) { return interaction.reply({ content: data.p_not_allowed }) };
+        if (client.functions.isAllowedLinks(check)) {
+            return interaction.reply({ content: data.p_not_allowed })
+        };
 
-        let result = await interaction.client.player.search(check as string, {
-            requestedBy: interaction.author, searchEngine: QueryType.AUTO
+        let player = client.player.createPlayer({
+            guildId: interaction.guildId as string,
+            voiceChannelId: voiceChannel.id,
+            textChannelId: interaction.channelId,
         });
 
-        let results = new EmbedBuilder()
-            .setTitle(data.p_embed_title)
-            .setColor('#ff0000')
-            .setTimestamp();
+        let res = await player.search({ query: check as string }, interaction.author)
 
-        if (!result.hasTracks()) {
+        if (res.tracks.length === 0) {
+            let results = new EmbedBuilder()
+                .setTitle(data.p_embed_title)
+                .setColor('#ff0000')
+                .setTimestamp();
+
             await interaction.reply({ embeds: [results] });
             return;
         };
 
-        let yes = await interaction.client.player.play((interaction.member as GuildMember).voice.channel?.id as GuildVoiceChannelResolvable, result, {
-            nodeOptions: {
-                metadata: {
-                    channel: interaction.channel,
-                    client: interaction.guild?.members.me,
-                    requestedBy: interaction.author.globalName
-                },
-                volume: 60,
-                bufferingTimeout: 3000,
-                leaveOnEnd: true,
-                leaveOnEndCooldown: 150000,
-                leaveOnStop: true,
-                leaveOnStopCooldown: 30000,
-                leaveOnEmpty: true,
-            },
-        });
+        if (!player.connected) {
+            await player.connect();
+        };
 
-        function yess() {
-            let totalDurationMs = yes.track.playlist?.tracks.reduce((a, c) => c.durationMS + a, 0)
+        await player.queue.add(res.tracks[0]);
+
+        if (!player.playing) {
+            await player.play();
+        };
+
+        let yes = res.tracks[0];
+
+        function timeCalcultator() {
+            let totalDurationMs = yes.info.duration
             let totalDurationSec = Math.floor(totalDurationMs! / 1000);
             let hours = Math.floor(totalDurationSec / 3600);
             let minutes = Math.floor((totalDurationSec % 3600) / 60);
@@ -114,19 +116,32 @@ export const command: Command = {
         };
 
         let embed = new EmbedBuilder()
-            .setDescription(`${yes.track.playlist ? `**multiple tracks** from: **${yes.track.playlist.title}**` : `**${yes.track.title}**`}`)
+            .setDescription(`**${yes.info.title}**`)
             .setColor('#00cc1a')
             .setTimestamp()
-            .setFooter({ text: data.p_duration + `${yes.track.playlist ? `${yess()}` : `${yes.track.duration}`}` });
-
-        embed
-            .setThumbnail(`${yes.track.playlist ? `${yes.track.playlist.thumbnail}` : `${yes.track.thumbnail}`}`)
+            .setFooter({ text: data.p_duration + `${timeCalcultator()}` })
+            .setThumbnail(yes.info.artworkUrl as string);
 
         await interaction.reply({
             content: data.p_loading_message
                 .replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
-                .replace("{result}", result.playlist ? 'playlist' : 'track')
+                .replace("{result}", res.playlist ? 'playlist' : 'track')
             , embeds: [embed]
+        });
+
+
+        await client.db.push(`${player.guildId}.MUSIC_HISTORY.buffer`,
+            `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}: PLAYED]: { ${player.queue.current?.requester} - ${player.queue.current?.info.title as string} | ${player.queue.current?.info.uri} } by ${player.queue.current?.requester}`);
+        await client.db.push(`${player.guildId}.MUSIC_HISTORY.embed`,
+            `${time(new Date(), 'R')}: ${player.queue.current?.requester} - ${player.queue.current?.info.title} | ${player.queue.current?.info.uri} by ${player.queue.current?.requester}`
+        );
+
+        let channel = client.channels.cache.get(player.textChannelId as string);
+
+        (channel as BaseGuildTextChannel)?.send({
+            content: data.event_mp_audioTrackAdd
+                .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
+                .replace("${track.title}", player.queue.current?.info.title as string)
         });
         return;
     },

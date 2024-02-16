@@ -56,8 +56,9 @@ export const command: Command = {
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let tableOwner = client.db.table('OWNER');
 
-        if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
+        if (await tableOwner.get(`${interaction.user.id}.owner`) !== true) {
             await interaction.reply({ content: data.unowner_not_owner });
             return;
         };
@@ -69,7 +70,7 @@ export const command: Command = {
             return;
         };
 
-        await client.db.delete(`GLOBAL.OWNER.${member?.id}`);
+        await tableOwner.delete(`${member?.id}`);
 
         await interaction.reply({ content: data.unowner_command_work.replace(/\${member\.username}/g, member?.username) });
         return;

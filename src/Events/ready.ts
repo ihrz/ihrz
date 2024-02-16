@@ -48,9 +48,10 @@ export default async (client: Client) => {
     };
 
     async function refreshDatabaseModel() {
-        await client.db.set(`GLOBAL.OWNER.${config.owner.ownerid1}`, { owner: true });
-        await client.db.set(`GLOBAL.OWNER.${config.owner.ownerid2}`, { owner: true });
-        await client.db.set(`TEMP`, {});
+        let table = client.db.table('OWNER');
+        await table.set(`${config.owner.ownerid1}`, { owner: true });
+        await table.set(`${config.owner.ownerid2}`, { owner: true });
+        await client.db.delete(`TEMP`);
     };
 
     async function quotesPresence() {

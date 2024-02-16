@@ -55,6 +55,9 @@ interface Icon {
     Timer: string;
     Sparkles: string;
     Prefix_Command: string;
+    iHorizon_Pointer: string;
+    iHorizon_Bar: string;
+    
 }
 
 export interface Emojis {

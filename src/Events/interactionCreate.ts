@@ -76,7 +76,7 @@ export default async (client: Client, interaction: Interaction) => {
         };
 
         try {
-            if (await client.db.get(`GLOBAL.BLACKLIST.${interaction.user.id}.blacklisted`)) {
+            if (await client.db.table('BLACKLIST').get(`${interaction.user.id}.blacklisted`)) {
                 await interaction.reply({
                     embeds: [
                         new EmbedBuilder()

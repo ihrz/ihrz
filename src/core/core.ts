@@ -41,6 +41,8 @@ export default async (client: Client) => {
     logger.legacy(couleurmdr.gray("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0."));
     logger.legacy(couleurmdr.gray("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0"));
 
+    errorManager.uncaughtExceptionHandler();
+
     client.giveawaysManager = new GiveawayManager(client, {
         config: {
             botsCanWin: false,

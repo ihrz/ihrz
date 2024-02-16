@@ -22,32 +22,32 @@
 import {
     ChatInputCommandInteraction,
     Client,
+    CommandInteractionOptionResolver,
     Guild,
+    GuildMember,
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
-import { QueueRepeatMode } from 'discord-player';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         try {
-            let queue = interaction.client.player.nodes.get(interaction.guild as Guild);
+            let voiceChannel = (interaction.member as GuildMember).voice.channel;
+            let player = client.player.getPlayer(interaction.guild?.id as string);
+            let mode = interaction.options.getString('mode');
 
-            if (!queue || !queue.isPlaying()) {
+            if (!player || !player.playing || !voiceChannel) {
                 await interaction.editReply({ content: data.loop_no_queue });
                 return;
             };
 
-            let loopMode = interaction.options.getNumber("select");
-
-            queue.setRepeatMode(loopMode as number)
-            let mode = loopMode === QueueRepeatMode.TRACK ? `🔂` : loopMode === QueueRepeatMode.QUEUE ? `🔂` : `▶`;
+            await player.setRepeatMode(mode as "off" | "track" | "queue");
 
             await interaction.editReply({
                 content: data.loop_command_work
-                    .replace("{mode}", mode)
+                    .replace("{mode}", mode === 'track' ? `🔂` : `▶`)
             });
             return;
         } catch (error: any) {

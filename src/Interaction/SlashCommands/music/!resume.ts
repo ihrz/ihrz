@@ -22,22 +22,26 @@
 import {
     ChatInputCommandInteraction,
     Client,
+    GuildMember,
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         try {
-            let queue = interaction.client.player.nodes.get(interaction.guild as unknown as string)
+            let voiceChannel = (interaction.member as GuildMember).voice.channel;
+            let player = client.player.getPlayer(interaction.guild?.id as string);
 
-            if (!queue || !queue.isPlaying()) {
+            if (!player || !player.playing || !voiceChannel) {
                 await interaction.editReply({ content: data.resume_nothing_playing });
                 return;
-            }
-            queue.node.setPaused(false);
+            };
+
+            player.resume();
+            
             await interaction.editReply({ content: data.resume_command_work });
             return;
         } catch (error: any) {

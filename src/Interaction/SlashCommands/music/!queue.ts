@@ -25,27 +25,25 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import { useQueue } from 'discord-player';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let queue = useQueue(interaction.guildId as string);
+        let player = client.player.getPlayer(interaction.guild?.id as string);
 
-        if (!queue) {
+        if (!player) {
             await interaction.editReply({ content: data.queue_iam_not_voicec });
             return;
         };
 
-        if (!queue.tracks || !queue.currentTrack) {
+        if (!player.queue.tracks) {
             await interaction.editReply({ content: data.queue_no_queue });
             return;
         };
 
-        let tracks = queue.tracks
-            .toArray()
-            .map((track, idx) => `**${++idx})** [${track.title}](${track.url})`);
+        let tracks = player.queue.tracks
+            .map((track, idx) =>  `**${++idx})** [${track.info.title}](${track.info.uri})`)
 
         if (tracks.length === 0) {
             await interaction.editReply({ content: data.queue_empty_queue });
@@ -64,7 +62,7 @@ export default {
                 .setFooter({
                     text: data.queue_embed_footer_text
                         .replace("{index}", index + 1 as unknown as string)
-                        .replace("{track}", queue.tracks.size as unknown as string)
+                        .replace("{track}", player.queue.tracks.length as unknown as string)
                 });
 
             embeds.push(embed);

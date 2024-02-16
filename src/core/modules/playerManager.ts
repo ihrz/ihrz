@@ -19,107 +19,52 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Player, Track, GuildQueue } from 'discord-player';
-import { SpotifyExtractor, SoundCloudExtractor } from '@discord-player/extractor';
-import DeezerExtractor from "discord-player-deezer"
+import { BaseGuildTextChannel, Client, time } from 'discord.js';
+import { QueueChangesWatcher, LavalinkManager } from "lavalink-client";
 
-import { Client, time } from 'discord.js';
-import logger from '../logger.js';
-
-import { MetadataPlayer } from '../../../types/metadaPlayer.js';
 import db from '../functions/DatabaseModel.js';
+import logger from '../logger.js';
+import config from '../../files/config.js';
 
 export default async (client: Client) => {
 
-    let player = new Player(client, {
-        ytdlOptions: {
-            quality: "highestaudio",
-            highWaterMark: 1 << 25
-        }
+    client.player = new LavalinkManager({
+        nodes: [
+            {
+                id: "testnode",
+                host: "127.0.0.1",
+                port: 2333,
+                authorization: "password",
+            }
+        ],
+        sendToShard(id, payload) {
+            return client.guilds.cache.get(id)?.shard?.send(payload);
+        },
+        client: {
+            id: config.api.clientID as string,
+            username: "iHorizon"
+        },
     });
 
-    await player.extractors.register(SpotifyExtractor, {});
-    await player.extractors.register(SoundCloudExtractor, {});
-    await player.extractors.register(DeezerExtractor, {});
+    client.player.on("trackStart", async (player, track) => {
+        let data = await client.functions.getLanguageData(player.guildId);
 
-    await player.extractors.loadDefault();
-
-    player.events.on('playerStart', async (queue: GuildQueue, track: Track) => {
-        let data = await client.functions.getLanguageData(queue.channel?.guildId);
-
-        (queue.metadata as MetadataPlayer).channel.send({
+        const channel = client.channels.cache.get(player.textChannelId as string);
+        (channel as BaseGuildTextChannel).send({
             content: data.event_mp_playerStart
                 .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-                .replace("${track.title}", track.title)
-                .replace("${queue.channel.name}", queue.channel?.name)
+                .replace("${track.title}", track.info.title)
+                .replace("${queue.channel.name}", `<#${player.voiceChannelId}>`)
         });
-        return;
     });
 
-    player.events.on('audioTrackAdd', async (queue: GuildQueue, track: Track) => {
-        let data = await client.functions.getLanguageData(queue.channel?.guildId);
+    client.player.on("queueEnd", async player => {
+        let data = await client.functions.getLanguageData(player.guildId);
 
-        let buffer = `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}: PLAYED]: { ${track.author} - ${track.title} | ${track.url} } by ${(queue.metadata as MetadataPlayer).requestedBy}`
-        let embed = `${time((new Date(), data.duration), 'R')}: ${track.author} - ${track.title} | ${track.url} by ${(queue.metadata as MetadataPlayer).requestedBy}`
-
-        await db.push(`${queue.guild.id}.MUSIC_HISTORY.buffer`, buffer);
-        await db.push(`${queue.guild.id}.MUSIC_HISTORY.embed`, embed);
-
-        (queue.metadata as MetadataPlayer).channel.send({
-            content: data.event_mp_audioTrackAdd
-                .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-                .replace("${track.title}", track.title)
-        });
-        return;
-    });
-
-    player.events.on('playerError', async (queue: GuildQueue, error: Error) => {
-        let data = await client.functions.getLanguageData(queue.channel?.guildId);
-
-        logger.err(data.event_mp_playerError
-            .replace("${error.message}", error.message)
-        );
-        return;
-    });
-
-    player.events.on('error', async (queue: GuildQueue, error: Error) => {
-        let data = await client.functions.getLanguageData(queue.channel?.guildId);
-
-        logger.err(data.event_mp_error
-            .replace("${error.message}", error.message)
-        );
-        return;
-    });
-
-    player.events.on('emptyChannel', async (queue: GuildQueue) => {
-        let data = await client.functions.getLanguageData(queue.channel?.guildId);
-
-        player?.nodes.delete(queue);
-        (queue.metadata as MetadataPlayer).channel.send({
-            content: data.event_mp_emptyChannel.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
-        });
-        return;
-    });
-
-    player.events.on('playerSkip', async (queue: GuildQueue, track: Track) => {
-        let data = await client.functions.getLanguageData(queue.channel?.guildId);
-
-        (queue.metadata as MetadataPlayer).channel.send({
-            content: data.event_mp_playerSkip
-                .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-                .replace("${track.title}", track.title)
-        });
-        return;
-    });
-
-    player.events.on('emptyQueue', async (queue: GuildQueue) => {
-        let data = await client.functions.getLanguageData(queue.channel?.guildId);
-
-        (queue.metadata as MetadataPlayer).channel.send({
+        const channel = client.channels.cache.get(player.textChannelId as string);
+        (channel as BaseGuildTextChannel).send({
             content: data.event_mp_emptyQueue.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
         });
         return;
     });
-
-    client.player = player;
 };
