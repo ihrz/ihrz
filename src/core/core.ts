@@ -88,7 +88,7 @@ export default async (client: Client) => {
         }
     }
 
-    client.login(config.discord.token).then(() => {
+    client.login(process.env.BOT_TOKEN || config.discord.token).then(() => {
         commandsSync(client).then(() => {
             logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  "));
             logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ "));

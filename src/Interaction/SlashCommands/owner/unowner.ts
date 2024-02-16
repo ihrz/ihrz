@@ -37,7 +37,7 @@ export const command: Command = {
     description_localizations: {
         "fr": "Le membre que vous souhaitez supprimer de la liste des propriétaires (uniquement pour les dev)"
     },
-    
+
     options: [
         {
             name: 'member',
@@ -65,7 +65,7 @@ export const command: Command = {
 
         var member = interaction.options.getUser('member');
 
-        if ((member?.id === config.owner.ownerid1) || (member?.id === config.owner.ownerid2)) {
+        if ((member?.id === process.env.OWNER_ONE || config.owner.ownerid1) || (member?.id === config.owner.ownerid2)) {
             await interaction.reply({ content: data.unowner_cant_unowner_creator });
             return;
         };

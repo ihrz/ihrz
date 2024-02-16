@@ -29,14 +29,14 @@ import config from '../../files/config.js';
 export default async (client: Client) => {
 
     let nodes = config.lavalink.nodes;
-    
+
     client.player = new LavalinkManager({
         nodes,
         sendToShard(id, payload) {
             return client.guilds.cache.get(id)?.shard?.send(payload);
         },
         client: {
-            id: config.api.clientID as string,
+            id: process.env.CLIENT_ID || config.api.clientID as string,
             username: "iHorizon"
         },
     });

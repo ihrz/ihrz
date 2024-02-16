@@ -35,7 +35,7 @@ export default {
         let data = new URLSearchParams();
 
         try {
-            data.append('client_id', config.api.clientID);
+            data.append('client_id', process.env.CLIENT_ID || config.api.clientID);
             data.append('client_secret', config.api.clientSecret);
             data.append('grant_type', 'authorization_code');
             data.append('redirect_uri', apiUrlParser.LoginURL);

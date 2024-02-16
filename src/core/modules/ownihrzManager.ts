@@ -81,7 +81,7 @@ class OwnIHRZ {
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
             },
             {
-                l: `sed -i 's/"The client ID of your application"/"${config.api.clientID}"/' config.ts`,
+                l: `sed -i 's/"The client ID of your application"/"${process.env.CLIENT_ID || config.api.clientID}"/' config.ts`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
             },
             {
@@ -174,12 +174,14 @@ class OwnIHRZ {
                 for (let bot_id in cluster_ownihrz[owner_id]) {
                     if (cluster_ownihrz[owner_id][bot_id].PowerOff || !cluster_ownihrz[owner_id][bot_id].Code) continue;
 
-                    axios.get(OwnIhrzCluster(
-                        cluster_ownihrz[owner_id][bot_id].Cluster as unknown as number,
-                        ClusterMethod.StartupContainer,
-                        bot_id,
-                        config.api.apiToken
-                    )).then(function (response) {
+                    axios.get(
+                        OwnIhrzCluster(
+                            cluster_ownihrz[owner_id][bot_id].Cluster as unknown as number,
+                            ClusterMethod.StartupContainer,
+                            bot_id,
+                            config.api.apiToken
+                        ) as string
+                    ).then(function (response) {
                         logger.log(response.data as unknown as string)
                     }).catch(function (error) { logger.err(error); });
                 }
@@ -230,12 +232,14 @@ class OwnIHRZ {
                 if (now >= ownihrzClusterData[userId][botId].ExpireIn) {
                     await tableOWNIHRZ.set(`CLUSTER.${userId}.${botId}.PowerOff`, true);
 
-                    axios.get(OwnIhrzCluster(
-                        ownihrzClusterData[userId][botId].Cluster as unknown as number,
-                        ClusterMethod.ShutdownContainer,
-                        botId,
-                        config.api.apiToken
-                    )).then(function (response) {
+                    axios.get(
+                        OwnIhrzCluster(
+                            ownihrzClusterData[userId][botId].Cluster as unknown as number,
+                            ClusterMethod.ShutdownContainer,
+                            botId,
+                            config.api.apiToken
+                        ) as string
+                    ).then(function (response) {
                         logger.log(response.data as unknown as string)
                     }).catch(function (error) { logger.err(error); });
                 };
@@ -261,12 +265,14 @@ class OwnIHRZ {
 
     // Working
     async ShutDown_Cluster(cluster_id: number, id_to_bot: string) {
-        axios.get(OwnIhrzCluster(
-            cluster_id,
-            ClusterMethod.ShutdownContainer,
-            id_to_bot,
-            config.api.apiToken
-        )).then(function (response) {
+        axios.get(
+            OwnIhrzCluster(
+                cluster_id,
+                ClusterMethod.ShutdownContainer,
+                id_to_bot,
+                config.api.apiToken
+            ) as string
+        ).then(function (response) {
             logger.log(response.data as unknown as string)
         }).catch(function (error) { logger.err(error); });
         return 0;
@@ -285,12 +291,14 @@ class OwnIHRZ {
 
     // Working
     async PowerOn_Cluster(cluster_id: number, id_to_bot: string) {
-        axios.get(OwnIhrzCluster(
-            cluster_id,
-            ClusterMethod.PowerOnContainer,
-            id_to_bot,
-            config.api.apiToken
-        )).then(function (response) {
+        axios.get(
+            OwnIhrzCluster(
+                cluster_id,
+                ClusterMethod.PowerOnContainer,
+                id_to_bot,
+                config.api.apiToken
+            ) as string
+        ).then(function (response) {
             logger.log(response.data as unknown as string)
         }).catch(function (error) { logger.err(error); });
         return 0;
@@ -317,12 +325,14 @@ class OwnIHRZ {
 
     // Working
     async Delete_Cluster(cluster_id: number, id_to_bot: string) {
-        axios.get(OwnIhrzCluster(
-            cluster_id,
-            ClusterMethod.DeleteContainer,
-            id_to_bot,
-            config.api.apiToken
-        )).then(function (response) {
+        axios.get(
+            OwnIhrzCluster(
+                cluster_id,
+                ClusterMethod.DeleteContainer,
+                id_to_bot,
+                config.api.apiToken
+            ) as string
+        ).then(function (response) {
             logger.log(response.data as unknown as string)
         }).catch(function (error) { logger.err(error); });
         return 0;
@@ -351,12 +361,14 @@ class OwnIHRZ {
             for (let userId in ownihrzClusterData as any) {
                 for (let botId in ownihrzClusterData[userId]) {
                     if (ownihrzClusterData[userId][botId].PowerOff || !ownihrzClusterData[userId][botId].Code) continue;
-                    await axios.get(OwnIhrzCluster(
-                        ownihrzClusterData[userId][botId].Cluster as unknown as number,
-                        ClusterMethod.ShutdownContainer,
-                        botId,
-                        config.api.apiToken
-                    )).then(function (response) {
+                    await axios.get(
+                        OwnIhrzCluster(
+                            ownihrzClusterData[userId][botId].Cluster as unknown as number,
+                            ClusterMethod.ShutdownContainer,
+                            botId,
+                            config.api.apiToken
+                        ) as string
+                    ).then(function (response) {
                         logger.log(response.data as unknown as string)
                     }).catch(function (error) { logger.err(error); });
                 }

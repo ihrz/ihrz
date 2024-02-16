@@ -57,7 +57,7 @@ export default {
         id_2.AdminKey = config.api.apiToken;
         id_2.Code = id as string;
 
-        if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
+        if ((interaction.user.id !== process.env.OWNER_ONE || config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };
@@ -105,7 +105,7 @@ export default {
 
             if (cluster) {
                 try {
-                    axios.post(OwnIhrzCluster(cluster as unknown as number, ClusterMethod.CreateContainer), id_2, { headers: { 'Accept': 'application/json' } })
+                    axios.post(OwnIhrzCluster(cluster as unknown as number, ClusterMethod.CreateContainer) as string, id_2, { headers: { 'Accept': 'application/json' } })
                         .then(async (response: AxiosResponse) => {
                             if (cluster) {
                                 var table_1 = client.db.table('OWNIHRZ');
