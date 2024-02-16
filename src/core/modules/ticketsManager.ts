@@ -145,7 +145,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType>, result: 
             channel.lockPermissions();
         };
 
-        channel.permissionOverwrites.edit(interaction.guild?.roles.everyone as Role,
+        await channel.permissionOverwrites.edit(interaction.guild?.roles.everyone as Role,
             {
                 ViewChannel: false,
                 SendMessages: false,
@@ -153,7 +153,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType>, result: 
             }
         );
 
-        channel.permissionOverwrites.edit(interaction.user.id,
+        await channel.permissionOverwrites.edit(interaction.user.id,
             {
                 ViewChannel: true,
                 SendMessages: true,
@@ -580,7 +580,7 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<CacheTyp
             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTimestamp();
 
-        TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]  });
+        TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
         return;
     } catch (e) { return };
 };
