@@ -143,3 +143,4 @@ src/core/handlers/loadFunctions.ts
 
 # lavalink
 lavalink
+lavalink/application.yml
