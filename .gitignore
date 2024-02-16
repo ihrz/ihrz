@@ -137,3 +137,6 @@ yarn.lock
 /ownihrz
 bun.lockb
 src/core/handlers/loadFunctions.ts
+
+# Logs
+*.gz
