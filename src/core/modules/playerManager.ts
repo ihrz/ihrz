@@ -28,15 +28,10 @@ import config from '../../files/config.js';
 
 export default async (client: Client) => {
 
+    let nodes = config.lavalink.nodes;
+    
     client.player = new LavalinkManager({
-        nodes: [
-            {
-                id: "testnode",
-                host: "127.0.0.1",
-                port: 2333,
-                authorization: "password",
-            }
-        ],
+        nodes,
         sendToShard(id, payload) {
             return client.guilds.cache.get(id)?.shard?.send(payload);
         },

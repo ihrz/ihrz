@@ -29,6 +29,28 @@ export default {
 
     },
 
+    lavalink: {
+
+        nodes: [
+            {
+
+                id: "example_node",
+                // The ID of the Node
+
+                host: "lavalink.example.com",
+                // The Host of the Node
+
+                port: 2333,
+                // The port of the Node
+
+                authorization: "password",
+                // The password of the Node
+
+            }
+        ],
+
+    },
+
     core: {
 
         "devMode": true,

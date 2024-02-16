@@ -140,3 +140,7 @@ src/core/handlers/loadFunctions.ts
 
 # Logs
 *.gz
+
+# lavalink
+lavalink
+lavalink/application.yml
