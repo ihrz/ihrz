@@ -56,14 +56,15 @@ export const command: Command = {
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let tableOwner = client.db.table('OWNER');
 
-        if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
+        if (await tableOwner.get(`${interaction.user.id}.owner`) !== true) {
             await interaction.reply({ content: data.unblacklist_not_owner });
             return;
         };
 
         let member = interaction.options.getUser('member');
-        let fetched = await client.db.get(`GLOBAL.BLACKLIST.${member?.id}`);
+        let fetched = await tableOwner.get(`${member?.id}`);
 
         if (!fetched) {
             await interaction.reply({ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member?.id) });
@@ -78,13 +79,13 @@ export const command: Command = {
                 return;
             };
 
-            await client.db.delete(`GLOBAL.BLACKLIST.${member?.id}`);
+            await tableOwner.delete(`${member?.id}`);
             await interaction.guild?.members.unban(bannedMember);
 
             await interaction.reply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member?.id) });
             return;
         } catch (e) {
-            await client.db.delete(`GLOBAL.BLACKLIST.${member?.id}`);
+            await tableOwner.delete(`${member?.id}`);
             await interaction.reply({
                 content: data.unblacklist_unblacklisted_but_can_unban_him.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });

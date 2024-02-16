@@ -46,11 +46,12 @@ export const command: Command = {
     category: 'profil',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
+
         let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
-
         let member = interaction.mentions.users?.toJSON()[1] || interaction.author;
+        let table = client.db.table('USER_PROFIL')
 
-        var description = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.desc`);
+        var description = await table.get(`${member.id}.desc`);
         if (!description) description = data.profil_not_description_set;
 
         var level = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.XP_LEVELING.level`);
@@ -59,10 +60,10 @@ export const command: Command = {
         var balance = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`);
         if (!balance) balance = 0;
 
-        var age = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.age`);
+        var age = await table.get(`${member.id}.age`);
         if (!age) age = data.profil_unknown;
 
-        var gender = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.gender`);
+        var gender = await table.get(`${member.id}.gender`);
         if (!gender) gender = data.profil_unknown;
 
         let profil = new EmbedBuilder()

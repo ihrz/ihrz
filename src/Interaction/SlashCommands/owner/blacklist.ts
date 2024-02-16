@@ -60,23 +60,26 @@ export const command: Command = {
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let tableOwner = client.db.table('OWNER');
+        let tableBlacklist = client.db.table('BLACKLIST');
 
-        if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`) !== true) {
+        if (await tableOwner.get(`${interaction.user.id}.owner`) !== true) {
             await interaction.reply({ content: data.blacklist_not_owner });
             return;
         };
 
-        let char = await client.db.get(`GLOBAL.BLACKLIST`);
+        var blacklistedUsers = await tableBlacklist.all();
+        
         let member = interaction.options.getMember('user') as GuildMember;
         let user = interaction.options.getUser('user');
+        console.log(blacklistedUsers)
 
+        
         if (!member && !user) {
-            if (!char) {
-                await interaction.reply({ content: 'No one blacklisted found!', ephemeral: true });
+            if (!blacklistedUsers.length) {
+                await interaction.reply({ content: `${client.iHorizon_Emojis.icon.No_Logo} No one blacklisted found!`, ephemeral: true });
                 return;
             };
-
-            let blacklistedUsers = Object.keys(char).filter(userId => char[userId].blacklisted);
 
             let currentPage = 0;
             let usersPerPage = 5;
@@ -84,7 +87,11 @@ export const command: Command = {
 
             for (let i = 0; i < blacklistedUsers.length; i += usersPerPage) {
                 let pageUsers = blacklistedUsers.slice(i, i + usersPerPage);
-                let pageContent = pageUsers.map(userId => `<@${userId}>`).join('\n');
+                let pageContent = pageUsers.map(userObj => {
+                    let blacklisted = userObj.value.blacklisted;
+                    let memberId = userObj.id;
+                    return `${blacklisted ? '🔴' : '⚪'} <@${memberId}>\n\`${userObj.value.reason || 'No reason found'}\``;
+                }).join('\n');
                 pages.push({
                     title: `Blacklist - Page ${i / usersPerPage + 1}`,
                     description: pageContent,
@@ -94,8 +101,8 @@ export const command: Command = {
             let createEmbed = () => {
                 return new EmbedBuilder()
                     .setColor("#2E2EFE")
-                    .setTitle(pages[currentPage].title)
-                    .setDescription(pages[currentPage].description)
+                    .setTitle(pages[currentPage]?.title)
+                    .setDescription(pages[currentPage]?.description)
                     .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: "attachment://icon.png" })
                     .setTimestamp()
             };
@@ -150,10 +157,10 @@ export const command: Command = {
                 return;
             };
 
-            let fetched = await client.db.get(`GLOBAL.BLACKLIST.${member.user.id}`);
+            let fetched = await tableBlacklist.get(`${member.user.id}`);
 
             if (!fetched) {
-                await client.db.set(`GLOBAL.BLACKLIST.${member.user.id}.blacklisted`, true);
+                await tableBlacklist.set(`${member.user.id}.blacklisted`, true);
 
                 if (member.bannable) {
                     (member as unknown as GuildMemberManager).ban("blacklisted !");
@@ -161,7 +168,7 @@ export const command: Command = {
                     return;
                 } else {
 
-                    await client.db.set(`GLOBAL.BLACKLIST.${member.user.id}.blacklisted`, true);
+                    await tableBlacklist.set(`${member.user.id}.blacklisted`, true);
                     await interaction.reply({
                         content: data.blacklist_blacklisted_but_can_ban_him.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                     });
@@ -178,10 +185,10 @@ export const command: Command = {
                 return;
             };
 
-            let fetched = await client.db.get(`GLOBAL.BLACKLIST.${user.id}`);
+            let fetched = await tableBlacklist.get(`${user.id}`);
 
             if (!fetched) {
-                await client.db.set(`GLOBAL.BLACKLIST.${user.id}.blacklisted`, true);
+                await tableBlacklist.set(`${user.id}.blacklisted`, true);
 
                 await interaction.reply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, user.globalName || user.username) }); return;
             } else {

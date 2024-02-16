@@ -29,8 +29,9 @@ import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         var gender = interaction.options.getString("gender");
+        let tableProfil = client.db.table('USER_PROFIL');
 
-        await client.db.set(`GLOBAL.USER_PROFIL.${interaction.user.id}.gender`, gender);
+        await tableProfil.set(`${interaction.user.id}.gender`, gender);
 
         await interaction.reply({ content: data.setprofildescriptions_command_work, ephemeral: true });
         return;

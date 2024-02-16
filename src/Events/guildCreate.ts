@@ -60,7 +60,8 @@ export default async (client: Client, guild: Guild) => {
             .setTimestamp()
             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
 
-        let isBL = await client.db.get(`GLOBAL.BLACKLIST.${guild.ownerId}.blacklisted`) || false;
+        let table = client.db.table('BLACKLIST')
+        let isBL = await table.get(`${guild.ownerId}.blacklisted`) || false;
 
         if (isBL) {
             await (channelHr as GuildTextBasedChannel).send({

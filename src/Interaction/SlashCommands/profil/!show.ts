@@ -30,8 +30,9 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let member = interaction.options.getUser('user') || interaction.user;
+        let tableProfil = client.db.table('USER_PROFIL');
 
-        var description = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.desc`);
+        var description = await tableProfil.get(`${member.id}.desc`);
         if (!description) description = data.profil_not_description_set;
 
         var level = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.XP_LEVELING.level`);
@@ -40,10 +41,10 @@ export default {
         var balance = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`);
         if (!balance) balance = 0;
 
-        var age = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.age`);
+        var age = await tableProfil.get(`${member.id}.age`);
         if (!age) age = data.profil_unknown;
 
-        var gender = await client.db.get(`GLOBAL.USER_PROFIL.${member.id}.gender`);
+        var gender = await tableProfil.get(`${member.id}.gender`);
         if (!gender) gender = data.profil_unknown;
 
         let profil = new EmbedBuilder()
