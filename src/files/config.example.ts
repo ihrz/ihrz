@@ -166,12 +166,6 @@ const config: ConfigData = {
             user: ''
         },
         // The MySQL connection configuration if you using MySQL
-
-        useSqlite: true,
-        /*
-        If you want to use SQLite, put true, 
-        if you want to use MongoDB, put false.
-        */
     },
 
 };

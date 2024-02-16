@@ -76,8 +76,6 @@ export interface ConfigData {
             password: string;
             database: string;
         };
-
-        useSqlite: boolean;
     };
 
 }
