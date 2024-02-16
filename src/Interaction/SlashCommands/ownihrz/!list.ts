@@ -64,7 +64,7 @@ async function buildEmbed(client: Client, data: any, botId: number, lang: Langua
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let table_1 = client.db.table("OWNIHRZ");
-        let data_2 = await client.db.get(`MAIN.${interaction.user.id}`);
+        let data_2 = await table_1.get(`MAIN.${interaction.user.id}`);
 
         let lsEmbed: EmbedBuilder[] = [
             new EmbedBuilder()
