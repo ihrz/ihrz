@@ -28,7 +28,7 @@ import { MongoDriver } from 'quickmongo';
 
 let exec = async (driver: MongoDriver) => {
     await driver.close();
-    logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database.useSqlite ? 'SQLite' : 'MongoDB'})!`);
+    logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database?.method})!`);
     process.exit();
 };
 

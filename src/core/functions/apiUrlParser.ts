@@ -29,50 +29,53 @@ export const ClusterMethod = {
     PowerOnContainer: 4
 };
 
+let domain = process.env.HOST || config.api.domain;
+let port = process.env.PORT || config.api.port;
+
 export let LoginURL =
     config.api.useProxy ? config.api.proxyUrl :
         config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port;
+            domain + ':' + port;
 
 export let ApiURL =
     config.api.useProxy ? config.api.proxyUrl + '/api/check/' :
         config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port + '/api/check/';
+            domain + ':' + port + '/api/check/';
 
 export let DatabaseURL =
     config.api.useProxy ? config.api.proxyUrl + '/api/database/' :
         config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port + '/api/database/';
+            domain + ':' + port + '/api/database/';
 
 export let CaptchaURL =
     config.api.useProxy ? config.api.proxyUrl + '/api/captcha/' :
         config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port + '/api/captcha/';
+            domain + ':' + port + '/api/captcha/';
 
 export let KissURL =
     config.api.useProxy ? config.api.proxyUrl + '/api/kiss/' :
         config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port + '/api/kiss/';
+            domain + ':' + port + '/api/kiss/';
 
 export let SlapURL =
     config.api.useProxy ? config.api.proxyUrl + '/api/slap/' :
         config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port + '/api/slap/';
+            domain + ':' + port + '/api/slap/';
 
 export let HugURL =
     config.api.useProxy ? config.api.proxyUrl + '/api/hug/' :
         config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port + '/api/hug/';
+            domain + ':' + port + '/api/hug/';
 
 export let assets =
     config.api.useProxy ? config.api.proxyUrl + '/assets/' :
         config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port + '/assets/';
+            domain + ':' + port + '/assets/';
 
 export let PublishURL =
     config.api.useProxy ? config.api.proxyUrl + '/api/publish' :
         config.api.useHttps ? 'https://' : 'http://' +
-            config.api.domain + ':' + config.api.port + '/api/publish';
+            domain + ':' + port + '/api/publish';
 
 export function OwnIhrzCluster(cluster_number: number, cluster_method: number, bot_id?: string, admin_key?: string) {
     var data = config.core.cluster[cluster_number as keyof typeof config.core.cluster];

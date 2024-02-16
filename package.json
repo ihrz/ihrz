@@ -25,7 +25,7 @@
   "dependencies": {
     "@discordjs/voice": "^0.16.0",
     "axios": "1.6.7",
-    "better-sqlite3": "^9.4.0",
+    "better-sqlite3": "^9.4.1",
     "colors": "^1.4.0",
     "date-and-time": "^3.0.2",
     "discord-html-transcripts": "^3.2.0",
