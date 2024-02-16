@@ -19,9 +19,25 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
+import { Emojis } from '../../../types/emojis';
+import { Client } from 'discord.js';
+
+import toml from 'toml';
+import fs from 'node:fs';
+
+function emojis_(): Emojis {
+    return toml.parse(String(fs.readFileSync(process.cwd() + "/src/files/emojis.toml"))) as Emojis
+};
+
+let emojis : Emojis;
+
 function generateProgressBar(currentTimeMs: number, totalTimeMs: number): string {
     let currentTimeInSeconds = Math.floor(currentTimeMs / 1000);
     let totalTimeInSeconds = Math.floor(totalTimeMs / 1000);
+
+    if (!emojis) {
+        emojis = emojis_();
+    }
 
     let progress = (currentTimeInSeconds / totalTimeInSeconds) * 100;
 
@@ -33,7 +49,7 @@ function generateProgressBar(currentTimeMs: number, totalTimeMs: number): string
     let dashesBefore = Math.floor((progressBarLength - 2) * (progress / 100));
     let dashesAfter = progressBarLength - dashesBefore - 2;
 
-    let progressBar = `${currentTimeFormatted} ┃ ${'▬'.repeat(dashesBefore)}🔘${'▬'.repeat(dashesAfter)} ┃ ${totalTimeFormatted}`;
+    let progressBar = `${currentTimeFormatted} ┃ ${`${emojis.icon.iHorizon_Bar}`.repeat(dashesBefore)}${emojis.icon.iHorizon_Pointer}${`${emojis.icon.iHorizon_Bar}`.repeat(dashesAfter)} ┃ ${totalTimeFormatted}`;
 
     return progressBar;
 }
@@ -41,7 +57,7 @@ function generateProgressBar(currentTimeMs: number, totalTimeMs: number): string
 function formatTime(seconds: number): string {
     let minutes = Math.floor(seconds / 60);
     let remainingSeconds = seconds % 60;
-    
+
     return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
 }
 

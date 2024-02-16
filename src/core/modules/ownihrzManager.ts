@@ -93,8 +93,8 @@ class OwnIHRZ {
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
             },
             {
-                l: `cp -r ./node_modules/ ./ownihrz/${data.Code}/node_modules/`,
-                cwd: path.resolve(process.cwd())
+                l: `bun install`,
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
             },
             {
                 l: 'npx tsc',
