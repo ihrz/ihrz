@@ -36,7 +36,7 @@ export default async (client: Client) => {
             return client.guilds.cache.get(id)?.shard?.send(payload);
         },
         client: {
-            id: process.env.CLIENT_ID || config.api.clientID as string,
+            id: process.env.CLIENT_ID || client.user?.id as string,
             username: "iHorizon"
         },
     });
