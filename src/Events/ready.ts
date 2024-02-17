@@ -125,7 +125,7 @@ export default async (client: Client) => {
         });
     };
 
-    await client.player.init({ ...client.user! });
+    await client.player.init({ id: client.user?.id as string, username: client.user?.username });
 
     let iHorizon_Container = new OwnIHRZ();
     iHorizon_Container.Startup();
