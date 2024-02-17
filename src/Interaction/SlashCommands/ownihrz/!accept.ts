@@ -54,6 +54,11 @@ export default {
         }
         let id_2 = getData() as Custom_iHorizon;
 
+        if (!id_2) {
+            await interaction.reply({ content: data.mybot_manage_accept_not_found });
+            return;
+        };
+
         id_2.AdminKey = config.api.apiToken;
         id_2.Code = id as string;
         id_2.Lavalink = {
@@ -63,11 +68,6 @@ export default {
 
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
-            return;
-        };
-
-        if (!id_2) {
-            await interaction.reply({ content: data.mybot_manage_accept_not_found });
             return;
         };
 
