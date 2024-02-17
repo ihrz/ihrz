@@ -82,8 +82,9 @@ export const command: Command = {
         };
 
         let action_2 = interaction.options.getString("pfp");
+        let table = client.db.table('OWNER');
 
-        if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`)
+        if (await table.get(`${interaction.user.id}.owner`)
             !== true) {
 
             await interaction.reply({ content: '❌', ephemeral: true });

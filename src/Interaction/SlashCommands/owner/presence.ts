@@ -103,7 +103,9 @@ export const command: Command = {
         let action_2 = interaction.options.getString("name");
         let action_3 = interaction.options.getString("twitch_username") || "anaissaraiva";
 
-        if (await client.db.get(`GLOBAL.OWNER.${interaction.user.id}.owner`)
+        let table = client.db.table('OWNER');
+
+        if (await table.get(`${interaction.user.id}.owner`)
             !== true) {
 
             await interaction.deleteReply();
