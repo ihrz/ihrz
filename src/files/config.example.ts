@@ -60,7 +60,8 @@ const config: ConfigData = {
         bash: false,
         // true => Beautiful iHorizon bash on the console OR false => Disable them.
 
-        blacklistPictureInEmbed: "The image of the blacklist's Embed (When blacklisted user attempt to interact with the bot)",
+        blacklistPictureInEmbed: "An png url",
+        // The image of the blacklist's Embed (When blacklisted user attempt to interact with the bot)
 
         guildLogsChannelID: "The Discord Channel's ID for logs when guildCreate/guildRemove",
         // The channel where the robot informs of the arrival on a server or when it leaves.
@@ -125,16 +126,16 @@ const config: ConfigData = {
         useProxy: false,
         // For example you use nginx&certbot to make the Front-end
 
-        proxyUrl: "https://login.example.com",
+        proxyUrl: "https://login.domain.com",
         // You need the entire URL of the proxy!
 
-        apiToken: "The API's token for create a request (Need to be private for security reason)",
-        // The API token for secure requests, please put a strong token.
+        apiToken: "The api token",
+        // The API token for secure requests, please put a strong token, Need to be private for security reason.
 
-        clientSecret: "The client Secret of your application",
+        clientSecret: "The client secret",
         // The client secret of the Discord Application which is used to login for Oauth2.
 
-        clientID: "The client ID of your application",
+        clientID: "The client id of your application",
         // The client ID of the Discord Application which is used to login for Oauth2.
 
         oauth2Link: "The oauth2Link of your application",
@@ -153,7 +154,7 @@ const config: ConfigData = {
     },
 
     database: {
-        method: 'MYSQL',
+        method: 'SQLITE',
         // The method you want for the database
 
         mongoDb: "mongodb://ihrz:1337/iHorizonDB",
