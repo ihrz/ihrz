@@ -153,7 +153,7 @@ const config: ConfigData = {
     },
 
     database: {
-        method: 'MYSQL',
+        method: 'SQLITE',
         // The method you want for the database
 
         mongoDb: "mongodb://ihrz:1337/iHorizonDB",
