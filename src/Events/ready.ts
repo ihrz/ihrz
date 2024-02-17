@@ -105,7 +105,7 @@ export default async (client: Client) => {
         });
     };
 
-    await client.player.init({ id: client.user?.id as string, username: client.user?.username });
+    await client.player.init({ id: client.user?.id as string, username: 'bot_' + client.user?.id });
     
     setInterval(quotesPresence, 80_000), setInterval(refreshSchedule, 15_000);
 
