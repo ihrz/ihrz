@@ -23,7 +23,6 @@ import {
     Client,
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
-    GuildMember,
     UserResolvable,
     ApplicationCommandType
 } from 'discord.js'
@@ -40,7 +39,7 @@ export const command: Command = {
     
     options: [
         {
-            name: 'member',
+            name: 'user',
             type: ApplicationCommandOptionType.User,
 
             description: 'The user you want to unblacklist (Only Owner of ihorizon)',
@@ -57,14 +56,15 @@ export const command: Command = {
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
         let tableOwner = client.db.table('OWNER');
+        let tableBlacklist = client.db.table('BLACKLIST');
 
         if (await tableOwner.get(`${interaction.user.id}.owner`) !== true) {
             await interaction.reply({ content: data.unblacklist_not_owner });
             return;
         };
 
-        let member = interaction.options.getUser('member');
-        let fetched = await tableOwner.get(`${member?.id}`);
+        let member = interaction.options.getUser('user');
+        let fetched = await tableBlacklist.get(`${member?.id}`);
 
         if (!fetched) {
             await interaction.reply({ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member?.id) });
@@ -79,13 +79,13 @@ export const command: Command = {
                 return;
             };
 
-            await tableOwner.delete(`${member?.id}`);
+            await tableBlacklist.delete(`${member?.id}`);
             await interaction.guild?.members.unban(bannedMember);
 
             await interaction.reply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member?.id) });
             return;
         } catch (e) {
-            await tableOwner.delete(`${member?.id}`);
+            await tableBlacklist.delete(`${member?.id}`);
             await interaction.reply({
                 content: data.unblacklist_unblacklisted_but_can_unban_him.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
