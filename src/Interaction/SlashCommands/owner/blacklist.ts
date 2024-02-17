@@ -53,6 +53,17 @@ export const command: Command = {
             },
 
             required: false
+        },
+        {
+            name: 'reason',
+            type: ApplicationCommandOptionType.String,
+
+            description: 'The reason why you want to blacklist this member',
+            description_localizations: {
+                "fr": "La raison de pourquoi vous voulez le mettre dans la liste-noire"
+            },
+
+            required: false
         }
     ],
     thinking: false,
@@ -69,12 +80,11 @@ export const command: Command = {
         };
 
         var blacklistedUsers = await tableBlacklist.all();
-        
+
         let member = interaction.options.getMember('user') as GuildMember;
         let user = interaction.options.getUser('user');
-        console.log(blacklistedUsers)
+        let reason = interaction.options.getString('reason');
 
-        
         if (!member && !user) {
             if (!blacklistedUsers.length) {
                 await interaction.reply({ content: `${client.iHorizon_Emojis.icon.No_Logo} No one blacklisted found!`, ephemeral: true });
@@ -88,10 +98,9 @@ export const command: Command = {
             for (let i = 0; i < blacklistedUsers.length; i += usersPerPage) {
                 let pageUsers = blacklistedUsers.slice(i, i + usersPerPage);
                 let pageContent = pageUsers.map(userObj => {
-                    let blacklisted = userObj.value.blacklisted;
-                    let memberId = userObj.id;
-                    return `${blacklisted ? '🔴' : '⚪'} <@${memberId}>\n\`${userObj.value.reason || 'No reason found'}\``;
+                    return `<@${userObj.id}>\n\`${userObj.value.reason || 'No reason found'}\``;
                 }).join('\n');
+
                 pages.push({
                     title: `Blacklist - Page ${i / usersPerPage + 1}`,
                     description: pageContent,
@@ -159,25 +168,33 @@ export const command: Command = {
 
             let fetched = await tableBlacklist.get(`${member.user.id}`);
 
-            if (!fetched) {
-                await tableBlacklist.set(`${member.user.id}.blacklisted`, true);
-
-                if (member.bannable) {
-                    (member as unknown as GuildMemberManager).ban("blacklisted !");
-                    await interaction.reply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, member.user.globalName) });
-                    return;
-                } else {
-
-                    await tableBlacklist.set(`${member.user.id}.blacklisted`, true);
-                    await interaction.reply({
-                        content: data.blacklist_blacklisted_but_can_ban_him.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
-                    });
-                    return;
-                }
-            } else {
-                await interaction.reply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, member.user.globalName) });
+            if (fetched) {
+                await interaction.reply({
+                    content: data.blacklist_already_blacklisted
+                        .replace(/\${member\.user\.username}/g, member.user.globalName || member.user.username)
+                });
                 return;
-            }
+            };
+
+            await tableBlacklist.set(`${member.user.id}`, {
+                blacklisted: true,
+                reason: reason
+            });
+
+            member.ban({ reason: 'blacklisted !' }).then(async () => {
+                await interaction.reply({
+                    content: data.blacklist_command_work
+                        .replace(/\${member\.user\.username}/g, member.user.globalName || member.user.username)
+                });
+                return;
+            }).catch(async () => {
+                await interaction.reply({
+                    content: data.blacklist_blacklisted_but_can_ban_him
+                        .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                });
+                return;
+            });
+
         } else if (user) {
 
             if (user.id === client.user?.id) {
@@ -187,14 +204,25 @@ export const command: Command = {
 
             let fetched = await tableBlacklist.get(`${user.id}`);
 
-            if (!fetched) {
-                await tableBlacklist.set(`${user.id}.blacklisted`, true);
-
-                await interaction.reply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, user.globalName || user.username) }); return;
-            } else {
-                await interaction.reply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, user.globalName || user.username) });
+            if (fetched) {
+                await interaction.reply({
+                    content: data.blacklist_already_blacklisted
+                        .replace(/\${member\.user\.username}/g, user.globalName || user.username)
+                });
                 return;
             }
-        };
+
+            await tableBlacklist.set(`${user.id}`, {
+                blacklisted: true,
+                reason: reason
+            });
+
+            await interaction.reply({
+                content: data.blacklist_command_work
+                    .replace(/\${member\.user\.username}/g, user.globalName || user.username)
+            }); 
+            
+            return;
+        }
     },
 };
