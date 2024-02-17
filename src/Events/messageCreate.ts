@@ -40,7 +40,7 @@ export default async (client: Client, message: Message) => {
         } else {
             return false;
         };
-    };
+    }
 
     async function xpFetcher() {
         if (await MessageCommandExecutor()) return;
