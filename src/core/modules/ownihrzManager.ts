@@ -48,75 +48,109 @@ class OwnIHRZ {
                 l: 'git clone --branch ownihrz --depth 1 https://github.com/ihrz/ihrz.git .',
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
             },
+
+            {
+                l: `yarn`,
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
+            },
+
             {
                 l: 'mv src/files/config.example.ts src/files/config.ts',
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
             },
+
+            // The bot token
             {
-                l: `sed -i 's/|| "The bot token",/|| "${data.Auth}",/g' config.ts`,
+                l: `sed -i 's/token: "The bot token"/token: "${data.Auth}"/' config.ts`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
             },
+
+            // Owner1
             {
-                l: `sed -i 's/"The discord User ID of the Owner number One",/"${data.OwnerOne}",/' config.ts`,
+                l: `sed -i 's/ownerid1: "User id",/ownerid1: "${data.OwnerOne}",/' config.ts`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
             },
+
+            // Owner2
             {
-                l: `sed -i 's/"The discord User ID of the Owner number Two",/"${data.OwnerTwo}",/' config.ts`,
+                l: `sed -i 's/ownerid2: "User id",/ownerid2: "${data.OwnerTwo}",/' config.ts`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files'),
             },
+
+            // // ?
+            // {
+            //     l: `sed -i 's/"login\.example\.com"/"localhost"/' config.ts`,
+            //     cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
+            // },
+
+            // ApiToken
             {
-                l: `sed -i 's/"login\.domain\.com"/"localhost"/' config.ts`,
+                l: `sed -i 's/apiToken: "The api token",/apiToken: "${config.api.apiToken}",/' config.ts`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
             },
+
+            // UseProxy
             {
-                l: `sed -i 's/"apiToken": "The API'"'"'s token for create a request (Need to be private for security reason)",/"apiToken": "${config.api.apiToken}",/' config.ts`,
+                l: `sed -i 's/useProxy: false/useProxy: true/' config.ts`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
             },
+
+            // ProxyURL
             {
-                l: `sed -i 's/"useProxy": false/"useProxy": true/' config.ts`,
+                l: `sed -i 's/proxyUrl: "https:\\/\\/login\\.domain\\.com"/proxyUrl: "https:\\/\\/srv\.ihorizon\\.me"/' config.ts`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
             },
+
+            // ClientID
             {
-                l: `sed -i 's/"proxyUrl": "https:\\/\\/login\\.example\\.com"/"proxyUrl": "https:\\/\\/srv\\.ihorizon\\.me"/' config.ts`,
+                l: `sed -i 's/clientID: "The client id of your application"/clientID: "${process.env.CLIENT_ID || config.api.clientID}"/' config.ts`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
             },
-            {
-                l: `sed -i 's/"The client ID of your application"/"${process.env.CLIENT_ID || config.api.clientID}"/' config.ts`,
-                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
-            },
+
+            // Port
             {
                 l: `sed -i 's/"3000"/"${port_range}"/' config.ts`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
             },
+
+            // Blacklist
             {
-                l: `sed -i 's/"blacklistPictureInEmbed": "The image of the blacklist'\\''s Embed (When blacklisted user attempt to interact with the bot)",/"blacklistPictureInEmbed": "https:\\/\\/media.discordapp.net\\/attachments\\/1099043567659384942\\/1119214828330950706\\/image.png",/' config.ts`,
+                l: `sed -i 's/blacklistPictureInEmbed: "An png url",/blacklistPictureInEmbed: "https:\\/\\/media\\.discordapp\\.net\/attachments\\/1099043567659384942\\/1119214828330950706\\/image\\.png",/' config.ts`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
             },
+
+            // Lavalink
             {
                 l: `sed -i 's/host: "lavalink.example.com"/host: "${data.Lavalink.NodeURL}"/' config.ts`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
             },
+
+            // Lavalink
             {
-                l: `sed -i 's/host: "password"/host: "${data.Lavalink.NodeAuth}"/' config.ts`,
+                l: `sed -i 's/authorization: "password"/authorization: "${data.Lavalink.NodeAuth}"/' config.ts`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
             },
-            {
-                l: `bun install`,
-                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
-            },
+
+            // Compile
             {
                 l: 'npx tsc',
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
             },
+
+            // Moove file
             {
                 l: `mv dist/index.js dist/${data.Code}.js`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
             },
+
+            // Start
             {
                 l: `pm2 start ./dist/${data.Code}.js -f`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
             }
-        ].forEach((index) => { execSync(index.l, { stdio: [0, 1, 2], cwd: index.cwd }); });
+        ].forEach((index) => {
+            execSync(index.l, { stdio: [0, 1, 2], cwd: index.cwd })
+        });
 
         let table_1 = db.table("OWNIHRZ");
         await table_1.set(`MAIN.${data.OwnerOne}.${data.Code}`,
@@ -145,7 +179,7 @@ class OwnIHRZ {
                 let botPath = path.join(process.cwd(), 'ownihrz', result[owner_id][bot_id].Code);
                 [
                     {
-                        line: 'rm -r dist',
+                        line: 'rm -r -f dist',
                         cwd: botPath
                     },
                     {
