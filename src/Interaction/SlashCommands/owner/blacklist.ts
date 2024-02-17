@@ -86,10 +86,9 @@ export const command: Command = {
             for (let i = 0; i < blacklistedUsers.length; i += usersPerPage) {
                 let pageUsers = blacklistedUsers.slice(i, i + usersPerPage);
                 let pageContent = pageUsers.map(userObj => {
-                    let blacklisted = userObj.value.blacklisted;
-                    let memberId = userObj.id;
-                    return `${blacklisted ? '🔴' : '⚪'} <@${memberId}>\n\`${userObj.value.reason || 'No reason found'}\``;
+                    return `<@${userObj.id}>\n\`${userObj.value.reason || 'No reason found'}\``;
                 }).join('\n');
+                
                 pages.push({
                     title: `Blacklist - Page ${i / usersPerPage + 1}`,
                     description: pageContent,
