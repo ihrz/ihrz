@@ -69,12 +69,10 @@ export const command: Command = {
         };
 
         var blacklistedUsers = await tableBlacklist.all();
-        
+
         let member = interaction.options.getMember('user') as GuildMember;
         let user = interaction.options.getUser('user');
-        console.log(blacklistedUsers)
 
-        
         if (!member && !user) {
             if (!blacklistedUsers.length) {
                 await interaction.reply({ content: `${client.iHorizon_Emojis.icon.No_Logo} No one blacklisted found!`, ephemeral: true });
@@ -159,25 +157,31 @@ export const command: Command = {
 
             let fetched = await tableBlacklist.get(`${member.user.id}`);
 
-            if (!fetched) {
-                await tableBlacklist.set(`${member.user.id}.blacklisted`, true);
-
-                if (member.bannable) {
-                    (member as unknown as GuildMemberManager).ban("blacklisted !");
-                    await interaction.reply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, member.user.globalName) });
-                    return;
-                } else {
-
-                    await tableBlacklist.set(`${member.user.id}.blacklisted`, true);
-                    await interaction.reply({
-                        content: data.blacklist_blacklisted_but_can_ban_him.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
-                    });
-                    return;
-                }
-            } else {
-                await interaction.reply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, member.user.globalName) });
+            if (fetched) {
+                await interaction.reply({
+                    content: data.blacklist_already_blacklisted
+                        .replace(/\${member\.user\.username}/g, member.user.globalName || member.user.username)
+                });
                 return;
-            }
+            };
+
+            await tableBlacklist.set(`${member.user.id}.blacklisted`, true);
+
+            member.ban({ reason: 'blacklisted !' }).then(async () => {
+                await interaction.reply({
+                    content: data.blacklist_command_work
+                        .replace(/\${member\.user\.username}/g, member.user.globalName || member.user.username)
+                });
+                return;
+            }).catch(async () => {
+                await tableBlacklist.set(`${member.user.id}.blacklisted`, true);
+                await interaction.reply({
+                    content: data.blacklist_blacklisted_but_can_ban_him
+                        .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                });
+                return;
+            });
+
         } else if (user) {
 
             if (user.id === client.user?.id) {
@@ -190,9 +194,15 @@ export const command: Command = {
             if (!fetched) {
                 await tableBlacklist.set(`${user.id}.blacklisted`, true);
 
-                await interaction.reply({ content: data.blacklist_command_work.replace(/\${member\.user\.username}/g, user.globalName || user.username) }); return;
+                await interaction.reply({
+                    content: data.blacklist_command_work
+                        .replace(/\${member\.user\.username}/g, user.globalName || user.username)
+                }); return;
             } else {
-                await interaction.reply({ content: data.blacklist_already_blacklisted.replace(/\${member\.user\.username}/g, user.globalName || user.username) });
+                await interaction.reply({
+                    content: data.blacklist_already_blacklisted
+                        .replace(/\${member\.user\.username}/g, user.globalName || user.username)
+                });
                 return;
             }
         };
