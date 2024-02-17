@@ -98,9 +98,9 @@ const config: ConfigData = {
 
     owner: {
 
-        ownerid1: "The discord User ID of the Owner number One",
-
-        ownerid2: "The discord User ID of the Owner number Two",
+        ownerid1: "User id",
+        
+        ownerid2: "User id",
         /*
         This owners have different permissions than the others in the db,
         
