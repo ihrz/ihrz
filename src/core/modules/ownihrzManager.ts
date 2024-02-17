@@ -93,6 +93,14 @@ class OwnIHRZ {
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
             },
             {
+                l: `sed -i 's/host: "lavalink.example.com"/host: "${data.Lavalink.NodeURL}"/' config.ts`,
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
+            },
+            {
+                l: `sed -i 's/host: "password"/host: "${data.Lavalink.NodeAuth}"/' config.ts`,
+                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
+            },
+            {
                 l: `bun install`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
             },

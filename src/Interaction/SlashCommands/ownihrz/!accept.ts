@@ -56,8 +56,12 @@ export default {
 
         id_2.AdminKey = config.api.apiToken;
         id_2.Code = id as string;
+        id_2.Lavalink = {
+            NodeURL: config.api.domain,
+            NodeAuth: config.lavalink.nodes[0].authorization,
+        };
 
-        if ((interaction.user.id !== process.env.OWNER_ONE || config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
+        if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };
@@ -142,7 +146,11 @@ export default {
                     },
                     ExpireIn: id_2.ExpireIn,
                     Code: id_2.Code,
-                    AdminKey: ''
+                    AdminKey: '',
+                    Lavalink: {
+                        NodeURL: config.api.domain,
+                        NodeAuth: config.lavalink.nodes[0].authorization,
+                    }
                 });
 
             };
