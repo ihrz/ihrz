@@ -75,6 +75,7 @@ export default async (client: Client) => {
     emojis(client);
     
     client.db = db;
+    client.content = []
     client.invites = new Collection();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 

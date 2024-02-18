@@ -28,6 +28,7 @@ import { AnotherCommand } from "./anotherCommand";
 import { Emojis } from "./emojis";
 import { GiveawayManager } from "discord-regiveaways";
 import { QueueChangesWatcher, LavalinkManager } from "lavalink-client";
+import { BotContent } from './botContent'
 
 declare module 'discord.js' {
     export interface Client {
@@ -42,6 +43,7 @@ declare module 'discord.js' {
         db: QuickDB,
         applicationsCommands: Collection<string, AnotherCommand>,
         iHorizon_Emojis: Emojis,
-        giveawaysManager: GiveawayManager
+        giveawaysManager: GiveawayManager,
+        content: BotContent[]
     }
 };

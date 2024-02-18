@@ -24,7 +24,6 @@ import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
 import logger from "../logger.js";
 import { Command } from "../../../types/command";
-import db from '../functions/DatabaseModel.js';
 import config from "../../files/config.js";
 import { EltType } from "../../../types/eltType";
 
@@ -76,11 +75,13 @@ async function loadCommands(client: Client, path: string = `${process.cwd()}/dis
 
         let { command } = await import(path); if (!command) continue;
 
-        var table_1 = db.table("BOT");
-
-        await table_1.push(`CONTENT.${command.category}`,
+        client.content.push(
             {
-                cmd: command.name, desc: { desc: command.description, lang: command.description_localizations }, message_command: true
+                cmd: command.name,
+                desc: command.description,
+                desc_localized: command.description_localizations,
+                category: command.category,
+                messageCmd: true,
             }
         );
 
