@@ -57,15 +57,23 @@ switch (config.database?.method) {
         });
         break;
     case 'MYSQL':
-        dbPromise = new Promise<QuickDB>((resolve, reject) => {
-            const MYSQL = new MySQLDriver({
-                host: '',
-                user: '',
-                password: '',
-                database: ''
-            })
+        dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
             logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`));
-            resolve(new QuickDB({ driver: MYSQL }));
+            
+            let mysql = new MySQLDriver({
+                host: config.database?.mySQL?.host,
+                user: config.database?.mySQL?.user,
+                password: config.database?.mySQL?.password,
+                database: config.database?.mySQL?.database,
+                port: config.database?.mySQL?.port,
+            });
+
+            await mysql.connect();
+            resolve(
+                new QuickDB({
+                    driver: mysql
+                })
+            );
         });
         break;
     case 'SQLITE':
