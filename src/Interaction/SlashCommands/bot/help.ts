@@ -236,51 +236,53 @@ export const command: Command = {
 
             if (i.user.id !== interaction.user.id) {
                 await i.reply({ content: data.help_not_for_you, ephemeral: true });
-            } else {
-                await i.deferUpdate();
+                return;
+            };
 
-                embed
-                    .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
-                    .setDescription(categories[i.values[0] as unknown as number].description);
+            await i.deferUpdate();
 
-                embed.setFields({ name: ' ', value: ' ' });
+            embed
+                .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
+                .setDescription(categories[i.values[0] as unknown as number].description);
 
-                categories[i.values[0] as unknown as number].value.forEach(async (element) => {
-                    if (element.messageCmd) {
-                        switch (guildLang) {
-                            case "en-US":
-                                embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
-                                break;
-                            case "fr-FR":
-                                embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
-                                break;
-                            case "fr-ME":
-                                embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
-                                break;
-                            default:
-                                embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
-                                break;
-                        };
-                    } else {
-                        switch (guildLang) {
-                            case "en-US":
-                                embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
-                                break;
-                            case "fr-FR":
-                                embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
-                                break;
-                            case "fr-ME":
-                                embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
-                                break;
-                            default:
-                                embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
-                                break;
-                        };
-                    }
+            embed.setFields({ name: ' ', value: ' ' });
 
-                    await response.edit({ embeds: [embed] });
-                });
-            }
+            categories[i.values[0] as unknown as number].value.forEach(async (element) => {
+                if (element.messageCmd) {
+                    switch (guildLang) {
+                        case "en-US":
+                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
+                            break;
+                        case "fr-FR":
+                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
+                            break;
+                        case "fr-ME":
+                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
+                            break;
+                        default:
+                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
+                            break;
+                    };
+                } else {
+                    switch (guildLang) {
+                        case "en-US":
+                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
+                            break;
+                        case "fr-FR":
+                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
+                            break;
+                        case "fr-ME":
+                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
+                            break;
+                        default:
+                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
+                            break;
+                    };
+                }
+
+                await response.edit({ embeds: [embed] });
+            });
+
         });
 
         collector.on('end', async i => {

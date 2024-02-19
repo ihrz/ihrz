@@ -65,9 +65,6 @@ export default async (client: Client) => {
 
     checkSys.Html();
 
-    var table_1 = db.table("BOT");
-    await table_1.set(`CONTENT`, {});
-
     await import('../api/server.js');
 
     playerManager(client);
