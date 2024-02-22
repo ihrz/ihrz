@@ -53,6 +53,5 @@ export default {
         );
 
         return;
-        // [{ attachment: await guild.client.functions.image64(client.user?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 4096 })), name: 'icon.png' }]
     },
 };
