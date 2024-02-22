@@ -35,6 +35,11 @@ export default async (client: Client) => {
         sendToShard(id, payload) {
             return client.guilds.cache.get(id)?.shard?.send(payload);
         },
+        playerOptions: {
+            onEmptyQueue: {
+                destroyAfterMs: 30_00
+            }
+        },
         client: {
             id: process.env.CLIENT_ID || client.user?.id as string,
             username: "iHorizon"

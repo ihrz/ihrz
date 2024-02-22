@@ -116,21 +116,26 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
 
         let table = client.db.table('TEMP');
 
-        let result = await client.db.get(`${newState.guild.id}.VOICE_INTERFACE.voice_channel`);
-        var current_channel = await table.get(`VOICE_INTERFACE.${newState.guild.id}.${newState.member?.id}`);
+        let ChannelForCreate = await client.db.get(`${newState.guild.id}.VOICE_INTERFACE.voice_channel`);
+        var ChannelDB = await table.get(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
 
-        let result_channel = newState.guild.channels.cache.get(result);
+        let channel_db_fetched = newState.guild.channels.cache.get(ChannelDB);
+        let result_channel = newState.guild.channels.cache.get(ChannelForCreate);
         let category_channel = newState.guild.channels.cache.get(result_channel?.parentId as string) as CategoryChannel;
 
-        if (oldState.channelId === current_channel) {
-            await newState.guild.channels.delete(current_channel);
-            if (newState.channelId === result) await newState.member?.voice.disconnect();
-
-            await table.delete(`VOICE_INTERFACE.${newState.guild.id}.${newState.member?.id}`);
-            return;
+        // If the user leave their own empty channel
+        if (oldState.channelId === ChannelDB && channel_db_fetched?.members.constructor.length === 0) {
+            await channel_db_fetched.delete();
+            await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
         };
 
-        if (newState.channelId === result) {
+        // If the member leave their own channel for trying to create another one
+        if (newState.channelId === ChannelForCreate && oldState.channelId === ChannelDB) {
+            await newState.member?.voice.disconnect();
+        };
+
+        // If the user join the Create's Channel
+        if (newState.channelId === ChannelForCreate && oldState.channelId !== ChannelDB) {
 
             let channel = await newState.guild.channels.create({
                 name: `${newState.member?.displayName || newState.member?.nickname}'s Voice`,
@@ -140,17 +145,25 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
                 topic: `${newState.member?.displayName || newState.member?.nickname}'s Voice`
             })
 
-            channel.permissionOverwrites.edit(newState.member?.id as string,
+            channel.permissionOverwrites.edit(newState.member?.user.id as string,
                 {
+                    Connect: true,
                     Stream: true,
                     Speak: true,
-                    Connect: true,
                 },
             );
 
+            // channel.permissionOverwrites.edit(newState.guild.roles.everyone.id,
+            //     {
+            //         Connect: false,
+            //         Stream: true,
+            //         Speak: true,
+            //     },
+            // );
+
             await newState.member?.voice.setChannel(channel.id);
 
-            await table.set(`VOICE_INTERFACE.${newState.guild.id}.${newState.member?.id}`, newState.channelId);
+            await table.set(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`, newState.channelId);
             return;
         };
     };

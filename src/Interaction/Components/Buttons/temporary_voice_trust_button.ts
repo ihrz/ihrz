@@ -25,6 +25,8 @@ import { LanguageData } from '../../../../types/languageData';
 export default async function (interaction: ButtonInteraction<CacheType>) {
 
     let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
+    let table = interaction.client.db.table('TEMP');
+
     let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
     let member = interaction.member as GuildMember;
 
@@ -112,7 +114,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                         value: addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'No one'
                     },
                 )
-                .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`)}.png`)
+                .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
                 .setFooter(
                     {
                         text: "iHorizon",
@@ -127,7 +129,8 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                         attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
                         name: 'icon.png'
                     }
-                ]
+                ],
+                ephemeral: true
             });
 
             collector?.stop();
