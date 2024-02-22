@@ -63,7 +63,7 @@ export default async (client: Client) => {
         process.exit();
     });
 
-    checkSys.Html();
+    checkSys.HtmlFile();
 
     await import('../api/server.js');
 
