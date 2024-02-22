@@ -27,7 +27,7 @@ import logger from '../logger.ts';
 
 let INDEX_HTML_LINK: string = 'https://raw.githubusercontent.com/ihrz/ihrz/main/src/api/index.example.html';
 
-export async function HtmlFile(): Promise<void> {
+export async function Html() {
     // check if the file exists
     if (!fs.existsSync(`${process.cwd()}/src/api/index.html`)) {
         logger.warn(couleurmdr.red(`Error: File not found! (${process.cwd()}/src/api/index.html)`));
