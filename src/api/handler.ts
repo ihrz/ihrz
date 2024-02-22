@@ -21,8 +21,8 @@
 
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
-import logger from "../core/logger.js";
-import config from "../files/config.js";
+import logger from "../core/logger.ts";
+import config from "../files/config.ts";
 import { EltType } from "../../types/eltType";
 import { Express } from "express-serve-static-core";
 
@@ -58,14 +58,14 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
     return paths;
 };
 
-async function loadRoutes(app: Express, path: string = `${process.cwd()}/dist/src/api/Routes/`): Promise<void> {
+async function loadRoutes(app: Express, path: string = `${process.cwd()}/src/api/Routes/`): Promise<void> {
 
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
 
     var i = 0;
     for (let path of paths) {
-        if (!path.endsWith('.js')) return;
+        if (!path.endsWith('.ts')) return;
 
         let Routes = await import(path).then(data => data.default);
 

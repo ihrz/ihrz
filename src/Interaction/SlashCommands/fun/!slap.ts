@@ -26,7 +26,7 @@ import {
 } from 'discord.js';
 
 import axios, { AxiosResponse } from 'axios';
-import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
+import * as apiUrlParser from '../../../core/functions/apiUrlParser.ts';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {

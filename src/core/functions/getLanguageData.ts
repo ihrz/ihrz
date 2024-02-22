@@ -19,10 +19,10 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import db from '../functions/DatabaseModel.js';
+import db from '../functions/DatabaseModel.ts';
 import yaml from 'js-yaml';
 import fs from 'node:fs';
-import { LanguageData } from '../../../types/languageData.js';
+import { LanguageData } from '../../../types/languageData.ts';
 
 interface LangsData {
     [lang: string]: LanguageData;

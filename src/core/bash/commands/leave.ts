@@ -20,7 +20,7 @@
 */
 
 import { Client } from "discord.js";
-import logger from "../../logger.js";
+import logger from "../../logger.ts";
 
 export default function (client: Client, args: string) {
     if (!args) {

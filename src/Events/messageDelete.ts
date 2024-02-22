@@ -20,7 +20,7 @@
 */
 
 import { Attachment, AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuilder, Message } from 'discord.js';
-import hidden from '../core/functions/maskLink.js';
+import hidden from '../core/functions/maskLink.ts';
 
 import axios, { AxiosResponse } from 'axios';
 

@@ -22,9 +22,9 @@
 import { BaseGuildTextChannel, Client, time } from 'discord.js';
 import { QueueChangesWatcher, LavalinkManager } from "lavalink-client";
 
-import db from '../functions/DatabaseModel.js';
-import logger from '../logger.js';
-import config from '../../files/config.js';
+import db from '../functions/DatabaseModel.ts';
+import logger from '../logger.ts';
+import config from '../../files/config.ts';
 
 export default async (client: Client) => {
 

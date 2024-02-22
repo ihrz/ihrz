@@ -34,8 +34,8 @@ import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
 import Jimp from 'jimp';
-import logger from '../../../core/logger.js';
-import config from '../../../files/config.js';
+import logger from '../../../core/logger.ts';
+import config from '../../../files/config.ts';
 
 export const command: Command = {
 

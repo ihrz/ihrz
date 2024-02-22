@@ -20,10 +20,10 @@
 */
 
 import DiscordOauth2 from 'discord-oauth2';
-import logger from '../../../core/logger.js';
+import logger from '../../../core/logger.ts';
 import { Request, Response } from 'express';
-import db from '../../../core/functions/DatabaseModel.js';
-import config from '../../../files/config.js';
+import db from '../../../core/functions/DatabaseModel.ts';
+import config from '../../../files/config.ts';
 
 let oauth = new DiscordOauth2();
 

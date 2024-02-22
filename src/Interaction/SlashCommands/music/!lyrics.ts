@@ -25,8 +25,8 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import logger from '../../../core/logger.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import logger from '../../../core/logger.ts';
+import { LanguageData } from '../../../../types/languageData.ts';
 import lyricsSearcher from "lyrics-searcher";
 
 export default {

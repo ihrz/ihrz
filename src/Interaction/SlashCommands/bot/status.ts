@@ -27,10 +27,10 @@ import {
     ApplicationCommandType
 } from 'discord.js'
 
-import pkg from '../../../../package.json' assert { type: "json" };
+import pkg from '../../../../package.json';
 
 import { Command } from '../../../../types/command';
-import config from '../../../files/config.js';
+import config from '../../../files/config.ts';
 import os from 'node:os';
 
 function niceBytes(a: Number) { let b = 0, c = parseInt((a as unknown as string), 10) || 0; for (; 1024 <= c && ++b;)c /= 1024; return c.toFixed(10 > c && 0 < b ? 1 : 0) + " " + ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][b] }

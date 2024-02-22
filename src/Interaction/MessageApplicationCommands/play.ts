@@ -29,7 +29,7 @@ import {
     time,
 } from 'discord.js';
 
-import { AnotherCommand } from '../../../types/anotherCommand.js';
+import { AnotherCommand } from '../../../types/anotherCommand.ts';
 
 export const command: AnotherCommand = {
     name: "Play it in a voice channel",

@@ -20,9 +20,9 @@
 */
 
 import { REST, Routes, Client, ApplicationCommand } from "discord.js";
-import config from "../files/config.js";
+import config from "../files/config.ts";
 import couleurmdr from 'colors';
-import logger from "./logger.js";
+import logger from "./logger.ts";
 
 const synchronizeCommands = async (client: Client): Promise<void> => {
     return new Promise(async (resolve, reject) => {

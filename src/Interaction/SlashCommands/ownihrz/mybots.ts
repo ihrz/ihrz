@@ -27,7 +27,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
-import config from '../../../files/config.js';
+import config from '../../../files/config.ts';
 
 export const command: Command = {
     name: "mybots",

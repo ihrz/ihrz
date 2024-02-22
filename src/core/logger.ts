@@ -19,24 +19,24 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Logger } from "../../types/logger";
 import 'colors';
+import { Logger } from '../../types/logger';
 
 function getCurrentTime(): string {
     return (new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })
 };
 
 let logger: Logger = {
-    warn(message) {
+    warn(message: any) {
         console.log(`[${getCurrentTime()} WRN]: `.red + message);
     },
-    err(message) {
+    err(message: any) {
         console.log(`[${getCurrentTime()} ERR]: `.red + message);
     },
-    log(message) {
+    log(message: any) {
         console.log(`[${getCurrentTime()} LOG]: `.green + message);
     },
-    legacy(message) {
+    legacy(message: any) {
         console.log(message);
     },
 };

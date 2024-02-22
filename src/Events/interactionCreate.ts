@@ -19,8 +19,8 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import config from '../files/config.js';
-import logger from '../core/logger.js';
+import config from '../files/config.ts';
+import logger from '../core/logger.ts';
 
 import { Client, CommandInteractionOptionResolver, EmbedBuilder, GuildChannel, Interaction } from 'discord.js';
 import fs from 'node:fs';

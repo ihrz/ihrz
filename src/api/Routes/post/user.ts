@@ -22,11 +22,11 @@
 import { URLSearchParams } from 'url';
 import axios from 'axios';
 import 'colors';
-import logger from '../../../core/logger.js';
-import config from '../../../files/config.js';
-import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
+import logger from '../../../core/logger.ts';
+import config from '../../../files/config.ts';
+import * as apiUrlParser from '../../../core/functions/apiUrlParser.ts';
 import { Request, Response } from 'express';
-import db from '../../../core/functions/DatabaseModel.js';
+import db from '../../../core/functions/DatabaseModel.ts';
 
 export default {
     type: 'post',
