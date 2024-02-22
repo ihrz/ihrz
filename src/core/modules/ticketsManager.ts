@@ -516,7 +516,7 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<CacheTyp
     let membersArray: string[] = [];
     let listmembersArray: string[] = [];
 
-    await interaction.members.each(async (i) => { membersArray.push(i.user?.id as string) });
+    interaction.members.each(async (i) => { membersArray.push(i.user?.id as string) });
 
     (interaction.channel as BaseGuildTextChannel).permissionOverwrites.cache
         .filter((i) => i.type === 1).each
