@@ -94,7 +94,8 @@ export default async (client: Client, guild: Guild) => {
                 `If you have any questions or run into any issues, don't hesitate to reach out to me.\n` +
                 `I'm here to make your experience on this server the best it can be.\n` +
                 `Thanks for choosing me and let's have some fun together!\n`
-            );
+            )
+            .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await guild.client.db.get(`${guild.id}.GUILD.LANG.lang`) || 'en-US'}.png`);
 
         let buttons = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
