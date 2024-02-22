@@ -29,7 +29,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
-import config from '../../../files/config.ts';
+import config from '../../../files/config.js';
 import ms from 'ms';
 
 export const command: Command = {

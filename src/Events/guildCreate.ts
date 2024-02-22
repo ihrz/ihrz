@@ -21,8 +21,8 @@
 
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan, Guild, GuildTextBasedChannel, Client, BaseGuildTextChannel, GuildBasedChannel } from 'discord.js';
 
-import logger from "../core/logger.ts";
-import config from '../files/config.ts';
+import logger from "../core/logger.js";
+import config from '../files/config.js';
 
 export default async (client: Client, guild: Guild) => {
     let channel = guild.channels.cache.get((guild?.systemChannelId as string))

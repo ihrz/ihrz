@@ -28,7 +28,7 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import logger from '../../../core/logger.ts';
+import logger from '../../../core/logger.js';
 
 import ms, { StringValue } from 'ms';
 import { LanguageData } from '../../../../types/languageData';

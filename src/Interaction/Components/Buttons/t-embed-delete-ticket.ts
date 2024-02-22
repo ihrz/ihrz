@@ -18,7 +18,7 @@
 
 ・ Copyright © 2020-2024 iHorizon
 */
-import { TicketDelete } from '../../../core/modules/ticketsManager.ts';
+import { TicketDelete } from '../../../core/modules/ticketsManager.js';
 import { ButtonInteraction, CacheType } from 'discord.js';
 
 export default async function (interaction: ButtonInteraction<CacheType>) {

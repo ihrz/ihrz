@@ -19,18 +19,18 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Custom_iHorizon } from "../../../types/ownihrz.ts";
+import { Custom_iHorizon } from "../../../types/ownihrz.js";
 import { execSync } from 'child_process';
-import config from "../../files/config.ts";
+import config from "../../files/config.js";
 
-import { OwnIhrzCluster, ClusterMethod } from "../functions/apiUrlParser.ts";
-import db from "../functions/DatabaseModel.ts";
+import { OwnIhrzCluster, ClusterMethod } from "../functions/apiUrlParser.js";
+import db from "../functions/DatabaseModel.js";
 import { Client } from "discord.js";
 import axios from "axios";
-import logger from "../logger.ts";
+import logger from "../logger.js";
 import path from "path";
 import fs from 'node:fs';
-import wait from "../functions/wait.ts";
+import wait from "../functions/wait.js";
 
 class OwnIHRZ {
 
@@ -145,7 +145,7 @@ class OwnIHRZ {
 
             // Start
             {
-                l: `pm2 start ./${data.Code}.js -f`,
+                l: `pm2 start ./dist/${data.Code}.js -f`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code)
             }
         ].forEach((index) => {
@@ -323,7 +323,7 @@ class OwnIHRZ {
     // Working
     async PowerOn(id_to_bot: string) {
 
-        execSync(`pm2 start ./${id_to_bot}.js -f`, {
+        execSync(`pm2 start ./dist/${id_to_bot}.js -f`, {
             stdio: [0, 1, 2],
             cwd: path.join(process.cwd(), 'ownihrz', id_to_bot),
         });

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import dbPromise from '../database.ts';
+import dbPromise from '../database.js';
 
 let db;
 

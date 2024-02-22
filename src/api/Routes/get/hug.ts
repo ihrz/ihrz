@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import * as apiUrlParser from '../../../core/functions/apiUrlParser.ts';
+import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { Request, Response } from 'express';
 import fs from 'node:fs';
 

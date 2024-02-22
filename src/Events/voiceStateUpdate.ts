@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client, VoiceState, GuildTextBasedChannel, BaseGuildTextChannel, CategoryChannel, ChannelType } from 'discord.js';
+import { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client, VoiceState, GuildTextBasedChannel, BaseGuildTextChannel } from 'discord.js';
 
 export default async (client: Client, oldState: VoiceState, newState: VoiceState) => {
 
@@ -111,41 +111,5 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
         };
     };
 
-    async function voiceInterface() {
-        if (!oldState || !oldState.guild) return;
-
-        let table = client.db.table('TEMP');
-
-        let result = await client.db.get(`${newState.guild.id}.VOICE_INTERFACE.voice_channel`);
-        var current_channel = await table.get(`VOICE_INTERFACE.${newState.guild.id}.${newState.member?.id}`);
-
-        let result_channel = newState.guild.channels.cache.get(result);
-        let category_channel = newState.guild.channels.cache.get(result_channel?.parentId as string) as CategoryChannel;
-
-        if (oldState.channelId === current_channel) {
-            await newState.guild.channels.delete(current_channel);
-            if (newState.channelId === result) await newState.member?.voice.disconnect();
-
-            await table.delete(`VOICE_INTERFACE.${newState.guild.id}.${newState.member?.id}`);
-            return;
-        };
-
-        if (newState.channelId === result) {
-
-            let channel = await newState.guild.channels.create({
-                name: `${newState.member?.displayName || newState.member?.nickname}'s Voice`,
-                parent: result_channel?.parentId,
-                permissionOverwrites: category_channel.permissionOverwrites.cache,
-                type: ChannelType.GuildVoice,
-                topic: `${newState.member?.displayName || newState.member?.nickname}'s Voice`
-            })
-
-            await newState.member?.voice.setChannel(channel.id);
-
-            await table.set(`VOICE_INTERFACE.${newState.guild.id}.${newState.member?.id}`, newState.channelId);
-            return;
-        };
-    };
-
-    serverLogs(), voiceInterface();
+    serverLogs();
 };

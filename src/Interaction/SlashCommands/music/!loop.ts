@@ -27,8 +27,8 @@ import {
     GuildMember,
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData.ts';
-import logger from '../../../core/logger.ts';
+import { LanguageData } from '../../../../types/languageData.js';
+import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {

@@ -21,8 +21,8 @@
 
 import fs from 'node:fs';
 import date from 'date-and-time';
-import config from '../../files/config.ts';
-import logger from '../logger.ts';
+import config from '../../files/config.js';
+import logger from '../logger.js';
 import couleurmdr from 'colors';
 import { MongoDriver } from 'quickmongo';
 
