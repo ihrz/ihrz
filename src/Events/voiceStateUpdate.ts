@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client, VoiceState, GuildTextBasedChannel, BaseGuildTextChannel, CategoryChannel, ChannelType } from 'discord.js';
+import { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client, VoiceState, GuildTextBasedChannel, BaseGuildTextChannel, CategoryChannel, ChannelType, PermissionFlagsBits } from 'discord.js';
 
 export default async (client: Client, oldState: VoiceState, newState: VoiceState) => {
 
@@ -139,6 +139,14 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
                 type: ChannelType.GuildVoice,
                 topic: `${newState.member?.displayName || newState.member?.nickname}'s Voice`
             })
+
+            channel.permissionOverwrites.edit(newState.member?.id as string,
+                {
+                    Stream: true,
+                    Speak: true,
+                    Connect: true,
+                },
+            );
 
             await newState.member?.voice.setChannel(channel.id);
 
