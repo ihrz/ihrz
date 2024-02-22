@@ -42,11 +42,10 @@ export default {
         }
 
         let targetedChannel = interaction.options.getChannel('channel');
-        let lang = await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`);
 
         let embed = new EmbedBuilder()
             .setColor(2829617)
-            .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${lang}.png`)
+            .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
             .setDescription(
                 `## TempVoice Interface\n` +
                 `This **interface** can be used to manage temporary voice channels.\n`
