@@ -19,11 +19,11 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import logger from "../logger.js";
+import logger from "../logger.ts";
 import os from 'node:os';
 import readline from 'readline';
 import fs from 'node:fs';
-import config from "../../files/config.js";
+import config from "../../files/config.ts";
 import path from 'path';
 import { Client } from "discord.js";
 
@@ -77,7 +77,7 @@ export default async (client: Client) => {
         rl.prompt();
         rl.on('line', async (line) => {
             let [commandName, ...args] = line.trim().split(' ');
-            let commandPath = `${process.cwd()}/dist/src/core/bash/commands/${commandName}.js`;
+            let commandPath = `${process.cwd()}/src/core/bash/commands/${commandName}.js`;
             
             if (fs.existsSync(commandPath)) {
                 let command = await import(commandPath);

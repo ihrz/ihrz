@@ -19,14 +19,14 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import * as apiUrlParser from '../core/functions/apiUrlParser.js';
+import * as apiUrlParser from '../core/functions/apiUrlParser.ts';
 import express from 'express';
-import execute_handler from './handler.js';
+import execute_handler from './handler.ts';
 import https from 'https';
 import bodyParser from 'body-parser';
 import 'colors';
-import logger from '../core/logger.js';
-import config from '../files/config.js';
+import logger from '../core/logger.ts';
+import config from '../files/config.ts';
 import fs from 'node:fs';
 
 let app = express();

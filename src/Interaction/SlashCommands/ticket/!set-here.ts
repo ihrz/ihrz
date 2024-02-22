@@ -26,7 +26,7 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import { CreatePanel } from '../../../core/modules/ticketsManager.js';
+import { CreatePanel } from '../../../core/modules/ticketsManager.ts';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {

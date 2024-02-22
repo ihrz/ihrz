@@ -20,7 +20,7 @@
 */
 
 import { BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
-import logger from "../../logger.js";
+import logger from "../../logger.ts";
 
 export default function (client: Client, args: string) {
     let args2 = args.split(" ");

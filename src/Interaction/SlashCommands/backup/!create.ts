@@ -28,7 +28,7 @@ import {
 } from 'discord.js';
 
 
-import logger from '../../../core/logger.js';
+import logger from '../../../core/logger.ts';
 import backup from 'discord-rebackup';
 import { LanguageData } from '../../../../types/languageData';
 

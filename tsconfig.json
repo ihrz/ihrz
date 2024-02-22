@@ -2,8 +2,8 @@
   "compilerOptions": {
     "strict": true,
     "outDir": "dist",
-    "module": "esnext",
-    "target": "es2022",
+    "module": "ESNext",
+    "target": "ESNext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "useUnknownInCatchVariables": true,
@@ -11,6 +11,8 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "importHelpers": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
     "typeRoots": ["node_modules/@types"],
     "types": ["node"],
     "strictPropertyInitialization": false

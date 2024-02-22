@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import logger from "../../logger.js";
+import logger from "../../logger.ts";
 
 export default function () {
     let _now2 = new Date();

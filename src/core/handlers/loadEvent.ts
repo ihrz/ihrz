@@ -22,9 +22,9 @@
 import { Client } from 'discord.js';
 import { opendir } from 'fs/promises';
 import { join as pathJoin } from 'node:path';
-import logger from '../logger.js';
-import config from '../../files/config.js';
-import { EltType } from '../../../types/eltType.js';
+import logger from '../logger.ts';
+import config from '../../files/config.ts';
+import { EltType } from '../../../types/eltType.ts';
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     let result = [];
@@ -58,17 +58,17 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
     return paths;
 }
 
-async function loadEvents(client: Client, path: string = `${process.cwd()}/dist/src/Events`): Promise<void> {
+async function loadEvents(client: Client, path: string = `${process.cwd()}/src/Events`): Promise<void> {
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
 
     await Promise.all(paths.map(async (filePath) => {
-        if (!filePath.endsWith('.js')) return;
+        if (!filePath.endsWith('.ts')) return;
 
         try {
             const { default: eevent } = await import(filePath);
             let pathArray = filePath.split('/');
-            client.on(`${pathArray[pathArray.length - 1].replace('.js', '')}`, eevent.bind(null, client));
+            client.on(`${pathArray[pathArray.length - 1].replace('.ts', '')}`, eevent.bind(null, client));
         } catch (error) {
             logger.err(`Error loading event from file: ${filePath}`);
         }

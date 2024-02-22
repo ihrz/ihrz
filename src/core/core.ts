@@ -19,23 +19,23 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import * as checkSys from './functions/checkSys.js';
-import playerManager from "./modules/playerManager.js";
-import db from './functions/DatabaseModel.js';
-import bash from './bash/bash.js';
+import * as checkSys from './functions/checkSys.ts';
+import playerManager from "./modules/playerManager.ts";
+import db from './functions/DatabaseModel.ts';
+import bash from './bash/bash.ts';
 
-import * as errorManager from './modules/errorManager.js';
-import logger from "./logger.js";
+import * as errorManager from './modules/errorManager.ts';
+import logger from "./logger.ts";
 
 import { Client, Collection, Snowflake } from "discord.js";
-import { OwnIHRZ } from './modules/ownihrzManager.js';
-import emojis from './modules/emojisManager.js';
+import { OwnIHRZ } from './modules/ownihrzManager.ts';
+import emojis from './modules/emojisManager.ts';
 
 import { VanityInviteData } from '../../types/vanityUrlData';
 import { readdirSync } from "node:fs";
 import couleurmdr from "colors";
-import commandsSync from './commandsSync.js';
-import config from '../files/config.js';
+import commandsSync from './commandsSync.ts';
+import config from '../files/config.ts';
 import { GiveawayManager } from 'discord-regiveaways';
 
 export default async (client: Client) => {
@@ -65,7 +65,7 @@ export default async (client: Client) => {
 
     checkSys.HtmlFile();
 
-    await import('../api/server.js');
+    await import('../api/server.ts');
 
     playerManager(client);
     bash(client);
@@ -76,8 +76,8 @@ export default async (client: Client) => {
     client.invites = new Collection();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 
-    let handlerPath = `${process.cwd()}/dist/src/core/handlers`;
-    let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
+    let handlerPath = `${process.cwd()}/src/core/handlers`;
+    let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.ts'));
 
     for (const file of handlerFiles) {
         const { default: handlerFunction } = await import(`${handlerPath}/${file}`);

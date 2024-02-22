@@ -30,7 +30,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
-import logger from '../../../core/logger.js';
+import logger from '../../../core/logger.ts';
 import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {

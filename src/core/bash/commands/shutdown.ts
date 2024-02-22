@@ -19,8 +19,8 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import wait from '../../functions/wait.js';
-import logger from '../../logger.js';
+import wait from '../../functions/wait.ts';
+import logger from '../../logger.ts';
 
 export default async function () {
     logger.legacy(`* Closed session...`.gray.bgBlack);

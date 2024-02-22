@@ -23,8 +23,8 @@ import { ActionRowBuilder, AttachmentBuilder, BaseGuildTextChannel, ButtonBuilde
 
 import { PermissionsBitField } from 'discord.js';
 
-import logger from "../core/logger.js";
-import captcha from "../core/captcha.js";
+import logger from "../core/logger.ts";
+import captcha from "../core/captcha.ts";
 
 export default async (client: Client, member: GuildMember) => {
 

@@ -25,7 +25,7 @@ import {
     Client,
 } from 'discord.js';
 
-import { TicketAddMember } from '../../../core/modules/ticketsManager.js';
+import { TicketAddMember } from '../../../core/modules/ticketsManager.ts';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {

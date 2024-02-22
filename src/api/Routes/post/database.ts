@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import logger from '../../../core/logger.js';
-import config from '../../../files/config.js';
-import dbPromise from '../../../core/database.js';
+import logger from '../../../core/logger.ts';
+import config from '../../../files/config.ts';
+import dbPromise from '../../../core/database.ts';
 import { Request, Response } from 'express';
 import { QuickDB } from 'quick.db';
 

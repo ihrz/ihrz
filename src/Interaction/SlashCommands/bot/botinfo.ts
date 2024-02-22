@@ -27,16 +27,16 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
-import pkg from '../../../../package.json' assert { type: "json" };
+import pkg from '../../../../package.json';
 
 export const command: Command = {
     name: 'botinfo',
-    
+
     description: 'Get information about the bot!',
     description_localizations: {
         "fr": "Obtenir les informations supplémentaire par rapport au bot."
     },
-    
+
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
@@ -44,7 +44,7 @@ export const command: Command = {
 
         let data = await client.functions.getLanguageData(interaction.guild?.id);
         let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
-        
+
         let clientembed = new EmbedBuilder()
             .setColor("#f0d020")
             .setThumbnail("attachment://icon.png")

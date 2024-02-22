@@ -21,7 +21,7 @@
 
 import fs from 'node:fs';
 import path from 'path';
-import logger from '../../logger.js';
+import logger from '../../logger.ts';
 
 let filePath = path.join(process.cwd(), 'src', 'core', 'bash', 'history', '.bash_history')
 

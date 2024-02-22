@@ -25,7 +25,7 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import config from '../../../files/config.js';
+import config from '../../../files/config.ts';
 import axios from 'axios';
 import { LanguageData } from '../../../../types/languageData';
 

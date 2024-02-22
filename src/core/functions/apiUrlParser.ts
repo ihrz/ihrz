@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import config from "../../files/config.js";
+import config from "../../files/config.ts";
 
 export const ClusterMethod = {
     CreateContainer: 0,

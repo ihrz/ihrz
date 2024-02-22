@@ -21,10 +21,10 @@
 
 import { JSONDriver, MySQLDriver, QuickDB } from 'quick.db';
 import { MongoDriver } from 'quickmongo';
-import config from '../files/config.js';
-import logger from './logger.js';
+import config from '../files/config.ts';
+import logger from './logger.ts';
 import couleurmdr from 'colors';
-import * as proc from './modules/errorManager.js';
+import * as proc from './modules/errorManager.ts';
 
 let dbPromise: Promise<QuickDB> | undefined = undefined;
 
