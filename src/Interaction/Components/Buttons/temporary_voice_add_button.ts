@@ -19,38 +19,19 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import {
-    Application,
-    ApplicationCommand,
-    ApplicationCommandType,
-    Client,
-    CommandInteraction,
-    CommandInteractionOptionResolver,
-    Message,
-    PermissionFlagsBits,
-    RESTPostAPIApplicationCommandsJSONBody
-} from "discord.js";
+import { ButtonInteraction, CacheType, GuildMember } from 'discord.js';
 
-import { Option } from "./option";
+export default async function (interaction: ButtonInteraction<CacheType>) {
 
-export interface NameLocalizations {
-    "fr": string;
-}
+    let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.all.${interaction.message.id}`);
+    let member = interaction.member as GuildMember;
 
-export interface DescriptionLocalizations {
-    "fr": string;
-}
+    if (result.channelId !== interaction.channelId) return interaction.deferReply();
 
-export interface Command {
-    name: string,
-    description: string,
-    name_localizations?: NameLocalizations
-    description_localizations: DescriptionLocalizations,
-    permission?: bigint | 0,
-    category: string,
-    options?: Option[],
-    thinking: boolean,
-    channel_types?: number[],
-    type: ApplicationCommandType | 'PREFIX_IHORIZON_COMMAND',
-    async run(client: Client, interaction: CommandInteraction | Message, options?: CommandInteractionOptionResolver | string[]): Promise<any>
-}
+    if (!member.voice.channel) {
+        await interaction.deferUpdate()
+        return;
+    } else {
+        interaction.reply({ content: `ok`, ephemeral: true })
+    }
+};
