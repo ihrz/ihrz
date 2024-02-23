@@ -43,7 +43,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
 
         let comp = new StringSelectMenuBuilder()
             .setCustomId('starter')
-            .setPlaceholder('Select a Region')
+            .setPlaceholder(lang.temporary_voice_region_menu_placeholder)
             .addOptions(
                 new StringSelectMenuOptionBuilder()
                     .setLabel('Singapore')
@@ -111,11 +111,11 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
             await i.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription(`## Modifications about your temporary voice channel`)
+                        .setDescription(lang.temporary_voice_title_embec)
                         .setColor(2829617)
                         .setFields(
                             {
-                                name: "New region",
+                                name: lang.temporary_voice_new_region,
                                 value: `${i.client.iHorizon_Emojis.vc.Region} **${value}**`,
                                 inline: true
                             },

@@ -80,15 +80,15 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
         await interaction.reply({
             ephemeral: true,
             embeds: [new EmbedBuilder()
-                .setDescription(`## Modifications about your temporary voice channel`)
+                .setDescription(lang.temporary_voice_title_embec)
                 .setColor(2829617)
                 .setFields(
                     {
-                        name: "New owner",
+                        name: lang.temporary_voice_new_member,
                         value: `<@${interaction?.user?.id}>`
                     },
                     {
-                        name: "Old owner",
+                        name: lang.temporary_voice_old_member,
                         value: `<@${previousOwner?.id}>`
                     },
                 )

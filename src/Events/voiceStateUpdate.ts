@@ -131,8 +131,8 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
         let category_channel = newState.guild.channels.cache.get(result_channel?.parentId as string) as CategoryChannel;
 
         // If the user leave their own empty channel
-        if (oldState.channelId === ChannelDB && channel_db_fetched?.members.size === 0 && channel_db_fetched) {
-            await channel_db_fetched?.delete();
+        if (oldState.channelId === ChannelDB && channel_db_fetched?.members.size === 0) {
+            await channel_db_fetched?.delete().catch(() => { });
             await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
 
             return;

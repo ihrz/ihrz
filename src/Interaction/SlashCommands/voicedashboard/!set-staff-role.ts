@@ -34,10 +34,12 @@ import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let unauthorizedMessage = `<@${interaction.user.id}>, you are not authorized to use this command here`;
 
         if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
-            await interaction.editReply({ content: unauthorizedMessage });
+            await interaction.editReply({
+                content: data.tempvoice_staff_not_admin
+                    .replace("${interaction.user.id}", interaction.user.id)
+            });
             return;
         };
 
@@ -46,8 +48,8 @@ export default {
         let embed = new EmbedBuilder()
             .setColor(2829617)
             .setDescription(
-                `## TempVoice Staff Role\n` +
-                `The <@&${targetedRole?.id}> can now enter in the channel moderate!\n`
+                data.tempvoice_staff_desc_embed
+                    .replace('${targetedRole?.id}', targetedRole?.id as string)
             )
             .setFooter({
                 text: 'iHorizon',

@@ -1190,6 +1190,32 @@ mybot_instance_deny_utils_msg_no: "Non"
 mybot_instance_deny_embed_title: "Hébergez votre propre iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"
 mybot_instance_deny_embed_desc: "Le bot a été refusé\n\n${utils_msg}"
 
+
+# Module TempVoice
+# /texte, /voix, /statut, /personnel
+
+# Interface /voix pour définir le canal de texte
+tempvoice_if_text_not_admin: "<@${interaction.user.id}>, vous n'êtes pas autorisé à utiliser cette commande !"
+tempvoice_if_text_desc_embed: "## Interface TempVoice\nCette **interface** peut être utilisée pour gérer des salons vocaux temporaires.\n"
+tempvoice_if_text_fields_value_limit: "${client.iHorizon_Emojis.vc.Limit} **Modifier la limite**"
+tempvoice_if_text_fields_value_name: "${client.iHorizon_Emojis.vc.Name} **Modifier le nom**"
+tempvoice_if_text_fields_value_region: "${client.iHorizon_Emojis.vc.Region} **Modifier la région**"
+tempvoice_if_text_fields_value_trust: "${client.iHorizon_Emojis.vc.Trust} **Faire confiance**"
+tempvoice_if_text_fields_value_untrust: "${client.iHorizon_Emojis.vc.Untrust} **Ne plus faire confiance**"
+tempvoice_if_text_fields_value_block: "${client.iHorizon_Emojis.vc.Block} **Bloquer**"
+tempvoice_if_text_fields_value_unblock: "${client.iHorizon_Emojis.vc.Unblock} **Débloquer**"
+tempvoice_if_text_fields_value_claim: "${client.iHorizon_Emojis.vc.Claim} **Revendiquer**"
+tempvoice_if_text_fields_value_privacy: "${client.iHorizon_Emojis.vc.Privacy} **Confidentialité**"
+tempvoice_if_text_fields_value_transfer: "${client.iHorizon_Emojis.vc.Transfer} **Transférer**"
+tempvoice_if_text_fields_value_delete: "${client.iHorizon_Emojis.vc.Delete} **Supprimer**"
+
+# Interface /voix pour définir le canal vocal
+tempvoice_vc_not_admin: "<@${interaction.user.id}>, vous n'êtes pas autorisé à utiliser ces commandes !"
+
+# Interface /voix pour définir le rôle du personnel
+tempvoice_staff_not_admin: "<@${interaction.user.id}>, vous n'êtes pas autorisé à utiliser cette commande !"
+tempvoice_staff_desc_embed: "## Rôle du Personnel TempVoice\nLe <@&${targetedRole?.id}> peut maintenant modérer le salon !\n"
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
@@ -1295,5 +1321,56 @@ event_boostlog_sub: "<@${newMember.user.id}> **viens d'enlever sont boost** du s
 
 # Module Économie
 economy_disable_msg: "<@${interaction.user.id}>, le `Module Économie` sur ce serveur est **désactivé**. Vous ne pouvez plus utiliser le module d'économie !"
+
+# Module TempVoice
+# Tous les composants, variables globales...
+
+# Variables globales
+
+temporary_voice_title_embec: "## Modifications concernant votre salon vocal temporaire"
+temporary_voice_unblocked_member: "Membres débloqués"
+temporary_voice_blocked_mmeber: "Membres bloqués"
+temporary_voice_no_one: "Personne"
+temporary_voice_new_member: "Nouveau propriétaire"
+temporary_voice_old_member: "Ancien propriétaire"
+temporary_voice_modal_title: "Tableau de bord vocal d'iHorizon"
+temporary_voice_new_userlimit: "Nouvelle limite d'utilisateur"
+temporary_voice_new_name: "Nouveau nom"
+temporary_voice_new_region: "Nouvelle région"
+temporary_voice_untrusted_member: "Membres non fiables"
+temporary_voice_trusted_member: "Membres fiables"
+
+# Boutons
+temporary_voice_block_button_menu_placeholder: "Les utilisateurs sélectionnés ne seront pas autorisés à rejoindre"
+
+temporary_voice_delete_button_desc_embed: "## Suppression du salon\nLe salon a été supprimé avec succès !"
+
+temporary_voice_limit_button_menu_label: "Quelle est la limite d'utilisateurs du salon ?"
+temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.icon.No_Logo} | La saisie n'est pas un nombre"
+
+temporary_voice_name_button_menu_label: "Quel est le nom du salon ?"
+
+temporary_voice_privacy_menu_lock_label: "Verrouiller le salon"
+temporary_voice_privacy_menu_lock_desc: "Seuls les utilisateurs fiables pourront rejoindre votre salon vocal"
+temporary_voice_privacy_menu_unlock_label: "Déverrouiller le salon"
+temporary_voice_privacy_menu_unlock_desc: "Tout le monde pourra rejoindre votre salon vocal"
+temporary_voice_privacy_menu_invisible_label: "Invisible"
+temporary_voice_privacy_menu_invisible_desc: "Seuls les utilisateurs fiables pourront voir votre salon vocal"
+temporary_voice_privacy_menu_visible_label: "Visible"
+temporary_voice_privacy_menu_visible_desc: "Tout le monde pourra voir votre salon vocal"
+temporary_voice_privacy_menu_closechat_label: "Fermer le chat"
+temporary_voice_privacy_menu_closechat_desc: "Seuls les utilisateurs fiables pourront envoyer des messages dans votre chat"
+temporary_voice_privacy_menu_openchat_label: "Ouvrir le chat"
+temporary_voice_privacy_menu_openchat_desc: "Tout le monde pourra envoyer des messages dans votre chat"
+
+temporary_voice_region_menu_placeholder: "Sélectionnez une région"
+
+temporary_voice_transfer_menu_placeholder: "Utilisateur sélectionné pour transférer le salon vocal"
+
+temporary_voice_transfer_trust_placeholder: "Les utilisateurs sélectionnés seront fiables pour rejoindre"
+
+temporary_voice_transfer_unblocked_placeholder: "Les utilisateurs sélectionnés seront autorisés à rejoindre"
+
+temporary_voice_transfer_untrust_placeholder: "Les utilisateurs sélectionnés ne seront pas fiables pour rejoindre"
 
 # -----------------------------\ /-----------------------------

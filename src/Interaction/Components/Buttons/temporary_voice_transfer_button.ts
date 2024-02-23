@@ -48,7 +48,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                     .addComponents(
                         new UserSelectMenuBuilder()
                             .setCustomId('temporary_voice_transfer_selectmenue')
-                            .setPlaceholder(`Selected user to transfer the voice channel`)
+                            .setPlaceholder(lang.temporary_voice_transfer_menu_placeholder)
                             .setMinValues(1)
                             .setMaxValues(1)
                     )
@@ -89,15 +89,15 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
             await i.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription(`## Modifications about your temporary voice channel`)
+                        .setDescription(lang.temporary_voice_title_embec)
                         .setColor(2829617)
                         .setFields(
                             {
-                                name: "New owner",
+                                name: lang.temporary_voice_new_member,
                                 value: `<@${newOwner?.user?.id}>`
                             },
                             {
-                                name: "Old owner",
+                                name: lang.temporary_voice_old_member,
                                 value: `<@${interaction.user.id}>`
                             },
                         )

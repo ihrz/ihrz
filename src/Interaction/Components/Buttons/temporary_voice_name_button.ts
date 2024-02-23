@@ -43,13 +43,13 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
 
         let modal = new ModalBuilder()
             .setCustomId('modal')
-            .setTitle("iHorizon's VoiceDashboard");
+            .setTitle(lang.temporary_voice_modal_title);
 
         modal.addComponents(new ActionRowBuilder<TextInputBuilder>()
             .addComponents(
                 new TextInputBuilder()
                     .setCustomId('name')
-                    .setLabel("What's the channel name ?")
+                    .setLabel(lang.temporary_voice_name_button_menu_label)
                     .setStyle(TextInputStyle.Short)
                     .setMaxLength(20)
                     .setMinLength(2)
@@ -70,11 +70,11 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
         await response.reply({
             embeds: [
                 new EmbedBuilder()
-                    .setDescription(`## Modifications about your temporary voice channel`)
+                    .setDescription(lang.temporary_voice_title_embec)
                     .setColor(2829617)
                     .setFields(
                         {
-                            name: "New name",
+                            name: lang.temporary_voice_new_name,
                             value: `${interaction.client.iHorizon_Emojis.vc.Name} **${response.fields.getField('name').value}**`,
                             inline: true
                         },

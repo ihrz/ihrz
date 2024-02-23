@@ -1190,6 +1190,32 @@ mybot_instance_deny_utils_msg_no: "No"
 mybot_instance_deny_embed_title: "Ospita il tuo iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
 mybot_instance_deny_embed_desc: "Il bot è stato rifiutato\n\n${utils_msg}"
 
+
+# Modulo TempVoice
+# /testo, /voce, /stato, /personale
+
+# Interfaccia /voce per impostare il canale di testo
+tempvoice_if_text_not_admin: "<@${interaction.user.id}>, non sei autorizzato a usare questo comando!"
+tempvoice_if_text_desc_embed: "## Interfaccia TempVoice\nQuesta **interfaccia** può essere utilizzata per gestire canali vocali temporanei.\n"
+tempvoice_if_text_fields_value_limit: "${client.iHorizon_Emojis.vc.Limit} **Modifica limite**"
+tempvoice_if_text_fields_value_name: "${client.iHorizon_Emojis.vc.Name} **Modifica nome**"
+tempvoice_if_text_fields_value_region: "${client.iHorizon_Emojis.vc.Region} **Modifica regione**"
+tempvoice_if_text_fields_value_trust: "${client.iHorizon_Emojis.vc.Trust} **Affidabilità**"
+tempvoice_if_text_fields_value_untrust: "${client.iHorizon_Emojis.vc.Untrust} **Non fidarsi**"
+tempvoice_if_text_fields_value_block: "${client.iHorizon_Emojis.vc.Block} **Blocca**"
+tempvoice_if_text_fields_value_unblock: "${client.iHorizon_Emojis.vc.Unblock} **Sblocca**"
+tempvoice_if_text_fields_value_claim: "${client.iHorizon_Emojis.vc.Claim} **Richiedi**"
+tempvoice_if_text_fields_value_privacy: "${client.iHorizon_Emojis.vc.Privacy} **Privacy**"
+tempvoice_if_text_fields_value_transfer: "${client.iHorizon_Emojis.vc.Transfer} **Trasferisci**"
+tempvoice_if_text_fields_value_delete: "${client.iHorizon_Emojis.vc.Delete} **Elimina**"
+
+# Interfaccia /voce per impostare il canale vocale
+tempvoice_vc_not_admin: "<@${interaction.user.id}>, non sei autorizzato a usare questi comandi!"
+
+# Interfaccia /voce per impostare il ruolo dello staff
+tempvoice_staff_not_admin: "<@${interaction.user.id}>, non sei autorizzato a usare questo comando!"
+tempvoice_staff_desc_embed: "## Ruolo Staff TempVoice\nIl <@&${targetedRole?.id}> può ora moderare il canale!\n"
+
 # -----------------------------/ \-----------------------------
 # Music Player Events
 
@@ -1295,5 +1321,56 @@ event_boostlog_sub: "<@${newMember.user.id}> **ha appena rimosso il suo boost** 
 
 # Modulo Economia
 economy_disable_msg: "<@${interaction.user.id}>, il `Modulo Economia` in questo server è **disabilitato**. Non puoi più utilizzare il modulo economico!"
+
+# Modulo TempVoice
+# Tutti i componenti, variabili globali...
+
+# Variabili globali
+
+temporary_voice_title_embec: "## Modifiche al tuo canale vocale temporaneo"
+temporary_voice_unblocked_member: "Membri sbloccati"
+temporary_voice_blocked_mmeber: "Membri bloccati"
+temporary_voice_no_one: "Nessuno"
+temporary_voice_new_member: "Nuovo proprietario"
+temporary_voice_old_member: "Vecchio proprietario"
+temporary_voice_modal_title: "Dashboard vocale di iHorizon"
+temporary_voice_new_userlimit: "Nuovo limite utente"
+temporary_voice_new_name: "Nuovo nome"
+temporary_voice_new_region: "Nuova regione"
+temporary_voice_untrusted_member: "Membri non attendibili"
+temporary_voice_trusted_member: "Membri attendibili"
+
+# Pulsanti
+temporary_voice_block_button_menu_placeholder: "Gli utenti selezionati non saranno attendibili per unirsi"
+
+temporary_voice_delete_button_desc_embed: "## Eliminazione del canale\nIl canale è stato eliminato con successo!"
+
+temporary_voice_limit_button_menu_label: "Qual è il limite utenti del canale?"
+temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.icon.No_Logo} | L'input non è un numero"
+
+temporary_voice_name_button_menu_label: "Qual è il nome del canale?"
+
+temporary_voice_privacy_menu_lock_label: "Blocca il canale"
+temporary_voice_privacy_menu_lock_desc: "Solo gli utenti attendibili potranno unirsi al tuo canale vocale"
+temporary_voice_privacy_menu_unlock_label: "Sblocca il canale"
+temporary_voice_privacy_menu_unlock_desc: "Tutti potranno unirsi al tuo canale vocale"
+temporary_voice_privacy_menu_invisible_label: "Invisibile"
+temporary_voice_privacy_menu_invisible_desc: "Solo gli utenti attendibili potranno visualizzare il tuo canale vocale"
+temporary_voice_privacy_menu_visible_label: "Visibile"
+temporary_voice_privacy_menu_visible_desc: "Tutti potranno visualizzare il tuo canale vocale"
+temporary_voice_privacy_menu_closechat_label: "Chiudi chat"
+temporary_voice_privacy_menu_closechat_desc: "Solo gli utenti attendibili potranno inviare messaggi nella tua chat"
+temporary_voice_privacy_menu_openchat_label: "Apri chat"
+temporary_voice_privacy_menu_openchat_desc: "Tutti potranno inviare messaggi nella tua chat"
+
+temporary_voice_region_menu_placeholder: "Seleziona una regione"
+
+temporary_voice_transfer_menu_placeholder: "Utente selezionato per trasferire il canale vocale"
+
+temporary_voice_transfer_trust_placeholder: "Gli utenti selezionati saranno attendibili per unirsi"
+
+temporary_voice_transfer_unblocked_placeholder: "Gli utenti selezionati saranno autorizzati a unirsi"
+
+temporary_voice_transfer_untrust_placeholder: "Gli utenti selezionati non saranno attendibili per unirsi"
 
 # -----------------------------\ /-----------------------------

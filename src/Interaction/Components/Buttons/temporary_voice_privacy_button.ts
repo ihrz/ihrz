@@ -43,12 +43,12 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
         .setCustomId('tempmorary_voice_privacy_menu')
         .setPlaceholder('Select a Privacy Option')
         .addOptions(
-            { label: 'Lock channel', description: 'Only trusted users will be able to join your voice channel', emoji: interaction.client.iHorizon_Emojis.vc.CloseAccess, value: 'temporary_channel_lock_channel_menu' },
-            { label: 'Unlock channel', description: 'Everyone will be able to join your voice channel', emoji: interaction.client.iHorizon_Emojis.vc.OpenAcces, value: 'temporary_channel_unlock_channel_menu' },
-            { label: 'Invisible', description: 'Only trusted users will be able to view your voice channel', emoji: interaction.client.iHorizon_Emojis.vc.Unseeable, value: 'temporary_channel_invisible_channel_menu' },
-            { label: 'Visible', description: 'Everyone will be able to view your voice channel', emoji: interaction.client.iHorizon_Emojis.vc.Seeable, value: 'temporary_channel_visible_channel_menu' },
-            { label: 'Close chat', description: 'Only trusted users will be able to text in your chat', emoji: interaction.client.iHorizon_Emojis.vc.CloseChat, value: 'temporary_channel_closechat_channel_menu' },
-            { label: 'Open chat', description: 'Everyone will be able to text in your chat', emoji: interaction.client.iHorizon_Emojis.vc.OpenChat, value: 'temporary_channel_openchat_channel_menu' }
+            { label: lang.temporary_voice_privacy_menu_lock_label, description: lang.temporary_voice_privacy_menu_lock_desc, emoji: interaction.client.iHorizon_Emojis.vc.CloseAccess, value: 'temporary_channel_lock_channel_menu' },
+            { label: lang.temporary_voice_privacy_menu_unlock_label, description: lang.temporary_voice_privacy_menu_unlock_desc, emoji: interaction.client.iHorizon_Emojis.vc.OpenAcces, value: 'temporary_channel_unlock_channel_menu' },
+            { label: lang.temporary_voice_privacy_menu_invisible_label, description: lang.temporary_voice_privacy_menu_invisible_desc, emoji: interaction.client.iHorizon_Emojis.vc.Unseeable, value: 'temporary_channel_invisible_channel_menu' },
+            { label: lang.temporary_voice_privacy_menu_visible_label, description: lang.temporary_voice_privacy_menu_visible_desc, emoji: interaction.client.iHorizon_Emojis.vc.Seeable, value: 'temporary_channel_visible_channel_menu' },
+            { label: lang.temporary_voice_privacy_menu_closechat_label, description: lang.temporary_voice_privacy_menu_closechat_desc, emoji: interaction.client.iHorizon_Emojis.vc.CloseChat, value: 'temporary_channel_closechat_channel_menu' },
+            { label: lang.temporary_voice_privacy_menu_openchat_label, description: lang.temporary_voice_privacy_menu_openchat_desc, emoji: interaction.client.iHorizon_Emojis.vc.OpenChat, value: 'temporary_channel_openchat_channel_menu' }
         );
 
     let response = await interaction.reply({
@@ -77,7 +77,11 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
         switch (value) {
             case 'temporary_channel_lock_channel_menu':
             case 'temporary_channel_unlock_channel_menu':
-                embed.setFields({ name: `${action}`, value: `${value === 'temporary_channel_lock_channel_menu' ? interaction.client.iHorizon_Emojis.vc.CloseAccess : interaction.client.iHorizon_Emojis.vc.OpenAcces} **Yes**`, inline: true });
+                embed.setFields({
+                    name: `${action}`,
+                    value: `${value === 'temporary_channel_lock_channel_menu' ? interaction.client.iHorizon_Emojis.vc.CloseAccess : interaction.client.iHorizon_Emojis.vc.OpenAcces} **Yes**`,
+                    inline: true
+                });
                 targetedChannel?.permissionOverwrites.edit(i.guild?.roles.everyone.id as string, { Connect: value === 'temporary_channel_lock_channel_menu' ? false : true, Stream: value === 'temporary_channel_lock_channel_menu' ? false : true, Speak: value === 'temporary_channel_lock_channel_menu' ? false : true });
                 break;
             case 'temporary_channel_invisible_channel_menu':

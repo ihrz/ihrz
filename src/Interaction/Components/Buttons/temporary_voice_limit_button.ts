@@ -44,13 +44,13 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
 
         let modal = new ModalBuilder()
             .setCustomId('modal')
-            .setTitle("iHorizon's VoiceDashboard");
+            .setTitle(lang.temporary_voice_modal_title);
 
         modal.addComponents(new ActionRowBuilder<TextInputBuilder>()
             .addComponents(
                 new TextInputBuilder()
                     .setCustomId('name')
-                    .setLabel("What's the channel user limit ?")
+                    .setLabel(lang.temporary_voice_limit_button_menu_label)
                     .setStyle(TextInputStyle.Short)
                     .setRequired(true)
             )
@@ -68,7 +68,9 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
 
         if (!userLimit) {
             await response.reply({
-                content: `${interaction.client.iHorizon_Emojis.icon.No_Logo} | The input are not an number`,
+                content: lang.temporary_voice_limit_button_not_integer
+                    .replace("${interaction.client.iHorizon_Emojis.icon.No_Logo}", interaction.client.iHorizon_Emojis.icon.No_Logo)
+                ,
                 ephemeral: true
             });
 
@@ -80,11 +82,11 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
         await response.reply({
             embeds: [
                 new EmbedBuilder()
-                    .setDescription(`## Modifications about your temporary voice channel`)
+                    .setDescription(lang.temporary_voice_title_embec)
                     .setColor(2829617)
                     .setFields(
                         {
-                            name: "New UserLimit",
+                            name: lang.temporary_voice_new_userlimit,
                             value: `${interaction.client.iHorizon_Emojis.vc.Limit} **${response.fields.getField('name').value}**`,
                             inline: true
                         },

@@ -34,10 +34,11 @@ import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let unauthorizedMessage = `<@${interaction.user.id}>, you are not authorized to use this command here`;
-
         if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
-            await interaction.editReply({ content: unauthorizedMessage });
+            await interaction.editReply({
+                content: data.tempvoice_if_text_not_admin
+                    .replace('${interaction.user.id}', interaction.user.id)
+            });
             return;
         }
 
@@ -47,43 +48,35 @@ export default {
             .setColor(2829617)
             .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
             .setDescription(
-                `## TempVoice Interface\n` +
-                `This **interface** can be used to manage temporary voice channels.\n`
+                data.tempvoice_if_text_desc_embed
             )
             .addFields(
                 {
                     name: "** **",
-                    value: `${client.iHorizon_Emojis.vc.Limit} **Change limit**`,
+                    value: data.tempvoice_if_text_fields_value_limit
+                        .replace('${client.iHorizon_Emojis.vc.Limit}', client.iHorizon_Emojis.vc.Limit)
+                    ,
                     inline: true
                 },
                 {
                     name: "** **",
-                    value: `${client.iHorizon_Emojis.vc.Name} **Change Name**`,
+                    value: data.tempvoice_if_text_fields_value_name
+                        .replace('${client.iHorizon_Emojis.vc.Name}', client.iHorizon_Emojis.vc.Name)
+                    ,
                     inline: true
                 },
                 {
                     name: "** **",
-                    value: `${client.iHorizon_Emojis.vc.Region} **Change Region**`,
+                    value: data.tempvoice_if_text_fields_value_region
+                        .replace('${client.iHorizon_Emojis.vc.Region}', client.iHorizon_Emojis.vc.Region)
+                    ,
                     inline: true
                 },
                 {
                     name: "** **",
-                    value: `${client.iHorizon_Emojis.vc.Trust} **Trust**`,
-                    inline: true
-                },
-                {
-                    name: "** **",
-                    value: `** **`,
-                    inline: true
-                },
-                {
-                    name: "** **",
-                    value: `${client.iHorizon_Emojis.vc.Untrust} **Untrust**`,
-                    inline: true
-                },
-                {
-                    name: "** **",
-                    value: `${client.iHorizon_Emojis.vc.Block} **Block**`,
+                    value: data.tempvoice_if_text_fields_value_trust
+                        .replace("${client.iHorizon_Emojis.vc.Trust}", client.iHorizon_Emojis.vc.Trust)
+                    ,
                     inline: true
                 },
                 {
@@ -93,22 +86,16 @@ export default {
                 },
                 {
                     name: "** **",
-                    value: `${client.iHorizon_Emojis.vc.Unblock} **Unblock**`,
+                    value: data.tempvoice_if_text_fields_value_untrust
+                        .replace("${client.iHorizon_Emojis.vc.Untrust}", client.iHorizon_Emojis.vc.Untrust)
+                    ,
                     inline: true
                 },
                 {
                     name: "** **",
-                    value: `${client.iHorizon_Emojis.vc.Claim} **Claim**`,
-                    inline: true
-                },
-                {
-                    name: "** **",
-                    value: `${client.iHorizon_Emojis.vc.Privacy} **Privacy**`,
-                    inline: true
-                },
-                {
-                    name: "** **",
-                    value: `${client.iHorizon_Emojis.vc.Transfer} **Transfer**`,
+                    value: data.tempvoice_if_text_fields_value_block
+                        .replace("${client.iHorizon_Emojis.vc.Block}", client.iHorizon_Emojis.vc.Block)
+                    ,
                     inline: true
                 },
                 {
@@ -118,7 +105,42 @@ export default {
                 },
                 {
                     name: "** **",
-                    value: `${client.iHorizon_Emojis.vc.Delete} **Delete**`,
+                    value: data.tempvoice_if_text_fields_value_unblock
+                        .replace("${client.iHorizon_Emojis.vc.Unblock}", client.iHorizon_Emojis.vc.Unblock)
+                    ,
+                    inline: true
+                },
+                {
+                    name: "** **",
+                    value: data.tempvoice_if_text_fields_value_claim
+                        .replace("${client.iHorizon_Emojis.vc.Claim}", client.iHorizon_Emojis.vc.Claim)
+                    ,
+                    inline: true
+                },
+                {
+                    name: "** **",
+                    value: data.tempvoice_if_text_fields_value_privacy
+                        .replace("${client.iHorizon_Emojis.vc.Privacy}", client.iHorizon_Emojis.vc.Privacy)
+                    ,
+                    inline: true
+                },
+                {
+                    name: "** **",
+                    value: data.tempvoice_if_text_fields_value_transfer
+                        .replace('${client.iHorizon_Emojis.vc.Transfer}', client.iHorizon_Emojis.vc.Transfer)
+                    ,
+                    inline: true
+                },
+                {
+                    name: "** **",
+                    value: `** **`,
+                    inline: true
+                },
+                {
+                    name: "** **",
+                    value: data.tempvoice_if_text_fields_value_delete
+                        .replace('${client.iHorizon_Emojis.vc.Delete}', client.iHorizon_Emojis.vc.Delete)
+                    ,
                     inline: true
                 },
                 {

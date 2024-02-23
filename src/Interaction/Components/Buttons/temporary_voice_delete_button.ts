@@ -49,8 +49,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
             embeds: [
                 new EmbedBuilder()
                     .setDescription(
-                        `## Channel deletion\n` +
-                        "The channel are succeffuly deleted !"
+                        lang.temporary_voice_delete_button_desc_embed
                     )
                     .setColor(2829617)
                     .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await interaction.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)

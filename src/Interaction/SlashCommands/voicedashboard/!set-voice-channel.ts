@@ -36,7 +36,8 @@ export default {
 
         if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
             await interaction.editReply({
-                content: `<@${interaction.user.id}>, your are not authorized to use this commands here`
+                content: data.tempvoice_vc_not_admin
+                    .replace("${interaction.user.id}", interaction.user.id)
             });
             return;
         };

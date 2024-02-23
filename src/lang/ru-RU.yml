@@ -1190,6 +1190,32 @@ mybot_instance_deny_utils_msg_no: "Нет"
 mybot_instance_deny_embed_title: "Разместите свой собственный iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
 mybot_instance_deny_embed_desc: "Бот был отклонен\n\n${utils_msg}"
 
+
+# Модуль временного голосового канала
+# /текст, /голос, /статус, /персонал
+
+# /голос интерфейс установить текстовый канал
+tempvoice_if_text_not_admin: "<@${interaction.user.id}>, у вас нет прав на использование этой команды!"
+tempvoice_if_text_desc_embed: "## Интерфейс временного голосового канала\nЭтот **интерфейс** может быть использован для управления временными голосовыми каналами.\n"
+tempvoice_if_text_fields_value_limit: "${client.iHorizon_Emojis.vc.Limit} **Изменить лимит**"
+tempvoice_if_text_fields_value_name: "${client.iHorizon_Emojis.vc.Name} **Изменить название**"
+tempvoice_if_text_fields_value_region: "${client.iHorizon_Emojis.vc.Region} **Изменить регион**"
+tempvoice_if_text_fields_value_trust: "${client.iHorizon_Emojis.vc.Trust} **Доверие**"
+tempvoice_if_text_fields_value_untrust: "${client.iHorizon_Emojis.vc.Untrust} **Не доверие**"
+tempvoice_if_text_fields_value_block: "${client.iHorizon_Emojis.vc.Block} **Блокировать**"
+tempvoice_if_text_fields_value_unblock: "${client.iHorizon_Emojis.vc.Unblock} **Разблокировать**"
+tempvoice_if_text_fields_value_claim: "${client.iHorizon_Emojis.vc.Claim} **Присвоить**"
+tempvoice_if_text_fields_value_privacy: "${client.iHorizon_Emojis.vc.Privacy} **Конфиденциальность**"
+tempvoice_if_text_fields_value_transfer: "${client.iHorizon_Emojis.vc.Transfer} **Передать**"
+tempvoice_if_text_fields_value_delete: "${client.iHorizon_Emojis.vc.Delete} **Удалить**"
+
+# /голос интерфейс установить голосовой канал
+tempvoice_vc_not_admin: "<@${interaction.user.id}>, у вас нет прав на использование этой команды!"
+
+# /голос интерфейс установить роль персонала
+tempvoice_staff_not_admin: "<@${interaction.user.id}>, у вас нет прав на использование этой команды!"
+tempvoice_staff_desc_embed: "## Роль персонала временного голосового канала\nТеперь <@&${targetedRole?.id}> может войти в канал в режиме модератора!\n"
+
 # -----------------------------/ \-----------------------------
 # События проигрывателя музыки
 
@@ -1295,5 +1321,56 @@ event_boostlog_sub: "<@${newMember.user.id}> **только что убрал(а
 
 # Модуль Экономики
 economy_disable_msg: "<@${interaction.user.id}>, `Модуль Экономики` на этом сервере **отключен**. Теперь вы не можете использовать модуль экономики!"
+
+# Модуль TempVoice
+# Все компоненты, глобальные переменные...
+
+# Глобальные переменные
+
+temporary_voice_title_embec: "## Изменения в вашем временном голосовом канале"
+temporary_voice_unblocked_member: "Разблокированные участники"
+temporary_voice_blocked_mmeber: "Заблокированные участники"
+temporary_voice_no_one: "Никто"
+temporary_voice_new_member: "Новый владелец"
+temporary_voice_old_member: "Старый владелец"
+temporary_voice_modal_title: "Панель управления голосом iHorizon"
+temporary_voice_new_userlimit: "Новый лимит пользователей"
+temporary_voice_new_name: "Новое название"
+temporary_voice_new_region: "Новый регион"
+temporary_voice_untrusted_member: "Ненадежные участники"
+temporary_voice_trusted_member: "Доверенные участники"
+
+# Кнопки
+temporary_voice_block_button_menu_placeholder: "Выбранные пользователи не будут допущены"
+
+temporary_voice_delete_button_desc_embed: "## Удаление канала\nКанал успешно удален!"
+
+temporary_voice_limit_button_menu_label: "Каков лимит пользователей канала?"
+temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.icon.No_Logo} | Введенное значение не является числом"
+
+temporary_voice_name_button_menu_label: "Какое название канала?"
+
+temporary_voice_privacy_menu_lock_label: "Заблокировать канал"
+temporary_voice_privacy_menu_lock_desc: "Только доверенные пользователи смогут присоединиться к вашему голосовому каналу"
+temporary_voice_privacy_menu_unlock_label: "Разблокировать канал"
+temporary_voice_privacy_menu_unlock_desc: "Все смогут присоединиться к вашему голосовому каналу"
+temporary_voice_privacy_menu_invisible_label: "Невидимый"
+temporary_voice_privacy_menu_invisible_desc: "Только доверенные пользователи смогут видеть ваш голосовой канал"
+temporary_voice_privacy_menu_visible_label: "Видимый"
+temporary_voice_privacy_menu_visible_desc: "Все смогут видеть ваш голосовой канал"
+temporary_voice_privacy_menu_closechat_label: "Закрыть чат"
+temporary_voice_privacy_menu_closechat_desc: "Только доверенные пользователи смогут отправлять сообщения в ваш чат"
+temporary_voice_privacy_menu_openchat_label: "Открыть чат"
+temporary_voice_privacy_menu_openchat_desc: "Все смогут отправлять сообщения в ваш чат"
+
+temporary_voice_region_menu_placeholder: "Выберите регион"
+
+temporary_voice_transfer_menu_placeholder: "Выбранный пользователь для передачи голосового канала"
+
+temporary_voice_transfer_trust_placeholder: "Выбранные пользователи будут доверены для присоединения"
+
+temporary_voice_transfer_unblocked_placeholder: "Выбранные пользователи будут разблокированы для присоединения"
+
+temporary_voice_transfer_untrust_placeholder: "Выбранные пользователи не будут доверены для присоединения"
 
 # -----------------------------/ \-----------------------------

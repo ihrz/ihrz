@@ -48,7 +48,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                     .addComponents(
                         new UserSelectMenuBuilder()
                             .setCustomId('temporary_voice_trust_selectmenue')
-                            .setPlaceholder(`Selected users will be unblocked to join`)
+                            .setPlaceholder(lang.temporary_voice_transfer_unblocked_placeholder)
                             .setMinValues(0)
                             .setMaxValues(10)
                     )
@@ -90,7 +90,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                 if (!listmembersArray.includes(memberId)) {
                     (targetedChannel as BaseGuildVoiceChannel).permissionOverwrites.edit(memberId, {
                         ViewChannel: true,
-                        
+
                         SendMessages: false,
                         AddReactions: false,
 
@@ -104,16 +104,16 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
             await i.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription(`## Modifications about your temporary voice channel`)
+                        .setDescription(lang.temporary_voice_title_embec)
                         .setColor(2829617)
                         .setFields(
                             {
-                                name: "Unblocked members",
-                                value: addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'No one'
+                                name: lang.temporary_voice_unblocked_member,
+                                value: addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || lang.temporary_voice_no_one
                             },
                             {
-                                name: "Blocked members",
-                                value: removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'No one'
+                                name: lang.temporary_voice_blocked_mmeber,
+                                value: removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || lang.temporary_voice_no_one
                             },
                         )
                         .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
