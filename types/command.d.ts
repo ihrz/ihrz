@@ -50,6 +50,7 @@ export interface Command {
     category: string,
     options?: Option[],
     thinking: boolean,
+    channel_types?: number[],
     type: ApplicationCommandType | 'PREFIX_IHORIZON_COMMAND',
     async run(client: Client, interaction: CommandInteraction | Message, options?: CommandInteractionOptionResolver | string[]): Promise<any>
 }

@@ -63,7 +63,7 @@ export default async (client: Client) => {
         process.exit();
     });
 
-    checkSys.HtmlFile();
+    checkSys.Html();
 
     await import('../api/server.ts');
 
