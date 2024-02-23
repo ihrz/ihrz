@@ -71,7 +71,8 @@ export interface ConfigData {
         mongoDb?: string;
 
         mySQL?: {
-            host: string;
+            host?: string;
+            hostname?: string;
             user: string;
             password: string;
             database: string;

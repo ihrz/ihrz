@@ -30,6 +30,7 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
     let targetedChannel = member.voice.channel;
     let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guild?.id}.${interaction.user.id}`);
 
+    if (!result) return interaction.deferUpdate();
     if (result.channelId !== interaction.channelId || getChannelOwner !== targetedChannel?.id) {
         return interaction.deferUpdate();
     }

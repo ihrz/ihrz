@@ -52,9 +52,9 @@ export const command: Command = {
                     name: "set-voice-channel",
                     type: ApplicationCommandOptionType.Subcommand,
 
-                    description: "...",
+                    description: "Set the channel for Join4Create!",
                     description_localizations: {
-                        "fr": ".."
+                        "fr": "Définis le salon où le membre ce connecte pour créer sont propre channel"
                     },
 
                     options: [
@@ -76,9 +76,9 @@ export const command: Command = {
                     name: "set-text-channel",
                     type: ApplicationCommandOptionType.Subcommand,
 
-                    description: "...",
+                    description: "Send an interface to the channel for manage them own voice channel",
                     description_localizations: {
-                        "fr": ".."
+                        "fr": "Envoyer une interface au canal pour gérer son propre canal vocal"
                     },
 
                     options: [
@@ -97,20 +97,12 @@ export const command: Command = {
                     ]
                 },
                 {
-                    name: "status",
-                    type: ApplicationCommandOptionType.Subcommand,
-                    description: "...",
-                    description_localizations: {
-                        "fr": ".."
-                    },
-                },
-                {
                     name: "set-staff-role",
                     type: ApplicationCommandOptionType.Subcommand,
 
-                    description: "...",
+                    description: "Set an role for bypassing TempChannel's permission",
                     description_localizations: {
-                        "fr": ".."
+                        "fr": "Définir un rôle pour contourner l'autorisation des canaux temporaires"
                     },
 
                     options: [

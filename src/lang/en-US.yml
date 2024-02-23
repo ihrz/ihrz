@@ -235,6 +235,8 @@ help_schedule_fields: "Schedule"
 help_schedule_dsc: "Create reminders with pre-programmed messages that the bot will send to you in a private message"
 help_pfps_fields: "PFPS"
 help_pfps_dsc: "Sending random user avatar in channel!"
+help_voicedashboard_fields: "VoiceDashboard"
+help_voicedashboard_dsc: "Create an custom temporary voice channel with interface!"
 
 # /say
 say_footer_msg: "\n\nSent from `/say` by ${interaction.user}"

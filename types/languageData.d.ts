@@ -180,6 +180,8 @@ export interface LanguageData {
     help_schedule_dsc: string;
     help_pfps_fields: string;
     help_pfps_dsc: string;
+    help_voicedashboard_fields: string;
+    help_voicedashboard_dsc: string;
     say_footer_msg: string;
     ping_down_msg: string;
     ping_embed_desc: string;
