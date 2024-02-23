@@ -33,6 +33,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     let targetedChannel = (interaction.member as GuildMember).voice.channel;
     let allChannel = await table.get(`CUSTOM_VOICE.${interaction.guild?.id}`);
 
+    if (!result || !allChannel) return interaction.deferUpdate();
     if (result.channelId !== interaction.channelId) return interaction.deferUpdate();
 
     function getPreviousOwner(guild: Guild): GuildMember | undefined {

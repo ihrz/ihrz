@@ -121,8 +121,6 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
 
         let allChannel = await table.get(`CUSTOM_VOICE.${newState.guild.id}`);
 
-        if (!allChannel) return;
-
         let ChannelForCreate = await client.db.get(`${newState.guild.id}.VOICE_INTERFACE.voice_channel`);
         var ChannelDB = await table.get(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
 
@@ -145,7 +143,7 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
         };
 
         // If the user leave annother empty channel
-        if (oldState.channel?.members.size === 0) {
+        if (oldState.channel?.members.size === 0 && allChannel) {
             let allChannelEntries = Object.entries(allChannel);
 
             for (let [userId, channelId] of allChannelEntries) {
@@ -187,24 +185,26 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
                 },
             );
 
-            channel.permissionOverwrites.edit(staff_role as string,
-                {
-                    ViewChannel: true,
-                    Connect: true,
-                    Stream: true,
-                    Speak: true,
+            if (staff_role) {
+                channel.permissionOverwrites.edit(staff_role as string,
+                    {
+                        ViewChannel: true,
+                        Connect: true,
+                        Stream: true,
+                        Speak: true,
 
-                    SendMessages: true,
-                    UseApplicationCommands: true,
-                    AttachFiles: true,
-                    AddReactions: true,
+                        SendMessages: true,
+                        UseApplicationCommands: true,
+                        AttachFiles: true,
+                        AddReactions: true,
 
-                    MuteMembers: true,
-                    DeafenMembers: true,
-                    PrioritySpeaker: true,
-                    KickMembers: true
-                },
-            );
+                        MuteMembers: true,
+                        DeafenMembers: true,
+                        PrioritySpeaker: true,
+                        KickMembers: true
+                    },
+                );
+            }
 
             await newState.member?.voice.setChannel(channel.id);
 
