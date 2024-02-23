@@ -22,11 +22,11 @@
 import { Client, Collection } from "discord.js";
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
-import logger from "../logger.ts";
-import { Command, DescriptionLocalizations } from "../../../types/command.ts";
-import config from "../../files/config.ts";
-import { EltType } from "../../../types/eltType.ts";
-import { Option } from "../../../types/option.ts";
+import logger from "../logger.js";
+import { Command, DescriptionLocalizations } from "../../../types/command.js";
+import config from "../../files/config.js";
+import { EltType } from "../../../types/eltType.js";
+import { Option } from "../../../types/option.js";
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     let result = [];
@@ -85,7 +85,7 @@ async function processOptions(options: Option[], category: string, parentName: s
     };
 };
 
-export default async function loadCommands(client: Client, path: string = `${process.cwd()}/src/Interaction/SlashCommands`): Promise<void> {
+export default async function loadCommands(client: Client, path: string = `${process.cwd()}/dist/src/Interaction/SlashCommands`): Promise<void> {
 
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
@@ -94,7 +94,7 @@ export default async function loadCommands(client: Client, path: string = `${pro
 
     var i = 0;
     for (let path of paths) {
-        if (!path.endsWith('.ts')) continue;
+        if (!path.endsWith('.js')) continue;
         i++;
 
         let module = await import(path).then((module) => module);

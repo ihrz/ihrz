@@ -1,14 +1,13 @@
 {
   "name": "ihrz",
-  "version": "dev_15.5.0",
+  "version": "dev_15.4.0",
   "description": "iHrz in ts!",
-  "main": "./index.ts",
+  "main": "./dist/index.js",
   "scripts": {
-    "test": "npx tsc && node ./index.ts",
-    "start": "node ./index.ts",
+    "test": "npx tsc && node ./dist/index.js",
+    "start": "node ./dist/index.js",
     "build": "npx tsc"
   },
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ihrz/ihrz.git"
@@ -16,6 +15,7 @@
   "keywords": [
     "discordbot"
   ],
+  "type": "module",
   "author": "Kisakay",
   "license": "Creative Commons Attribution-NonCommercial-ShareAlike 2.0",
   "bugs": {
@@ -52,10 +52,8 @@
     "@types/express": "^4.17.17",
     "@types/js-yaml": "^4.0.5",
     "@types/ms": "^0.7.31",
-    "@types/node": "^20.11.19",
     "@types/ping": "^0.4.1",
-    "ts-node": "^10.9.2",
-    "tslib": "^2.6.2",
+    "tslib": "^2.6.0",
     "typescript": "^5.3.3"
   }
 }

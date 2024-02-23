@@ -33,7 +33,7 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
-import logger from '../../../core/logger.ts';
+import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {

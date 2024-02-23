@@ -25,9 +25,9 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import logger from '../../../core/logger.ts';
+import logger from '../../../core/logger.js';
 import axios from 'axios'
-import { LanguageData } from '../../../../types/languageData.ts';
+import { LanguageData } from '../../../../types/languageData.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {

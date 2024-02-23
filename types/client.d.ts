@@ -19,16 +19,16 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Collection, Snowflake } from "discord.js";
+import { Collection } from "discord.js";
 import { clientFunction } from "./clientFunction";
 import { Command } from "./command";
 import { QuickDB } from "quick.db";
+import { DataBase } from "./database";
 import { AnotherCommand } from "./anotherCommand";
 import { Emojis } from "./emojis";
 import { GiveawayManager } from "discord-regiveaways";
-import { LavalinkManager } from "lavalink-client";
+import { QueueChangesWatcher, LavalinkManager } from "lavalink-client";
 import { BotContent } from './botContent'
-import { VanityInviteData } from "./vanityUrlData";
 
 declare module 'discord.js' {
     export interface Client {
@@ -46,4 +46,4 @@ declare module 'discord.js' {
         giveawaysManager: GiveawayManager,
         content: BotContent[]
     }
-}
+};

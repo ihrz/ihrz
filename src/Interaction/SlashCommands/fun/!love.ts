@@ -23,8 +23,8 @@ import { Client, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
 import Jimp from 'jimp';
-import logger from '../../../core/logger.ts';
-import config from '../../../files/config.ts';
+import logger from '../../../core/logger.js';
+import config from '../../../files/config.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {

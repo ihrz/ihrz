@@ -22,8 +22,8 @@
 import { BaseGuildTextChannel, Client, Guild, GuildChannel, GuildChannelManager, Message, MessageManager } from "discord.js";
 import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
 
-import logger from "../core/logger.ts";
-import config from '../files/config.ts';
+import logger from "../core/logger.js";
+import config from '../files/config.js';
 
 export default async (client: Client, guild: Guild) => {
     async function inviteManager() {

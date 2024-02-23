@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import logger from "../../logger.ts";
+import logger from "../../logger.js";
 
 export default function () {
     logger.legacy(`iHorizon bash,

@@ -27,11 +27,11 @@ export default async (client: Client) => {
     client.applicationsCommands = new Collection<string, AnotherCommand>();
 
     let loadCommands = async (commandType: string) => {
-        let commandPath = `${process.cwd()}/src/Interaction/${commandType}ApplicationCommands`;
+        let commandPath = `${process.cwd()}/dist/src/Interaction/${commandType}ApplicationCommands`;
 
         let files = await readdirSync(commandPath);
 
-        for (let file of files.filter((file: string) => file.endsWith('.ts'))) {
+        for (let file of files.filter((file: string) => file.endsWith('.js'))) {
             let { command } = await import(`${commandPath}/${file}`);
 
             client.applicationsCommands.set(command.name, {

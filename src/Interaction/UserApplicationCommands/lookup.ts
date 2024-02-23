@@ -22,8 +22,8 @@
 import { Client, EmbedBuilder, CommandInteraction, ApplicationCommandType } from 'discord.js';
 import { AnotherCommand } from '../../../types/anotherCommand';
 import DiscordOauth2 from 'discord-oauth2';
-import config from '../../files/config.ts';
-import logger from '../../core/logger.ts';
+import config from '../../files/config.js';
+import logger from '../../core/logger.js';
 import axios from 'axios';
 
 let oauth = new DiscordOauth2();

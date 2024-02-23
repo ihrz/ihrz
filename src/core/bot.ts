@@ -53,5 +53,5 @@ let client = new Client({
         Partials.ThreadMember
     ]
 });
-import core from './core.ts';
+import core from './core.js';
 core(client);

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import captcha from '../../../core/captcha.ts';
+import captcha from '../../../core/captcha.js';
 import { Request, Response } from 'express';
 
 export default {

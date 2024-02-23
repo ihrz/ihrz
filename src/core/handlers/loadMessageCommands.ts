@@ -22,9 +22,9 @@
 import { Client, Collection } from "discord.js";
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
-import logger from "../logger.ts";
+import logger from "../logger.js";
 import { Command } from "../../../types/command";
-import config from "../../files/config.ts";
+import config from "../../files/config.js";
 import { EltType } from "../../../types/eltType";
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
@@ -61,7 +61,7 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
     return paths;
 };
 
-async function loadCommands(client: Client, path: string = `${process.cwd()}/src/Interaction/MessageCommands`): Promise<void> {
+async function loadCommands(client: Client, path: string = `${process.cwd()}/dist/src/Interaction/MessageCommands`): Promise<void> {
 
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
@@ -70,7 +70,7 @@ async function loadCommands(client: Client, path: string = `${process.cwd()}/src
 
     var i = 0;
     for (let path of paths) {
-        if (!path.endsWith('.ts')) continue;
+        if (!path.endsWith('.js')) continue;
         i++;
 
         let { command } = await import(path); if (!command) continue;
