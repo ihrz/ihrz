@@ -90,13 +90,15 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                 if (!listmembersArray.includes(memberId)) {
                     (targetedChannel as BaseGuildVoiceChannel).permissionOverwrites.edit(memberId,
                         {
+                            ViewChannel: true,
                             Connect: true,
                             Speak: true,
                             Stream: true,
 
                             SendMessages: true,
                             ReadMessageHistory: true,
-                            AttachFiles: true
+                            AttachFiles: true,
+                            UseApplicationCommands: true
                         }
                     );
                     addedMembers.push(memberId);

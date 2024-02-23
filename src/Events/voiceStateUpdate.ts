@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client, VoiceState, GuildTextBasedChannel, BaseGuildTextChannel, CategoryChannel, ChannelType, PermissionFlagsBits } from 'discord.js';
+import { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client, VoiceState, GuildTextBasedChannel, BaseGuildTextChannel, CategoryChannel, ChannelType, PermissionFlagsBits, GuildChannel } from 'discord.js';
 
 export default async (client: Client, oldState: VoiceState, newState: VoiceState) => {
 
@@ -120,36 +120,45 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
         let table = client.db.table('TEMP');
 
         let allChannel = await table.get(`CUSTOM_VOICE.${newState.guild.id}`);
+
+        if (!allChannel) return;
+        
         let ChannelForCreate = await client.db.get(`${newState.guild.id}.VOICE_INTERFACE.voice_channel`);
         var ChannelDB = await table.get(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
 
-        let channel_db_fetched = newState.guild.channels.cache.get(ChannelDB);
+        let channel_db_fetched = newState.guild.channels.cache.get(ChannelDB) as GuildChannel;
         let result_channel = newState.guild.channels.cache.get(ChannelForCreate);
         let category_channel = newState.guild.channels.cache.get(result_channel?.parentId as string) as CategoryChannel;
 
-        // If the user leave annother empty channel
-        if (oldState.channel?.members.size === 0) {
-            let allChannelEntries = Object.entries(allChannel);
-            for (let [userId, channelId] of allChannelEntries) {
-                if (channelId !== oldState.channelId) continue;
-                let userChannel = newState.guild.channels.cache.get(channelId as string);
-
-                if (userChannel) {
-                    await userChannel.delete();
-                    await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${userId}`);
-                }
-            }
-        }
-
         // If the user leave their own empty channel
-        if (oldState.channelId === ChannelDB && channel_db_fetched?.members.constructor.length === 0) {
+        if (oldState.channelId === ChannelDB && channel_db_fetched?.members.size === 0) {
             await channel_db_fetched?.delete();
             await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
+
+            return;
         };
 
         // If the member leave their own channel for trying to create another one
         if (newState.channelId === ChannelForCreate && oldState.channelId === ChannelDB) {
             await newState.member?.voice.disconnect();
+            return;
+        };
+
+        // If the user leave annother empty channel
+        if (oldState.channel?.members.size === 0) {
+            let allChannelEntries = Object.entries(allChannel);
+
+            for (let [userId, channelId] of allChannelEntries) {
+                if (channelId !== oldState.channelId) continue;
+                let userChannel = newState.guild.channels.cache.get(channelId as string);
+
+                if (oldState.channelId === channelId) {
+                    await userChannel?.delete();
+                    await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${userId}`);
+                    
+                    return;
+                }
+            }
         };
 
         // If the user join the Create's Channel

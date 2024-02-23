@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ActionRowBuilder, BaseGuildVoiceChannel, ButtonInteraction, CacheType, ComponentType, Embed, EmbedBuilder, GuildMember, UserSelectMenuBuilder } from 'discord.js';
+import { ActionRowBuilder, BaseGuildVoiceChannel, ButtonInteraction, CacheType, Client, ComponentType, Embed, EmbedBuilder, Guild, GuildMember, UserSelectMenuBuilder } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default async function (interaction: ButtonInteraction<CacheType>) {
@@ -35,27 +35,29 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
 
     if (result.channelId !== interaction.channelId) return interaction.deferUpdate();
 
+    function getPreviousOwner(guild: Guild): GuildMember | undefined {
+        var result = '';
+
+        for (let [userId, channelId] of Object.entries(allChannel)) {
+            if (channelId !== targetedChannel?.id) continue;
+            result = userId;
+        };
+
+        return guild?.members.cache.get(result);
+    };
+
+    let previousOwner = getPreviousOwner(interaction.guild!);
+
+    // Check if the previous owner is in their channel
+    if (targetedChannel?.members.get(previousOwner?.id!)) return interaction.deferUpdate();
+
     if (!member.voice.channel) {
         await interaction.deferUpdate()
         return;
     } else {
 
-        let allChannelEntries = Object.entries(allChannel);
-        for (let [userId, channelId] of allChannelEntries) {
-            if (channelId !== targetedChannel?.id) continue;
-            let userChannel = interaction.guild?.channels.cache.get(channelId as string);
-
-            if (userChannel) {
-                await userChannel.delete();
-                await table.delete(`CUSTOM_VOICE.${interaction.guild?.id}.${userId}`);
-            }
-        }
-
-        // Check if the real owner is in channel
-        let owner_is_here = targetedChannel?.members.get();
-
         // change ownership now
-        await table.delete(`CUSTOM_VOICE.${interaction.guild?.id}.${interaction.user.id}`);
+        await table.delete(`CUSTOM_VOICE.${interaction.guild?.id}.${previousOwner?.user.id}`);
         await table.set(`CUSTOM_VOICE.${interaction.guild?.id}.${interaction?.user?.id}`, targetedChannel?.id)
 
         // change the voice channel name
@@ -70,6 +72,10 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                     {
                         name: "New owner",
                         value: `<@${interaction?.user?.id}>`
+                    },
+                    {
+                        name: "Old owner",
+                        value: `<@${previousOwner?.id}>`
                     },
                 )
                 .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await interaction.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)

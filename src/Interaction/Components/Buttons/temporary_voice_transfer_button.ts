@@ -82,6 +82,10 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                                 name: "New owner",
                                 value: `<@${newOwner?.user?.id}>`
                             },
+                            {
+                                name: "Old owner",
+                                value: `<@${interaction.user.id}>`
+                            },
                         )
                         .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
                         .setFooter(
