@@ -131,7 +131,7 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
         let category_channel = newState.guild.channels.cache.get(result_channel?.parentId as string) as CategoryChannel;
 
         // If the user leave their own empty channel
-        if (oldState.channelId === ChannelDB && channel_db_fetched?.members.size === 0) {
+        if (oldState.channelId === ChannelDB && channel_db_fetched?.members.size === 0 && channel_db_fetched) {
             await channel_db_fetched?.delete();
             await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
 
@@ -155,11 +155,13 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
                 if (oldState.channelId === channelId) {
                     await userChannel?.delete();
                     await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${userId}`);
-                    
+
                     return;
                 }
             }
         };
+
+        let staff_role = await client.db.get(`${oldState.guild.id}.VOICE_INTERFACE.staff_role`);
 
         // If the user join the Create's Channel
         if (newState.channelId === ChannelForCreate && oldState.channelId !== ChannelDB) {
@@ -182,6 +184,25 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
                     UseApplicationCommands: true,
                     AttachFiles: true,
                     AddReactions: true
+                },
+            );
+
+            channel.permissionOverwrites.edit(staff_role as string,
+                {
+                    ViewChannel: true,
+                    Connect: true,
+                    Stream: true,
+                    Speak: true,
+
+                    SendMessages: true,
+                    UseApplicationCommands: true,
+                    AttachFiles: true,
+                    AddReactions: true,
+
+                    MuteMembers: true,
+                    DeafenMembers: true,
+                    PrioritySpeaker: true,
+                    KickMembers: true
                 },
             );
 

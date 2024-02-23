@@ -67,9 +67,12 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
         let userLimit = parseInt(response.fields.getField('name').value);
 
         if (!userLimit) {
-            response.reply({
-                content: "The input are not an number"
+            await response.reply({
+                content: `${interaction.client.iHorizon_Emojis.icon.No_Logo} | The input are not an number`,
+                ephemeral: true
             });
+
+            return;
         };
 
         channel?.setUserLimit(userLimit);

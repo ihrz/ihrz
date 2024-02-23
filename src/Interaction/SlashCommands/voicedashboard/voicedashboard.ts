@@ -103,6 +103,29 @@ export const command: Command = {
                     description_localizations: {
                         "fr": ".."
                     },
+                },
+                {
+                    name: "set-staff-role",
+                    type: ApplicationCommandOptionType.Subcommand,
+
+                    description: "...",
+                    description_localizations: {
+                        "fr": ".."
+                    },
+
+                    options: [
+                        {
+                            name: "role",
+                            type: ApplicationCommandOptionType.Role,
+
+                            description: "The role for the staff to bypass permission into the TempChannels",
+                            description_localizations: {
+                                "fr": "Le rôle du personnel pour contourner l'autorisation dans les TempChannel"
+                            },
+
+                            required: true,
+                        }
+                    ]
                 }
             ]
         },
