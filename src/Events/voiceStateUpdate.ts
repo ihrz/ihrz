@@ -142,7 +142,6 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
                 parent: result_channel?.parentId,
                 permissionOverwrites: category_channel.permissionOverwrites.cache,
                 type: ChannelType.GuildVoice,
-                topic: `${newState.member?.displayName || newState.member?.nickname}'s Voice`
             })
 
             channel.permissionOverwrites.edit(newState.member?.user.id as string,

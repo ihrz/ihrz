@@ -95,29 +95,29 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                 };
             });
 
-            let e = new EmbedBuilder()
-                .setDescription(`## Modifications about your temporary voice channel`)
-                .setColor(2829617)
-                .setFields(
-                    {
-                        name: "Untrusted members",
-                        value: removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'No one'
-                    },
-                    {
-                        name: "Trusted members",
-                        value: addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'No one'
-                    },
-                )
-                .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
-                .setFooter(
-                    {
-                        text: "iHorizon",
-                        iconURL: 'attachment://icon.png'
-                    }
-                );
-
             await i.reply({
-                embeds: [e],
+                embeds: [
+                    new EmbedBuilder()
+                        .setDescription(`## Modifications about your temporary voice channel`)
+                        .setColor(2829617)
+                        .setFields(
+                            {
+                                name: "Untrusted members",
+                                value: removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'No one'
+                            },
+                            {
+                                name: "Trusted members",
+                                value: addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'No one'
+                            },
+                        )
+                        .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
+                        .setFooter(
+                            {
+                                text: "iHorizon",
+                                iconURL: 'attachment://icon.png'
+                            }
+                        )
+                ],
                 files: [
                     {
                         attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),

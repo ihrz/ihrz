@@ -106,27 +106,28 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
             let channel = (i.member as GuildMember).voice.channel;
             let value = i.values[0];
 
-            await channel?.setRTCRegion(value)
-            let e = new EmbedBuilder()
-                .setDescription(`## Modifications about your temporary voice channel`)
-                .setColor(2829617)
-                .setFields(
-                    {
-                        name: "New region",
-                        value: `${i.client.iHorizon_Emojis.vc.Region} **${value}**`,
-                        inline: true
-                    },
-                )
-                .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
-                .setFooter(
-                    {
-                        text: "iHorizon",
-                        iconURL: 'attachment://icon.png'
-                    }
-                );
+            await channel?.setRTCRegion(value);
 
             await i.reply({
-                embeds: [e],
+                embeds: [
+                    new EmbedBuilder()
+                        .setDescription(`## Modifications about your temporary voice channel`)
+                        .setColor(2829617)
+                        .setFields(
+                            {
+                                name: "New region",
+                                value: `${i.client.iHorizon_Emojis.vc.Region} **${value}**`,
+                                inline: true
+                            },
+                        )
+                        .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
+                        .setFooter(
+                            {
+                                text: "iHorizon",
+                                iconURL: 'attachment://icon.png'
+                            }
+                        )
+                ],
                 files: [
                     {
                         attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),

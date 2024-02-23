@@ -45,22 +45,22 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
         await targetedChannel?.delete();
         await table.delete(`CUSTOM_VOICE.${interaction.guild?.id}.${interaction.user.id}`);
 
-        let e = new EmbedBuilder()
-            .setDescription(
-                `## Channel deletion\n` +
-                "The channel are succeffuly deleted !"
-            )
-            .setColor(2829617)
-            .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await interaction.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
-            .setFooter(
-                {
-                    text: "iHorizon",
-                    iconURL: 'attachment://icon.png'
-                }
-            );
-
         await interaction.reply({
-            embeds: [e],
+            embeds: [
+                new EmbedBuilder()
+                    .setDescription(
+                        `## Channel deletion\n` +
+                        "The channel are succeffuly deleted !"
+                    )
+                    .setColor(2829617)
+                    .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await interaction.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
+                    .setFooter(
+                        {
+                            text: "iHorizon",
+                            iconURL: 'attachment://icon.png'
+                        }
+                    )
+            ],
             files: [
                 {
                     attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
