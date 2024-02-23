@@ -43,7 +43,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
 
         let comp = new StringSelectMenuBuilder()
             .setCustomId('starter')
-            .setPlaceholder('Make a selection!')
+            .setPlaceholder('Select a Region')
             .addOptions(
                 new StringSelectMenuOptionBuilder()
                     .setLabel('Singapore')

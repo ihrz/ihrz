@@ -65,8 +65,6 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
             let membersArray: string[] = [];
             let listmembersArray: string[] = [];
 
-            let targetedChannel = (interaction.member as GuildMember).voice.channel;
-
             // Push all the member of the Selection on the Array
             i.members.each(async (i) => { membersArray.push(i.user?.id as string) });
 

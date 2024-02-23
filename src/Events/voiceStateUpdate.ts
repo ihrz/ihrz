@@ -141,7 +141,7 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
         if (newState.channelId === ChannelForCreate && oldState.channelId !== ChannelDB) {
 
             let channel = await newState.guild.channels.create({
-                name: `${newState.member?.displayName || newState.member?.nickname}'s Voice`,
+                name: `${newState.member?.displayName || newState.member?.nickname}'s Channel`,
                 parent: result_channel?.parentId,
                 permissionOverwrites: category_channel.permissionOverwrites.cache,
                 type: ChannelType.GuildVoice,
