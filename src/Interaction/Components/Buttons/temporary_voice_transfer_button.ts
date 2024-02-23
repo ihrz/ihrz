@@ -72,6 +72,20 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
             // change the voice channel name
             targetedChannel?.setName(`${(newOwner as GuildMember).displayName || newOwner?.user?.username}'s Channel`);
 
+            targetedChannel?.permissionOverwrites.delete(interaction.user.id);
+            
+            targetedChannel?.permissionOverwrites.edit(newOwner?.user?.id as string, {
+                ViewChannel: true,
+                Connect: true,
+                Stream: true,
+                Speak: true,
+
+                SendMessages: true,
+                UseApplicationCommands: true,
+                AttachFiles: true,
+                AddReactions: true
+            });
+
             await i.reply({
                 embeds: [
                     new EmbedBuilder()

@@ -122,7 +122,7 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
         let allChannel = await table.get(`CUSTOM_VOICE.${newState.guild.id}`);
 
         if (!allChannel) return;
-        
+
         let ChannelForCreate = await client.db.get(`${newState.guild.id}.VOICE_INTERFACE.voice_channel`);
         var ChannelDB = await table.get(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
 
@@ -173,9 +173,15 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
 
             channel.permissionOverwrites.edit(newState.member?.user.id as string,
                 {
+                    ViewChannel: true,
                     Connect: true,
                     Stream: true,
                     Speak: true,
+
+                    SendMessages: true,
+                    UseApplicationCommands: true,
+                    AttachFiles: true,
+                    AddReactions: true
                 },
             );
 

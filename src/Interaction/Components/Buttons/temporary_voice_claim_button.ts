@@ -63,6 +63,20 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
         // change the voice channel name
         targetedChannel?.setName(`${interaction.user.displayName || interaction.user.username}'s Channel`);
 
+        targetedChannel?.permissionOverwrites.delete(previousOwner?.user.id as string);
+
+        targetedChannel?.permissionOverwrites.edit(interaction.user.id, {
+            ViewChannel: true,
+            Connect: true,
+            Stream: true,
+            Speak: true,
+
+            SendMessages: true,
+            UseApplicationCommands: true,
+            AttachFiles: true,
+            AddReactions: true
+        });
+
         await interaction.reply({
             ephemeral: true,
             embeds: [new EmbedBuilder()
