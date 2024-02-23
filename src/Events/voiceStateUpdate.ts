@@ -113,6 +113,9 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
 
     async function voiceInterface() {
         if (!oldState || !oldState.guild) return;
+        
+        // Avoid some troubles
+        if (newState.channelId === oldState.channelId) return;
 
         let table = client.db.table('TEMP');
 

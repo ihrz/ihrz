@@ -31,7 +31,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     let member = interaction.member as GuildMember;
 
     let targetedChannel = (interaction.member as GuildMember).voice.channel;
-    let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guild?.id}.${targetedChannel?.id}`);
+    let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guild?.id}.${interaction.user.id}`);
 
     if (result.channelId !== interaction.channelId
         || getChannelOwner !== targetedChannel?.id) return interaction.deferUpdate();
@@ -42,27 +42,39 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     } else {
 
         let comp = new StringSelectMenuBuilder()
-            .setCustomId('starter')
-            .setPlaceholder('Make a selection!')
+            .setCustomId('tempmorary_voice_privacy_menu')
+            .setPlaceholder('Select a Privacy Option')
             .addOptions(
                 new StringSelectMenuOptionBuilder()
-                    .setLabel('Singapore')
-                    .setValue('singapore'),
+                    .setLabel('Lock channel')
+                    .setDescription('Only trusted users will be able to join your voice channel')
+                    .setEmoji(interaction.client.iHorizon_Emojis.vc.CloseAccess)
+                    .setValue('temporary_channel_lock_channel_menu'),
                 new StringSelectMenuOptionBuilder()
-                    .setLabel('Australia/Sydney')
-                    .setValue('sydney'),
+                    .setLabel('Unlock channel')
+                    .setDescription('Everyone will be able to join your voice channel')
+                    .setEmoji(interaction.client.iHorizon_Emojis.vc.OpenAcces)
+                    .setValue('temporary_channel_unlock_channel_menu'),
                 new StringSelectMenuOptionBuilder()
-                    .setLabel('Russia')
-                    .setValue('russia'),
+                    .setLabel('Invisible')
+                    .setEmoji(interaction.client.iHorizon_Emojis.vc.Unseeable)
+                    .setDescription('Only trusted users will be able to view your voice channel')
+                    .setValue('temporary_channel_invisible_channel_menu'),
                 new StringSelectMenuOptionBuilder()
-                    .setLabel('India')
-                    .setValue('india'),
+                    .setLabel('Visible')
+                    .setEmoji(interaction.client.iHorizon_Emojis.vc.Seeable)
+                    .setDescription('Everyone will be able to view your voice channel')
+                    .setValue('temporary_channel_visible_channel_menu'),
                 new StringSelectMenuOptionBuilder()
-                    .setLabel('Hong Kong')
-                    .setValue('hongkong'),
+                    .setLabel('Close chat')
+                    .setEmoji(interaction.client.iHorizon_Emojis.vc.CloseChat)
+                    .setDescription('Only trusted users will be able to text in your chat')
+                    .setValue('temporary_channel_closechat_channel_menu'),
                 new StringSelectMenuOptionBuilder()
-                    .setLabel('South Africa')
-                    .setValue('southafrica'),
+                    .setLabel('Open chat')
+                    .setDescription('Everyone will be able to text in your chat')
+                    .setEmoji(interaction.client.iHorizon_Emojis.vc.OpenChat)
+                    .setValue('temporary_channel_openchat_channel_menu'),
             );
 
         let response = await interaction.reply({

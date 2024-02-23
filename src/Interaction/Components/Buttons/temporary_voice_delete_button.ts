@@ -32,7 +32,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
     let member = interaction.member as GuildMember;
 
-    let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guild?.id}.${targetedChannel?.id}`);
+    let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guild?.id}.${interaction.user.id}`);
 
     if (result.channelId !== interaction.channelId
         || getChannelOwner !== targetedChannel?.id) return interaction.deferUpdate();

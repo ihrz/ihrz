@@ -72,6 +72,12 @@ interface Vc {
     Transfer: string;
     Claim: string;
     Delete: string;
+    Unseeable: string;
+    Seeable: string;
+    OpenAcces: string;
+    CloseAccess: string;
+    OpenChat: string;
+    CloseChat: string;
 }
 
 export interface Emojis {
