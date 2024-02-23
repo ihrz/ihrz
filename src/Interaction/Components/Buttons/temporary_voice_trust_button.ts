@@ -41,18 +41,18 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
         return;
     } else {
 
-        let comp = new ActionRowBuilder<UserSelectMenuBuilder>()
-            .addComponents(
-                new UserSelectMenuBuilder()
-                    .setCustomId('temporary_voice_trust_selectmenue')
-                    .setPlaceholder(`Selected users will be trusted to join`)
-                    .setMinValues(0)
-                    .setMaxValues(10)
-            );
-
         let response = await interaction.reply({
             ephemeral: true,
-            components: [comp]
+            components: [
+                new ActionRowBuilder<UserSelectMenuBuilder>()
+                    .addComponents(
+                        new UserSelectMenuBuilder()
+                            .setCustomId('temporary_voice_trust_selectmenue')
+                            .setPlaceholder(`Selected users will be trusted to join`)
+                            .setMinValues(0)
+                            .setMaxValues(10)
+                    )
+            ]
         });
 
         let collector = interaction.channel?.createMessageComponentCollector({
