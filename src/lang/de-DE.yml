@@ -235,6 +235,8 @@ help_schedule_fields: "Zeitplan"
 help_schedule_dsc: "Erstelle Erinnerungen mit vorprogrammierten Nachrichten, die der Bot dir in einer privaten Nachricht sendet"
 help_pfps_fields: "PFPS"
 help_pfps_dsc: "Sendet zufälliges Benutzer-Avatar im Kanal!"
+help_voicedashboard_fields: "VoiceDashboard"
+help_voicedashboard_dsc: "Erstellen Sie einen benutzerdefinierten temporären Sprachkanal mit Benutzeroberfläche!"
 
 # /say
 say_footer_msg: "\n\nGesendet von `/sagen` von ${interaction.user}"

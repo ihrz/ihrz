@@ -190,6 +190,13 @@ export const command: Command = {
                 emoji: "❓"
             },
             {
+                name: data.help_voicedashboard_fields,
+                value: client.content.filter(c => c.category === 'voicedashboard'),
+                inline: true,
+                description: data.help_voicedashboard_dsc,
+                emoji: "🔊"
+            },
+            {
                 name: data.help_ticket_fields,
                 value: client.content.filter(c => c.category === 'ticket'),
                 inline: true,

@@ -235,6 +235,8 @@ help_schedule_fields: "Планирование"
 help_schedule_dsc: "Создавайте напоминания с заранее заданными сообщениями, которые бот будет отправлять вам в личном сообщении"
 help_pfps_fields: "PFPS"
 help_pfps_dsc: "Отправка случайного аватара пользователя в канал!"
+help_voicedashboard_fields: "VoiceDashboard"
+help_voicedashboard_dsc: "Создайте пользовательский временный голосовой канал с интерфейсом!"
 
 # /say
 say_footer_msg: "\n\nОтправлено из `/говорить` от ${interaction.user}"
