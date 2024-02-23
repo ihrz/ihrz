@@ -113,7 +113,7 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
 
     async function voiceInterface() {
         if (!oldState || !oldState.guild) return;
-        
+
         // Avoid some troubles
         if (newState.channelId === oldState.channelId) return;
 
@@ -154,14 +154,6 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
                     Speak: true,
                 },
             );
-
-            // channel.permissionOverwrites.edit(newState.guild.roles.everyone.id,
-            //     {
-            //         Connect: false,
-            //         Stream: true,
-            //         Speak: true,
-            //     },
-            // );
 
             await newState.member?.voice.setChannel(channel.id);
 

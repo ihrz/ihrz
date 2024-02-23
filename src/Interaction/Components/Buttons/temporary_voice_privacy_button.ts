@@ -91,30 +91,141 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
         });
 
         collector?.on('collect', async i => {
-            let channel = (i.member as GuildMember).voice.channel;
-            let value = i.values[0];
 
-            await channel?.setRTCRegion(value);
+            let value = i.values[0];
+            let action = comp.options.filter(i => i.data.value === value)[0].data.label;
+
+            let embed = new EmbedBuilder()
+                .setDescription(`## Modifications about your temporary voice channel`)
+                .setColor(2829617)
+                .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
+                .setFooter(
+                    {
+                        text: "iHorizon",
+                        iconURL: 'attachment://icon.png'
+                    }
+                );
+
+            switch (value) {
+                // Lock channel
+                case 'temporary_channel_lock_channel_menu':
+
+                    embed.setFields(
+                        {
+                            name: `${action}`,
+                            value: `${i.client.iHorizon_Emojis.vc.CloseAccess} **Yes**`,
+                            inline: true
+                        },
+                    );
+
+                    targetedChannel?.permissionOverwrites.edit(i.guild?.roles.everyone.id as string,
+                        {
+                            Connect: false,
+                            Stream: false,
+                            Speak: false,
+                        },
+                    );
+
+                    break;
+                // Unlock channel
+                case 'temporary_channel_unlock_channel_menu':
+
+                    embed.setFields(
+                        {
+                            name: `${action}`,
+                            value: `${i.client.iHorizon_Emojis.vc.OpenAcces} **Yes**`,
+                            inline: true
+                        },
+                    );
+
+                    targetedChannel?.permissionOverwrites.edit(i.guild?.roles.everyone.id as string,
+                        {
+                            Connect: true,
+                            Stream: true,
+                            Speak: true,
+                        },
+                    );
+
+                    break;
+                // Invisible
+                case 'temporary_channel_invisible_channel_menu':
+
+                    embed.setFields(
+                        {
+                            name: `${action}`,
+                            value: `${i.client.iHorizon_Emojis.vc.Unseeable} **Yes**`,
+                            inline: true
+                        },
+                    );
+
+                    targetedChannel?.permissionOverwrites.edit(i.guild?.roles.everyone.id as string,
+                        {
+                            ViewChannel: false
+                        },
+                    );
+
+                    break;
+                // Visible
+                case 'temporary_channel_visible_channel_menu':
+
+                    embed.setFields(
+                        {
+                            name: `${action}`,
+                            value: `${i.client.iHorizon_Emojis.vc.Seeable} **Yes**`,
+                            inline: true
+                        },
+                    );
+
+                    targetedChannel?.permissionOverwrites.edit(i.guild?.roles.everyone.id as string,
+                        {
+                            ViewChannel: true
+                        },
+                    );
+
+                    break;
+                // Close chat
+                case 'temporary_channel_closechat_channel_menu':
+
+                    embed.setFields(
+                        {
+                            name: `${action}`,
+                            value: `${i.client.iHorizon_Emojis.vc.CloseChat} **Yes**`,
+                            inline: true
+                        },
+                    );
+
+                    targetedChannel?.permissionOverwrites.edit(i.guild?.roles.everyone.id as string,
+                        {
+                            SendMessages: false
+                        },
+                    );
+
+                    break;
+                // Open chat
+                case 'temporary_channel_openchat_channel_menu':
+
+                    embed.setFields(
+                        {
+                            name: `${action}`,
+                            value: `${i.client.iHorizon_Emojis.vc.OpenChat} **Yes**`,
+                            inline: true
+                        },
+                    );
+
+                    targetedChannel?.permissionOverwrites.edit(i.guild?.roles.everyone.id as string,
+                        {
+                            SendMessages: true,
+                            AddReactions: true,
+                            UseApplicationCommands: true
+                        },
+                    );
+
+                    break;
+            };
 
             await i.reply({
                 embeds: [
-                    new EmbedBuilder()
-                        .setDescription(`## Modifications about your temporary voice channel`)
-                        .setColor(2829617)
-                        .setFields(
-                            {
-                                name: "New region",
-                                value: `${i.client.iHorizon_Emojis.vc.Region} **${value}**`,
-                                inline: true
-                            },
-                        )
-                        .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
-                        .setFooter(
-                            {
-                                text: "iHorizon",
-                                iconURL: 'attachment://icon.png'
-                            }
-                        )
+                    embed
                 ],
                 files: [
                     {
@@ -124,8 +235,6 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                 ],
                 ephemeral: true
             });
-
-            collector?.stop();
         });
 
         collector?.on('end', i => {
