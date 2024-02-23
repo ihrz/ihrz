@@ -57,10 +57,31 @@ interface Icon {
     Prefix_Command: string;
     iHorizon_Pointer: string;
     iHorizon_Bar: string;
-    
+    iHorizon_Empty: string;
+}
+
+interface Vc {
+    Name: string;
+    Privacy: string;
+    Region: string;
+    Limit: string;
+    Block: string;
+    Unblock: string;
+    Trust: string;
+    Untrust: string;
+    Transfer: string;
+    Claim: string;
+    Delete: string;
+    Unseeable: string;
+    Seeable: string;
+    OpenAcces: string;
+    CloseAccess: string;
+    OpenChat: string;
+    CloseChat: string;
 }
 
 export interface Emojis {
     badge: Badge;
     icon: Icon;
+    vc: Vc;
 }

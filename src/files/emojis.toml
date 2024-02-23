@@ -69,3 +69,41 @@ Prefix_Command = "<:Message_Commands:1195757572242813009>"
 iHorizon_Bar = "<:iHorizon_Bar:1207954863112061009>"
 
 iHorizon_Pointer = "<:iHorizon_Pointer:1207955173524111450>"
+
+iHorizon_Empty = "<:iHorizon_Empty:1210211367391600671>"
+
+[vc]
+
+Name = "<:iHorizon_VC_Name:1210204645859922010>"
+
+Privacy = "<:iHorizon_VC_Privacy:1210204647634239501>"
+
+Region = "<:iHorizon_VC_Region:1210204649097920542>"
+
+Limit = "<:iHorizon_VC_Limit:1210204643871686676>"
+
+Block = "<:iHorizon_VC_Block:1210204650741956660>"
+
+Unblock = "<:iHorizon_VC_Unblock:1210204655049773117>"
+
+Trust = "<:iHorizon_VC_Trust:1210204652130271253>"
+
+Untrust = "<:iHorizon_VC_Untrust:1210204758007353365>"
+
+Transfer = "<:iHorizon_VC_Transfer:1210204653590155374>"
+
+Claim = "<:iHorizon_VC_Claim:1210204640700792913>"
+
+Delete = "<:iHorizon_VC_Delete:1210204642332647514>"
+
+Unseeable = "<:iHorizon_VC_Unseeable:1210511889084325908>"
+
+Seeable = "<:iHorizon_VC_Seeable:1210511891147788318>"
+
+OpenAcces = "<:iHorizon_VC_OpenAccess:1210511886697766932>"
+
+CloseAccess = "<:iHorizon_VC_CloseAccess:1210511884948865055>"
+
+OpenChat = "<:iHorizon_VC_OpenChat:1210511879999455263>"
+
+CloseChat = "<:iHorizon_VC_CloseChat:1210511882310647808>"

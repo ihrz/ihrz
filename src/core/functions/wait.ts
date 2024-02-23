@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-function wait(milliseconds: number) {
+function wait(milliseconds: number): Promise<void> {
     return new Promise(resolve => {
         setTimeout(resolve, milliseconds);
     });

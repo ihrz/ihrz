@@ -32,5 +32,6 @@ export interface Option {
     description: string,
     required?: boolean,
     autocomplete?: boolean,
+    channel_types?: number[],
     choices?: Choice[]
 };

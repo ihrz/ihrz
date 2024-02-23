@@ -60,10 +60,8 @@ export default async (client: Client) => {
         process.exit();
     });
 
-    var table_1 = db.table("BOT");
-    await table_1.set(`CONTENT`, {});
-
     client.db = db;
+    client.content = []
     client.invites = new Collection();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 

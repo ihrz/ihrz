@@ -31,7 +31,8 @@ import {
     ApplicationCommandType,
 } from 'discord.js'
 
-import { Command } from '../../../../types/command';
+import { Command, DescriptionLocalizations } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'help',
@@ -45,34 +46,163 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
-
-        var table_1 = client.db.table("BOT");
-        let CONTENT = await table_1.get("CONTENT");
+        let data = await client.functions.getLanguageData(interaction.guild?.id) as LanguageData;
 
         let categories = [
-            { name: data.help_backup_fields, value: CONTENT.backup, inline: true, description: data.help_backup_dsc, emoji: "🔁" },
-            { name: data.help_bot_fields, value: CONTENT.bot, inline: true, description: data.help_bot_dsc, emoji: "🤖" },
-            { name: data.help_economy_fields, value: CONTENT.economy, inline: true, description: data.help_economy_dsc, emoji: "👩‍💼" },
-            { name: data.help_fun_fields, value: CONTENT.fun, inline: true, description: data.help_fun_dsc, emoji: "🆒" },
-            { name: data.help_giveaway_fields, value: CONTENT.giveaway, inline: true, description: data.help_giveaway_dsc, emoji: "🎉" },
-            { name: data.help_guildconf_fields, value: CONTENT.guildconfig, inline: true, description: data.help_guildconf_dsc, emoji: "⚙" },
-            { name: data.help_invitem_fields, value: CONTENT.invitemanager, inline: true, description: data.help_invitem_dsc, emoji: "💾" },
-            { name: data.help_memberc_fields, value: CONTENT.membercount, inline: true, description: data.help_memberc_dsc, emoji: "👥" },
-            { name: data.help_mod_fields, value: CONTENT.moderation, inline: true, description: data.help_mod_dsc, emoji: "👮‍♀️" },
-            { name: data.help_music_fields, value: CONTENT.music, inline: true, description: data.help_music_dsc, emoji: "🎵" },
-            { name: data.help_newftrs_fields, value: CONTENT.newfeatures, inline: true, description: data.help_newftrs_dsc, emoji: "🆕" },
-            { name: data.help_owner_fields, value: CONTENT.owner, inline: true, description: data.help_owner_dsc, emoji: "👩‍✈️" },
-            { name: data.help_pfps_fields, value: CONTENT.pfps, inline: true, description: data.help_pfps_dsc, emoji: "🕵️‍♀️" },
-            { name: data.help_prof_fields, value: CONTENT.profil, inline: true, description: data.help_prof_dsc, emoji: "👩" },
-            { name: data.help_protection_fields, value: CONTENT.protection, inline: true, description: data.help_protection_dsc, emoji: "🛡️" },
-            { name: data.help_ranks_fields, value: CONTENT.ranks, inline: true, description: data.help_ranks_dsc, emoji: "🌟" },
-            { name: data.help_roler_fields, value: CONTENT.rolereactions, inline: true, description: data.help_roler_dsc, emoji: "📇" },
-            { name: data.help_schedule_fields, value: CONTENT.schedule, inline: true, description: data.help_schedule_dsc, emoji: "🗒" },
-            { name: data.help_security_fields, value: CONTENT.security, inline: true, description: data.help_security_dsc, emoji: "🔐" },
-            { name: data.help_suggestion_fields, value: CONTENT.suggestion, inline: true, description: data.help_suggestion_dsc, emoji: "❓" },
-            { name: data.help_ticket_fields, value: CONTENT.ticket, inline: true, description: data.help_ticket_dsc, emoji: "🎫" },
-            { name: data.help_utils_fields, value: CONTENT.utils, inline: true, description: data.help_utils_dsc, emoji: "🧰" },
+            {
+                name: data.help_backup_fields,
+                value: client.content.filter(c => c.category === 'backup'),
+                description: data.help_backup_dsc,
+                emoji: "🔁",
+                inline: true,
+            },
+            {
+                name: data.help_bot_fields,
+                value: client.content.filter(c => c.category === 'bot'),
+                inline: true,
+                description: data.help_bot_dsc,
+                emoji: "🤖"
+            },
+            {
+                name: data.help_economy_fields,
+                value: client.content.filter(c => c.category === 'economy'),
+                inline: true,
+                description: data.help_economy_dsc,
+                emoji: "👩‍💼"
+            },
+            {
+                name: data.help_fun_fields,
+                value: client.content.filter(c => c.category === 'fun'),
+                inline: true,
+                description: data.help_fun_dsc,
+                emoji: "🆒"
+            },
+            {
+                name: data.help_giveaway_fields,
+                value: client.content.filter(c => c.category === 'giveaway'),
+                inline: true,
+                description: data.help_giveaway_dsc,
+                emoji: "🎉"
+            },
+            {
+                name: data.help_guildconf_fields,
+                value: client.content.filter(c => c.category === 'guildconfig'),
+                inline: true,
+                description: data.help_guildconf_dsc,
+                emoji: "⚙"
+            },
+            {
+                name: data.help_invitem_fields,
+                value: client.content.filter(c => c.category === 'invitemanager'),
+                inline: true,
+                description: data.help_invitem_dsc,
+                emoji: "💾"
+            },
+            {
+                name: data.help_memberc_fields,
+                value: client.content.filter(c => c.category === 'membercount'),
+                inline: true,
+                description: data.help_memberc_dsc,
+                emoji: "👥"
+            },
+            {
+                name: data.help_mod_fields,
+                value: client.content.filter(c => c.category === 'moderation'),
+                inline: true,
+                description: data.help_mod_dsc,
+                emoji: "👮‍♀️"
+            },
+            {
+                name: data.help_music_fields,
+                value: client.content.filter(c => c.category === 'music'),
+                inline: true,
+                description: data.help_music_dsc,
+                emoji: "🎵"
+            },
+            {
+                name: data.help_newftrs_fields,
+                value: client.content.filter(c => c.category === 'newfeatures'),
+                inline: true,
+                description: data.help_newftrs_dsc,
+                emoji: "🆕"
+            },
+            {
+                name: data.help_owner_fields,
+                value: client.content.filter(c => c.category === 'owner'),
+                inline: true,
+                description: data.help_owner_dsc,
+                emoji: "👩‍✈️"
+            },
+            {
+                name: data.help_pfps_fields,
+                value: client.content.filter(c => c.category === 'pfps'),
+                inline: true,
+                description: data.help_pfps_dsc,
+                emoji: "🕵️‍♀️"
+            },
+            {
+                name: data.help_prof_fields,
+                value: client.content.filter(c => c.category === 'profil'),
+                inline: true,
+                description: data.help_prof_dsc,
+                emoji: "👩"
+            },
+            {
+                name: data.help_protection_fields,
+                value: client.content.filter(c => c.category === 'protection'),
+                inline: true,
+                description: data.help_protection_dsc,
+                emoji: "🛡️"
+            },
+            {
+                name: data.help_ranks_fields,
+                value: client.content.filter(c => c.category === 'ranks'),
+                inline: true,
+                description: data.help_ranks_dsc,
+                emoji: "🌟"
+            },
+            {
+                name: data.help_roler_fields,
+                value: client.content.filter(c => c.category === 'rolereactions'),
+                inline: true,
+                description: data.help_roler_dsc,
+                emoji: "📇"
+            },
+            {
+                name: data.help_schedule_fields,
+                value: client.content.filter(c => c.category === 'schedule'),
+                inline: true,
+                description: data.help_schedule_dsc,
+                emoji: "🗒"
+            },
+            {
+                name: data.help_security_fields,
+                value: client.content.filter(c => c.category === 'security'),
+                inline: true,
+                description: data.help_security_dsc,
+                emoji: "🔐"
+            },
+            {
+                name: data.help_suggestion_fields,
+                value: client.content.filter(c => c.category === 'suggestion'),
+                inline: true,
+                description: data.help_suggestion_dsc,
+                emoji: "❓"
+            },
+            {
+                name: data.help_ticket_fields,
+                value: client.content.filter(c => c.category === 'ticket'),
+                inline: true,
+                description: data.help_ticket_dsc,
+                emoji: "🎫"
+            },
+            {
+                name: data.help_utils_fields,
+                value: client.content.filter(c => c.category === 'utils'),
+                inline: true,
+                description: data.help_utils_dsc,
+                emoji: "🧰"
+            },
         ];
 
         let select = new StringSelectMenuBuilder().setCustomId('help-menu').setPlaceholder('Make a selection!');
@@ -106,52 +236,53 @@ export const command: Command = {
 
             if (i.user.id !== interaction.user.id) {
                 await i.reply({ content: data.help_not_for_you, ephemeral: true });
-            } else {
-                await i.deferUpdate();
+                return;
+            };
 
-                embed
-                    .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
-                    .setDescription(categories[i.values[0] as unknown as number].description);
+            await i.deferUpdate();
 
-                embed.setFields({ name: ' ', value: ' ' });
+            embed
+                .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
+                .setDescription(categories[i.values[0] as unknown as number].description);
 
-                await categories[i.values[0] as unknown as number].value.forEach(async (element: { cmd: any; desc: any; message_command: number | boolean; }) => {
+            embed.setFields({ name: ' ', value: ' ' });
 
-                    if (element.message_command) {
-                        switch (guildLang) {
-                            case "en-US":
-                                embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
-                                break;
-                            case "fr-FR":
-                                embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
-                                break;
-                            case "fr-ME":
-                                embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
-                                break;
-                            default:
-                                embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
-                                break;
-                        };
-                    } else {
-                        switch (guildLang) {
-                            case "en-US":
-                                embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
-                                break;
-                            case "fr-FR":
-                                embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
-                                break;
-                            case "fr-ME":
-                                embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.lang["fr"]}\``, inline: true });
-                                break;
-                            default:
-                                embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc.desc}\``, inline: true });
-                                break;
-                        };
-                    }
+            categories[i.values[0] as unknown as number].value.forEach(async (element) => {
+                if (element.messageCmd) {
+                    switch (guildLang) {
+                        case "en-US":
+                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
+                            break;
+                        case "fr-FR":
+                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
+                            break;
+                        case "fr-ME":
+                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
+                            break;
+                        default:
+                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
+                            break;
+                    };
+                } else {
+                    switch (guildLang) {
+                        case "en-US":
+                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
+                            break;
+                        case "fr-FR":
+                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
+                            break;
+                        case "fr-ME":
+                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
+                            break;
+                        default:
+                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
+                            break;
+                    };
+                }
 
-                    await response.edit({ embeds: [embed] });
-                });
-            }
+                await response.edit({ embeds: [embed] });
+            });
+
         });
 
         collector.on('end', async i => {

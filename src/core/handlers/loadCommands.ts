@@ -23,8 +23,7 @@ import { Client, Collection } from "discord.js";
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
 import logger from "../logger.js";
-import { Command } from "../../../types/command.js";
-import db from '../functions/DatabaseModel.js';
+import { Command, DescriptionLocalizations } from "../../../types/command.js";
 import config from "../../files/config.js";
 import { EltType } from "../../../types/eltType.js";
 import { Option } from "../../../types/option.js";
@@ -63,20 +62,25 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
     return paths;
 };
 
-async function processOptions(options: Option[], category: string, parentName: string = "") {
+async function processOptions(options: Option[], category: string, parentName: string = "", client: Client) {
     for (let option of options) {
         let fullName = parentName ? `${parentName} ${option.name}` : option.name;
 
         if (option.type === 1) {
-            var table_1 = db.table("BOT");
-            await table_1.push(`CONTENT.${category}`,
+
+            client.content.push(
                 {
-                    cmd: fullName, desc: { desc: option.description, lang: option.description_localizations, message_command: false }
+                    cmd: fullName,
+                    messageCmd: false,
+                    category: category,
+                    desc: option.description,
+                    desc_localized: option.description_localizations
                 }
-            );
+            )
+
         };
         if (option.options) {
-            await processOptions(option.options, category, fullName);
+            await processOptions(option.options, category, fullName, client);
         };
     };
 };
@@ -85,7 +89,6 @@ export default async function loadCommands(client: Client, path: string = `${pro
 
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
-    var table_1 = client.db.table("BOT");
 
     client.commands = new Collection<string, Command>();
 
@@ -100,14 +103,18 @@ export default async function loadCommands(client: Client, path: string = `${pro
             const { command } = module;
 
             if (command.options) {
-                await processOptions(command.options, command.category, command.name);
+                await processOptions(command.options, command.category, command.name, client);
             };
 
-            await table_1.push(`CONTENT.${command.category}`,
+            client.content.push(
                 {
-                    cmd: command.name, desc: { desc: command.description, lang: command.description_localizations }, message_command: false
+                    cmd: command.name,
+                    desc: command.description,
+                    category: command.category,
+                    messageCmd: false,
+                    desc_localized: command.description_localizations
                 }
-            );
+            )
 
             client.commands.set(command.name, command);
         }

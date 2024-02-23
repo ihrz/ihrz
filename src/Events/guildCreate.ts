@@ -19,14 +19,14 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan, Guild, GuildTextBasedChannel, Client, BaseGuildTextChannel, GuildBasedChannel } from 'discord.js';
+import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan, Guild, GuildTextBasedChannel, Client, BaseGuildTextChannel, GuildBasedChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
 import logger from "../core/logger.js";
 import config from '../files/config.js';
 
 export default async (client: Client, guild: Guild) => {
     let channel = guild.channels.cache.get((guild?.systemChannelId as string))
-        || guild.channels.cache.random();
+        || guild.channels.cache.first();
 
     // async function antiPoubelle() {
     //   let embed = new EmbedBuilder()
@@ -77,27 +77,45 @@ export default async (client: Client, guild: Guild) => {
 
     async function messageToServer() {
         let welcomeMessage = [
-            "Welcome to our server! 🎉", "Greetings, fellow Discordians! 👋",
-            "iHorizon has joined the chat! 💬", "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂",
+            "Welcome to our server! 🎉",
+            "Greetings, fellow Discordians! 👋",
+            "iHorizon has joined the chat! 💬",
+            "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂",
             "Let's give a warm welcome to iHorizon! 🔥",
         ];
+
         let embed = new EmbedBuilder()
-            .setColor("#00FF00").setTimestamp()
-            .setTitle(welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)])
-            .setThumbnail(guild.iconURL())
+            .setColor(2829617)
             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
-            .setDescription(`Hi there! I'm excited to join your server and be a part of your community. 
-      
-My name is iHorizon and I'm here to help you with all your needs. Feel free to use my commands and explore all the features I have to offer.
+            .setDescription(
+                `## ${welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)]}\n` +
+                `Hi there! I'm excited to join your server and be a part of your community.\n` +
+                `My name is iHorizon and I'm here to help you with all your needs. Feel free to use my commands and explore all the features I have to offer.\n` +
+                `If you have any questions or run into any issues, don't hesitate to reach out to me.\n` +
+                `I'm here to make your experience on this server the best it can be.\n` +
+                `Thanks for choosing me and let's have some fun together!\n`
+            )
+            .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await guild.client.db.get(`${guild.id}.GUILD.LANG.lang`) || 'en-US'}.png`);
 
-If you have any questions or run into any issues, don't hesitate to reach out to me.
-I'm here to make your experience on this server the best it can be. 
-
-Thanks for choosing me and let's have some fun together!`);
-
+        let buttons = new ActionRowBuilder<ButtonBuilder>()
+            .addComponents(
+                new ButtonBuilder()
+                    .setEmoji(client.iHorizon_Emojis.icon.Crown_Logo)
+                    .setLabel("Invite iHorizon")
+                    .setStyle(ButtonStyle.Link)
+                    .setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`),
+                new ButtonBuilder()
+                    .setEmoji(client.iHorizon_Emojis.icon.Sparkles)
+                    .setLabel("iHorizon Website")
+                    .setStyle(ButtonStyle.Link)
+                    .setURL(`https://ihorizon.me`),
+            )
+            ;
         (channel as GuildTextBasedChannel)?.send({
             embeds: [embed],
-            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            content: `discord.gg/ihorizon\ndiscord.com/application-directory/945202900907470899`,
+            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
+            components: [buttons]
         }).catch(() => { });
     };
 

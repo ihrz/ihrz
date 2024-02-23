@@ -22,10 +22,9 @@
 import { ActionRowBuilder, AttachmentBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, Client, ComponentBuilder, Guild, GuildChannel, GuildChannelManager, GuildFeature, GuildMember, GuildTextBasedChannel, Invite, Message, MessageManager, Role } from "discord.js";
 
 import { PermissionsBitField } from 'discord.js';
-import axios from 'axios';
 
-import * as apiUrlParser from '../core/functions/apiUrlParser.js';
 import logger from "../core/logger.js";
+import captcha from "../core/captcha.js";
 
 export default async (client: Client, member: GuildMember) => {
 
@@ -72,7 +71,7 @@ export default async (client: Client, member: GuildMember) => {
                         member.ban({ reason: 'blacklisted!' });
                     });
             };
-            
+
         } catch (error) {
             return;
         }
@@ -237,15 +236,14 @@ export default async (client: Client, member: GuildMember) => {
 
         let data = await client.functions.getLanguageData(member.guild.id);
         let channel = member.guild.channels.cache.get(baseData?.channel);
-        let request = (await axios.get(apiUrlParser.CaptchaURL))?.data;
+        let c = await captcha(280, 100)
 
-        let sfbuff = Buffer.from((request?.image).split(",")[1], "base64");
-        let sfattach = new AttachmentBuilder(sfbuff);
+        let sfbuff = Buffer.from((c?.image).split(",")[1], "base64");
 
         (channel as GuildTextBasedChannel).send({
             content: data.event_security
                 .replace('${member}', member),
-            files: [sfattach]
+            files: [new AttachmentBuilder(sfbuff)]
         }).then(async (msg) => {
             let filter = (m: Message) => m.author.id === member.id;
             let collector = msg.channel.createMessageCollector({ filter: filter, time: 30000 });
@@ -254,7 +252,7 @@ export default async (client: Client, member: GuildMember) => {
             collector.on('collect', (m) => {
                 m.delete();
 
-                if (request.code === m.content) {
+                if (c.code === m.content) {
                     member.roles.add(baseData?.role);
                     msg.delete();
                     passedtest = true;
@@ -269,9 +267,10 @@ export default async (client: Client, member: GuildMember) => {
             });
 
             collector.on('end', (collected) => {
+                if (!member.joinedAt) member.kick();
                 if (passedtest) return;
+
                 msg.delete();
-                member.kick();
             });
 
         }).catch((error: any) => {
