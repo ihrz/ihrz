@@ -1347,7 +1347,7 @@ temporary_voice_block_button_menu_placeholder: "Les utilisateurs sélectionnés 
 
 temporary_voice_delete_button_desc_embed: "## Suppression du salon\nLe salon a été supprimé avec succès !"
 
-temporary_voice_limit_button_menu_label: "Quelle est la limite d'utilisateurs du salon ?"
+temporary_voice_limit_button_menu_label: "Quelle est la limite de membre du salon ?"
 temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.icon.No_Logo} | La saisie n'est pas un nombre"
 
 temporary_voice_name_button_menu_label: "Quel est le nom du salon ?"
