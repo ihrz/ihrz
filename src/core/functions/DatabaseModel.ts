@@ -19,12 +19,17 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import dbPromise from '../database.js';
+import { QuickDB } from "quick.db";
+import config from "../../files/config.js";
+import logger from "../logger.js";
 
 let db;
 
 if (!db) {
-    db = dbPromise
+    db = new Promise<QuickDB>((resolve, reject) => {
+        logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
+        resolve(new QuickDB({ filePath: `${process.cwd()}/src/files/db.sqlite` }));
+    });
 }
 
 export default await db;
