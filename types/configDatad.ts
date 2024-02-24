@@ -76,7 +76,7 @@ export interface ConfigData {
             user: string;
             password: string;
             database: string;
-            port: number | string;
+            port: number;
         };
     };
 
