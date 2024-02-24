@@ -1352,6 +1352,7 @@ temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.
 
 temporary_voice_name_button_menu_label: "Wie lautet der Kanalname?"
 
+temporary_voice_privacy_menu_placeholder: "Wählen Sie eine Datenschutzoption aus"
 temporary_voice_privacy_menu_lock_label: "Kanal sperren"
 temporary_voice_privacy_menu_lock_desc: "Nur vertrauenswürdige Benutzer können Ihrem Sprachkanal beitreten"
 temporary_voice_privacy_menu_unlock_label: "Kanal entsperren"

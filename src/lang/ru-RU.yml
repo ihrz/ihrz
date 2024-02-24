@@ -235,7 +235,7 @@ help_schedule_fields: "Планирование"
 help_schedule_dsc: "Создавайте напоминания с заранее заданными сообщениями, которые бот будет отправлять вам в личном сообщении"
 help_pfps_fields: "PFPS"
 help_pfps_dsc: "Отправка случайного аватара пользователя в канал!"
-help_voicedashboard_fields: "VoiceDashboard"
+help_voicedashboard_fields: "Голосовая панель"
 help_voicedashboard_dsc: "Создайте пользовательский временный голосовой канал с интерфейсом!"
 
 # /say
@@ -1352,6 +1352,7 @@ temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.
 
 temporary_voice_name_button_menu_label: "Какое название канала?"
 
+temporary_voice_privacy_menu_placeholder: "Выберите параметр конфиденциальности"
 temporary_voice_privacy_menu_lock_label: "Заблокировать канал"
 temporary_voice_privacy_menu_lock_desc: "Только доверенные пользователи смогут присоединиться к вашему голосовому каналу"
 temporary_voice_privacy_menu_unlock_label: "Разблокировать канал"

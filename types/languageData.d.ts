@@ -954,6 +954,7 @@ export interface LanguageData {
     temporary_voice_limit_button_menu_label: string;
     temporary_voice_limit_button_not_integer: string;
     temporary_voice_name_button_menu_label: string;
+    temporary_voice_privacy_menu_placeholder: string;
     temporary_voice_privacy_menu_lock_label: string;
     temporary_voice_privacy_menu_lock_desc: string;
     temporary_voice_privacy_menu_unlock_label: string;

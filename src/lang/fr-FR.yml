@@ -1352,6 +1352,7 @@ temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.
 
 temporary_voice_name_button_menu_label: "Quel est le nom du salon ?"
 
+temporary_voice_privacy_menu_placeholder: "Sélectionnez une option de confidentialité"
 temporary_voice_privacy_menu_lock_label: "Verrouiller le salon"
 temporary_voice_privacy_menu_lock_desc: "Seuls les utilisateurs fiables pourront rejoindre votre salon vocal"
 temporary_voice_privacy_menu_unlock_label: "Déverrouiller le salon"

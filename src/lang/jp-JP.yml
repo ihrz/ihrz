@@ -235,7 +235,7 @@ help_schedule_fields: "スケジュール"
 help_schedule_dsc: "プリプログラムされたメッセージを使用してリマインダーを作成し、ボットがプライベートメッセージで送信する"
 help_pfps_fields: "PFPS"
 help_pfps_dsc: "チャンネルにランダムなユーザーアバターを送信します！"
-help_voicedashboard_fields: "VoiceDashboard"
+help_voicedashboard_fields: "音声ダッシュボード"
 help_voicedashboard_dsc: "インターフェイスでカスタム一時ボイスチャンネルを作成します！"
 
 # /say
@@ -1352,6 +1352,7 @@ temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.
 
 temporary_voice_name_button_menu_label: "チャンネルの名前は何ですか？"
 
+temporary_voice_privacy_menu_placeholder: "プライバシーオプションを選択してください"
 temporary_voice_privacy_menu_lock_label: "チャンネルをロックする"
 temporary_voice_privacy_menu_lock_desc: "信頼されたユーザーのみがボイスチャンネルに参加できます"
 temporary_voice_privacy_menu_unlock_label: "チャンネルのロック解除"
