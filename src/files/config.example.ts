@@ -28,6 +28,8 @@ const config: ConfigData = {
         token: "The bot token",
         // The Discord Bot Token
 
+        botPresence: true
+        // If the bot have Bot Activity Presence
     },
 
     lavalink: {

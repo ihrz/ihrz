@@ -9,6 +9,7 @@ interface LavalinkNodeOptions {
 export interface ConfigData {
     discord: {
         token: string;
+        botPresence: boolean;
     };
 
     lavalink: {
