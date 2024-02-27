@@ -40,7 +40,6 @@ import {
 
 import { Command } from '../../../../types/command';
 import date from 'date-and-time';
-import ms from 'ms';
 import logger from '../../../core/logger.js';
 
 export const command: Command = {
@@ -308,11 +307,11 @@ export const command: Command = {
                 dateCollector?.on('collect', async (message) => {
                     await message.delete() && u.delete();
                     dateCollector?.stop();
-                    __0(ms(message.content as unknown as number), collection);
+                    __0(client.timeCalculator.to_ms(message.content), collection);
                 });
 
 
-                async function __0(date0: string, collection: Collection<string, TextInputComponent>) {
+                async function __0(date0: number, collection: Collection<string, TextInputComponent>) {
                     var scheduleCode = Math.random().toString(36).slice(-8);
 
                     if (Number.isNaN(date0)) {

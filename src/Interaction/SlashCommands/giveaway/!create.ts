@@ -32,7 +32,6 @@ import { LanguageData } from '../../../../types/languageData';
 
 import logger from '../../../core/logger.js';
 import axios from 'axios';
-import ms from 'ms';
 
 async function isImageUrl(url: string): Promise<boolean> {
     try {
@@ -63,7 +62,7 @@ export default {
         };
 
         let giveawayPrize = interaction.options.getString("prize");
-        let giveawayDurationFormated = ms(giveawayDuration as unknown as number);
+        let giveawayDurationFormated = client.timeCalculator.to_beautiful_string(giveawayDuration!);
 
         if (Number.isNaN(giveawayDurationFormated)) {
             await interaction.editReply({

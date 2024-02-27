@@ -26,7 +26,6 @@ import {
 } from 'discord.js';
 
 import axios from 'axios';
-import ms from 'ms';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
@@ -55,7 +54,7 @@ export default {
                     Auth: discord_bot_token,
                     OwnerOne: interaction.user.id,
                     OwnerTwo: interaction.options.getUser('owner_two')?.id || interaction.user.id,
-                    ExpireIn: Date.now() + ms('30d'),
+                    ExpireIn: Date.now() + client.timeCalculator.to_ms('30d'),
                     Bot: {
                         Id: bot_1.bot.id,
                         Name: bot_1.bot.username,

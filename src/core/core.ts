@@ -37,6 +37,7 @@ import couleurmdr from "colors";
 import commandsSync from './commandsSync.js';
 import config from '../files/config.js';
 import { GiveawayManager } from 'discord-regiveaways';
+import { iHorizonTimeCalculator } from './functions/ms.js';
 
 export default async (client: Client) => {
     logger.legacy(couleurmdr.gray("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz)."));
@@ -74,6 +75,7 @@ export default async (client: Client) => {
     client.db = db;
     client.content = []
     client.invites = new Collection();
+    client.timeCalculator = new iHorizonTimeCalculator();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 
     let handlerPath = `${process.cwd()}/dist/src/core/handlers`;

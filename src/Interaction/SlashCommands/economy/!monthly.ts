@@ -25,7 +25,6 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import ms from 'ms';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
@@ -45,7 +44,7 @@ export default {
         };
         
         if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
-            let time = ms(timeout - (Date.now() - monthly));
+            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - monthly));
 
             await interaction.reply({ content: data.monthly_cooldown_error.replace(/\${time}/g, time) });
             return;

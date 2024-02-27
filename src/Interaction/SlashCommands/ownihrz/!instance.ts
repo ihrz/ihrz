@@ -30,7 +30,6 @@ import date from 'date-and-time';
 import { LanguageData } from '../../../../types/languageData';
 import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 import config from '../../../files/config.js';
-import ms, { StringValue } from 'ms';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -214,7 +213,7 @@ export default {
                     if (botId === id_to_bot) {
                         let time = interaction.options.getString('time') || '0d';
 
-                        await tableOWNIHRZ.add(`MAIN.${userId}.${id_to_bot}.ExpireIn`, ms((time as StringValue)));
+                        await tableOWNIHRZ.add(`MAIN.${userId}.${id_to_bot}.ExpireIn`, client.timeCalculator.to_ms(time));
 
                         let ExpireIn = await tableOWNIHRZ.get(`MAIN.${userId}.${id_to_bot}.ExpireIn`);
                         let expire: string | null = null;
@@ -234,7 +233,7 @@ export default {
                     if (botId === id_to_bot) {
                         let time = interaction.options.getString('time') || '0d';
 
-                        await tableOWNIHRZ.add(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`, ms((time as StringValue)));
+                        await tableOWNIHRZ.add(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`, client.timeCalculator.to_ms(time));
 
                         let ExpireIn = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`);
                         let expire: string | null = null;
@@ -257,7 +256,7 @@ export default {
                     if (botId === id_to_bot) {
                         let time = interaction.options.getString('time') || '0d';
 
-                        await tableOWNIHRZ.sub(`MAIN.${userId}.${id_to_bot}.ExpireIn`, ms((time as StringValue)));
+                        await tableOWNIHRZ.sub(`MAIN.${userId}.${id_to_bot}.ExpireIn`, client.timeCalculator.to_ms(time));
 
                         let ExpireIn = await tableOWNIHRZ.get(`MAIN.${userId}.${id_to_bot}.ExpireIn`);
                         let expire: string | null = null;
@@ -280,7 +279,7 @@ export default {
                     if (botId === id_to_bot) {
                         let time = interaction.options.getString('time') || '0d';
 
-                        await tableOWNIHRZ.sub(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`, ms((time as StringValue)));
+                        await tableOWNIHRZ.sub(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`, client.timeCalculator.to_ms(time));
 
                         let ExpireIn = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`);
                         let expire: string | null = null;

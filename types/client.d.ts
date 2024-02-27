@@ -29,6 +29,7 @@ import { Emojis } from "./emojis";
 import { GiveawayManager } from "discord-regiveaways";
 import { QueueChangesWatcher, LavalinkManager } from "lavalink-client";
 import { BotContent } from './botContent'
+import { iHorizonTimeCalculator } from "../src/core/functions/ms";
 
 declare module 'discord.js' {
     export interface Client {
@@ -44,6 +45,7 @@ declare module 'discord.js' {
         applicationsCommands: Collection<string, AnotherCommand>,
         iHorizon_Emojis: Emojis,
         giveawaysManager: GiveawayManager,
-        content: BotContent[]
+        content: BotContent[],
+        timeCalculator: iHorizonTimeCalculator
     }
 };

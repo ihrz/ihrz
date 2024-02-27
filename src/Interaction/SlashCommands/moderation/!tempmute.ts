@@ -29,15 +29,15 @@ import {
 } from 'discord.js';
 
 import logger from '../../../core/logger.js';
-
-import ms, { StringValue } from 'ms';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let mutetime = interaction.options.getString("time")?.split(" ")[0];
         let tomute = interaction.options.getMember("user") as GuildMember;
+        let mutetime = interaction.options.getString("time")!;
+        let mutetimeMS = client.timeCalculator.to_ms(mutetime);
+        let mutetimeString = client.timeCalculator.to_beautiful_string(mutetime);
 
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages);
 
@@ -67,19 +67,19 @@ export default {
             return;
         };
 
-        await (tomute.timeout(ms(mutetime as StringValue), data.tempmute_logs_embed_title)).catch(() => { });
+        await (tomute.timeout(mutetimeMS, data.tempmute_logs_embed_title)).catch(() => { });
 
         await interaction.editReply(data.tempmute_command_work
             .replace("${tomute.id}", tomute.id)
-            .replace("${ms(ms(mutetime))}", ms(ms(mutetime as StringValue)))
+            .replace("${ms(ms(mutetime))}", mutetimeString)
         );
 
         setTimeout(async () => {
             await interaction.channel?.send({
                 content: data.tempmute_unmuted_by_time.replace("${tomute.id}", tomute.id),
             });
-        }, ms(mutetime as StringValue));
-        
+        }, mutetimeMS);
+
         try {
             let logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
@@ -87,7 +87,7 @@ export default {
                 .setDescription(data.tempmute_logs_embed_description
                     .replace("${interaction.user.id}", interaction.user.id)
                     .replace("${tomute.id}", tomute.id)
-                    .replace("${ms(ms(mutetime))}", ms(ms(mutetime as StringValue)))
+                    .replace("${ms(ms(mutetime))}", mutetimeString)
                 )
 
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');

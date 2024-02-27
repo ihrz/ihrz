@@ -30,7 +30,6 @@ import {
 
 import { Command } from '../../../../types/command';
 import config from '../../../files/config.js';
-import ms from 'ms';
 
 export const command: Command = {
     name: 'report',
@@ -65,7 +64,7 @@ export const command: Command = {
         let cooldown = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.REPORT.cooldown`);
 
         if (cooldown !== null && timeout - (Date.now() - cooldown) > 0) {
-            let time = ms(timeout - (Date.now() - cooldown));
+            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - cooldown));
 
             await interaction.editReply({
                 content: data.report_cooldown_command
