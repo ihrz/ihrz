@@ -60,10 +60,12 @@ export default {
             content: data.setsuggest_channel_command_work
                 .replace('${interaction.user}', interaction.user as unknown as string)
                 .replace('${channel}', channel as unknown as string),
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
 
-        (channel as BaseGuildTextChannel).send({ embeds: [setupEmbed] });
+        (channel as BaseGuildTextChannel).send({
+            embeds: [setupEmbed],
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
         return;
     },
 };

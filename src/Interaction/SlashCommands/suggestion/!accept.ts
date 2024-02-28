@@ -77,6 +77,7 @@ export default {
                 value: message as string
             });
 
+            embed.setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
             embed.setColor('#21744c');
             embed.setTitle(data.suggest_acceptembed_title_to_put
                 .replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title as string));

@@ -78,6 +78,7 @@ export default {
             });
 
             embed.setColor('#f13b38');
+            embed.setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
             embed.setTitle(data.suggest_deny_embed_title_to_put
                 .replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title as string)
             );
