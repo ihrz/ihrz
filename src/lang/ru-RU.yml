@@ -476,6 +476,10 @@ emoji_send_new_emoji: "__Создан новый смайлик__ с имене�
 emoji_send_err_emoji: "__Ошибка при создании нового смайлика__ с именем **${emoji.name}** !"
 emoji_embed_desc_work: "__Созданы **${cnt}** смайликов в сервере `${interaction.guild.name}`__\n(${nemj})"
 
+# /derank
+derank_msg_desc_embed: "## Я успешно удалил **${good}** ролей у <@${member.id}>.\n## Однако, не удалось удалить **${bad}** ролей."
+derank_msg_failed: "При удалении ролей произошла ошибка."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

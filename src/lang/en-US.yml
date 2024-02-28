@@ -476,6 +476,10 @@ emoji_send_new_emoji: "__Created new emoji__ with name **${emoji.name}**! (${emo
 emoji_send_err_emoji: "__Error when create new emoji__ with name **${emoji.name}**!"
 emoji_embed_desc_work: "__Created **${cnt}** emoji(s) in `${interaction.guild.name}`__\n(${nemj})"
 
+# /derank
+derank_msg_desc_embed: "## I have successfully removed **${good}** role(s) from <@${member.id}>.\n## However, I failed to remove **${bad}** role(s)."
+derank_msg_failed: "An error occurred while removing roles."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

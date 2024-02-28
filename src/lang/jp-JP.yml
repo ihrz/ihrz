@@ -476,6 +476,10 @@ emoji_send_new_emoji: "__新しい絵文字が作成されました__ 名前：*
 emoji_send_err_emoji: "__新しい絵文字の作成時エラー__ 名前：**${emoji.name}** !"
 emoji_embed_desc_work: "__`${interaction.guild.name}` に**${cnt}**個の絵文字を作成しました__\n(${nemj})"
 
+# /derank
+derank_msg_desc_embed: "## 私は<@${member.id}>から**${good}**つの役職を削除しました。\n## ただし、**${bad}**つの役職を削除できませんでした。"
+derank_msg_failed: "役職の削除中にエラーが発生しました。"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

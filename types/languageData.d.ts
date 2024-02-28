@@ -328,6 +328,8 @@ export interface LanguageData {
     emoji_send_new_emoji: string;
     emoji_send_err_emoji: string;
     emoji_embed_desc_work: string;
+    derank_msg_desc_embed: string;
+    derank_msg_failed: string;
     blockpub_not_admin: string;
     blockpub_now_enable: string;
     blockpub_now_disable: string;
