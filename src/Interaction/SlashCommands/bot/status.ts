@@ -49,7 +49,7 @@ export const command: Command = {
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
 
-        if (interaction.user.id != process.env.OWNER_ONE || config.owner.ownerid1 && config.owner.ownerid2) {
+        if (interaction.user.id !== config.owner.ownerid1 && config.owner.ownerid2) {
             await interaction.reply({ content: data.status_be_bot_dev });
             return;
         };
