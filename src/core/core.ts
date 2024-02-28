@@ -47,6 +47,7 @@ export default async (client: Client) => {
     errorManager.uncaughtExceptionHandler();
 
     client.giveawaysManager = new GiveawayManager(client, {
+        storage: `${process.cwd()}/src/files/giveaways/`,
         config: {
             botsCanWin: false,
             embedColor: '#9a5af2',
@@ -71,7 +72,7 @@ export default async (client: Client) => {
     playerManager(client);
     bash(client);
     emojis(client);
-    
+
     client.db = db;
     client.content = []
     client.invites = new Collection();

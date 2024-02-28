@@ -62,18 +62,18 @@ export default {
         };
 
         let giveawayPrize = interaction.options.getString("prize");
-        let giveawayDurationFormated = client.timeCalculator.to_beautiful_string(giveawayDuration!);
+        let giveawayDurationFormated = client.timeCalculator.to_ms(giveawayDuration!);
 
-        if (Number.isNaN(giveawayDurationFormated)) {
+        if (giveawayDurationFormated === 0) {
             await interaction.editReply({
                 content: data.start_time_not_valid
                     .replace('${interaction.user}', interaction.user as unknown as string)
             });
             return;
         };
-        
+
         await client.giveawaysManager.create(giveawayChannel as TextBasedChannel, {
-            duration: parseInt(giveawayDurationFormated),
+            duration: giveawayDurationFormated,
             prize: giveawayPrize as string,
             winnerCount: giveawayNumberWinners as number,
             hostedBy: interaction.user.id,
@@ -85,7 +85,7 @@ export default {
                 .setColor("#bf0bb9")
                 .setTitle(data.reroll_logs_embed_title)
                 .setDescription(data.start_logs_embed_description
-                    .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                    .replace('${interaction.user.id}', interaction.user.id)
                     .replace(/\${giveawayChannel}/g, giveawayChannel as unknown as string)
                 );
 
