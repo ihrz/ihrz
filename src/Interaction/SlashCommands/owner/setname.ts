@@ -25,8 +25,6 @@ import {
     ApplicationCommandType
 } from 'discord.js'
 
-import ms from 'ms';
-
 var timeout: number = 1_800_000;
 
 import { Command } from '../../../../types/command';
@@ -77,7 +75,7 @@ export const command: Command = {
         };
 
         if (await cooldDown()) {
-            let time = ms(timeout - (Date.now() -
+            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() -
                 await client.db.get(`TEMP_COOLDOWN.${interaction.user.id}.SETNAME`)
             ));
 

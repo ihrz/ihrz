@@ -33,7 +33,6 @@ import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
 
 import axios from "axios";
-import ms from 'ms';
 
 var timeout: number = 1_800_000;
 
@@ -92,7 +91,7 @@ export const command: Command = {
         };
 
         if (await cooldDown()) {
-            let time = ms(timeout - (Date.now() -
+            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() -
                 await client.db.get(`TEMP_COOLDOWN.${interaction.user.id}.SETAVATAR`)
             ));
 
