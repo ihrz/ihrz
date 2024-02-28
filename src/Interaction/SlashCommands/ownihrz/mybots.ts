@@ -122,7 +122,7 @@ export const command: Command = {
                                 "fr": "Le cluster où seras localisé l'ownihrz"
                             },
                             choices: Object.entries(config.core.cluster).map(([key, value]) => ({
-                                name: `Cluster ${key} - ${value}`,
+                                name: `Cluster #${key}`,
                                 value: key,
                             })),
                             required: false
