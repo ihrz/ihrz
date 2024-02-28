@@ -46,6 +46,7 @@ class iHorizonTimeCalculator {
                     multiplier = 3600000;
                     break;
                 case 'd':
+                case 'j':
                     multiplier = 86400000;
                     break;
                 case 'w':
