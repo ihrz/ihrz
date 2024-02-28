@@ -20,7 +20,6 @@
 */
 
 import { URLSearchParams } from 'url';
-import axios from 'axios';
 import 'colors';
 import logger from '../../../core/logger.js';
 import config from '../../../files/config.js';
@@ -42,32 +41,39 @@ export default {
             data.append('scope', 'identify');
             data.append('code', req.body["auth"]);
 
-            let response = await axios.post('https://discord.com/api/oauth2/token', data);
-            let accessToken = response.data.access_token;
+            let tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
+                method: 'POST',
+                body: data,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            });
 
-            let getUserInfo = await axios.get('https://discord.com/api/users/@me', {
+            let tokenData = await tokenResponse.json();
+            let accessToken = tokenData.access_token;
+
+            let userInfoResponse = await fetch('https://discord.com/api/users/@me', {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-
-            var userinfo = getUserInfo.data;
-
-            logger.log(`${config.console.emojis.OK} >> ${userinfo.username} -> ${accessToken}`.green);
+            let userInfo = await userInfoResponse.json();
 
             if (!accessToken) {
                 logger.warn(`${config.console.emojis.OK} >> Error Code 500`.gray);
                 res.sendStatus(500);
                 return;
-            }
+            };
 
-            await (db.table('API')).set(`${userinfo.id}`, { token: `${accessToken}` });
+            logger.log(`${config.console.emojis.OK} >> ${userInfo.username} -> ${accessToken}`.green);
 
-            res.status(200).send(userinfo);
+            await db.table('API').set(`${userInfo.id}`, { token: `${accessToken}` });
+
+            res.status(200).send(userInfo);
             return;
-        } catch (err: any) {
+        } catch (err) {
             res.sendStatus(500);
             return;
-        };
-    },
+        }
+    }
 };
