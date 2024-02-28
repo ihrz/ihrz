@@ -45,6 +45,7 @@ export default async (client: Client) => {
     errorManager.uncaughtExceptionHandler();
 
     client.giveawaysManager = new GiveawayManager(client, {
+        storage: `${process.cwd()}/src/files/giveaways/`,
         config: {
             botsCanWin: false,
             embedColor: '#9a5af2',
