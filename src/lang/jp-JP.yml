@@ -344,7 +344,7 @@ weekly_embed_description: "**週の報酬**"
 weekly_embed_fields: "収集された"
 
 # /work
-work_cooldown_error: "**50分間は他のユーザーを強奪できません！** ${interaction.user.username}"
+work_cooldown_error: "<@${interaction.user.id}>、**${time} 分後に別のユーザーを再び襲う前に待ってください！**"
 work_embed_author: "${interaction.user.username}、報酬がもらえました！"
 work_embed_description: "${interaction.user.username}、あなたは働いて${amount}$を稼ぎました！"
 

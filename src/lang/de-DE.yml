@@ -344,7 +344,7 @@ weekly_embed_description: "**Wöchentliche Belohnung**"
 weekly_embed_fields: "Eingesammelt"
 
 # /work
-work_cooldown_error: "**Warte 50 Minuten, bevor du wieder arbeitest!** ${interaction.user.username}"
+work_cooldown_error: "<@${interaction.user.id}>, **Warten Sie ${time} Minuten, bevor Sie einen anderen Benutzer erneut bestehlen!**"
 work_embed_author: "${interaction.user.username}, es hat sich ausgezahlt!"
 work_embed_description: "${interaction.user.username}, du hast gearbeitet und ${amount}$ verdient!"
 

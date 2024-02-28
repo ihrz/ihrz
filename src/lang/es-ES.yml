@@ -344,7 +344,7 @@ weekly_embed_description: "Recompensa semanal"
 weekly_embed_fields: "Recogido"
 
 # /work
-work_cooldown_error: "**¡Espera 50 minutos antes de trabajar de nuevo!** ${interaction.user.username}"
+work_cooldown_error: "<@${interaction.user.id}>, **¡Espere ${time} minutos antes de robar a otro usuario nuevamente!**"
 work_embed_author: "${interaction.user.username}, ¡ha valido la pena!"
 work_embed_description: "${interaction.user.username}, has trabajado y ganado ${amount}$ !"
 

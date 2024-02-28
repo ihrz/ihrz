@@ -29,7 +29,9 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        let talkedRecentlyforw = new Set();
+
+        let timeout = 3_600_000;
+        let work = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.work`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
@@ -39,12 +41,19 @@ export default {
             return;
         };
 
-        if (talkedRecentlyforw.has(interaction.user.id)) {
-            await interaction.reply({ content: data.work_cooldown_error });
+        if (work !== null && timeout - (Date.now() - work) > 0) {
+            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - work));
+
+            await interaction.reply({
+                content: data.work_cooldown_error
+                    .replace('${interaction.user.id}', interaction.user.id)
+                    .replace('${time}', time),
+                ephemeral: true
+            });
             return;
         };
 
-        let amount = Math.floor(Math.random() * 200) + 1;
+        let amount = Math.floor(Math.random() * 1024) + 1;
 
         let embed = new EmbedBuilder()
             .setAuthor({
@@ -59,11 +68,8 @@ export default {
             .setColor("#f1d488");
 
         await interaction.reply({ embeds: [embed] });
-        await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
 
-        talkedRecentlyforw.add(interaction.user.id);
-        setTimeout(() => {
-            talkedRecentlyforw.delete(interaction.user.id);
-        }, 3600000);
+        await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
+        await client.db.set(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.work`, Date.now());
     },
 };

@@ -344,7 +344,7 @@ weekly_embed_description: "**Еженедельное вознаграждени
 weekly_embed_fields: "Собрано"
 
 # /work
-work_cooldown_error: "**Подождите 50 минут, прежде чем снова работать!** ${interaction.user.username}"
+work_cooldown_error: "<@${interaction.user.id}>, **Подождите ${time} минут, прежде чем снова грабить другого пользователя!**"
 work_embed_author: "${interaction.user.username}, это окупилось!"
 work_embed_description: "${interaction.user.username}, вы поработали и заработали ${amount}$ !"
 
