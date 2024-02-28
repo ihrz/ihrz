@@ -42,7 +42,7 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
 
     let comp = new StringSelectMenuBuilder()
         .setCustomId('tempmorary_voice_privacy_menu')
-        .setPlaceholder('Select a Privacy Option')
+        .setPlaceholder(lang.temporary_voice_privacy_menu_placeholder)
         .addOptions(
             { label: lang.temporary_voice_privacy_menu_lock_label, description: lang.temporary_voice_privacy_menu_lock_desc, emoji: interaction.client.iHorizon_Emojis.vc.CloseAccess, value: 'temporary_channel_lock_channel_menu' },
             { label: lang.temporary_voice_privacy_menu_unlock_label, description: lang.temporary_voice_privacy_menu_unlock_desc, emoji: interaction.client.iHorizon_Emojis.vc.OpenAcces, value: 'temporary_channel_unlock_channel_menu' },

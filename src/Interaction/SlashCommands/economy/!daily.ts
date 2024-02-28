@@ -26,7 +26,6 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
-import ms from 'ms';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -42,9 +41,10 @@ export default {
             });
             return;
         };
-        
+
+
         if (daily !== null && timeout - (Date.now() - daily) > 0) {
-            let time = ms(timeout - (Date.now() - daily));
+            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - daily));
 
             await interaction.reply({ content: data.daily_cooldown_error.replace(/\${time}/g, time) });
             return;

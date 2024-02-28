@@ -20,9 +20,23 @@
 */
 
 import 'colors';
+import { DefaultWebSocketManagerOptions } from "@discordjs/ws";
 import { ShardingManager } from 'discord.js';
 import config from './src/files/config.js';
 import logger from './src/core/logger.js';
+
+if (config.discord.botPresence) {
+
+    const { identifyProperties } = DefaultWebSocketManagerOptions;
+
+    Object.defineProperty(identifyProperties, 'browser', {
+        value: "Discord Android",
+        writable: true,
+        enumerable: true,
+        configurable: true
+    });
+
+};
 
 let manager = new ShardingManager('./dist/src/core/bot.js', { totalShards: "auto", token: process.env.BOT_TOKEN || config.discord.token });
 manager.on("shardCreate", (shard) => logger.log(`${config.console.emojis.HOST} >> The Shard number ${shard.id} is launched !`.green));

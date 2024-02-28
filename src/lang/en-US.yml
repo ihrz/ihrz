@@ -344,7 +344,7 @@ weekly_embed_description: "**Weekly Reward**"
 weekly_embed_fields: "Collected"
 
 # /work
-work_cooldown_error: "**Wait 50minutes before rob user again !** ${interaction.user.username}"
+work_cooldown_error: "<@${interaction.user.id}>, **Wait ${time} minutes before robbing another user again!**"
 work_embed_author: "${interaction.user.username}, it payed off!"
 work_embed_description: "${interaction.user.username}, you've worked and earned ${amount}$ !"
 
@@ -475,6 +475,10 @@ nickrole_too_much_member: "Too many members, cannot proceed due to possible rate
 emoji_send_new_emoji: "__Created new emoji__ with name **${emoji.name}**! (${emoji})"
 emoji_send_err_emoji: "__Error when create new emoji__ with name **${emoji.name}**!"
 emoji_embed_desc_work: "__Created **${cnt}** emoji(s) in `${interaction.guild.name}`__\n(${nemj})"
+
+# /derank
+derank_msg_desc_embed: "## I have successfully removed **${good}** role(s) from <@${member.id}>.\n## However, I failed to remove **${bad}** role(s)."
+derank_msg_failed: "An error occurred while removing roles."
 
 
 # Guild Config commands
@@ -1352,6 +1356,7 @@ temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.
 
 temporary_voice_name_button_menu_label: "What's the channel name ?"
 
+temporary_voice_privacy_menu_placeholder: "Select a Privacy Option"
 temporary_voice_privacy_menu_lock_label: "Lock channel"
 temporary_voice_privacy_menu_lock_desc: "Only trusted users will be able to join your voice channel"
 temporary_voice_privacy_menu_unlock_label: "Unlock channel"

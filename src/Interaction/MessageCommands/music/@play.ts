@@ -131,9 +131,9 @@ export const command: Command = {
 
 
         await client.db.push(`${player.guildId}.MUSIC_HISTORY.buffer`,
-            `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}: PLAYED]: { ${player.queue.current?.requester} - ${player.queue.current?.info.title as string} | ${player.queue.current?.info.uri} } by ${player.queue.current?.requester}`);
+            `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}: PLAYED]: { ${res.tracks[0]?.requester} - ${res.tracks[0].info.title as string} | ${res.tracks[0].info.uri} } by ${res.tracks[0]?.requester}`);
         await client.db.push(`${player.guildId}.MUSIC_HISTORY.embed`,
-            `${time(new Date(), 'R')}: ${player.queue.current?.requester} - ${player.queue.current?.info.title} | ${player.queue.current?.info.uri} by ${player.queue.current?.requester}`
+            `${time(new Date(), 'R')}: ${res.tracks[0]?.requester} - ${res.tracks[0].info.title} | ${res.tracks[0].info.uri} by ${res.tracks[0]?.requester}`
         );
 
         let channel = client.channels.cache.get(player.textChannelId as string);
@@ -141,7 +141,7 @@ export const command: Command = {
         (channel as BaseGuildTextChannel)?.send({
             content: data.event_mp_audioTrackAdd
                 .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-                .replace("${track.title}", player.queue.current?.info.title as string)
+                .replace("${track.title}", res.tracks[0].info.title as string)
         });
         return;
     },

@@ -235,7 +235,7 @@ help_schedule_fields: "Планирование"
 help_schedule_dsc: "Создавайте напоминания с заранее заданными сообщениями, которые бот будет отправлять вам в личном сообщении"
 help_pfps_fields: "PFPS"
 help_pfps_dsc: "Отправка случайного аватара пользователя в канал!"
-help_voicedashboard_fields: "VoiceDashboard"
+help_voicedashboard_fields: "Голосовая панель"
 help_voicedashboard_dsc: "Создайте пользовательский временный голосовой канал с интерфейсом!"
 
 # /say
@@ -344,7 +344,7 @@ weekly_embed_description: "**Еженедельное вознаграждени
 weekly_embed_fields: "Собрано"
 
 # /work
-work_cooldown_error: "**Подождите 50 минут, прежде чем снова работать!** ${interaction.user.username}"
+work_cooldown_error: "<@${interaction.user.id}>, **Подождите ${time} минут, прежде чем снова грабить другого пользователя!**"
 work_embed_author: "${interaction.user.username}, это окупилось!"
 work_embed_description: "${interaction.user.username}, вы поработали и заработали ${amount}$ !"
 
@@ -475,6 +475,10 @@ nickrole_too_much_member: "Слишком много участников, оп�
 emoji_send_new_emoji: "__Создан новый смайлик__ с именем **${emoji.name}** ! (${emoji})"
 emoji_send_err_emoji: "__Ошибка при создании нового смайлика__ с именем **${emoji.name}** !"
 emoji_embed_desc_work: "__Созданы **${cnt}** смайликов в сервере `${interaction.guild.name}`__\n(${nemj})"
+
+# /derank
+derank_msg_desc_embed: "## Я успешно удалил **${good}** ролей у <@${member.id}>.\n## Однако, не удалось удалить **${bad}** ролей."
+derank_msg_failed: "При удалении ролей произошла ошибка."
 
 
 # Guild Config commands
@@ -1352,6 +1356,7 @@ temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.
 
 temporary_voice_name_button_menu_label: "Какое название канала?"
 
+temporary_voice_privacy_menu_placeholder: "Выберите параметр конфиденциальности"
 temporary_voice_privacy_menu_lock_label: "Заблокировать канал"
 temporary_voice_privacy_menu_lock_desc: "Только доверенные пользователи смогут присоединиться к вашему голосовому каналу"
 temporary_voice_privacy_menu_unlock_label: "Разблокировать канал"

@@ -344,7 +344,7 @@ weekly_embed_description: "**Récompense Hebdomadaire**"
 weekly_embed_fields: "Collecté"
 
 # /work
-work_cooldown_error: "**Attendez 50 minutes avant de voler à nouveau un utilisateur !** ${interaction.user.username}"
+work_cooldown_error: "<@${interaction.user.id}>, **Attendez ${time} minutes avant de voler à nouveau un utilisateur !**"
 work_embed_author: "${interaction.user.username}, ça a payé !"
 work_embed_description: "${interaction.user.username}, tu avez travaillé et gagné ${amount}$ c'est bien bon esclave de la société!"
 
@@ -475,6 +475,10 @@ nickrole_too_much_member: "Ya trop dmembre c mort jfais pas ça!"
 emoji_send_new_emoji: "__Nouvel emoji créé__ avec le nom **${emoji.name}** ! (${emoji})"
 emoji_send_err_emoji: "__Erreur lors de la création du nouvel emoji__ avec le nom **${emoji.name}** !"
 emoji_embed_desc_work: "__Créé **${cnt}** emoji(s) dans `${interaction.guild.name}`__\n(${nemj})"
+
+# /derank
+derank_msg_desc_embed: "## J'ai enlevé **${good}** rôle(s) à <@${member.id}> avec __succès__.\n## Cependant, je n'ai pas réussi à lui enlever **${bad}** rôle(s)"
+derank_msg_failed: "Une erreur s'est produite lors de la suppression des rôles."
 
 
 # Guild Config commands
@@ -1352,6 +1356,7 @@ temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.
 
 temporary_voice_name_button_menu_label: "Quel est le nom du salon ?"
 
+temporary_voice_privacy_menu_placeholder: "Sélectionnez une option de confidentialité"
 temporary_voice_privacy_menu_lock_label: "Verrouiller le salon"
 temporary_voice_privacy_menu_lock_desc: "Seuls les utilisateurs fiables pourront rejoindre votre salon vocal"
 temporary_voice_privacy_menu_unlock_label: "Déverrouiller le salon"

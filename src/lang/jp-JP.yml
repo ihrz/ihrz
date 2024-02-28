@@ -235,7 +235,7 @@ help_schedule_fields: "スケジュール"
 help_schedule_dsc: "プリプログラムされたメッセージを使用してリマインダーを作成し、ボットがプライベートメッセージで送信する"
 help_pfps_fields: "PFPS"
 help_pfps_dsc: "チャンネルにランダムなユーザーアバターを送信します！"
-help_voicedashboard_fields: "VoiceDashboard"
+help_voicedashboard_fields: "音声ダッシュボード"
 help_voicedashboard_dsc: "インターフェイスでカスタム一時ボイスチャンネルを作成します！"
 
 # /say
@@ -344,7 +344,7 @@ weekly_embed_description: "**週の報酬**"
 weekly_embed_fields: "収集された"
 
 # /work
-work_cooldown_error: "**50分間は他のユーザーを強奪できません！** ${interaction.user.username}"
+work_cooldown_error: "<@${interaction.user.id}>、**${time} 分後に別のユーザーを再び襲う前に待ってください！**"
 work_embed_author: "${interaction.user.username}、報酬がもらえました！"
 work_embed_description: "${interaction.user.username}、あなたは働いて${amount}$を稼ぎました！"
 
@@ -475,6 +475,10 @@ nickrole_too_much_member: "メンバーが多すぎるため、実行できま�
 emoji_send_new_emoji: "__新しい絵文字が作成されました__ 名前：**${emoji.name}** ! (${emoji})"
 emoji_send_err_emoji: "__新しい絵文字の作成時エラー__ 名前：**${emoji.name}** !"
 emoji_embed_desc_work: "__`${interaction.guild.name}` に**${cnt}**個の絵文字を作成しました__\n(${nemj})"
+
+# /derank
+derank_msg_desc_embed: "## 私は<@${member.id}>から**${good}**つの役職を削除しました。\n## ただし、**${bad}**つの役職を削除できませんでした。"
+derank_msg_failed: "役職の削除中にエラーが発生しました。"
 
 
 # Guild Config commands
@@ -1352,6 +1356,7 @@ temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.
 
 temporary_voice_name_button_menu_label: "チャンネルの名前は何ですか？"
 
+temporary_voice_privacy_menu_placeholder: "プライバシーオプションを選択してください"
 temporary_voice_privacy_menu_lock_label: "チャンネルをロックする"
 temporary_voice_privacy_menu_lock_desc: "信頼されたユーザーのみがボイスチャンネルに参加できます"
 temporary_voice_privacy_menu_unlock_label: "チャンネルのロック解除"

@@ -344,7 +344,7 @@ weekly_embed_description: "**Wöchentliche Belohnung**"
 weekly_embed_fields: "Eingesammelt"
 
 # /work
-work_cooldown_error: "**Warte 50 Minuten, bevor du wieder arbeitest!** ${interaction.user.username}"
+work_cooldown_error: "<@${interaction.user.id}>, **Warten Sie ${time} Minuten, bevor Sie einen anderen Benutzer erneut bestehlen!**"
 work_embed_author: "${interaction.user.username}, es hat sich ausgezahlt!"
 work_embed_description: "${interaction.user.username}, du hast gearbeitet und ${amount}$ verdient!"
 
@@ -475,6 +475,10 @@ nickrole_too_much_member: "Zu viele Mitglieder, kann aufgrund einer möglichen R
 emoji_send_new_emoji: "__Neues Emoji erstellt__ mit dem Namen **${emoji.name}** ! (${emoji})"
 emoji_send_err_emoji: "__Fehler beim Erstellen des neuen Emoji__ mit dem Namen **${emoji.name}** !"
 emoji_embed_desc_work: "__Erstellt **${cnt}** Emoji(s) in `${interaction.guild.name}`__\n(${nemj})"
+
+# /derank
+derank_msg_desc_embed: "## Ich habe erfolgreich **${good}** Rolle(n) von <@${member.id}> entfernt.\n## Leider konnte ich **${bad}** Rolle(n) nicht entfernen."
+derank_msg_failed: "Ein Fehler ist beim Entfernen der Rollen aufgetreten."
 
 
 # Guild Config commands
@@ -1352,6 +1356,7 @@ temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.
 
 temporary_voice_name_button_menu_label: "Wie lautet der Kanalname?"
 
+temporary_voice_privacy_menu_placeholder: "Wählen Sie eine Datenschutzoption aus"
 temporary_voice_privacy_menu_lock_label: "Kanal sperren"
 temporary_voice_privacy_menu_lock_desc: "Nur vertrauenswürdige Benutzer können Ihrem Sprachkanal beitreten"
 temporary_voice_privacy_menu_unlock_label: "Kanal entsperren"

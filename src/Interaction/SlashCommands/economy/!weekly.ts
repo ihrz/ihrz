@@ -26,7 +26,6 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
-import ms from 'ms';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -44,7 +43,7 @@ export default {
         };
 
         if (weekly !== null && timeout - (Date.now() - weekly) > 0) {
-            let time = ms(timeout - (Date.now() - weekly));
+            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - weekly));
 
             interaction.reply({
                 content: data.weekly_cooldown_error

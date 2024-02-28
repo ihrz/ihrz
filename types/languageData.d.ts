@@ -328,6 +328,8 @@ export interface LanguageData {
     emoji_send_new_emoji: string;
     emoji_send_err_emoji: string;
     emoji_embed_desc_work: string;
+    derank_msg_desc_embed: string;
+    derank_msg_failed: string;
     blockpub_not_admin: string;
     blockpub_now_enable: string;
     blockpub_now_disable: string;
@@ -954,6 +956,7 @@ export interface LanguageData {
     temporary_voice_limit_button_menu_label: string;
     temporary_voice_limit_button_not_integer: string;
     temporary_voice_name_button_menu_label: string;
+    temporary_voice_privacy_menu_placeholder: string;
     temporary_voice_privacy_menu_lock_label: string;
     temporary_voice_privacy_menu_lock_desc: string;
     temporary_voice_privacy_menu_unlock_label: string;
