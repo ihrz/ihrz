@@ -49,7 +49,7 @@ export default async (client: Client, interaction: Interaction) => {
     };
 
     async function selectMenuExecutor() {
-        if (!interaction.isUserSelectMenu()
+        if (!interaction.isAnySelectMenu()
             || !interaction.guild?.channels
             || interaction.user.bot) return;
 
