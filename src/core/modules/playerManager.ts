@@ -19,16 +19,19 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, time } from 'discord.js';
-import { QueueChangesWatcher, LavalinkManager } from "lavalink-client";
+import { BaseGuildTextChannel, Client } from 'discord.js';
+import { LavalinkManager } from "lavalink-client";
 
-import db from '../functions/DatabaseModel.js';
-import logger from '../logger.js';
 import config from '../../files/config.js';
 
 export default async (client: Client) => {
 
     let nodes = config.lavalink.nodes;
+
+    nodes.forEach(i => {
+        i.retryAmount = 100
+        i.retryDelay = 500
+    });
 
     client.player = new LavalinkManager({
         nodes,
