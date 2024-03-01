@@ -213,9 +213,9 @@ export const command: Command = {
                             name: 'message',
                             type: ApplicationCommandOptionType.String,
 
-                            description: `{user}:username| {membercount}:guild member count| {createdat}:user create date| {guild}:Guild name|{inviter}: Name of the inviter| {invites}: Amount of invites of the inviter`,
+                            description: `Leave this args blank if you want help`,
                             description_localizations: {
-                                "fr": "{user}:Nom|{membercount}:Nombre de membres du serveur|{createdat}:Date de création du compte {guild}:nom du serveur|{inviter}:Nom de l'inviteur|{invites}:Nombres d'invitations de l'inviteur"
+                                "fr": "Laissez cette option vide pour que le bot vous aide"
                             },
 
                             required: false
