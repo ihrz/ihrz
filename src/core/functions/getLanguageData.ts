@@ -31,15 +31,14 @@ interface LangsData {
 let LangsData: LangsData = {};
 
 export default async function getLanguageData(arg: string): Promise<LanguageData> {
-    let fetched = await db.get(`${arg}.GUILD.LANG`);
-    let lang: string = 'en-US';
-    if (fetched) {
-        lang = fetched.lang;
+    let lang: string = await db.get(`${arg}.GUILD.LANG`)?.lang;
+    if (!lang) {
+        lang = 'en-US';
     }
     let dat = LangsData[lang];
     if (!dat) {
-        LangsData[lang] = yaml.load(fs.readFileSync(`${process.cwd()}/src/lang/${lang}.yml`, 'utf8')) as LanguageData;
-        dat = LangsData[lang];
+        dat = yaml.load(fs.readFileSync(`${process.cwd()}/src/lang/${lang}.yml`, 'utf8')) as LanguageData;
+        LangsData[lang] = dat;
     };
     return dat;
 };
