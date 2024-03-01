@@ -38,8 +38,7 @@ export default async function getLanguageData(arg: string): Promise<LanguageData
     }
     let dat = LangsData[lang];
     if (!dat) {
-        let fileContent = fs.readFileSync(`${process.cwd()}/src/lang/${lang}.yml`, 'utf8');
-        LangsData[lang] = yaml.load(fileContent) as LanguageData;
+        LangsData[lang] = yaml.load(fs.readFileSync(`${process.cwd()}/src/lang/${lang}.yml`, 'utf8')) as LanguageData;
         dat = LangsData[lang];
     };
     return dat;
