@@ -1,5 +1,7 @@
 
 interface LavalinkNodeOptions {
+    retryAmount?: number;
+    retryDelay?: number;
     id: string;
     host: string;
     port: number;

@@ -19,30 +19,12 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import db from '../functions/DatabaseModel.js';
-import yaml from 'js-yaml';
-import fs from 'node:fs';
-import { LanguageData } from '../../../types/languageData.js';
+import { CreateTicketChannel } from '../../../core/modules/ticketsManager.js';
+import { CacheType, StringSelectMenuInteraction } from 'discord.js';
 
-interface LangsData {
-    [lang: string]: LanguageData;
-}
-
-let LangsData: LangsData = {};
-
-export default async function getLanguageData(arg: string): Promise<LanguageData> {
-    let lang = await db.get(`${arg}.GUILD.LANG.lang`);
-
-    if (!lang) {
-        lang = 'en-US';
-    };
-
-    let dat = LangsData[lang];
-    
-    if (!dat) {
-        dat = yaml.load(fs.readFileSync(`${process.cwd()}/src/lang/${lang}.yml`, 'utf8')) as LanguageData;
-        LangsData[lang] = dat;
-    };
-
-    return dat;
+export default async function (interaction: StringSelectMenuInteraction<CacheType>) {
+    if (!await interaction.client.db.get(
+        `${interaction.guild?.id}.GUILD.TICKET.${interaction.message.id}`
+    )) return;
+    CreateTicketChannel(interaction);
 };

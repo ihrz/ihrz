@@ -20,13 +20,16 @@
 */
 
 import {
+    ActionRowBuilder,
     ChatInputCommandInteraction,
     Client,
-    EmbedBuilder,
+    ComponentType,
     PermissionsBitField,
+    StringSelectMenuBuilder,
+    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
-import { CreatePanel } from '../../../core/modules/ticketsManager.js';
+import { CreatePanel, CreateSelectPanel } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
@@ -47,14 +50,58 @@ export default {
             return;
         };
 
-        await CreatePanel(interaction, {
-            name: panelName,
-            author: interaction.user.id,
-            description: panelDesc
+        let comp = new StringSelectMenuBuilder()
+            .setCustomId("choose_panel_type")
+            .setPlaceholder(data.sethereticket_command_type_menu_placeholder)
+            .addOptions(
+                new StringSelectMenuOptionBuilder()
+                    .setLabel(data.sethereticket_command_type_menu_choice_1_label)
+                    .setValue("button_panel"),
+                new StringSelectMenuOptionBuilder()
+                    .setLabel(data.sethereticket_command_type_menu_choice_2_label)
+                    .setValue("select_panel")
+            );
+
+        let response = await interaction.editReply({
+            content: data.sethereticket_command_type_menu_question
+            .replace("${interaction.user.id}", interaction.user.id),
+            components: [
+                new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
+            ]
         });
 
-        await interaction.deleteReply();
-        await interaction.followUp({ content: data.sethereticket_command_work, ephemeral: true });
+        response.awaitMessageComponent({
+            componentType: ComponentType.StringSelect,
+            time: 240_000,
+            filter: (i) => i.user.id === interaction.user.id,
+        }).then(async (i) => {
+
+            if (i.values[0] === 'button_panel') {
+                await CreatePanel(interaction, {
+                    name: panelName,
+                    author: interaction.user.id,
+                    description: panelDesc
+                });
+
+                i.deferUpdate();
+
+                interaction.editReply({
+                    components: [],
+                    content: data.sethereticket_command_work
+                });
+
+            } else if (i.values[0] === 'select_panel') {
+
+                i.deferUpdate();
+
+                await CreateSelectPanel(interaction, {
+                    name: panelName,
+                    author: interaction.user.id,
+                    description: panelDesc,
+                });
+            };
+        });
+
         return;
     },
 };
