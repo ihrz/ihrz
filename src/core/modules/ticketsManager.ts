@@ -586,7 +586,6 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) 
 
     for (let user in fetch) {
         for (let channel in fetch[user]) {
-            console.log(channel, interaction.channel?.id)
             if (channel === interaction.channel?.id) {
                 let member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
 
