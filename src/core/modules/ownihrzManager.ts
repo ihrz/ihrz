@@ -36,7 +36,7 @@ class OwnIHRZ {
 
     //Working
     async Create(data: Custom_iHorizon) {
-        await fs.mkdir(`${process.cwd()}/ownihrz/${data.Code}`, { recursive: true }, (err) => {
+        fs.mkdir(`${process.cwd()}/ownihrz/${data.Code}`, { recursive: true }, (err) => {
             if (err) throw err;
         });
         await wait(1000)
@@ -416,6 +416,27 @@ class OwnIHRZ {
                 }
             };
         }
+        return 0;
+    };
+
+    async Change_Token(cluster_id: number, id_to_bot: string, bot_token: string) {
+        axios.post(
+            OwnIhrzCluster(
+                cluster_id,
+                ClusterMethod.ChangeTokenContainer,
+            ) as string,
+            {
+                Auth: bot_token,
+                Code: id_to_bot,
+                AdminKey: config.api.apiToken
+            }
+        ).then(function (response) {
+            logger.log(response.data as unknown as string);
+        })
+        .catch(function (error) {
+            logger.err(error);
+        });
+
         return 0;
     };
 }

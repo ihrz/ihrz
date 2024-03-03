@@ -26,7 +26,8 @@ export const ClusterMethod = {
     DeleteContainer: 1,
     StartupContainer: 2,
     ShutdownContainer: 3,
-    PowerOnContainer: 4
+    PowerOnContainer: 4,
+    ChangeTokenContainer: 5,
 };
 
 let domain = process.env.HOST || config.api.domain;
@@ -104,6 +105,9 @@ export function OwnIhrzCluster(cluster_number: number, cluster_method: number, b
             data += `poweron`
             if (bot_id) data += `/${bot_id}`
             if (admin_key) data += `/${admin_key}`
+            break;
+        case  5:
+            data += `change_token`
             break;
     }
 
