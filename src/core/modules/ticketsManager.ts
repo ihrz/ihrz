@@ -43,8 +43,6 @@ import {
     TextInputStyle,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
-    MessageComponentInteraction,
-    Message,
 } from 'discord.js';
 
 import * as discordTranscripts from 'discord-html-transcripts';
