@@ -499,6 +499,12 @@ emoji_embed_desc_work: "__Créé **${cnt}** emoji(s) dans `${interaction.guild.n
 derank_msg_desc_embed: "## J'ai enlevé **${good}** rôle(s) à <@${member.id}> avec __succès__.\n## Cependant, je n'ai pas réussi à lui enlever **${bad}** rôle(s)"
 derank_msg_failed: "Une erreur s'est produite lors de la suppression des rôles."
 
+# /action débannir tous
+action_unban_all_embed_desc: "## Débannir tous les membres de la guilde\n${client.iHorizon_Emojis.icon.Yes_Logo} | J'ai réussi à lever l'interdiction de `${unbanned_members.length}` membre(s) dans la guilde !\n${client.iHorizon_Emojis.icon.No_Logo} | Je ne peux pas débannir `${cannot_unban}` membre(s) !"
+
+# /action débannir annuler
+action_unban_undo_embed_desc: "## Annuler le débannissement de tous\n${client.iHorizon_Emojis.icon.Yes_Logo} | J'ai réussi à bannir `${banned_members.length}` membre(s) dans la guilde !\n${client.iHorizon_Emojis.icon.No_Logo} | Je ne peux pas débannir `${cannot_ban}` membre(s) !"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

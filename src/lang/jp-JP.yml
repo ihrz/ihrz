@@ -499,6 +499,12 @@ emoji_embed_desc_work: "__`${interaction.guild.name}` に**${cnt}**個の絵文�
 derank_msg_desc_embed: "## 私は<@${member.id}>から**${good}**つの役職を削除しました。\n## ただし、**${bad}**つの役職を削除できませんでした。"
 derank_msg_failed: "役職の削除中にエラーが発生しました。"
 
+# /アクション全員の禁止解除
+action_unban_all_embed_desc: "## ギルドメンバー全員の禁止を解除する\n${client.iHorizon_Emojis.icon.Yes_Logo} | ギルドで`${unbanned_members.length}`人のメンバーの禁止を成功裏に解除しました！\n${client.iHorizon_Emojis.icon.No_Logo} | `${cannot_unban}`人のメンバーを禁止解除できません！"
+
+# /アクションの禁止解除を元に戻す
+action_unban_undo_embed_desc: "## 全員の禁止解除を元に戻す\n${client.iHorizon_Emojis.icon.Yes_Logo} | ギルドで`${banned_members.length}`人のメンバーを成功裏に禁止しました！\n${client.iHorizon_Emojis.icon.No_Logo} | `${cannot_ban}`人のメンバーを禁止解除できません！"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
