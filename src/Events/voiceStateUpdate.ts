@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client, VoiceState, GuildTextBasedChannel, BaseGuildTextChannel, CategoryChannel, ChannelType, PermissionFlagsBits, GuildChannel } from 'discord.js';
+import { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client, VoiceState, GuildTextBasedChannel, BaseGuildTextChannel, CategoryChannel, ChannelType, PermissionFlagsBits, GuildChannel, VoiceChannel } from 'discord.js';
 
 export default async (client: Client, oldState: VoiceState, newState: VoiceState) => {
 
@@ -132,7 +132,6 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
         if (oldState.channelId === ChannelDB && channel_db_fetched?.members.size === 0) {
             await channel_db_fetched?.delete().catch(() => { });
             await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
-
             return;
         };
 
@@ -153,7 +152,6 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
                 if (oldState.channelId === channelId) {
                     await userChannel?.delete();
                     await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${userId}`);
-
                     return;
                 }
             }
@@ -164,55 +162,64 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
         // If the user join the Create's Channel
         if (newState.channelId === ChannelForCreate && oldState.channelId !== ChannelDB) {
 
-            let channel = await newState.guild.channels.create({
+            newState.guild.channels.create({
                 name: `${newState.member?.displayName || newState.member?.nickname}'s Channel`,
                 parent: result_channel?.parentId,
                 permissionOverwrites: category_channel.permissionOverwrites.cache,
                 type: ChannelType.GuildVoice,
-            })
+            }).then(async chann => {
+                await table.set(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`, chann.id);
 
-            channel.permissionOverwrites.edit(newState.member?.user.id as string,
-                {
-                    ViewChannel: true,
-                    Connect: true,
-                    Stream: true,
-                    Speak: true,
+                newState.member?.voice.setChannel(chann.id)
+                    .then(async () => {
+                        if ((await chann.fetch()).members.size === 0) {
+                            await chann.delete()
+                            await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
+                            return;
+                        } else {
+                            chann.permissionOverwrites.edit(newState.member?.user.id as string,
+                                {
+                                    ViewChannel: true,
+                                    Connect: true,
+                                    Stream: true,
+                                    Speak: true,
 
-                    SendMessages: true,
-                    UseApplicationCommands: true,
-                    AttachFiles: true,
-                    AddReactions: true
-                },
-            );
+                                    SendMessages: true,
+                                    UseApplicationCommands: true,
+                                    AttachFiles: true,
+                                    AddReactions: true
+                                },
+                            );
 
-            if (staff_role) {
-                channel.permissionOverwrites.edit(staff_role as string,
-                    {
-                        ViewChannel: true,
-                        Connect: true,
-                        Stream: true,
-                        Speak: true,
+                            if (staff_role) {
+                                chann.permissionOverwrites.edit(staff_role as string,
+                                    {
+                                        ViewChannel: true,
+                                        Connect: true,
+                                        Stream: true,
+                                        Speak: true,
 
-                        SendMessages: true,
-                        UseApplicationCommands: true,
-                        AttachFiles: true,
-                        AddReactions: true,
+                                        SendMessages: true,
+                                        UseApplicationCommands: true,
+                                        AttachFiles: true,
+                                        AddReactions: true,
 
-                        MuteMembers: true,
-                        DeafenMembers: true,
-                        PrioritySpeaker: true,
-                        KickMembers: true
-                    },
-                );
-            }
-
-            await newState.member?.voice.setChannel(channel.id);
-
-            await table.set(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`, newState.channelId);
+                                        MuteMembers: true,
+                                        DeafenMembers: true,
+                                        PrioritySpeaker: true,
+                                        KickMembers: true
+                                    },
+                                );
+                            }
+                        }
+                    })
+                    .catch(async () => {
+                        await chann.delete().catch(() => { });
+                    });
+            });
             return;
         };
     };
 
     serverLogs(), voiceInterface();
-
 };

@@ -499,6 +499,12 @@ emoji_embed_desc_work: "__Erstellt **${cnt}** Emoji(s) in `${interaction.guild.n
 derank_msg_desc_embed: "## Ich habe erfolgreich **${good}** Rolle(n) von <@${member.id}> entfernt.\n## Leider konnte ich **${bad}** Rolle(n) nicht entfernen."
 derank_msg_failed: "Ein Fehler ist beim Entfernen der Rollen aufgetreten."
 
+# /Aktion Entbannen alle
+action_unban_all_embed_desc: "## Alle Gildenmitglieder entbannen\n${client.iHorizon_Emojis.icon.Yes_Logo} | Ich habe erfolgreich das Verbot von `${unbanned_members.length}` Mitglied(ern) in der Gilde aufgehoben!\n${client.iHorizon_Emojis.icon.No_Logo} | Ich kann `${cannot_unban}` Mitglied(er) nicht entbannen!"
+
+# /Aktion Entbannen rückgängig machen
+action_unban_undo_embed_desc: "## Das Entbannen aller rückgängig machen\n${client.iHorizon_Emojis.icon.Yes_Logo} | Ich habe erfolgreich `${banned_members.length}` Mitglied(er) in der Gilde gebannt!\n${client.iHorizon_Emojis.icon.No_Logo} | Ich kann `${cannot_ban}` Mitglied(er) nicht entbannen!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

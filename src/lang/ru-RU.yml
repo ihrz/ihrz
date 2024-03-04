@@ -499,6 +499,12 @@ emoji_embed_desc_work: "__Созданы **${cnt}** смайликов в сер
 derank_msg_desc_embed: "## Я успешно удалил **${good}** ролей у <@${member.id}>.\n## Однако, не удалось удалить **${bad}** ролей."
 derank_msg_failed: "При удалении ролей произошла ошибка."
 
+# /действие разблокировать все
+action_unban_all_embed_desc: "## Разблокировать всех членов гильдии\n${client.iHorizon_Emojis.icon.Yes_Logo} | Я успешно убрал запрет на `${unbanned_members.length}` участника(ов) в гильдии!\n${client.iHorizon_Emojis.icon.No_Logo} | Я не могу разблокировать `${cannot_unban}` участника(ов)!"
+
+# /действие отменить разблокировку
+action_unban_undo_embed_desc: "## Отменить все разблокировки\n${client.iHorizon_Emojis.icon.Yes_Logo} | Я успешно забанил `${banned_members.length}` участника(ов) в гильдии!\n${client.iHorizon_Emojis.icon.No_Logo} | Я не могу разблокировать `${cannot_ban}` участника(ов)!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

@@ -349,6 +349,8 @@ export interface LanguageData {
     emoji_embed_desc_work: string;
     derank_msg_desc_embed: string;
     derank_msg_failed: string;
+    action_unban_all_embed_desc: string;
+    action_unban_undo_embed_desc: string;
     blockpub_not_admin: string;
     blockpub_now_enable: string;
     blockpub_now_disable: string;

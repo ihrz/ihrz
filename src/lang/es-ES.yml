@@ -499,6 +499,12 @@ emoji_embed_desc_work: "__Creados **${cnt}** emoji(s) en `${interaction.guild.na
 derank_msg_desc_embed: "## He eliminado exitosamente **${good}** rol(es) de <@${member.id}>.\n## Sin embargo, no pude eliminar **${bad}** rol(es)."
 derank_msg_failed: "Se produjo un error al eliminar los roles."
 
+# /acción desbanear todo
+action_unban_all_embed_desc: "## Desbanear a todos los miembros del gremio\n${client.iHorizon_Emojis.icon.Yes_Logo} | ¡He eliminado con éxito la prohibición de `${unbanned_members.length}` miembro(s) en el gremio!\n${client.iHorizon_Emojis.icon.No_Logo} | ¡No puedo desbanear a `${cannot_unban}` miembro(s)!"
+
+# /acción deshacer desbanear
+action_unban_undo_embed_desc: "## Deshacer el desbanear todo\n${client.iHorizon_Emojis.icon.Yes_Logo} | ¡He prohibido con éxito a `${banned_members.length}` miembro(s) en el gremio!\n${client.iHorizon_Emojis.icon.No_Logo} | ¡No puedo desbanear a `${cannot_ban}` miembro(s)!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

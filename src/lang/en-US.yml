@@ -499,6 +499,12 @@ emoji_embed_desc_work: "__Created **${cnt}** emoji(s) in `${interaction.guild.na
 derank_msg_desc_embed: "## I have successfully removed **${good}** role(s) from <@${member.id}>.\n## However, I failed to remove **${bad}** role(s)."
 derank_msg_failed: "An error occurred while removing roles."
 
+# /action unban all
+action_unban_all_embed_desc: "## Unban all guild members\n${client.iHorizon_Emojis.icon.Yes_Logo} | I have successfully remove the ban of `${unbanned_members.length}` member(s) in the guild!\n${client.iHorizon_Emojis.icon.No_Logo} | I can't unban `${cannot_unban}` member(s) !"
+
+# /action unban undo
+action_unban_undo_embed_desc: "## Undo the unban-all\n${client.iHorizon_Emojis.icon.Yes_Logo} | I have successfully banned `${banned_members.length}` member(s) in the guild!\n${client.iHorizon_Emojis.icon.No_Logo} | I can't unban `${cannot_ban}` member(s) !"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -605,10 +611,10 @@ setjoinmessage_help_embed_fields_name: "how to use ?"
 setjoinmessage_help_embed_fields_value: "Use ```/setjoinmessage <Power on /Power off/Show the message set> <message>```\n{user} = Username of Member\n{membercount} = guild's member count\n{createdat} = member account creation date\n{guild} = The name of the guild\n{inviter} = The inviter username & discriminator\n{invites} = The invites count of the user"
 setjoinmessage_logs_embed_title_on_enable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_enable: "<@${interaction.user.id}> set the join message !"
-setjoinmessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo}  | Succefully set custom join message."
+setjoinmessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo}  | Successfully set custom join message."
 setjoinmessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deleted the join message !"
-setjoinmessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Succefully deleted custom join message."
+setjoinmessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Successfully deleted custom join message."
 setjoinmessage_command_work_ls: "The join message is:"
 
 # /setjoinroles
@@ -636,10 +642,10 @@ setleavemessage_help_embed_fields_name: "how to use ?"
 setleavemessage_help_embed_fields_value: "Use ```/setleavemessage <Power on /Power off/Show the message set> <message>```\n{user} = Username of Member\n{membercount} = guild's member count\n{guild} = The name of the guild"
 setleavemessage_logs_embed_title_on_enable: "SetJoinMessage Logs"
 setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}> set the leave message !"
-setleavemessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Succefully set custom leave message."
+setleavemessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Successfully set custom leave message."
 setleavemessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deleted the leave message !"
-setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Succefully deleted custom leave message."
+setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Successfully deleted custom leave message."
 setleavemessage_command_work_ls: "The leave message is:"
 
 # /setup
@@ -654,8 +660,8 @@ setlogschannel_confirmation_message: "${client.iHorizon_Emojis.icon.Yes_Logo} | 
 setlogschannel_already_this_channel: "This server has already this channel for logs !"
 setlogschannel_already_deleted: "This server already don't have `SERVER_LOGS` !"
 setlogschannel_command_error: "error?"
-setlogschannel_command_work: "You have succefully setup the `${typeOfLogs}` in <#${argsid.id}> !"
-setlogschannel_command_work_on_delete: "You have succefully delete all of `SERVER_LOGS` in **${interaction.guild.name}**"
+setlogschannel_command_work: "You have successfully setup the `${typeOfLogs}` in <#${argsid.id}> !"
+setlogschannel_command_work_on_delete: "You have successfully delete all of `SERVER_LOGS` in **${interaction.guild.name}**"
 setlogschannel_logs_embed_title: "Set ServerLogs"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> set `${typeOfLogs}` to <#${argsid.id}>"
 setlogschannel_logs_embed_title_on_off: "Set ServerLogs"
@@ -690,8 +696,8 @@ setmembercount_helpembed_fields_name: "how to use ?"
 setmembercount_helpembed_fields_value: "Use ```/setjoinmessage <Power on /Power off/Show the message set> <message>```\n{membercount} = guild's member count\n{rolescount} = amount of roles\n{botcount} = guild's bot count"
 setmembercount_logs_embed_title_on_enable: "Set MemberCount Logs"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> set the MemberCount of <#${channel.id}> to `${messagei}`!"
-setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Succefully set MemberCount."
-setmembercount_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Succefully removed MemberCount."
+setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Successfully set MemberCount."
+setmembercount_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Successfully removed MemberCount."
 setmembercount_logs_embed_title_on_disable: "Set MemberCount Logs"
 setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> remove the MemberCount of this guild !"
 
@@ -909,7 +915,7 @@ backup_string_see_another_v: ":placard:・Category's Count: `${result.categoryCo
 backup_really_want: "${client.iHorizon_Emojis.icon.Warning_Icon} Do you really want to delete this backup ?"
 backup_confirm_button: "Yes, delete this backup"
 backup_cancel_button: "Cancel Action"
-backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.icon.Yes_Logo} The backup was succefully deleted !"
+backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.icon.Yes_Logo} The backup was successfully deleted !"
 backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.icon.Yes_Logo} The backup was keeped !"
 backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.icon.No_Logo} Time's UP. The backup was keeped !"
 
@@ -945,7 +951,7 @@ punishpub_zero_number_enable: "The number 0 is not possible !"
 punishpub_confirmation_message_enable: "You have successfully **enabled** PunishPub with a maximum flag count of **${amount}** and a punishment of **${punishement}** !"
 punishpub_logs_embed_title: "PunishPub Logs"
 punishpub_logs_embed_description: "<@${interaction.user.id}> set the PunishPUB to on with an amout of ${amount} max flags with ${punishement} punishement !"
-punishpub_confirmation_disable: "You have succefully setup the PunishPub to off"
+punishpub_confirmation_disable: "You have successfully setup the PunishPub to off"
 punishpub_logs_embed_title_disable: "PunishPub Logs"
 punishpub_logs_embed_description_disable: "<@${interaction.user.id}> set the PunishPUB to off !"
 
@@ -1253,7 +1259,7 @@ event_mp_playerSkip: "${client.iHorizon_Emojis.icon.Music_Icon} - Skipping **${t
 event_mp_emptyQueue: "${client.iHorizon_Emojis.icon.Warning_Icon} - Music stopped as there is no more music in the queue !"
 
 # Channel Create Events
-event_channel_create_message_embed_title: "Succefully setup !"
+event_channel_create_message_embed_title: "Successfully setup !"
 event_channel_create_message_embed_description: "The bot has been set up perfectly. You don't need to do anything (zen) anymore.\n\nAll moderation logs related to iHorizon will be displayed here"
 
 # Welcome Message Events

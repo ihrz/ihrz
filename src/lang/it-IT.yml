@@ -499,6 +499,12 @@ emoji_embed_desc_work: "__Creati **${cnt}** emoji in `${interaction.guild.name}`
 derank_msg_desc_embed: "## Ho rimosso con successo **${good}** ruolo/i da <@${member.id}>.\n## Tuttavia, non sono riuscito a rimuovere **${bad}** ruolo/i."
 derank_msg_failed: "Si è verificato un errore durante la rimozione dei ruoli."
 
+# /azione sblocca tutto
+action_unban_all_embed_desc: "## Sblocca tutti i membri della gilda\n${client.iHorizon_Emojis.icon.Yes_Logo} | Ho rimosso con successo il divieto di `${unbanned_members.length}` membro(i) nella gilda!\n${client.iHorizon_Emojis.icon.No_Logo} | Non posso sbloccare `${cannot_unban}` membro(i)!"
+
+# /azione annulla sblocco
+action_unban_undo_embed_desc: "## Annulla lo sblocco di tutti\n${client.iHorizon_Emojis.icon.Yes_Logo} | Ho bandito con successo `${banned_members.length}` membro(i) nella gilda!\n${client.iHorizon_Emojis.icon.No_Logo} | Non posso sbloccare `${cannot_ban}` membro(i)!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
