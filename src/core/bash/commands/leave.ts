@@ -33,5 +33,5 @@ export default function (client: Client, args: string) {
         logger.legacy(`* The guild doesn't exist on bot's database.`.gray.bgBlack);
     });
 
-    logger.legacy(`* I have succefully leave the server.`.gray.bgBlack);
+    logger.legacy(`* I have successfully leave the server.`.gray.bgBlack);
 };

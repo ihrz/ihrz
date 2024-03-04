@@ -64,7 +64,7 @@ fn run() -> io::Result<()> {
 
     output_file.write_all(modified_content.as_bytes())?;
 
-    LOGGER.log("The @discordjs/ws has been succefully patched. Now you can enjoy the bot phone presence!");
+    LOGGER.log("The @discordjs/ws has been successfully patched. Now you can enjoy the bot phone presence!");
 
     Ok(())
 }
