@@ -68,7 +68,7 @@ export default {
             await player.connect();
         };
 
-        await player.queue.add(res.tracks[0]);
+        await player.queue.add(res.loadType === "playlist" ? res.tracks : res.tracks[0]);
 
         if (!player.playing) {
             await player.play();
