@@ -84,9 +84,8 @@ export default {
                     name: string;
                 }) => channel.name === 'ihorizon-logs');
 
-                if (logchannel) {
+                if (!logchannel) return;
                     (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
-                };
             } catch (e: any) {
                 logger.err(e)
             };
