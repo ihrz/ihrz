@@ -178,23 +178,26 @@ export const command: Command = {
                 )
                 .setImage("attachment://user_banner.png");
 
+            var files: { name: string; attachment: string }[] = [
+                {
+                    attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
+                    name: 'ihrz_logo.png'
+                },
+                {
+                    attachment: await interaction.client.functions.image64(user.displayAvatarURL({ size: 512 })),
+                    name: 'user_icon.png'
+                }
+            ];
+
+            if (banner) files.push({
+                attachment: await interaction.client.functions.image64(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`),
+                name: 'user_banner.png'
+            });
+
             await interaction.editReply({
                 embeds: [embed],
                 content: `${client.iHorizon_Emojis.icon.Yes_Logo} Fetched !`,
-                files: [
-                    {
-                        attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
-                        name: 'ihrz_logo.png'
-                    },
-                    {
-                        attachment: await interaction.client.functions.image64(user.displayAvatarURL({ size: 512 })),
-                        name: 'user_icon.png'
-                    },
-                    {
-                        attachment: await interaction.client.functions.image64(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`),
-                        name: 'user_banner.png'
-                    }
-                ],
+                files: files,
                 components: [
                     new ActionRowBuilder<ButtonBuilder>()
                         .addComponents(
@@ -237,7 +240,7 @@ export const command: Command = {
                 };
             };
 
-            sendMessage(member, getBadges(member.flags as unknown as number), nitro ? nitro : `[My nitro is not shown](${apiUrlParser.LoginURL})`);
+            sendMessage(member, getBadges(member.flags as unknown as number), nitro === "" ? `[My nitro is not shown](${apiUrlParser.LoginURL})` : nitro);
 
         } catch (error: any) {
             logger.err(error);
