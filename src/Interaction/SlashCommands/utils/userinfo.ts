@@ -151,7 +151,7 @@ export const command: Command = {
 
             let embed = new EmbedBuilder()
                 .setFooter({ text: `iHorizon`, iconURL: "attachment://ihrz_logo.png" })
-                .setThumbnail("attachment://user_icon.png")
+                .setThumbnail("attachment://user_icon.gif")
                 .setTimestamp()
                 .setColor('#0014a8')
                 .setFields(
@@ -181,22 +181,22 @@ export const command: Command = {
                         inline: true,
                     }
                 )
-                .setImage("attachment://user_banner.png");
+                .setImage("attachment://user_banner.gif");
 
             var files: { name: string; attachment: string }[] = [
                 {
-                    attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
+                    attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL({ forceStatic: false })),
                     name: 'ihrz_logo.png'
                 },
                 {
-                    attachment: await interaction.client.functions.image64(user.displayAvatarURL({ size: 512 })),
-                    name: 'user_icon.png'
+                    attachment: user.displayAvatarURL({ size: 512, forceStatic: false }),
+                    name: 'user_icon.gif'
                 }
             ];
 
             if (banner) files.push({
                 attachment: await interaction.client.functions.image64(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`),
-                name: 'user_banner.png'
+                name: 'user_banner.gif'
             });
 
             await interaction.editReply({
