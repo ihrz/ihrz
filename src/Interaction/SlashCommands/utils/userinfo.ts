@@ -19,16 +19,21 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, ApplicationCommandOptionType, EmbedBuilder, CommandInteraction, ApplicationCommandType, GuildMember, time, User, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
-import { Command } from '../../../../types/command';
-import DiscordOauth2 from 'discord-oauth2';
-import config from '../../../files/config.js';
-import logger from '../../../core/logger.js';
-import axios from 'axios';
-import ConfigShow from '../protection/!config-show.js';
+import {
+    Client,
+    ApplicationCommandOptionType,
+    EmbedBuilder,
+    CommandInteraction,
+    ApplicationCommandType,
+    time,
+    User,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle
+} from 'discord.js';
 
-let oauth = new DiscordOauth2();
+import { Command } from '../../../../types/command';
+import axios from 'axios';
 
 export const command: Command = {
 
@@ -117,7 +122,7 @@ export const command: Command = {
             },
         };
 
-        function getBadges(flags: number) {
+        function getBadges(flags: number): string {
             let badgeValues = Object.values(badges);
             return badgeValues
                 .filter(badge => (flags & badge.Value) === badge.Value)
@@ -195,8 +200,8 @@ export const command: Command = {
             });
 
             await interaction.editReply({
-                embeds: [embed],
                 content: `${client.iHorizon_Emojis.icon.Yes_Logo} Fetched !`,
+                embeds: [embed],
                 files: files,
                 components: [
                     new ActionRowBuilder<ButtonBuilder>()
@@ -231,7 +236,7 @@ export const command: Command = {
                     break;
             };
 
-            return nitro === "" ? `[My nitro is not shown](${apiUrlParser.LoginURL})` : nitro
+            return nitro;
         };
 
         sendMessage(member);
