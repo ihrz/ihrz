@@ -128,11 +128,11 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
         let member = interaction.options.getUser('user') || interaction.user;
 
-        async function sendMessage(user: User, badgeString: string, nitro: string) {
+        async function sendMessage(user: User) {
 
             let format = 'png';
 
-            let user_1 = (await axios.get(`https://discord.com/api/v8/users/${user?.id}`, {
+            let user_1 = (await axios.get(`https://discord.com/api/v10/users/${user?.id}`, {
                 headers: {
                     Authorization: `Bot ${client.token}`
                 }
@@ -152,7 +152,7 @@ export const command: Command = {
                 .setFields(
                     {
                         name: "Badge",
-                        value: badgeString || "`No found`",
+                        value: getBadges(member.flags as unknown as number) || "`Not found`",
                         inline: true,
                     },
                     {
@@ -162,17 +162,17 @@ export const command: Command = {
                     },
                     {
                         name: "DisplayName",
-                        value: user.displayName || "`No found`",
+                        value: user.displayName || "`Not found`",
                         inline: true,
                     },
                     {
                         name: "Creation Date",
-                        value: time(user.createdAt, "D") || "`No found`",
+                        value: time(user.createdAt, "D") || "`Not found`",
                         inline: true,
                     },
                     {
                         name: "Nitro Status",
-                        value: nitro || "`No found`",
+                        value: GetNitro(user_1.premium_type) || "`Not found`",
                         inline: true,
                     }
                 )
@@ -216,36 +216,24 @@ export const command: Command = {
             content: data.userinfo_wait_please.replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
         });
 
-
-        try {
+        function GetNitro(input: number): string {
             let nitro = '';
 
-            let response = await axios.post(apiUrlParser.ApiURL, {
-                tokent: 'want',
-                adminKey: config.api.apiToken,
-                userid: member.id,
-                tor: 'CHECK_IN_SYSTEM',
-            });
-
-            if (response.data.available === 'yes') {
-                let access_token = response.data.connectionToken;
-                let userData = await oauth.getUser(access_token);
-
-                if (userData.premium_type === 1) {
+            switch (input) {
+                case 1:
                     nitro = client.iHorizon_Emojis.badge.Nitro;
-                } else if (userData.premium_type === 2) {
+                    break;
+                case 2:
                     nitro = client.iHorizon_Emojis.badge.Nitro + client.iHorizon_Emojis.badge.Server_Boost_Badge;
-                } else if (userData.premium_type === 3) {
+                    break;
+                case 3:
                     nitro = client.iHorizon_Emojis.badge.Nitro;
-                };
+                    break;
             };
 
-            sendMessage(member, getBadges(member.flags as unknown as number), nitro === "" ? `[My nitro is not shown](${apiUrlParser.LoginURL})` : nitro);
-
-        } catch (error: any) {
-            logger.err(error);
-
-            sendMessage(member, getBadges(member.flags as unknown as number), `[My nitro is not shown](${apiUrlParser.LoginURL})`);
+            return nitro === "" ? `[My nitro is not shown](${apiUrlParser.LoginURL})` : nitro
         };
+
+        sendMessage(member);
     },
 };
