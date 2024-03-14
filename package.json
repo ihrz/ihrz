@@ -23,7 +23,6 @@
   },
   "homepage": "https://github.com/ihrz/ihrz#readme",
   "dependencies": {
-    "@discordjs/voice": "^0.16.0",
     "axios": "1.6.7",
     "better-sqlite3": "^9.4.1",
     "colors": "^1.4.0",
