@@ -47,8 +47,7 @@ export default async (client: Client, guild: Guild) => {
                     { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
                     { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
                     { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
-                    { name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
-{name: "🍻 new guilds total", value: client.guilds.cache.size, inline: true})
+                    { name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true })
                 .setThumbnail(guild.iconURL())
                 .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
