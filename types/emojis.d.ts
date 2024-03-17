@@ -58,6 +58,14 @@ interface Icon {
     iHorizon_Pointer: string;
     iHorizon_Bar: string;
     iHorizon_Empty: string;
+    iHorizon_Streaming: string;
+    iHorizon_Mute: string;
+    iHorizon_Deaf: string;
+    iHorizon_Camera: string;
+    iHorizon_DND: string;
+    iHorizon_Online: string;
+    iHorizon_Idle: string;
+    iHorizon_Invisible: string;
 }
 
 interface Vc {
