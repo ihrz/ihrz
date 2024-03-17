@@ -55,7 +55,7 @@ export const command: Command = {
 
                     description: "Unban all member of the guild",
                     description_localizations: {
-                        "fr": "Bannir tout le monde sur un serveur"
+                        "fr": "Débannir tout le monde sur un serveur"
                     },
 
                     type: ApplicationCommandOptionType.Subcommand
