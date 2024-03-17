@@ -23,7 +23,6 @@
   },
   "homepage": "https://github.com/ihrz/ihrz#readme",
   "dependencies": {
-    "@discordjs/voice": "^0.16.0",
     "axios": "1.6.7",
     "better-sqlite3": "^9.4.1",
     "colors": "^1.4.0",
@@ -39,16 +38,13 @@
     "js-yaml": "^4.1.0",
     "lavalink-client": "^2.1.4",
     "lyrics-searcher": "^1.0.58",
-    "mysql2": "^3.9.1",
     "ping": "^0.4.4",
     "quick.db": "^9.1.7",
-    "quickmongo": "^5.2.0",
     "toml": "^3.0.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
     "@types/js-yaml": "^4.0.5",
-    "@types/ms": "^0.7.31",
     "@types/ping": "^0.4.1",
     "tslib": "^2.6.0",
     "typescript": "^5.3.3"
