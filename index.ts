@@ -20,10 +20,12 @@
 */
 
 import 'colors';
+
+import { Client, Partials, GatewayIntentBits } from "discord.js";
 import { DefaultWebSocketManagerOptions } from "@discordjs/ws";
-import { ShardingManager } from 'discord.js';
+
 import config from './src/files/config.js';
-import logger from './src/core/logger.js';
+import core from "./src/core/core.js";
 
 if (config.discord.botPresence) {
 
@@ -38,6 +40,37 @@ if (config.discord.botPresence) {
 
 };
 
-let manager = new ShardingManager('./dist/src/core/bot.js', { totalShards: "auto", token: process.env.BOT_TOKEN || config.discord.token });
-manager.on("shardCreate", (shard) => logger.log(`${config.console.emojis.HOST} >> The Shard number ${shard.id} is launched !`.green));
-manager.spawn();
+let client = new Client({
+    intents: [
+        GatewayIntentBits.AutoModerationConfiguration,
+        GatewayIntentBits.AutoModerationExecution,
+        GatewayIntentBits.DirectMessageReactions,
+        GatewayIntentBits.DirectMessages,
+        GatewayIntentBits.DirectMessageTyping,
+        GatewayIntentBits.GuildEmojisAndStickers,
+        GatewayIntentBits.GuildIntegrations,
+        GatewayIntentBits.GuildInvites,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMessageTyping,
+        GatewayIntentBits.GuildModeration,
+        GatewayIntentBits.GuildPresences,
+        GatewayIntentBits.GuildScheduledEvents,
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildWebhooks,
+        GatewayIntentBits.MessageContent
+    ],
+    partials: [
+        Partials.Channel,
+        Partials.Message,
+        Partials.GuildMember,
+        Partials.GuildScheduledEvent,
+        Partials.User,
+        Partials.Reaction,
+        Partials.ThreadMember
+    ]
+});
+
+core(client);
