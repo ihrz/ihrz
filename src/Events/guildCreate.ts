@@ -145,7 +145,10 @@ export default async (client: Client, guild: Guild) => {
             }
         };
 
-        let embed = new EmbedBuilder().setColor("#ff0505").setTimestamp(guild.joinedTimestamp).setAuthor({name: `**I won a guild!**`})
+        let embed = new EmbedBuilder()
+            .setColor("#F51D00")
+            .setTimestamp(guild.joinedTimestamp)
+            .setDescription("## An Guild have removed me !")
             .addFields(
                 { name: "・Server", value: `\`\`\`py\n${guild.name} (ID: ${guild.id})\`\`\``, inline: true },
                 { name: "・Server Region", value: `\`\`\`py\n${guild.preferredLocale}\`\`\``, inline: true },
