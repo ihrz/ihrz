@@ -42,7 +42,10 @@ export default async (client: Client, guild: Guild) => {
 
             if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; };
 
-            let embed = new EmbedBuilder().setColor("#ff0505").setTimestamp(guild.joinedTimestamp).setAuthor({name: `**I lost a guild!**`})
+            let embed = new EmbedBuilder()
+                .setColor("#ff0505")
+                .setTimestamp(guild.joinedTimestamp)
+                .setDescription("## New Guild have removed me ...")
                 .addFields(
                     { name: "・Server", value: `\`\`\`py\n${guild.name} (ID: ${guild.id})\`\`\``, inline: true },
                     { name: "・Server Region", value: `\`\`\`py\n${guild.preferredLocale}\`\`\``, inline: true },
