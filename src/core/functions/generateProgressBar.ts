@@ -20,7 +20,6 @@
 */
 
 import { Emojis } from '../../../types/emojis';
-import { Client } from 'discord.js';
 
 import toml from 'toml';
 import fs from 'node:fs';
