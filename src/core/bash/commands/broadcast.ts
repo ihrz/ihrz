@@ -41,5 +41,5 @@ export default function (client: Client, args: string) {
         };
     });
 
-    logger.legacy(`* All are successfully sended`.grey().bgBlack());
+    logger.legacy(`* All are successfully sended`.gray().bgBlack());
 };

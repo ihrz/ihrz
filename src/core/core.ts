@@ -39,9 +39,9 @@ import { GiveawayManager } from 'discord-regiveaways';
 import { iHorizonTimeCalculator } from './functions/ms.js';
 
 export default async (client: Client) => {
-    logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".grey());
-    logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".grey());
-    logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".grey());
+    logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray());
+    logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray());
+    logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".gray());
 
     errorManager.uncaughtExceptionHandler();
 

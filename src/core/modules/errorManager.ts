@@ -37,7 +37,7 @@ export const uncaughtExceptionHandler = () => {
     process.on('uncaughtException', function (err) {
         if (!config.core.devMode) {
             logger.err(`${config.console.emojis.ERROR} >> Error detected`.red());
-            logger.err(`${config.console.emojis.OK} >> Save in the logs`.grey());
+            logger.err(`${config.console.emojis.OK} >> Save in the logs`.gray());
 
             let filesPath: string = `${process.cwd()}/src/files/error.log`;
             let CreateFile = fs.createWriteStream(filesPath, { flags: 'a' });

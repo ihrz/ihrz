@@ -43,7 +43,7 @@ enum Color {
     BGMagenta = '\x1b[45m',
     BGCyan = '\x1b[46m',
     BGWhite = '\x1b[47m',
-    grey = '\x1b[90m'
+    Gray = '\x1b[90m'
 }
 
 export {};
@@ -72,7 +72,7 @@ declare global {
         inverse(): string;
         hidden(): string;
         strikethrough(): string;
-        grey(): string;
+        gray(): string;
     }
 }
 
@@ -187,6 +187,6 @@ String.prototype.strikethrough = function (this: string): string {
 };
 
 // @ts-ignore
-String.prototype.grey = function (this: string): string {
-    return Color.grey + this + Color.Reset;
+String.prototype.gray = function (this: string): string {
+    return Color.Gray + this + Color.Reset;
 };

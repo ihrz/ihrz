@@ -59,7 +59,7 @@ export default {
             let userInfo = await userInfoResponse.json();
 
             if (!accessToken) {
-                logger.warn(`${config.console.emojis.OK} >> Error Code 500`.grey());
+                logger.warn(`${config.console.emojis.OK} >> Error Code 500`.gray());
                 res.sendStatus(500);
                 return;
             };
