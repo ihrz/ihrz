@@ -38,8 +38,9 @@ import {
     ApplicationCommandType
 } from 'discord.js';
 
+import { format } from '../../../core/functions/date-and-time.js';
+
 import { Command } from '../../../../types/command';
-import date from 'date-and-time';
 import logger from '../../../core/logger.js';
 
 export const command: Command = {
@@ -264,7 +265,7 @@ export const command: Command = {
                     embed.addFields({
                         name: `#${i}`, value: data.schedule_list_fields_embed
                             .replace("${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}",
-                                date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')
+                                format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')
                             )
                             .replace('${fetched[i]?.title}', fetched[i]?.title)
                             .replace('${fetched[i]?.description}', fetched[i]?.description)
@@ -327,7 +328,8 @@ export const command: Command = {
                         embeds: [
                             embed.addFields({
                                 name: data.schedule_create_embed_fields_name_confirm,
-                                value: date.format(date.addMilliseconds(new Date(), date0 as unknown as number), 'YYYY/MM/DD HH:mm:ss'), inline: true
+                                value: format(Date.now() + date0, 'YYYY/MM/DD HH:mm:ss'),
+                                inline: true
                             }).setTitle(data.schedule_create_embed_title_confirm.replace('${scheduleCode}', scheduleCode))
                         ],
                         content: data.schedule_create_confirm_msg

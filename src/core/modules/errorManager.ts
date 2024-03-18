@@ -19,12 +19,14 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import fs from 'node:fs';
-import date from 'date-and-time';
+import { format } from '../functions/date-and-time.js';
 import config from '../../files/config.js';
 import logger from '../logger.js';
-import couleurmdr from 'colors';
+
 import { MongoDriver } from 'quickmongo';
+import couleurmdr from 'colors';
+import fs from 'node:fs';
+
 
 let exec = async (driver: MongoDriver) => {
     await driver.close();
@@ -40,7 +42,7 @@ export const uncaughtExceptionHandler = () => {
 
             let filesPath: string = `${process.cwd()}/src/files/error.log`;
             let CreateFile = fs.createWriteStream(filesPath, { flags: 'a' });
-            let i = `[${date.format((new Date()), 'DD/MM/YYYY HH:mm:ss')}]\n${err.stack || err.message}\r\n`;
+            let i = `[${format((new Date()), 'DD/MM/YYYY HH:mm:ss')}]\n${err.stack || err.message}\r\n`;
 
             return CreateFile.write(i);
         };
