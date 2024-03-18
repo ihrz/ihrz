@@ -23,7 +23,7 @@ import { Logger } from "../../types/logger";
 import 'colors';
 
 function getCurrentTime(): string {
-    return (new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })
+    return (new Date()).toLocaleString()
 };
 
 let logger: Logger = {
