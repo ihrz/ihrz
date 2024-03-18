@@ -24,7 +24,6 @@ import config from '../../files/config.js';
 import logger from '../logger.js';
 
 import { MongoDriver } from 'quickmongo';
-import couleurmdr from 'colors';
 import fs from 'node:fs';
 
 
@@ -37,8 +36,8 @@ let exec = async (driver: MongoDriver) => {
 export const uncaughtExceptionHandler = () => {
     process.on('uncaughtException', function (err) {
         if (!config.core.devMode) {
-            logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> Error detected`));
-            logger.err(couleurmdr.gray(`${config.console.emojis.OK} >> Save in the logs`));
+            logger.err(`${config.console.emojis.ERROR} >> Error detected`.red());
+            logger.err(`${config.console.emojis.OK} >> Save in the logs`.grey());
 
             let filesPath: string = `${process.cwd()}/src/files/error.log`;
             let CreateFile = fs.createWriteStream(filesPath, { flags: 'a' });

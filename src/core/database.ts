@@ -21,10 +21,11 @@
 
 import { JSONDriver, MySQLDriver, QuickDB } from 'quick.db';
 import { MongoDriver } from 'quickmongo';
+
+import * as proc from './modules/errorManager.js';
 import config from '../files/config.js';
 import logger from './logger.js';
-import couleurmdr from 'colors';
-import * as proc from './modules/errorManager.js';
+
 
 let dbPromise: Promise<QuickDB> | undefined = undefined;
 
@@ -39,12 +40,12 @@ switch (config.database?.method) {
                 resolve(new QuickDB({ driver }));
                 proc.exit(driver);
             } catch (error) {
-                logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> ${(error as string).toString().split('\n')[0]}`));
-                logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> Database is unreachable (${config.database?.method}) !`));
-                logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> Please use a different database than ${config.database?.method} !`));
-                logger.err(couleurmdr.red(`${config.console.emojis.ERROR} >> in the /src/files/config.ts at: 'database.method'.`));
+                logger.err(`${config.console.emojis.ERROR} >> ${(error as string).toString().split('\n')[0]}`.red());
+                logger.err(`${config.console.emojis.ERROR} >> Database is unreachable (${config.database?.method}) !`.red());
+                logger.err(`${config.console.emojis.ERROR} >> Please use a different database than ${config.database?.method} !`.red());
+                logger.err(`${config.console.emojis.ERROR} >> in the /src/files/config.ts at: 'database.method'.`.red());
 
-                logger.err(couleurmdr.bgRed(`Exiting the code...`));
+                logger.err(`Exiting the code...`.bgRed());
 
                 process.exit();
             }
@@ -52,14 +53,14 @@ switch (config.database?.method) {
         break;
     case 'JSON':
         dbPromise = new Promise<QuickDB>((resolve, reject) => {
-            logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`));
+            logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green());
             resolve(new QuickDB({ driver: new JSONDriver() }));
         });
         break;
     case 'MYSQL':
         dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
-            logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`));
-            
+            logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green());
+
             let mysql = new MySQLDriver({
                 host: config.database?.mySQL?.host,
                 user: config.database?.mySQL?.user,
@@ -78,16 +79,16 @@ switch (config.database?.method) {
         break;
     case 'SQLITE':
         dbPromise = new Promise<QuickDB>((resolve, reject) => {
-            logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`));
+            logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
             resolve(new QuickDB({ filePath: `${process.cwd()}/src/files/db.sqlite` }));
         });
         break;
     default:
         dbPromise = new Promise<QuickDB>((resolve, reject) => {
-            logger.log(couleurmdr.green(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`));
+            logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green());
             resolve(new QuickDB({ filePath: `${process.cwd()}/src/files/db.sqlite` }));
         })
         break;
-}
+};
 
 export default dbPromise as Promise<QuickDB<any>>

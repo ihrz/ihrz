@@ -22,7 +22,6 @@
 import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature } from 'discord.js';
 import { PfpsManager_Init } from "../core/modules/pfpsManager.js";
 import logger from "../core/logger.js";
-import couleurmdr from 'colors';
 import config from "../files/config.js";
 
 import { OwnIHRZ } from "../core/modules/ownihrzManager.js";
@@ -43,7 +42,7 @@ export default async (client: Client) => {
                     });
                 }
             } catch (error: any) {
-                logger.err(couleurmdr.red(`Error fetching invites for guild ${guild.id}: ${error}`));
+                logger.err(`Error fetching invites for guild ${guild.id}: ${error}`.red());
             };
         });
     };

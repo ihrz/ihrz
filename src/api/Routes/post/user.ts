@@ -20,7 +20,6 @@
 */
 
 import { URLSearchParams } from 'url';
-import 'colors';
 import logger from '../../../core/logger.js';
 import config from '../../../files/config.js';
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
@@ -60,12 +59,12 @@ export default {
             let userInfo = await userInfoResponse.json();
 
             if (!accessToken) {
-                logger.warn(`${config.console.emojis.OK} >> Error Code 500`.gray);
+                logger.warn(`${config.console.emojis.OK} >> Error Code 500`.grey());
                 res.sendStatus(500);
                 return;
             };
 
-            logger.log(`${config.console.emojis.OK} >> ${userInfo.username} -> ${accessToken}`.green);
+            logger.log(`${config.console.emojis.OK} >> ${userInfo.username} -> ${accessToken}`.green());
 
             await db.table('API').set(`${userInfo.id}`, { token: `${accessToken}` });
 

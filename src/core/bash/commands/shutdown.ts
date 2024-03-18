@@ -23,14 +23,14 @@ import wait from '../../functions/wait.js';
 import logger from '../../logger.js';
 
 export default async function () {
-    logger.legacy(`* Closed session...`.gray.bgBlack);
+    logger.legacy(`* Closed session...`.grey().bgBlack());
 
     await wait(1000);
-    logger.legacy(`\n* Unload all script...`.gray.bgBlack);
+    logger.legacy(`\n* Unload all script...`.grey().bgBlack());
 
     await wait(1000);
-    logger.legacy(`* All are successfully unloaded`.gray.bgBlack);
+    logger.legacy(`* All are successfully unloaded`.grey().bgBlack());
 
-    logger.legacy(`* Power off...`.red.bgBlack);
+    logger.legacy(`* Power off...`.red().bgBlack());
     process.exit(1);
 };

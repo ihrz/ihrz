@@ -33,16 +33,15 @@ import emojis from './modules/emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData';
 import { readdirSync } from "node:fs";
-import couleurmdr from "colors";
 import commandsSync from './commandsSync.js';
 import config from '../files/config.js';
 import { GiveawayManager } from 'discord-regiveaways';
 import { iHorizonTimeCalculator } from './functions/ms.js';
 
 export default async (client: Client) => {
-    logger.legacy(couleurmdr.gray("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz)."));
-    logger.legacy(couleurmdr.gray("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0."));
-    logger.legacy(couleurmdr.gray("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0"));
+    logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".grey());
+    logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".grey());
+    logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".grey());
 
     errorManager.uncaughtExceptionHandler();
 
@@ -74,7 +73,7 @@ export default async (client: Client) => {
     emojis(client);
 
     client.db = db;
-    client.content = []
+    client.content = [];
     client.invites = new Collection();
     client.timeCalculator = new iHorizonTimeCalculator();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
@@ -91,11 +90,11 @@ export default async (client: Client) => {
 
     client.login(process.env.BOT_TOKEN || config.discord.token).then(() => {
         commandsSync(client).then(() => {
-            logger.log(couleurmdr.magenta("(_) /\\  /\\___  _ __(_)_______  _ __  "));
-            logger.log(couleurmdr.magenta("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ "));
-            logger.log(couleurmdr.magenta("| / __  / (_) | |  | |/ / (_) | | | |"));
-            logger.log(couleurmdr.magenta(`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`));
-            logger.log(couleurmdr.magenta(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`));
+            logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta());
+            logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta());
+            logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta());
+            logger.log(`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`.magenta());
+            logger.log(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta());
         });
     });
 };

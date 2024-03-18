@@ -26,7 +26,6 @@ function format(date: Date | number, formatString: string): string {
     ];
     const days: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-    // Si date est un nombre, le considérer comme un timestamp UNIX
     if (typeof date === 'number') {
         date = new Date(date);
     }
