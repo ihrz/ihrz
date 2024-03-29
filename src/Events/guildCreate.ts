@@ -145,14 +145,18 @@ export default async (client: Client, guild: Guild) => {
             }
         };
 
-        let embed = new EmbedBuilder().setColor("#ff0505").setTimestamp(guild.joinedTimestamp).setAuthor({name: `**I won a guild!**`})
-            .addFields(
-                { name: "・Server", value: `\`\`\`py\n${guild.name} (ID: ${guild.id})\`\`\``, inline: true },
-                { name: "・Server Region", value: `\`\`\`py\n${guild.preferredLocale}\`\`\``, inline: true },
-                { name: "・MemberCount", value: `\`\`\`py\n${guild.memberCount} members\`\`\``, inline: true },
-                { name: "・Invite Link", value: `\`\`\`py\n${await createInvite(channel as BaseGuildTextChannel)}\`\`\``, inline: true },
-                { name: "・Vanity URL", value: `\`\`\`py\n${i || "None"}\`\`\``, inline: true },
-                { name: "・My Guild", value: `\`\`\`py\n${client.guilds.cache.size.toString()}\`\`\``, inline: true })
+        let embed = new EmbedBuilder()
+            .setColor("#00FF00")
+            .setTimestamp(guild.joinedTimestamp)
+            .setDescription(`**A new guild added iHorizon !**`)
+            .addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
+                { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
+                { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
+                { name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
+                { name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
+                { name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
+                { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true }
+            )
             .setThumbnail(guild.iconURL())
             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 

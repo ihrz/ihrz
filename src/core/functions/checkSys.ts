@@ -20,7 +20,6 @@
 */
 
 import fs from 'node:fs';
-import couleurmdr from 'colors';
 import axios from 'axios';
 import config from '../../files/config.js';
 import logger from '../logger.js';
@@ -30,7 +29,7 @@ let INDEX_HTML_LINK: string = 'https://raw.githubusercontent.com/ihrz/ihrz/main/
 export async function Html() {
     // check if the file exists
     if (!fs.existsSync(`${process.cwd()}/src/api/index.html`)) {
-        logger.warn(couleurmdr.red(`Error: File not found! (${process.cwd()}/src/api/index.html)`));
+        logger.warn(`Error: File not found! (${process.cwd()}/src/api/index.html)`.red());
         let response = await axios.get(INDEX_HTML_LINK);
         let regex = /\/\*\*\/\"(.*)\"\/\*\*\//;
         let replaced = response.data.replace(regex, `/**/\"${config.api.oauth2Link}\"/**/`);
@@ -42,6 +41,6 @@ export async function Html() {
         );
 
         await Promise.all([writeFilePromise]);
-        logger.log(couleurmdr.green(`Success: File created! (${process.cwd()}/src/api/index.html)`));
+        logger.log(`Success: File created! (${process.cwd()}/src/api/index.html)`.green());
     };
 };

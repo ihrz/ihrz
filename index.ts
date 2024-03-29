@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import 'colors';
+import './src/core/functions/colors.js';
 
 import { Client, Partials, GatewayIntentBits } from "discord.js";
 import { DefaultWebSocketManagerOptions } from "@discordjs/ws";
