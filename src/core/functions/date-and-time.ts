@@ -28,6 +28,8 @@ function format(date: Date | number, formatString: string): string {
 
     if (typeof date === 'number') {
         date = new Date(date);
+    } else if (!(date instanceof Date)) {
+        throw new Error('Invalid date format');
     }
 
     return formatString.replace(/(YYYY|YY|MMM|MM|DD|ddd|HH|mm|ss)/g, (match: string) => {
