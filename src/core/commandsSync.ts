@@ -21,7 +21,6 @@
 
 import { REST, Routes, Client, ApplicationCommand } from "discord.js";
 import config from "../files/config.js";
-import couleurmdr from 'colors';
 import logger from "./logger.js";
 
 const synchronizeCommands = async (client: Client): Promise<void> => {
@@ -29,8 +28,8 @@ const synchronizeCommands = async (client: Client): Promise<void> => {
         try {
             let rest = new REST().setToken(process.env.BOT_TOKEN || config.discord.token as string);
 
-            logger.log(couleurmdr.white(`${config.console.emojis.LOAD} >> Currently ${client.commands?.size || 0} of application (/) commands awaiting for refreshing.`));
-            logger.log(couleurmdr.white(`${config.console.emojis.LOAD} >> Currently ${client.applicationsCommands?.size || 0} of application ([]) commands awaiting for refreshing.`));
+            logger.log(`${config.console.emojis.LOAD} >> Currently ${client.commands?.size || 0} of application (/) commands awaiting for refreshing.`.white());
+            logger.log(`${config.console.emojis.LOAD} >> Currently ${client.applicationsCommands?.size || 0} of application ([]) commands awaiting for refreshing.`.white());
 
             let appCmds = (client.applicationsCommands || []).map((command) => ({
                 name: command.name,
@@ -53,7 +52,7 @@ const synchronizeCommands = async (client: Client): Promise<void> => {
                 { body: allCommands }
             );
 
-            logger.log(couleurmdr.white(`${config.console.emojis.OK} >> Currently ${(data as unknown as ApplicationCommand<{}>[]).length} of application are now synchronized.`));
+            logger.log(`${config.console.emojis.OK} >> Currently ${(data as unknown as ApplicationCommand<{}>[]).length} of application are now synchronized.`.white());
             resolve();
         } catch (error: any) {
             logger.err(error);

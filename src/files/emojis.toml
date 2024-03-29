@@ -72,6 +72,22 @@ iHorizon_Pointer = "<:iHorizon_Pointer:1207955173524111450>"
 
 iHorizon_Empty = "<:iHorizon_Empty:1210211367391600671>"
 
+iHorizon_Streaming = "<:iHorizon_Streaming:1218930593593692250>"
+
+iHorizon_Mute = "<:iHorizon_Mute:1218930394855112735>"
+
+iHorizon_Deaf = "<:iHorizon_Deaf:1218930397786800189>"
+
+iHorizon_Camera = "<a:iHorizon_Camera:1218936844075667496>"
+
+iHorizon_DND = "<a:iHorizon_DND:1218939366571774055>"
+
+iHorizon_Online = "<a:iHorizon_Online:1218948269825327247>"
+
+iHorizon_Idle = "<a:iHorizon_Idle:1218949034291494993>"
+
+iHorizon_Invisible = "<a:iHorizon_Invisible:1218949698694549585>"
+
 [vc]
 
 Name = "<:iHorizon_VC_Name:1210204645859922010>"

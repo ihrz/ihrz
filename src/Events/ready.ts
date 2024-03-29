@@ -22,11 +22,10 @@
 import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature } from 'discord.js';
 import { PfpsManager_Init } from "../core/modules/pfpsManager.js";
 import logger from "../core/logger.js";
-import couleurmdr from 'colors';
 import config from "../files/config.js";
 
 import { OwnIHRZ } from "../core/modules/ownihrzManager.js";
-import date from 'date-and-time';
+import { format } from '../core/functions/date-and-time.js';
 
 export default async (client: Client) => {
 
@@ -43,7 +42,7 @@ export default async (client: Client) => {
                     });
                 }
             } catch (error: any) {
-                logger.err(couleurmdr.red(`Error fetching invites for guild ${guild.id}: ${error}`));
+                logger.err(`Error fetching invites for guild ${guild.id}: ${error}`.red());
             };
         });
     };
@@ -84,7 +83,7 @@ export default async (client: Client) => {
             "Don't act like you know my secret",
             "I don't commit any flaming stuff",
             "I don't have any legs"
-     ];
+        ];
         let randomStatus = status[Math.floor(Math.random() * status.length)];
         client.user?.setPresence({ activities: [{ name: randomStatus, type: ActivityType.Custom }] });
     };
@@ -102,7 +101,7 @@ export default async (client: Client) => {
 
             for (let ScheduleId in array.value) {
                 if (array.value[ScheduleId]?.expired <= dateNow) {
-                    desc += `${date.format(new Date(array.value[ScheduleId]?.expired), 'YYYY/MM/DD HH:mm:ss')}`;
+                    desc += `${format(new Date(array.value[ScheduleId]?.expired), 'YYYY/MM/DD HH:mm:ss')}`;
                     desc += `\`\`\`${array.value[ScheduleId]?.title}\`\`\``;
                     desc += `\`\`\`${array.value[ScheduleId]?.description}\`\`\``;
 

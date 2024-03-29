@@ -24,7 +24,7 @@ import express from 'express';
 import execute_handler from './handler.js';
 import https from 'https';
 import bodyParser from 'body-parser';
-import 'colors';
+
 import logger from '../core/logger.js';
 import config from '../files/config.js';
 import fs from 'node:fs';
@@ -54,6 +54,6 @@ if (config.api.useHttps) {
     });
 } else {
     app.listen(config.api.port, async function () {
-        await logger.log(`${config.console.emojis.HOST} >> Unsecure App listening on "${apiUrlParser.LoginURL}".`.green);
+        await logger.log(`${config.console.emojis.HOST} >> Unsecure App listening on "${apiUrlParser.LoginURL}".`.green());
     });
 };
