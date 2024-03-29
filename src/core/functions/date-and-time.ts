@@ -35,22 +35,31 @@ function format(date: Date | number, formatString: string): string {
     return formatString.replace(/(YYYY|YY|MMM|MM|DD|ddd|HH|mm|ss)/g, (match: string) => {
         switch (match) {
             case 'YYYY':
+                // @ts-ignore
                 return date.getFullYear().toString();
             case 'YY':
+                // @ts-ignore
                 return ('' + date.getFullYear()).slice(-2);
             case 'MMM':
+                // @ts-ignore
                 return months[date.getMonth()];
             case 'MM':
+                // @ts-ignore
                 return ('0' + (date.getMonth() + 1)).slice(-2);
             case 'DD':
+                // @ts-ignore
                 return ('0' + date.getDate()).slice(-2);
             case 'ddd':
+                // @ts-ignore
                 return days[date.getDay()];
             case 'HH':
+                // @ts-ignore
                 return ('0' + date.getHours()).slice(-2);
             case 'mm':
+                // @ts-ignore
                 return ('0' + date.getMinutes()).slice(-2);
             case 'ss':
+                // @ts-ignore
                 return ('0' + date.getSeconds()).slice(-2);
             default:
                 return match;
