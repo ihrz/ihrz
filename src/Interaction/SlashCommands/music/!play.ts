@@ -25,11 +25,11 @@ import {
     Client,
     EmbedBuilder,
     GuildMember,
-    GuildVoiceChannelResolvable,
     time,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
+import { SearchPlatform } from 'lavalink-client';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -52,7 +52,7 @@ export default {
             textChannelId: interaction.channelId,
         });
 
-        let res = await player.search({ query: check as string }, interaction.user)
+        let res = await player.search({ query: check as string, source: interaction.options.getString('source') as SearchPlatform }, interaction.user)
 
         if (res.tracks.length === 0) {
             let results = new EmbedBuilder()
