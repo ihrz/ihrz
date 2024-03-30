@@ -122,7 +122,7 @@ export const command: Command = {
             description_localizations: {
                 "fr": "Obtenez la chanson en cours de lecture"
             },
-            
+
             type: 1,
         },
         {
@@ -145,6 +145,26 @@ export const command: Command = {
 
             type: 1,
             options: [
+                {
+                    name: 'source',
+                    type: ApplicationCommandOptionType.String,
+
+                    description: "Select an source of music",
+                    description_localizations: {
+                        'fr': "Choisir la source de la musique"
+                    },
+
+                    choices: [
+                        { name: "Youtube", value: "ytsearch" },
+                        { name: "Youtube Music", value: "ytmsearch" },
+                        { name: "Soundcloud", value: "scsearch" },
+                        { name: "Deezer", value: "dzsearch" },
+                        { name: "Spotify", value: "spsearch" },
+                        { name: "Apple Music", value: "amsearch" },
+                    ],
+
+                    required: true
+                },
                 {
                     name: 'title',
                     type: ApplicationCommandOptionType.String,
@@ -196,7 +216,7 @@ export const command: Command = {
         },
         {
             name: 'skip',
-            
+
             description: 'Skip the current playing song!',
             description_localizations: {
                 "fr": "Passer la chanson en cours de lecture"
