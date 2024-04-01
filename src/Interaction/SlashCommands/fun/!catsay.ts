@@ -34,8 +34,6 @@ import {
   EmbedBuilder,
 } from 'discord.js';
 
-import axios, { AxiosResponse } from 'axios';
-
 export default {
   run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
@@ -46,21 +44,23 @@ export default {
       .setColor('#000000')
       .setImage('attachment://all-human-have-rights-elektra.png')
       .setTimestamp()
+      .setImage(`attachment://catsay.jpg`)
       .setFooter({ text: 'iHorizon x ElektraBots', iconURL: "attachment://icon.png" });
 
     let imgs: AttachmentBuilder | undefined;
 
-    let response: AxiosResponse = await axios.get(link, { responseType: 'arraybuffer' });
-    imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'all-humans-have-right-elektra.png' });
-    embed.setImage(`attachment://all-humans-have-right-elektra.png`);
+    imgs = new AttachmentBuilder(link, { name: 'catsay.jpg' });
 
-    if (imgs) {
-      await interaction.editReply({
-        embeds: [embed],
-        files: [imgs, { attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
-      });
-    };
-
+    await interaction.editReply({
+      embeds: [embed],
+      files: [
+        imgs,
+        {
+          attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png'
+        }
+      ]
+    });
+    
     return;
   },
 };
