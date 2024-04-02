@@ -86,9 +86,8 @@ export default async (client: Client) => {
             var data = fs.readFileSync(filePath);
 
             if (commandName) { createFiles.write(`   ${data.toString().split('\n').length}  ${line}\r\n`); };
-        } else {
-            if (!commandName) { } else { logger.legacy(`Command not found: ${commandName}`); };
-        }
+        } else if (commandName) logger.legacy(`Command not found: ${commandName}`);
+
         rl.prompt();
     });
 };
