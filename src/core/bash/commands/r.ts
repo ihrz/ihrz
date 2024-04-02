@@ -19,18 +19,10 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import logger from "../../logger.js";
+import { Client } from 'discord.js';
+import { execSync } from 'child_process';
 
-export default function () {
-    logger.legacy(
-        `iHorizon bash,
-These shell commands are defined internally.  Type 'help' to see this list.
+export default async function (client: Client, args: string) {
 
- help                                         Show this message
- broadcast                                    Send a message to all of iHorizon guild
- shutdown                                     Shutdown the bot
- history                                      Show the bash history
- leave                                        Leave a guild with them id
- r                                            Run an bash command`
-    );
+    execSync(args, { stdio: [0, 1, 2], cwd: process.cwd() });
 };
