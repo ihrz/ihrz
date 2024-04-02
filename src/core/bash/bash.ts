@@ -26,6 +26,8 @@ import fs from 'node:fs';
 import config from "../../files/config.js";
 import path from 'path';
 import { Client } from "discord.js";
+import wait from "../functions/wait.js";
+import getIP from "../functions/getIp.js";
 
 export default async (client: Client) => {
     if (!config.core.bash) return;
@@ -39,11 +41,11 @@ export default async (client: Client) => {
     let dateStr = `${now2.toLocaleString('default', { day: '2-digit' })} ${now2.toLocaleString('default', { month: 'short' })} ${now2.getFullYear().toString().substr(-2)} ${now2.toLocaleTimeString('en-US', { hour12: false })} 2023`.toString();
 
     logger.legacy(`* iHorizon bash terminal is in power on...`.gray().bgBlack());
-    await client.functions.wait(1000);
+    await wait(1000);
     logger.legacy(`* iHorizon bash terminal is in booting...`.gray().bgBlack());
-    await client.functions.wait(1000);
+    await wait(1000);
     logger.legacy(`* iHorizon bash terminal is in loading...`.gray().bgBlack());
-    await client.functions.wait(1000);
+    await wait(1000);
     logger.legacy(`* iHorizon has been loaded !`.gray().bgBlack());
 
     let now = new Date();
@@ -67,8 +69,8 @@ export default async (client: Client) => {
     
      System information as of mar.  ${formattedDate}
      Memory usage:                  ${os.freemem}%
-     IPv4 address for eth0:         ${'localhost'}
-     IPv6 address for eth0:         None
+     IPv4 address for eth0:         ${await getIP({ useIPv6: false })}
+     IPv6 address for eth0:         ${await getIP({ useIPv6: true })}
     
     
     Last login: ${LoadFiles} from ${LoadFiles2}`);
