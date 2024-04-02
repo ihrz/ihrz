@@ -73,7 +73,7 @@ export default async (client: Client) => {
     
     Last login: ${LoadFiles} from ${LoadFiles2}`);
 
-    rl.setPrompt('kisakay@ihorizon'.green() + ":".white() + "~".blue() + "$ ".white());
+    rl.setPrompt('kisakay@ihorizon'.green() + ":".white() + `${process.cwd()}`.blue() + "$ ".white());
     rl.prompt();
     rl.on('line', async (line) => {
         let [commandName, ...args] = line.trim().split(' ');
@@ -84,7 +84,7 @@ export default async (client: Client) => {
             command(client, args.join(' '));
 
             var data = fs.readFileSync(filePath);
-            
+
             if (commandName) { createFiles.write(`   ${data.toString().split('\n').length}  ${line}\r\n`); };
         } else {
             if (!commandName) { } else { logger.legacy(`Command not found: ${commandName}`); };
