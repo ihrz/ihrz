@@ -56,9 +56,11 @@ export default {
                 player.stopPlaying();
             }
 
-            await interaction.editReply({
+            await interaction.deleteReply();
+            await interaction.followUp({
                 content: data.skip_command_work
-                    .replace("{queue}", player.queue.current?.info.title as string)
+                    .replace("{queue}", player.queue.current?.info.title as string),
+                ephemeral: true
             });
 
             (channel as BaseGuildTextChannel).send({
