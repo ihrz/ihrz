@@ -75,6 +75,19 @@ export default {
 
         await player.queue.add(res.loadType === "playlist" ? res.tracks : res.tracks[0]);
 
+        let channel = client.channels.cache.get(player.textChannelId as string);
+
+        (channel as BaseGuildTextChannel)?.send({
+            embeds: [
+                new EmbedBuilder()
+                    .setColor(2829617)
+                    .setDescription(data.event_mp_audioTrackAdd
+                        .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
+                        .replace("${track.title}", res.tracks[0].info.title as string)
+                    )
+            ]
+        });
+        
         if (!player.playing) {
             await player.play();
         };
@@ -115,13 +128,6 @@ export default {
             `${time(new Date(), 'R')}: ${player.queue.current?.requester} - ${player.queue.current?.info.title} | ${player.queue.current?.info.uri} by ${player.queue.current?.requester}`
         );
 
-        let channel = client.channels.cache.get(player.textChannelId as string);
-
-        (channel as BaseGuildTextChannel)?.send({
-            content: data.event_mp_audioTrackAdd
-                .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-                .replace("${track.title}", res.tracks[0].info.title as string)
-        });
         setTimeout(deleteContent, 4000);
         return;
     },
