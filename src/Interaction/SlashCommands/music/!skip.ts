@@ -23,6 +23,7 @@ import {
     BaseGuildTextChannel,
     ChatInputCommandInteraction,
     Client,
+    EmbedBuilder,
     Guild,
     GuildMember,
 } from 'discord.js';
@@ -56,17 +57,22 @@ export default {
                 player.stopPlaying();
             }
 
+            (channel as BaseGuildTextChannel).send({
+                embeds: [
+                    new EmbedBuilder()
+                        .setColor(2829617)
+                        .setDescription(data.event_mp_playerSkip
+                            .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
+                            .replace("${track.title}", oldName as string)
+                        )
+                ]
+            });
+            
             await interaction.deleteReply();
             await interaction.followUp({
                 content: data.skip_command_work
                     .replace("{queue}", player.queue.current?.info.title as string),
                 ephemeral: true
-            });
-
-            (channel as BaseGuildTextChannel).send({
-                content: data.event_mp_playerSkip
-                    .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-                    .replace("${track.title}", oldName as string)
             });
 
             return;

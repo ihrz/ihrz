@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client } from 'discord.js';
+import { BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
 import { LavalinkManager } from "lavalink-client";
 
 import config from '../../files/config.js';
@@ -53,12 +53,19 @@ export default async (client: Client) => {
         let data = await client.functions.getLanguageData(player.guildId);
 
         const channel = client.channels.cache.get(player.textChannelId as string);
+
         (channel as BaseGuildTextChannel).send({
-            content: data.event_mp_playerStart
-                .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-                .replace("${track.title}", track.info.title)
-                .replace("${queue.channel.name}", `<#${player.voiceChannelId}>`)
+            embeds: [
+                new EmbedBuilder()
+                    .setColor(2829617)
+                    .setDescription(data.event_mp_playerStart
+                        .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
+                        .replace("${track.title}", track.info.title)
+                        .replace("${queue.channel.name}", `<#${player.voiceChannelId}>`)
+                    )
+            ]
         });
+
     });
 
     client.player.on("queueEnd", async player => {
