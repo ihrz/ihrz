@@ -23,11 +23,13 @@ function maskLink(input: string): string {
     let blacklistContent = [
         "http://",
         "https://",
-        ".gg/"
+        "gg/",
+        "@everyone",
+        "@here"
     ];
 
     for (let content of blacklistContent) {
-        if (input.includes(content)) return `[Hidden Link] ${input.replace(/./g, "*")}`;
+        if (input.includes(content)) return `Hidden Link`;
     };
     return input;
 };
