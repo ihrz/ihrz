@@ -19,19 +19,41 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-function maskLink(input: string): string {
-    let blacklistContent = [
-        "http://",
-        "https://",
-        "gg/",
-        "@everyone",
-        "@here"
-    ];
+const endpoint_v4 = 'https://api.ipify.org';
+const endpoint_v6 = 'https://api6.ipify.org';
 
-    for (let content of blacklistContent) {
-        if (input.includes(content)) return `Hidden Link`;
-    };
-    return input;
+interface CacheValueTyping {
+    ipv4: string;
+    ipv6: string;
 };
 
-export default maskLink;
+const CacheValue: CacheValueTyping = {
+    ipv4: '',
+    ipv6: ''
+}
+
+export default async function getIP({ useIPv6 = false }: { useIPv6?: boolean } = {}) {
+    const endpoint = useIPv6 ? endpoint_v6 : endpoint_v4;
+
+    if (useIPv6 && CacheValue.ipv6 !== '') {
+        return CacheValue.ipv6;
+    } else if (!useIPv6 && CacheValue.ipv4 !== '') {
+        return CacheValue.ipv4;
+    }
+
+    const response = await fetch(endpoint, { method: 'GET' });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch IP address');
+    }
+
+    const ipAddress = await response.text();
+
+    if (useIPv6) {
+        CacheValue.ipv6 = ipAddress;
+    } else {
+        CacheValue.ipv4 = ipAddress;
+    }
+
+    return ipAddress;
+};

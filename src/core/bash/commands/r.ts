@@ -19,19 +19,10 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-function maskLink(input: string): string {
-    let blacklistContent = [
-        "http://",
-        "https://",
-        "gg/",
-        "@everyone",
-        "@here"
-    ];
+import { Client } from 'discord.js';
+import { execSync } from 'child_process';
 
-    for (let content of blacklistContent) {
-        if (input.includes(content)) return `Hidden Link`;
-    };
-    return input;
+export default async function (client: Client, args: string) {
+
+    execSync(args, { stdio: [0, 1, 2], cwd: process.cwd() });
 };
-
-export default maskLink;

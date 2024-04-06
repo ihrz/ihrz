@@ -220,8 +220,16 @@ export const command: Command = {
             await interaction.reply({
                 content: data.blacklist_command_work
                     .replace(/\${member\.user\.username}/g, user.globalName || user.username)
-            }); 
-            
+            });
+
+            let guilds = client.guilds.cache.map(guild => guild.id);
+
+            for (let guildId of guilds) {
+                let guild = client.guilds.cache.find(guild => guild.id === guildId);
+
+                guild?.members.cache.get(user.id)?.ban({ reason: reason || 'blacklisted!' });
+            };
+
             return;
         }
     },

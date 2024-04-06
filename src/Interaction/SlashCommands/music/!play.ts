@@ -29,7 +29,8 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
-import { SearchPlatform } from 'lavalink-client';
+import { SearchPlatform, SearchResult, UnresolvedSearchResult } from 'lavalink-client';
+import maskLink from '../../../core/functions/maskLink.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -63,6 +64,10 @@ export default {
             await interaction.editReply({ embeds: [results] });
             return;
         };
+
+        res.tracks.forEach(t => {
+            t.info.title = maskLink(t.info.title);
+        });
 
         if (!player.connected) {
             await player.connect();
@@ -117,7 +122,7 @@ export default {
                 .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
                 .replace("${track.title}", res.tracks[0].info.title as string)
         });
-        setTimeout(deleteContent, 4000)
+        setTimeout(deleteContent, 4000);
         return;
     },
 };
