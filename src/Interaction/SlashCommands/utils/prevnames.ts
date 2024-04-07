@@ -128,23 +128,29 @@ export const command: Command = {
 
         collector.on('collect', async (interaction_2: { customId: string; }) => {
             if (interaction_2.customId === 'previousPage') {
+
                 currentPage = (currentPage - 1 + pages.length) % pages.length;
+
             } else if (interaction_2.customId === 'nextPage') {
                 currentPage = (currentPage + 1) % pages.length;
+
             } else if (interaction_2.customId === 'trash-prevnames-embed') {
+
                 if (interaction.user.id === user.id) {
                     let table = client.db.table("PREVNAMES");
 
                     await table.delete(`${user.id}`);
-                    
+
                     messageEmbed.edit({
                         embeds: [],
                         components: [],
+                        files: [],
                         content: data.prevnames_data_erased
                     })
                     return;
+
                 }
-            }
+            };
 
             messageEmbed.edit({ embeds: [createEmbed()] });
         });
