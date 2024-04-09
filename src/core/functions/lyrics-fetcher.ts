@@ -25,9 +25,7 @@
 */
 import { Client as GeniusClient } from 'genius-lyrics';
 
-let client: GeniusClient;
-
-export interface LyricsData {
+interface LyricsData {
     title: string;
     fullTitle: string;
     id: number;
@@ -43,38 +41,45 @@ export interface LyricsData {
     lyrics: string;
 }
 
-export function Lyrics(apiKey?: string, force?: boolean) {
-    if (!client && !force) client = new GeniusClient(apiKey);
-    return { search, client };
-}
+export class LyricsManager {
+    private client: GeniusClient;
 
-function search(query: string) {
-    return new Promise<LyricsData | null>((resolve, reject) => {
-        if (typeof query !== 'string') return reject(new TypeError(`Expected search query to be a string, received "${typeof query}"!`));
+    constructor(apiKey?: string, force?: boolean) {
+        if (!this.client && !force) {
+            this.client = new GeniusClient(apiKey);
+        }
+    }
 
-        client.songs
-            .search(query)
-            .then(async (songs) => {
-                const data = {
-                    title: songs[0].title,
-                    fullTitle: songs[0].fullTitle,
-                    id: songs[0].id,
-                    thumbnail: songs[0].thumbnail,
-                    image: songs[0].image,
-                    url: songs[0].url,
-                    artist: {
-                        name: songs[0].artist.name,
-                        id: songs[0].artist.id,
-                        url: songs[0].artist.url,
-                        image: songs[0].artist.image
-                    },
-                    lyrics: await songs[0].lyrics(false)
-                };
+    public async search(query: string): Promise<LyricsData | null> {
+        return new Promise<LyricsData | null>((resolve, reject) => {
+            if (typeof query !== 'string') {
+                return reject(new TypeError(`Expected search query to be a string, received "${typeof query}"!`));
+            }
 
-                resolve(data);
-            })
-            .catch(() => {
-                reject(new Error('Could not parse lyrics'));
-            });
-    });
+            this.client.songs
+                .search(query)
+                .then(async (songs) => {
+                    const data = {
+                        title: songs[0].title,
+                        fullTitle: songs[0].fullTitle,
+                        id: songs[0].id,
+                        thumbnail: songs[0].thumbnail,
+                        image: songs[0].image,
+                        url: songs[0].url,
+                        artist: {
+                            name: songs[0].artist.name,
+                            id: songs[0].artist.id,
+                            url: songs[0].artist.url,
+                            image: songs[0].artist.image
+                        },
+                        lyrics: await songs[0].lyrics(false)
+                    };
+
+                    resolve(data);
+                })
+                .catch(() => {
+                    reject(new Error('Could not parse lyrics'));
+                });
+        });
+    }
 };

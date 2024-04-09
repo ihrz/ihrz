@@ -37,6 +37,7 @@ import commandsSync from './commandsSync.js';
 import config from '../files/config.js';
 import { GiveawayManager } from 'discord-regiveaways';
 import { iHorizonTimeCalculator } from './functions/ms.js';
+import { LyricsManager } from './functions/lyrics-fetcher.js';
 
 export default async (client: Client) => {
     logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray());
@@ -76,6 +77,7 @@ export default async (client: Client) => {
     client.content = [];
     client.invites = new Collection();
     client.timeCalculator = new iHorizonTimeCalculator();
+    client.lyricsSearcher = new LyricsManager();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 
     let handlerPath = `${process.cwd()}/dist/src/core/handlers`;

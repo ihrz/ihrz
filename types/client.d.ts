@@ -30,6 +30,7 @@ import { GiveawayManager } from "discord-regiveaways";
 import { QueueChangesWatcher, LavalinkManager } from "lavalink-client";
 import { BotContent } from './botContent'
 import { iHorizonTimeCalculator } from "../src/core/functions/ms";
+import { LyricsManager } from "../src/core/functions/lyrics-fetcher";
 
 declare module 'discord.js' {
     export interface Client {
@@ -46,6 +47,7 @@ declare module 'discord.js' {
         iHorizon_Emojis: Emojis,
         giveawaysManager: GiveawayManager,
         content: BotContent[],
-        timeCalculator: iHorizonTimeCalculator
+        timeCalculator: iHorizonTimeCalculator,
+        lyricsSearcher: LyricsManager
     }
 };

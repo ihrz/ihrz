@@ -32,45 +32,40 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         try {
-            let title = interaction.options.getString("title");
-            let artist = interaction.options.getString("artist");
+            client.lyricsSearcher.search(interaction.options.getString("query")!)
+                .then(async response => {
+                    let trimmedLyrics = response?.lyrics?.substring(0, 1997);
 
-            // Google(
-            //     `${artist} - ${title}`,
-            // )
-            //     .then(async response => {
-            //         let trimmedLyrics = response.lyrics?.substring(0, 1997);
+                    let embed = new EmbedBuilder()
+                        .setTitle(response?.title || 'Unknow title')
+                        .setURL(response?.url!)
+                        .setTimestamp()
+                        .setThumbnail(response?.thumbnail!)
+                        .setAuthor({
+                            name: response?.artist.name || 'Unknow author',
+                            iconURL: response?.artist.image,
+                            url: response?.artist.url
+                        })
+                        .setDescription(trimmedLyrics?.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics ?? 'null')
+                        .setColor('#cd703a')
+                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
-            //         let embed = new EmbedBuilder()
-            //             .setTitle(response.title || 'Unknow title')
-            //             // .setURL('lyrics.url')
-            //             .setTimestamp()
-            //             // .setThumbnail('lyrics.thumbnail')
-            //             .setAuthor({
-            //                 name: response.artist || 'Unknow author',
-            //                 // iconURL: response.artist,
-            //                 // url: lyrics.artist.url
-            //             })
-            //             .setDescription(trimmedLyrics?.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics ?? 'null')
-            //             .setColor('#cd703a')
-            //             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
-
-            //         await interaction.editReply({
-            //             embeds: [embed],
-            //             files: [
-            //                 {
-            //                     attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
-            //                     name: 'icon.png'
-            //                 }
-            //             ]
-            //         });
-            //         return;
-            //     })
-            //     .catch(async err => {
-            //         await interaction.deleteReply();
-            //         await interaction.followUp({ content: 'No lyrics found', ephemeral: true });
-            //         return;
-            //     });
+                    await interaction.editReply({
+                        embeds: [embed],
+                        files: [
+                            {
+                                attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
+                                name: 'icon.png'
+                            }
+                        ]
+                    });
+                    return;
+                })
+                .catch(async err => {
+                    await interaction.deleteReply();
+                    await interaction.followUp({ content: 'No lyrics found', ephemeral: true });
+                    return;
+                });
 
         } catch (error: any) {
             logger.err(error);

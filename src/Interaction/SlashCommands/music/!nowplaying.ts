@@ -34,7 +34,6 @@ import {
 
 import { MetadataPlayer } from '../../../../types/metadaPlayer';
 import { LanguageData } from '../../../../types/languageData';
-import { Lyrics } from '../../../core/functions/lyrics-fetcher.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -113,9 +112,9 @@ export default {
                                 }
                                 break;
                             case "lyrics":
-                                let lyricsSearcher = Lyrics();
+                                i.deferReply({ ephemeral: true });
 
-                                var lyrics = await lyricsSearcher.search(
+                                var lyrics = await client.lyricsSearcher.search(
                                     player.queue.current?.info?.title as string +
                                     player.queue.current?.info?.author as string
                                 ).catch(() => {
@@ -130,17 +129,16 @@ export default {
                                         .setTitle(player.queue.current?.info?.title as string)
                                         .setURL(player.queue.current?.info?.uri as string)
                                         .setTimestamp()
-                                        .setThumbnail(player.queue.current?.info?.artworkUrl as string)
+                                        .setThumbnail(lyrics.thumbnail)
                                         .setAuthor({
                                             name: player.queue.current?.info?.author as string,
-                                            iconURL: player.queue.current?.info?.artworkUrl as string,
+                                            iconURL: lyrics.artist.image,
                                         })
                                         .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
                                         .setColor('#cd703a')
                                         .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
-                                    i.reply({
+                                    i.editReply({
                                         embeds: [embed],
-                                        ephemeral: true,
                                         files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
                                     });
                                 };

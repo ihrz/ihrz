@@ -87,7 +87,7 @@ export const command: Command = {
             type: 1,
             options: [
                 {
-                    name: 'title',
+                    name: 'query',
                     type: ApplicationCommandOptionType.String,
 
                     description: 'The track title you want',
@@ -97,18 +97,6 @@ export const command: Command = {
 
                     required: true
                 },
-
-                {
-                    name: 'artist',
-                    type: ApplicationCommandOptionType.String,
-
-                    description: 'The author name',
-                    description_localizations: {
-                        "fr": "Noms de l'author"
-                    },
-
-                    required: true
-                }
             ],
         },
         {
