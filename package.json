@@ -1,13 +1,12 @@
 {
   "name": "ihrz",
-  "version": "dev_15.5.0",
+  "version": "dev_15.6.0",
   "description": "iHrz in ts!",
   "main": "./dist/index.js",
   "scripts": {
-    "test": "node ./dist/index.js",
     "start": "node ./dist/index.js",
-    "build": "npx tsc",
-    "auto-build": "npx tsc -w"
+    "auto-build": "npx tsc -w",
+    "build": "npx tsc"
   },
   "repository": {
     "type": "git",
@@ -35,8 +34,8 @@
     "https": "^1.0.0",
     "jimp": "^0.22.10",
     "js-yaml": "^4.1.0",
+    "jsdom": "^24.0.0",
     "lavalink-client": "^2.1.4",
-    "lyrics-searcher": "^1.0.58",
     "ping": "^0.4.4",
     "quick.db": "^9.1.7",
     "quickmongo": "^5.2.0",
@@ -45,6 +44,7 @@
   "devDependencies": {
     "@types/express": "^4.17.17",
     "@types/js-yaml": "^4.0.5",
+    "@types/jsdom": "^21.1.6",
     "@types/ping": "^0.4.1",
     "tslib": "^2.6.0",
     "typescript": "^5.3.3"
