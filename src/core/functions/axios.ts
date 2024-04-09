@@ -44,7 +44,7 @@ interface AxiosRequestConfig {
     timeout?: number;
 }
 
-class Axios {
+class AxiosClass {
     async request<T = any>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
         const { url = '', method = 'GET', baseURL = '', headers = {}, params, data, timeout } = config;
         const requestUrl = baseURL ? baseURL + url : url;
@@ -101,4 +101,6 @@ class Axios {
 
 };
 
-export { Axios, AxiosError, AxiosRequestConfig, AxiosResponse };
+const axios = new AxiosClass();
+
+export { axios, AxiosError, AxiosRequestConfig, AxiosResponse };
