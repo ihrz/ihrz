@@ -4,7 +4,7 @@
   "description": "iHrz in ts!",
   "main": "./dist/index.js",
   "scripts": {
-    "test": "npx tsc && node ./dist/index.js",
+    "test": "node ./dist/index.js",
     "start": "node ./dist/index.js",
     "build": "npx tsc",
     "auto-build": "npx tsc -w"
