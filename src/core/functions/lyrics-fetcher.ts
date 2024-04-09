@@ -20,116 +20,61 @@
 */
 
 /*
-    This code are a remixed code from https://github.com/FlyTri/lyrics-finder/tree/main
+    This code are a remixed code from https://github.com/Androz2091/discord-player
     Thank you!
 */
+import { Client as GeniusClient } from 'genius-lyrics';
 
-import { JSDOM } from "jsdom";
+let client: GeniusClient;
 
-type Data = {
-    songwriters?: string;
-    title?: string;
-    artist?: string;
-    genres?: string;
-    sources: string[];
-    lyrics?: string;
-};
-
-const USER_AGENT =
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36";
-
-const requestOptions = {
-    headers: {
-        "User-Agent": USER_AGENT,
-        Accept: "text/html",
-    },
-};
-
-function getTextContent(dom: JSDOM, querySelect: string): string | undefined {
-    const element = dom.window.document.querySelector(querySelect);
-    return element ? element.textContent?.split(": ")[1] : undefined;
+export interface LyricsData {
+    title: string;
+    fullTitle: string;
+    id: number;
+    thumbnail: string;
+    image: string;
+    url: string;
+    artist: {
+        name: string;
+        id: number;
+        url: string;
+        image: string;
+    };
+    lyrics: string;
 }
 
-async function fetchData(url: string): Promise<string> {
-    const response = await fetch(url, {
-        headers: {
-            "User-Agent": USER_AGENT,
-            Accept: "text/html",
-        },
-    });
-    if (!response.ok) {
-        throw new Error(`Failed to fetch data: ${response.statusText}`);
-    }
-    return await response.text();
+export function Lyrics(apiKey?: string, force?: boolean) {
+    if (!client && !force) client = new GeniusClient(apiKey);
+    return { search, client };
 }
 
-export async function Google(name: string, language = "en"): Promise<Data> {
-    if (!name || typeof name != "string") {
-        throw new TypeError("Invalid name was provided");
-    }
-    if (language && typeof language != "string") {
-        throw new TypeError("Invalid language was provided");
-    }
+function search(query: string) {
+    return new Promise<LyricsData | null>((resolve, reject) => {
+        if (typeof query !== 'string') return reject(new TypeError(`Expected search query to be a string, received "${typeof query}"!`));
 
-    const url = `https://google.com/search?q=Lyrics+${name}&lr=lang_${language}`;
-    const data = await fetchData(url);
-    const dom = new JSDOM(data);
+        client.songs
+            .search(query)
+            .then(async (songs) => {
+                const data = {
+                    title: songs[0].title,
+                    fullTitle: songs[0].fullTitle,
+                    id: songs[0].id,
+                    thumbnail: songs[0].thumbnail,
+                    image: songs[0].image,
+                    url: songs[0].url,
+                    artist: {
+                        name: songs[0].artist.name,
+                        id: songs[0].artist.id,
+                        url: songs[0].artist.url,
+                        image: songs[0].artist.image
+                    },
+                    lyrics: await songs[0].lyrics(false)
+                };
 
-    const elements = Array.from(dom.window.document.querySelectorAll(".ujudUb"));
-    if (!elements.length) {
-        throw new Error("No result were found");
-    }
-
-    return {
-        songwriters: getTextContent(dom, ".auw0zb"),
-        title: dom.window.document.querySelector("div.PZPZlf.ssJ7i.B5dxMb")?.textContent!,
-        artist: getTextContent(dom, "div[data-attrid='kc:/music/recording_cluster:artist']"),
-        genres: getTextContent(
-            dom,
-            "div[data-attrid='kc:/music/recording_cluster:skos_genre']"
-        ),
-        sources: [
-            "Google",
-            dom.window.document.querySelector("span.S4TQId")?.textContent!,
-        ].filter(Boolean),
-        lyrics: elements
-            .map((_, i) => {
-                const line = Array.from(elements[i]?.querySelectorAll("span"));
-                return line.map((_, index) => line[index].textContent).join("\n");
+                resolve(data);
             })
-            .join("\n\n"),
-    };
-}
-
-export async function Musixmatch(name: string): Promise<Data> {
-    if (!name || typeof name != "string") {
-        throw new TypeError("Invalid name was provided");
-    }
-
-    const searchUrl = `https://musixmatch.com/search/${name}`;
-    const searchData = await fetchData(searchUrl);
-    const searchDom = new JSDOM(searchData);
-
-    const titleElement = searchDom.window.document.querySelector(".title");
-    const title = titleElement?.textContent!;
-    const artist = searchDom.window.document.querySelector(".artist")?.textContent!;
-    const endpoint = titleElement?.getAttribute("href");
-
-    if (!endpoint) {
-        throw new Error("No result were found");
-    }
-
-    const lyricsUrl = `https://musixmatch.com${endpoint}`;
-    const lyricsData = await fetchData(lyricsUrl);
-    const lyricsDom = new JSDOM(lyricsData);
-    const elements = Array.from(lyricsDom.window.document.querySelectorAll(".lyrics__content__ok"));
-
-    return {
-        songwriters: getTextContent(lyricsDom, ".mxm-lyrics__copyright")?.replace("\n", ""),
-        title,
-        artist,
-        genres: undefined,
-        sources: ["Musixmatch"],
-        lyrics: elements.map((_, i) => elements[i].textContent).join("\n\n"),
-    };
-}
+            .catch(() => {
+                reject(new Error('Could not parse lyrics'));
+            });
+    });
+};

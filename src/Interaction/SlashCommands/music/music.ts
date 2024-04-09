@@ -90,9 +90,21 @@ export const command: Command = {
                     name: 'title',
                     type: ApplicationCommandOptionType.String,
 
-                    description: 'The track title you want (you can put URL as you want)',
+                    description: 'The track title you want',
                     description_localizations: {
-                        "fr": "Titre de la musique (URL si vous le voulez)"
+                        "fr": "Titre de la musique"
+                    },
+
+                    required: true
+                },
+
+                {
+                    name: 'artist',
+                    type: ApplicationCommandOptionType.String,
+
+                    description: 'The author name',
+                    description_localizations: {
+                        "fr": "Noms de l'author"
                     },
 
                     required: true

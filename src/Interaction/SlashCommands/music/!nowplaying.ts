@@ -34,7 +34,7 @@ import {
 
 import { MetadataPlayer } from '../../../../types/metadaPlayer';
 import { LanguageData } from '../../../../types/languageData';
-import lyricsSearcher from "lyrics-searcher";
+import { Lyrics } from '../../../core/functions/lyrics-fetcher.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -113,17 +113,19 @@ export default {
                                 }
                                 break;
                             case "lyrics":
-                                var lyrics = await lyricsSearcher(
-                                    player.queue.current?.info?.title as string,
+                                let lyricsSearcher = Lyrics();
+
+                                var lyrics = await lyricsSearcher.search(
+                                    player.queue.current?.info?.title as string +
                                     player.queue.current?.info?.author as string
-                                ).catch((err) => {
-                                    lyrics = "not found"
+                                ).catch(() => {
+                                    lyrics = null
                                 })
 
                                 if (!lyrics) {
                                     i.reply({ content: 'The lyrics for this song were not found', ephemeral: true });
                                 } else {
-                                    let trimmedLyrics = lyrics.substring(0, 1997);
+                                    let trimmedLyrics = lyrics.lyrics.substring(0, 1997);
                                     let embed = new EmbedBuilder()
                                         .setTitle(player.queue.current?.info?.title as string)
                                         .setURL(player.queue.current?.info?.uri as string)
