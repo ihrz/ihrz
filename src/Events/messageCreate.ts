@@ -20,6 +20,7 @@
 */
 
 import { Client, Collection, EmbedBuilder, PermissionsBitField, ChannelType, Message, Role, GuildTextBasedChannel, ClientUser } from 'discord.js';
+import { generatePassword } from '../core/functions/random.js';
 
 export default async (client: Client, message: Message) => {
     if (!message.guild || message.author.bot || !message.channel) return;
@@ -198,7 +199,7 @@ export default async (client: Client, message: Message) => {
             || baseData?.disable) return;
 
         let suggestionContent = '```' + message.content + '```';
-        var suggestCode = Math.random().toString(36).slice(-8);
+        var suggestCode = generatePassword({ length: 12 });
 
         let suggestionEmbed = new EmbedBuilder()
             .setColor('#4000ff')
