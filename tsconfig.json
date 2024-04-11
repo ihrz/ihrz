@@ -11,7 +11,6 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "importHelpers": true,
-    "typeRoots": ["node_modules/@types"],
     "types": ["node"],
     "strictPropertyInitialization": false
   },
