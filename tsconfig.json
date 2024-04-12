@@ -11,18 +11,16 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "importHelpers": true,
+    "strictPropertyInitialization": false,
     "typeRoots": [
       "node_modules/@types"
     ],
-    "strictPropertyInitialization": false
   },
   "include": [
-    "src",
+    "./",
     "src/**/*.json",
-    "types"
   ],
   "exclude": [
-    "./temp",
     "/.github",
     "./dist",
     "./node_modules",
