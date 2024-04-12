@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "ticket",
+        "options": {
+            "description": "help_ticket_dsc",
+            "emoji": "🎫",
+            "placeholder": "help_ticket_fields"
+        }
+    }
+}

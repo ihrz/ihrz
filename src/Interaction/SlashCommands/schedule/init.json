@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "schedule",
+        "options": {
+            "description": "help_schedule_dsc",
+            "emoji": "🗒",
+            "placeholder": "help_schedule_fields"
+        }
+    }
+}

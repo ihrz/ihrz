@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "newfeatures",
+        "options": {
+            "description": "help_newftrs_dsc",
+            "emoji": "🆕",
+            "placeholder": "help_newftrs_fields"
+        }
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "bot",
+        "options": {
+            "description": "help_bot_dsc",
+            "emoji": "🤖",
+            "placeholder": "help_bot_fields"
+        }
+    }
+}

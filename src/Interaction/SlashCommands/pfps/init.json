@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "pfps",
+        "options": {
+            "description": "help_pfps_dsc",
+            "emoji": "🕵️‍♀️",
+            "placeholder": "help_pfps_fields"
+        }
+    }
+}

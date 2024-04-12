@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "giveaway",
+        "options": {
+            "description": "help_giveaway_dsc",
+            "emoji": "🎉",
+            "placeholder": "help_giveaway_fields"
+        }
+    }
+}

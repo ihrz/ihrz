@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
+import { BotContent } from "./botContent";
+
 export interface Category {
     categoryName: string;
     options: {
@@ -26,4 +28,12 @@ export interface Category {
         emoji: string;
         placeholder: string;
     };
-}
+};
+
+export interface CategoryData {
+    name: string;
+    value: BotContent[];
+    inline: boolean;
+    description: string;
+    emoji: string;
+};

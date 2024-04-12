@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "moderation",
+        "options": {
+            "description": "help_mod_dsc",
+            "emoji": "👮‍♀️",
+            "placeholder": "help_mod_fields"
+        }
+    }
+}

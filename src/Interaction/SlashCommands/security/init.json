@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "security",
+        "options": {
+            "description": "help_security_dsc",
+            "emoji": "🔐",
+            "placeholder": "help_security_fields"
+        }
+    }
+}

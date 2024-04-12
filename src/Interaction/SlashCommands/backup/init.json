@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "backup",
+        "options": {
+            "description": "help_backup_dsc",
+            "emoji": "🔁",
+            "placeholder": "help_backup_fields"
+        }
+    }
+}
