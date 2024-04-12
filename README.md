@@ -72,6 +72,10 @@ npm build && npm start
 ## Docker Method
 
 [Soon!](https://hub.docker.com/r/kisakay/ihorizon "See more")
+# A host is too expensive?
+Well iHorizon is happy to offer really cheap hosting of an iHorizon instance (ownihrz), it's actually way cheaper than most hosts and offers an intense quality!<br>
+Only 2.00 euros per month! (0.50 euro for the activation)<br>
+Your bot is faster than most popular bots and you can do what you want with it, even making a public bot out of it that can make you money! :)
 
 # About the bot
 IHorizon is trusted by more than **275 000** users!<br>
