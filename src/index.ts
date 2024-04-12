@@ -15,17 +15,30 @@
 
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
-
+・ Contribution by Naya (https://github.com/belugafr)
 ・ Copyright © 2020-2024 iHorizon
 */
 
+import './core/functions/colors.js';
 
-import { DescriptionLocalizations } from "./command"
+import { DefaultWebSocketManagerOptions } from "@discordjs/ws";
+import { ShardingManager } from 'discord.js';
+import config from './files/config.js';
+import logger from './core/logger.js';
 
-export interface BotContent {
-    cmd: string,
-    category: string,
-    desc: string,
-    desc_localized: DescriptionLocalizations,
-    messageCmd: boolean,
-}
+if (config.discord.botPresence) {
+
+    const { identifyProperties } = DefaultWebSocketManagerOptions;
+
+    Object.defineProperty(identifyProperties, 'browser', {
+        value: "Discord Android",
+        writable: true,
+        enumerable: true,
+        configurable: true
+    });
+
+};
+
+let manager = new ShardingManager('./dist/src/core/bot.js', { totalShards: "auto", token: process.env.BOT_TOKEN || config.discord.token });
+manager.on("shardCreate", (shard) => logger.log(`${config.console.emojis.HOST} >> The Shard number ${shard.id} is launched !`.green()));
+manager.spawn();

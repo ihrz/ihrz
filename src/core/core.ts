@@ -75,6 +75,7 @@ export default async (client: Client) => {
 
     client.db = db;
     client.content = [];
+    client.category = [];
     client.invites = new Collection();
     client.timeCalculator = new iHorizonTimeCalculator();
     client.lyricsSearcher = new LyricsManager();

@@ -31,11 +31,13 @@ import { QueueChangesWatcher, LavalinkManager } from "lavalink-client";
 import { BotContent } from './botContent'
 import { iHorizonTimeCalculator } from "../src/core/functions/ms";
 import { LyricsManager } from "../src/core/functions/lyrics-fetcher";
+import { Category } from "./category";
 
 declare module 'discord.js' {
     export interface Client {
         functions: clientFunction,
         commands: Collection<string, Command>,
+        category: Category[]
         message_commands: Collection<string, Command>,
         player: LavalinkManager,
         invites: Collection,

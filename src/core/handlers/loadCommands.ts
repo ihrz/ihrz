@@ -23,7 +23,7 @@ import { Client, Collection } from "discord.js";
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
 import logger from "../logger.js";
-import { Command, DescriptionLocalizations } from "../../../types/command.js";
+import { Command } from "../../../types/command.js";
 import config from "../../files/config.js";
 import { EltType } from "../../../types/eltType.js";
 import { Option } from "../../../types/option.js";
