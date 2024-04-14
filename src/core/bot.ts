@@ -20,6 +20,7 @@
 */
 
 import { Client, Partials, GatewayIntentBits } from "discord.js";
+import core from './core.js';
 
 let client = new Client({
     intents: [
@@ -53,5 +54,5 @@ let client = new Client({
         Partials.ThreadMember
     ]
 });
-import core from './core.js';
+
 core(client);
