@@ -22,7 +22,7 @@
 import * as apiUrlParser from '../core/functions/apiUrlParser.js';
 import express from 'express';
 import execute_handler from './handler.js';
-import https from 'https';
+import https from 'node:https';
 import bodyParser from 'body-parser';
 
 import logger from '../core/logger.js';
