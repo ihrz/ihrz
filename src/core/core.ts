@@ -19,7 +19,6 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import * as checkSys from './functions/checkSys.js';
 import playerManager from "./modules/playerManager.js";
 import db from './functions/DatabaseModel.js';
 
