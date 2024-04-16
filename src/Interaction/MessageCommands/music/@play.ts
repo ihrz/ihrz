@@ -139,9 +139,14 @@ export const command: Command = {
         let channel = client.channels.cache.get(player.textChannelId as string);
 
         (channel as BaseGuildTextChannel)?.send({
-            content: data.event_mp_audioTrackAdd
-                .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-                .replace("${track.title}", res.tracks[0].info.title as string)
+            embeds: [
+                new EmbedBuilder()
+                    .setColor(2829617)
+                    .setDescription(data.event_mp_audioTrackAdd
+                        .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
+                        .replace("${track.title}", res.tracks[0].info.title as string)
+                    )
+            ]
         });
         return;
     },
