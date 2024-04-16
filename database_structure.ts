@@ -39,15 +39,15 @@ interface DB_id {
     PROTECTION?: {
         [rule: string]: {
             mode: string
-        } | string
-        SANCTION: string
+        } | string | undefined
+        SANCTION?: string
     }
     ROLE_SAVER?: {
         [userId: string]: string[]
     }
     ALLOWLIST?: {
         enable: boolean
-        list: {
+        list?: {
             [x: string]: {
                 allowed: boolean
             };
@@ -55,7 +55,7 @@ interface DB_id {
     }
     SUGGEST?: {
         channel: string
-        disable: boolean
+        disable?: boolean
     }
     SUGGESTION?: {
         [suggestCode: string]: {
@@ -64,30 +64,22 @@ interface DB_id {
             replied?: boolean
         }
     }
-    SNIPE?: {
-        [channelId: string]: {
-            snipe: string
-            snipeUserInfoTag: string
-            snipeUserInfoPp: string
-            snipeTimestamp: number
-        }
-    }
     ECONOMY?: {
         disabled: boolean
     }
     SECURITY?: {
-        channel: string
-        disable: boolean
-        role: string
+        channel?: string
+        disable?: boolean
+        role?: string
     }
     UTILS?: {
-        unban_members: string[]
+        unban_members?: string[]
     }
     VOICE_INTERFACE?: {
-        staff_role: string
+        staff_role?: string
         interface: {
-            channelId: string
-            messageId: string
+            channelId?: string
+            messageId?: string
         }
         voice_channel: string | undefined
     }
@@ -96,29 +88,29 @@ interface DB_id {
 interface DB_GuildUser_Object {
     [userId: string]: {
         INVITES?: {
-            BY: {
+            BY?: {
                 inviter: string
                 invite: string
             }
-            regular: number
-            invites: number
-            bonus: number
-            leaves: number
+            regular?: number
+            invites?: number
+            bonus?: number
+            leaves?: number
         }
         ECONOMY?: {
-            money: number
-            bank: number
-            daily: number
-            monthly: number
-            weekly: number
-            work: number
+            money?: number
+            bank?: number
+            daily?: number
+            monthly?: number
+            weekly?: number
+            work?: number
         }
         REPORT?: {
             cooldown: number
         }
         XP_LEVELING?: {
-            xp: number
-            xptotal: number
+            xp?: number
+            xptotal?: number
             level?: number
         }
     }
@@ -130,74 +122,74 @@ interface DB_Guild_Object {
     }
     TICKET?: {
         logs?: string
-        disable: boolean
-        category: string
+        disable?: boolean
+        category?: string
         [key: string]: DB_Ticket_Configuration_Object | string | boolean | undefined
     }
     GUILD_CONFIG?: {
-        joinmessage: string
-        join: string
-        leave: string
-        joindm: string
-        joinroles: string
-        leavemessage: string
-        mass_mention: 'on' | 'off'
-        antipub: 'on' | 'off'
-        spam: 'on' | 'off'
+        joinmessage?: string
+        join?: string
+        leave?: string
+        joindm?: string
+        joinroles?: string
+        leavemessage?: string
+        mass_mention?: string
+        antipub?: string
+        spam?: string
 
-        rolesaver: {
-            enable: boolean
-            timeout: string
-            admin: string
+        rolesaver?: {
+            enable?: boolean
+            timeout?: string
+            admin?: string
         }
     }
     BLOCK_BOT?: boolean
     MCOUNT?: {
         member: {
-            name: string
-            enable: boolean
-            event: 'member'
-            channel: string
+            name?: string
+            enable?: boolean
+            event?: string
+            channel?: string
         }
-        roles: {
-            name: string
-            enable: boolean
-            event: 'roles'
-            channel: string
+        roles?: {
+            name?: string
+            enable?: boolean
+            event?: 'roles'
+            channel?: string
         }
-        bot: {
-            name: string
-            enable: boolean
-            event: 'bot'
-            channel: string
+        bot?: {
+            name?: string
+            enable?: boolean
+            event?: string
+            channel?: string
         }
     }
     PUNISH?: {
         PUNISH_PUB?: {
-            amountMax: number
-            punishementType: string | null
-            state: string
+            amountMax?: number
+            punishementType?: string | null
+            state?: string
         }
     }
     SERVER_LOGS?: {
-        roles: string
-        moderation: string
-        voice: string
-        message: string
-        boosts: string
+        roles?: string
+        moderation?: string
+        voice?: string
+        message?: string
+        boosts?: string
     }
     SUPPORT?: {
-        input: string | null
-        rolesId: string
-        state: string
+        input?: string | null
+        rolesId?: string
+        state?: string
     }
     PFPS?: {
-        channel: string
-        disable: boolean
+        channel?: string
+        disable?: boolean
     }
     XP_LEVELING?: {
-        disable: boolean
-        xpchannels: string
+        disable?: boolean
+        xpchannels?: string
     }
     REACTION_ROLES?: {
         [messageId: string]: {
@@ -210,6 +202,14 @@ interface DB_Guild_Object {
     }
     RANK_ROLES?: {
         roles: string
+    }
+    SNIPE?: {
+        [channelId: string]: {
+            snipe: string
+            snipeUserInfoTag: string
+            snipeUserInfoPp: string
+            snipeTimestamp: number
+        }
     }
 }
 
