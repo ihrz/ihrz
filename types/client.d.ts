@@ -35,6 +35,8 @@ import { VanityInviteData } from "./vanityUrlData";
 import { Command } from "./command";
 import { Emojis } from "./emojis";
 
+import * as ClientVersion from "../src/version.js";
+
 declare module 'discord.js' {
     export interface Client {
         functions: clientFunction,
@@ -52,6 +54,7 @@ declare module 'discord.js' {
         giveawaysManager: GiveawayManager,
         content: BotContent[],
         timeCalculator: iHorizonTimeCalculator,
-        lyricsSearcher: LyricsManager
+        lyricsSearcher: LyricsManager,
+        version: typeof ClientVersion
     }
 };

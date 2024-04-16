@@ -20,6 +20,7 @@
 */
 
 import { Client, Partials, GatewayIntentBits } from "discord.js";
+import * as ClientVersion from "../version.js";
 import core from './core.js';
 
 let client = new Client({
@@ -53,6 +54,7 @@ let client = new Client({
         Partials.Reaction,
         Partials.ThreadMember
     ]
-});
+})
 
+client.version = ClientVersion
 core(client);
