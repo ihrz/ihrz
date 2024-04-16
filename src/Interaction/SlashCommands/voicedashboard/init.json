@@ -1,6 +1,7 @@
 {
     "categoryInitializer": {
         "categoryName": "voicedashboard",
+        "categoryColor": "#ed8bbe",
         "options": {
             "description": "help_voicedashboard_dsc",
             "emoji": "🔊",

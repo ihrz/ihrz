@@ -23,6 +23,7 @@ import { BotContent } from "./botContent";
 
 export interface Category {
     categoryName: string;
+    categoryColor: string;
     options: {
         description: string;
         emoji: string;
@@ -33,6 +34,7 @@ export interface Category {
 export interface CategoryData {
     name: string;
     value: BotContent[];
+    color: string;
     inline: boolean;
     description: string;
     emoji: string;

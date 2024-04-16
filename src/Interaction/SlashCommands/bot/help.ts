@@ -52,6 +52,8 @@ export const command: Command = {
         const categories: CategoryData[] = [];
 
         for (const cat of client.category) {
+            const color = cat.categoryColor;
+
             const descriptionKey = cat.options.description;
             const description = data[descriptionKey as keyof LanguageData].toString();
 
@@ -65,6 +67,7 @@ export const command: Command = {
                 value: commands,
                 inline: true,
                 description: description,
+                color: color,
                 emoji: cat.options.emoji
             });
         };
@@ -109,13 +112,15 @@ export const command: Command = {
 
             embed
                 .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
-                .setDescription(categories[i.values[0] as unknown as number].description);
+                .setDescription(categories[i.values[0] as unknown as number].description)
+                .setColor(categories[i.values[0] as unknown as number].color as any);
 
             embed.setFields({ name: ' ', value: ' ' });
 
+            let categoryColor = categories[i.values[0] as unknown as number].color as any;
             let commandGroups: any[][] = [];
-            let currentGroup: any[] = [];
             let embeds: EmbedBuilder[] = [];
+            let currentGroup: any[] = [];
 
             categories[i.values[0] as unknown as number].value.forEach(async (element, index) => {
                 let cmdPrefix = (element.messageCmd) ? `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**` : `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
@@ -133,14 +138,14 @@ export const command: Command = {
                         break;
                 }
 
-                if ((index + 1) % 15 === 0 || index === categories[i.values[0] as unknown as number].value.length - 1) {
+                if ((index + 1) % 20 === 0 || index === categories[i.values[0] as unknown as number].value.length - 1) {
                     commandGroups.push([...currentGroup]);
                     currentGroup = [];
                 }
             });
 
             for (const group of commandGroups) {
-                let newEmbed = new EmbedBuilder().setColor('#001eff');
+                let newEmbed = new EmbedBuilder().setColor(categoryColor);
 
                 if (embeds.length === 0) {
                     newEmbed

@@ -1,6 +1,7 @@
 {
     "categoryInitializer": {
         "categoryName": "ranks",
+        "categoryColor": "#fccc39",
         "options": {
             "description": "help_ranks_dsc",
             "emoji": "🌟",

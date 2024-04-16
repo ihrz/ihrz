@@ -1,6 +1,7 @@
 {
     "categoryInitializer": {
         "categoryName": "protection",
+        "categoryColor": "#3b9614",
         "options": {
             "description": "help_protection_dsc",
             "emoji": "🛡️",

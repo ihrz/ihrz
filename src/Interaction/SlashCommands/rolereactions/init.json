@@ -1,6 +1,7 @@
 {
     "categoryInitializer": {
         "categoryName": "rolereactions",
+        "categoryColor": "#d9d2e9",
         "options": {
             "description": "help_roler_dsc",
             "emoji": "📇",

@@ -1,6 +1,7 @@
 {
     "categoryInitializer": {
         "categoryName": "suggestion",
+        "categoryColor": "#990000",
         "options": {
             "description": "help_suggestion_dsc",
             "emoji": "❓",

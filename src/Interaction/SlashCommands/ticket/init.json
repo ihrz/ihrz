@@ -1,6 +1,7 @@
 {
     "categoryInitializer": {
         "categoryName": "ticket",
+        "categoryColor": "#397c16",
         "options": {
             "description": "help_ticket_dsc",
             "emoji": "🎫",
