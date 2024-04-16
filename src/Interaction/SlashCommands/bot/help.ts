@@ -70,7 +70,7 @@ export const command: Command = {
         };
 
         categories.sort((a, b) => a.name.localeCompare(b.name));
-        
+
         let select = new StringSelectMenuBuilder().setCustomId('help-menu').setPlaceholder('Make a selection!');
 
         categories.forEach((category, index) => {
@@ -113,42 +113,57 @@ export const command: Command = {
 
             embed.setFields({ name: ' ', value: ' ' });
 
-            categories[i.values[0] as unknown as number].value.forEach(async (element) => {
-                if (element.messageCmd) {
-                    switch (guildLang) {
-                        case "en-US":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
-                            break;
-                        case "fr-FR":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
-                            break;
-                        case "fr-ME":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
-                            break;
-                        default:
-                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
-                            break;
-                    };
-                } else {
-                    switch (guildLang) {
-                        case "en-US":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
-                            break;
-                        case "fr-FR":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
-                            break;
-                        case "fr-ME":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
-                            break;
-                        default:
-                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
-                            break;
-                    };
+            let commandGroups: any[][] = [];
+            let currentGroup: any[] = [];
+            let embeds: EmbedBuilder[] = [];
+
+            categories[i.values[0] as unknown as number].value.forEach(async (element, index) => {
+                let cmdPrefix = (element.messageCmd) ? `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**` : `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
+                let descValue = (guildLang === "fr-ME" || guildLang === "fr-FR") ? `\`${element.desc_localized["fr"]}\`` : `\`${element.desc}\``;
+
+                switch (guildLang) {
+                    case "en-US":
+                        currentGroup.push({ name: cmdPrefix, value: descValue, inline: true });
+                        break;
+                    case "fr-FR":
+                        currentGroup.push({ name: cmdPrefix, value: descValue, inline: true });
+                        break;
+                    default:
+                        currentGroup.push({ name: cmdPrefix, value: descValue, inline: true });
+                        break;
                 }
 
-                await response.edit({ embeds: [embed] });
+                if ((index + 1) % 15 === 0 || index === categories[i.values[0] as unknown as number].value.length - 1) {
+                    commandGroups.push([...currentGroup]);
+                    currentGroup = [];
+                }
             });
 
+            for (const group of commandGroups) {
+                let newEmbed = new EmbedBuilder().setColor('#001eff');
+
+                if (embeds.length === 0) {
+                    newEmbed
+                        .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
+                        .setDescription(categories[i.values[0] as unknown as number].description)
+                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                        .setThumbnail("attachment://icon.png")
+                        .setTimestamp();
+                }
+
+                group.forEach(field => {
+                    newEmbed.addFields(field);
+                });
+
+                const remainingFields = group.length % 2;
+                if (remainingFields === 0) {
+                    newEmbed.addFields({ name: '**  **', value: '**  **', inline: true });
+                }
+
+                embeds.push(newEmbed);
+            }
+
+            await response.edit({ embeds: embeds });
         });
 
         collector.on('end', async i => {

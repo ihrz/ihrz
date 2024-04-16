@@ -98,7 +98,7 @@ export const command: Command = {
                 .setTimestamp()
         };
 
-        let row = new ActionRowBuilder().addComponents(
+        let row = new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder()
                 .setCustomId('previousPage')
                 .setLabel('⬅️')
@@ -115,7 +115,7 @@ export const command: Command = {
 
         let messageEmbed = await interaction.reply({
             embeds: [createEmbed()],
-            components: [(row as ActionRowBuilder<ButtonBuilder>)],
+            components: [row],
             files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
 
