@@ -43,19 +43,6 @@ export default async (client: Client) => {
 
     errorManager.uncaughtExceptionHandler();
 
-    client.giveawaysManager = new GiveawayManager(client, {
-        storage: `${process.cwd()}/src/files/giveaways/`,
-        config: {
-            botsCanWin: false,
-            embedColor: '#9a5af2',
-            embedColorEnd: '#2f3136',
-            reaction: '🎉',
-            botName: "iHorizon",
-            forceUpdateEvery: 3600,
-            endedGiveawaysLifetime: 345_600_000,
-        },
-    });
-
     process.on('SIGINT', async () => {
         client.destroy();
         process.exit();
@@ -82,6 +69,19 @@ export default async (client: Client) => {
     errorManager.uncaughtExceptionHandler();
 
     client.login(config.discord.token).then(() => {
+        client.giveawaysManager = new GiveawayManager(client, {
+            storage: `${process.cwd()}/src/files/giveaways/`,
+            config: {
+                botsCanWin: false,
+                embedColor: '#9a5af2',
+                embedColorEnd: '#2f3136',
+                reaction: '🎉',
+                botName: client.user?.username,
+                forceUpdateEvery: 3600,
+                endedGiveawaysLifetime: 345_600_000,
+            },
+        });
+        
         commandsSync(client).then(() => {
             logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta());
             logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta());

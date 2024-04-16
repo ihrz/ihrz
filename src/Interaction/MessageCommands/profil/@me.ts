@@ -81,7 +81,7 @@ export const command: Command = {
             .setColor("#ffa550")
             .setThumbnail(member.displayAvatarURL({ extension: 'png', size: 512 }))
             .setTimestamp()
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
 
         await interaction.reply({
             embeds: [profil],

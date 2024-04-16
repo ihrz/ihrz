@@ -65,7 +65,7 @@ export default {
                             .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                             .replace('${cannot_ban}', cannot_ban.toString())
                     )
-                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                    .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
             ],
             files: [
                 {

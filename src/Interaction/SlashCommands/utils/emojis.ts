@@ -93,7 +93,7 @@ export const command: Command = {
 
         let embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#bea9de')
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
             .setTimestamp()
             .setDescription(data.emoji_embed_desc_work
                 .replace('${cnt}', cnt)

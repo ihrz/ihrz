@@ -110,7 +110,7 @@ export default {
                 .setDescription(ls || 'None')
                 .setTimestamp()
                 .setTitle(data.setjoinmessage_command_work_ls)
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
+                .setFooter({ text: client.user?.username!, iconURL: client.user?.displayAvatarURL() })
                 .setThumbnail(interaction.guild?.iconURL() as string);
 
             await interaction.editReply({ embeds: [embed] });

@@ -52,7 +52,7 @@ export default {
                     .replace('${targetedRole?.id}', targetedRole?.id as string)
             )
             .setFooter({
-                text: 'iHorizon',
+                text: client.user?.username!,
                 iconURL: client.user?.displayAvatarURL({ size: 1024 }) as string
             });
 

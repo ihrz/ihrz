@@ -66,7 +66,7 @@ export default {
                 { name: data.balance_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.bank`) || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true },
                 { name: data.balance_embed_fields2_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`) || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true }
             )
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
             .setTimestamp()
 
         await interaction.reply({

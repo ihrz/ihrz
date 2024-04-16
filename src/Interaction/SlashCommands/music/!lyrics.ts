@@ -61,7 +61,7 @@ export default {
                 // })
                 .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
                 .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.music-cmd`) || '#cd703a')
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
 
             await interaction.editReply({
                 embeds: [embed],

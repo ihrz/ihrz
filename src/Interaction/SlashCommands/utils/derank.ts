@@ -97,7 +97,7 @@ export const command: Command = {
                         .replace('${bad}', bad.toString())
                         .replace('${member.id}', member.id)
                     )
-                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+                    .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
 
                 interaction.editReply({
                     embeds: [embed],

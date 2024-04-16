@@ -55,7 +55,7 @@ export default {
             )
             .setFooter(
                 {
-                    text: 'iHorizon',
+                    text: client.user?.username!,
                     iconURL: "attachment://icon_2.png",
                 }
             );

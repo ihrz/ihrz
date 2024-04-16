@@ -150,7 +150,7 @@ export default {
                 },
             )
             .setFooter({
-                text: 'iHorizon',
+                text: client.user?.username!,
                 iconURL: client.user?.displayAvatarURL({ size: 1024 }) as string
             });
 

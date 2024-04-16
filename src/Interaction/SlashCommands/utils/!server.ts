@@ -35,7 +35,7 @@ export default {
             .setTitle(data.banner_guild_embed)
             .setImage(interaction.guild?.bannerURL({ extension: 'png', size: 4096 }) as string)
             .setThumbnail(interaction.guild?.iconURL({ size: 4096 }) as string)
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
 
         await interaction.reply({
             embeds: [embed],

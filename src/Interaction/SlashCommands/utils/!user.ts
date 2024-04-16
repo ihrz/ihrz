@@ -55,7 +55,7 @@ export default {
             .setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
             .setThumbnail((user?.displayAvatarURL() as string))
             .setFooter({
-                text: 'iHorizon', iconURL: "attachment://icon.png"
+                text: client.user?.username!, iconURL: "attachment://icon.png"
             });
 
         await interaction.reply({

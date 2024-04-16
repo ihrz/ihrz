@@ -134,7 +134,7 @@ export const command: Command = {
             } catch (error) { }
 
             let embed = new EmbedBuilder()
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
                 .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild?.iconURL() as string)
@@ -183,7 +183,7 @@ export const command: Command = {
             } catch (error) { }
 
             let embed = new EmbedBuilder()
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
                 .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild?.iconURL() as string)

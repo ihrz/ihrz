@@ -82,7 +82,7 @@ export default {
                     .replace('${user2.username}', user2?.username as string)
                     .replace('${randomNumber}', randomNumber.toString())
                 )
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
             await interaction.editReply({

@@ -81,7 +81,7 @@ export const command: Command = {
             .setColor("#FFB6C1")
             .setDescription(text)
             .setTimestamp()
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
             .setThumbnail(interaction.guild?.iconURL() as string);
 
         await interaction.reply({

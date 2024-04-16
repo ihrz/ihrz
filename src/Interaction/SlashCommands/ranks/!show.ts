@@ -56,7 +56,7 @@ export default {
             .setDescription(data.level_embed_description.replace('${expNeededForLevelUp}', expNeededForLevelUp as unknown as string)
             )
             .setTimestamp()
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
 
         await interaction.reply({
             embeds: [nivEmbed],

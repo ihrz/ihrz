@@ -89,7 +89,7 @@ export default async (client: Client) => {
                         .setDescription(desc)
                         .setThumbnail((member?.displayAvatarURL() as string))
                         .setTimestamp()
-                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+                        .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
 
                     member?.send({
                         content: `<@${member.id}>`,

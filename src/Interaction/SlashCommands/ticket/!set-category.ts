@@ -51,7 +51,7 @@ export default {
         await client.db.set(`${interaction.guild?.id}.GUILD.TICKET.category`, category.id);
 
         let embed = new EmbedBuilder()
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#00FFFF')
             .setDescription(data.setticketcategory_command_work
                 .replace('${category.name}', category.name)

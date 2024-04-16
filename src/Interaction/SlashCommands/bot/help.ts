@@ -226,7 +226,7 @@ export const command: Command = {
         let embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#001eff')
             .setDescription(data.help_tip_embed)
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
             .setThumbnail("attachment://icon.png")
             .setTimestamp();
 

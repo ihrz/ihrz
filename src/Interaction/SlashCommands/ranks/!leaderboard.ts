@@ -66,7 +66,7 @@ export default {
         let attachment = new AttachmentBuilder(buffer, { name: 'leaderboard.txt' })
 
         embed.setThumbnail(interaction.guild?.iconURL() as string);
-        embed.setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+        embed.setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
         embed.setTitle(`${interaction.guild?.name}'s Levels Leaderboard`);
 
         await interaction.reply({

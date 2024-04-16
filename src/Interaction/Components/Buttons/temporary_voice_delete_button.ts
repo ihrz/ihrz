@@ -56,7 +56,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                     .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await interaction.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
                     .setFooter(
                         {
-                            text: "iHorizon",
+                            text: interaction.client.user.username,
                             iconURL: 'attachment://icon.png'
                         }
                     )

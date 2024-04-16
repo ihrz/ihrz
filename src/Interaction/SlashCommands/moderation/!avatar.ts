@@ -38,7 +38,7 @@ export default {
             )
             .setDescription(data.avatar_embed_description)
             .setTimestamp()
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
 
         await interaction.editReply({
             embeds: [embed],

@@ -86,7 +86,7 @@ export const command: Command = {
             )
             .setFooter(
                 {
-                    text: "iHorizon",
+                    text: interaction.client.user.username,
                     iconURL: "attachment://icon.png"
                 }
             )

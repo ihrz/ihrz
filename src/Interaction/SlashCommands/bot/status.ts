@@ -64,7 +64,7 @@ export const command: Command = {
                 { name: "Bot Version", value: `${pkg.version}`, inline: false },
             )
             .setThumbnail(interaction.guild?.iconURL() as string)
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
 
         await interaction.reply({
             embeds: [embed],

@@ -68,14 +68,14 @@ export default {
             .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#000000')
             .setAuthor({ name: data.authorization_configshow_embed1_author })
             .setDescription(text2)
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
             .setTimestamp();
 
         let embed2 = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#000000")
             .setAuthor({ name: data.authorization_configshow_embed2_author })
             .setDescription(text)
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
             .setTimestamp();
 
         await interaction.editReply({

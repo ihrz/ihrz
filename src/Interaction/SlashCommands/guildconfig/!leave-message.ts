@@ -115,7 +115,7 @@ export default {
                 .setDescription(ls || 'None')
                 .setTimestamp()
                 .setTitle(data.setleavemessage_command_work_ls)
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
                 .setThumbnail(interaction.guild?.iconURL() as string);
 
             await interaction.editReply({

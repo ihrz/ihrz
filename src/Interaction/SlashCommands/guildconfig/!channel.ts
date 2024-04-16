@@ -59,7 +59,7 @@ export default {
 
         let embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#6e819a")
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
             .setTitle(data.setchannels_title_embed_panel)
             .setThumbnail((interaction.guild?.iconURL() as string))
             .setTimestamp()

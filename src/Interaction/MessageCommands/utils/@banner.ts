@@ -77,7 +77,7 @@ export const command: Command = {
                 .setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
                 .setThumbnail((user?.displayAvatarURL() as string))
                 .setFooter({
-                    text: 'iHorizon', iconURL: "attachment://icon.png"
+                    text: client.user?.username!, iconURL: "attachment://icon.png"
                 });
 
             await interaction.reply({ embeds: [embed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
@@ -89,7 +89,7 @@ export const command: Command = {
                 .setTitle(data.banner_guild_embed)
                 .setImage(interaction.guild?.bannerURL({ extension: 'png', size: 4096 }) as string)
                 .setThumbnail(interaction.guild?.iconURL({ size: 4096 }) as string)
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
 
             await interaction.reply({ embeds: [embed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
             return;

@@ -75,7 +75,7 @@ export const command: Command = {
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#2E2EFE")
             .setAuthor({ name: "Owners" })
             .setDescription(text)
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
 
         let member = interaction.options.getMember('member') as GuildMember;
 

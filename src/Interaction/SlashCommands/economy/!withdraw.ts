@@ -61,7 +61,7 @@ export default {
                 .replace('${toWithdraw}', toWithdraw as unknown as string)
             )
             .addFields({ name: data.withdraw_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
             .setTimestamp();
 
         await interaction.reply({

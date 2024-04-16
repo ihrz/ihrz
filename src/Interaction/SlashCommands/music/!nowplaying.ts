@@ -135,7 +135,7 @@ export default {
                                         })
                                         .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
                                         .setColor('#cd703a')
-                                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+                                        .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
                                     i.reply({
                                         embeds: [embed],
                                         ephemeral: true,
