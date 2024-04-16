@@ -109,7 +109,7 @@ async function CreatePanel(interaction: ChatInputCommandInteraction<CacheType>, 
     } catch (e) { return };
 };
 
-interface CaseList {
+export interface CaseList {
     id: number;
 
     emojis: string | undefined;
