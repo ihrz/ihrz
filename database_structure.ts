@@ -2,9 +2,9 @@ import { EmbedBuilder } from "@discordjs/builders";
 import { CaseList } from "./src/core/modules/ticketsManager.js";
 
 interface DB_json {
-    BACKUPS: DB_Backups_Object
-    EMBED: DB_Embed_Object
-    [key: string]: DB_id | DB_Backups_Object | DB_Embed_Object
+    BACKUPS?: DB_Backups_Object
+    EMBED?: DB_Embed_Object
+    [key: string]: DB_id | DB_Backups_Object | DB_Embed_Object | undefined
 }
 
 interface DB_Embed_Object {
@@ -222,4 +222,6 @@ interface DB_Ticket_Configuration_Object {
     messageID: string,
 }
 
-const json: DB_id = {}
+const json: DB_json = {
+
+}
