@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "owner",
+        "options": {
+            "description": "help_owner_dsc",
+            "emoji": "👩‍✈️",
+            "placeholder": "help_owner_fields"
+        }
+    }
+}

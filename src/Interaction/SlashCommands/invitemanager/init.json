@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "invitemanager",
+        "options": {
+            "description": "help_invitem_dsc",
+            "emoji": "💾",
+            "placeholder": "help_invitem_fields"
+        }
+    }
+}

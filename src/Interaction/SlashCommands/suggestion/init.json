@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "suggestion",
+        "options": {
+            "description": "help_suggestion_dsc",
+            "emoji": "❓",
+            "placeholder": "help_suggestion_fields"
+        }
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "guildconfig",
+        "options": {
+            "description": "help_guildconf_dsc",
+            "emoji": "⚙",
+            "placeholder": "help_guildconf_fields"
+        }
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "profil",
+        "options": {
+            "description": "help_prof_dsc",
+            "emoji": "👩",
+            "placeholder": "help_prof_fields"
+        }
+    }
+}

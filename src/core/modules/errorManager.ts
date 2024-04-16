@@ -26,7 +26,6 @@ import logger from '../logger.js';
 import { MongoDriver } from 'quickmongo';
 import fs from 'node:fs';
 
-
 let exec = async (driver: MongoDriver) => {
     await driver.close();
     logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database?.method})!`);

@@ -39,6 +39,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
+import { generatePassword } from '../../../core/functions/random.js';
 
 export const command: Command = {
     name: 'embed',
@@ -382,7 +383,8 @@ export const command: Command = {
         };
 
         async function saveEmbed() {
-            var password = Math.random().toString(36).slice(-8);
+            var password = generatePassword({ length: 16 });
+
             await client.db.set(`EMBED.${password}`,
                 {
                     embedOwner: interaction.user.id,

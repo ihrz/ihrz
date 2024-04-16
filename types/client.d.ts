@@ -18,26 +18,33 @@
 
 ・ Copyright © 2020-2024 iHorizon
 */
+import { LyricsManager } from "../src/core/functions/lyrics-fetcher.js";
+import { iHorizonTimeCalculator } from "../src/core/functions/ms.js";
 
-import { Collection } from "discord.js";
-import { clientFunction } from "./clientFunction";
-import { Command } from "./command";
-import { QuickDB } from "quick.db";
-import { DataBase } from "./database";
-import { AnotherCommand } from "./anotherCommand";
-import { Emojis } from "./emojis";
 import { GiveawayManager } from "discord-regiveaways";
-import { QueueChangesWatcher, LavalinkManager } from "lavalink-client";
+import { Collection, Snowflake } from "discord.js";
+import { LavalinkManager } from "lavalink-client";
+import { QuickDB } from "quick.db";
+
+import { clientFunction } from "./clientFunction";
+import { AnotherCommand } from "./anotherCommand";
 import { BotContent } from './botContent'
-import { iHorizonTimeCalculator } from "../src/core/functions/ms";
+import { Category } from "./category";
+
+import { VanityInviteData } from "./vanityUrlData";
+import { Command } from "./command";
+import { Emojis } from "./emojis";
+
+import * as ClientVersion from "../src/version.js";
 
 declare module 'discord.js' {
     export interface Client {
         functions: clientFunction,
         commands: Collection<string, Command>,
+        category: Category[]
         message_commands: Collection<string, Command>,
         player: LavalinkManager,
-        invites: Collection,
+        invites: Collection<string, Collection<string, number | null>>,
         vanityInvites: Collection<Snowflake, VanityInviteData>,
         buttons: Collection<string, Function>,
         selectmenu: Collection<string, Function>,
@@ -46,6 +53,8 @@ declare module 'discord.js' {
         iHorizon_Emojis: Emojis,
         giveawaysManager: GiveawayManager,
         content: BotContent[],
-        timeCalculator: iHorizonTimeCalculator
+        timeCalculator: iHorizonTimeCalculator,
+        lyricsSearcher: LyricsManager,
+        version: typeof ClientVersion
     }
 };

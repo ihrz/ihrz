@@ -23,7 +23,7 @@ import { Client, Invite } from "discord.js";
 
 export default async (client: Client, invite: Invite) => {
     async function inviteManager() {
-        await client.invites.get(invite.guild?.id).delete(invite.code);
+        client.invites.get(invite.guild?.id!)?.delete(invite.code);
     };
 
     inviteManager();

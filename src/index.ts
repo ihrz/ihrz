@@ -19,12 +19,12 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import './src/core/functions/colors.js';
+import './core/functions/colors.js';
 
 import { DefaultWebSocketManagerOptions } from "@discordjs/ws";
 import { ShardingManager } from 'discord.js';
-import config from './src/files/config.js';
-import logger from './src/core/logger.js';
+import config from './files/config.js';
+import logger from './core/logger.js';
 
 if (config.discord.botPresence) {
 

@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "protection",
+        "options": {
+            "description": "help_protection_dsc",
+            "emoji": "🛡️",
+            "placeholder": "help_protection_fields"
+        }
+    }
+}

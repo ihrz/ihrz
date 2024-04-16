@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "ranks",
+        "options": {
+            "description": "help_ranks_dsc",
+            "emoji": "🌟",
+            "placeholder": "help_ranks_fields"
+        }
+    }
+}

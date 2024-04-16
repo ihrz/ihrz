@@ -45,7 +45,7 @@ export default async (client: Client, channel: GuildChannel) => {
 
                 for (let [id, webhook] of myWebhooks) await webhook.delete("Protect!");
 
-                let user = await channel.guild.members.cache.get(firstEntry.executorId as string);
+                let user = channel.guild.members.cache.get(firstEntry.executorId as string);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':

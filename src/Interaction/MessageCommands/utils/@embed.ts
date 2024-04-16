@@ -43,6 +43,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
+import { generatePassword } from '../../../core/functions/random.js';
 
 export const command: Command = {
 
@@ -374,7 +375,8 @@ export const command: Command = {
         };
 
         async function saveEmbed() {
-            var password = Math.random().toString(36).slice(-8);
+            var password = generatePassword({ length: 16 });
+            
             await client.db.set(`EMBED.${password}`,
                 {
                     embedOwner: interaction.author.id,

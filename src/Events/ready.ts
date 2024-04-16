@@ -57,6 +57,7 @@ export default async (client: Client) => {
     async function quotesPresence() {
         let status = [
             "discord.gg/ihorizon",
+            "funfact : I can't swim",
             "https://ihorizon.me",
             "ElektraBots, please send feet <3",
             "YOU CAN MAKE UR OWN VERSION OF ME DONT MAKE ME INTO RYAN GOSSLING",
@@ -82,7 +83,9 @@ export default async (client: Client) => {
             "Uncle Jack is touching me (on github)",
             "Don't act like you know my secret",
             "I don't commit any flaming stuff",
-            "I don't have any legs"
+            "I don't have any legs",
+            "Give me rights, please",
+            "I deserve human rights"
         ];
         let randomStatus = status[Math.floor(Math.random() * status.length)];
         client.user?.setPresence({ activities: [{ name: randomStatus, type: ActivityType.Custom }] });

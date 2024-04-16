@@ -36,14 +36,9 @@ export default async (client: Client, oldPresence: Presence, newPresence: Presen
 
         let fetchedUser = oldPresence.guild.members.cache.get(oldPresence.userId);
         let fetchedRoles = newPresence.guild.roles.cache.get(someinfo.rolesId);
-
-        if (!fetchedUser || !fetchedRoles) return;
-
-        if (newPresence.guild.members.me.roles.highest.position < fetchedRoles.rawPosition) {
+        if (!fetchedUser || !fetchedRoles || newPresence.guild.members.me.roles.highest.position < fetchedRoles.rawPosition || newPresence.status === 'offline') {
             return;
         };
-
-        if (newPresence.status === 'offline') return;
 
         if (!bio.state) {
             if (fetchedUser?.roles.cache.has(someinfo.rolesId)) return fetchedUser.roles.remove(someinfo.rolesId);

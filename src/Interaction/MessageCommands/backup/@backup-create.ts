@@ -69,7 +69,7 @@ export const command: Command = {
             jsonBeautify: true
         }).then(async (backupData) => {
 
-            await backupData.channels.categories.forEach(category => {
+            backupData.channels.categories.forEach(category => {
                 i++;
                 category.children.forEach(() => {
                     j++;

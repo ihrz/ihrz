@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "utils",
+        "options": {
+            "description": "help_utils_dsc",
+            "emoji": "🧰",
+            "placeholder": "help_utils_fields"
+        }
+    }
+}

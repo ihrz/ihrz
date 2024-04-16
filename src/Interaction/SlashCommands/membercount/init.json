@@ -1,0 +1,10 @@
+{
+    "categoryInitializer": {
+        "categoryName": "membercount",
+        "options": {
+            "description": "help_memberc_dsc",
+            "emoji": "👥",
+            "placeholder": "help_memberc_fields"
+        }
+    }
+}

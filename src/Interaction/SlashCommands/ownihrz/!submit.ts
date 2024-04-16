@@ -27,6 +27,7 @@ import {
 
 import axios from 'axios';
 import { LanguageData } from '../../../../types/languageData';
+import { generatePassword } from '../../../core/functions/random.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -46,7 +47,7 @@ export default {
             await interaction.reply({ content: data.mybot_submit_token_invalid });
             return;
         } else {
-            var code = Math.random().toString(36).slice(-10);
+            var code = generatePassword({ length: 12 })
 
             var table_1 = client.db.table("TEMP");
             await table_1.set(`OWNIHRZ.${interaction.user.id}.${code}`,
