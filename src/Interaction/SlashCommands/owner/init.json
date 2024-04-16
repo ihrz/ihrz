@@ -1,6 +1,7 @@
 {
     "categoryInitializer": {
         "categoryName": "owner",
+        "categoryColor": "#660000",
         "options": {
             "description": "help_owner_dsc",
             "emoji": "👩‍✈️",

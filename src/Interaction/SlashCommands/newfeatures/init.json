@@ -1,6 +1,7 @@
 {
     "categoryInitializer": {
         "categoryName": "newfeatures",
+        "categoryColor": "#b4a7d6",
         "options": {
             "description": "help_newftrs_dsc",
             "emoji": "🆕",

@@ -1,6 +1,7 @@
 {
     "categoryInitializer": {
         "categoryName": "economy",
+        "categoryColor": "#f7c93f",
         "options": {
             "description": "help_economy_dsc",
             "emoji": "👩‍💼",

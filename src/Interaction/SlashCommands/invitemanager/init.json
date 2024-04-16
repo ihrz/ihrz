@@ -1,6 +1,7 @@
 {
     "categoryInitializer": {
         "categoryName": "invitemanager",
+        "categoryColor": "#ce7e00",
         "options": {
             "description": "help_invitem_dsc",
             "emoji": "💾",

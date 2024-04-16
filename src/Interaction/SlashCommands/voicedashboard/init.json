@@ -1,10 +1,11 @@
 {
     "categoryInitializer": {
-        "categoryName": "utils",
+        "categoryName": "voicedashboard",
+        "categoryColor": "#ed8bbe",
         "options": {
-            "description": "help_utils_dsc",
-            "emoji": "🧰",
-            "placeholder": "help_utils_fields"
+            "description": "help_voicedashboard_dsc",
+            "emoji": "🔊",
+            "placeholder": "help_voicedashboard_fields"
         }
     }
 }

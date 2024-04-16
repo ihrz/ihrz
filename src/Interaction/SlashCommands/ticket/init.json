@@ -1,10 +1,11 @@
 {
     "categoryInitializer": {
-        "categoryName": "voicedashboard",
+        "categoryName": "ticket",
+        "categoryColor": "#397c16",
         "options": {
-            "description": "help_voicedashboard_dsc",
-            "emoji": "🔊",
-            "placeholder": "help_voicedashboard_fields"
+            "description": "help_ticket_dsc",
+            "emoji": "🎫",
+            "placeholder": "help_ticket_fields"
         }
     }
 }

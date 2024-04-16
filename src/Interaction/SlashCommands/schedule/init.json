@@ -1,6 +1,7 @@
 {
     "categoryInitializer": {
         "categoryName": "schedule",
+        "categoryColor": "#744700",
         "options": {
             "description": "help_schedule_dsc",
             "emoji": "🗒",
