@@ -25,9 +25,9 @@ interface DB_Backups_Object {
 }
 
 interface DB_id {
-    USER: DB_GuildUser_Object;
-    GUILD: DB_Guild_Object;
-    TICKET_ALL: {
+    USER?: DB_GuildUser_Object;
+    GUILD?: DB_Guild_Object;
+    TICKET_ALL?: {
         [userId: string]: {
             [channelId: string]: {
                 channel: string
@@ -36,16 +36,16 @@ interface DB_id {
             }
         }
     }
-    PROTECTION: {
+    PROTECTION?: {
         [rule: string]: {
             mode: string
         } | string
         SANCTION: string
     }
-    ROLE_SAVER: {
+    ROLE_SAVER?: {
         [userId: string]: string[]
     }
-    ALLOWLIST: {
+    ALLOWLIST?: {
         enable: boolean
         list: {
             [x: string]: {
@@ -53,18 +53,18 @@ interface DB_id {
             };
         }
     }
-    SUGGEST: {
+    SUGGEST?: {
         channel: string
         disable: boolean
     }
-    SUGGESTION: {
+    SUGGESTION?: {
         [suggestCode: string]: {
             author: string
             msgId: string
             replied?: boolean
         }
     }
-    SNIPE: {
+    SNIPE?: {
         [channelId: string]: {
             snipe: string
             snipeUserInfoTag: string
@@ -72,18 +72,18 @@ interface DB_id {
             snipeTimestamp: number
         }
     }
-    ECONOMY: {
+    ECONOMY?: {
         disabled: boolean
     }
-    SECURITY: {
+    SECURITY?: {
         channel: string
         disable: boolean
         role: string
     }
-    UTILS: {
+    UTILS?: {
         unban_members: string[]
     }
-    VOICE_INTERFACE: {
+    VOICE_INTERFACE?: {
         staff_role: string
         interface: {
             channelId: string
@@ -95,7 +95,7 @@ interface DB_id {
 
 interface DB_GuildUser_Object {
     [userId: string]: {
-        INVITES: {
+        INVITES?: {
             BY: {
                 inviter: string
                 invite: string
@@ -105,7 +105,7 @@ interface DB_GuildUser_Object {
             bonus: number
             leaves: number
         }
-        ECONOMY: {
+        ECONOMY?: {
             money: number
             bank: number
             daily: number
@@ -113,23 +113,28 @@ interface DB_GuildUser_Object {
             weekly: number
             work: number
         }
-        REPORT: {
+        REPORT?: {
             cooldown: number
+        }
+        XP_LEVELING?: {
+            xp: number
+            xptotal: number
+            level?: number
         }
     }
 };
 
 interface DB_Guild_Object {
-    LANG: {
+    LANG?: {
         lang: string
     }
-    TICKET: {
+    TICKET?: {
         logs?: string
         disable: boolean
         category: string
         [key: string]: DB_Ticket_Configuration_Object | string | boolean | undefined
     }
-    GUILD_CONFIG: {
+    GUILD_CONFIG?: {
         joinmessage: string
         join: string
         leave: string
@@ -146,8 +151,8 @@ interface DB_Guild_Object {
             admin: string
         }
     }
-    BLOCK_BOT: boolean
-    MCOUNT: {
+    BLOCK_BOT?: boolean
+    MCOUNT?: {
         member: {
             name: string
             enable: boolean
@@ -167,34 +172,34 @@ interface DB_Guild_Object {
             channel: string
         }
     }
-    PUNISH: {
-        PUNISH_PUB: {
+    PUNISH?: {
+        PUNISH_PUB?: {
             amountMax: number
             punishementType: string | null
             state: string
         }
     }
-    SERVER_LOGS: {
+    SERVER_LOGS?: {
         roles: string
         moderation: string
         voice: string
         message: string
         boosts: string
     }
-    SUPPORT: {
+    SUPPORT?: {
         input: string | null
         rolesId: string
         state: string
     }
-    PFPS: {
+    PFPS?: {
         channel: string
         disable: boolean
     }
-    XP_LEVELING: {
+    XP_LEVELING?: {
         disable: boolean
         xpchannels: string
     }
-    REACTION_ROLES: {
+    REACTION_ROLES?: {
         [messageId: string]: {
             [reaction: string]: {
                 rolesID: string
@@ -203,7 +208,7 @@ interface DB_Guild_Object {
             }
         }
     }
-    RANK_ROLES: {
+    RANK_ROLES?: {
         roles: string
     }
 }
@@ -216,3 +221,5 @@ interface DB_Ticket_Configuration_Object {
     channel: string,
     messageID: string,
 }
+
+const json: DB_id = {}
