@@ -46,7 +46,7 @@ interface DB_id {
         [userId: string]: string[]
     }
     ALLOWLIST?: {
-        enable: boolean
+        enable?: boolean
         list?: {
             [x: string]: {
                 allowed: boolean
