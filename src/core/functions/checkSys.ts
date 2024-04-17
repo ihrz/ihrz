@@ -19,10 +19,11 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import fs from 'node:fs';
-import axios from 'axios';
+import { axios } from '../functions/axios.js'
+
 import config from '../../files/config.js';
 import logger from '../logger.js';
+import fs from 'node:fs';
 
 let INDEX_HTML_LINK: string = 'https://raw.githubusercontent.com/ihrz/ihrz/main/src/api/index.example.html';
 
