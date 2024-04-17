@@ -23,6 +23,7 @@ import './core/functions/colors.js';
 
 import { Client, Partials, GatewayIntentBits } from "discord.js";
 import { DefaultWebSocketManagerOptions } from "@discordjs/ws";
+import * as ClientVersion from "./version.js";
 import config from './files/config.js';
 import logger from './core/logger.js';
 import core from './core/core.js';
@@ -72,5 +73,6 @@ let client = new Client({
         Partials.ThreadMember
     ]
 });
+client.version = ClientVersion;
 
 core(client);
