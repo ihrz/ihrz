@@ -93,7 +93,8 @@ export default async (client: Client, interaction: Interaction) => {
 
             await command.run(client, interaction);
         } catch (e: any) {
-            logger.err(e);
+            // logger.err(e);
+            console.error(e);
         };
     };
 

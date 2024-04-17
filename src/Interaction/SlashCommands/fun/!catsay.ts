@@ -34,7 +34,7 @@ import {
   EmbedBuilder,
 } from 'discord.js';
 
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 
 export default {
   run: async (client: Client, interaction: ChatInputCommandInteraction) => {
@@ -50,16 +50,21 @@ export default {
 
     let imgs: AttachmentBuilder | undefined;
 
-    let response: AxiosResponse = await axios.get(link, { responseType: 'arraybuffer' });
-    imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'all-humans-have-right-elektra.png' });
-    embed.setImage(`attachment://all-humans-have-right-elektra.png`);
+    try {
+      let response: AxiosResponse = await axios.get(link, { responseType: 'arraybuffer' });
+      imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'all-humans-have-right-elektra.png' });
+      embed.setImage(`attachment://all-humans-have-right-elektra.png`);
 
-    if (imgs) {
-      await interaction.editReply({
-        embeds: [embed],
-        files: [imgs, { attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
-      });
-    };
+      if (imgs) {
+        await interaction.editReply({
+          embeds: [embed],
+          files: [imgs, { attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
+      };
+
+    } catch {
+      await interaction.editReply({ content: "Api down." });
+    }
 
     return;
   },

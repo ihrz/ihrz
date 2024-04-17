@@ -20,17 +20,19 @@
 */
 
 import { Custom_iHorizon } from "../../../types/ownihrz.js";
-import { execSync } from 'child_process';
+
 import config from "../../files/config.js";
+import logger from "../logger.js";
 
 import { OwnIhrzCluster, ClusterMethod } from "../functions/apiUrlParser.js";
 import db from "../functions/DatabaseModel.js";
-import { Client } from "discord.js";
-import axios from "axios";
-import logger from "../logger.js";
-import path from "path";
-import fs from 'node:fs';
+import { axios } from "../functions/axios.js";
 import wait from "../functions/wait.js";
+
+import { execSync } from 'child_process';
+import { Client } from "discord.js";
+import fs from 'node:fs';
+import path from "path";
 
 class OwnIHRZ {
 
@@ -433,9 +435,9 @@ class OwnIHRZ {
         ).then(function (response) {
             logger.log(response.data as unknown as string);
         })
-        .catch(function (error) {
-            logger.err(error);
-        });
+            .catch(function (error) {
+                logger.err(error);
+            });
 
         return 0;
     };

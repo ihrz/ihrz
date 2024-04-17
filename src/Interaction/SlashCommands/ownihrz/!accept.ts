@@ -26,12 +26,13 @@ import {
 } from 'discord.js';
 
 import { ClusterMethod, OwnIhrzCluster } from '../../../core/functions/apiUrlParser.js';
-import { LanguageData } from '../../../../types/languageData';
-
-import { Custom_iHorizon } from '../../../../types/ownihrz';
+import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
+
+import { LanguageData } from '../../../../types/languageData';
+import { Custom_iHorizon } from '../../../../types/ownihrz';
+
 import config from '../../../files/config.js';
-import axios, { AxiosResponse } from 'axios';
 import logger from '../../../core/logger.js';
 import path from 'path';
 

@@ -25,9 +25,10 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
+import { AxiosResponse, axios } from '../../../core/functions/axios.js';
+
 import { LanguageData } from '../../../../types/languageData';
 import date from 'date-and-time';
-import axios from 'axios';
 
 async function buildEmbed(client: Client, data: any, botId: number, lang: LanguageData) {
 

@@ -22,7 +22,7 @@
 import { Attachment, AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuilder, Message } from 'discord.js';
 import hidden from '../core/functions/maskLink.js';
 
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse, axios } from '../core/functions/axios.js';
 
 export default async (client: Client, message: Message) => {
     let data = await client.functions.getLanguageData(message.guild?.id);
