@@ -27,7 +27,6 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
-import pkg from '../../../../package.json' assert { type: "json" };
 
 export const command: Command = {
     name: 'botinfo',
@@ -53,12 +52,12 @@ export const command: Command = {
                 { name: data.botinfo_embed_fields_mychannels, value: `:green_circle: ${client.channels.cache.size}`, inline: false },
                 { name: data.botinfo_embed_fields_myservers, value: `:green_circle: ${client.guilds.cache.size}`, inline: false },
                 { name: data.botinfo_embed_fields_members, value: `:green_circle: ${usersize}`, inline: false },
-                { name: data.botinfo_embed_fields_libraires, value: `:green_circle: discord.js@${pkg.dependencies['discord.js']}`, inline: false },
+                { name: data.botinfo_embed_fields_libraires, value: `:green_circle: discord.js@${client.version.djs}`, inline: false },
                 { name: data.botinfo_embed_fields_created_at, value: ":green_circle: <t:1600042320:R>", inline: false },
                 { name: data.botinfo_embed_fields_created_by, value: ":green_circle: <@171356978310938624>", inline: false },
             )
             .setTimestamp()
-            .setFooter({ text: `iHorizon ${pkg.version}`, iconURL: "attachment://icon.png" })
+            .setFooter({ text: `iHorizon ${client.version.ClientVersion}`, iconURL: "attachment://icon.png" })
             .setTimestamp()
 
         await interaction.reply({ embeds: [clientembed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });

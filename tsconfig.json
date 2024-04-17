@@ -11,10 +11,20 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "importHelpers": true,
-    "typeRoots": ["node_modules/@types"],
-    "types": ["node"],
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "typeRoots": [
+      "node_modules/@types"
+    ],
   },
-  "include": ["./"],
-  "exclude": ["./temp", "/.github", "./dist", "./node_modules", "./src/files/config.example.ts", "./ownihrz"]
+  "include": [
+    "./",
+    "src/**/*.json",
+  ],
+  "exclude": [
+    "/.github",
+    "./dist",
+    "./node_modules",
+    "./src/files/config.example.ts",
+    "./ownihrz"
+  ]
 }

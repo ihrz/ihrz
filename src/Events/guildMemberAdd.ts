@@ -118,11 +118,11 @@ export default async (client: Client, member: GuildMember) => {
         let oldInvites = client.invites.get(member.guild.id);
         let newInvites = await member.guild.invites.fetch();
 
-        let invite = newInvites.find((i: Invite) => i.uses && i.uses > (oldInvites.get(i.code) || 0));
+        let invite = newInvites.find((i: Invite) => i.uses && i.uses > (oldInvites?.get(i.code) || 0));
 
         if (invite) {
             let inviter = await client.users.fetch(invite?.inviterId as string);
-            client.invites.get(member.guild.id).set(invite?.code, invite?.uses);
+            client.invites.get(member.guild.id)?.set(invite?.code, invite?.uses);
 
             let check = await client.db.get(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`);
 

@@ -33,6 +33,8 @@ import {
     Message
 } from 'discord.js'
 
+import { LanguageData } from '../../../../types/languageData';
+import { CategoryData } from '../../../../types/category';
 import { Command } from '../../../../types/command';
 
 export const command: Command = {
@@ -49,163 +51,30 @@ export const command: Command = {
     run: async (client: Client, interaction: Message) => {
         let data = await client.functions.getLanguageData(interaction.guild?.id);
 
-        let categories = [
-            {
-                name: data.help_backup_fields,
-                value: client.content.filter(c => c.category === 'backup'),
-                description: data.help_backup_dsc,
-                emoji: "🔁",
-                inline: true,
-            },
-            {
-                name: data.help_bot_fields,
-                value: client.content.filter(c => c.category === 'bot'),
-                inline: true,
-                description: data.help_bot_dsc,
-                emoji: "🤖"
-            },
-            {
-                name: data.help_economy_fields,
-                value: client.content.filter(c => c.category === 'economy'),
-                inline: true,
-                description: data.help_economy_dsc,
-                emoji: "👩‍💼"
-            },
-            {
-                name: data.help_fun_fields,
-                value: client.content.filter(c => c.category === 'fun'),
-                inline: true,
-                description: data.help_fun_dsc,
-                emoji: "🆒"
-            },
-            {
-                name: data.help_giveaway_fields,
-                value: client.content.filter(c => c.category === 'giveaway'),
-                inline: true,
-                description: data.help_giveaway_dsc,
-                emoji: "🎉"
-            },
-            {
-                name: data.help_guildconf_fields,
-                value: client.content.filter(c => c.category === 'guildconfig'),
-                inline: true,
-                description: data.help_guildconf_dsc,
-                emoji: "⚙"
-            },
-            {
-                name: data.help_invitem_fields,
-                value: client.content.filter(c => c.category === 'invitemanager'),
-                inline: true,
-                description: data.help_invitem_dsc,
-                emoji: "💾"
-            },
-            {
-                name: data.help_memberc_fields,
-                value: client.content.filter(c => c.category === 'membercount'),
-                inline: true,
-                description: data.help_memberc_dsc,
-                emoji: "👥"
-            },
-            {
-                name: data.help_mod_fields,
-                value: client.content.filter(c => c.category === 'moderation'),
-                inline: true,
-                description: data.help_mod_dsc,
-                emoji: "👮‍♀️"
-            },
-            {
-                name: data.help_music_fields,
-                value: client.content.filter(c => c.category === 'music'),
-                inline: true,
-                description: data.help_music_dsc,
-                emoji: "🎵"
-            },
-            {
-                name: data.help_newftrs_fields,
-                value: client.content.filter(c => c.category === 'newfeatures'),
-                inline: true,
-                description: data.help_newftrs_dsc,
-                emoji: "🆕"
-            },
-            {
-                name: data.help_owner_fields,
-                value: client.content.filter(c => c.category === 'owner'),
-                inline: true,
-                description: data.help_owner_dsc,
-                emoji: "👩‍✈️"
-            },
-            {
-                name: data.help_pfps_fields,
-                value: client.content.filter(c => c.category === 'pfps'),
-                inline: true,
-                description: data.help_pfps_dsc,
-                emoji: "🕵️‍♀️"
-            },
-            {
-                name: data.help_prof_fields,
-                value: client.content.filter(c => c.category === 'profil'),
-                inline: true,
-                description: data.help_prof_dsc,
-                emoji: "👩"
-            },
-            {
-                name: data.help_protection_fields,
-                value: client.content.filter(c => c.category === 'protection'),
-                inline: true,
-                description: data.help_protection_dsc,
-                emoji: "🛡️"
-            },
-            {
-                name: data.help_ranks_fields,
-                value: client.content.filter(c => c.category === 'ranks'),
-                inline: true,
-                description: data.help_ranks_dsc,
-                emoji: "🌟"
-            },
-            {
-                name: data.help_roler_fields,
-                value: client.content.filter(c => c.category === 'rolereactions'),
-                inline: true,
-                description: data.help_roler_dsc,
-                emoji: "📇"
-            },
-            {
-                name: data.help_schedule_fields,
-                value: client.content.filter(c => c.category === 'schedule'),
-                inline: true,
-                description: data.help_schedule_dsc,
-                emoji: "🗒"
-            },
-            {
-                name: data.help_security_fields,
-                value: client.content.filter(c => c.category === 'security'),
-                inline: true,
-                description: data.help_security_dsc,
-                emoji: "🔐"
-            },
-            {
-                name: data.help_suggestion_fields,
-                value: client.content.filter(c => c.category === 'suggestion'),
-                inline: true,
-                description: data.help_suggestion_dsc,
-                emoji: "❓"
-            },
-            {
-                name: data.help_ticket_fields,
-                value: client.content.filter(c => c.category === 'ticket'),
-                inline: true,
-                description: data.help_ticket_dsc,
-                emoji: "🎫"
-            },
-            {
-                name: data.help_utils_fields,
-                value: client.content.filter(c => c.category === 'utils'),
-                inline: true,
-                description: data.help_utils_dsc,
-                emoji: "🧰"
-            },
-        ];
+        const categories: CategoryData[] = [];
 
+        for (const cat of client.category) {
+            const color = cat.categoryColor;
+
+            const descriptionKey = cat.options.description;
+            const description = data[descriptionKey as keyof LanguageData].toString();
+
+            const placeholderKey = cat.options.placeholder;
+            const placeholder = data[placeholderKey as keyof LanguageData];
+
+            const commands = client.content.filter(c => c.category === cat.categoryName);
+
+            categories.push({
+                name: placeholder.toString(),
+                value: commands,
+                inline: true,
+                color: color,
+                description: description,
+                emoji: cat.options.emoji
+            });
+        };
+
+        categories.sort((a, b) => a.name.localeCompare(b.name));
         let select = new StringSelectMenuBuilder().setCustomId('starter').setPlaceholder('Make a selection!');
 
         categories.forEach((category, index) => {
@@ -248,42 +117,58 @@ export const command: Command = {
 
             embed.setFields({ name: ' ', value: ' ' });
 
-            await categories[i.values[0] as unknown as number].value.forEach(async (element) => {
+            let categoryColor = categories[i.values[0] as unknown as number].color as any;
+            let commandGroups: any[][] = [];
+            let embeds: EmbedBuilder[] = [];
+            let currentGroup: any[] = [];
 
-                if (element.messageCmd) {
-                    switch (guildLang) {
-                        case "en-US":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
-                            break;
-                        case "fr-FR":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
-                            break;
-                        case "fr-ME":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
-                            break;
-                        default:
-                            embed.addFields({ name: `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
-                            break;
-                    };
-                } else {
-                    switch (guildLang) {
-                        case "en-US":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
-                            break;
-                        case "fr-FR":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
-                            break;
-                        case "fr-ME":
-                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc_localized["fr"]}\``, inline: true });
-                            break;
-                        default:
-                            embed.addFields({ name: `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`, value: `\`${element.desc}\``, inline: true });
-                            break;
-                    };
+            categories[i.values[0] as unknown as number].value.forEach(async (element, index) => {
+                let cmdPrefix = (element.messageCmd) ? `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**` : `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
+                let descValue = (guildLang === "fr-ME" || guildLang === "fr-FR") ? `\`${element.desc_localized["fr"]}\`` : `\`${element.desc}\``;
+
+                switch (guildLang) {
+                    case "en-US":
+                        currentGroup.push({ name: cmdPrefix, value: descValue, inline: true });
+                        break;
+                    case "fr-FR":
+                        currentGroup.push({ name: cmdPrefix, value: descValue, inline: true });
+                        break;
+                    default:
+                        currentGroup.push({ name: cmdPrefix, value: descValue, inline: true });
+                        break;
+                }
+
+                if ((index + 1) % 20 === 0 || index === categories[i.values[0] as unknown as number].value.length - 1) {
+                    commandGroups.push([...currentGroup]);
+                    currentGroup = [];
                 }
             });
 
-            await response.edit({ embeds: [embed] });
+            for (const group of commandGroups) {
+                let newEmbed = new EmbedBuilder().setColor(categoryColor);
+
+                if (embeds.length === 0) {
+                    newEmbed
+                        .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
+                        .setDescription(categories[i.values[0] as unknown as number].description)
+                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                        .setThumbnail("attachment://icon.png")
+                        .setTimestamp();
+                }
+
+                group.forEach(field => {
+                    newEmbed.addFields(field);
+                });
+
+                const remainingFields = group.length % 2;
+                if (remainingFields === 0) {
+                    newEmbed.addFields({ name: '**  **', value: '**  **', inline: true });
+                }
+
+                embeds.push(newEmbed);
+            }
+
+            await response.edit({ embeds: embeds });
         });
     },
 };

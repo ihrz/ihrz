@@ -22,11 +22,13 @@
 import { Client, Collection } from "discord.js";
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
-import logger from "../logger.js";
-import { Command, DescriptionLocalizations } from "../../../types/command.js";
-import config from "../../files/config.js";
+
+import { Command } from "../../../types/command.js";
 import { EltType } from "../../../types/eltType.js";
 import { Option } from "../../../types/option.js";
+
+import config from "../../files/config.js";
+import logger from "../logger.js";
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     let result = [];
@@ -94,10 +96,15 @@ export default async function loadCommands(client: Client, path: string = `${pro
 
     var i = 0;
     for (let path of paths) {
-        if (!path.endsWith('.js')) continue;
+        if (!path.endsWith('.js') && !path.endsWith('.json')) continue;
         i++;
 
-        let module = await import(path).then((module) => module);
+        let module;
+        if (path.endsWith('.js')) {
+            module = await import(path);
+        } else if (path.endsWith('init.json')) {
+            module = await import(path, { assert: { type: "json" } })
+        }
 
         if (module && module.command) {
             const { command } = module;
@@ -117,7 +124,9 @@ export default async function loadCommands(client: Client, path: string = `${pro
             )
 
             client.commands.set(command.name, command);
-        }
+        } else if (module?.default?.categoryInitializer) {
+            client.category.push(module.default.categoryInitializer);
+        };
     };
 
     logger.log(`${config.console.emojis.OK} >> Loaded ${i} Slash commands.`);

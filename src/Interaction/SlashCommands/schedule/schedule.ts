@@ -42,6 +42,7 @@ import { format } from '../../../core/functions/date-and-time.js';
 
 import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
+import { generatePassword } from '../../../core/functions/random.js';
 
 export const command: Command = {
     name: "schedule",
@@ -313,7 +314,7 @@ export const command: Command = {
 
 
                 async function __0(date0: number, collection: Collection<string, TextInputComponent>) {
-                    var scheduleCode = Math.random().toString(36).slice(-8);
+                    var scheduleCode = generatePassword({ length: 16 });
 
                     if (Number.isNaN(date0)) {
                         response.edit({

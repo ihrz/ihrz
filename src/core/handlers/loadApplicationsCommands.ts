@@ -29,7 +29,7 @@ export default async (client: Client) => {
     let loadCommands = async (commandType: string) => {
         let commandPath = `${process.cwd()}/dist/src/Interaction/${commandType}ApplicationCommands`;
 
-        let files = await readdirSync(commandPath);
+        let files = readdirSync(commandPath);
 
         for (let file of files.filter((file: string) => file.endsWith('.js'))) {
             let { command } = await import(`${commandPath}/${file}`);
@@ -43,9 +43,9 @@ export default async (client: Client) => {
         }
     };
 
-    // Load MessageApplicationCommands
+    /**  Load MessageApplicationCommands */
     await loadCommands('Message');
 
-    // Load UserApplicationCommands
+    /**  Load UserApplicationCommands */
     await loadCommands('User');
 };

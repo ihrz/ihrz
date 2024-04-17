@@ -59,7 +59,7 @@ function generateRandomCode(): string {
 }
 
 async function createLetterImage(letter: string): Promise<Jimp> {
-    let image = await new Jimp(30, 50, '#ffffff');
+    let image =  new Jimp(30, 50, '#ffffff');
     let font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
     return image.print(font, 0, 0, letter);
 }

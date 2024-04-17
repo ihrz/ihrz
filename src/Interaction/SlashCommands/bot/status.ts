@@ -27,8 +27,6 @@ import {
     ApplicationCommandType
 } from 'discord.js'
 
-import pkg from '../../../../package.json' assert { type: "json" };
-
 import { Command } from '../../../../types/command';
 import config from '../../../files/config.js';
 import os from 'node:os';
@@ -61,7 +59,7 @@ export const command: Command = {
                 { name: "Memory", value: `${niceBytes(os.freemem())}/${niceBytes(os.totalmem())}`, inline: false },
                 { name: "Machine Uptime", value: `${time(new Date(Date.now() - os.uptime() * 1000), 'd')}`, inline: false },
                 { name: "OS", value: `${os.platform()} ${os.type()} ${os.release()}`, inline: false },
-                { name: "Bot Version", value: `${pkg.version}`, inline: false },
+                { name: "Bot Version", value: `${client.version.ClientVersion}`, inline: false },
             )
             .setThumbnail(interaction.guild?.iconURL() as string)
             .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })

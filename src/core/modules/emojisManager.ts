@@ -21,8 +21,8 @@
 import { Emojis } from '../../../types/emojis';
 import { Client } from 'discord.js';
 
-import toml from 'toml';
 import fs from 'node:fs';
+import toml from 'toml';
 
 function emojis(client: Client) {
     let emojis: Emojis = toml.parse(String(fs.readFileSync(process.cwd() + "/src/files/emojis.toml")))
