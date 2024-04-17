@@ -36,7 +36,7 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
-import axios from 'axios';
+import { axios } from '../../../core/functions/axios.js';
 
 export const command: Command = {
 

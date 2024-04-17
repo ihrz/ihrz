@@ -25,7 +25,7 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import axios, { AxiosResponse } from 'axios';
+import { axios, AxiosResponse } from '../../../core/functions/axios.js';
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData';
 
