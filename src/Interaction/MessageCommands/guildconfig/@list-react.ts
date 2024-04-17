@@ -59,6 +59,11 @@ export const command: Command = {
             pages.push(`Quand une personne envoie **\`${key}\`**, je **réagis** avec ${value}\n`);
         });
 
+        if (pages.length === 0) {
+            await interaction.reply({ content: "Aucune données as été trouvé, veuillez en ajouter avant." });
+            return;
+        }
+        
         let createEmbed = () => {
             return new EmbedBuilder()
                 .setColor("#000000")
