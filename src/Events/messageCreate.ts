@@ -241,7 +241,8 @@ export default async (client: Client, message: Message) => {
     async function reactToHeyMSG() {
         if (!message.guild
             || message.author.bot
-            || !message.channel) return;
+            || !message.channel
+            || await client.db.get(`${message.guildId}.GUILD.GUILD_CONFIG.hey_reaction`) === false) return;
 
         let recognizeItem: Array<string> = [
             'hey',
@@ -267,6 +268,9 @@ export default async (client: Client, message: Message) => {
                 };
             };
         });
+
+        let custom_react = await client.db.get(`${message.guildId}.GUILD.REACT_MSG.${message.content.split(' ')[0]?.toLocaleLowerCase()}`)
+        if (custom_react) await message.react(custom_react).catch(() => { });
         return;
     };
 
