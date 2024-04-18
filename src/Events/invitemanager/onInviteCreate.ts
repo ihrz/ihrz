@@ -19,18 +19,25 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Invite } from "discord.js";
+import { Client, Guild, Invite, PermissionsBitField } from 'discord.js';
 
-import { BotEvent } from '../../types/event';
+import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {
-    name: "inviteDelete",
+    name: "inviteCreate",
     run: async (client: Client, invite: Invite) => {
 
-        async function inviteManager() {
-            client.invites.get(invite.guild?.id!)?.delete(invite.code);
-        };
+        if (!invite.guild || !(invite.guild as Guild).members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+        client.invites.get(invite.guild?.id)?.set(invite.code, invite.uses);
 
-        inviteManager();
+        let check = await client.db.get(`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`);
+
+        if (!check) {
+            await client.db.set(`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`,
+                {
+                    regular: 0, bonus: 0, leaves: 0, invites: 0
+                }
+            );
+        };
     },
 };

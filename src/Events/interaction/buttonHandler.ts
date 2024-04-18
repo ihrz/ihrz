@@ -19,29 +19,18 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Guild, Invite, PermissionsBitField } from 'discord.js';
-
-import { BotEvent } from '../../types/event';
+import { Client, Interaction } from 'discord.js';
+import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {
-    name: "inviteCreate",
-    run: async (client: Client, invite: Invite) => {
+    name: "interactionCreate",
+    run: async (client: Client, interaction: Interaction) => {
 
-        async function inviteManager() {
-            if (!invite.guild || !(invite.guild as Guild).members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
-            client.invites.get(invite.guild?.id)?.set(invite.code, invite.uses);
+        if (!interaction.isButton()
+            || !interaction.guild?.channels
+            || interaction.user.bot) return;
 
-            let check = await client.db.get(`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`);
-
-            if (!check) {
-                await client.db.set(`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`,
-                    {
-                        regular: 0, bonus: 0, leaves: 0, invites: 0
-                    }
-                );
-            };
-        };
-
-        inviteManager();
+        let get = client.buttons.get(interaction.customId);
+        if (get) get(interaction);
     },
 };

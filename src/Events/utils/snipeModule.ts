@@ -19,33 +19,25 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, User, time } from "discord.js";
+import hidden from '../../core/functions/maskLink.js';
 
-import { BotEvent } from '../../types/event';
+import { Client, Message } from 'discord.js';
+import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {
-    name: "userUpdate",
-    run: async (client: Client, oldUser: User) => {
+    name: "messageDelete",
+    run: async (client: Client, message: Message) => {
 
-        async function prevNames() {
-            var newUser = await client.users.fetch(oldUser.id);
+        if (!message.guild || !message.author
+            || message.author.id == client.user?.id) return;
 
-            let oldUsertag = oldUser.username;
-            let oldUserGlbl = oldUser.globalName;
-            let table = client.db.table("PREVNAMES");
-
-            if (!oldUser) return;
-
-            if (oldUser.globalName !== newUser.globalName) {
-
-                await table.push(`${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUserGlbl}`);
-
-            } else if (oldUser.username !== newUser.username) {
-
-                await table.push(`${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUsertag}`);
-            };
-        };
-
-        prevNames();
+        await client.db.set(`${message.guild.id}.GUILD.SNIPE.${message.channel.id}`,
+            {
+                snipe: `${hidden(message.content)}`,
+                snipeUserInfoTag: `${message.author.username} (${message.author.id} )`,
+                snipeUserInfoPp: `${message.author.displayAvatarURL()}`,
+                snipeTimestamp: Date.now()
+            }
+        );
     },
 };
