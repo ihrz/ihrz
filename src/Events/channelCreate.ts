@@ -19,60 +19,64 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent, GuildChannel, GuildTextBasedChannel } from 'discord.js'
+import { Client, EmbedBuilder, AuditLogEvent, GuildChannel, GuildTextBasedChannel } from 'discord.js'
+import { BotEvent } from '../../types/event';
 
-export default async (client: Client, channel: GuildChannel) => {
+export const event: BotEvent = {
+    name: "channelCreate",
+    run: async (client: Client, channel: GuildChannel) => {
 
-    async function ihrzLogs() {
-        if (channel.name !== "ihorizon-logs") return;
-        let data = await client.functions.getLanguageData(channel.guild.id);
+        async function ihrzLogs() {
+            if (channel.name !== "ihorizon-logs") return;
+            let data = await client.functions.getLanguageData(channel.guild.id);
 
-        let setup_embed = new EmbedBuilder()
-            .setColor("#1e1d22")
-            .setTitle(data.event_channel_create_message_embed_title)
-            .setDescription(data.event_channel_create_message_embed_description);
-        await (channel as GuildTextBasedChannel).send({ embeds: [setup_embed] }).catch(() => { });
-        return;
-    };
+            let setup_embed = new EmbedBuilder()
+                .setColor("#1e1d22")
+                .setTitle(data.event_channel_create_message_embed_title)
+                .setDescription(data.event_channel_create_message_embed_description);
+            await (channel as GuildTextBasedChannel).send({ embeds: [setup_embed] }).catch(() => { });
+            return;
+        };
 
-    async function protect() {
-        let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
-        if (!data) return;
+        async function protect() {
+            let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
+            if (!data) return;
 
-        if (data.createchannel && data.createchannel.mode === 'allowlist') {
-            let fetchedLogs = await channel.guild.fetchAuditLogs({
-                type: AuditLogEvent.ChannelCreate,
-                limit: 1,
-            });
-            var firstEntry = fetchedLogs.entries.first();
-            if (firstEntry?.targetId !== channel.id) return;
-            if (firstEntry.executorId === client.user?.id) return;
+            if (data.createchannel && data.createchannel.mode === 'allowlist') {
+                let fetchedLogs = await channel.guild.fetchAuditLogs({
+                    type: AuditLogEvent.ChannelCreate,
+                    limit: 1,
+                });
+                var firstEntry = fetchedLogs.entries.first();
+                if (firstEntry?.targetId !== channel.id) return;
+                if (firstEntry.executorId === client.user?.id) return;
 
-            let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
+                let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
-            if (!baseData) {
-                channel.delete();
-                let user = await channel.guild.members.cache.get(firstEntry?.executorId as string);
+                if (!baseData) {
+                    channel.delete();
+                    let user = await channel.guild.members.cache.get(firstEntry?.executorId as string);
 
-                switch (data?.['SANCTION']) {
-                    case 'simply':
-                        break;
-                    case 'simply+derank':
-                        user?.guild.roles.cache.forEach((element) => {
-                            if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
-                                user.roles.remove(element.id);
-                            };
-                        });
-                        break;
-                    case 'simply+ban':
-                        user?.ban({ reason: 'Protect!' }).catch(() => { });
-                        break;
-                    default:
-                        return;
+                    switch (data?.['SANCTION']) {
+                        case 'simply':
+                            break;
+                        case 'simply+derank':
+                            user?.guild.roles.cache.forEach((element) => {
+                                if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
+                                    user.roles.remove(element.id);
+                                };
+                            });
+                            break;
+                        case 'simply+ban':
+                            user?.ban({ reason: 'Protect!' }).catch(() => { });
+                            break;
+                        default:
+                            return;
+                    };
                 };
-            };
-        }
-    };
+            }
+        };
 
-    protect(), ihrzLogs();
+        protect(), ihrzLogs();
+    },
 };

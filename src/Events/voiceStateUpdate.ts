@@ -19,180 +19,168 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Collection, EmbedBuilder, Permissions, AuditLogEvent, Events, Client, VoiceState, GuildTextBasedChannel, BaseGuildTextChannel, CategoryChannel, ChannelType, PermissionFlagsBits, GuildChannel, VoiceChannel } from 'discord.js';
+import { EmbedBuilder, Client, VoiceState, BaseGuildTextChannel, CategoryChannel, ChannelType, GuildChannel } from 'discord.js';
 
-export default async (client: Client, oldState: VoiceState, newState: VoiceState) => {
+import { BotEvent } from '../../types/event';
 
-    let data = await client.functions.getLanguageData(oldState.guild.id);
+export const event: BotEvent = {
+    name: "voiceStateUpdate",
+    run: async (client: Client, oldState: VoiceState, newState: VoiceState) => {
+        let data = await client.functions.getLanguageData(oldState.guild.id);
 
-    async function serverLogs() {
-        if (!oldState || !oldState.guild) return;
+        async function serverLogs() {
+            if (!oldState || !oldState.guild) return;
 
-        let someinfo = await client.db.get(`${oldState.guild.id}.GUILD.SERVER_LOGS.voice`);
-        if (!someinfo) return;
+            let someinfo = await client.db.get(`${oldState.guild.id}.GUILD.SERVER_LOGS.voice`);
+            if (!someinfo) return;
 
-        let Msgchannel = client.channels.cache.get(someinfo);
-        if (!Msgchannel) return;
+            let Msgchannel = client.channels.cache.get(someinfo);
+            if (!Msgchannel) return;
 
-        var Ouser = oldState.id
-        var OchannelID = oldState.channelId
-        var Ostatus = { selfDeaf: oldState.selfDeaf, selfMute: oldState.selfMute };
+            var Ouser = oldState.id
+            var OchannelID = oldState.channelId
+            var Ostatus = { selfDeaf: oldState.selfDeaf, selfMute: oldState.selfMute };
 
-        var user = newState.id
-        var channelID = newState.channelId
-        var status = { selfDeaf: newState.selfDeaf, selfMute: newState.selfMute };
+            var user = newState.id
+            var channelID = newState.channelId
+            var status = { selfDeaf: newState.selfDeaf, selfMute: newState.selfMute };
 
-        let targetUser = await client.users.fetch(user);
+            let targetUser = await client.users.fetch(user);
 
-        if (targetUser.id === client.user?.id) return;
+            if (targetUser.id === client.user?.id) return;
 
-        let iconURL = targetUser.displayAvatarURL();
+            let iconURL = targetUser.displayAvatarURL();
 
-        let logsEmbed = new EmbedBuilder()
-            .setColor("#000000")
-            .setAuthor({ name: targetUser.username, iconURL: iconURL })
-            .setTimestamp();
+            let logsEmbed = new EmbedBuilder()
+                .setColor("#000000")
+                .setAuthor({ name: targetUser.username, iconURL: iconURL })
+                .setTimestamp();
 
-        // JOIN/LEAVE
-        if (user && !channelID) {
-            logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_description
-                .replace("${targetUser.id}", targetUser.id)
-                .replace("${OchannelID}", OchannelID)
-            );
-            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
-            return;
+            // JOIN/LEAVE
+            if (user && !channelID) {
+                logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_description
+                    .replace("${targetUser.id}", targetUser.id)
+                    .replace("${OchannelID}", OchannelID)
+                );
+                await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
+                return;
+            };
+
+            if (Ouser && !OchannelID) {
+                logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_2_description
+                    .replace("${targetUser.id}", targetUser.id)
+                    .replace("${channelID}", channelID)
+                );
+                await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
+                return;
+            };
+
+            // MUTE CASQUE
+            if (!Ostatus.selfDeaf && status.selfDeaf) {
+                logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_3_description
+                    .replace("${targetUser.id}", targetUser.id)
+                    .replace("${channelID}", channelID)
+                );
+                await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
+                return;
+            };
+
+            if (Ostatus.selfDeaf && !status.selfDeaf) {
+                logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_4_description
+                    .replace("${targetUser.id}", targetUser.id)
+                    .replace("${channelID}", channelID)
+                );
+                await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
+                return;
+            };
+
+            // MUTE MICRO
+            if (!Ostatus.selfMute && status.selfMute) {
+                logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_5_description
+                    .replace("${targetUser.id}", targetUser.id)
+                    .replace("${channelID}", channelID)
+                );
+                await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
+                return;
+            };
+
+            if (Ostatus.selfMute && !status.selfMute) {
+                logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_6_description
+                    .replace("${targetUser.id}", targetUser.id)
+                    .replace("${channelID}", channelID)
+                );
+                await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
+                return;
+            };
         };
 
-        if (Ouser && !OchannelID) {
-            logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_2_description
-                .replace("${targetUser.id}", targetUser.id)
-                .replace("${channelID}", channelID)
-            );
-            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
-            return;
-        };
+        async function voiceInterface() {
+            if (!oldState || !oldState.guild) return;
 
-        // MUTE CASQUE
-        if (!Ostatus.selfDeaf && status.selfDeaf) {
-            logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_3_description
-                .replace("${targetUser.id}", targetUser.id)
-                .replace("${channelID}", channelID)
-            );
-            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
-            return;
-        };
+            // Avoid some troubles
+            if (newState.channelId === oldState.channelId) return;
 
-        if (Ostatus.selfDeaf && !status.selfDeaf) {
-            logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_4_description
-                .replace("${targetUser.id}", targetUser.id)
-                .replace("${channelID}", channelID)
-            );
-            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
-            return;
-        };
+            let table = client.db.table('TEMP');
 
-        // MUTE MICRO
-        if (!Ostatus.selfMute && status.selfMute) {
-            logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_5_description
-                .replace("${targetUser.id}", targetUser.id)
-                .replace("${channelID}", channelID)
-            );
-            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
-            return;
-        };
+            let allChannel = await table.get(`CUSTOM_VOICE.${newState.guild.id}`);
 
-        if (Ostatus.selfMute && !status.selfMute) {
-            logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_6_description
-                .replace("${targetUser.id}", targetUser.id)
-                .replace("${channelID}", channelID)
-            );
-            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
-            return;
-        };
-    };
+            let ChannelForCreate = await client.db.get(`${newState.guild.id}.VOICE_INTERFACE.voice_channel`);
+            var ChannelDB = await table.get(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
 
-    async function voiceInterface() {
-        if (!oldState || !oldState.guild) return;
+            let channel_db_fetched = newState.guild.channels.cache.get(ChannelDB) as GuildChannel;
+            let result_channel = newState.guild.channels.cache.get(ChannelForCreate);
+            let category_channel = newState.guild.channels.cache.get(result_channel?.parentId as string) as CategoryChannel;
 
-        // Avoid some troubles
-        if (newState.channelId === oldState.channelId) return;
+            // If the user leave their own empty channel
+            if (oldState.channelId === ChannelDB && channel_db_fetched?.members.size === 0) {
+                await channel_db_fetched?.delete().catch(() => { });
+                await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
+                return;
+            };
 
-        let table = client.db.table('TEMP');
+            // If the member leave their own channel for trying to create another one
+            if (newState.channelId === ChannelForCreate && oldState.channelId === ChannelDB) {
+                await newState.member?.voice.disconnect();
+                return;
+            };
 
-        let allChannel = await table.get(`CUSTOM_VOICE.${newState.guild.id}`);
+            // If the user leave annother empty channel
+            if (oldState.channel?.members.size === 0 && allChannel) {
+                let allChannelEntries = Object.entries(allChannel);
 
-        let ChannelForCreate = await client.db.get(`${newState.guild.id}.VOICE_INTERFACE.voice_channel`);
-        var ChannelDB = await table.get(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
+                for (let [userId, channelId] of allChannelEntries) {
+                    if (channelId !== oldState.channelId) continue;
+                    let userChannel = newState.guild.channels.cache.get(channelId as string);
 
-        let channel_db_fetched = newState.guild.channels.cache.get(ChannelDB) as GuildChannel;
-        let result_channel = newState.guild.channels.cache.get(ChannelForCreate);
-        let category_channel = newState.guild.channels.cache.get(result_channel?.parentId as string) as CategoryChannel;
-
-        // If the user leave their own empty channel
-        if (oldState.channelId === ChannelDB && channel_db_fetched?.members.size === 0) {
-            await channel_db_fetched?.delete().catch(() => { });
-            await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
-            return;
-        };
-
-        // If the member leave their own channel for trying to create another one
-        if (newState.channelId === ChannelForCreate && oldState.channelId === ChannelDB) {
-            await newState.member?.voice.disconnect();
-            return;
-        };
-
-        // If the user leave annother empty channel
-        if (oldState.channel?.members.size === 0 && allChannel) {
-            let allChannelEntries = Object.entries(allChannel);
-
-            for (let [userId, channelId] of allChannelEntries) {
-                if (channelId !== oldState.channelId) continue;
-                let userChannel = newState.guild.channels.cache.get(channelId as string);
-
-                if (oldState.channelId === channelId) {
-                    await userChannel?.delete();
-                    await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${userId}`);
-                    return;
+                    if (oldState.channelId === channelId) {
+                        await userChannel?.delete();
+                        await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${userId}`);
+                        return;
+                    }
                 }
-            }
-        };
+            };
 
-        let staff_role = await client.db.get(`${oldState.guild.id}.VOICE_INTERFACE.staff_role`);
+            let staff_role = await client.db.get(`${oldState.guild.id}.VOICE_INTERFACE.staff_role`);
 
-        // If the user join the Create's Channel
-        if (newState.channelId === ChannelForCreate && oldState.channelId !== ChannelDB) {
+            // If the user join the Create's Channel
+            if (newState.channelId === ChannelForCreate && oldState.channelId !== ChannelDB) {
 
-            newState.guild.channels.create({
-                name: `${newState.member?.displayName || newState.member?.nickname}'s Channel`,
-                parent: result_channel?.parentId,
-                permissionOverwrites: category_channel.permissionOverwrites.cache,
-                type: ChannelType.GuildVoice,
-            }).then(async chann => {
-                await table.set(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`, chann.id);
+                newState.guild.channels.create({
+                    name: `${newState.member?.displayName || newState.member?.nickname}'s Channel`,
+                    parent: result_channel?.parentId,
+                    permissionOverwrites: category_channel.permissionOverwrites.cache,
+                    type: ChannelType.GuildVoice,
+                }).then(async chann => {
+                    await table.set(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`, chann.id);
 
-                newState.member?.voice.setChannel(chann.id)
-                    .then(async () => {
-                        if ((await chann.fetch()).members.size === 0) {
-                            await chann.delete()
-                            await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
-                            return;
-                        } else {
-                            chann.permissionOverwrites.edit(newState.member?.user.id as string,
-                                {
-                                    ViewChannel: true,
-                                    Connect: true,
-                                    Stream: true,
-                                    Speak: true,
-
-                                    SendMessages: true,
-                                    UseApplicationCommands: true,
-                                    AttachFiles: true,
-                                    AddReactions: true
-                                },
-                            );
-
-                            if (staff_role) {
-                                chann.permissionOverwrites.edit(staff_role as string,
+                    newState.member?.voice.setChannel(chann.id)
+                        .then(async () => {
+                            if ((await chann.fetch()).members.size === 0) {
+                                await chann.delete()
+                                await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
+                                return;
+                            } else {
+                                chann.permissionOverwrites.edit(newState.member?.user.id as string,
                                     {
                                         ViewChannel: true,
                                         Connect: true,
@@ -202,24 +190,40 @@ export default async (client: Client, oldState: VoiceState, newState: VoiceState
                                         SendMessages: true,
                                         UseApplicationCommands: true,
                                         AttachFiles: true,
-                                        AddReactions: true,
-
-                                        MuteMembers: true,
-                                        DeafenMembers: true,
-                                        PrioritySpeaker: true,
-                                        KickMembers: true
+                                        AddReactions: true
                                     },
                                 );
-                            }
-                        }
-                    })
-                    .catch(async () => {
-                        await chann.delete().catch(() => { });
-                    });
-            });
-            return;
-        };
-    };
 
-    serverLogs(), voiceInterface();
+                                if (staff_role) {
+                                    chann.permissionOverwrites.edit(staff_role as string,
+                                        {
+                                            ViewChannel: true,
+                                            Connect: true,
+                                            Stream: true,
+                                            Speak: true,
+
+                                            SendMessages: true,
+                                            UseApplicationCommands: true,
+                                            AttachFiles: true,
+                                            AddReactions: true,
+
+                                            MuteMembers: true,
+                                            DeafenMembers: true,
+                                            PrioritySpeaker: true,
+                                            KickMembers: true
+                                        },
+                                    );
+                                }
+                            }
+                        })
+                        .catch(async () => {
+                            await chann.delete().catch(() => { });
+                        });
+                });
+                return;
+            };
+        };
+
+        serverLogs(), voiceInterface();
+    },
 };

@@ -19,49 +19,54 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent, Role } from 'discord.js'
+import { Client, AuditLogEvent, Role } from 'discord.js'
 
-export default async (client: Client, role: Role) => {
+import { BotEvent } from '../../types/event';
 
-    async function protect() {
-        let data = await client.db.get(`${role.guild.id}.PROTECTION`);
-        if (!data) return;
+export const event: BotEvent = {
+    name: "roleCreate",
+    run: async (client: Client, role: Role) => {
 
-        if (data.createrole && data.createrole.mode === 'allowlist') {
-            let fetchedLogs = await role.guild.fetchAuditLogs({
-                type: AuditLogEvent.RoleCreate,
-                limit: 1,
-            });
-            var firstEntry = fetchedLogs.entries.first();
-            if (firstEntry?.targetId !== role.id) return;
-            if (firstEntry.executorId === client.user?.id) return;
+        async function protect() {
+            let data = await client.db.get(`${role.guild.id}.PROTECTION`);
+            if (!data) return;
+
+            if (data.createrole && data.createrole.mode === 'allowlist') {
+                let fetchedLogs = await role.guild.fetchAuditLogs({
+                    type: AuditLogEvent.RoleCreate,
+                    limit: 1,
+                });
+                var firstEntry = fetchedLogs.entries.first();
+                if (firstEntry?.targetId !== role.id) return;
+                if (firstEntry.executorId === client.user?.id) return;
 
 
-            let baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
+                let baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
-            if (!baseData) {
-                role.delete('Protect!');
-                let user = await role.guild.members.cache.get(firstEntry?.executorId as string);
+                if (!baseData) {
+                    role.delete('Protect!');
+                    let user = await role.guild.members.cache.get(firstEntry?.executorId as string);
 
-                switch (data?.['SANCTION']) {
-                    case 'simply':
-                        break;
-                    case 'simply+derank':
-                        user?.guild.roles.cache.forEach((element) => {
-                            if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
-                                user.roles.remove(element.id);
-                            };
-                        });
-                        break;
-                    case 'simply+ban':
-                        user?.ban({ reason: 'Protect!' }).catch(() => { });
-                        break;
-                    default:
-                        return;
+                    switch (data?.['SANCTION']) {
+                        case 'simply':
+                            break;
+                        case 'simply+derank':
+                            user?.guild.roles.cache.forEach((element) => {
+                                if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
+                                    user.roles.remove(element.id);
+                                };
+                            });
+                            break;
+                        case 'simply+ban':
+                            user?.ban({ reason: 'Protect!' }).catch(() => { });
+                            break;
+                        default:
+                            return;
+                    };
                 };
-            };
-        }
-    };
+            }
+        };
 
-    protect();
+        protect();
+    },
 };

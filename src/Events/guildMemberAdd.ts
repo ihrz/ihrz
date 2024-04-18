@@ -19,279 +19,282 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ActionRowBuilder, AttachmentBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, Client, ComponentBuilder, Guild, GuildChannel, GuildChannelManager, GuildFeature, GuildMember, GuildTextBasedChannel, Invite, Message, MessageManager, Role } from "discord.js";
-
-import { PermissionsBitField } from 'discord.js';
+import { ActionRowBuilder, AttachmentBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, Client, GuildFeature, GuildMember, GuildTextBasedChannel, Invite, Message, Role, PermissionsBitField } from 'discord.js';
 
 import logger from "../core/logger.js";
 import captcha from "../core/captcha.js";
 
-export default async (client: Client, member: GuildMember) => {
+import { BotEvent } from '../../types/event';
 
-    let data = await client.functions.getLanguageData(member.guild.id);
+export const event: BotEvent = {
+    name: "guildMemberAdd",
+    run: async (client: Client, member: GuildMember) => {
 
-    async function joinRoles() {
-        if (!member?.guild?.members?.me?.permissions.has(PermissionsBitField.Flags.ManageRoles)) return;
+        let data = await client.functions.getLanguageData(member.guild.id);
 
-        let roleid = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
-        let role = member.guild.roles.cache.get(roleid);
-        if (!roleid || !role) return;
+        async function joinRoles() {
+            if (!member?.guild?.members?.me?.permissions.has(PermissionsBitField.Flags.ManageRoles)) return;
 
-        member.roles.add(roleid);
-    };
+            let roleid = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
+            let role = member.guild.roles.cache.get(roleid);
+            if (!roleid || !role) return;
 
-    async function joinDm() {
-        try {
-            let msg_dm = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`);
-            if (!msg_dm || msg_dm === "off") return;
+            member.roles.add(roleid);
+        };
 
-            let button = new ButtonBuilder()
-                .setDisabled(true)
-                .setCustomId('join-dm-from-server')
-                .setStyle(ButtonStyle.Secondary)
-                .setLabel(`Message from ${member.guild.id}`);
+        async function joinDm() {
+            try {
+                let msg_dm = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`);
+                if (!msg_dm || msg_dm === "off") return;
 
-            member.send({
-                content: msg_dm,
-                components: [
-                    new ActionRowBuilder<ButtonBuilder>().addComponents(button)
-                ]
-            });
-        } catch { return; };
-    };
+                let button = new ButtonBuilder()
+                    .setDisabled(true)
+                    .setCustomId('join-dm-from-server')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setLabel(`Message from ${member.guild.id}`);
 
-    async function blacklistFetch() {
-        try {
-            let table = client.db.table('BLACKLIST')
+                member.send({
+                    content: msg_dm,
+                    components: [
+                        new ActionRowBuilder<ButtonBuilder>().addComponents(button)
+                    ]
+                });
+            } catch { return; };
+        };
 
-            if (await table.get(`${member.user.id}.blacklisted`)) {
-                member.send({ content: "You've been banned, because you are blacklisted" })
-                    .catch(() => { })
-                    .then(() => {
-                        member.ban({ reason: 'blacklisted!' });
-                    });
-            };
+        async function blacklistFetch() {
+            try {
+                let table = client.db.table('BLACKLIST')
 
-        } catch (error) {
-            return;
-        }
-    };
+                if (await table.get(`${member.user.id}.blacklisted`)) {
+                    member.send({ content: "You've been banned, because you are blacklisted" })
+                        .catch(() => { })
+                        .then(() => {
+                            member.ban({ reason: 'blacklisted!' });
+                        });
+                };
 
-    async function memberCount() {
-        try {
-            let botMembers = member.guild.members.cache.filter((member) => member.user.bot);
-            let rolesCount = member.guild.roles.cache.size;
-
-            let baseData = await client.db.get(`${member.guild.id}.GUILD.MCOUNT`);
-            let bot = baseData?.bot;
-            let member_2 = baseData?.member;
-            let roles = baseData?.roles;
-
-            if (bot) {
-                let joinmsgreplace = bot.name
-                    .replace("{botcount}", botMembers.size);
-
-                let Fetched = member.guild.channels.cache.get(bot.channel);
-                Fetched?.edit({ name: joinmsgreplace });
+            } catch (error) {
                 return;
-            } else if (member_2) {
-                let joinmsgreplace = member_2.name
-                    .replace("{membercount}", member.guild.memberCount);
+            }
+        };
 
-                let Fetched = member.guild.channels.cache.get(member_2.channel);
-                Fetched?.edit({ name: joinmsgreplace });
-                return;
-            } else if (roles) {
-                let joinmsgreplace = roles.name
-                    .replace("{rolescount}", rolesCount);
+        async function memberCount() {
+            try {
+                let botMembers = member.guild.members.cache.filter((member) => member.user.bot);
+                let rolesCount = member.guild.roles.cache.size;
 
-                let Fetched = member.guild.channels.cache.get(roles.channel);
-                Fetched?.edit({ name: joinmsgreplace });
-                return;
-            };
-        } catch (e) { return };
-    };
+                let baseData = await client.db.get(`${member.guild.id}.GUILD.MCOUNT`);
+                let bot = baseData?.bot;
+                let member_2 = baseData?.member;
+                let roles = baseData?.roles;
 
-    async function welcomeMessage() {
-        if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
+                if (bot) {
+                    let joinmsgreplace = bot.name
+                        .replace("{botcount}", botMembers.size);
 
-        let oldInvites = client.invites.get(member.guild.id);
-        let newInvites = await member.guild.invites.fetch();
+                    let Fetched = member.guild.channels.cache.get(bot.channel);
+                    Fetched?.edit({ name: joinmsgreplace });
+                    return;
+                } else if (member_2) {
+                    let joinmsgreplace = member_2.name
+                        .replace("{membercount}", member.guild.memberCount);
 
-        let invite = newInvites.find((i: Invite) => i.uses && i.uses > (oldInvites?.get(i.code) || 0));
+                    let Fetched = member.guild.channels.cache.get(member_2.channel);
+                    Fetched?.edit({ name: joinmsgreplace });
+                    return;
+                } else if (roles) {
+                    let joinmsgreplace = roles.name
+                        .replace("{rolescount}", rolesCount);
 
-        if (invite) {
-            let inviter = await client.users.fetch(invite?.inviterId as string);
-            client.invites.get(member.guild.id)?.set(invite?.code, invite?.uses);
+                    let Fetched = member.guild.channels.cache.get(roles.channel);
+                    Fetched?.edit({ name: joinmsgreplace });
+                    return;
+                };
+            } catch (e) { return };
+        };
 
-            let check = await client.db.get(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`);
+        async function welcomeMessage() {
+            if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
 
-            if (check) {
-                await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.regular`, 1);
-                await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.invites`, 1);
-            } else {
-                await client.db.set(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`,
+            let oldInvites = client.invites.get(member.guild.id);
+            let newInvites = await member.guild.invites.fetch();
+
+            let invite = newInvites.find((i: Invite) => i.uses && i.uses > (oldInvites?.get(i.code) || 0));
+
+            if (invite) {
+                let inviter = await client.users.fetch(invite?.inviterId as string);
+                client.invites.get(member.guild.id)?.set(invite?.code, invite?.uses);
+
+                let check = await client.db.get(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`);
+
+                if (check) {
+                    await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.regular`, 1);
+                    await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.invites`, 1);
+                } else {
+                    await client.db.set(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`,
+                        {
+                            regular: 0, bonus: 0, leaves: 0, invites: 0
+                        }
+                    );
+
+                    await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.regular`, 1);
+                    await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.invites`, 1);
+                };
+
+                await client.db.set(`${invite?.guild?.id}.USER.${member.user.id}.INVITES.BY`,
                     {
-                        regular: 0, bonus: 0, leaves: 0, invites: 0
+                        inviter: inviter.id,
+                        invite: invite?.code,
                     }
                 );
 
-                await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.regular`, 1);
-                await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.invites`, 1);
-            };
+                var invitesAmount = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`);
+                let joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
+                let wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
 
-            await client.db.set(`${invite?.guild?.id}.USER.${member.user.id}.INVITES.BY`,
-                {
-                    inviter: inviter.id,
-                    invite: invite?.code,
-                }
-            );
+                let channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
+                let msg = '';
 
-            var invitesAmount = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`);
-            let joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
-            let wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
+                if (!wChan || !channel) return;
+                if (!joinMessage) {
 
-            let channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
-            let msg = '';
+                    msg = data.event_welcomer_inviter
+                        .replace("${member.id}", member.id)
+                        .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
+                        .replace("${member.guild.name}", member.guild.name)
+                        .replace("${inviter.tag}", inviter.username)
+                        .replace("${fetched}", invitesAmount);
 
-            if (!wChan || !channel) return;
-            if (!joinMessage) {
+                } else {
 
-                msg = data.event_welcomer_inviter
-                    .replace("${member.id}", member.id)
-                    .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
-                    .replace("${member.guild.name}", member.guild.name)
-                    .replace("${inviter.tag}", inviter.username)
-                    .replace("${fetched}", invitesAmount);
+                    msg = joinMessage
+                        .replace("{user}", member.user.username)
+                        .replace("{guild}", member.guild.name)
+                        .replace("{createdat}", member.user.createdAt.toLocaleDateString())
+                        .replace("{membercount}", member.guild.memberCount)
+                        .replace("{inviter}", inviter.username)
+                        .replace("{invites}", invitesAmount);
 
-            } else {
-
-                msg = joinMessage
-                    .replace("{user}", member.user.username)
-                    .replace("{guild}", member.guild.name)
-                    .replace("{createdat}", member.user.createdAt.toLocaleDateString())
-                    .replace("{membercount}", member.guild.memberCount)
-                    .replace("{inviter}", inviter.username)
-                    .replace("{invites}", invitesAmount);
-
-            };
-
-            channel.send({ content: msg });
-            return;
-
-        } else if (member.guild.features.includes(GuildFeature.VanityURL)) {
-
-            let msg = '';
-            let VanityURL = await member.guild.fetchVanityData();
-            let vanityInviteCache = client.vanityInvites.get(member.guild.id);
-
-            client.vanityInvites.set(member.guild.id, VanityURL);
-
-            let wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
-            let channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
-
-            if (!wChan || !channel) return;
-
-            if (vanityInviteCache && vanityInviteCache.uses! < VanityURL.uses!) {
-
-                msg = data.event_welcomer_inviter
-                    .replace("${member.id}", member.id)
-                    .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
-                    .replace("${member.guild.name}", member.guild.name)
-                    .replace("${inviter.tag}", "/" + VanityURL.code)
-                    .replace("${fetched}", VanityURL.uses);
+                };
 
                 channel.send({ content: msg });
                 return;
 
-            };
+            } else if (member.guild.features.includes(GuildFeature.VanityURL)) {
 
-        } else {
+                let msg = '';
+                let VanityURL = await member.guild.fetchVanityData();
+                let vanityInviteCache = client.vanityInvites.get(member.guild.id);
 
-            let msg = '';
-            let wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
-            let channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
+                client.vanityInvites.set(member.guild.id, VanityURL);
 
-            if (!wChan || !channel) return;
+                let wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
+                let channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
 
-            msg = data.event_welcomer_default
-                .replace("${member.id}", member.id)
-                .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
-                .replace("${member.guild.name}", member.guild.name)
+                if (!wChan || !channel) return;
 
-            channel.send({ content: msg });
-            return;
-        }
-    };
+                if (vanityInviteCache && vanityInviteCache.uses! < VanityURL.uses!) {
 
-    async function blockBot() {
-        if (await client.db.get(`${member.guild.id}.GUILD.BLOCK_BOT`) && member.user.bot) {
-            member.ban({ reason: 'The BlockBot function are enable!' });
+                    msg = data.event_welcomer_inviter
+                        .replace("${member.id}", member.id)
+                        .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
+                        .replace("${member.guild.name}", member.guild.name)
+                        .replace("${inviter.tag}", "/" + VanityURL.code)
+                        .replace("${fetched}", VanityURL.uses);
+
+                    channel.send({ content: msg });
+                    return;
+
+                };
+
+            } else {
+
+                let msg = '';
+                let wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
+                let channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
+
+                if (!wChan || !channel) return;
+
+                msg = data.event_welcomer_default
+                    .replace("${member.id}", member.id)
+                    .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
+                    .replace("${member.guild.name}", member.guild.name)
+
+                channel.send({ content: msg });
+                return;
+            }
         };
-    };
 
-    async function securityCheck() {
-        let baseData = await client.db.get(`${member.guild.id}.SECURITY`);
-        if (!baseData || baseData?.disable === true) return;
+        async function blockBot() {
+            if (await client.db.get(`${member.guild.id}.GUILD.BLOCK_BOT`) && member.user.bot) {
+                member.ban({ reason: 'The BlockBot function are enable!' });
+            };
+        };
 
-        let data = await client.functions.getLanguageData(member.guild.id);
-        let channel = member.guild.channels.cache.get(baseData?.channel);
-        let c = await captcha(280, 100)
+        async function securityCheck() {
+            let baseData = await client.db.get(`${member.guild.id}.SECURITY`);
+            if (!baseData || baseData?.disable === true) return;
 
-        let sfbuff = Buffer.from((c?.image).split(",")[1], "base64");
+            let data = await client.functions.getLanguageData(member.guild.id);
+            let channel = member.guild.channels.cache.get(baseData?.channel);
+            let c = await captcha(280, 100)
 
-        (channel as GuildTextBasedChannel).send({
-            content: data.event_security
-                .replace('${member}', member),
-            files: [new AttachmentBuilder(sfbuff)]
-        }).then(async (msg) => {
-            let filter = (m: Message) => m.author.id === member.id;
-            let collector = msg.channel.createMessageCollector({ filter: filter, time: 30000 });
-            let passedtest = false;
+            let sfbuff = Buffer.from((c?.image).split(",")[1], "base64");
 
-            collector.on('collect', (m) => {
-                m.delete();
+            (channel as GuildTextBasedChannel).send({
+                content: data.event_security
+                    .replace('${member}', member),
+                files: [new AttachmentBuilder(sfbuff)]
+            }).then(async (msg) => {
+                let filter = (m: Message) => m.author.id === member.id;
+                let collector = msg.channel.createMessageCollector({ filter: filter, time: 30000 });
+                let passedtest = false;
 
-                if (c.code === m.content) {
-                    member.roles.add(baseData?.role);
+                collector.on('collect', (m) => {
+                    m.delete();
+
+                    if (c.code === m.content) {
+                        member.roles.add(baseData?.role);
+                        msg.delete();
+                        passedtest = true;
+                        collector.stop();
+                        return;
+                    } else {
+                        // the member has failed the captcha 
+                        msg.delete();
+                        member.kick();
+                        return;
+                    }
+                });
+
+                collector.on('end', (collected) => {
+                    if (!member.joinedAt) member.kick();
+                    if (passedtest) return;
+
                     msg.delete();
-                    passedtest = true;
-                    collector.stop();
-                    return;
-                } else {
-                    // the member has failed the captcha 
-                    msg.delete();
-                    member.kick();
-                    return;
-                }
+                });
+
+            }).catch((error: any) => {
+                logger.err(error);
             });
+        };
 
-            collector.on('end', (collected) => {
-                if (!member.joinedAt) member.kick();
-                if (passedtest) return;
+        async function rolesSaver() {
+            if (await client.db.get(`${member.guild.id}.GUILD_CONFIG.rolesaver.enable`)) {
 
-                msg.delete();
-            });
+                let array: Role[] | null = await client.db.get(`${member.guild.id}.ROLE_SAVER.${member.user.id}`)
+                if (!array || array.length >= 0) return;
 
-        }).catch((error: any) => {
-            logger.err(error);
-        });
-    };
+                array.forEach(async (role: Role) => {
+                    member.roles.add(role);
+                });
 
-    async function rolesSaver() {
-        if (await client.db.get(`${member.guild.id}.GUILD_CONFIG.rolesaver.enable`)) {
+                await client.db.delete(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
+                return;
+            }
+        };
 
-            let array: Role[] | null = await client.db.get(`${member.guild.id}.ROLE_SAVER.${member.user.id}`)
-            if (!array || array.length >= 0) return;
-
-            array.forEach(async (role: Role) => {
-                member.roles.add(role);
-            });
-
-            await client.db.delete(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
-            return;
-        }
-    };
-
-    blockBot(), joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage(), securityCheck(), rolesSaver();
+        blockBot(), joinRoles(), joinDm(), blacklistFetch(), memberCount(), welcomeMessage(), securityCheck(), rolesSaver();
+    },
 };

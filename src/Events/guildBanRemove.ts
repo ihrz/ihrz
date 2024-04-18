@@ -19,38 +19,42 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, GuildChannel, GuildChannelManager, Message, MessageManager } from "discord.js";
+import { BaseGuildTextChannel, Client, EmbedBuilder, PermissionsBitField, AuditLogEvent, GuildBan } from 'discord.js';
 
-import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
+import { BotEvent } from '../../types/event';
 
-export default async (client: Client, ban: GuildBan) => {
-    let data = await client.functions.getLanguageData(ban.guild.id);
-    async function serverLogs() {
-        if (!ban.guild.members.me
-            || !ban.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+export const event: BotEvent = {
+    name: "guildBanRemove",
+    run: async (client: Client, ban: GuildBan) => {
+        let data = await client.functions.getLanguageData(ban.guild.id);
 
-        let fetchedLogs = await ban.guild.fetchAuditLogs({
-            type: AuditLogEvent.MemberBanRemove,
-            limit: 1,
-        });
+        async function serverLogs() {
+            if (!ban.guild.members.me
+                || !ban.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
 
-        var firstEntry = fetchedLogs.entries.first();
-        let someinfo = await client.db.get(`${ban.guild.id}.GUILD.SERVER_LOGS.moderation`);
+            let fetchedLogs = await ban.guild.fetchAuditLogs({
+                type: AuditLogEvent.MemberBanRemove,
+                limit: 1,
+            });
 
-        if (!someinfo) return;
+            var firstEntry = fetchedLogs.entries.first();
+            let someinfo = await client.db.get(`${ban.guild.id}.GUILD.SERVER_LOGS.moderation`);
 
-        let Msgchannel = client.channels.cache.get(someinfo);
-        if (!Msgchannel) return;
+            if (!someinfo) return;
 
-        let logsEmbed = new EmbedBuilder()
-            .setColor("#000000")
-            .setDescription(data.event_srvLogs_banRemove_description
-                .replace("${firstEntry.executor.id}", firstEntry?.executor?.id)
-                .replace("${firstEntry.target.username}", firstEntry?.target?.username)
-            )
-            .setTimestamp();
+            let Msgchannel = client.channels.cache.get(someinfo);
+            if (!Msgchannel) return;
 
-        await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
-    };
-    serverLogs();
+            let logsEmbed = new EmbedBuilder()
+                .setColor("#000000")
+                .setDescription(data.event_srvLogs_banRemove_description
+                    .replace("${firstEntry.executor.id}", firstEntry?.executor?.id)
+                    .replace("${firstEntry.target.username}", firstEntry?.target?.username)
+                )
+                .setTimestamp();
+
+            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
+        };
+        serverLogs();
+    },
 };

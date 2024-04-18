@@ -19,53 +19,58 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent, GuildChannel, BaseGuildTextChannel } from 'discord.js'
+import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel } from 'discord.js'
 
-export default async (client: Client, channel: GuildChannel) => {
+import { BotEvent } from '../../types/event';
 
-    async function protect() {
-        let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
-        if (!data) return;
+export const event: BotEvent = {
+    name: "webhookUpdate",
+    run: async (client: Client, channel: GuildChannel) => {
 
-        if (data.webhook && data.webhook.mode === 'allowlist') {
-            let fetchedLogs = await channel.guild.fetchAuditLogs({
-                type: AuditLogEvent.WebhookCreate,
-                limit: 1,
-            });
+        async function protect() {
+            let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
+            if (!data) return;
 
-            var firstEntry = fetchedLogs.entries.first();
-            if (firstEntry?.target.channelId !== channel.id) return;
-            if (firstEntry.executorId === client.user?.id) return;
+            if (data.webhook && data.webhook.mode === 'allowlist') {
+                let fetchedLogs = await channel.guild.fetchAuditLogs({
+                    type: AuditLogEvent.WebhookCreate,
+                    limit: 1,
+                });
 
-            let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
+                var firstEntry = fetchedLogs.entries.first();
+                if (firstEntry?.target.channelId !== channel.id) return;
+                if (firstEntry.executorId === client.user?.id) return;
 
-            if (!baseData) {
-                let webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
-                let myWebhooks = webhooks.filter((webhook) => webhook.id === firstEntry?.target.id);
+                let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
-                for (let [id, webhook] of myWebhooks) await webhook.delete("Protect!");
+                if (!baseData) {
+                    let webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
+                    let myWebhooks = webhooks.filter((webhook) => webhook.id === firstEntry?.target.id);
 
-                let user = channel.guild.members.cache.get(firstEntry.executorId as string);
+                    for (let [id, webhook] of myWebhooks) await webhook.delete("Protect!");
 
-                switch (data?.['SANCTION']) {
-                    case 'simply':
-                        break;
-                    case 'simply+derank':
-                        user?.guild.roles.cache.forEach((element) => {
-                            if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
-                                user.roles.remove(element.id);
-                            };
-                        });
-                        break;
-                    case 'simply+ban':
-                        user?.ban({ reason: 'Protect!' }).catch(() => { });
-                        break;
-                    default:
-                        return;
+                    let user = channel.guild.members.cache.get(firstEntry.executorId as string);
+
+                    switch (data?.['SANCTION']) {
+                        case 'simply':
+                            break;
+                        case 'simply+derank':
+                            user?.guild.roles.cache.forEach((element) => {
+                                if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
+                                    user.roles.remove(element.id);
+                                };
+                            });
+                            break;
+                        case 'simply+ban':
+                            user?.ban({ reason: 'Protect!' }).catch(() => { });
+                            break;
+                        default:
+                            return;
+                    };
                 };
-            };
-        }
-    };
+            }
+        };
 
-    protect();
+        protect();
+    },
 };

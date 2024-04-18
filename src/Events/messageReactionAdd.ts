@@ -27,38 +27,43 @@ import {
 
 import logger from '../core/logger.js';
 
-export default async (client: Client, reaction: MessageReaction, user: User) => {
-    let data = await client.functions.getLanguageData(reaction.message.guildId);
+import { BotEvent } from '../../types/event';
 
-    async function reactionRole() {
-        try {
-            if (user.id == client.user?.id || !reaction.message.guild) return;
-            let fetched = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
+export const event: BotEvent = {
+    name: "messageReactionAdd",
+    run: async (client: Client, reaction: MessageReaction, user: User) => {
+        let data = await client.functions.getLanguageData(reaction.message.guildId);
 
-            if (fetched) {
-                let role = reaction.message.guild.roles.cache.get(fetched.rolesID);
-                if (!role) return;
+        async function reactionRole() {
+            try {
+                if (user.id == client.user?.id || !reaction.message.guild) return;
+                let fetched = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
 
-                let member = reaction.message.guild.members.cache.get(user.id);
-                await member?.roles.add(role).catch(() => { });
+                if (fetched) {
+                    let role = reaction.message.guild.roles.cache.get(fetched.rolesID);
+                    if (!role) return;
+
+                    let member = reaction.message.guild.members.cache.get(user.id);
+                    await member?.roles.add(role).catch(() => { });
+                    return;
+                };
+
+                let fetchedForNitro = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`);
+
+                if (fetchedForNitro) {
+                    let role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);
+                    if (!role) return;
+
+                    let member = reaction.message.guild.members.cache.get(user.id);
+                    await member?.roles.add(role).catch(() => { });
+                    return;
+                };
+            } catch (e: any) {
+                logger.err(e);
                 return;
             };
-
-            let fetchedForNitro = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`);
-
-            if (fetchedForNitro) {
-                let role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);
-                if (!role) return;
-
-                let member = reaction.message.guild.members.cache.get(user.id);
-                await member?.roles.add(role).catch(() => { });
-                return;
-            };
-        } catch (e: any) {
-            logger.err(e);
-            return;
         };
-    };
 
-    reactionRole();
+        reactionRole();
+    },
 };

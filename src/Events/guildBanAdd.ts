@@ -19,39 +19,43 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, GuildChannel, GuildChannelManager } from "discord.js";
-import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
+import { BaseGuildTextChannel, Client, EmbedBuilder, PermissionsBitField, AuditLogEvent, GuildBan } from 'discord.js';
 
-export default async (client: Client, ban: GuildBan) => {
-    let data = await client.functions.getLanguageData(ban.guild.id);
+import { BotEvent } from '../../types/event';
 
-    async function serverLogs() {
-        if (!ban.guild.members.me || !ban.guild.members.me.permissions.has([
-            PermissionsBitField.Flags.ViewAuditLog,
-            PermissionsBitField.Flags.ManageGuild
-        ])) return;
-        let fetchedLogs = await ban.guild.fetchAuditLogs({
-            type: AuditLogEvent.MemberBanAdd,
-            limit: 1,
-        });
+export const event: BotEvent = {
+    name: "guildBanAdd",
+    run: async (client: Client, ban: GuildBan) => {
+        let data = await client.functions.getLanguageData(ban.guild.id);
 
-        var firstEntry = fetchedLogs.entries.first();
-        let someinfo = await client.db.get(`${ban.guild.id}.GUILD.SERVER_LOGS.moderation`);
+        async function serverLogs() {
+            if (!ban.guild.members.me || !ban.guild.members.me.permissions.has([
+                PermissionsBitField.Flags.ViewAuditLog,
+                PermissionsBitField.Flags.ManageGuild
+            ])) return;
+            let fetchedLogs = await ban.guild.fetchAuditLogs({
+                type: AuditLogEvent.MemberBanAdd,
+                limit: 1,
+            });
 
-        if (!someinfo) return;
+            var firstEntry = fetchedLogs.entries.first();
+            let someinfo = await client.db.get(`${ban.guild.id}.GUILD.SERVER_LOGS.moderation`);
 
-        let Msgchannel = ban.guild.channels.cache.get(someinfo);
-        if (!Msgchannel) return;
+            if (!someinfo) return;
 
-        let logsEmbed = new EmbedBuilder()
-            .setColor("#000000")
-            .setDescription(data.event_srvLogs_banAdd_description
-                .replace("${firstEntry.executor.id}", firstEntry?.executor?.id)
-                .replace("${firstEntry.target.id}", firstEntry?.target?.id)
-            ).setTimestamp();
+            let Msgchannel = ban.guild.channels.cache.get(someinfo);
+            if (!Msgchannel) return;
 
-        await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
-    };
+            let logsEmbed = new EmbedBuilder()
+                .setColor("#000000")
+                .setDescription(data.event_srvLogs_banAdd_description
+                    .replace("${firstEntry.executor.id}", firstEntry?.executor?.id)
+                    .replace("${firstEntry.target.id}", firstEntry?.target?.id)
+                ).setTimestamp();
 
-    serverLogs();
+            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
+        };
+
+        serverLogs();
+    },
 };

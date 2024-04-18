@@ -21,25 +21,31 @@
 
 import { Client, User, time } from "discord.js";
 
-export default async (client: Client, oldUser: User) => {
-    async function prevNames() {
-        var newUser = await client.users.fetch(oldUser.id);
+import { BotEvent } from '../../types/event';
 
-        let oldUsertag = oldUser.username;
-        let oldUserGlbl = oldUser.globalName;
-        let table = client.db.table("PREVNAMES");
+export const event: BotEvent = {
+    name: "userUpdate",
+    run: async (client: Client, oldUser: User) => {
 
-        if (!oldUser) return;
+        async function prevNames() {
+            var newUser = await client.users.fetch(oldUser.id);
 
-        if (oldUser.globalName !== newUser.globalName) {
+            let oldUsertag = oldUser.username;
+            let oldUserGlbl = oldUser.globalName;
+            let table = client.db.table("PREVNAMES");
 
-            await table.push(`${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUserGlbl}`);
+            if (!oldUser) return;
 
-        } else if (oldUser.username !== newUser.username) {
+            if (oldUser.globalName !== newUser.globalName) {
 
-            await table.push(`${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUsertag}`);
+                await table.push(`${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUserGlbl}`);
+
+            } else if (oldUser.username !== newUser.username) {
+
+                await table.push(`${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUsertag}`);
+            };
         };
-    };
 
-    prevNames();
+        prevNames();
+    },
 };

@@ -19,13 +19,9 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client } from 'discord.js';
-import { BotEvent } from '../../types/event';
+import { Client } from "discord.js";
 
-export const event: BotEvent = {
-    name: "raw",
-    run: async (client: Client, data: any) => {
-
-        client.player.sendRawData(data);
-    },
-};
+export interface BotEvent {
+    name: string,
+    async run(client: Client, anything: any, anything: any): Promise<any>
+}

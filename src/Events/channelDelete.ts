@@ -19,70 +19,75 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Channel, Client, Collection, EmbedBuilder, Permissions, AuditLogEvent, GuildChannel, GuildChannelEditOptions, Guild, BaseChannel, GuildTextBasedChannel, BaseGuildTextChannel } from 'discord.js'
+import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel } from 'discord.js'
 
-export default async (client: Client, channel: GuildChannel) => {
+import { BotEvent } from '../../types/event';
 
-    async function protect() {
-        let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
-        if (!data) return;
+export const event: BotEvent = {
+    name: "channelDelete",
+    run: async (client: Client, channel: GuildChannel) => {
 
-        if (data.deletechannel && data.deletechannel.mode === 'allowlist') {
-            let fetchedLogs = await channel.guild.fetchAuditLogs({
-                type: AuditLogEvent.ChannelDelete,
-                limit: 1,
-            });
-            var firstEntry = fetchedLogs.entries.first();
-            if (firstEntry?.targetId !== channel.id) return;
-            if (firstEntry.executorId === client.user?.id) return;
+        async function protect() {
+            let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
+            if (!data) return;
 
-            let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
+            if (data.deletechannel && data.deletechannel.mode === 'allowlist') {
+                let fetchedLogs = await channel.guild.fetchAuditLogs({
+                    type: AuditLogEvent.ChannelDelete,
+                    limit: 1,
+                });
+                var firstEntry = fetchedLogs.entries.first();
+                if (firstEntry?.targetId !== channel.id) return;
+                if (firstEntry.executorId === client.user?.id) return;
 
-            if (!baseData) {
-                (await channel?.clone({
-                    name: channel.name,
-                    parent: channel.parent,
-                    permissionOverwrites: channel.permissionOverwrites.cache!,
-                    topic: (channel as BaseGuildTextChannel).topic!,
-                    nsfw: (channel as BaseGuildTextChannel).nsfw,
-                    rateLimitPerUser: (channel as BaseGuildTextChannel).rateLimitPerUser!,
-                    position: channel.rawPosition,
-                    reason: `Channel re-create by Protect (${firstEntry.executorId} break the rule!)`
-                }) as BaseGuildTextChannel).send(`**PROTECT MODE ON**\n<@${channel.guild.ownerId}>, the channel are recreated, <@${firstEntry.executorId}> attempt to delete the channel!`)
-                let user = await channel.guild.members.cache.get(firstEntry?.executorId as string);
+                let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
-                switch (data?.['SANCTION']) {
-                    case 'simply':
-                        break;
-                    case 'simply+derank':
-                        user?.guild.roles.cache.forEach((element) => {
-                            if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
-                                user.roles.remove(element.id);
-                            };
-                        });
-                        break;
-                    case 'simply+ban':
-                        user?.ban({ reason: 'Protect!' }).catch(() => { });
-                        break;
-                    default:
-                        return;
+                if (!baseData) {
+                    (await channel?.clone({
+                        name: channel.name,
+                        parent: channel.parent,
+                        permissionOverwrites: channel.permissionOverwrites.cache!,
+                        topic: (channel as BaseGuildTextChannel).topic!,
+                        nsfw: (channel as BaseGuildTextChannel).nsfw,
+                        rateLimitPerUser: (channel as BaseGuildTextChannel).rateLimitPerUser!,
+                        position: channel.rawPosition,
+                        reason: `Channel re-create by Protect (${firstEntry.executorId} break the rule!)`
+                    }) as BaseGuildTextChannel).send(`**PROTECT MODE ON**\n<@${channel.guild.ownerId}>, the channel are recreated, <@${firstEntry.executorId}> attempt to delete the channel!`)
+                    let user = await channel.guild.members.cache.get(firstEntry?.executorId as string);
+
+                    switch (data?.['SANCTION']) {
+                        case 'simply':
+                            break;
+                        case 'simply+derank':
+                            user?.guild.roles.cache.forEach((element) => {
+                                if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
+                                    user.roles.remove(element.id);
+                                };
+                            });
+                            break;
+                        case 'simply+ban':
+                            user?.ban({ reason: 'Protect!' }).catch(() => { });
+                            break;
+                        default:
+                            return;
+                    };
                 };
-            };
-        }
-    };
+            }
+        };
 
-    async function ticketModule() {
-        let fetch = await client.db.get(`${channel.guild.id}.TICKET_ALL`);
+        async function ticketModule() {
+            let fetch = await client.db.get(`${channel.guild.id}.TICKET_ALL`);
 
-        for (let user in fetch) {
-            for (let channel_2 in fetch[user]) {
+            for (let user in fetch) {
+                for (let channel_2 in fetch[user]) {
 
-                if (channel.id === channel_2) {
-                    await client.db.delete(`${channel.guild.id}.TICKET_ALL.${user}`);
+                    if (channel.id === channel_2) {
+                        await client.db.delete(`${channel.guild.id}.TICKET_ALL.${user}`);
+                    }
                 }
             }
-        }
-    };
+        };
 
-    protect(), ticketModule();
+        protect(), ticketModule();
+    },
 };

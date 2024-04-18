@@ -19,41 +19,46 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Collection, EmbedBuilder, Guild, GuildApplicationCommandManager, GuildMember, PermissionsBitField, Presence, PresenceManager, Role, RoleManager, User, UserManager } from 'discord.js';
+import { Client, PermissionsBitField, Presence } from 'discord.js';
 
-export default async (client: Client, oldPresence: Presence, newPresence: Presence) => {
+import { BotEvent } from '../../types/event';
 
-    async function supportModule() {
-        if (!newPresence.guild?.members.me?.permissions.has([PermissionsBitField.Flags.ManageRoles])) return;
-        if (!oldPresence || !oldPresence.guild) return;
+export const event: BotEvent = {
+    name: "presenceUpdate",
+    run: async (client: Client, oldPresence: Presence, newPresence: Presence) => {
 
-        let someinfo = await client.db.get(`${oldPresence.guild.id}.GUILD.SUPPORT`);
+        async function supportModule() {
+            if (!newPresence.guild?.members.me?.permissions.has([PermissionsBitField.Flags.ManageRoles])) return;
+            if (!oldPresence || !oldPresence.guild) return;
 
-        if (!someinfo) { return; };
+            let someinfo = await client.db.get(`${oldPresence.guild.id}.GUILD.SUPPORT`);
 
-        let bio = newPresence.activities[0] || 'null';
-        let vanity = oldPresence.guild.vanityURLCode || 'null';
+            if (!someinfo) { return; };
 
-        let fetchedUser = oldPresence.guild.members.cache.get(oldPresence.userId);
-        let fetchedRoles = newPresence.guild.roles.cache.get(someinfo.rolesId);
-        if (!fetchedUser || !fetchedRoles || newPresence.guild.members.me.roles.highest.position < fetchedRoles.rawPosition || newPresence.status === 'offline') {
-            return;
+            let bio = newPresence.activities[0] || 'null';
+            let vanity = oldPresence.guild.vanityURLCode || 'null';
+
+            let fetchedUser = oldPresence.guild.members.cache.get(oldPresence.userId);
+            let fetchedRoles = newPresence.guild.roles.cache.get(someinfo.rolesId);
+            if (!fetchedUser || !fetchedRoles || newPresence.guild.members.me.roles.highest.position < fetchedRoles.rawPosition || newPresence.status === 'offline') {
+                return;
+            };
+
+            if (!bio.state) {
+                if (fetchedUser?.roles.cache.has(someinfo.rolesId)) return fetchedUser.roles.remove(someinfo.rolesId);
+                return;
+            };
+
+            if (
+                bio.state?.toString().toLowerCase().includes(someinfo.input.toString().toLowerCase())
+                || bio.state?.toString().toLowerCase().includes(vanity.toString().toLowerCase())
+            ) {
+                return fetchedUser?.roles.add(someinfo.rolesId).catch(() => { });
+            } else {
+                return fetchedUser?.roles.remove(someinfo.rolesId).catch(() => { });
+            };
         };
 
-        if (!bio.state) {
-            if (fetchedUser?.roles.cache.has(someinfo.rolesId)) return fetchedUser.roles.remove(someinfo.rolesId);
-            return;
-        };
-
-        if (
-            bio.state?.toString().toLowerCase().includes(someinfo.input.toString().toLowerCase())
-            || bio.state?.toString().toLowerCase().includes(vanity.toString().toLowerCase())
-        ) {
-            return fetchedUser?.roles.add(someinfo.rolesId).catch(() => { });
-        } else {
-            return fetchedUser?.roles.remove(someinfo.rolesId).catch(() => { });
-        };
-    };
-
-    supportModule();
+        supportModule();
+    },
 };

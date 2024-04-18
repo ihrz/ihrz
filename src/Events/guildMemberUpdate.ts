@@ -19,115 +19,121 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Client, GuildMember, BaseGuildTextChannel, AuditLogChange } from 'discord.js';
+import { EmbedBuilder, PermissionsBitField, AuditLogEvent, Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
 
-export default async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
-    let data = await client.functions.getLanguageData(newMember.guild.id);
+import { BotEvent } from '../../types/event';
 
-    async function serverLogs() {
-        if (!newMember.guild.members.me?.permissions.has([
-            PermissionsBitField.Flags.ViewAuditLog,
-            PermissionsBitField.Flags.ManageGuild
-        ])) return;
+export const event: BotEvent = {
+    name: "guildMemberUpdate",
+    run: async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
 
-        let fetchedLogs = await newMember.guild.fetchAuditLogs({
-            type: AuditLogEvent.MemberRoleUpdate,
-            limit: 1,
-        });
+        let data = await client.functions.getLanguageData(newMember.guild.id);
 
-        let firstEntry = fetchedLogs.entries.first();
+        async function serverLogs() {
+            if (!newMember.guild.members.me?.permissions.has([
+                PermissionsBitField.Flags.ViewAuditLog,
+                PermissionsBitField.Flags.ManageGuild
+            ])) return;
 
-        if (!firstEntry
-            || firstEntry.executorId == client.user?.id
-            || firstEntry.targetId !== newMember.user.id
-        ) return;
+            let fetchedLogs = await newMember.guild.fetchAuditLogs({
+                type: AuditLogEvent.MemberRoleUpdate,
+                limit: 1,
+            });
 
-        let someinfo = await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.roles`);
-        let Msgchannel = client.channels.cache.get(someinfo);
+            let firstEntry = fetchedLogs.entries.first();
 
-        if (!someinfo || !Msgchannel) return;
+            if (!firstEntry
+                || firstEntry.executorId == client.user?.id
+                || firstEntry.targetId !== newMember.user.id
+            ) return;
 
-        interface CustomObject {
-            id: string;
-        }
+            let someinfo = await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.roles`);
+            let Msgchannel = client.channels.cache.get(someinfo);
 
-        let newObjects: CustomObject[] = [];
-        let removeObjects: CustomObject[] = [];
+            if (!someinfo || !Msgchannel) return;
 
-        firstEntry.changes.forEach((item) => {
-            if (item.key === '$add') {
-                newObjects.push(...<CustomObject[]>item.new);
-            } else if (item.key === '$remove') {
-                removeObjects.push(...<CustomObject[]>item.new);
+            interface CustomObject {
+                id: string;
             }
-        });
 
-        let newObjectsnewObjectIds: string[] = newObjects.map((obj) => obj.id);
-        let removeObjectIds: string[] = removeObjects.map((obj) => obj.id);
+            let newObjects: CustomObject[] = [];
+            let removeObjects: CustomObject[] = [];
 
-        let logsEmbed = new EmbedBuilder()
-            .setColor("#000000")
-            .setAuthor({ name: firstEntry.target?.username as string, iconURL: firstEntry.target?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
-            .setTimestamp();
+            firstEntry.changes.forEach((item) => {
+                if (item.key === '$add') {
+                    newObjects.push(...<CustomObject[]>item.new);
+                } else if (item.key === '$remove') {
+                    removeObjects.push(...<CustomObject[]>item.new);
+                }
+            });
 
-        let desc = ' ';
+            let newObjectsnewObjectIds: string[] = newObjects.map((obj) => obj.id);
+            let removeObjectIds: string[] = removeObjects.map((obj) => obj.id);
 
-        if (removeObjects.length >= 1) {
-            desc += data.event_srvLogs_guildMemberUpdate_description
-                .replace("${firstEntry.executor.id}", firstEntry.executor?.id)
-                .replace("${removedRoles}", removeObjectIds.map(value => `<@&${value}>`))
-                .replace("${oldMember.user.username}", firstEntry.target?.username) + '\n';
+            let logsEmbed = new EmbedBuilder()
+                .setColor("#000000")
+                .setAuthor({ name: firstEntry.target?.username as string, iconURL: firstEntry.target?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
+                .setTimestamp();
+
+            let desc = ' ';
+
+            if (removeObjects.length >= 1) {
+                desc += data.event_srvLogs_guildMemberUpdate_description
+                    .replace("${firstEntry.executor.id}", firstEntry.executor?.id)
+                    .replace("${removedRoles}", removeObjectIds.map(value => `<@&${value}>`))
+                    .replace("${oldMember.user.username}", firstEntry.target?.username) + '\n';
+            };
+
+            if (newObjects.length >= 1) {
+                desc += data.event_srvLogs_guildMemberUpdate_2_description
+                    .replace("${firstEntry.executor.id}", firstEntry.executor?.id)
+                    .replace("${addedRoles}", newObjectsnewObjectIds.map(value => `<@&${value}>`))
+                    .replace("${oldMember.user.username}", firstEntry.target?.username);
+            };
+            logsEmbed.setDescription(desc);
+
+            (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
         };
 
-        if (newObjects.length >= 1) {
-            desc += data.event_srvLogs_guildMemberUpdate_2_description
-                .replace("${firstEntry.executor.id}", firstEntry.executor?.id)
-                .replace("${addedRoles}", newObjectsnewObjectIds.map(value => `<@&${value}>`))
-                .replace("${oldMember.user.username}", firstEntry.target?.username);
+        async function serverLogs_Boost() {
+            if (!newMember.guild.roles.premiumSubscriberRole) return;
+            let someinfo = await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.boosts`);
+            let Msgchannel = newMember.guild.channels.cache.get(someinfo);
+
+            if (!someinfo || !Msgchannel) return;
+
+            let embed = new EmbedBuilder()
+                .setColor("#a27cec")
+                .setAuthor({ name: newMember?.user.username as string, iconURL: newMember?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
+                .setTimestamp();
+
+            if (
+                !oldMember.premiumSince
+                && newMember.premiumSince
+            ) {
+                embed.setDescription(data.event_boostlog_add
+                    .replace('${newMember.user.id}', newMember.user.id)
+                    .replace('${newMember.guild.premiumSubscriptionCount}', newMember.guild.premiumSubscriptionCount)
+                );
+
+                (Msgchannel as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
+                return;
+
+            } else if (
+                oldMember.premiumSince
+                && !newMember.premiumSince
+            ) {
+                embed.setDescription(data.event_boostlog_sub
+                    .replace('${newMember.user.id}', newMember.user.id)
+                    .replace('${newMember.guild.premiumSubscriptionCount}', newMember.guild.premiumSubscriptionCount)
+                );
+
+                (Msgchannel as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
+                return;
+            }
         };
-        logsEmbed.setDescription(desc);
 
-        (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
-    };
-
-    async function serverLogs_Boost() {
-        if (!newMember.guild.roles.premiumSubscriberRole) return;
-        let someinfo = await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.boosts`);
-        let Msgchannel = newMember.guild.channels.cache.get(someinfo);
-
-        if (!someinfo || !Msgchannel) return;
-
-        let embed = new EmbedBuilder()
-            .setColor("#a27cec")
-            .setAuthor({ name: newMember?.user.username as string, iconURL: newMember?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
-            .setTimestamp();
-
-        if (
-            !oldMember.premiumSince
-            && newMember.premiumSince
-        ) {
-            embed.setDescription(data.event_boostlog_add
-                .replace('${newMember.user.id}', newMember.user.id)
-                .replace('${newMember.guild.premiumSubscriptionCount}', newMember.guild.premiumSubscriptionCount)
-            );
-
-            (Msgchannel as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
-            return;
-
-        } else if (
-            oldMember.premiumSince
-            && !newMember.premiumSince
-        ) {
-            embed.setDescription(data.event_boostlog_sub
-                .replace('${newMember.user.id}', newMember.user.id)
-                .replace('${newMember.guild.premiumSubscriptionCount}', newMember.guild.premiumSubscriptionCount)
-            );
-
-            (Msgchannel as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
-            return;
-        }
-    };
-
-    serverLogs_Boost();
-    serverLogs();
+        serverLogs_Boost();
+        serverLogs();
+    },
 };

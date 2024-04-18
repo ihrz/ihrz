@@ -27,110 +27,115 @@ import fs from 'node:fs';
 
 var timeout: number = 1000;
 
-export default async (client: Client, interaction: Interaction) => {
+import { BotEvent } from '../../types/event';
 
-    async function commandExecutor() {
-        if (!interaction.isContextMenuCommand()
-            || !interaction.guild?.channels
-            || interaction.user.bot) return;
+export const event: BotEvent = {
+    name: "interactionCreate",
+    run: async (client: Client, interaction: Interaction) => {
 
-        let cmd = client.applicationsCommands.get(interaction.commandName);
-        if (cmd && cmd.thinking) { await interaction.deferReply(); };
-        if (cmd) { cmd.run(client, interaction) };
-    };
+        async function commandExecutor() {
+            if (!interaction.isContextMenuCommand()
+                || !interaction.guild?.channels
+                || interaction.user.bot) return;
 
-    async function buttonExecutor() {
-        if (!interaction.isButton()
-            || !interaction.guild?.channels
-            || interaction.user.bot) return;
-
-        let get = client.buttons.get(interaction.customId);
-        if (get) get(interaction);
-    };
-
-    async function selectMenuExecutor() {
-        if (!interaction.isAnySelectMenu()
-            || !interaction.guild?.channels
-            || interaction.user.bot) return;
-
-        let get = client.selectmenu.get(interaction.customId);
-        if (get) get(interaction);
-    };
-
-    async function slashExecutor() {
-        if (!interaction.isChatInputCommand()
-            || !interaction.guild?.channels
-            || interaction.user.bot) return;
-
-        let command = client.commands?.get(interaction.commandName);
-
-        if (!command) {
-            return interaction.reply({ content: "Connection error.", ephemeral: true });
+            let cmd = client.applicationsCommands.get(interaction.commandName);
+            if (cmd && cmd.thinking) { await interaction.deferReply(); };
+            if (cmd) { cmd.run(client, interaction) };
         };
 
-        if (await cooldDown()) {
-            let data = await client.functions.getLanguageData(interaction.guild.id);
+        async function buttonExecutor() {
+            if (!interaction.isButton()
+                || !interaction.guild?.channels
+                || interaction.user.bot) return;
 
-            await interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
-            return;
+            let get = client.buttons.get(interaction.customId);
+            if (get) get(interaction);
         };
 
-        try {
-            if (await client.db.table('BLACKLIST').get(`${interaction.user.id}.blacklisted`)) {
-                await interaction.reply({
-                    embeds: [
-                        new EmbedBuilder()
-                            .setColor("#0827F5").setTitle(":(")
-                            .setImage(config.core.blacklistPictureInEmbed)
-                    ], ephemeral: true
-                });
+        async function selectMenuExecutor() {
+            if (!interaction.isAnySelectMenu()
+                || !interaction.guild?.channels
+                || interaction.user.bot) return;
+
+            let get = client.selectmenu.get(interaction.customId);
+            if (get) get(interaction);
+        };
+
+        async function slashExecutor() {
+            if (!interaction.isChatInputCommand()
+                || !interaction.guild?.channels
+                || interaction.user.bot) return;
+
+            let command = client.commands?.get(interaction.commandName);
+
+            if (!command) {
+                return interaction.reply({ content: "Connection error.", ephemeral: true });
+            };
+
+            if (await cooldDown()) {
+                let data = await client.functions.getLanguageData(interaction.guild.id);
+
+                await interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
                 return;
             };
 
-            if (command.thinking) {
-                await interaction.deferReply();
+            try {
+                if (await client.db.table('BLACKLIST').get(`${interaction.user.id}.blacklisted`)) {
+                    await interaction.reply({
+                        embeds: [
+                            new EmbedBuilder()
+                                .setColor("#0827F5").setTitle(":(")
+                                .setImage(config.core.blacklistPictureInEmbed)
+                        ], ephemeral: true
+                    });
+                    return;
+                };
+
+                if (command.thinking) {
+                    await interaction.deferReply();
+                };
+
+                await command.run(client, interaction);
+            } catch (e: any) {
+                // logger.err(e);
+                console.error(e);
+            };
+        };
+
+        async function logsCommands(): Promise<void> {
+            if (!interaction.isCommand()
+                || !interaction.guild?.channels
+                || interaction.user.bot) return;
+
+            let optionsList: string[] = (interaction.options as CommandInteractionOptionResolver)["_hoistedOptions"].map(element => `${element.name}:"${element.value}"`)
+            let subCmd: string = '';
+
+            if ((interaction.options as CommandInteractionOptionResolver)["_subcommand"]) {
+                if ((interaction.options as CommandInteractionOptionResolver).getSubcommandGroup()) subCmd += (interaction.options as CommandInteractionOptionResolver).getSubcommandGroup()! + " ";
+                subCmd += (interaction.options as CommandInteractionOptionResolver).getSubcommand()
             };
 
-            await command.run(client, interaction);
-        } catch (e: any) {
-            // logger.err(e);
-            console.error(e);
+            let logMessage = `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}}] "${interaction.guild?.name}" #${interaction.channel ? (interaction.channel as GuildChannel).name : 'Unknown Channel'}:\n` +
+                `${interaction.user.username}:\n` +
+                `/${interaction.commandName} ${subCmd} ${optionsList?.join(' ')}\n\n`;
+
+            fs.appendFile(`${process.cwd()}/src/files/slash.log`, logMessage, (err) => {
+                if (err) {
+                    logger.warn('Error writing to slash.log');
+                };
+            });
         };
-    };
 
-    async function logsCommands(): Promise<void> {
-        if (!interaction.isCommand()
-            || !interaction.guild?.channels
-            || interaction.user.bot) return;
+        async function cooldDown() {
+            let tn = Date.now();
+            let table = client.db.table("TEMP");
+            var fetch = await table.get(`COOLDOWN.${interaction.user.id}`);
+            if (fetch !== null && timeout - (tn - fetch) > 0) return true;
 
-        let optionsList: string[] = (interaction.options as CommandInteractionOptionResolver)["_hoistedOptions"].map(element => `${element.name}:"${element.value}"`)
-        let subCmd: string = '';
-
-        if ((interaction.options as CommandInteractionOptionResolver)["_subcommand"]) {
-            if ((interaction.options as CommandInteractionOptionResolver).getSubcommandGroup()) subCmd += (interaction.options as CommandInteractionOptionResolver).getSubcommandGroup()! + " ";
-            subCmd += (interaction.options as CommandInteractionOptionResolver).getSubcommand()
+            await table.set(`COOLDOWN.${interaction.user.id}`, tn);
+            return false;
         };
-        
-        let logMessage = `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}}] "${interaction.guild?.name}" #${interaction.channel ? (interaction.channel as GuildChannel).name : 'Unknown Channel'}:\n` +
-            `${interaction.user.username}:\n` +
-            `/${interaction.commandName} ${subCmd} ${optionsList?.join(' ')}\n\n`;
 
-        fs.appendFile(`${process.cwd()}/src/files/slash.log`, logMessage, (err) => {
-            if (err) {
-                logger.warn('Error writing to slash.log');
-            };
-        });
-    };
-
-    async function cooldDown() {
-        let tn = Date.now();
-        let table = client.db.table("TEMP");
-        var fetch = await table.get(`COOLDOWN.${interaction.user.id}`);
-        if (fetch !== null && timeout - (tn - fetch) > 0) return true;
-
-        await table.set(`COOLDOWN.${interaction.user.id}`, tn);
-        return false;
-    };
-
-    slashExecutor(), buttonExecutor(), selectMenuExecutor(), commandExecutor(), logsCommands();
+        slashExecutor(), buttonExecutor(), selectMenuExecutor(), commandExecutor(), logsCommands();
+    },
 };

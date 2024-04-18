@@ -24,98 +24,104 @@ import hidden from '../core/functions/maskLink.js';
 
 import { AxiosResponse, axios } from '../core/functions/axios.js';
 
-export default async (client: Client, message: Message) => {
-    let data = await client.functions.getLanguageData(message.guild?.id);
+import { BotEvent } from '../../types/event';
 
-    async function snipeModules() {
-        if (!message.guild || !message.author
-            || message.author.id == client.user?.id) return;
+export const event: BotEvent = {
+    name: "messageDelete",
+    run: async (client: Client, message: Message) => {
 
-        await client.db.set(`${message.guild.id}.GUILD.SNIPE.${message.channel.id}`,
-            {
-                snipe: `${hidden(message.content)}`,
-                snipeUserInfoTag: `${message.author.username} (${message.author.id} )`,
-                snipeUserInfoPp: `${message.author.displayAvatarURL()}`,
-                snipeTimestamp: Date.now()
-            }
-        );
-    };
+        let data = await client.functions.getLanguageData(message.guild?.id);
 
-    async function serverLogs() {
-        if (!message.guild || !message.author
-            || message.author.id == client.user?.id) return;
+        async function snipeModules() {
+            if (!message.guild || !message.author
+                || message.author.id == client.user?.id) return;
 
-        let someinfo = await client.db.get(`${message.guild.id}.GUILD.SERVER_LOGS.message`);
-        if (!someinfo) return;
-
-        let Msgchannel = client.channels.cache.get(someinfo);
-        if (!Msgchannel) return;
-
-        let iconURL = message.author.displayAvatarURL();
-        let saves_emb: EmbedBuilder[] = [];
-        let logsEmbed = new EmbedBuilder()
-            .setColor("#000000")
-            .setAuthor({
-                name: message.author.username,
-                iconURL: iconURL
-            })
-            .setDescription(data.event_srvLogs_messageDelete_description
-                .replace("${message.channel.id}", message.channel.id)
-                .replace("${message.content}", ' ' + message.content)
-            )
-            .setTimestamp();
-
-        if (message.attachments.size >= 1) {
-            let attachments = message.attachments;
-            let attachment = attachments.first();
-            if (!attachment || !attachment.contentType) return;
-
-            if (attachments.size >= 2) {
-                let files: AttachmentBuilder[] = [];
-
-                async function getFile(file: Attachment) {
-                    let response = await axios.get(file?.['attachment'] as string, { responseType: 'arraybuffer' });
-                    let attachment = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: file?.name });
-                    files.push(attachment);
+            await client.db.set(`${message.guild.id}.GUILD.SNIPE.${message.channel.id}`,
+                {
+                    snipe: `${hidden(message.content)}`,
+                    snipeUserInfoTag: `${message.author.username} (${message.author.id} )`,
+                    snipeUserInfoPp: `${message.author.displayAvatarURL()}`,
+                    snipeTimestamp: Date.now()
                 }
+            );
+        };
 
-                let filePromises = attachments.map(async (file) => {
-                    await getFile(file);
-                });
+        async function serverLogs() {
+            if (!message.guild || !message.author
+                || message.author.id == client.user?.id) return;
 
-                await Promise.all(filePromises);
+            let someinfo = await client.db.get(`${message.guild.id}.GUILD.SERVER_LOGS.message`);
+            if (!someinfo) return;
 
-                await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed], files: files }).catch(() => { });
-                return;
-            } else if (attachment && attachment.contentType.startsWith('image/')) {
-                let snipedImage: AttachmentBuilder;
+            let Msgchannel = client.channels.cache.get(someinfo);
+            if (!Msgchannel) return;
 
-                await axios.get((attachment?.['attachment'] as string), { responseType: 'arraybuffer' }).then((response: AxiosResponse) => {
-                    snipedImage = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'sniped-image-by-ihorizon.png' });
-                    logsEmbed.setImage(`attachment://sniped-image-by-ihorizon.png`);
-                });
+            let iconURL = message.author.displayAvatarURL();
+            let saves_emb: EmbedBuilder[] = [];
+            let logsEmbed = new EmbedBuilder()
+                .setColor("#000000")
+                .setAuthor({
+                    name: message.author.username,
+                    iconURL: iconURL
+                })
+                .setDescription(data.event_srvLogs_messageDelete_description
+                    .replace("${message.channel.id}", message.channel.id)
+                    .replace("${message.content}", ' ' + message.content)
+                )
+                .setTimestamp();
 
-                await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed], files: [snipedImage!] }).catch(() => { });
-                return;
-            } else if (attachment) {
-                let snipedFiles: AttachmentBuilder;
+            if (message.attachments.size >= 1) {
+                let attachments = message.attachments;
+                let attachment = attachments.first();
+                if (!attachment || !attachment.contentType) return;
 
-                await axios.get((attachment?.['attachment'] as string), { responseType: 'arraybuffer' }).then((response: AxiosResponse) => {
-                    snipedFiles = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: attachment?.name });
-                });
+                if (attachments.size >= 2) {
+                    let files: AttachmentBuilder[] = [];
 
-                await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed], files: [snipedFiles!] }).catch(() => { });
-                return;
+                    async function getFile(file: Attachment) {
+                        let response = await axios.get(file?.['attachment'] as string, { responseType: 'arraybuffer' });
+                        let attachment = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: file?.name });
+                        files.push(attachment);
+                    }
+
+                    let filePromises = attachments.map(async (file) => {
+                        await getFile(file);
+                    });
+
+                    await Promise.all(filePromises);
+
+                    await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed], files: files }).catch(() => { });
+                    return;
+                } else if (attachment && attachment.contentType.startsWith('image/')) {
+                    let snipedImage: AttachmentBuilder;
+
+                    await axios.get((attachment?.['attachment'] as string), { responseType: 'arraybuffer' }).then((response: AxiosResponse) => {
+                        snipedImage = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'sniped-image-by-ihorizon.png' });
+                        logsEmbed.setImage(`attachment://sniped-image-by-ihorizon.png`);
+                    });
+
+                    await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed], files: [snipedImage!] }).catch(() => { });
+                    return;
+                } else if (attachment) {
+                    let snipedFiles: AttachmentBuilder;
+
+                    await axios.get((attachment?.['attachment'] as string), { responseType: 'arraybuffer' }).then((response: AxiosResponse) => {
+                        snipedFiles = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: attachment?.name });
+                    });
+
+                    await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed], files: [snipedFiles!] }).catch(() => { });
+                    return;
+                }
+            } else if (message.embeds) {
+                for (let embed in message.embeds) {
+                    saves_emb.push(EmbedBuilder.from(message.embeds[embed]))
+                }
             }
-        } else if (message.embeds) {
-            for (let embed in message.embeds) {
-                saves_emb.push(EmbedBuilder.from(message.embeds[embed]))
-            }
-        }
 
-        await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed, ...saves_emb] }).catch(() => { });
-        return;
-    };
+            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed, ...saves_emb] }).catch(() => { });
+            return;
+        };
 
-    snipeModules(), serverLogs();
+        snipeModules(), serverLogs();
+    },
 };

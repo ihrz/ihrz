@@ -19,260 +19,266 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Collection, EmbedBuilder, PermissionsBitField, ChannelType, Message, Role, GuildTextBasedChannel, ClientUser } from 'discord.js';
+import { Client, EmbedBuilder, PermissionsBitField, ChannelType, Message, GuildTextBasedChannel, ClientUser } from 'discord.js';
 import { generatePassword } from '../core/functions/random.js';
 
-export default async (client: Client, message: Message) => {
-    if (!message.guild || message.author.bot || !message.channel) return;
+import { BotEvent } from '../../types/event';
 
-    let data = await client.functions.getLanguageData(message.guild.id);
+export const event: BotEvent = {
+    name: "messageCreate",
+    run: async (client: Client, message: Message) => {
 
-    async function MessageCommandExecutor(): Promise<boolean> {
-        var prefix = `<@${client.user?.id}>`;
+        if (!message.guild || message.author.bot || !message.channel) return;
 
-        if (!message.guild || message.author.bot || !message.content.toString().startsWith(prefix)) return false;
+        let data = await client.functions.getLanguageData(message.guild.id);
 
-        let args = message.content.slice(prefix.length).trim().split(/ +/g);
-        let command = client.message_commands.get(args.shift()?.toLowerCase() as string);
+        async function MessageCommandExecutor(): Promise<boolean> {
+            var prefix = `<@${client.user?.id}>`;
 
-        if (command) {
-            command?.run(client, message, args);
-            return true;
-        } else {
-            return false;
-        };
-    }
+            if (!message.guild || message.author.bot || !message.content.toString().startsWith(prefix)) return false;
 
-    async function xpFetcher() {
-        if (await MessageCommandExecutor()) return;
-        if (!message.guild || message.author.bot || message.channel.type !== ChannelType.GuildText) return;
+            let args = message.content.slice(prefix.length).trim().split(/ +/g);
+            let command = client.message_commands.get(args.shift()?.toLowerCase() as string);
 
-        var baseData = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING`);
-        var xpTurn = await client.db.get(`${message.guild.id}.GUILD.XP_LEVELING.disable`);
+            if (command) {
+                command?.run(client, message, args);
+                return true;
+            } else {
+                return false;
+            };
+        }
 
-        if (xpTurn === 'disable') return;
+        async function xpFetcher() {
+            if (await MessageCommandExecutor()) return;
+            if (!message.guild || message.author.bot || message.channel.type !== ChannelType.GuildText) return;
 
-        var xp = baseData?.xp;
-        var level = baseData?.level || 1;
-        var randomNumber = Math.floor(Math.random() * 100) + 50;
+            var baseData = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING`);
+            var xpTurn = await client.db.get(`${message.guild.id}.GUILD.XP_LEVELING.disable`);
 
-        await client.db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, randomNumber);
-        await client.db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xptotal`, randomNumber);
+            if (xpTurn === 'disable') return;
 
-        if ((level * 500) < xp) {
-            await client.db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`, 1);
-            await client.db.add(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`, randomNumber);
+            var xp = baseData?.xp;
+            var level = baseData?.level || 1;
+            var randomNumber = Math.floor(Math.random() * 100) + 50;
 
-            await client.db.sub(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, (level * 500));
+            await client.db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, randomNumber);
+            await client.db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xptotal`, randomNumber);
 
-            let newLevel = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`);
+            if ((level * 500) < xp) {
+                await client.db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`, 1);
+                await client.db.add(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`, randomNumber);
 
-            if (xpTurn === false
-                || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)) return;
+                await client.db.sub(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, (level * 500));
 
-            let xpChan = await client.db.get(`${message.guild.id}.GUILD.XP_LEVELING.xpchannels`);
-            let MsgChannel = message.guild.channels.cache.get(xpChan) as GuildTextBasedChannel;
+                let newLevel = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`);
 
-            if (!xpChan) {
-                message.channel.send({
+                if (xpTurn === false
+                    || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)) return;
+
+                let xpChan = await client.db.get(`${message.guild.id}.GUILD.XP_LEVELING.xpchannels`);
+                let MsgChannel = message.guild.channels.cache.get(xpChan) as GuildTextBasedChannel;
+
+                if (!xpChan) {
+                    message.channel.send({
+                        content: data.event_xp_level_earn
+                            .replace("${message.author.id}", message.author.id)
+                            .replace("${newLevel}", newLevel)
+                    })
+                    return;
+                }
+
+                MsgChannel.send({
                     content: data.event_xp_level_earn
                         .replace("${message.author.id}", message.author.id)
                         .replace("${newLevel}", newLevel)
-                })
+                });
                 return;
             }
-
-            MsgChannel.send({
-                content: data.event_xp_level_earn
-                    .replace("${message.author.id}", message.author.id)
-                    .replace("${newLevel}", newLevel)
-            });
-            return;
-        }
-    };
-
-    async function blockSpam() {
-
-        if (!message.guild || !message.channel || !message.member
-            || message.channel.type !== ChannelType.GuildText || message.author.bot
-            || message.author.id === client.user?.id) {
-            return;
         };
 
-        let type = await client.db.get(`${message.guild.id}.GUILD.GUILD_CONFIG.antipub`);
+        async function blockSpam() {
 
-        if (type === "off" || message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return;
-        };
-
-        let member = message.guild.members.cache.get(message.author.id);
-
-        if (type === "on") {
-            let LOG = await client.db.get(`${message.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
-            let table = client.db.table("TEMP");
-            let LOGfetched = await table.get(`${message.guild.id}.PUNISH_DATA.${message.author.id}`);
-
-            if (LOG?.amountMax === LOGfetched?.flags && LOG?.state === "true") {
-                switch (LOG.punishementType) {
-                    case 'ban':
-                        message.guild.members.ban(message.author, { reason: "Ban by PUNISHPUB" }).catch(() => { });
-                        break;
-                    case 'kick':
-                        message.guild.members.kick(message.author).catch(() => { });
-                        break;
-                    case 'mute':
-                        await member?.timeout(40000, 'Timeout by PunishPUB')
-                        await table.set(`${message.guildId}.PUNISH_DATA.${message.author.id}`, {});
-                        break;
-                }
+            if (!message.guild || !message.channel || !message.member
+                || message.channel.type !== ChannelType.GuildText || message.author.bot
+                || message.author.id === client.user?.id) {
+                return;
             };
 
-            try {
-                let blacklist = ["https://", "http://", "://", ".com", ".xyz", ".fr", "www.", ".gg", "g/", ".gg/", "youtube.be", "/?"];
-                let contentLower = message.content.toLowerCase();
-                let table = client.db.table("TEMP");
+            let type = await client.db.get(`${message.guild.id}.GUILD.GUILD_CONFIG.antipub`);
 
-                for (let word of blacklist) {
-                    if (contentLower.includes(word)) {
-                        let FLAGS_FETCH = await table.get(`${message.guild.id}.PUNISH_DATA.${message.author.id}.flags`);
-                        FLAGS_FETCH = FLAGS_FETCH || 0;
-
-                        await table.set(`${message.guild.id}.PUNISH_DATA.${message.author.id}`, { flags: FLAGS_FETCH + 1 });
-                        await message.delete();
-                        break;
-                    }
-                }
-            } catch (e: any) {
+            if (type === "off" || message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
                 return;
+            };
+
+            let member = message.guild.members.cache.get(message.author.id);
+
+            if (type === "on") {
+                let LOG = await client.db.get(`${message.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
+                let table = client.db.table("TEMP");
+                let LOGfetched = await table.get(`${message.guild.id}.PUNISH_DATA.${message.author.id}`);
+
+                if (LOG?.amountMax === LOGfetched?.flags && LOG?.state === "true") {
+                    switch (LOG.punishementType) {
+                        case 'ban':
+                            message.guild.members.ban(message.author, { reason: "Ban by PUNISHPUB" }).catch(() => { });
+                            break;
+                        case 'kick':
+                            message.guild.members.kick(message.author).catch(() => { });
+                            break;
+                        case 'mute':
+                            await member?.timeout(40000, 'Timeout by PunishPUB')
+                            await table.set(`${message.guildId}.PUNISH_DATA.${message.author.id}`, {});
+                            break;
+                    }
+                };
+
+                try {
+                    let blacklist = ["https://", "http://", "://", ".com", ".xyz", ".fr", "www.", ".gg", "g/", ".gg/", "youtube.be", "/?"];
+                    let contentLower = message.content.toLowerCase();
+                    let table = client.db.table("TEMP");
+
+                    for (let word of blacklist) {
+                        if (contentLower.includes(word)) {
+                            let FLAGS_FETCH = await table.get(`${message.guild.id}.PUNISH_DATA.${message.author.id}.flags`);
+                            FLAGS_FETCH = FLAGS_FETCH || 0;
+
+                            await table.set(`${message.guild.id}.PUNISH_DATA.${message.author.id}`, { flags: FLAGS_FETCH + 1 });
+                            await message.delete();
+                            break;
+                        }
+                    }
+                } catch (e: any) {
+                    return;
+                }
             }
-        }
-    };
+        };
 
-    async function rankRole() {
-        if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || message.author.bot
-            || message.author.id === client.user?.id || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)
-            || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.ManageRoles) || message.content !== `<@${client.user?.id}>`) return;
+        async function rankRole() {
+            if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || message.author.bot
+                || message.author.id === client.user?.id || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)
+                || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.ManageRoles) || message.content !== `<@${client.user?.id}>`) return;
 
-        let dbGet = await client.db.get(`${message.guild.id}.GUILD.RANK_ROLES.roles`);
-        let fetch = message.guild.roles.cache.find((role) => role.id === dbGet);
+            let dbGet = await client.db.get(`${message.guild.id}.GUILD.RANK_ROLES.roles`);
+            let fetch = message.guild.roles.cache.find((role) => role.id === dbGet);
 
-        if (fetch) {
-            let target = message.guild.members.cache.get(message.author.id);
-            if (target?.roles.cache.has(fetch.id)) { return; };
+            if (fetch) {
+                let target = message.guild.members.cache.get(message.author.id);
+                if (target?.roles.cache.has(fetch.id)) { return; };
 
-            let embed = new EmbedBuilder()
-                .setDescription(data.event_rank_role
-                    .replace("${message.author.id}", message.author.id)
-                    .replace("${fetch.id}", fetch.id)
-                )
+                let embed = new EmbedBuilder()
+                    .setDescription(data.event_rank_role
+                        .replace("${message.author.id}", message.author.id)
+                        .replace("${fetch.id}", fetch.id)
+                    )
+                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                    .setTimestamp();
+
+                message.member?.roles.add(fetch).catch(() => { });
+                message.channel.send({
+                    embeds: [embed],
+                    files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+                }).catch(() => { });
+                return;
+            };
+        };
+
+        async function createAllowList() {
+            let baseData = await client.db.get(`${message.guildId}.ALLOWLIST`);
+
+            if (!baseData) {
+                await client.db.set(`${message.guildId}.ALLOWLIST`,
+                    {
+                        enable: false,
+                        list: { [`${message.guild?.ownerId}`]: { allowed: true } },
+                    }
+                );
+                return;
+            };
+        };
+
+        async function suggestion() {
+            let baseData = await client.db.get(`${message.guildId}.SUGGEST`);
+
+            if (!baseData
+                || baseData?.channel !== message.channel.id
+                || baseData?.disable) return;
+
+            let suggestionContent = '```' + message.content + '```';
+            var suggestCode = generatePassword({ length: 12 });
+
+            let suggestionEmbed = new EmbedBuilder()
+                .setColor('#4000ff')
+                .setTitle(`#${suggestCode}`)
+                .setAuthor({
+                    name: data.event_suggestion_embed_author
+                        .replace('${message.author.username}', message.author.username),
+                    iconURL: message.author.displayAvatarURL()
+                })
+                .setDescription(suggestionContent.toString())
+                .setThumbnail((message.guild?.iconURL() as string))
                 .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
-            message.member?.roles.add(fetch).catch(() => { });
-            message.channel.send({
-                embeds: [embed],
+            message.delete();
+
+            let args = message.content.split(' ');
+            if (args.length < 5) return;
+
+            let msg = await message.channel.send({
+                content: `<@${message.author.id}>`,
+                embeds: [suggestionEmbed],
                 files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
-            }).catch(() => { });
-            return;
-        };
-    };
+            });
 
-    async function createAllowList() {
-        let baseData = await client.db.get(`${message.guildId}.ALLOWLIST`);
+            await msg.react(client.iHorizon_Emojis.icon.Yes_Logo);
+            await msg.react(client.iHorizon_Emojis.icon.No_Logo);
 
-        if (!baseData) {
-            await client.db.set(`${message.guildId}.ALLOWLIST`,
+            await client.db.set(`${message.guildId}.SUGGESTION.${suggestCode}`,
                 {
-                    enable: false,
-                    list: { [`${message.guild?.ownerId}`]: { allowed: true } },
+                    author: message.author.id,
+                    msgId: msg.id
                 }
             );
+
             return;
         };
-    };
 
-    async function suggestion() {
-        let baseData = await client.db.get(`${message.guildId}.SUGGEST`);
+        async function reactToHeyMSG() {
+            if (!message.guild
+                || message.author.bot
+                || !message.channel
+                || await client.db.get(`${message.guildId}.GUILD.GUILD_CONFIG.hey_reaction`) === false) return;
 
-        if (!baseData
-            || baseData?.channel !== message.channel.id
-            || baseData?.disable) return;
+            let recognizeItem: Array<string> = [
+                'hey',
+                'salut',
+                'coucou',
+                'bonjour',
+                'salem',
+                'wesh',
+                'hello',
+                'bienvenue',
+                'welcome',
+            ];
 
-        let suggestionContent = '```' + message.content + '```';
-        var suggestCode = generatePassword({ length: 12 });
+            recognizeItem.forEach(content => {
+                if (message.content.split(' ')[0]?.toLocaleLowerCase()
+                    .startsWith(content.toLocaleLowerCase())) {
 
-        let suggestionEmbed = new EmbedBuilder()
-            .setColor('#4000ff')
-            .setTitle(`#${suggestCode}`)
-            .setAuthor({
-                name: data.event_suggestion_embed_author
-                    .replace('${message.author.username}', message.author.username),
-                iconURL: message.author.displayAvatarURL()
-            })
-            .setDescription(suggestionContent.toString())
-            .setThumbnail((message.guild?.iconURL() as string))
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
-            .setTimestamp();
-
-        message.delete();
-
-        let args = message.content.split(' ');
-        if (args.length < 5) return;
-
-        let msg = await message.channel.send({
-            content: `<@${message.author.id}>`,
-            embeds: [suggestionEmbed],
-            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
-        });
-
-        await msg.react(client.iHorizon_Emojis.icon.Yes_Logo);
-        await msg.react(client.iHorizon_Emojis.icon.No_Logo);
-
-        await client.db.set(`${message.guildId}.SUGGESTION.${suggestCode}`,
-            {
-                author: message.author.id,
-                msgId: msg.id
-            }
-        );
-
-        return;
-    };
-
-    async function reactToHeyMSG() {
-        if (!message.guild
-            || message.author.bot
-            || !message.channel
-            || await client.db.get(`${message.guildId}.GUILD.GUILD_CONFIG.hey_reaction`) === false) return;
-
-        let recognizeItem: Array<string> = [
-            'hey',
-            'salut',
-            'coucou',
-            'bonjour',
-            'salem',
-            'wesh',
-            'hello',
-            'bienvenue',
-            'welcome',
-        ];
-
-        recognizeItem.forEach(content => {
-            if (message.content.split(' ')[0]?.toLocaleLowerCase()
-                .startsWith(content.toLocaleLowerCase())) {
-
-                try {
-                    message.react('👋');
-                    return;
-                } catch (e) {
-                    return;
+                    try {
+                        message.react('👋');
+                        return;
+                    } catch (e) {
+                        return;
+                    };
                 };
-            };
-        });
+            });
 
-        let custom_react = await client.db.get(`${message.guildId}.GUILD.REACT_MSG.${message.content.split(' ')[0]?.toLocaleLowerCase()}`)
-        if (custom_react) await message.react(custom_react).catch(() => { });
-        return;
-    };
+            let custom_react = await client.db.get(`${message.guildId}.GUILD.REACT_MSG.${message.content.split(' ')[0]?.toLocaleLowerCase()}`)
+            if (custom_react) await message.react(custom_react).catch(() => { });
+            return;
+        };
 
-    xpFetcher(), blockSpam(), rankRole(), createAllowList(), suggestion(), reactToHeyMSG();
+        xpFetcher(), blockSpam(), rankRole(), createAllowList(), suggestion(), reactToHeyMSG();
+    },
 };

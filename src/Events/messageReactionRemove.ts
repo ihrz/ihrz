@@ -20,37 +20,41 @@
 */
 
 import { Client, MessageReaction, User } from 'discord.js';
+import { BotEvent } from '../../types/event';
 
-export default async (client: Client, reaction: MessageReaction, user: User) => {
+export const event: BotEvent = {
+    name: "messageReactionRemove",
+    run: async (client: Client, reaction: MessageReaction, user: User) => {
 
-    async function reactionRole() {
-        try {
-            if (user.bot || user.id == client.user?.id
-                || !reaction.message.guildId) return;
+        async function reactionRole() {
+            try {
+                if (user.bot || user.id == client.user?.id
+                    || !reaction.message.guildId) return;
 
-            let fetched = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
+                let fetched = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
 
-            if (fetched) {
-                let role = reaction.message.guild?.roles.cache.get(fetched.rolesID);
-                if (!role) return;
+                if (fetched) {
+                    let role = reaction.message.guild?.roles.cache.get(fetched.rolesID);
+                    if (!role) return;
 
-                let member = reaction.message.guild?.members.cache.get(user.id);
-                await member?.roles.remove(role).catch(() => { });
-                return;
-            };
+                    let member = reaction.message.guild?.members.cache.get(user.id);
+                    await member?.roles.remove(role).catch(() => { });
+                    return;
+                };
 
-            let fetchedForNitro = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
+                let fetchedForNitro = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
 
-            if (fetchedForNitro) {
-                let role = reaction.message.guild?.roles.cache.get(fetchedForNitro.rolesID);
-                if (!role) return;
+                if (fetchedForNitro) {
+                    let role = reaction.message.guild?.roles.cache.get(fetchedForNitro.rolesID);
+                    if (!role) return;
 
-                let member = reaction.message.guild?.members.cache.get(user.id);
-                await member?.roles.remove(role).catch(() => { });
-                return;
-            };
-        } catch (e: any) { return; };
-    };
+                    let member = reaction.message.guild?.members.cache.get(user.id);
+                    await member?.roles.remove(role).catch(() => { });
+                    return;
+                };
+            } catch (e: any) { return; };
+        };
 
-    reactionRole();
+        reactionRole();
+    },
 };

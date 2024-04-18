@@ -19,42 +19,48 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, Collection, EmbedBuilder, Message, Options, Permissions, Presence } from 'discord.js';
+import { BaseGuildTextChannel, Client, EmbedBuilder, Message } from 'discord.js';
 
-export default async (client: Client, oldMessage: Message, newMessage: Message) => {
-    let data = await client.functions.getLanguageData(oldMessage.guild?.id)
-    async function serverLogs() {
-        if (!oldMessage || !oldMessage.guild) return;
+import { BotEvent } from '../../types/event';
 
-        if (!newMessage.author || newMessage.author.bot
-            || oldMessage.content == '' || !oldMessage.content
-            || newMessage.content == '' || !newMessage.content) return;
+export const event: BotEvent = {
+    name: "messageUpdate",
+    run: async (client: Client, oldMessage: Message, newMessage: Message) => {
 
-        let someinfo = await client.db.get(`${oldMessage.guildId}.GUILD.SERVER_LOGS.message`);
+        let data = await client.functions.getLanguageData(oldMessage.guild?.id)
+        async function serverLogs() {
+            if (!oldMessage || !oldMessage.guild) return;
 
-        if (!someinfo || !oldMessage.content || !newMessage.content
-            || oldMessage.content === newMessage.content) return;
+            if (!newMessage.author || newMessage.author.bot
+                || oldMessage.content == '' || !oldMessage.content
+                || newMessage.content == '' || !newMessage.content) return;
 
-        let Msgchannel = client.channels.cache.get(someinfo);
-        if (!Msgchannel) return;
+            let someinfo = await client.db.get(`${oldMessage.guildId}.GUILD.SERVER_LOGS.message`);
 
-        let icon = newMessage.author.displayAvatarURL();
+            if (!someinfo || !oldMessage.content || !newMessage.content
+                || oldMessage.content === newMessage.content) return;
 
-        let logsEmbed = new EmbedBuilder()
-            .setColor("#000000")
-            .setAuthor({ name: newMessage.author.username, iconURL: icon })
-            .setDescription(data.event_srvLogs_messageUpdate_description
-                .replace("${oldMessage.channelId}", oldMessage.channelId)
-                .replace("(xxx)", `(https://discord.com/channels/${oldMessage.guildId}/${oldMessage.channelId}/${oldMessage.id})`)
-            )
-            .setFields(
-                { name: data.event_srvLogs_messageUpdate_footer_1, value: oldMessage.content + '.' },
-                { name: data.event_srvLogs_messageUpdate_footer_2, value: newMessage.content + '.' }
-            )
-            .setTimestamp();
+            let Msgchannel = client.channels.cache.get(someinfo);
+            if (!Msgchannel) return;
 
-        await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
-    };
+            let icon = newMessage.author.displayAvatarURL();
 
-    serverLogs();
+            let logsEmbed = new EmbedBuilder()
+                .setColor("#000000")
+                .setAuthor({ name: newMessage.author.username, iconURL: icon })
+                .setDescription(data.event_srvLogs_messageUpdate_description
+                    .replace("${oldMessage.channelId}", oldMessage.channelId)
+                    .replace("(xxx)", `(https://discord.com/channels/${oldMessage.guildId}/${oldMessage.channelId}/${oldMessage.id})`)
+                )
+                .setFields(
+                    { name: data.event_srvLogs_messageUpdate_footer_1, value: oldMessage.content + '.' },
+                    { name: data.event_srvLogs_messageUpdate_footer_2, value: newMessage.content + '.' }
+                )
+                .setTimestamp();
+
+            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
+        };
+
+        serverLogs();
+    },
 };

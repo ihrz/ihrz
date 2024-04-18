@@ -21,21 +21,27 @@
 
 import { Client, Guild, Invite, PermissionsBitField } from 'discord.js';
 
-export default async (client: Client, invite: Invite) => {
-    async function inviteManager() {
-        if (!invite.guild || !(invite.guild as Guild).members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
-        client.invites.get(invite.guild?.id)?.set(invite.code, invite.uses);
+import { BotEvent } from '../../types/event';
 
-        let check = await client.db.get(`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`);
+export const event: BotEvent = {
+    name: "inviteCreate",
+    run: async (client: Client, invite: Invite) => {
 
-        if (!check) {
-            await client.db.set(`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`,
-                {
-                    regular: 0, bonus: 0, leaves: 0, invites: 0
-                }
-            );
+        async function inviteManager() {
+            if (!invite.guild || !(invite.guild as Guild).members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+            client.invites.get(invite.guild?.id)?.set(invite.code, invite.uses);
+
+            let check = await client.db.get(`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`);
+
+            if (!check) {
+                await client.db.set(`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`,
+                    {
+                        regular: 0, bonus: 0, leaves: 0, invites: 0
+                    }
+                );
+            };
         };
-    };
 
-    inviteManager();
+        inviteManager();
+    },
 };

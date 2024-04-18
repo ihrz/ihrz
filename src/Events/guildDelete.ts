@@ -19,50 +19,55 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, Guild, GuildChannel, GuildChannelManager, Message, MessageManager } from "discord.js";
-import { Collection, EmbedBuilder, PermissionsBitField, AuditLogEvent, Events, GuildBan } from 'discord.js';
+import { BaseGuildTextChannel, Client, Guild, EmbedBuilder } from 'discord.js';
 
 import logger from "../core/logger.js";
 import config from '../files/config.js';
 
-export default async (client: Client, guild: Guild) => {
-    async function inviteManager() {
-        await client.db.delete(`${guild.id}`);
+import { BotEvent } from '../../types/event';
 
-        return client.invites.delete(guild.id);
-    };
+export const event: BotEvent = {
+    name: "guildDelete",
+    run: async (client: Client, guild: Guild) => {
 
-    async function ownerLogs() {
-        try {
-            let i: string = '';
+        async function inviteManager() {
+            await client.db.delete(`${guild.id}`);
 
-            if (guild.name === undefined || null) {
-                return;
-            };
-
-            if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; };
-
-            let embed = new EmbedBuilder()
-                .setColor("#ff0505")
-                .setTimestamp(guild.joinedTimestamp)
-                .setDescription(`**A guild removed iHorizon !**`)
-                .addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
-                    { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
-                    { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
-                    { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
-                    { name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
-                    { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true }
-                )
-                .setThumbnail(guild.iconURL())
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
-
-            let channel = client.channels.cache.get(config.core.guildLogsChannelID);
-
-            return (channel as BaseGuildTextChannel).send({ embeds: [embed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
-        } catch (error: any) {
-            logger.err(error);
+            return client.invites.delete(guild.id);
         };
-    };
 
-    ownerLogs(), inviteManager();
+        async function ownerLogs() {
+            try {
+                let i: string = '';
+
+                if (guild.name === undefined || null) {
+                    return;
+                };
+
+                if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; };
+
+                let embed = new EmbedBuilder()
+                    .setColor("#ff0505")
+                    .setTimestamp(guild.joinedTimestamp)
+                    .setDescription(`**A guild removed iHorizon !**`)
+                    .addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
+                        { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
+                        { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
+                        { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
+                        { name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
+                        { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true }
+                    )
+                    .setThumbnail(guild.iconURL())
+                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+
+                let channel = client.channels.cache.get(config.core.guildLogsChannelID);
+
+                return (channel as BaseGuildTextChannel).send({ embeds: [embed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
+            } catch (error: any) {
+                logger.err(error);
+            };
+        };
+
+        ownerLogs(), inviteManager();
+    },
 };

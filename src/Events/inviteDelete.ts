@@ -21,10 +21,16 @@
 
 import { Client, Invite } from "discord.js";
 
-export default async (client: Client, invite: Invite) => {
-    async function inviteManager() {
-        client.invites.get(invite.guild?.id!)?.delete(invite.code);
-    };
+import { BotEvent } from '../../types/event';
 
-    inviteManager();
+export const event: BotEvent = {
+    name: "inviteDelete",
+    run: async (client: Client, invite: Invite) => {
+
+        async function inviteManager() {
+            client.invites.get(invite.guild?.id!)?.delete(invite.code);
+        };
+
+        inviteManager();
+    },
 };
