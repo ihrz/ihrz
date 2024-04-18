@@ -20,14 +20,14 @@
 */
 
 import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature } from 'discord.js';
-import { PfpsManager_Init } from "../core/modules/pfpsManager.js";
-import logger from "../core/logger.js";
-import config from "../files/config.js";
+import { PfpsManager_Init } from "../../core/modules/pfpsManager.js";
+import logger from "../../core/logger.js";
+import config from "../../files/config.js";
 
-import { OwnIHRZ } from "../core/modules/ownihrzManager.js";
-import { format } from '../core/functions/date-and-time.js';
+import { OwnIHRZ } from "../../core/modules/ownihrzManager.js";
+import { format } from '../../core/functions/date-and-time.js';
 
-import { BotEvent } from '../../types/event';
+import { BotEvent } from '../../../types/event.js';
 
 export const event: BotEvent = {
     name: "ready",
