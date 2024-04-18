@@ -21,40 +21,37 @@
 
 import { BaseGuildTextChannel, Client, EmbedBuilder, PermissionsBitField, AuditLogEvent, GuildBan } from 'discord.js';
 
-import { BotEvent } from '../../types/event';
+import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {
     name: "guildBanRemove",
     run: async (client: Client, ban: GuildBan) => {
         let data = await client.functions.getLanguageData(ban.guild.id);
 
-        async function serverLogs() {
-            if (!ban.guild.members.me
-                || !ban.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+        if (!ban.guild.members.me
+            || !ban.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
 
-            let fetchedLogs = await ban.guild.fetchAuditLogs({
-                type: AuditLogEvent.MemberBanRemove,
-                limit: 1,
-            });
+        let fetchedLogs = await ban.guild.fetchAuditLogs({
+            type: AuditLogEvent.MemberBanRemove,
+            limit: 1,
+        });
 
-            var firstEntry = fetchedLogs.entries.first();
-            let someinfo = await client.db.get(`${ban.guild.id}.GUILD.SERVER_LOGS.moderation`);
+        var firstEntry = fetchedLogs.entries.first();
+        let someinfo = await client.db.get(`${ban.guild.id}.GUILD.SERVER_LOGS.moderation`);
 
-            if (!someinfo) return;
+        if (!someinfo) return;
 
-            let Msgchannel = client.channels.cache.get(someinfo);
-            if (!Msgchannel) return;
+        let Msgchannel = client.channels.cache.get(someinfo);
+        if (!Msgchannel) return;
 
-            let logsEmbed = new EmbedBuilder()
-                .setColor("#000000")
-                .setDescription(data.event_srvLogs_banRemove_description
-                    .replace("${firstEntry.executor.id}", firstEntry?.executor?.id)
-                    .replace("${firstEntry.target.username}", firstEntry?.target?.username)
-                )
-                .setTimestamp();
+        let logsEmbed = new EmbedBuilder()
+            .setColor("#000000")
+            .setDescription(data.event_srvLogs_banRemove_description
+                .replace("${firstEntry.executor.id}", firstEntry?.executor?.id)
+                .replace("${firstEntry.target.username}", firstEntry?.target?.username)
+            )
+            .setTimestamp();
 
-            await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
-        };
-        serverLogs();
+        await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
     },
 };
