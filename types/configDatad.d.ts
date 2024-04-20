@@ -54,6 +54,8 @@ export interface ConfigData {
         proxyUrl: string;
         apiToken: string;
         clientID: string;
+        clientSecret?: string;
+        oauth2Link?: string;
     };
 
     console: {
