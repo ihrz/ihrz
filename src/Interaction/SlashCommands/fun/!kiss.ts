@@ -25,9 +25,9 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import axios from 'axios';
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData';
+import { axios } from '../../../core/functions/axios.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {

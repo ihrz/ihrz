@@ -25,9 +25,10 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import axios from 'axios';
-import { LanguageData } from '../../../../types/languageData';
+import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import { generatePassword } from '../../../core/functions/random.js';
+
+import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {

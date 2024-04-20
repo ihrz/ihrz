@@ -34,33 +34,47 @@ import {
   EmbedBuilder,
 } from 'discord.js';
 
+import { AxiosResponse, axios } from '../../../core/functions/axios.js';
+import Jimp from 'jimp';
+
 export default {
   run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
-    let text = interaction.options.getString('text');
-    let link = `https://cataas.com/cat/cute/says/${text}`;
+    let baseImg = (await axios.get('https://api.thecatapi.com/v1/images/search?mime_types=jpg,png')).data;
+    let text = interaction.options.getString('text')?.slice(0, 30);
+    let font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+
+    const newImg = await Jimp.read(baseImg[0].url);
+    const textWidth = Jimp.measureText(font, text);
+    const textHeight = Jimp.measureTextHeight(font, text, newImg.bitmap.width);
+    const textX = (newImg.bitmap.width - textWidth) / 2;
+    const textY = newImg.bitmap.height - textHeight - 10;
+
+    newImg.print(font, textX, textY, text);
 
     let embed = new EmbedBuilder()
       .setColor('#000000')
       .setImage('attachment://all-human-have-rights-elektra.png')
       .setTimestamp()
-      .setImage(`attachment://catsay.jpg`)
       .setFooter({ text: 'iHorizon x ElektraBots', iconURL: "attachment://icon.png" });
 
     let imgs: AttachmentBuilder | undefined;
 
-    imgs = new AttachmentBuilder(link, { name: 'catsay.jpg' });
+    try {
+      imgs = new AttachmentBuilder(await newImg.getBufferAsync(Jimp.MIME_GIF), { name: 'all-humans-have-right-elektra.png' });
+      embed.setImage(`attachment://all-humans-have-right-elektra.png`);
 
-    await interaction.editReply({
-      embeds: [embed],
-      files: [
-        imgs,
-        {
-          attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png'
-        }
-      ]
-    });
-    
+      if (imgs) {
+        await interaction.editReply({
+          embeds: [embed],
+          files: [imgs, { attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+        });
+      };
+
+    } catch {
+      await interaction.editReply({ content: "Api down." });
+    }
+
     return;
   },
 };

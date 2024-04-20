@@ -25,9 +25,10 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
+import { format } from '../../../core/functions/date-and-time.js';
+import { axios } from '../../../core/functions/axios.js';
+
 import { LanguageData } from '../../../../types/languageData';
-import date from 'date-and-time';
-import axios from 'axios';
 
 async function buildEmbed(client: Client, data: any, botId: number, lang: LanguageData) {
 
@@ -44,7 +45,7 @@ async function buildEmbed(client: Client, data: any, botId: number, lang: Langua
         .replace('${data_2[i].bot.username}', data.Bot.Name)
         .replace("${data_2[i].bot_public ? 'Yes' : 'No'}", data.Bot.Public ? lang.mybot_list_utils_msg_yes : lang.mybot_list_utils_msg_no);
 
-    let expire = date.format(new Date(data.ExpireIn), 'ddd, MMM DD YYYY');
+    let expire = format(new Date(data.ExpireIn), 'ddd, MMM DD YYYY');
 
     return new EmbedBuilder()
         .setColor('#ff7f50')

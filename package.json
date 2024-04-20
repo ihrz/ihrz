@@ -1,6 +1,6 @@
 {
   "name": "ihrz",
-  "version": "15.6.0",
+  "version": "15.6.1",
   "description": "iHrz in ts!",
   "main": "./dist/src/index.js",
   "scripts": {
@@ -23,10 +23,8 @@
   },
   "homepage": "https://github.com/ihrz/ihrz#readme",
   "dependencies": {
-    "axios": "1.6.7",
     "better-sqlite3": "^9.5.0",
     "discord-html-transcripts": "^3.2.0",
-    "discord-oauth2": "^2.11.0",
     "discord-rebackup": "^3.3.6",
     "discord-regiveaways": "^1.1.19",
     "discord.js": "^14.14.1",

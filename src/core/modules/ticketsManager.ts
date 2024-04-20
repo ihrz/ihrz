@@ -45,6 +45,7 @@ import {
     StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
+import { isDiscordEmoji, isSingleEmoji } from '../functions/emojiChecker.js';
 import * as discordTranscripts from 'discord-html-transcripts';
 import db from '../functions/DatabaseModel.js';
 import logger from '../logger.js';
@@ -187,16 +188,6 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                     .setRequired(false)
             )
     );
-
-    let isSingleEmoji = (text: string): boolean => {
-        let regex = /^[\p{Emoji}][\uFE0E\uFE0F\u{1F3FB}-\u{1F3FF}]?$/u;
-        return regex.test(text);
-    };
-
-    let isDiscordEmoji = (text: string): boolean => {
-        let emojiRegex = /:(\w+):(\d+)>/;
-        return emojiRegex.test(text);
-    };
 
     var lastModal_0_IdRegisterd = 0;
     var lastModal_1_IdRegisterd = 0;

@@ -25,11 +25,11 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import date from 'date-and-time';
-
-import { LanguageData } from '../../../../types/languageData';
+import { format } from '../../../core/functions/date-and-time.js';
 import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 import config from '../../../files/config.js';
+
+import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -185,7 +185,7 @@ export default {
                 if (i !== 'TEMP') {
                     for (let j in ownihrzData[i]) {
                         let toAdd =
-                            `**Owner**: <@${i}>\n**Bot's ID**: \`${ownihrzData[i][j].Bot?.Id}\`\n**Bot's Name**: \`${ownihrzData[i][j].Bot.Name}\`\n**Expire In**: \`${date.format(new Date(ownihrzData[i][j].ExpireIn), 'ddd, MMM DD YYYY')}\`\r\n`
+                            `**Owner**: <@${i}>\n**Bot's ID**: \`${ownihrzData[i][j].Bot?.Id}\`\n**Bot's Name**: \`${ownihrzData[i][j].Bot.Name}\`\n**Expire In**: \`${format(new Date(ownihrzData[i][j].ExpireIn), 'ddd, MMM DD YYYY')}\`\r\n`
 
                         emb.addFields({ name: j, value: toAdd, inline: false })
                     };
@@ -196,7 +196,7 @@ export default {
                 let botData = ownihrzClusterData[userId];
                 for (let botId in botData) {
                     let toAdd =
-                        `**Owner**: <@${userId}>\n**Bot's ID**: \`${botData[botId].Bot?.Id}\`\n**Bot's Name**: \`${botData[botId].Bot.Name}\`\n**Expire In**: \`${date.format(new Date(botData[botId].ExpireIn), 'ddd, MMM DD YYYY')}\`\r\n`
+                        `**Owner**: <@${userId}>\n**Bot's ID**: \`${botData[botId].Bot?.Id}\`\n**Bot's Name**: \`${botData[botId].Bot.Name}\`\n**Expire In**: \`${format(new Date(botData[botId].ExpireIn), 'ddd, MMM DD YYYY')}\`\r\n`
 
                     emb.addFields({ name: botId, value: toAdd, inline: false })
                 }
@@ -219,7 +219,7 @@ export default {
                         let expire: string | null = null;
 
                         if (ExpireIn !== null) {
-                            expire = date.format(new Date(ExpireIn), 'ddd, MMM DD YYYY');
+                            expire = format(new Date(ExpireIn), 'ddd, MMM DD YYYY');
                         };
 
                         await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`, ephemeral: true });
@@ -239,7 +239,7 @@ export default {
                         let expire: string | null = null;
 
                         if (ExpireIn !== null) {
-                            expire = date.format(new Date(ExpireIn), 'ddd, MMM DD YYYY');
+                            expire = format(new Date(ExpireIn), 'ddd, MMM DD YYYY');
                         }
 
                         await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`, ephemeral: true });
@@ -262,7 +262,7 @@ export default {
                         let expire: string | null = null;
 
                         if (ExpireIn !== null) {
-                            expire = date.format(new Date(ExpireIn), 'ddd, MMM DD YYYY');
+                            expire = format(new Date(ExpireIn), 'ddd, MMM DD YYYY');
                         };
 
                         await interaction.reply({
@@ -285,7 +285,7 @@ export default {
                         let expire: string | null = null;
 
                         if (ExpireIn !== null) {
-                            expire = date.format(new Date(ExpireIn), 'ddd, MMM DD YYYY');
+                            expire = format(new Date(ExpireIn), 'ddd, MMM DD YYYY');
                         }
 
                         await interaction.reply({

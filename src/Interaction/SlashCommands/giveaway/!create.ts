@@ -28,10 +28,10 @@ import {
     TextBasedChannel,
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData';
-
+import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import logger from '../../../core/logger.js';
-import axios from 'axios';
+
+import { LanguageData } from '../../../../types/languageData';
 
 async function isImageUrl(url: string): Promise<boolean> {
     try {

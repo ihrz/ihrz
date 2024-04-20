@@ -19,7 +19,6 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import * as checkSys from './functions/checkSys.js';
 import playerManager from "./modules/playerManager.js";
 import db from './functions/DatabaseModel.js';
 import bash from './bash/bash.js';
@@ -64,8 +63,6 @@ export default async (client: Client) => {
         await new OwnIHRZ().QuitProgram();
         process.exit();
     });
-
-    checkSys.Html();
 
     await import('../api/server.js');
 

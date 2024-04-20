@@ -35,7 +35,7 @@ import {
     User,
 } from 'discord.js'
 
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
