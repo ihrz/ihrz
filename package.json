@@ -2,9 +2,9 @@
   "name": "ihrz",
   "version": "15.7.0",
   "description": "iHrz in ts!",
-  "main": "./dist/src/index.js",
+  "main": "./dist/index.js",
   "scripts": {
-    "start": "node ./dist/src/index.js",
+    "start": "node ./dist/index.js",
     "auto-build": "npx tsc -w",
     "build": "npx tsc"
   },

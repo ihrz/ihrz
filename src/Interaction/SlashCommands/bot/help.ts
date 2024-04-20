@@ -151,7 +151,6 @@ export const command: Command = {
                     newEmbed
                         .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
                         .setDescription(categories[i.values[0] as unknown as number].description)
-                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                         .setThumbnail("attachment://icon.png")
                         .setTimestamp();
                 }
