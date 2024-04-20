@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import axios from 'axios';
+import { axios, AxiosResponse } from "./axios.js";
 
 async function isImageUrl(url: string): Promise<boolean> {
     try {
@@ -32,11 +32,11 @@ async function isImageUrl(url: string): Promise<boolean> {
 };
 
 export default async function image64(arg: string): Promise<Buffer | undefined> {
-    let response = await axios.get(arg, { responseType: 'arraybuffer' });
+    try {
+        const response: AxiosResponse<ArrayBuffer> = await axios.get(arg, { responseType: 'arraybuffer' });
 
-    if (await isImageUrl(arg)) {
-        return Buffer.from(response.data, 'base64');
-    };
-
-    return undefined;
-};
+        return Buffer.from(response.data);
+    } catch (error) {
+        return undefined;
+    }
+}

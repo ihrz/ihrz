@@ -29,14 +29,14 @@ export namespace DatabaseStucture {
         EMBED?: DB_Embed_Object
         [key: string]: db_in_id | DB_Backups_Object | DB_Embed_Object | undefined
     }
-    
+
     export type DB_Embed_Object = {
         [code: string]: {
             embedOwner: string
             embedSource: EmbedBuilder
         }
     }
-    
+
     export type DB_Backups_Object = {
         [userId: string]: {
             [backupId: string]: {
@@ -46,7 +46,7 @@ export namespace DatabaseStucture {
             }
         }
     }
-    
+
     export type db_in_id = {
         USER?: DB_GuildUser_Object;
         GUILD?: DB_Guild_Object;
@@ -107,7 +107,7 @@ export namespace DatabaseStucture {
             voice_channel: string | undefined
         }
     }
-    
+
     export type DB_GuildUser_Object = {
         [userId: string]: {
             INVITES?: {
@@ -138,7 +138,7 @@ export namespace DatabaseStucture {
             }
         }
     };
-    
+
     export type DB_Guild_Object = {
         LANG?: {
             lang: string
@@ -159,7 +159,7 @@ export namespace DatabaseStucture {
             mass_mention?: string
             antipub?: string
             spam?: string
-    
+            hey_reaction?: boolean;
             rolesaver?: {
                 enable?: boolean
                 timeout?: string
@@ -234,8 +234,11 @@ export namespace DatabaseStucture {
                 snipeTimestamp: number
             }
         }
+        REACT_MSG: {
+            [message: string]: string
+        }
     }
-    
+
     export type DB_Ticket_Configuration_Object = {
         author: string,
         used: boolean,
@@ -244,6 +247,6 @@ export namespace DatabaseStucture {
         channel: string,
         messageID: string,
     }
-    
-  
-  }
+
+
+}

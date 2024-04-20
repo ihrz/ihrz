@@ -20,28 +20,18 @@
 */
 
 import {
-    ApplicationCommandOptionType,
-    ApplicationCommandType,
-    BaseGuildTextChannel,
-    ChatInputCommandInteraction,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
     Client,
     EmbedBuilder,
-    GuildMember,
-    GuildVoiceChannelResolvable,
     Message,
-    PermissionsBitField,
+    time,
+    User,
 } from 'discord.js';
 
-import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
-import { LanguageData } from '../../../../types/languageData';
+import { axios } from '../../../core/functions/axios.js';
 import { Command } from '../../../../types/command';
-
-import DiscordOauth2 from 'discord-oauth2';
-import config from '../../../files/config.js';
-import logger from '../../../core/logger.js';
-import axios from 'axios';
-
-let oauth = new DiscordOauth2();
 
 export const command: Command = {
 
@@ -56,14 +46,13 @@ export const command: Command = {
     category: 'utils',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
-
-        interface Badge {
-            Value: number;
-            Emoji: string;
-        };
-
-        let badges: { [key: string]: Badge } = {
+        
+        let badges: {
+            [key: string]: {
+                Value: number;
+                Emoji: string;
+            }
+        } = {
             Discord_Employee: {
                 Value: 1,
                 Emoji: client.iHorizon_Emojis.badge.Discord_Employee,
@@ -118,7 +107,7 @@ export const command: Command = {
             },
         };
 
-        function getBadges(flags: number) {
+        function getBadges(flags: number): string {
             let badgeValues = Object.values(badges);
             return badgeValues
                 .filter(badge => (flags & badge.Value) === badge.Value)
@@ -126,66 +115,115 @@ export const command: Command = {
                 .join('');
         };
 
+        let data = await client.functions.getLanguageData(interaction.guild?.id);
         let member = interaction.mentions.users.toJSON()[1] || interaction.author;
 
-        async function sendMessage(description: string) {
+        async function sendMessage(user: User) {
+
+            let format = 'png';
+
+            let user_1 = (await axios.get(`https://discord.com/api/v10/users/${user?.id}`, {
+                headers: {
+                    Authorization: `Bot ${client.token}`
+                }
+            })).data;
+
+            let banner = user_1.banner;
+
+            if (banner !== null && banner?.substring(0, 2) === 'a_') {
+                format = 'gif'
+            };
+
             let embed = new EmbedBuilder()
-                .setAuthor({ name: `${member.username}`, iconURL: member.displayAvatarURL() })
-                .setFooter({ text: `iHorizon`, iconURL: "attachment://icon.png" })
-                .setThumbnail(member.displayAvatarURL())
+                .setFooter({ text: `iHorizon`, iconURL: "attachment://ihrz_logo.png" })
+                .setThumbnail("attachment://user_icon.gif")
                 .setTimestamp()
                 .setColor('#0014a8')
-                .setDescription(description);
+                .setFields(
+                    {
+                        name: "Badge",
+                        value: getBadges(member.flags as unknown as number) || "`Not found`",
+                        inline: true,
+                    },
+                    {
+                        name: "Username",
+                        value: user.username,
+                        inline: true,
+                    },
+                    {
+                        name: "DisplayName",
+                        value: user.displayName || "`Not found`",
+                        inline: true,
+                    },
+                    {
+                        name: "Creation Date",
+                        value: time(user.createdAt, "D") || "`Not found`",
+                        inline: true,
+                    },
+                    {
+                        name: "Nitro Status",
+                        value: GetNitro(user_1.premium_type) || "`Not found`",
+                        inline: true,
+                    }
+                )
+                .setImage("attachment://user_banner.gif");
 
-            await interaction.reply({
-                embeds: [embed],
-                content: `${client.iHorizon_Emojis.icon.Yes_Logo} Fetched !`,
-                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            var files: { name: string; attachment: string }[] = [
+                {
+                    attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL({ forceStatic: false })),
+                    name: 'ihrz_logo.png'
+                },
+                {
+                    attachment: user.displayAvatarURL({ size: 512, forceStatic: false }),
+                    name: 'user_icon.gif'
+                }
+            ];
+
+            if (banner) files.push({
+                attachment: await interaction.client.functions.image64(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`),
+                name: 'user_banner.gif'
             });
+
+            await origin.edit({
+                content: `${client.iHorizon_Emojis.icon.Yes_Logo} Fetched !`,
+                embeds: [embed],
+                files: files,
+                components: [
+                    new ActionRowBuilder<ButtonBuilder>()
+                        .addComponents(
+                            new ButtonBuilder()
+                                .setStyle(ButtonStyle.Link)
+                                .setURL(`https://discordapp.com/users/${user.id}`)
+                                .setLabel("User Profil")
+                        )
+                ]
+            });
+
             return;
         };
 
-        await interaction.reply({
+        let origin = await interaction.reply({
             content: data.userinfo_wait_please.replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
         });
 
-        let requestData = {
-            tokent: 'want',
-            adminKey: config.api.apiToken,
-            userid: member.id,
-            tor: 'CHECK_IN_SYSTEM',
-        };
+        function GetNitro(input: number): string {
+            let nitro = '';
 
-        let nitr0 = '';
-
-        try {
-            let response = await axios.post(apiUrlParser.ApiURL, requestData);
-            let description = '';
-
-            if (response.data.available === 'yes') {
-                let access_token = response.data.connectionToken;
-                let userData = await oauth.getUser(access_token);
-
-                if (userData.premium_type === 1) {
-                    nitr0 = client.iHorizon_Emojis.badge.Nitro;
-                } else if (userData.premium_type === 2) {
-                    nitr0 = client.iHorizon_Emojis.badge.Nitro + client.iHorizon_Emojis.badge.Server_Boost_Badge;
-                } else if (userData.premium_type === 3) {
-                    nitr0 = client.iHorizon_Emojis.badge.Nitro;
-                };
+            switch (input) {
+                case 1:
+                    nitro = client.iHorizon_Emojis.badge.Nitro;
+                    break;
+                case 2:
+                    nitro = client.iHorizon_Emojis.badge.Nitro + client.iHorizon_Emojis.badge.Server_Boost_Badge;
+                    break;
+                case 3:
+                    nitro = client.iHorizon_Emojis.badge.Nitro;
+                    break;
             };
 
-            description = getBadges((member.flags as unknown as number)) + nitr0 + `\n**User:** \`${member.username}\`\n**DisplayName:** \`${member.globalName || member.username}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${new Date(member.createdAt).toLocaleString().toString()}\``;
-            if (nitr0 === '') { description += `\n[My nitro is not shown](${apiUrlParser.LoginURL})`; };
-
-            sendMessage(description);
-
-        } catch (error: any) {
-            logger.err(error);
-
-            let description = `${getBadges((member.flags as unknown as number))}\n**User:** \`${member.username}\`\n**DisplayName:** \`${member.globalName || member.username}\`\n**ID:** \`${member.id}\`\n**Joined Discord At:** \`${new Date(member.createdAt).toLocaleString().toString()}\`\n[🔴 API DOWN](${apiUrlParser.LoginURL})`;
-
-            await sendMessage(description);
+            return nitro;
         };
+
+        sendMessage(member);
     },
 };

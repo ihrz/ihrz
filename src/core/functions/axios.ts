@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
+import { Buffer } from 'buffer';
+
 interface AxiosResponse<T = any> {
     data: T;
     status: number;
@@ -38,15 +40,16 @@ interface AxiosRequestConfig {
     url?: string;
     method?: string;
     baseURL?: string;
-    headers?: any;
+    headers?: Record<string, string>;
     params?: any;
     data?: any;
     timeout?: number;
+    responseType?: string;
 }
 
 class AxiosClass {
     async request<T = any>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-        const { url = '', method = 'GET', baseURL = '', headers = {}, params, data, timeout } = config;
+        const { url = '', method = 'GET', baseURL = '', headers = {}, params, data, timeout, responseType } = config;
         const requestUrl = baseURL ? baseURL + url : url;
 
         const options: RequestInit = {
@@ -57,6 +60,11 @@ class AxiosClass {
             },
             body: data ? JSON.stringify(data) : undefined,
         };
+
+        if (responseType === 'arraybuffer') {
+            if (!options.headers) options.headers = {};
+            (options.headers as Record<string, string>)['Accept'] = 'application/octet-stream';
+        }
 
         try {
             const response = await fetch(requestUrl, options);
@@ -72,10 +80,10 @@ class AxiosClass {
                     headers: response.headers,
                 };
             } else {
-                const responseData = await response.text() as unknown as T;
+                const responseData = await response.arrayBuffer();
 
                 return {
-                    data: responseData,
+                    data: responseData as unknown as T,
                     status: response.status,
                     statusText: response.statusText,
                     headers: response.headers,
@@ -84,6 +92,10 @@ class AxiosClass {
         } catch (error) {
             throw this.handleRequestError(error);
         }
+    }
+
+    async head<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+        return this.request({ ...config, url, method: 'HEAD' });
     }
 
     get<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
@@ -95,11 +107,9 @@ class AxiosClass {
     }
 
     private handleRequestError<T = any>(error: any): AxiosError<T> {
-        // Customize error handling as needed
         return error;
     }
-
-};
+}
 
 const axios = new AxiosClass();
 

@@ -101,7 +101,7 @@ const config: ConfigData = {
     owner: {
 
         ownerid1: "User id",
-        
+
         ownerid2: "User id",
         /*
         This owners have different permissions than the others in the db,
@@ -134,14 +134,8 @@ const config: ConfigData = {
         apiToken: "The api token",
         // The API token for secure requests, please put a strong token, Need to be private for security reason.
 
-        clientSecret: "The client secret",
-        // The client secret of the Discord Application which is used to login for Oauth2.
-
         clientID: "The client id of your application",
-        // The client ID of the Discord Application which is used to login for Oauth2.
-
-        oauth2Link: "The oauth2Link of your application",
-        // The oauth2Link of the Discord Application which is used to login for Oauth2.
+        // The client ID of the Discord Application.
 
     },
 

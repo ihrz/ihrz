@@ -32,8 +32,8 @@ import {
     ButtonStyle
 } from 'discord.js';
 
+import { axios } from '../../../core/functions/axios.js';
 import { Command } from '../../../../types/command';
-import axios from 'axios';
 
 export const command: Command = {
 
@@ -141,9 +141,9 @@ export const command: Command = {
                 headers: {
                     Authorization: `Bot ${client.token}`
                 }
-            }))?.data;
+            })).data;
 
-            let banner = user_1?.['banner'];
+            let banner = user_1.banner;
 
             if (banner !== null && banner?.substring(0, 2) === 'a_') {
                 format = 'gif'

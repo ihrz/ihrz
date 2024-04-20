@@ -19,12 +19,15 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client } from 'discord.js';
-import { opendir } from 'fs/promises';
 import { join as pathJoin } from 'node:path';
-import logger from '../logger.js';
+import { opendir } from 'fs/promises';
+import { Client } from 'discord.js';
+
 import config from '../../files/config.js';
-import { EltType } from '../../../types/eltType';
+import logger from '../logger.js';
+
+import { EltType } from '../../../types/eltType.js';
+import { BotEvent } from '../../../types/event.js';
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     let result = [];
@@ -66,9 +69,9 @@ async function loadEvents(client: Client, path: string = `${process.cwd()}/dist/
         if (!filePath.endsWith('.js')) return;
 
         try {
-            const { default: eevent } = await import(filePath);
-            let pathArray = filePath.split('/');
-            client.on(`${pathArray[pathArray.length - 1].replace('.js', '')}`, eevent.bind(null, client));
+            const imported = await import(filePath);
+
+            client.on(`${(imported.event as BotEvent).name}`, (imported.event as BotEvent).run.bind(null, client));
         } catch (error) {
             console.error(`Error loading event from file: ${filePath}`, error);
         }
