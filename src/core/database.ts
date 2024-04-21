@@ -73,7 +73,7 @@ switch (config.database?.method) {
 
             let db = new QuickDB({
                 driver: mysql
-            }); db.table('OWNER'); db.table('OWNIHRW'); db.table('BLACKLIST'); db.table('PREVNAMES'); db.table('API'); db.table('TEMP'); db.table('SCHEDULE');
+            }); db.table('OWNER'); db.table('OWNIHRZ'); db.table('BLACKLIST'); db.table('PREVNAMES'); db.table('API'); db.table('TEMP'); db.table('SCHEDULE');
             resolve(
                 db
             );
