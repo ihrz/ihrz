@@ -70,10 +70,12 @@ switch (config.database?.method) {
             });
 
             await mysql.connect();
+
+            let db = new QuickDB({
+                driver: mysql
+            }); db.table('OWNER'); db.table('OWNIHRW'); db.table('BLACKLIST'); db.table('PREVNAMES'); db.table('API'); db.table('TEMP'); db.table('SCHEDULE');
             resolve(
-                new QuickDB({
-                    driver: mysql
-                })
+                db
             );
         });
         break;
