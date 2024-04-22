@@ -1,4 +1,5 @@
 import wait from './src/core/functions/wait.js';
+import config from './src/files/config.js';
 import logger from './src/core/logger.js'
 import './src/core/functions/colors.js';
 
@@ -7,11 +8,13 @@ import { QuickDB, MySQLDriver } from "quick.db";
 const db_sqlite = new QuickDB({ filePath: `${process.cwd()}/db.sqlite` });
 
 const mysql = new MySQLDriver({
-    host: 'localhost',
-    password: 'password',
-    database: 'database',
-    user: 'username',
-    port: 3306
+    host: config.database?.mySQL?.host,
+    port: config.database?.mySQL?.port,
+
+    database: config.database?.mySQL?.database,
+
+    user: config.database?.mySQL?.user,
+    password: config.database?.mySQL?.password,
 });
 
 let tables_to_export = [
