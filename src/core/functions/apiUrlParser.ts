@@ -81,7 +81,7 @@ export let PublishURL =
 export function OwnIhrzCluster(cluster_number: number, cluster_method: number, bot_id?: string, admin_key?: string) {
     var data = config.core.cluster[cluster_number as keyof typeof config.core.cluster];
 
-    data += "/api/instance/"
+    data += "/api/v1/instance/"
     switch (cluster_method) {
         case 0:
             data += "create"
