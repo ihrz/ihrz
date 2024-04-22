@@ -27,9 +27,9 @@ let tables_to_export = [
 logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray());
 logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray());
 logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".gray());
-
-
 logger.legacy(`Table(s) to export: ${tables_to_export.length}`.green());
+
+const time_before = Date.now();
 
 (async () => {
     await wait(1000);
@@ -64,6 +64,7 @@ logger.legacy(`Table(s) to export: ${tables_to_export.length}`.green());
         await wait(1000);
     }
 
-    logger.legacy(`[O]`.red() + ` The program was succefully done. Exiting...`.bgRed());
+    logger.legacy(`[i] `.blue() + `Exporting ${tables_to_export.length} tables in ${Date.now() - time_before}ms. Done!`.gray());
+    logger.legacy(`[O] `.red() + `The program was succefully done. Exiting...`.bgRed());
     process.exit(1);
 })();
