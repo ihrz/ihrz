@@ -32,7 +32,7 @@ import {
 import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
 
-import axios from "axios";
+import { axios } from '../../../core/functions/axios.js';
 
 var timeout: number = 1_800_000;
 
