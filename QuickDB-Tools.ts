@@ -45,15 +45,15 @@ const time_before = Date.now();
 
         await wait(1000);
 
+        // Creating the table if doesn't exist
+
+        let table_mysql = db_mysql.table(table);
+
         logger.legacy(`[-]`.gray() + ` Starting to export ${table} table !`.white());
 
         let table_sqlite = db_sqlite.table(table);
 
         let content = await table_sqlite.all();
-
-        // Creating the table if doesn't exist
-
-        let table_mysql = db_mysql.table(table);
 
         for (const item of content) {
             logger.legacy(`[+]`.green() + ` (line:${i}) <${table}> `.gray() + `${item.id}`.blue());
