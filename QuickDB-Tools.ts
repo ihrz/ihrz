@@ -7,11 +7,11 @@ import { QuickDB, MySQLDriver } from "quick.db";
 const db_sqlite = new QuickDB({ filePath: `${process.cwd()}/db.sqlite` });
 
 const mysql = new MySQLDriver({
-    host: '163.5.107.30',
-    password: 'A2)eRj[97k*2Qb',
-    database: 'ihrz_test',
-    user: 'ihrz_test',
-    port: 25006
+    host: 'localhost',
+    password: 'password',
+    database: 'database',
+    user: 'username',
+    port: 3306
 });
 
 let tables_to_export = [
