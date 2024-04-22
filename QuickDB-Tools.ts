@@ -21,7 +21,7 @@ let tables_to_export = [
     'json',
     'TEMP',
     'SCHEDULE',
-    // 'PREVNAMES',
+    'PREVNAMES',
 ];
 
 logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray());
