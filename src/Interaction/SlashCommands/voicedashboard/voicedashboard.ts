@@ -54,7 +54,7 @@ export const command: Command = {
 
                     description: "Set the channel for Join4Create!",
                     description_localizations: {
-                        "fr": "Définis le salon où le membre ce connecte pour créer sont propre channel"
+                        "fr": "Définis le salon où le membre ce connecte pour créer son propre channel"
                     },
 
                     options: [
