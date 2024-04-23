@@ -148,3 +148,7 @@ lavalink/application.yml
 # Giveaways File
 
 src/files/giveaways/*.json
+
+# Backups
+
+src/files/backups/*.json
