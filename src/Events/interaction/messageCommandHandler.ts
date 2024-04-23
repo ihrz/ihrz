@@ -29,7 +29,7 @@ export async function isMessageCommand(client: Client, message: string): Promise
     let args = message.slice(prefix.length).trim().split(/ +/g);
     let command = client.message_commands.get(args.shift()?.toLowerCase() as string);
 
-    if (command) {
+    if (message.startsWith(prefix) && command) {
         return { s: true, a: args, c: command };
     } else {
         return { s: false, a: undefined, c: undefined };
