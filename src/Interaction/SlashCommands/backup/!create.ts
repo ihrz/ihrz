@@ -54,7 +54,7 @@ export default {
             jsonBeautify: true
         }).then(async (backupData) => {
 
-            await backupData.channels.categories.forEach(category => {
+            backupData.channels.categories.forEach(category => {
                 i++;
                 category.children.forEach(() => {
                     j++;
@@ -85,7 +85,7 @@ export default {
                 }) => channel.name === 'ihorizon-logs');
 
                 if (!logchannel) return;
-                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
+                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
             } catch (e: any) {
                 logger.err(e)
             };

@@ -36,6 +36,10 @@ import { GiveawayManager } from 'discord-regiveaways';
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import { LyricsManager } from './functions/lyrics-fetcher.js';
 
+import backup from 'discord-rebackup';
+
+backup.setStorageFolder(`${process.cwd()}/src/files/backups`);
+
 export default async (client: Client) => {
     logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray());
     logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray());
