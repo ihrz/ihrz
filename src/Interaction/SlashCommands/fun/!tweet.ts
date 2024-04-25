@@ -76,7 +76,7 @@ export default {
 
         let imgs: AttachmentBuilder;
 
-        await axios.get(link, { responseType: 'arraybuffer' }).then((response: AxiosResponse) => {
+        await axios.get(link, { responseType: 'arrayBuffer' }).then((response: AxiosResponse) => {
             imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'tweet-elektra.png' });
             embed.setImage(`attachment://tweet-elektra.png`);
         });

@@ -61,7 +61,7 @@ export const event: BotEvent = {
                 let files: AttachmentBuilder[] = [];
 
                 async function getFile(file: Attachment) {
-                    let response = await axios.get(file?.['attachment'] as string, { responseType: 'arraybuffer' });
+                    let response = await axios.get(file?.['attachment'] as string, { responseType: 'arrayBuffer' });
                     let attachment = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: file?.name });
                     files.push(attachment);
                 }
@@ -77,7 +77,7 @@ export const event: BotEvent = {
             } else if (attachment && attachment.contentType.startsWith('image/')) {
                 let snipedImage: AttachmentBuilder;
 
-                await axios.get((attachment?.['attachment'] as string), { responseType: 'arraybuffer' }).then((response: AxiosResponse) => {
+                await axios.get((attachment?.['attachment'] as string), { responseType: 'arrayBuffer' }).then((response: AxiosResponse) => {
                     snipedImage = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'sniped-image-by-ihorizon.png' });
                     logsEmbed.setImage(`attachment://sniped-image-by-ihorizon.png`);
                 });
@@ -87,7 +87,7 @@ export const event: BotEvent = {
             } else if (attachment) {
                 let snipedFiles: AttachmentBuilder;
 
-                await axios.get((attachment?.['attachment'] as string), { responseType: 'arraybuffer' }).then((response: AxiosResponse) => {
+                await axios.get((attachment?.['attachment'] as string), { responseType: 'arrayBuffer' }).then((response: AxiosResponse) => {
                     snipedFiles = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: attachment?.name });
                 });
 

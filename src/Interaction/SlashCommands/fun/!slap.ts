@@ -33,16 +33,17 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let slap = interaction.options.getUser("user");
+        let url = apiUrlParser.assetsFinder(client.assets, "slap");
 
-        axios.get(apiUrlParser.SlapURL)
-            .then(async (res: AxiosResponse) => {
+        axios.get(url)
+            .then(async () => {
                 let embed = new EmbedBuilder()
                     .setColor("#42ff08")
                     .setDescription(data.slap_embed_description
                         .replace(/\${slap\.id}/g, slap?.id as string)
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     )
-                    .setImage(res.data)
+                    .setImage(url)
                     .setTimestamp()
                 await interaction.editReply({ embeds: [embed] });
                 return;
