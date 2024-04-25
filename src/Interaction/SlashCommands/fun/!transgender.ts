@@ -50,7 +50,7 @@ export default {
 
     let imgs: AttachmentBuilder | undefined;
 
-    let response: AxiosResponse = await axios.get(link, { responseType: 'arraybuffer' })
+    let response: AxiosResponse = await axios.get(link, { responseType: 'arrayBuffer' })
     imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'all-humans-have-right-elektra.png' });
     embed.setImage(`attachment://all-humans-have-right-elektra.png`);
 

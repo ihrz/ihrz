@@ -33,16 +33,17 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let kiss = interaction.options.getUser("user");
+        let url = apiUrlParser.assetsFinder(client.assets, "kiss");
 
-        axios.get(apiUrlParser.assetsFinder(client.assets, "hug"))
-            .then(async (res) => {
+        axios.get(url)
+            .then(async () => {
                 let embed = new EmbedBuilder()
                     .setColor("#ff0884")
                     .setDescription(data.kiss_embed_description
                         .replace(/\${kiss\.id}/g, kiss?.id as string)
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     )
-                    .setImage(res.data)
+                    .setImage(url)
                     .setTimestamp()
                 await interaction.editReply({ embeds: [embed] });
                 return;

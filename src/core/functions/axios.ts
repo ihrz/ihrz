@@ -19,8 +19,6 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Buffer } from 'buffer';
-
 interface AxiosResponse<T = any> {
     data: T;
     status: number;
@@ -44,7 +42,7 @@ interface AxiosRequestConfig {
     params?: any;
     data?: any;
     timeout?: number;
-    responseType?: string;
+    responseType?: 'json' | 'arrayBuffer';
 }
 
 class AxiosClass {
@@ -61,7 +59,7 @@ class AxiosClass {
             body: data ? JSON.stringify(data) : undefined,
         };
 
-        if (responseType === 'arraybuffer') {
+        if (responseType === 'arrayBuffer') {
             if (!options.headers) options.headers = {};
             (options.headers as Record<string, string>)['Accept'] = 'application/octet-stream';
         }
@@ -69,9 +67,10 @@ class AxiosClass {
         try {
             const response = await fetch(requestUrl, options);
             const contentType = response.headers.get('content-type');
+            const isJSON = contentType && contentType.includes('application/json');
 
-            if (responseType === 'json' || (contentType && contentType.includes('application/json'))) {
-                const responseData = await response.json() as T;
+            if (responseType === 'json' || isJSON) {
+                const responseData = isJSON ? await response.json() : await response.text();
 
                 return {
                     data: responseData,

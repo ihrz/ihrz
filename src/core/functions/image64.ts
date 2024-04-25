@@ -33,7 +33,7 @@ async function isImageUrl(url: string): Promise<boolean> {
 
 export default async function image64(arg: string): Promise<Buffer | undefined> {
     try {
-        const response: AxiosResponse<ArrayBuffer> = await axios.get(arg, { responseType: 'arraybuffer' });
+        const response: AxiosResponse<ArrayBuffer> = await axios.get(arg, { responseType: 'arrayBuffer' });
 
         return Buffer.from(response.data);
     } catch (error) {
