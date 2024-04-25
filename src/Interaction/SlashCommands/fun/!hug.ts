@@ -34,7 +34,7 @@ export default {
 
         let hug = interaction.options.getUser("user");
 
-        axios.get(apiUrlParser.HugURL)
+        axios.get(apiUrlParser.assetsFinder(client.assets, "hug"))
             .then(async (res) => {
                 let embed = new EmbedBuilder()
                     .setColor("#FFB6C1")

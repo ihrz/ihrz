@@ -34,7 +34,7 @@ export default {
 
         let slap = interaction.options.getUser("user");
 
-        axios.get(apiUrlParser.SlapURL)
+        axios.get(apiUrlParser.assetsFinder(client.assets, "slap"))
             .then(async (res: AxiosResponse) => {
                 let embed = new EmbedBuilder()
                     .setColor("#42ff08")

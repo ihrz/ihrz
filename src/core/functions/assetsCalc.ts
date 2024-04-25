@@ -19,17 +19,22 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
-import { Request, Response } from 'express';
-import fs from 'node:fs';
+import { Client } from "discord.js";
+import { axios } from "./axios.js";
 
-export default {
-    type: 'get',
-    apiPath: '/api/hug',
-    run: async (req: Request, res: Response) => {
-        let images = fs.readdirSync(`${process.cwd()}/src/assets/hug/`);
+import { Assets } from "../../../types/assets.js";
 
-        res.send(apiUrlParser.assets + 'hug/' + images[Math.floor(Math.random() * images.length)]);
-        return;
-    },
+export default async function assetsCalc(client: Client): Promise<void> {
+
+    let assets = await axios.get(`https://raw.githubusercontent.com/ihrz/assets/main/length.json`, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        method: "GET"
+    });
+
+    let data = assets.data as Assets;
+
+    client.assets = data;
+    return;
 };

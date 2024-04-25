@@ -49,7 +49,7 @@ interface AxiosRequestConfig {
 
 class AxiosClass {
     async request<T = any>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-        const { url = '', method = 'GET', baseURL = '', headers = {}, params, data, timeout, responseType } = config;
+        const { url = '', method = 'GET', baseURL = '', headers = {}, params, data, timeout, responseType = 'json' } = config;
         const requestUrl = baseURL ? baseURL + url : url;
 
         const options: RequestInit = {
@@ -70,7 +70,7 @@ class AxiosClass {
             const response = await fetch(requestUrl, options);
             const contentType = response.headers.get('content-type');
 
-            if (contentType && contentType.includes('application/json')) {
+            if (responseType === 'json' || (contentType && contentType.includes('application/json'))) {
                 const responseData = await response.json() as T;
 
                 return {
