@@ -19,24 +19,16 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { axios, AxiosResponse } from "./axios.js";
+import { Client } from "discord.js";
+import { axios } from "./axios.js";
 
-async function isImageUrl(url: string): Promise<boolean> {
-    try {
-        let response = await axios.head(url);
-        let contentType = response.headers["content-type"];
-        return contentType.startsWith("image/");
-    } catch (error) {
-        return false;
-    }
+import { Assets } from "../../../types/assets.js";
+
+export default async function assetsCalc(client: Client): Promise<void> {
+
+    let assets = await axios.get(`https://raw.githubusercontent.com/ihrz/assets/main/length.json`);
+    let data = JSON.parse(assets.data) as Assets;
+
+    client.assets = data;
+    return;
 };
-
-export default async function image64(arg: string): Promise<Buffer | undefined> {
-    try {
-        const response: AxiosResponse<ArrayBuffer> = await axios.get(arg, { responseType: 'arrayBuffer' });
-
-        return Buffer.from(response.data);
-    } catch (error) {
-        return undefined;
-    }
-}

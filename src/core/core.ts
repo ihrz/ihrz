@@ -37,6 +37,7 @@ import { iHorizonTimeCalculator } from './functions/ms.js';
 import { LyricsManager } from './functions/lyrics-fetcher.js';
 
 import backup from 'discord-rebackup';
+import assetsCalc from "./functions/assetsCalc.js";
 
 backup.setStorageFolder(`${process.cwd()}/src/files/backups`);
 
@@ -70,6 +71,7 @@ export default async (client: Client) => {
         }
     }
 
+    assetsCalc(client);
     playerManager(client);
     emojis(client);
     errorManager.uncaughtExceptionHandler();

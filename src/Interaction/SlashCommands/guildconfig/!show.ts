@@ -111,9 +111,9 @@ export default {
             .addFields(
                 { name: data.guildprofil_embed_fields_joinmessage, value: joinmessage, inline: true },
                 { name: data.guildprofil_embed_fields_leavemessage, value: leavemessage, inline: true },
-                { name: data.guildprofil_embed_fields_setchannelsjoin, value: setchannelsjoin, inline: true },
-                { name: data.guildprofil_embed_fields_setchannelsleave, value: setchannelsleave, inline: true },
-                { name: data.guildprofil_embed_fields_joinroles, value: joinroles, inline: true },
+                { name: data.guildprofil_embed_fields_setchannelsjoin, value: `<#${setchannelsjoin}>`, inline: true },
+                { name: data.guildprofil_embed_fields_setchannelsleave, value: `<#${setchannelsleave}>`, inline: true },
+                { name: data.guildprofil_embed_fields_joinroles, value: `<@&${joinroles}>`, inline: true },
                 { name: data.guildprofil_embed_fields_joinDmMessage, value: joinDmMessage, inline: true },
                 { name: data.guildprofil_embed_fields_blockpub, value: blockpub, inline: true },
                 { name: data.guildprofil_embed_fields_punishPub, value: punish_pub, inline: true },

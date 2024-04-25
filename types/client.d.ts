@@ -18,6 +18,7 @@
 
 ・ Copyright © 2020-2024 iHorizon
 */
+
 import { LyricsManager } from "../src/core/functions/lyrics-fetcher.js";
 import { iHorizonTimeCalculator } from "../src/core/functions/ms.js";
 
@@ -36,6 +37,7 @@ import { Command } from "./command";
 import { Emojis } from "./emojis";
 
 import * as ClientVersion from "../src/version.js";
+import { Assets } from "./assets";
 
 declare module 'discord.js' {
     export interface Client {
@@ -55,6 +57,7 @@ declare module 'discord.js' {
         content: BotContent[],
         timeCalculator: iHorizonTimeCalculator,
         lyricsSearcher: LyricsManager,
-        version: typeof ClientVersion
+        version: typeof ClientVersion,
+        assets: Assets
     }
 };

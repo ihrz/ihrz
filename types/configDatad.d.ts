@@ -47,11 +47,11 @@ export interface ConfigData {
     };
 
     api: {
-        useHttps: boolean;
-        domain: string;
-        port: string;
-        useProxy: boolean;
-        proxyUrl: string;
+        useHttps?: boolean;
+        domain?: string;
+        port?: string;
+        useProxy?: boolean;
+        proxyUrl?: string;
         apiToken: string;
         clientID: string;
         clientSecret?: string;

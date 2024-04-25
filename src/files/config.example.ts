@@ -116,27 +116,11 @@ const config: ConfigData = {
 
     api: {
 
-        useHttps: false,
-        // If you want to use HTTPS, put true, otherwise leave false.
-
-        domain: "login.domain.com",
-        // If you want to use Domain, else put ipv4 address.
-
-        port: "3000",
-        // The port of the API.
-
-        useProxy: false,
-        // For example you use nginx&certbot to make the Front-end
-
-        proxyUrl: "https://login.domain.com",
-        // You need the entire URL of the proxy!
-
         apiToken: "The api token",
         // The API token for secure requests, please put a strong token, Need to be private for security reason.
 
         clientID: "The client id of your application",
         // The client ID of the Discord Application.
-
     },
 
     console: {
