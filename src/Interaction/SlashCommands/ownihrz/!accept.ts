@@ -60,10 +60,10 @@ export default {
             return;
         };
 
-        id_2.AdminKey = config.api.apiToken;
+        id_2.AdminKey = config.api?.apiToken!;
         id_2.Code = id as string;
         id_2.Lavalink = {
-            NodeURL: config.api.domain,
+            NodeURL: config.lavalink.nodes[0].host,
             NodeAuth: config.lavalink.nodes[0].authorization,
         };
 
@@ -149,7 +149,7 @@ export default {
                     Code: id_2.Code,
                     AdminKey: '',
                     Lavalink: {
-                        NodeURL: config.api.domain,
+                        NodeURL: config.lavalink.nodes[0].host,
                         NodeAuth: config.lavalink.nodes[0].authorization,
                     }
                 });

@@ -91,30 +91,6 @@ class OwnIHRZ {
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
             },
 
-            // UseProxy
-            {
-                l: `sed -i 's/useProxy: false/useProxy: true/' config.ts`,
-                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
-            },
-
-            // ProxyURL
-            {
-                l: `sed -i 's/proxyUrl: "https:\\/\\/login\\.domain\\.com"/proxyUrl: "https:\\/\\/srv\.ihorizon\\.me"/' config.ts`,
-                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
-            },
-
-            // ClientID
-            {
-                l: `sed -i 's/clientID: "The client id of your application"/clientID: "${process.env.CLIENT_ID || config.api.clientID}"/' config.ts`,
-                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
-            },
-
-            // Port
-            {
-                l: `sed -i 's/"3000"/"${port_range}"/' config.ts`,
-                cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
-            },
-
             // Blacklist
             {
                 l: `sed -i 's/blacklistPictureInEmbed: "An png url",/blacklistPictureInEmbed: "https:\\/\\/media\\.discordapp\\.net\\/attachments\\/1099043567659384942\\/1119214828330950706\\/image\\.png",/' config.ts`,
