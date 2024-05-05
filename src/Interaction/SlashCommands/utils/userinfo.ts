@@ -23,13 +23,13 @@ import {
     Client,
     ApplicationCommandOptionType,
     EmbedBuilder,
-    CommandInteraction,
     ApplicationCommandType,
     time,
     User,
     ActionRowBuilder,
     ButtonBuilder,
-    ButtonStyle
+    ButtonStyle,
+    ChatInputCommandInteraction
 } from 'discord.js';
 
 import { axios } from '../../../core/functions/axios.js';
@@ -60,7 +60,7 @@ export const command: Command = {
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: CommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
         let badges: {
             [key: string]: {

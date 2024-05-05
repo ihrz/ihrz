@@ -48,7 +48,7 @@ export default {
             await interaction.reply({ content: data.mybot_submit_token_invalid });
             return;
         } else {
-            var code = generatePassword({ length: 12 })
+            var code = generatePassword({ length: 8 })
 
             var table_1 = client.db.table("TEMP");
             await table_1.set(`OWNIHRZ.${interaction.user.id}.${code}`,

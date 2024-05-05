@@ -32,7 +32,7 @@ export interface Custom_iHorizon {
     Code: string;
     ExpireIn: string;
     Lavalink: {
-        NodeURL: string;
+        NodeHost: string;
         NodeAuth: string;
     }
 };
