@@ -25,7 +25,7 @@
   "dependencies": {
     "better-sqlite3": "^9.5.0",
     "discord-html-transcripts": "^3.2.0",
-    "discord-rebackup": "^3.3.6",
+    "discord-rebackup": "3.3.10",
     "discord-regiveaways": "^1.1.19",
     "discord.js": "^14.14.1",
     "genius-lyrics": "^4.4.7",
