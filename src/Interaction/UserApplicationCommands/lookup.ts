@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, CommandInteraction, ApplicationCommandType, User, time, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { Client, EmbedBuilder, ChatInputCommandInteraction, ApplicationCommandType, User, time, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { AnotherCommand } from '../../../types/anotherCommand';
 import { axios } from '../../core/functions/axios.js';
 
@@ -27,7 +27,7 @@ export const command: AnotherCommand = {
     name: 'User Lookup',
     type: ApplicationCommandType.User,
     thinking: false,
-    run: async (client: Client, interaction: CommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
         let badges: {
             [key: string]: {
