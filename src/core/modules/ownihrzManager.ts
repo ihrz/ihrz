@@ -99,7 +99,7 @@ class OwnIHRZ {
 
             // Lavalink
             {
-                l: `sed -i 's/host: "lavalink.example.com"/host: "${data.Lavalink.NodeURL}"/' config.ts`,
+                l: `sed -i 's/host: "lavalink.example.com"/host: "${data.Lavalink.NodeHost}"/' config.ts`,
                 cwd: path.resolve(process.cwd(), 'ownihrz', data.Code, 'src', 'files')
             },
 
