@@ -125,7 +125,7 @@ export const command: Command = {
                                 name: `Cluster #${key}`,
                                 value: key,
                             })),
-                            required: false
+                            required: true
                         }
                     ],
                 },

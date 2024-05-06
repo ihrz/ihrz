@@ -136,12 +136,10 @@ export const event: BotEvent = {
         await client.player.init({ id: client.user?.id as string, username: 'bot_' + client.user?.id });
 
         let iHorizon_Container = new OwnIHRZ();
-        iHorizon_Container.Startup();
         iHorizon_Container.Startup_Cluster();
 
         setInterval(() => {
             iHorizon_Container.Refresh(client);
-            iHorizon_Container.Refresh_Cluster(client)
         }, 86400000);
 
         setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000);

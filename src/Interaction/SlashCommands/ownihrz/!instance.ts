@@ -43,7 +43,6 @@ export default {
         };
 
         let tableOWNIHRZ = client.db.table("OWNIHRZ")
-        let ownihrzData = await tableOWNIHRZ.get('MAIN');
         let ownihrzClusterData = await tableOWNIHRZ.get('CLUSTER');
 
         // Working with Cluster
@@ -52,27 +51,6 @@ export default {
                 await interaction.reply({
                     content: `${interaction.user}, you have forgot the ID of the bot!`
                 })
-            };
-
-            for (let userId in ownihrzData) {
-                for (let botId in ownihrzData[userId]) {
-                    if (botId === id_to_bot) {
-                        let fetch = await tableOWNIHRZ.get(`MAIN.${userId}.${id_to_bot}.PowerOff`);
-
-                        if (fetch) {
-                            await interaction.reply({ content: `OwnIHRZ of <@${userId}>, is already shutdown...`, ephemeral: true });
-                            return;
-                        };
-
-                        await tableOWNIHRZ.set(`MAIN.${userId}.${id_to_bot}.PowerOff`, true);
-
-                        await interaction.reply({
-                            content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now shutdown.\nNow, the bot container can't be Power On when iHorizon-Prod booting...`,
-                            ephemeral: true
-                        });
-                        return new OwnIHRZ().ShutDown(id_to_bot);
-                    }
-                }
             };
 
             for (let userId in ownihrzClusterData as any) {
@@ -93,7 +71,7 @@ export default {
                             ephemeral: true
                         });
 
-                        return new OwnIHRZ().ShutDown_Cluster(fetch.Cluster, id_to_bot);
+                        return new OwnIHRZ().ShutDown(fetch.Cluster, id_to_bot);
                     }
                 }
             }
@@ -105,24 +83,6 @@ export default {
                 await interaction.reply({
                     content: `${interaction.user}, you have forgot the ID of the bot!`
                 })
-            };
-
-            for (let userId in ownihrzData) {
-                for (let botId in ownihrzData[userId]) {
-                    if (botId === id_to_bot) {
-                        let fetch = await tableOWNIHRZ.get(`MAIN.${userId}.${id_to_bot}.PowerOff`);
-
-                        if (!fetch) {
-                            await interaction.reply({ content: `OwnIHRZ of <@${userId}>, is already Power On...`, ephemeral: true });
-                            return;
-                        };
-
-                        await tableOWNIHRZ.set(`MAIN.${userId}.${id_to_bot}.PowerOff`, false);
-
-                        await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now Power On.\nNow, the bot container can be Power On when iHorizon-Prod booting...`, ephemeral: true });
-                        return new OwnIHRZ().PowerOn(id_to_bot);
-                    }
-                }
             };
 
             for (let userId in ownihrzClusterData as any) {
@@ -139,26 +99,13 @@ export default {
                         await tableOWNIHRZ.set(`CLUSTER.${userId}.${id_to_bot}.PowerOff`, false);
 
                         await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now Power On.\nNow, the bot container can be Power On when iHorizon-Prod booting...`, ephemeral: true });
-                        return new OwnIHRZ().PowerOn_Cluster(fetch.Cluster, id_to_bot);
+                        return new OwnIHRZ().PowerOn(fetch.Cluster, id_to_bot);
                     }
                 }
             }
 
             // Working with cluster
         } else if (action_to_do === 'delete') {
-            for (let userId in ownihrzData) {
-                for (let botId in ownihrzData[userId]) {
-                    if (botId === id_to_bot) {
-                        await tableOWNIHRZ.delete(`MAIN.${userId}.${id_to_bot}`);
-
-                        await interaction.reply({
-                            content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now deleted.\nThe bot container has been entierly erased...`,
-                            ephemeral: true
-                        });
-                        return new OwnIHRZ().Delete(id_to_bot);
-                    }
-                }
-            };
 
             for (let userId in ownihrzClusterData as any) {
                 let botData = ownihrzClusterData[userId];
@@ -172,25 +119,13 @@ export default {
                             content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now deleted.\nThe bot container has been entierly erased...`,
                             ephemeral: true
                         });
-                        return new OwnIHRZ().Delete_Cluster(fetch.Cluster, id_to_bot);
+                        return new OwnIHRZ().Delete(fetch.Cluster, id_to_bot);
                     }
                 }
             }
 
-            // Working with Cluster
         } else if (action_to_do === 'ls') {
             let emb = new EmbedBuilder().setColor('#000000').setDescription("OWNIHRZ");
-
-            for (let i in ownihrzData) {
-                if (i !== 'TEMP') {
-                    for (let j in ownihrzData[i]) {
-                        let toAdd =
-                            `**Owner**: <@${i}>\n**Bot's ID**: \`${ownihrzData[i][j].Bot?.Id}\`\n**Bot's Name**: \`${ownihrzData[i][j].Bot.Name}\`\n**Expire In**: \`${format(new Date(ownihrzData[i][j].ExpireIn), 'ddd, MMM DD YYYY')}\`\r\n`
-
-                        emb.addFields({ name: j, value: toAdd, inline: false })
-                    };
-                };
-            };
 
             for (let userId in ownihrzClusterData as any) {
                 let botData = ownihrzClusterData[userId];
@@ -205,28 +140,7 @@ export default {
             await interaction.reply({ embeds: [emb], ephemeral: true });
             return;
 
-            // Working with Cluster
         } else if (action_to_do === 'add-expire') {
-
-            for (let userId in ownihrzData) {
-                for (let botId in ownihrzData[userId]) {
-                    if (botId === id_to_bot) {
-                        let time = interaction.options.getString('time') || '0d';
-
-                        await tableOWNIHRZ.add(`MAIN.${userId}.${id_to_bot}.ExpireIn`, client.timeCalculator.to_ms(time));
-
-                        let ExpireIn = await tableOWNIHRZ.get(`MAIN.${userId}.${id_to_bot}.ExpireIn`);
-                        let expire: string | null = null;
-
-                        if (ExpireIn !== null) {
-                            expire = format(new Date(ExpireIn), 'ddd, MMM DD YYYY');
-                        };
-
-                        await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`, ephemeral: true });
-                        return;
-                    };
-                }
-            };
 
             for (let userId in ownihrzClusterData as any) {
                 for (let botId in ownihrzClusterData[userId]) {
@@ -248,31 +162,7 @@ export default {
                 }
             };
 
-            // Working with Cluster
         } else if (action_to_do === 'sub-expire') {
-
-            for (let userId in ownihrzData) {
-                for (let botId in ownihrzData[userId]) {
-                    if (botId === id_to_bot) {
-                        let time = interaction.options.getString('time') || '0d';
-
-                        await tableOWNIHRZ.sub(`MAIN.${userId}.${id_to_bot}.ExpireIn`, client.timeCalculator.to_ms(time));
-
-                        let ExpireIn = await tableOWNIHRZ.get(`MAIN.${userId}.${id_to_bot}.ExpireIn`);
-                        let expire: string | null = null;
-
-                        if (ExpireIn !== null) {
-                            expire = format(new Date(ExpireIn), 'ddd, MMM DD YYYY');
-                        };
-
-                        await interaction.reply({
-                            content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`,
-                            ephemeral: true
-                        });
-                        return;
-                    };
-                }
-            };
 
             for (let userId in ownihrzClusterData as any) {
                 for (let botId in ownihrzClusterData[userId]) {
