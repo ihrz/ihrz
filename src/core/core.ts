@@ -50,7 +50,7 @@ export default async (client: Client) => {
 
     process.on('SIGINT', async () => {
         client.destroy();
-        process.exit();
+        process.exit(1);
     });
 
     client.db = db;
