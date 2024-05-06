@@ -64,6 +64,7 @@ export default {
         id_2.Code = id as string;
         id_2.Lavalink = {
             NodeHost: config.lavalink.nodes[0].host,
+            NodePort: config.lavalink.nodes[0].port,
             NodeAuth: config.lavalink.nodes[0].authorization,
         };
 
@@ -150,6 +151,7 @@ export default {
                     AdminKey: '',
                     Lavalink: {
                         NodeHost: config.lavalink.nodes[0].host,
+                        NodePort: config.lavalink.nodes[0].port,
                         NodeAuth: config.lavalink.nodes[0].authorization,
                     }
                 });
