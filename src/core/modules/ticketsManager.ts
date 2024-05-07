@@ -447,7 +447,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
         if (interaction instanceof ButtonInteraction) {
             interaction.reply({
                 content: lang.event_ticket_whenCreated_msg
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
                     .replace('${channel.id}', channel.id)
                 , ephemeral: true
             });
@@ -554,7 +554,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                 .setColor("#008000")
                 .setTitle(lang.event_ticket_logsChannel_onCreationChannel_embed_title)
                 .setDescription(lang.event_ticket_logsChannel_onCreationChannel_embed_desc
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
                     .replace('${channel.id}', channel.id)
                 )
                 .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })

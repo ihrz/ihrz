@@ -119,7 +119,7 @@ export const command: Command = {
             let joinmsgreplace = messagei
                 .replace("{rolescount}", rolesCount as unknown as string)
                 .replace("{membercount}", interaction.guild?.memberCount as unknown as string)
-                .replace("{botcount}", botMembers?.size as unknown as string);
+                .replace("{botcount}", botMembers?.size.toString()!);
 
             if (messagei.includes("member")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.member`,

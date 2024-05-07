@@ -53,7 +53,7 @@ export default {
                 .setTitle(data.unlock_logs_embed_title)
                 .setDescription(data.unlock_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id as unknown as string)
+                    .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id!)
                 )
             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 

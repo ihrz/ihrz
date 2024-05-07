@@ -48,14 +48,14 @@ export default {
                 .setColor('#333333')
                 .setTitle(data.pfps_channel_embed_title)
                 .setDescription(data.pfps_channel_embed_desc
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
                 )
                 .setTimestamp();
 
             await interaction.reply({
                 content: data.pfps_channel_command_work
-                    .replace('${interaction.user}', interaction.user as unknown as string)
-                    .replace('${channel}', channel as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${channel}', channel.toString())
             });
 
             channel.send({ embeds: [embed] });
@@ -64,7 +64,7 @@ export default {
         } else {
             await interaction.reply({
                 content: data.pfps_channel_command_error
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
             });
             return;
         };

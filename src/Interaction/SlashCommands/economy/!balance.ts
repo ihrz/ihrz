@@ -46,7 +46,7 @@ export default {
             await interaction.reply({
                 content: data.balance_he_dont_have_wallet
                     .replace("${client.iHorizon_Emojis.icon.Wallet_Logo}", client.iHorizon_Emojis.icon.Wallet_Logo)
-                    .replace('${user}', interaction.user as unknown as string)
+                    .replace('${user}', interaction.user .toString())
             });
             return;
         };
@@ -59,7 +59,7 @@ export default {
             .setThumbnail(member.displayAvatarURL())
             .setDescription(data.balance_he_have_wallet
                 .replace(/\${bal}/g, totalWallet)
-                .replace('${user}', member as unknown as string)
+                .replace('${user}', member .toString())
                 .replace("${client.iHorizon_Emojis.icon.Wallet_Logo}", client.iHorizon_Emojis.icon.Wallet_Logo)
             )
             .addFields(

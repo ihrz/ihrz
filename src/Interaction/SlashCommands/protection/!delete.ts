@@ -63,7 +63,7 @@ export default {
         await client.db.delete(`${interaction.guild.id}.ALLOWLIST.list.${member.user.id}`);
         await interaction.reply({
             content: data.allowlist_delete_command_work
-                .replace('${member.user}', member.user as unknown as string)
+                .replace('${member.user}', member.user .toString())
         });
 
         return;

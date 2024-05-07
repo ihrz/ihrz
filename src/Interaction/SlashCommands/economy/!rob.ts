@@ -66,7 +66,7 @@ export default {
             .setDescription(data.rob_embed_description
                 .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                 .replace(/\${user\.id}/g, user?.id as string)
-                .replace(/\${random}/g, random as unknown as string)
+                .replace(/\${random}/g, random .toString())
             )
             .setColor("#a4cb80")
             .setTimestamp()

@@ -36,7 +36,7 @@ import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
 export const command: Command = {
-    
+
     name: 'question',
 
     description: 'Get the last message deleted in this channel!',
@@ -48,7 +48,7 @@ export const command: Command = {
     category: 'fun',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guildId as string) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let question = args.join(" ");
 
@@ -63,12 +63,12 @@ export const command: Command = {
 
         let embed = new EmbedBuilder()
             .setTitle(data.question_embed_title
-                .replace(/\${interaction\.user\.username}/g, interaction.author.globalName || interaction.author.username as string)
+                .replace(/\${interaction\.user\.username}/g, interaction.author.globalName || interaction.author.username)
             )
             .setColor("#ddd98b")
             .addFields(
-                { name: data.question_fields_input_embed, value: (question as string), inline: true },
-                { name: data.question_fields_output_embed, value: (reponses[Math.floor((Math.random() * reponses.length))] as string) }
+                { name: data.question_fields_input_embed, value: question, inline: true },
+                { name: data.question_fields_output_embed, value: reponses[Math.floor((Math.random() * reponses.length))] }
             )
             .setTimestamp();
 

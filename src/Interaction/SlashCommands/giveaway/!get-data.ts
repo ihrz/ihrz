@@ -37,13 +37,13 @@ export default {
             return;
         };
 
-        let giveawayId = interaction.options.getString("giveaway-id") as string;
-        let giveawayData = await client.giveawaysManager.getGiveawayData(giveawayId as string);
+        let giveawayId = interaction.options.getString("giveaway-id")!;
+        let giveawayData = await client.giveawaysManager.getGiveawayData(giveawayId);
 
         let embed = new EmbedBuilder()
             .setAuthor({
                 name: interaction.guild?.name as string,
-                iconURL: interaction.guild?.iconURL({ size: 512, forceStatic: false }) as string
+                iconURL: interaction.guild?.iconURL({ size: 512, forceStatic: false })!
             })
             .setColor("#0099ff")
             .setTitle(data.gw_getdata_embed_title)
@@ -88,7 +88,7 @@ export default {
                 {
                     name: data.gw_getdata_embed_fields_entriesAmount,
                     value: data.gw_getdata_embed_fields_value_entriesAmount
-                        .replace('${(giveawayData.entries as string[]).length}', (giveawayData.entries as string[]).length as unknown as string)
+                        .replace('${(giveawayData.entries as string[]).length}', (giveawayData.entries as string[]).length.toString())
                         .replace('${giveawayId}', giveawayId)
                 },
             )

@@ -56,7 +56,7 @@ export default {
         await client.db.set(`${interaction.guild.id}.ALLOWLIST.list.${member.user.id}`, { allowed: true });
         await interaction.reply({
             content: data.allowlist_add_command_work
-                .replace('${member.user}', member.user as unknown as string)
+                .replace('${member.user}', member.user .toString())
         });
         return;
     },

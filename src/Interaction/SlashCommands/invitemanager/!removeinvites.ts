@@ -45,7 +45,7 @@ export default {
         let finalEmbed = new EmbedBuilder()
             .setDescription(data.removeinvites_confirmation_embed_description
                 .replace(/\${amount}/g, amount as unknown as string)
-                .replace(/\${user}/g, user as unknown as string)
+                .replace(/\${user}/g, user?.toString()!)
             )
             .setColor(`#92A8D1`)
             .setFooter({ text: interaction.guild?.name as string, iconURL: interaction.guild?.iconURL() as string });

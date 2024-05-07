@@ -41,7 +41,7 @@ export default {
             await client.db.set(`${interaction.guildId}.SECURITY.disable`, false);
             await interaction.reply({
                 content: data.security_disable_pw_on
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
             });
 
             return;
@@ -49,7 +49,7 @@ export default {
             await client.db.set(`${interaction.guildId}.SECURITY.disable`, true);
             await interaction.reply({
                 content: data.security_disable_pw_off
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
             });
 
             return;

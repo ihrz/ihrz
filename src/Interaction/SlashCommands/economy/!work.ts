@@ -63,7 +63,7 @@ export default {
             })
             .setDescription(data.work_embed_description
                 .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username as string)
-                .replace(/\${amount}/g, amount as unknown as string)
+                .replace(/\${amount}/g, amount .toString())
             )
             .setColor("#f1d488");
 

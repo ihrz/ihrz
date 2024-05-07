@@ -65,7 +65,7 @@ export const command: Command = {
         let finalEmbed = new EmbedBuilder()
             .setDescription(data.removeinvites_confirmation_embed_description
                 .replace(/\${amount}/g, amount)
-                .replace(/\${user}/g, user as unknown as string)
+                .replace(/\${user}/g, user .toString())
             )
             .setColor(`#92A8D1`)
             .setFooter({ text: interaction.guild?.name!, iconURL: interaction.guild?.iconURL()! });

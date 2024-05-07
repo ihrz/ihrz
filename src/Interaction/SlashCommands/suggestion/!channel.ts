@@ -38,7 +38,7 @@ export default {
             return;
         };
 
-        let fetchOldChannel = await client.db.get(`${interaction.guildId}.SUGGEST.channel`);
+        let fetchOldChannel = await client.db.get(`${interaction.guild?.id}.SUGGEST.channel`);
 
         if (fetchOldChannel === channel?.id) {
             await interaction.reply({
@@ -55,7 +55,7 @@ export default {
             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setDescription(data.setsuggest_channel_embed_desc);
 
-        await client.db.set(`${interaction.guildId}.SUGGEST.channel`, channel?.id);
+        await client.db.set(`${interaction.guild?.id}.SUGGEST.channel`, channel?.id);
         await interaction.reply({
             content: data.setsuggest_channel_command_work
                 .replace('${interaction.user}', interaction.user as unknown as string)

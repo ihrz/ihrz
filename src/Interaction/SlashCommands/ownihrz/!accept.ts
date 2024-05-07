@@ -40,7 +40,7 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let cluster = parseInt(interaction.options.getString("cluster")!);
-        let id = interaction.options.getString('id');
+        let id = interaction.options.getString('id')!;
 
         var table = client.db.table("TEMP");
         let allData = await table.get(`OWNIHRZ`);
@@ -61,7 +61,7 @@ export default {
         };
 
         id_2.AdminKey = config.api?.apiToken!;
-        id_2.Code = id as string;
+        id_2.Code = id;
         id_2.Lavalink = {
             NodeHost: config.lavalink.nodes[0].host,
             NodePort: config.lavalink.nodes[0].port,

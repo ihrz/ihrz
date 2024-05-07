@@ -90,7 +90,7 @@ export const command: Command = {
                 .setColor("#bf0bb9")
                 .setTitle(data.kick_logs_embed_title)
                 .setDescription(data.kick_logs_embed_description
-                    .replace(/\${member\.user}/g, member.user as unknown as string)
+                    .replace(/\${member\.user}/g, member.user .toString())
                     .replace(/\${interaction\.user\.id}/g, interaction.author.id)
                 );
 
@@ -102,8 +102,8 @@ export const command: Command = {
 
             await interaction.reply({
                 content: data.kick_command_work
-                    .replace(/\${member\.user}/g, member.user as unknown as string)
-                    .replace(/\${interaction\.user}/g, interaction.author as unknown as string)
+                    .replace(/\${member\.user}/g, member.user .toString())
+                    .replace(/\${interaction\.user}/g, interaction.author .toString())
             });
         } catch (e: any) {
             logger.err(e);

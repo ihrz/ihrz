@@ -45,7 +45,7 @@ export default {
 
         let finalEmbed = new EmbedBuilder()
             .setDescription(data.addinvites_confirmation_embed_description
-                .replace(/\${amount}/g, amount as unknown as string)
+                .replace(/\${amount}/g, amount!.toString())
                 .replace(/\${user}/g, user as unknown as string)
             )
             .setColor(`#92A8D1`)
