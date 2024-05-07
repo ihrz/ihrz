@@ -64,11 +64,11 @@ export default {
             };
 
             try {
-                let already = await client.db.get(`${interaction.guild?.id}.GUILD.XP_LEVELING.xpchannels`);
+                let already = await client.db.get(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`);
                 if (already === argsid.id) return interaction.reply({ content: data.setxpchannels_already_with_this_config });
 
                 (client.channels.cache.get(argsid.id) as BaseGuildTextChannel).send({ content: data.setxpchannels_confirmation_message });
-                await client.db.set(`${interaction.guild?.id}.GUILD.XP_LEVELING.xpchannels`, argsid.id);
+                await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`, argsid.id);
 
                 await interaction.reply({ content: data.setxpchannels_command_work_enable.replace(/\${argsid}/g, argsid.id) });
                 return;
@@ -93,14 +93,14 @@ export default {
             };
 
             try {
-                let already2 = await client.db.get(`${interaction.guild?.id}.GUILD.XP_LEVELING.xpchannels`);
+                let already2 = await client.db.get(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`);
 
                 if (already2 === "off") {
                     await interaction.reply({ content: data.setxpchannels_already_disabled_disable });
                     return;
                 };
 
-                await client.db.delete(`${interaction.guild?.id}.GUILD.XP_LEVELING.xpchannels`);
+                await client.db.delete(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`);
                 await interaction.reply({ content: data.setxpchannels_command_work_disable });
                 return;
             } catch (e) {

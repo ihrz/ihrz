@@ -31,7 +31,7 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let timeout = 3_600_000;
-        let work = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.work`);
+        let work = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.work`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
@@ -69,7 +69,7 @@ export default {
 
         await interaction.reply({ embeds: [embed] });
 
-        await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
-        await client.db.set(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.work`, Date.now());
+        await client.db.add(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, amount);
+        await client.db.set(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.work`, Date.now());
     },
 };

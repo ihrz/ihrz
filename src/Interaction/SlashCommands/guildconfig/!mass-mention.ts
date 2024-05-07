@@ -94,7 +94,7 @@ export default {
                     });
                 };
 
-                await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.mass_mention`, "on");
+                await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.mass_mention`, "on");
                 await interaction.editReply({
                     content: data.automod_block_massmention_command_on
                         .replace('${interaction.user}', interaction.user as unknown as string)
@@ -109,7 +109,7 @@ export default {
 
             await mentionSpamRule?.setEnabled(false);
 
-            await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.mass_mention`, "off");
+            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.mass_mention`, "off");
             await interaction.editReply({
                 content: data.automod_block_massmention_command_off
                     .replace('${interaction.user}', interaction.user as unknown as string)

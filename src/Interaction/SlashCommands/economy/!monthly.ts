@@ -33,7 +33,7 @@ export default {
         let timeout: number = 2592000000;
         let amount: number = 5000;
 
-        let monthly = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.monthly`);
+        let monthly = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.monthly`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
@@ -55,8 +55,8 @@ export default {
                 .setDescription(data.monthly_embed_description)
                 .addFields({ name: data.monthly_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` });
             await interaction.reply({ embeds: [embed] });
-            await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
-            await client.db.set(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.monthly`, Date.now());
+            await client.db.add(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, amount);
+            await client.db.set(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.monthly`, Date.now());
             return;
         };
     },

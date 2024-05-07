@@ -47,7 +47,7 @@ export default {
             return;
         };
 
-        (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(interaction.guild?.id as string, { SendMessages: false }).then(() => {
+        (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(interaction.guildId as string, { SendMessages: false }).then(() => {
             interaction.editReply({ embeds: [Lockembed] });
         }).catch(() => { })
 

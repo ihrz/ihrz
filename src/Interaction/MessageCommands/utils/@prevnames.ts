@@ -52,7 +52,7 @@ export const command: Command = {
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
 
-        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId as string) as LanguageData;
         let user = interaction.mentions.users.toJSON()[1] || interaction.author;
         let table = client.db.table("PREVNAMES");
 

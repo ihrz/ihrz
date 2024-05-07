@@ -37,7 +37,7 @@ export default {
             return;
         };
 
-        await client.db.set(`${interaction.guild?.id}.SECURITY.role`, role?.id);
+        await client.db.set(`${interaction.guildId}.SECURITY.role`, role?.id);
 
         await interaction.reply({
             content: data.security_role_to_give_command_work

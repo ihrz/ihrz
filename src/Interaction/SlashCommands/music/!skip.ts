@@ -42,7 +42,7 @@ export default {
 
         try {
             let voiceChannel = (interaction.member as GuildMember).voice.channel;
-            let player = client.player.getPlayer(interaction.guild?.id as string);
+            let player = client.player.getPlayer(interaction.guildId as string);
             let oldName = player.queue.current?.info.title;
             let channel = client.channels.cache.get(player.textChannelId as string);
 

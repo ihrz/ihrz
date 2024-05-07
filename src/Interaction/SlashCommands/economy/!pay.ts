@@ -30,7 +30,7 @@ export default {
         let user = interaction.options.getUser("member");
         let amount = interaction.options.getNumber("amount");
 
-        let member = await client.db.get(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`);
+        let member = await client.db.get(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
@@ -57,8 +57,8 @@ export default {
                 .replace(/\${amount}/g, amount as unknown as string)
         });
 
-        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, amount!);
-        await client.db.sub(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount!);
+        await client.db.add(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`, amount!);
+        await client.db.sub(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, amount!);
         return;
     },
 };

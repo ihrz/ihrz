@@ -53,7 +53,7 @@ export default {
                 .replace("${amount.value}", amount?.value as string)
         });
 
-        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, amount?.value as number);
+        await client.db.add(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`, amount?.value as number);
 
         try {
             let logEmbed = new EmbedBuilder()

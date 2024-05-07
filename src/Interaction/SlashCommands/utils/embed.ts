@@ -66,7 +66,7 @@ export const command: Command = {
     category: 'utils',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
 
         let arg = interaction.options.getString("id");
         let potentialEmbed = await client.db.get(`EMBED.${arg}`);

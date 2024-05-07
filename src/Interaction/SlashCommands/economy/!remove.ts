@@ -47,8 +47,8 @@ export default {
         var amount = interaction.options.getNumber("amount");
         let user = interaction.options.getUser("member");
 
-        await client.db.sub(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, amount!);
-        let bal = await client.db.get(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`);
+        await client.db.sub(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`, amount!);
+        let bal = await client.db.get(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`);
 
         let embed = new EmbedBuilder()
             .setAuthor({ name: data.removemoney_embed_title, iconURL: interaction.user.displayAvatarURL() })

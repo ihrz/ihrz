@@ -45,7 +45,7 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
 
         if (interaction.user.id !== config.owner.ownerid1 && config.owner.ownerid2) {
             await interaction.reply({ content: data.status_be_bot_dev });

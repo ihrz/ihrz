@@ -24,7 +24,7 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        let toAnalyze = await client.db.get(`${interaction.guild?.id}.USER`);
+        let toAnalyze = await client.db.get(`${interaction.guildId}.USER`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({

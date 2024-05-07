@@ -31,7 +31,7 @@ import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let baseData = await client.db.get(`${interaction.guild?.id}.ALLOWLIST`);
+        let baseData = await client.db.get(`${interaction.guildId}.ALLOWLIST`);
         let member = interaction.options.getMember('member') as GuildMember;
 
         if (interaction.user.id !== interaction.guild?.ownerId && baseData.list[interaction.user.id]?.allowed !== true) {

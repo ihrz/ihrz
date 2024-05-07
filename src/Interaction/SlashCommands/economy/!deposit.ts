@@ -29,7 +29,7 @@ import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let balance = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`);
+        let balance = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`);
         let toDeposit = interaction.options.getNumber('how-much');
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
@@ -47,8 +47,8 @@ export default {
             return;
         };
 
-        await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`, toDeposit!);
-        await client.db.sub(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, toDeposit!);
+        await client.db.add(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.bank`, toDeposit!);
+        await client.db.sub(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, toDeposit!);
 
         let embed = new EmbedBuilder()
             .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL() })
@@ -59,7 +59,7 @@ export default {
                 .replace('${interaction.user}', interaction.user as unknown as string)
                 .replace('${toDeposit}', toDeposit as unknown as string)
             )
-            .addFields({ name: data.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
+            .addFields({ name: data.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTimestamp();
 

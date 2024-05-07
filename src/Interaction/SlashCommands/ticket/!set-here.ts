@@ -38,7 +38,7 @@ export default {
         let panelName = interaction.options.getString("name");
         let panelDesc = interaction.options.getString("description");
 
-        if (await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`)) {
+        if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
             await interaction.editReply({ content: data.sethereticket_disabled_command });
             return;
         };

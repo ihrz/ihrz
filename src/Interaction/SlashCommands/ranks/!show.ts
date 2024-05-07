@@ -30,7 +30,7 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let user = interaction.options.getUser("user") || interaction.user;
-        let baseData = await client.db.get(`${interaction.guild?.id}.USER.${user.id}.XP_LEVELING`);
+        let baseData = await client.db.get(`${interaction.guildId}.USER.${user.id}.XP_LEVELING`);
         var level = baseData?.level || 0;
         var currentxp = baseData?.xp || 0;
 

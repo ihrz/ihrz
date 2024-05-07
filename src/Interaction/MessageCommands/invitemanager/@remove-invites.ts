@@ -48,7 +48,7 @@ export const command: Command = {
     category: 'invitemanager',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let user = interaction.mentions.members?.toJSON()[1] || interaction.author;
         let amount = args[1] || args[0];
@@ -60,7 +60,7 @@ export const command: Command = {
             return;
         }
 
-        await client.db.sub(`${interaction.guild?.id}.USER.${user?.id}.INVITES.invites`, amount as unknown as number);
+        await client.db.sub(`${interaction.guildId}.USER.${user?.id}.INVITES.invites`, amount as unknown as number);
 
         let finalEmbed = new EmbedBuilder()
             .setDescription(data.removeinvites_confirmation_embed_description
@@ -70,7 +70,7 @@ export const command: Command = {
             .setColor(`#92A8D1`)
             .setFooter({ text: interaction.guild?.name!, iconURL: interaction.guild?.iconURL()! });
 
-        await client.db.sub(`${interaction.guild?.id}.USER.${user?.id}.INVITES.bonus`, amount as unknown as number);
+        await client.db.sub(`${interaction.guildId}.USER.${user?.id}.INVITES.bonus`, amount as unknown as number);
         await interaction.reply({ embeds: [finalEmbed] });
 
         try {

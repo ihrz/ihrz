@@ -45,7 +45,7 @@ export const command: Command = {
     thinking: true,
     type: 'PREFIX_IHORIZON_COMMAND',
     run: async (client: Client, interaction: Message) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let member = interaction.mentions.members?.toJSON()[1] || interaction.member as GuildMember;
         let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.KickMembers);

@@ -30,7 +30,7 @@ import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let player = client.player.getPlayer(interaction.guild?.id as string);
+        let player = client.player.getPlayer(interaction.guildId as string);
 
         if (!player) {
             await interaction.editReply({ content: data.queue_iam_not_voicec });

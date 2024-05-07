@@ -37,7 +37,7 @@ export default {
             return;
         };
 
-        await client.db.set(`${interaction.guild?.id}.SECURITY.channel`, channel?.id);
+        await client.db.set(`${interaction.guildId}.SECURITY.channel`, channel?.id);
 
         await interaction.reply({
             content: data.security_channel_command_work

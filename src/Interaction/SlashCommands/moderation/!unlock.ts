@@ -45,7 +45,7 @@ export default {
             .setColor("#5b3475")
             .setTimestamp()
             .setDescription(data.unlock_embed_message_description);
-        await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(interaction.guild?.id as string, { SendMessages: true });
+        await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(interaction.guildId as string, { SendMessages: true });
 
         try {
             let logEmbed = new EmbedBuilder()

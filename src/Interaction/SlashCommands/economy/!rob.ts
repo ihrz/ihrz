@@ -44,8 +44,8 @@ export default {
         };
 
         let user = interaction.options.getUser("member");
-        let targetuser = await client.db.get(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`);
-        let author = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`);
+        let targetuser = await client.db.get(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`);
+        let author = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`);
 
         if (author < 250) {
             await interaction.reply({ content: data.rob_dont_enought_error });
@@ -73,8 +73,8 @@ export default {
 
         await interaction.reply({ embeds: [embed] });
 
-        await client.db.sub(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, random);
-        await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, random);
+        await client.db.sub(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`, random);
+        await client.db.add(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, random);
 
         talkedRecentlyforr.add(interaction.user.id);
         setTimeout(() => {

@@ -53,7 +53,7 @@ export const command: Command = {
     category: 'backup',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId as string) as LanguageData;
 
         let backupID = args[0];
 

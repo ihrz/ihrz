@@ -35,7 +35,7 @@ export default {
 
         try {
             let voiceChannel = (interaction.member as GuildMember).voice.channel;
-            let player = client.player.getPlayer(interaction.guild?.id as string);
+            let player = client.player.getPlayer(interaction.guildId as string);
             let mode = interaction.options.getString('mode');
 
             if (!player || !player.playing || !voiceChannel) {

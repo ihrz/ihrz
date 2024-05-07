@@ -90,7 +90,7 @@ export default {
                 });
             };
 
-            await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.spam`, "on");
+            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.spam`, "on");
             await interaction.editReply({
                 content: data.automod_block_spam_command_on
                     .replace('${interaction.user}', interaction.user as unknown as string)
@@ -101,7 +101,7 @@ export default {
 
             await spamRule?.setEnabled(false);
 
-            await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.spam`, "off");
+            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.spam`, "off");
             await interaction.editReply({
                 content: data.automod_block_spam_command_off
                     .replace('${interaction.user}', interaction.user as unknown as string)

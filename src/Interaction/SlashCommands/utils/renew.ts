@@ -42,7 +42,7 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
 
         if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
             await interaction.reply({ content: data.renew_not_administrator });

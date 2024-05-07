@@ -58,7 +58,7 @@ export const command: Command = {
     thinking: true,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let member = interaction.options.getMember("member") as GuildMember;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {

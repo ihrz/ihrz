@@ -31,11 +31,11 @@ export default {
 
         var text = "";
 
-        let baseData = await client.db.get(`${interaction.guild?.id}.ALLOWLIST`);
+        let baseData = await client.db.get(`${interaction.guildId}.ALLOWLIST`);
 
         if (!baseData) {
 
-            await client.db.set(`${interaction.guild?.id}.ALLOWLIST`,
+            await client.db.set(`${interaction.guildId}.ALLOWLIST`,
                 {
                     enable: false,
                     list: {
@@ -44,7 +44,7 @@ export default {
                 }
             );
 
-            baseData = await client.db.get(`${interaction.guild?.id}.ALLOWLIST`);
+            baseData = await client.db.get(`${interaction.guildId}.ALLOWLIST`);
         };
 
         for (var i in baseData.list) {

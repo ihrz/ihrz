@@ -33,7 +33,7 @@ export default {
 
         let category = interaction.options.getChannel("category-name");
 
-        if (await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`)) {
+        if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
             await interaction.editReply({ content: data.setticketcategory_disabled_command });
             return;
         };
@@ -48,7 +48,7 @@ export default {
             return;
         };
 
-        await client.db.set(`${interaction.guild?.id}.GUILD.TICKET.category`, category.id);
+        await client.db.set(`${interaction.guildId}.GUILD.TICKET.category`, category.id);
 
         let embed = new EmbedBuilder()
             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })

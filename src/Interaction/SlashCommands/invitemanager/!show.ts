@@ -29,7 +29,7 @@ import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let member = interaction.options.getUser("member") || interaction.user;
-        let baseData = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.INVITES`);
+        let baseData = await client.db.get(`${interaction.guildId}.USER.${member.id}.INVITES`);
 
         let inv = baseData?.invites;
         let leaves = baseData?.leaves;

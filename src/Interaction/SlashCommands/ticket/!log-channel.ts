@@ -30,7 +30,7 @@ import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let blockQ = await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`);
+        let blockQ = await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`);
         let channel = interaction.options.getChannel('channel');
 
         if (blockQ) {
@@ -43,7 +43,7 @@ export default {
             return;
         };
 
-        client.db.set(`${interaction.guild?.id}.GUILD.TICKET.logs`, channel?.id);
+        client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel?.id);
 
         let embed = new EmbedBuilder()
             .setColor("#008000")
