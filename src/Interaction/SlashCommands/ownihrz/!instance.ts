@@ -104,7 +104,6 @@ export default {
                 }
             }
 
-            // Working with cluster
         } else if (action_to_do === 'delete') {
 
             for (let userId in ownihrzClusterData as any) {

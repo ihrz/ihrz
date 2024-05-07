@@ -24,7 +24,7 @@ import logger from "../logger.js";
 
 import { OwnIhrzCluster, ClusterMethod } from "../functions/apiUrlParser.js";
 import db from "../functions/DatabaseModel.js";
-import { axios } from "../functions/axios.js";
+import { AxiosResponse, axios } from "../functions/axios.js";
 
 import { Client } from "discord.js";
 
@@ -43,13 +43,13 @@ class OwnIHRZ {
 
                     axios.get(
                         OwnIhrzCluster(
-                            cluster_ownihrz[owner_id][bot_id].Cluster as unknown as number,
+                            parseInt(cluster_ownihrz[owner_id][bot_id].Cluster),
                             ClusterMethod.StartupContainer,
                             bot_id,
                             config.api.apiToken
-                        ) as string
-                    ).then(function (response) {
-                        logger.log(response.data as unknown as string)
+                        )
+                    ).then(function (response: AxiosResponse) {
+                        logger.log(response.data)
                     }).catch(function (error) { logger.err(error); });
                 }
             };
@@ -64,9 +64,9 @@ class OwnIHRZ {
                 ClusterMethod.ShutdownContainer,
                 id_to_bot,
                 config.api.apiToken
-            ) as string
+            )
         ).then(function (response) {
-            logger.log(response.data as unknown as string)
+            logger.log(response.data)
         }).catch(function (error) { logger.err(error); });
         return 0;
     };
@@ -79,9 +79,9 @@ class OwnIHRZ {
                 ClusterMethod.PowerOnContainer,
                 id_to_bot,
                 config.api.apiToken
-            ) as string
+            )
         ).then(function (response) {
-            logger.log(response.data as unknown as string)
+            logger.log(response.data)
         }).catch(function (error) { logger.err(error); });
         return 0;
     };
@@ -95,9 +95,9 @@ class OwnIHRZ {
                 ClusterMethod.DeleteContainer,
                 id_to_bot,
                 config.api.apiToken
-            ) as string
+            )
         ).then(function (response) {
-            logger.log(response.data as unknown as string)
+            logger.log(response.data)
         }).catch(function (error) { logger.err(error); });
         return 0;
     };
@@ -113,13 +113,13 @@ class OwnIHRZ {
                     if (ownihrzClusterData[userId][botId].PowerOff || !ownihrzClusterData[userId][botId].Code) continue;
                     await axios.get(
                         OwnIhrzCluster(
-                            ownihrzClusterData[userId][botId].Cluster as unknown as number,
+                            parseInt(ownihrzClusterData[userId][botId].Cluster),
                             ClusterMethod.ShutdownContainer,
                             botId,
                             config.api.apiToken
-                        ) as string
+                        )
                     ).then(function (response) {
-                        logger.log(response.data as unknown as string)
+                        logger.log(response.data)
                     }).catch(function (error) { logger.err(error); });
                 }
             };
@@ -132,14 +132,14 @@ class OwnIHRZ {
             OwnIhrzCluster(
                 cluster_id,
                 ClusterMethod.ChangeTokenContainer,
-            ) as string,
+            ),
             {
                 Auth: bot_token,
                 Code: id_to_bot,
                 AdminKey: config.api.apiToken
             }
         ).then(function (response) {
-            logger.log(response.data as unknown as string);
+            logger.log(response.data);
         })
             .catch(function (error) {
                 logger.err(error);

@@ -32,15 +32,15 @@ let dbPromise: Promise<QuickDB> | undefined = undefined;
 switch (config.database?.method) {
     case 'MONGO_DB':
         dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
-            let driver = new MongoDriver(config.database?.mongoDb as string);
+            let driver = new MongoDriver(config.database?.mongoDb!);
 
             try {
                 await driver.connect();
                 logger.log((`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`));
                 resolve(new QuickDB({ driver }));
                 proc.exit(driver);
-            } catch (error) {
-                logger.err(`${config.console.emojis.ERROR} >> ${(error as string).toString().split('\n')[0]}`.red());
+            } catch (error: any) {
+                logger.err(`${config.console.emojis.ERROR} >> ${error.toString().split('\n')[0]}`.red());
                 logger.err(`${config.console.emojis.ERROR} >> Database is unreachable (${config.database?.method}) !`.red());
                 logger.err(`${config.console.emojis.ERROR} >> Please use a different database than ${config.database?.method} !`.red());
                 logger.err(`${config.console.emojis.ERROR} >> in the /src/files/config.ts at: 'database.method'.`.red());

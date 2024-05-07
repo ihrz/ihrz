@@ -39,7 +39,7 @@ import path from 'path';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let cluster = interaction.options.getString("cluster");
+        let cluster = parseInt(interaction.options.getString("cluster")!);
         let id = interaction.options.getString('id');
 
         var table = client.db.table("TEMP");
@@ -110,8 +110,13 @@ export default {
 
             if (cluster) {
                 try {
-                    axios.post(OwnIhrzCluster(cluster as unknown as number, ClusterMethod.CreateContainer) as string, id_2,
-                        { headers: { 'Accept': 'application/json' } })
+                    axios.post(OwnIhrzCluster(cluster, ClusterMethod.CreateContainer),
+                        id_2,
+                        {
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        })
                         .then(async () => {
                             await table.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
                         })

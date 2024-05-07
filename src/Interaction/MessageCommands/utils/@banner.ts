@@ -75,7 +75,7 @@ export const command: Command = {
                 .setColor('#c4afed')
                 .setTitle(data.banner_user_embed.replace('${user?.username}', user?.username))
                 .setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
-                .setThumbnail((user?.displayAvatarURL() as string))
+                .setThumbnail((user?.displayAvatarURL()))
                 .setFooter({
                     text: 'iHorizon', iconURL: "attachment://icon.png"
                 });

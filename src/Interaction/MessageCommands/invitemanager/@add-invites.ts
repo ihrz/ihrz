@@ -74,8 +74,8 @@ export const command: Command = {
                 .setTitle(data.addinvites_logs_embed_title)
                 .setDescription(data.addinvites_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.author.id)
-                    .replace(/\${amount}/g, amount as unknown as string)
-                    .replace(/\${user\.id}/g, user?.id as string)
+                    .replace(/\${amount}/g, amount)
+                    .replace(/\${user\.id}/g, user?.id)
                 );
 
             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
