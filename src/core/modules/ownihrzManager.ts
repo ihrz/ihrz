@@ -57,35 +57,6 @@ class OwnIHRZ {
     };
 
     // Working
-    async Refresh(client: Client) {
-        var tableOWNIHRZ = client.db.table("OWNIHRZ");
-        let ownihrzClusterData = await tableOWNIHRZ.get("CLUSTER");
-
-        let now = new Date().getTime();
-
-        for (let userId in ownihrzClusterData as any) {
-            for (let botId in ownihrzClusterData[userId]) {
-                if (ownihrzClusterData[userId][botId].PowerOff || !ownihrzClusterData[userId][botId].Code) continue;
-
-                if (now >= ownihrzClusterData[userId][botId].ExpireIn) {
-                    await tableOWNIHRZ.set(`CLUSTER.${userId}.${botId}.PowerOff`, true);
-
-                    axios.get(
-                        OwnIhrzCluster(
-                            ownihrzClusterData[userId][botId].Cluster as unknown as number,
-                            ClusterMethod.ShutdownContainer,
-                            botId,
-                            config.api.apiToken
-                        ) as string
-                    ).then(function (response) {
-                        logger.log(response.data as unknown as string)
-                    }).catch(function (error) { logger.err(error); });
-                };
-            }
-        };
-    };
-
-    // Working
     async ShutDown(cluster_id: number, id_to_bot: string) {
         axios.get(
             OwnIhrzCluster(
