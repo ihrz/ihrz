@@ -78,22 +78,27 @@ export const event: BotEvent = {
             if (!joinMessage) {
 
                 msg = data.event_welcomer_inviter
-                    .replace("${member.id}", member.id)
-                    .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
-                    .replace("${member.guild.name}", member.guild.name)
-                    .replace("${inviter.tag}", inviter.username)
-                    .replace("${fetched}", invitesAmount);
-
+                    .replaceAll("{memberUsername}", member.user.username)
+                    .replaceAll("{memberMention}", member.user.toString())
+                    .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
+                    .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                    .replaceAll('{guildName}', member.guild.name!)
+                    .replaceAll('{inviterUsername}', inviter.username)
+                    .replaceAll('{inviterMention}', inviter.toString())
+                    .replaceAll('{invitesCount}', invitesAmount)
+                    .replaceAll("\\n", '\n');
             } else {
 
                 msg = joinMessage
-                    .replace("{user}", member.user.username)
-                    .replace("{guild}", member.guild.name)
-                    .replace("{createdat}", member.user.createdAt.toLocaleDateString())
-                    .replace("{membercount}", member.guild.memberCount)
-                    .replace("{inviter}", inviter.username)
-                    .replace("{invites}", invitesAmount);
-
+                    .replaceAll("{memberUsername}", member.user.username)
+                    .replaceAll("{memberMention}", member.user.toString())
+                    .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
+                    .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                    .replaceAll('{guildName}', member.guild.name!)
+                    .replaceAll('{inviterUsername}', inviter.username)
+                    .replaceAll('{inviterMention}', inviter.toString())
+                    .replaceAll('{invitesCount}', invitesAmount)
+                    .replaceAll("\\n", '\n');
             };
 
             channel.send({ content: msg });
@@ -115,15 +120,18 @@ export const event: BotEvent = {
             if (vanityInviteCache && vanityInviteCache.uses! < VanityURL.uses!) {
 
                 msg = data.event_welcomer_inviter
-                    .replace("${member.id}", member.id)
-                    .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
-                    .replace("${member.guild.name}", member.guild.name)
-                    .replace("${inviter.tag}", "/" + VanityURL.code)
-                    .replace("${fetched}", VanityURL.uses);
+                    .replaceAll("{memberUsername}", member.user.username)
+                    .replaceAll("{memberMention}", member.user.toString())
+                    .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
+                    .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                    .replaceAll('{guildName}', member.guild.name!)
+                    .replaceAll('{inviterUsername}', VanityURL.code)
+                    .replaceAll('{inviterMention}', VanityURL.code)
+                    .replaceAll('{invitesCount}', VanityURL.uses)
+                    .replaceAll("\\n", '\n');
 
                 channel.send({ content: msg });
                 return;
-
             };
 
         } else {
@@ -135,9 +143,13 @@ export const event: BotEvent = {
             if (!wChan || !channel) return;
 
             msg = data.event_welcomer_default
-                .replace("${member.id}", member.id)
-                .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
-                .replace("${member.guild.name}", member.guild.name)
+                .replaceAll("{memberUsername}", member.user.username)
+                .replaceAll("{memberMention}", member.user.toString())
+                .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
+                .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                .replaceAll('{guildName}', member.guild.name!)
+                .replaceAll('{invitesCount}', invitesAmount)
+                .replaceAll("\\n", '\n');
 
             channel.send({ content: msg });
             return;

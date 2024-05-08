@@ -616,6 +616,10 @@ setjoinmessage_logs_embed_title_on_disable: "Registros de SetJoinMessage"
 setjoinmessage_logs_embed_description_on_disable: "¡<@${interaction.user.id}> eliminó el mensaje de bienvenida!"
 setjoinmessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Mensaje de bienvenida personalizado eliminado con éxito."
 setjoinmessage_command_work_ls: "El mensaje de bienvenida es:"
+setjoinmessage_help_embed_fields_custom_name: "Mensaje Personalizado"
+setjoinmessage_help_embed_fields_custom_name_empy: "¡No establecido!"
+setjoinmessage_help_embed_fields_default_name_empy: "Mensaje Predeterminado"
+setjoinmessage_help_embed_desc: "{memberUsername} => Nombre de usuario del miembro\n{memberMention} => Mención del miembro\n{inviterUsername} => Nombre del que invitó\n{inviterMention} => Mención del que invitó\n{memberCount} => Número de miembros en el servidor\n{invitesCount} => Número de invitaciones del que invitó\n{guildName} => Nombre del servidor\n{createdAt} => Fecha de creación de la cuenta en DD/MM/AAAA"
 
 # /setjoinroles
 setjoinroles_not_admin: ":x: | ¡Debes ser administrador de este servidor para solicitar estos comandos!"
@@ -1264,12 +1268,12 @@ event_channel_create_message_embed_title: "¡Configuración exitosa!"
 event_channel_create_message_embed_description: "El bot se ha configurado perfectamente. Ya no necesitas hacer nada (zen).\n\nTodos los registros de moderación relacionados con iHorizon se mostrarán aquí."
 
 # Welcome Message Events
-event_welcomer_inviter: "➕・<@${member.id}> se ha unido al servidor. Invitado por **${inviter.tag}** (**${fetched}** invitaciones). Cuenta creada el: **${member.user.createdAt.toLocaleDateString()}**. ¡Feliz de verte en **${member.guild.name}**!"
-event_welcomer_default: "➕・<@${member.id}> se ha unido al servidor. Cuenta creada el: **${member.user.createdAt.toLocaleDateString()}**. ¡Feliz de verte en **${member.guild.name}**!"
+event_welcomer_inviter: "{memberMention} (cuenta creada el {createdAt}) se ha unido al servidor. Fueron invitados por **{inviterUsername}** (**{invitesCount}** invitaciones), ahora somos {memberCount} en {guildName}"
+event_welcomer_default: "{memberMention} (cuenta creada el {createdAt}) se ha unido al servidor. Ahora somos {memberCount} en {guildName}"
 
 # Eventos de Despedida
-event_goodbye_inviter: "➖・<@${member.id}> acaba de abandonar el servidor. Fue invitado por **${inviter.tag}** (**${fetched}** invitaciones). ¡Adiós, de parte de **${member.guild.name}**!"
-event_goodbye_default: "➖・<@${member.id}> acaba de abandonar el servidor. ¡Adiós, de parte de **${member.guild.name}**!"
+event_goodbye_inviter: "{memberUsername} (cuenta creada el {createdAt}) abandona el servidor. Fueron invitados por **{inviterUsername}** (**{invitesCount}** invitaciones), ahora somos {memberCount} en {guildName}"
+event_goodbye_default: "{memberUsername} (cuenta creada el {createdAt}) abandona el servidor. Ahora somos {memberCount} en {guildName}"
 
 # Eventos de Nivel de XP
 event_xp_level_earn: "**GG**, <@${message.author.id}> has ganado +1 para el nivel de XP (Nivel: **${newLevel}**)"
