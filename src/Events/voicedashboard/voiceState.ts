@@ -62,7 +62,7 @@ export const event: BotEvent = {
 
             for (let [userId, channelId] of allChannelEntries) {
                 if (channelId !== oldState.channelId) continue;
-                let userChannel = newState.guild.channels.cache.get(channelId as string);
+                let userChannel = newState.guild.channels.cache.get(channelId as unknown as string);
 
                 if (oldState.channelId === channelId) {
                     await userChannel?.delete();
@@ -107,7 +107,7 @@ export const event: BotEvent = {
                             );
 
                             if (staff_role) {
-                                chann.permissionOverwrites.edit(staff_role as string,
+                                chann.permissionOverwrites.edit(staff_role,
                                     {
                                         ViewChannel: true,
                                         Connect: true,

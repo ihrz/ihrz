@@ -49,7 +49,7 @@ export const command: Command = {
     category: 'music',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guildId as string) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!(interaction.member as GuildMember)?.voice.channel) {
             await interaction.reply({

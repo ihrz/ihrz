@@ -43,7 +43,7 @@ export const command: Command = {
     category: 'invitemanager',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guildId as string) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let user = interaction.mentions.members?.toJSON()[1] || interaction.author;
         let amount = args[1] || args[0];

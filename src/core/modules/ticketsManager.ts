@@ -447,7 +447,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
         if (interaction instanceof ButtonInteraction) {
             interaction.reply({
                 content: lang.event_ticket_whenCreated_msg
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
                     .replace('${channel.id}', channel.id)
                 , ephemeral: true
             });
@@ -554,7 +554,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                 .setColor("#008000")
                 .setTitle(lang.event_ticket_logsChannel_onCreationChannel_embed_title)
                 .setDescription(lang.event_ticket_logsChannel_onCreationChannel_embed_desc
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
                     .replace('${channel.id}', channel.id)
                 )
                 .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
@@ -842,7 +842,9 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<CacheTyp
     let membersArray: string[] = [];
     let listmembersArray: string[] = [];
 
-    interaction.members.each(async (i) => { membersArray.push(i.user?.id as string) });
+    interaction.members.each(async (i) => {
+        membersArray.push(i.user?.id!);
+    });
 
     (interaction.channel as BaseGuildTextChannel).permissionOverwrites.cache
         .filter((i) => i.type === 1).each

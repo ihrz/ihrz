@@ -78,7 +78,7 @@ export const command: Command = {
     category: 'fun',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guildId as string) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         var user1 = interaction.author;
         var user2 = interaction.mentions.users?.toJSON()[1] || interaction.guild?.members.cache.random()?.user;
@@ -89,7 +89,7 @@ export const command: Command = {
 
         try {
             let [profileImage1, profileImage2, heartEmoji] = await Promise.all([
-                Jimp.read(user1?.displayAvatarURL({ extension: 'png', size: 512 }) as string),
+                Jimp.read(user1.displayAvatarURL({ extension: 'png', size: 512 })),
                 Jimp.read(user2?.displayAvatarURL({ extension: 'png', size: 512 }) as string),
                 Jimp.read(`${process.cwd()}/src/assets/heart.png`)
             ]);
