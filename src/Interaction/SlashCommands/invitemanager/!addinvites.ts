@@ -25,14 +25,15 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
+    User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let user = interaction.options.getUser("member");
-        let amount = interaction.options.getNumber("amount");
+        let user = interaction.options.getUser("member") as User;
+        let amount = interaction.options.getNumber("amount") as number;
 
         let a = new EmbedBuilder().setColor("#FF0000").setDescription(data.addinvites_not_admin_embed_description);
 
@@ -46,7 +47,7 @@ export default {
         let finalEmbed = new EmbedBuilder()
             .setDescription(data.addinvites_confirmation_embed_description
                 .replace(/\${amount}/g, amount!.toString())
-                .replace(/\${user}/g, user as unknown as string)
+                .replace(/\${user}/g, user.toString())
             )
             .setColor(`#92A8D1`)
             .setFooter({ text: interaction.guild?.name as string, iconURL: interaction.guild?.iconURL() as string });
@@ -60,8 +61,8 @@ export default {
                 .setTitle(data.addinvites_logs_embed_title)
                 .setDescription(data.addinvites_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace(/\${amount}/g, amount as unknown as string)
-                    .replace(/\${user\.id}/g, user?.id as string)
+                    .replace(/\${amount}/g, amount.toString())
+                    .replace(/\${user\.id}/g, user.id)
                 );
 
             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');

@@ -109,7 +109,7 @@ export const command: Command = {
         if (type == "on") {
             let botMembers = interaction.guild?.members.cache.filter((member: GuildMember) => member.user.bot);
             let rolesCollection = interaction.guild?.roles.cache;
-            let rolesCount = rolesCollection?.size;
+            let rolesCount = rolesCollection?.size as number;
 
             if (!messagei) {
                 await interaction.editReply({ embeds: [help_embed] });
@@ -117,7 +117,7 @@ export const command: Command = {
             };
 
             let joinmsgreplace = messagei
-                .replace("{rolescount}", rolesCount as unknown as string)
+                .replace("{rolescount}", rolesCount.toString())
                 .replace("{membercount}", interaction.guild?.memberCount as unknown as string)
                 .replace("{botcount}", botMembers?.size.toString()!);
 

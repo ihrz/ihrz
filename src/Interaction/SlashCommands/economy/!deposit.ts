@@ -30,7 +30,7 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let balance = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`);
-        let toDeposit = interaction.options.getNumber('how-much');
+        let toDeposit = interaction.options.getNumber('how-much') as number;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
@@ -56,8 +56,8 @@ export default {
             .setTitle(data.deposit_embed_title)
             .setDescription(data.deposit_embed_desc
                 .replace('${client.iHorizon_Emojis.icon.Coin}', client.iHorizon_Emojis.icon.Coin)
-                .replace('${interaction.user}', interaction.user as unknown as string)
-                .replace('${toDeposit}', toDeposit as unknown as string)
+                .replace('${interaction.user}', interaction.user.toString())
+                .replace('${toDeposit}', toDeposit.toString())
             )
             .addFields({ name: data.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature } from 'discord.js';
+import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature, User } from 'discord.js';
 import { PfpsManager_Init } from "../../core/modules/pfpsManager.js";
 import logger from "../../core/logger.js";
 import config from "../../files/config.js";
@@ -104,7 +104,7 @@ export const event: BotEvent = {
 
             Object.entries(listAll).forEach(async ([userId, array]) => {
 
-                let member = client.users.cache.get(array.id);
+                let member = client.users.cache.get(array.id) as User;
 
                 for (let ScheduleId in array.value) {
                     if (array.value[ScheduleId]?.expired <= dateNow) {
@@ -116,7 +116,7 @@ export const event: BotEvent = {
                             .setColor('#56a0d3')
                             .setTitle(`#${ScheduleId} Schedule has been expired!`)
                             .setDescription(desc)
-                            .setThumbnail((member?.displayAvatarURL() as string))
+                            .setThumbnail((member.displayAvatarURL()))
                             .setTimestamp()
                             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 

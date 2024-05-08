@@ -98,7 +98,7 @@ export default {
                 await interaction.editReply({
                     content: data.automod_block_massmention_command_on
                         .replace('${interaction.user}', interaction.user .toString())
-                        .replace('${logs_channel}', (logs_channel || 'None') as string)
+                        .replace('${logs_channel}', (logs_channel?.toString() || 'None'))
                         .replace('${max_mention}', max_mention .toString())
                 });
                 return;

@@ -114,8 +114,8 @@ export default {
             await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.antipub`, "on");
             await interaction.editReply({
                 content: data.automod_block_pub_command_on
-                    .replace('${interaction.user}', interaction.user .toString())
-                    .replace('${logs_channel}', (logs_channel || 'None') as string)
+                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${logs_channel}', (logs_channel?.toString() || 'None'))
             });
 
             return;
@@ -125,7 +125,7 @@ export default {
             await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.antipub`, "off");
             await interaction.editReply({
                 content: data.automod_block_pub_command_off
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
             });
 
             return;

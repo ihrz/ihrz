@@ -23,12 +23,14 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
+let talkedRecentlyforr = new Set();
+
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        let talkedRecentlyforr = new Set();
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
@@ -37,13 +39,13 @@ export default {
             });
             return;
         };
-        
+
         if (talkedRecentlyforr.has(interaction.user.id)) {
             await interaction.reply({ content: data.rob_cooldown_error });
             return;
         };
 
-        let user = interaction.options.getUser("member");
+        let user = interaction.options.getUser("member") as User;
         let targetuser = await client.db.get(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`);
         let author = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`);
 
@@ -65,8 +67,8 @@ export default {
         let embed = new EmbedBuilder()
             .setDescription(data.rob_embed_description
                 .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                .replace(/\${user\.id}/g, user?.id as string)
-                .replace(/\${random}/g, random .toString())
+                .replace(/\${user\.id}/g, user?.id)
+                .replace(/\${random}/g, random.toString())
             )
             .setColor("#a4cb80")
             .setTimestamp()

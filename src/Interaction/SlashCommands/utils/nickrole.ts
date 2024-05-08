@@ -91,7 +91,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guildId);
 
         let action_1 = interaction.options.getString("action");
-        let part_of_nickname = interaction.options.getString("nickname");
+        let part_of_nickname = interaction.options.getString("nickname") as string;
         let role = interaction.options.getRole('role');
 
         let a: number = 0;
@@ -112,8 +112,8 @@ export const command: Command = {
                 for (let [memberID, member] of members!) {
                     if (
                         (
-                            member.user.globalName?.includes(part_of_nickname as string)
-                            || (member.nickname && member.nickname.includes(part_of_nickname as string))
+                            member.user.globalName?.includes(part_of_nickname)
+                            || (member.nickname && member.nickname.includes(part_of_nickname))
                         )
                         && !member.roles.cache.has(role?.id!)
                     ) {
@@ -161,8 +161,8 @@ export const command: Command = {
                 for (let [memberID, member] of members!) {
                     if (
                         (
-                            member.user.globalName?.includes(part_of_nickname as string)
-                            || (member.nickname && member.nickname.includes(part_of_nickname as string))
+                            member.user.globalName?.includes(part_of_nickname)
+                            || (member.nickname && member.nickname.includes(part_of_nickname))
                         )
                         && member.roles.cache.has(role?.id!)
                     ) {

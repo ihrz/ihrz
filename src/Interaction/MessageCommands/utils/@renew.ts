@@ -71,7 +71,7 @@ export const command: Command = {
                 reason: `Channel re-create by ${interaction.author} (${interaction.author.id})`
             });
 
-            here.send({ content: data.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.author as unknown as string) });
+            here.send({ content: data.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.author.toString()) });
             return;
         } catch (error) {
             await interaction.reply({ content: data.renew_dont_have_permission });

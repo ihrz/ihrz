@@ -28,6 +28,7 @@ import {
     GuildMember,
     GuildVoiceChannelResolvable,
     Message,
+    User,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
@@ -81,7 +82,7 @@ export const command: Command = {
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         var user1 = interaction.author;
-        var user2 = interaction.mentions.users?.toJSON()[1] || interaction.guild?.members.cache.random()?.user;
+        var user2 = interaction.mentions.users?.toJSON()[1] || interaction.guild?.members.cache.random()?.user as User;
 
         let profileImageSize = 512;
         let canvasWidth = profileImageSize * 3;
@@ -90,7 +91,7 @@ export const command: Command = {
         try {
             let [profileImage1, profileImage2, heartEmoji] = await Promise.all([
                 Jimp.read(user1.displayAvatarURL({ extension: 'png', size: 512 })),
-                Jimp.read(user2?.displayAvatarURL({ extension: 'png', size: 512 }) as string),
+                Jimp.read(user2.displayAvatarURL({ extension: 'png', size: 512 })),
                 Jimp.read(`${process.cwd()}/src/assets/heart.png`)
             ]);
 

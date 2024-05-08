@@ -38,7 +38,7 @@ export default {
 
         let pollEmbed = new EmbedBuilder()
             .setTitle(data.poll_embed_title
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username as string)
+                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username)
             )
             .setColor("#ddd98b")
             .setDescription(pollMessage)

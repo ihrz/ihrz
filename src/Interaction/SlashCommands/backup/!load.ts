@@ -61,10 +61,10 @@ export default {
         });
 
         backup.fetch(backupID).then(async () => {
-            backup.load(backupID as string | BackupData, interaction.guild as Guild).then(() => {
-                backup.remove(backupID as string);
+            backup.load(backupID, interaction.guild as Guild).then(() => {
+                backup.remove(backupID);
             }).catch((err) => {
-                interaction.channel?.send({ content: data.backup_error_on_load.replace("${backupID}", backupID as string) });
+                interaction.channel?.send({ content: data.backup_error_on_load.replace("${backupID}", backupID) });
                 return;
             });
         }).catch((err) => {

@@ -41,7 +41,7 @@ export default {
 
         await interaction.reply({
             content: data.security_channel_command_work
-                .replace('${interaction.user}', interaction.user as unknown as string)
+                .replace('${interaction.user}', interaction.user.toString())
                 .replace('${channel}', channel as unknown as string)
         });
 

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { Client, EmbedBuilder, ChatInputCommandInteraction, User } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
 import Jimp from 'jimp';
@@ -29,7 +29,7 @@ import config from '../../../files/config.js';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         var user1 = interaction.options.getUser("user1") || interaction.user;
-        var user2 = interaction.options.getUser("user2") || interaction.guild?.members.cache.random()?.user;
+        var user2 = interaction.options.getUser("user2") || interaction.guild?.members.cache.random()?.user as User;
 
         let profileImageSize = 512;
         let canvasWidth = profileImageSize * 3;
@@ -37,8 +37,8 @@ export default {
 
         try {
             let [profileImage1, profileImage2, heartEmoji] = await Promise.all([
-                Jimp.read(user1?.displayAvatarURL({ extension: 'png', size: 512 }) as string),
-                Jimp.read(user2?.displayAvatarURL({ extension: 'png', size: 512 }) as string),
+                Jimp.read(user1.displayAvatarURL({ extension: 'png', size: 512 })),
+                Jimp.read(user2.displayAvatarURL({ extension: 'png', size: 512 })),
                 Jimp.read(`${process.cwd()}/src/assets/heart.png`)
             ]);
 
@@ -79,7 +79,7 @@ export default {
                 .setImage(`attachment://love.png`)
                 .setDescription(data.love_embed_description
                     .replace('${user1.username}', user1.username)
-                    .replace('${user2.username}', user2?.username as string)
+                    .replace('${user2.username}', user2?.username)
                     .replace('${randomNumber}', randomNumber.toString())
                 )
                 .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
@@ -89,7 +89,7 @@ export default {
                 embeds: [embed],
                 files: [
                     { attachment: buffer, name: 'love.png' },
-                    { attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png'},
+                    { attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' },
                 ]
             });
         } catch (error: any) {
