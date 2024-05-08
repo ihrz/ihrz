@@ -65,7 +65,7 @@ export default {
                     return;
                 };
 
-                await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joindm`, dm_msg);
+                await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`, dm_msg);
                 await interaction.editReply({
                     content: data.setjoindm_confirmation_message_on_enable
                         .replace(/\${dm_msg}/g, dm_msg)
@@ -91,13 +91,13 @@ export default {
             };
 
             try {
-                let already_off = await client.db.get(`joindm-${interaction.guild?.id}`);
+                let already_off = await client.db.get(`joindm-${interaction.guildId}`);
                 if (already_off === "off") {
                     await interaction.editReply({ content: data.setjoindm_already_disable });
                     return;
                 };
 
-                await client.db.delete(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joindm`);
+                await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`);
                 await interaction.editReply({ content: data.setjoindm_confirmation_message_on_disable });
                 return;
 
@@ -107,7 +107,7 @@ export default {
             };
 
         } else if (type === "ls") {
-            let already_off = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joindm`);
+            let already_off = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`);
             if (!already_off) {
                 await interaction.editReply({ content: data.setjoindm_not_setup_ls });
                 return;

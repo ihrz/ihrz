@@ -28,7 +28,7 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        let question = interaction.options.getString("question");
+        let question = interaction.options.getString("question") as string;
 
         let text = question?.split(" ");
 
@@ -41,12 +41,12 @@ export default {
 
         let embed = new EmbedBuilder()
             .setTitle(data.question_embed_title
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username as string)
+                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username)
             )
             .setColor("#ddd98b")
             .addFields(
-                { name: data.question_fields_input_embed, value: (question as string), inline: true },
-                { name: data.question_fields_output_embed, value: (reponses[Math.floor((Math.random() * reponses.length))] as string) }
+                { name: data.question_fields_input_embed, value: question, inline: true },
+                { name: data.question_fields_output_embed, value: reponses[Math.floor((Math.random() * reponses.length))] }
             )
             .setTimestamp();
 

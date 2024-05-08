@@ -50,7 +50,7 @@ export const command: Command = {
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
 
-        let data = await client.functions.getLanguageData(interaction.guild?.id) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let voiceStates = interaction.guild?.voiceStates.cache;
         let membersStates = interaction.guild?.members.cache;
 

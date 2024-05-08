@@ -36,7 +36,7 @@ import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
 export const command: Command = {
-    
+
     name: 'hack',
     name_localizations: {
         "fr": "piratage"
@@ -51,7 +51,7 @@ export const command: Command = {
     category: 'fun',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let victim = interaction.mentions.users.toJSON()[1] || interaction.guild?.members.cache.random();
 
@@ -96,7 +96,7 @@ export const command: Command = {
         let embed = new EmbedBuilder()
             .setColor("#800000")
             .setDescription(data.hack_embed_description
-                .replace(/\${victim\.id}/g, victim?.id as string)
+                .replace(/\${victim\.id}/g, victim?.id)
                 .replace(/\${interaction\.user\.id}/g, interaction.author.id)
             )
             .addFields({ name: data.hack_embed_fields_ip, value: `\`${generatedIp}\`` },

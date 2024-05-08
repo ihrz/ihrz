@@ -57,7 +57,7 @@ export default {
                     .replaceAll("{membercount}", "{membercount}")
                     .replaceAll("\\n", '\n')
 
-                await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joinmessage`, joinmsgreplace);
+                await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`, joinmsgreplace);
 
                 try {
                     let logEmbed = new EmbedBuilder()
@@ -80,7 +80,7 @@ export default {
                 return;
             }
         } else if (type == "off") {
-            await client.db.delete(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joinmessage`);
+            await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`);
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
@@ -102,7 +102,7 @@ export default {
             });
             return;
         } else if (type == "ls") {
-            var ls = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joinmessage`);
+            var ls = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`);
 
             let embed = new EmbedBuilder()
                 .setAuthor({ name: interaction.user.globalName || interaction.user.username, iconURL: interaction.user.displayAvatarURL() })

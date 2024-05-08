@@ -42,7 +42,7 @@ export default {
                     .setColor("#bf0bb9")
                     .setTitle(data.blockbot_logs_enable_title)
                     .setDescription(data.blockbot_logs_enable_description
-                        .replace(/\${interaction\.user}/g, interaction.user as unknown as string)
+                        .replace(/\${interaction\.user}/g, interaction.user .toString())
                     );
 
                 let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
@@ -54,7 +54,7 @@ export default {
                 logger.err(e);
             };
 
-            await client.db.set(`${interaction.guild?.id}.GUILD.BLOCK_BOT`, true);
+            await client.db.set(`${interaction.guildId}.GUILD.BLOCK_BOT`, true);
 
             await interaction.editReply({ content: data.blockbot_command_work_on_enable });
             return;
@@ -64,7 +64,7 @@ export default {
                     .setColor("#bf0bb9")
                     .setTitle(data.blockbot_logs_disable_commmand_work)
                     .setDescription(data.blockbot_logs_disable_description
-                        .replace(/\${interaction\.user}/g, interaction.user as unknown as string)
+                        .replace(/\${interaction\.user}/g, interaction.user .toString())
                     );
 
                 let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
@@ -76,7 +76,7 @@ export default {
                 logger.err(e);
             };
 
-            await client.db.delete(`${interaction.guild?.id}.GUILD.BLOCK_BOT`);
+            await client.db.delete(`${interaction.guildId}.GUILD.BLOCK_BOT`);
 
             await interaction.editReply({ content: data.blockbot_command_work_on_disable });
             return;

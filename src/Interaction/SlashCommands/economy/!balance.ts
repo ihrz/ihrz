@@ -39,19 +39,19 @@ export default {
         };
         
         let member: User = interaction.options.getUser('user') || interaction.user;
-        var bal = await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`);
+        var bal = await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY.money`);
 
         if (!bal) {
-            await client.db.set(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`, 1);
+            await client.db.set(`${interaction.guildId}.USER.${member.id}.ECONOMY.money`, 1);
             await interaction.reply({
                 content: data.balance_he_dont_have_wallet
                     .replace("${client.iHorizon_Emojis.icon.Wallet_Logo}", client.iHorizon_Emojis.icon.Wallet_Logo)
-                    .replace('${user}', interaction.user as unknown as string)
+                    .replace('${user}', interaction.user .toString())
             });
             return;
         };
 
-        let totalWallet = (bal || 0) + (await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`) || 0);
+        let totalWallet = (bal || 0) + (await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.bank`) || 0);
 
         let embed = new EmbedBuilder()
             .setColor('#e3c6ff')
@@ -59,12 +59,12 @@ export default {
             .setThumbnail(member.displayAvatarURL())
             .setDescription(data.balance_he_have_wallet
                 .replace(/\${bal}/g, totalWallet)
-                .replace('${user}', member as unknown as string)
+                .replace('${user}', member .toString())
                 .replace("${client.iHorizon_Emojis.icon.Wallet_Logo}", client.iHorizon_Emojis.icon.Wallet_Logo)
             )
             .addFields(
-                { name: data.balance_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.bank`) || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true },
-                { name: data.balance_embed_fields2_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${member.id}.ECONOMY.money`) || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true }
+                { name: data.balance_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY.bank`) || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true },
+                { name: data.balance_embed_fields2_name, value: `${await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY.money`) || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true }
             )
             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTimestamp()

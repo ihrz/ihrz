@@ -21,16 +21,18 @@
 
 import {
     Client,
-    ChatInputCommandInteraction
+    ChatInputCommandInteraction,
+    User
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        let user = interaction.options.getUser("member");
-        let amount = interaction.options.getNumber("amount");
 
-        let member = await client.db.get(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`);
+        let user = interaction.options.getUser("member") as User;
+        let amount = interaction.options.getNumber("amount") as number;
+
+        let member = await client.db.get(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
@@ -39,7 +41,7 @@ export default {
             });
             return;
         };
-        
+
         if (amount?.toString().includes('-')) {
             await interaction.reply({ content: data.pay_negative_number_error });
             return;
@@ -52,13 +54,13 @@ export default {
 
         await interaction.reply({
             content: data.pay_command_work
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username as string)
-                .replace(/\${user\.user\.username}/g, user?.globalName as string)
-                .replace(/\${amount}/g, amount as unknown as string)
+                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username)
+                .replace(/\${user\.user\.username}/g, user?.globalName!)
+                .replace(/\${amount}/g, amount.toString())
         });
 
-        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, amount!);
-        await client.db.sub(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount!);
+        await client.db.add(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`, amount!);
+        await client.db.sub(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, amount!);
         return;
     },
 };

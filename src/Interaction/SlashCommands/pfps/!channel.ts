@@ -32,7 +32,7 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let channel = interaction.options.getChannel('to');
-        let fetch = await client.db.get(`${interaction.guild?.id}.PFPS.disable`);
+        let fetch = await client.db.get(`${interaction.guildId}.PFPS.disable`);
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({
@@ -42,20 +42,20 @@ export default {
         };
 
         if (!fetch && (channel instanceof TextChannel)) {
-            await client.db.set(`${interaction.guild?.id}.PFPS.channel`, channel.id);
+            await client.db.set(`${interaction.guildId}.PFPS.channel`, channel.id);
 
             let embed = new EmbedBuilder()
                 .setColor('#333333')
                 .setTitle(data.pfps_channel_embed_title)
                 .setDescription(data.pfps_channel_embed_desc
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
                 )
                 .setTimestamp();
 
             await interaction.reply({
                 content: data.pfps_channel_command_work
-                    .replace('${interaction.user}', interaction.user as unknown as string)
-                    .replace('${channel}', channel as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${channel}', channel.toString())
             });
 
             channel.send({ embeds: [embed] });
@@ -64,7 +64,7 @@ export default {
         } else {
             await interaction.reply({
                 content: data.pfps_channel_command_error
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
             });
             return;
         };

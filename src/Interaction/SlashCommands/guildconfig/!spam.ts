@@ -90,10 +90,10 @@ export default {
                 });
             };
 
-            await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.spam`, "on");
+            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.spam`, "on");
             await interaction.editReply({
                 content: data.automod_block_spam_command_on
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
                     .replace('${logs_channel}', (logs_channel || 'None') as string)
             });
             return;
@@ -101,10 +101,10 @@ export default {
 
             await spamRule?.setEnabled(false);
 
-            await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.spam`, "off");
+            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.spam`, "off");
             await interaction.editReply({
                 content: data.automod_block_spam_command_off
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
             });
             return;
         };

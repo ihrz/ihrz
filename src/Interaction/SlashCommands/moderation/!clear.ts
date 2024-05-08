@@ -54,7 +54,7 @@ export default {
             .then((messages: { size: number; }) => {
                 interaction.channel?.send({
                     content: data.clear_confirmation_message
-                        .replace(/\${messages\.size}/g, messages.size as unknown as string)
+                        .replace(/\${messages\.size}/g, messages.size.toString())
                 });
 
                 try {
@@ -63,8 +63,8 @@ export default {
                         .setTitle(data.clear_logs_embed_title)
                         .setDescription(data.clear_logs_embed_description
                             .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                            .replace(/\${messages\.size}/g, messages.size as unknown as string)
-                            .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id as unknown as string)
+                            .replace(/\${messages\.size}/g, messages.size.toString())
+                            .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id!)
                         )
                     let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 

@@ -42,7 +42,7 @@ export const command: Command = {
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
         await interaction.reply({ content: ':ping_pong:' });
 
         let network: string = '';

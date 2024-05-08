@@ -66,7 +66,7 @@ export const command: Command = {
     category: 'utils',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
 
         let arg = interaction.options.getString("id");
         let potentialEmbed = await client.db.get(`EMBED.${arg}`);
@@ -304,7 +304,7 @@ export const command: Command = {
                         if (!links.some(word => message.content?.includes(word))) {
                             __tempEmbed.setThumbnail("https://exemple.com/exemple/png")
                         } else {
-                            __tempEmbed.setThumbnail((message.content as string))
+                            __tempEmbed.setThumbnail((message.content))
                         };
 
                         response.edit({ embeds: [__tempEmbed] });
@@ -319,7 +319,7 @@ export const command: Command = {
                         if (!links.some(word => message.content?.includes(word))) {
                             __tempEmbed.setImage("https://exemple.com/exemple/png")
                         } else {
-                            __tempEmbed.setImage((message.content as string))
+                            __tempEmbed.setImage((message.content))
                         };
 
                         response.edit({ embeds: [__tempEmbed] });
@@ -332,7 +332,7 @@ export const command: Command = {
                     let ttUrlCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 120_000 });
                     ttUrlCollector?.on('collect', async (message) => {
                         if (links.some(word => message.content?.includes(word))) {
-                            __tempEmbed.setURL((message.content as string)) && response.edit({ embeds: [__tempEmbed] });
+                            __tempEmbed.setURL((message.content)) && response.edit({ embeds: [__tempEmbed] });
                         };
 
                         await i11.delete(); message.delete();
@@ -343,7 +343,7 @@ export const command: Command = {
 
                     let colorCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 120_000 });
                     colorCollector?.on('collect', async (message) => {
-                        if (reg.test((message.content as string))) {
+                        if (reg.test((message.content))) {
                             __tempEmbed.setColor((message.content as ColorResolvable));
                             response.edit({ embeds: [__tempEmbed] });
                         } else {

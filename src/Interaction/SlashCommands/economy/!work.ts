@@ -31,7 +31,7 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let timeout = 3_600_000;
-        let work = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.work`);
+        let work = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.work`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
@@ -58,18 +58,18 @@ export default {
         let embed = new EmbedBuilder()
             .setAuthor({
                 name: data.work_embed_author
-                    .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username as string),
+                    .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username),
                 iconURL: interaction.user.displayAvatarURL()
             })
             .setDescription(data.work_embed_description
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username as string)
-                .replace(/\${amount}/g, amount as unknown as string)
+                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username)
+                .replace(/\${amount}/g, amount.toString())
             )
             .setColor("#f1d488");
 
         await interaction.reply({ embeds: [embed] });
 
-        await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
-        await client.db.set(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.work`, Date.now());
+        await client.db.add(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, amount);
+        await client.db.set(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.work`, Date.now());
     },
 };

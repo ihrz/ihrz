@@ -102,7 +102,7 @@ export const command: Command = {
     category: 'newfeatures',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id as string);
+        let data = await client.functions.getLanguageData(interaction.guildId);
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.punishpub_not_admin });

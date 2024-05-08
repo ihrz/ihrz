@@ -43,7 +43,7 @@ export const command: Command = {
     category: 'invitemanager',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let user = interaction.mentions.members?.toJSON()[1] || interaction.author;
         let amount = args[1] || args[0];
@@ -55,17 +55,17 @@ export const command: Command = {
             return;
         };
 
-        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.INVITES.invites`, amount as unknown as number);
+        await client.db.add(`${interaction.guildId}.USER.${user?.id}.INVITES.invites`, amount as unknown as number);
 
         let finalEmbed = new EmbedBuilder()
             .setDescription(data.addinvites_confirmation_embed_description
-                .replace(/\${amount}/g, amount as unknown as string)
-                .replace(/\${user}/g, user as unknown as string)
+                .replace(/\${amount}/g, amount)
+                .replace(/\${user}/g, user .toString())
             )
             .setColor(`#92A8D1`)
             .setFooter({ text: interaction.guild?.name as string, iconURL: interaction.guild?.iconURL() as string });
 
-        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.INVITES.bonus`, amount as unknown as number);
+        await client.db.add(`${interaction.guildId}.USER.${user?.id}.INVITES.bonus`, amount as unknown as number);
         await interaction.reply({ embeds: [finalEmbed] });
 
         try {
@@ -74,8 +74,8 @@ export const command: Command = {
                 .setTitle(data.addinvites_logs_embed_title)
                 .setDescription(data.addinvites_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.author.id)
-                    .replace(/\${amount}/g, amount as unknown as string)
-                    .replace(/\${user\.id}/g, user?.id as string)
+                    .replace(/\${amount}/g, amount)
+                    .replace(/\${user\.id}/g, user?.id)
                 );
 
             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');

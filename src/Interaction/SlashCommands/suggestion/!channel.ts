@@ -31,7 +31,7 @@ import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let channel = interaction.options.getChannel("channel");
+        let channel = interaction.options.getChannel("channel") as BaseGuildTextChannel;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.setsuggest_channel_not_admin });
@@ -43,8 +43,8 @@ export default {
         if (fetchOldChannel === channel?.id) {
             await interaction.reply({
                 content: data.setsuggest_channel_already_set_with_that
-                    .replace('${interaction.user}', interaction.user as unknown as string)
-                    .replace('${channel}', channel as unknown as string)
+                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${channel}', channel.toString())
             });
             return;
         };
@@ -58,8 +58,8 @@ export default {
         await client.db.set(`${interaction.guild?.id}.SUGGEST.channel`, channel?.id);
         await interaction.reply({
             content: data.setsuggest_channel_command_work
-                .replace('${interaction.user}', interaction.user as unknown as string)
-                .replace('${channel}', channel as unknown as string),
+                .replace('${interaction.user}', interaction.user.toString())
+                .replace('${channel}', channel.toString()),
         });
 
         (channel as BaseGuildTextChannel).send({

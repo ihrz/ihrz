@@ -47,7 +47,7 @@ export default {
 
         interaction.guild?.channels.cache.forEach((c) => {
             if (c.type === ChannelType.GuildText) {
-                c.permissionOverwrites.create(interaction.guild?.id as string, { SendMessages: false })
+                c.permissionOverwrites.create(interaction.guildId as string, { SendMessages: false })
             };
         });
 

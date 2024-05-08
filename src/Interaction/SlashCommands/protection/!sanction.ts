@@ -45,7 +45,7 @@ export default {
 
             await interaction.editReply({
                 content: data.authorization_sanction_command_work
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
                     .replace('${choose}', choose)
             });
             return;

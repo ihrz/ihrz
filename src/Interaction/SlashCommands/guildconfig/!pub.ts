@@ -111,21 +111,21 @@ export default {
                 });
             };
 
-            await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.antipub`, "on");
+            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.antipub`, "on");
             await interaction.editReply({
                 content: data.automod_block_pub_command_on
-                    .replace('${interaction.user}', interaction.user as unknown as string)
-                    .replace('${logs_channel}', (logs_channel || 'None') as string)
+                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${logs_channel}', (logs_channel?.toString() || 'None'))
             });
 
             return;
         } else if (turn === "off") {
             await KeywordPresetRule?.setEnabled(false);
 
-            await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.antipub`, "off");
+            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.antipub`, "off");
             await interaction.editReply({
                 content: data.automod_block_pub_command_off
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user.toString())
             });
 
             return;

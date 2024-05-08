@@ -125,7 +125,7 @@ export const command: Command = {
                                 name: `Cluster #${key}`,
                                 value: key,
                             })),
-                            required: false
+                            required: true
                         }
                     ],
                 },
@@ -230,7 +230,7 @@ export const command: Command = {
     category: 'ownihrz',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
         let command = interaction.options.getSubcommand();
 
         const commandModule = await import(`./!${command}.js`);

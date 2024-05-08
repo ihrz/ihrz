@@ -51,7 +51,7 @@ export const command: Command = {
     thinking: false,
     type: 'PREFIX_IHORIZON_COMMAND',
     run: async (client: Client, interaction: Message) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
 
         let websitebutton = new ButtonBuilder()
             .setLabel(data.links_website)

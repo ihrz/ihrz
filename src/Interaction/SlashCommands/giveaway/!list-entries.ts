@@ -31,27 +31,27 @@ import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let inputData = interaction.options.getString("giveaway-id");
+        let inputData = interaction.options.getString("giveaway-id") as string;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {
             await interaction.editReply({ content: data.end_not_admin });
             return;
         };
 
-        if (!await client.giveawaysManager.isValid(inputData as string)) {
+        if (!await client.giveawaysManager.isValid(inputData)) {
             await interaction.editReply({
                 content: data.end_not_find_giveaway
-                    .replace(/\${gw}/g, inputData as string)
+                    .replace(/\${gw}/g, inputData)
             });
             return;
         };
 
-        if (await client.giveawaysManager.isEnded(inputData as string)) {
+        if (await client.giveawaysManager.isEnded(inputData)) {
             await interaction.editReply({ content: data.end_command_error });
             return;
         };
 
-        await client.giveawaysManager.listEntries(interaction, inputData as string)
+        await client.giveawaysManager.listEntries(interaction, inputData)
         return;
     },
 };

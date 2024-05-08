@@ -37,7 +37,7 @@ export const event: BotEvent = {
 
         let embed = new EmbedBuilder()
             .setColor("#a27cec")
-            .setAuthor({ name: newMember?.user.username as string, iconURL: newMember?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
+            .setAuthor({ name: newMember?.user.username, iconURL: newMember?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
             .setTimestamp();
 
         if (

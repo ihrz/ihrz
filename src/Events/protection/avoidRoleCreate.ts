@@ -44,7 +44,7 @@ export const event: BotEvent = {
 
             if (!baseData) {
                 role.delete('Protect!');
-                let user = await role.guild.members.cache.get(firstEntry?.executorId as string);
+                let user = role.guild.members.cache.get(firstEntry?.executorId as string);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':

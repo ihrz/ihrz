@@ -38,8 +38,8 @@ export default {
             return;
         };
 
-        let baseData = await client.db.get(`${interaction.guild?.id}.SUGGEST`);
-        let fetchId = await client.db.get(`${interaction.guild?.id}.SUGGESTION.${id}`);
+        let baseData = await client.db.get(`${interaction.guildId}.SUGGEST`);
+        let fetchId = await client.db.get(`${interaction.guildId}.SUGGESTION.${id}`);
 
         if (!baseData
             || baseData?.channel !== interaction.channel?.id
@@ -64,7 +64,7 @@ export default {
 
         await (channel as BaseGuildTextChannel).messages.fetch(fetchId?.msgId).then(async (msg) => {
             msg.delete();
-            await client.db.delete(`${interaction.guild?.id}.SUGGESTION.${id}`);
+            await client.db.delete(`${interaction.guildId}.SUGGESTION.${id}`);
 
             await interaction.deleteReply();
             await interaction.followUp({ content: data.suggest_delete_command_work, ephemeral: true });

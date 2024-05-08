@@ -69,7 +69,7 @@ export default {
         member?.send({
             content: data.kick_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-                .replace(/\${interaction\.member\.user\.username}/g, interaction.user.globalName || interaction.user.username as string)
+                .replace(/\${interaction\.member\.user\.username}/g, interaction.user.globalName || interaction.user.username)
         }).catch(() => { });
 
         try {
@@ -78,7 +78,7 @@ export default {
                 .setColor("#bf0bb9")
                 .setTitle(data.kick_logs_embed_title)
                 .setDescription(data.kick_logs_embed_description
-                    .replace(/\${member\.user}/g, member.user as unknown as string)
+                    .replace(/\${member\.user}/g, member.user.toString())
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                 );
 
@@ -90,8 +90,8 @@ export default {
 
             await interaction.editReply({
                 content: data.kick_command_work
-                    .replace(/\${member\.user}/g, member.user as unknown as string)
-                    .replace(/\${interaction\.user}/g, interaction.user as unknown as string)
+                    .replace(/\${member\.user}/g, member.user.toString())
+                    .replace(/\${interaction\.user}/g, interaction.user.toString())
             });
         } catch (e: any) {
             logger.err(e);

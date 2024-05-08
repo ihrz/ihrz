@@ -37,7 +37,7 @@ export const event: BotEvent = {
         let invite = newInvites.find((i: Invite) => i.uses && i.uses > (oldInvites?.get(i.code) || 0));
 
         if (invite) {
-            let inviter = await client.users.fetch(invite?.inviterId as string);
+            let inviter = await client.users.fetch(invite?.inviterId!);
             client.invites.get(member.guild.id)?.set(invite?.code, invite?.uses);
 
             let check = await client.db.get(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`);

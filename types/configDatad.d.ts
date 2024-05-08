@@ -25,16 +25,9 @@ export interface ConfigData {
         guildLogsChannelID: string;
         reportChannelID: string;
 
-        cluster: {
-            0?: string;
-            1?: string;
-            2?: string;
-            3?: string;
-            4?: string;
-            5?: string;
-        };
+        cluster: string[];
 
-        shutdownClusterWhenStop: boolean
+        shutdownClusterWhenStop: boolean;
     };
 
     command: {

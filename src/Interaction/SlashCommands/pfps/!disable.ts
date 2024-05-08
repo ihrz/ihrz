@@ -40,18 +40,18 @@ export default {
         };
 
         if (action === 'on') {
-            await client.db.set(`${interaction.guild?.id}.PFPS.disable`, false);
+            await client.db.set(`${interaction.guildId}.PFPS.disable`, false);
             await interaction.reply({
                 content: data.pfps_disable_command_action_on
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
             });
 
             return;
         } else if (action === 'off') {
-            await client.db.set(`${interaction.guild?.id}.PFPS.disable`, true);
+            await client.db.set(`${interaction.guildId}.PFPS.disable`, true);
             await interaction.reply({
                 content: data.pfps_disable_command_action_off
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
             });
 
             return;

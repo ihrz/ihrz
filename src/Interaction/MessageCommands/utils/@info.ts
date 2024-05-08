@@ -115,7 +115,7 @@ export const command: Command = {
                 .join('');
         };
 
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
         let member = interaction.mentions.users.toJSON()[1] || interaction.author;
 
         async function sendMessage(user: User) {

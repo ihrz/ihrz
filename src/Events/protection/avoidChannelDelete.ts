@@ -40,8 +40,7 @@ export const event: BotEvent = {
 
             var firstEntry = fetchedLogs.entries.first();
 
-            if (firstEntry?.targetId !== channel.id) return;
-            if (firstEntry.executorId === client.user?.id) return;
+            if (firstEntry?.targetId !== channel.id || firstEntry.executorId === client.user?.id || !firstEntry.executorId) return;
 
             let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
@@ -57,7 +56,7 @@ export const event: BotEvent = {
                     reason: `Channel re-create by Protect (${firstEntry.executorId} break the rule!)`
                 }) as BaseGuildTextChannel).send(`**PROTECT MODE ON**\n<@${channel.guild.ownerId}>, the channel are recreated, <@${firstEntry.executorId}> attempt to delete the channel!`);
 
-                let user = channel.guild.members.cache.get(firstEntry?.executorId as string);
+                let user = channel.guild.members.cache.get(firstEntry.executorId);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':

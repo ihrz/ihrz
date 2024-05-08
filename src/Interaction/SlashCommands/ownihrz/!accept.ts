@@ -39,11 +39,11 @@ import path from 'path';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let cluster = interaction.options.getString("cluster");
-        let id = interaction.options.getString('id');
+        let cluster = parseInt(interaction.options.getString("cluster")!);
+        let id = interaction.options.getString('id')!;
 
-        var table_1 = client.db.table("TEMP");
-        let allData = await table_1.get(`OWNIHRZ`);
+        var table = client.db.table("TEMP");
+        let allData = await table.get(`OWNIHRZ`);
 
         function getData() {
             for (let ownerId in allData) {
@@ -61,9 +61,10 @@ export default {
         };
 
         id_2.AdminKey = config.api?.apiToken!;
-        id_2.Code = id as string;
+        id_2.Code = id;
         id_2.Lavalink = {
             NodeHost: config.lavalink.nodes[0].host,
+            NodePort: config.lavalink.nodes[0].port,
             NodeAuth: config.lavalink.nodes[0].authorization,
         };
 
@@ -80,7 +81,6 @@ export default {
 
         if (bot_1 === 404) {
             await interaction.reply({ content: data.mybot_manage_accept_token_error });
-            await table_1.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
             return;
         } else {
 
@@ -110,23 +110,15 @@ export default {
 
             if (cluster) {
                 try {
-                    axios.post(OwnIhrzCluster(cluster as unknown as number, ClusterMethod.CreateContainer) as string, id_2, { headers: { 'Accept': 'application/json' } })
-                        .then(async (response: AxiosResponse) => {
-                            if (cluster) {
-                                var table_1 = client.db.table('OWNIHRZ');
-
-                                await table_1.set(`CLUSTER.${id_2.OwnerOne}.${id_2.Code}`,
-                                    {
-                                        Path: (path.resolve(process.cwd(), 'ownihrz', id_2.Code)) as string,
-                                        Auth: id_2.Auth,
-                                        port: 0,
-                                        Cluster: cluster,
-                                        ExpireIn: id_2.ExpireIn,
-                                        Bot: id_2.Bot,
-                                        Code: id_2.Code,
-                                    }
-                                );
+                    axios.post(OwnIhrzCluster(cluster, ClusterMethod.CreateContainer),
+                        id_2,
+                        {
+                            headers: {
+                                'Accept': 'application/json'
                             }
+                        })
+                        .then(async () => {
+                            await table.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
                         })
                         .catch(error => {
                             logger.err(error)
@@ -135,28 +127,8 @@ export default {
                     return logger.err(error)
                 };
 
-            } else {
-                return new OwnIHRZ().Create({
-                    Auth: id_2.Auth,
-                    OwnerOne: id_2.OwnerOne,
-                    OwnerTwo: id_2.OwnerTwo,
-                    Bot: {
-                        Id: id_2.Bot.Id,
-                        Name: id_2.Bot.Name,
-                        Public: id_2.Bot.Public
-                    },
-                    ExpireIn: id_2.ExpireIn,
-                    Code: id_2.Code,
-                    AdminKey: '',
-                    Lavalink: {
-                        NodeHost: config.lavalink.nodes[0].host,
-                        NodeAuth: config.lavalink.nodes[0].authorization,
-                    }
-                });
-
             };
 
-            await table_1.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
             return;
         };
     },

@@ -55,7 +55,7 @@ export const command: Command = {
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
         let tableOwner = client.db.table('OWNER');
         let tableBlacklist = client.db.table('BLACKLIST');
 

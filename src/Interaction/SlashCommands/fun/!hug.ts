@@ -23,6 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    User,
 } from 'discord.js';
 
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
@@ -32,7 +33,7 @@ import { axios } from '../../../core/functions/axios.js';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let hug = interaction.options.getUser("user");
+        let hug = interaction.options.getUser("user") as User;
         let url = apiUrlParser.assetsFinder(client.assets, "hug");
 
         axios.get(url)
@@ -40,7 +41,7 @@ export default {
                 let embed = new EmbedBuilder()
                     .setColor("#FFB6C1")
                     .setDescription(data.hug_embed_title
-                        .replace(/\${hug\.id}/g, hug?.id as string)
+                        .replace(/\${hug\.id}/g, hug.id)
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     )
                     .setImage(url)

@@ -38,18 +38,18 @@ export default {
         };
 
         if (action === 'on') {
-            await client.db.set(`${interaction.guild?.id}.SUGGEST.disable`, false);
+            await client.db.set(`${interaction.guildId}.SUGGEST.disable`, false);
             await interaction.reply({
                 content: data.setsuggest_disable_pw_on
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
             });
 
             return;
         } else if (action === 'off') {
-            await client.db.set(`${interaction.guild?.id}.SUGGEST.disable`, true);
+            await client.db.set(`${interaction.guildId}.SUGGEST.disable`, true);
             await interaction.reply({
                 content: data.setsuggest_disable_pw_off
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
             });
 
             return;

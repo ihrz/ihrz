@@ -47,7 +47,7 @@ export const command: Command = {
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let all_specific_message: DatabaseStucture.DB_Guild_Object["REACT_MSG"] = await client.db.get(`${interaction.guildId}.GUILD.REACT_MSG`) || {};
 

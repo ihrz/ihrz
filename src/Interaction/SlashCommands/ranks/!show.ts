@@ -30,7 +30,7 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let user = interaction.options.getUser("user") || interaction.user;
-        let baseData = await client.db.get(`${interaction.guild?.id}.USER.${user.id}.XP_LEVELING`);
+        let baseData = await client.db.get(`${interaction.guildId}.USER.${user.id}.XP_LEVELING`);
         var level = baseData?.level || 0;
         var currentxp = baseData?.xp || 0;
 
@@ -46,14 +46,14 @@ export default {
                 {
                     name: data.level_embed_fields1_name, value: data.level_embed_fields1_value
                         .replace('${currentxp}', currentxp)
-                        .replace('${xpNeeded}', xpNeeded as unknown as string), inline: true
+                        .replace('${xpNeeded}', xpNeeded .toString()), inline: true
                 },
                 {
                     name: data.level_embed_fields2_name, value: data.level_embed_fields2_value
                         .replace('${level}', level), inline: true
                 }
             )
-            .setDescription(data.level_embed_description.replace('${expNeededForLevelUp}', expNeededForLevelUp as unknown as string)
+            .setDescription(data.level_embed_description.replace('${expNeededForLevelUp}', expNeededForLevelUp .toString())
             )
             .setTimestamp()
             .setThumbnail("https://cdn.discordapp.com/attachments/847484098070970388/850684283655946240/discord-icon-new-2021-logo-09772BF096-seeklogo.com.png")

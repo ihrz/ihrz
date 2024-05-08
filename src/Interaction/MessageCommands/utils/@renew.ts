@@ -48,7 +48,7 @@ export const command: Command = {
     category: 'utils',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!interaction.member?.permissions.has([PermissionsBitField.Flags.Administrator])) {
             await interaction.reply({ content: data.renew_not_administrator });
@@ -71,7 +71,7 @@ export const command: Command = {
                 reason: `Channel re-create by ${interaction.author} (${interaction.author.id})`
             });
 
-            here.send({ content: data.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.author as unknown as string) });
+            here.send({ content: data.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.author.toString()) });
             return;
         } catch (error) {
             await interaction.reply({ content: data.renew_dont_have_permission });

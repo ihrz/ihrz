@@ -29,7 +29,7 @@ import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         let voiceChannel = (interaction.member as GuildMember).voice.channel;
-        let player = client.player.getPlayer(interaction.guild?.id as string);
+        let player = client.player.getPlayer(interaction.guildId as string);
 
         if (!player || !player.playing || !voiceChannel) {
             await interaction.editReply({ content: data.shuffle_no_queue });
