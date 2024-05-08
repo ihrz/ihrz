@@ -661,6 +661,7 @@ setlogschannel_already_this_channel: "На этом сервере уже ест
 setlogschannel_already_deleted: "На этом сервере уже нет `SERVER_LOGS`!"
 setlogschannel_command_error: "Ошибка?"
 setlogschannel_command_work: "Вы успешно настроили `${typeOfLogs}` в <#${argsid.id}> !"
+setlogschannel_utils_command_work: "Вы успешно настроили `${typeOfLogs}` в ${argsid.id} !"
 setlogschannel_command_work_on_delete: "Вы успешно удалили все `SERVER_LOGS` в **${interaction.guild.name}**"
 setlogschannel_logs_embed_title: "Настройка ServerLogs"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> установил `${typeOfLogs}` на <#${argsid.id}>"

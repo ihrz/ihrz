@@ -486,6 +486,7 @@ export interface LanguageData {
     setlogschannel_already_deleted: string;
     setlogschannel_command_error: string;
     setlogschannel_command_work: string;
+    setlogschannel_utils_command_work: string;
     setlogschannel_command_work_on_delete: string;
     setlogschannel_logs_embed_title: string;
     setlogschannel_logs_embed_description_on_enable: string;

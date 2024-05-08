@@ -661,6 +661,7 @@ setlogschannel_already_this_channel: "This server has already this channel for l
 setlogschannel_already_deleted: "This server already don't have `SERVER_LOGS` !"
 setlogschannel_command_error: "error?"
 setlogschannel_command_work: "You have successfully setup the `${typeOfLogs}` in <#${argsid.id}> !"
+setlogschannel_utils_command_work: "You have successfully setup the `${typeOfLogs}` in ${argsid.id} !"
 setlogschannel_command_work_on_delete: "You have successfully delete all of `SERVER_LOGS` in **${interaction.guild.name}**"
 setlogschannel_logs_embed_title: "Set ServerLogs"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> set `${typeOfLogs}` to <#${argsid.id}>"

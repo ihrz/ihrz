@@ -661,6 +661,7 @@ setlogschannel_already_this_channel: "¡Este servidor ya tiene este canal para l
 setlogschannel_already_deleted: "¡Este servidor ya no tiene el canal `SERVER_LOGS`!"
 setlogschannel_command_error: "¿Error al ejecutar el comando?"
 setlogschannel_command_work: "¡Has configurado correctamente el `${typeOfLogs}` en <#${argsid.id}> !"
+setlogschannel_utils_command_work: "¡Has configurado correctamente el `${typeOfLogs}` en ${argsid.id} !"
 setlogschannel_command_work_on_delete: "¡Has eliminado correctamente todos los `SERVER_LOGS` en **${interaction.guild.name}**!"
 setlogschannel_logs_embed_title: "Configuración de registros del servidor"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> configuró el `${typeOfLogs}` en <#${argsid.id}>"

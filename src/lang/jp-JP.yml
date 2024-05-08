@@ -661,6 +661,7 @@ setlogschannel_already_this_channel: "このサーバーは既にログのため
 setlogschannel_already_deleted: "このサーバーは既に `SERVER_LOGS` を持っていません！"
 setlogschannel_command_error: "コマンドの実行中にエラーが発生しましたか？"
 setlogschannel_command_work: "<#${argsid.id}> に `${typeOfLogs}` を正常に設定しました！"
+setlogschannel_utils_command_work: "${argsid.id} に `${typeOfLogs}` を正常に設定しました！"
 setlogschannel_command_work_on_delete: "**${interaction.guild.name}** からすべての `SERVER_LOGS` を正常に削除しました！"
 setlogschannel_logs_embed_title: "サーバーログの設定"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> が `${typeOfLogs}` を <#${argsid.id}> に設定しました"
