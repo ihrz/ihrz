@@ -52,20 +52,29 @@ export const event: BotEvent = {
 
                 (lChanManager as BaseGuildTextChannel).send({
                     content: data.event_goodbye_inviter
-                        .replace("${member.id}", member.id)
-                        .replace("${member.guild.name}", member.guild.name)
-                        .replace("${inviter.tag}", inviter.username)
-                        .replace("${fetched}", invitesAmount)
+                        .replaceAll("{memberUsername}", member.user.username)
+                        .replaceAll("{memberMention}", member.user.toString())
+                        .replaceAll('{memberCount}', member.guild?.memberCount.toString()!)
+                        .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                        .replaceAll('{guildName}', member.guild?.name!)
+                        .replaceAll('{inviterUsername}', inviter.username)
+                        .replaceAll('{inviterMention}', inviter.toString())
+                        .replaceAll('{invitesCount}', invitesAmount)
+                        .replaceAll("\\n", '\n')
                 });
                 return;
             };
 
             var joinMessageFormated = joinMessage
-                .replace("{user}", member.user.username)
-                .replace("{guild}", member.guild.name)
-                .replace("{membercount}", member.guild.memberCount)
-                .replace("{inviter}", inviter.username)
-                .replace("{invites}", invitesAmount);
+                .replaceAll("{memberUsername}", member.user.username)
+                .replaceAll("{memberMention}", member.user.toString())
+                .replaceAll('{memberCount}', member.guild?.memberCount.toString()!)
+                .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                .replaceAll('{guildName}', member.guild?.name!)
+                .replaceAll('{inviterUsername}', inviter.username)
+                .replaceAll('{inviterMention}', inviter.toString())
+                .replaceAll('{invitesCount}', invitesAmount)
+                .replaceAll("\\n", '\n');
 
             let lChanManager = member.guild.channels.cache.get(lChan) as BaseGuildTextChannel;
 
@@ -79,8 +88,13 @@ export const event: BotEvent = {
 
             (lChanManager as BaseGuildTextChannel).send({
                 content: data.event_goodbye_default
-                    .replace("${member.id}", member.id)
-                    .replace("${member.guild.name}", member.guild.name)
+                    .replaceAll("{memberUsername}", member.user.username)
+                    .replaceAll("{memberMention}", member.user.toString())
+                    .replaceAll('{memberCount}', member.guild?.memberCount.toString()!)
+                    .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                    .replaceAll('{guildName}', member.guild?.name!)
+                    .replaceAll('{invitesCount}', invitesAmount)
+                    .replaceAll("\\n", '\n')
             }).catch(() => { });
             return;
         }

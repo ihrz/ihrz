@@ -449,6 +449,10 @@ export interface LanguageData {
     setjoinmessage_logs_embed_description_on_disable: string;
     setjoinmessage_command_work_on_disable: string;
     setjoinmessage_command_work_ls: string;
+    setjoinmessage_help_embed_fields_custom_name: string;
+    setjoinmessage_help_embed_fields_custom_name_empy: string;
+    setjoinmessage_help_embed_fields_default_name_empy: string;
+    setjoinmessage_help_embed_desc: string;
     setjoinroles_not_admin: string;
     setjoinroles_help_embed_title: string;
     setjoinroles_help_embed_description: string;
