@@ -179,48 +179,6 @@ export const command: Command = {
                     },
 
                     type: 1,
-                    options: [
-                        {
-                            name: "value",
-
-                            description: "<Power on /Power off/Show the message set>",
-                            description_localizations: {
-                                "fr": "<Allumer / Éteindre / Afficher le messages définis>"
-                            },
-
-                            type: ApplicationCommandOptionType.String,
-                            required: true,
-                            choices: [
-                                {
-                                    name: "Power on",
-                                    value: "on"
-                                },
-                                {
-                                    name: "Power off",
-                                    value: "off"
-                                },
-                                {
-                                    name: "Show the message set",
-                                    value: "ls"
-                                },
-                                {
-                                    name: "Need help",
-                                    value: "needhelp"
-                                }
-                            ]
-                        },
-                        {
-                            name: 'message',
-                            type: ApplicationCommandOptionType.String,
-
-                            description: `Leave this args blank if you want help`,
-                            description_localizations: {
-                                "fr": "Laissez cette option vide pour que le bot vous aide"
-                            },
-
-                            required: false
-                        },
-                    ],
                 },
                 {
                     name: 'join-role',
@@ -283,49 +241,7 @@ export const command: Command = {
                     },
 
                     type: 1,
-                    options: [
-                        {
-                            name: "value",
-
-                            description: "<Power on /Power off/Show the message set>",
-                            description_localizations: {
-                                "fr": "<Power on /Power off/Show the message set>"
-                            },
-
-                            type: ApplicationCommandOptionType.String,
-                            required: true,
-                            choices: [
-                                {
-                                    name: "Power on",
-                                    value: "on"
-                                },
-                                {
-                                    name: "Power off",
-                                    value: "off"
-                                },
-                                {
-                                    name: "Show the message set",
-                                    value: "ls"
-                                },
-                                {
-                                    name: "Need help",
-                                    value: "needhelp"
-                                }
-                            ]
-                        },
-                        {
-                            name: 'message',
-                            
-                            description: `{user} = Username of Member | {membercount} = guild's member count | {guild} = The name of the guild`,
-                            description_localizations: {
-                                "fr": "{user} = Username of Member | {membercount} = guild's member count | {guild} = The name of the guild"
-                            },
-
-                            type: ApplicationCommandOptionType.String,
-                            required: false
-                        },
-                    ],
-                },
+                }
             ],
         },
     ],

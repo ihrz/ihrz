@@ -20,9 +20,13 @@
 */
 
 import {
+    ActionRowBuilder,
     BaseGuildTextChannel,
+    ButtonBuilder,
+    ButtonStyle,
     ChatInputCommandInteraction,
     Client,
+    ComponentType,
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
@@ -38,33 +42,147 @@ export default {
             return;
         };
 
-        let type = interaction.options.getString("value");
-        let messagei = interaction.options.getString("message");
+        let leaveMessage = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.leavemessage`);
 
         let help_embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#016c9a")
+            .setDescription(data.setjoinmessage_help_embed_desc)
             .setTitle(data.setleavemessage_help_embed_title)
-            .setDescription(data.setleavemessage_help_embed_description)
-            .addFields({
-                name: data.setleavemessage_help_embed_fields_name,
-                value: data.setleavemessage_help_embed_fields_value
-            });
+            .setFields(
+                {
+                    name: data.setjoinmessage_help_embed_fields_custom_name,
+                    value: leaveMessage ? `\`\`\`${leaveMessage}\`\`\`\n${leaveMessage
+                        .replaceAll("{memberUsername}", interaction.user.username)
+                        .replaceAll("{memberMention}", interaction.user.toString())
+                        .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
+                        .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
+                        .replaceAll('{guildName}', interaction.guild?.name!)
+                        .replaceAll('{inviterUsername}', interaction.client.user?.username)
+                        .replaceAll('{inviterMention}', interaction.client.user.toString())
+                        .replaceAll('{invitesCount}', '1337')
+                        }` : data.setjoinmessage_help_embed_fields_custom_name_empy
+                },
+                {
+                    name: data.setjoinmessage_help_embed_fields_default_name_empy,
+                    value: `\`\`\`${data.event_goodbye_inviter}\`\`\`\n${data.event_goodbye_inviter
+                        .replace("{memberMention}", interaction.user.toString())
+                        .replace('{createdAt}', interaction.user.createdAt.toDateString())
+                        .replace('{inviterUsername}', interaction.client.user?.username)
+                        .replace('{invitesCount}', '1337')
+                        .replace('{memberCount}', interaction.guild?.memberCount.toString()!)
+                        .replace('{guildName}', interaction.guild?.name!)
+                        }`
+                }
+            );
+        let embedFields = help_embed.data?.fields ?? [];
 
-        if (type == "on") {
-            if (messagei) {
-                let joinmsgreplace = messagei
-                    .replaceAll("{user}", "{user}")
-                    .replaceAll("{guild}", "{guild}")
-                    .replaceAll("{membercount}", "{membercount}")
-                    .replaceAll("\\n", '\n')
+        const buttons = new ActionRowBuilder<ButtonBuilder>()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId("leaveMessage-set-message")
+                    .setLabel('Set message')
+                    .setStyle(ButtonStyle.Primary),
+                new ButtonBuilder()
+                    .setCustomId("leaveMessage-default-message")
+                    .setLabel('Default Message')
+                    .setStyle(ButtonStyle.Danger),
+            );
 
-                await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.leavemessage`, joinmsgreplace);
+        let originalResponse = await interaction.editReply({
+            embeds: [help_embed],
+            components: [buttons]
+        });
+
+        let collector = originalResponse.createMessageComponentCollector({
+            componentType: ComponentType.Button,
+            filter: (u) => u.user.id === interaction.user.id,
+            time: 80_000
+        });
+
+        collector.on('collect', async collectInteraction => {
+            if (collectInteraction.customId === "leaveMessage-set-message") {
+                await collectInteraction.reply({
+                    content: "Wrote the new custom Join Message in the channel.",
+                    ephemeral: true
+                });
+
+                let questionReply = interaction.channel?.createMessageCollector({
+                    filter: (m) => m.author.id === interaction.user.id,
+                    max: 1,
+                    time: 120_000
+                });
+
+                questionReply?.on('collect', async collected => {
+                    let response = collected.content;
+                    let newEmbed = EmbedBuilder.from(help_embed).setFields(
+                        {
+                            name: data.setjoinmessage_help_embed_fields_custom_name,
+                            value: response ? `\`\`\`${response}\`\`\`\n${response
+                                .replaceAll("{memberUsername}", interaction.user.username)
+                                .replaceAll("{memberMention}", interaction.user.toString())
+                                .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
+                                .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
+                                .replaceAll('{guildName}', interaction.guild?.name!)
+                                .replaceAll('{inviterUsername}', interaction.client.user?.username)
+                                .replaceAll('{inviterMention}', interaction.client.user.toString())
+                                .replaceAll('{invitesCount}', '1337')
+                                .replaceAll("\\n", '\n')
+                                }` : data.setjoinmessage_help_embed_fields_custom_name_empy
+                        },
+                    );
+
+                    await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.leavemessage`, response);
+
+                    collected.delete();
+                    newEmbed.addFields(embedFields[1]);
+                    originalResponse.edit({ embeds: [newEmbed] });
+                    questionReply.stop();
+
+                    await interaction.editReply({
+                        content: data.setleavemessage_command_work_on_enable
+                            .replace(
+                                "${client.iHorizon_Emojis.icon.Green_Tick_Logo}",
+                                client.iHorizon_Emojis.icon.Green_Tick_Logo
+                            )
+                    });
+
+                    try {
+                        let logEmbed = new EmbedBuilder()
+                            .setColor("#bf0bb9")
+                            .setTitle(data.setleavemessage_logs_embed_title_on_enable)
+                            .setDescription(data.setleavemessage_logs_embed_description_on_enable
+                                .replace("${interaction.user.id}", interaction.user.id)
+                            );
+
+                        let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
+                        if (logchannel) {
+                            (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
+                        };
+                    } catch (e: any) {
+                        logger.err(e);
+                    };
+
+                });
+            } else if (collectInteraction.customId === "leaveMessage-default-message") {
+                let newEmbed = EmbedBuilder.from(help_embed).setFields(
+                    {
+                        name: data.setjoinmessage_help_embed_fields_custom_name,
+                        value: data.setjoinmessage_help_embed_fields_custom_name_empy
+                    },
+                );
+
+                collectInteraction.deferUpdate();
+                newEmbed.addFields(embedFields[1]);
+                originalResponse.edit({ embeds: [newEmbed] });
+
+                await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.leavemessage`);
 
                 try {
                     let logEmbed = new EmbedBuilder()
-                        .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                        .setTitle(data.setleavemessage_logs_embed_title_on_enable)
-                        .setDescription(data.setleavemessage_logs_embed_description_on_enable
+                        .setColor("#bf0bb9")
+                        .setTitle(data.setleavemessage_logs_embed_title_on_disable)
+                        .setDescription(data.setleavemessage_logs_embed_description_on_disable
                             .replace("${interaction.user.id}", interaction.user.id)
                         );
 
@@ -74,59 +192,13 @@ export default {
                         (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
                     };
                 } catch (e: any) {
-                    logger.err(e);
+                    logger.err(e)
                 };
 
                 await interaction.editReply({
-                    content: data.setleavemessage_command_work_on_enable.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+                    content: data.setleavemessage_command_work_on_disable.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
                 });
-                return;
             }
-
-        } else if (type == "off") {
-            await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.leavemessage`);
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                    .setTitle(data.setleavemessage_logs_embed_title_on_disable)
-                    .setDescription(data.setleavemessage_logs_embed_description_on_disable
-                        .replace("${interaction.user.id}", interaction.user.id)
-                    );
-
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-                if (logchannel) {
-                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
-                };
-            } catch (e: any) {
-                logger.err(e)
-            };
-
-            await interaction.editReply({
-                content: data.setleavemessage_command_work_on_disable.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
-            });
-            return;
-        } else if (type == "ls") {
-            var ls = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.leavemessage`);
-
-            let embed = new EmbedBuilder()
-                .setAuthor({ name: interaction.user.globalName || interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
-                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#1481c1')
-                .setDescription(ls || 'None')
-                .setTimestamp()
-                .setTitle(data.setleavemessage_command_work_ls)
-                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
-                .setThumbnail(interaction.guild?.iconURL() as string);
-
-            await interaction.editReply({
-                embeds: [embed],
-                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
-            });
-
-            return;
-        } else if (!messagei) {
-            await interaction.editReply({ embeds: [help_embed] });
-            return;
-        };
+        })
     },
 };
