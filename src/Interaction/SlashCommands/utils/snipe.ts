@@ -40,9 +40,9 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
 
-        var based = await client.db.get(`${interaction.guild?.id}.GUILD.SNIPE.${interaction.channel?.id}`);
+        var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel?.id}`);
 
         if (!based) {
             await interaction.reply({ content: data.snipe_no_previous_message_deleted });

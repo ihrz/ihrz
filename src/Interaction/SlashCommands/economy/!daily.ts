@@ -32,7 +32,7 @@ export default {
 
         let timeout = 86400000;
         let amount = 500;
-        let daily = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.daily`);
+        let daily = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.daily`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
@@ -56,8 +56,8 @@ export default {
                 .addFields({ name: data.daily_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` })
 
             await interaction.reply({ embeds: [embed] });
-            await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
-            await client.db.set(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.daily`, Date.now());
+            await client.db.add(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, amount);
+            await client.db.set(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.daily`, Date.now());
             return;
         };
     },

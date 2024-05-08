@@ -52,7 +52,7 @@ export const command: Command = {
     category: 'backup',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let backupID = args[0];
 
@@ -83,10 +83,10 @@ export const command: Command = {
         });
 
         backup.fetch(backupID).then(async () => {
-            backup.load(backupID as string | BackupData, interaction.guild as Guild).then(() => {
-                backup.remove(backupID as string);
+            backup.load(backupID, interaction.guild as Guild).then(() => {
+                backup.remove(backupID);
             }).catch((err) => {
-                interaction.channel?.send({ content: data.backup_error_on_load.replace("${backupID}", backupID as string) });
+                interaction.channel?.send({ content: data.backup_error_on_load.replace("${backupID}", backupID) });
                 return;
             });
         }).catch((err) => {

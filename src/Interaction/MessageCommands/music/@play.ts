@@ -61,7 +61,7 @@ export const command: Command = {
     category: 'music',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let voiceChannel = (interaction.member as GuildMember)?.voice.channel;
         let check = args.join(" ");
@@ -76,12 +76,12 @@ export const command: Command = {
         };
 
         let player = client.player.createPlayer({
-            guildId: interaction.guildId as string,
+            guildId: interaction.guildId!,
             voiceChannelId: voiceChannel.id,
             textChannelId: interaction.channelId,
         });
 
-        let res = await player.search({ query: check as string }, interaction.author)
+        let res = await player.search({ query: check.toString() }, interaction.author)
 
         if (res.tracks.length === 0) {
             let results = new EmbedBuilder()
@@ -131,7 +131,7 @@ export const command: Command = {
 
 
         await client.db.push(`${player.guildId}.MUSIC_HISTORY.buffer`,
-            `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}: PLAYED]: { ${res.tracks[0]?.requester} - ${res.tracks[0].info.title as string} | ${res.tracks[0].info.uri} } by ${res.tracks[0]?.requester}`);
+            `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}: PLAYED]: { ${res.tracks[0]?.requester} - ${res.tracks[0].info.title} | ${res.tracks[0].info.uri} } by ${res.tracks[0]?.requester}`);
         await client.db.push(`${player.guildId}.MUSIC_HISTORY.embed`,
             `${time(new Date(), 'R')}: ${res.tracks[0]?.requester} - ${res.tracks[0].info.title} | ${res.tracks[0].info.uri} by ${res.tracks[0]?.requester}`
         );
@@ -144,7 +144,7 @@ export const command: Command = {
                     .setColor(2829617)
                     .setDescription(data.event_mp_audioTrackAdd
                         .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-                        .replace("${track.title}", res.tracks[0].info.title as string)
+                        .replace("${track.title}", res.tracks[0].info.title)
                     )
             ]
         });

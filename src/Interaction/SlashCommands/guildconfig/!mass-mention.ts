@@ -94,12 +94,12 @@ export default {
                     });
                 };
 
-                await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.mass_mention`, "on");
+                await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.mass_mention`, "on");
                 await interaction.editReply({
                     content: data.automod_block_massmention_command_on
-                        .replace('${interaction.user}', interaction.user as unknown as string)
-                        .replace('${logs_channel}', (logs_channel || 'None') as string)
-                        .replace('${max_mention}', max_mention as unknown as string)
+                        .replace('${interaction.user}', interaction.user .toString())
+                        .replace('${logs_channel}', (logs_channel?.toString() || 'None'))
+                        .replace('${max_mention}', max_mention .toString())
                 });
                 return;
             } catch {
@@ -109,10 +109,10 @@ export default {
 
             await mentionSpamRule?.setEnabled(false);
 
-            await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.mass_mention`, "off");
+            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.mass_mention`, "off");
             await interaction.editReply({
                 content: data.automod_block_massmention_command_off
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
             });
             return;
         };

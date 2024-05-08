@@ -44,7 +44,7 @@ export default async (client: Client) => {
             }
         },
         client: {
-            id: process.env.CLIENT_ID || client.user?.id as string,
+            id: process.env.CLIENT_ID || client.user?.id!,
             username: "iHorizon"
         },
     });
@@ -52,7 +52,7 @@ export default async (client: Client) => {
     client.player.on("trackStart", async (player, track) => {
         let data = await client.functions.getLanguageData(player.guildId);
 
-        const channel = client.channels.cache.get(player.textChannelId as string);
+        const channel = client.channels.cache.get(player.textChannelId!);
 
         (channel as BaseGuildTextChannel).send({
             embeds: [
@@ -71,7 +71,8 @@ export default async (client: Client) => {
     client.player.on("queueEnd", async player => {
         let data = await client.functions.getLanguageData(player.guildId);
 
-        const channel = client.channels.cache.get(player.textChannelId as string);
+        const channel = client.channels.cache.get(player.textChannelId!);
+        
         (channel as BaseGuildTextChannel).send({
             content: data.event_mp_emptyQueue.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
         });

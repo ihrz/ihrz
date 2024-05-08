@@ -43,14 +43,14 @@ export default {
             return;
         };
 
-        var current_join_channel = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.join`);
+        var current_join_channel = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`);
         if (current_join_channel) {
             current_join_channel = `<#${current_join_channel}>`
         } else {
             current_join_channel = client.iHorizon_Emojis.icon.No_Logo
         };
 
-        var current_leave_channel = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.leave`);
+        var current_leave_channel = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`);
         if (current_leave_channel) {
             current_leave_channel = `<#${current_leave_channel}>`
         } else {
@@ -138,7 +138,7 @@ export default {
                         };
 
                         try {
-                            let already = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.join`);
+                            let already = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`);
 
                             if (already === channelId) {
                                 await msg.reply({ content: data.setchannels_already_this_channel_on_join });
@@ -146,7 +146,7 @@ export default {
                             };
 
                             (interaction.client.channels.cache.get(channelId as string) as BaseGuildTextChannel).send({ content: data.setchannels_confirmation_message_on_join });
-                            await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.join`, channelId);
+                            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`, channelId);
 
                             i2.delete();
                             await msg.reply({
@@ -208,7 +208,7 @@ export default {
                     };
 
                     try {
-                        let already = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.leave`);
+                        let already = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`);
 
                         if (already === channelId as string) {
                             await msg.reply({ content: data.setchannels_already_this_channel_on_leave });
@@ -216,7 +216,7 @@ export default {
                         };
 
                         (interaction.client.channels.cache.get(channelId as string) as BaseGuildTextChannel).send({ content: data.setchannels_confirmation_message_on_leave });
-                        await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.leave`, channelId as string);
+                        await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`, channelId as string);
 
                         i2.delete();
                         await msg.reply({
@@ -256,14 +256,14 @@ export default {
                     logger.err(e)
                 };
 
-                let leavec = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.join`);
-                let joinc = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.leave`);
+                let leavec = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`);
+                let joinc = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`);
 
                 if (!joinc && !leavec) {
                     await i.reply({ content: data.setchannels_already_on_off });
                 } else {
-                    await client.db.delete(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.join`);
-                    await client.db.delete(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.leave`);
+                    await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`);
+                    await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`);
                     await i.reply({ content: data.setchannels_command_work_on_off });
 
                     current_join_channel = client.iHorizon_Emojis.icon.No_Logo

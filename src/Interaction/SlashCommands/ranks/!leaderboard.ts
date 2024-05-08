@@ -30,7 +30,7 @@ import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let char = await client.db.get(`${interaction.guild?.id}.USER`);
+        let char = await client.db.get(`${interaction.guildId}.USER`);
         let tableau = [];
 
         for (let i in char) {

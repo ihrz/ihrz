@@ -55,47 +55,48 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
     if (!guild || !channel) return;
 
     // Verify the cache has been initialized
-    if (guild?.members.cache.random()?.user.id === client.user?.id) {
-        await guild?.members.fetch();
+    if (guild.members.cache.random()?.user.id === client.user?.id) {
+        await guild.members.fetch();
     };
 
-    let user = guild?.members.cache.filter(user => !user.user.bot).random();
+    let user = guild.members.cache.filter(user => !user.user.bot).random();
 
+    if (!user) return;
     // Prevent the same before and after
-    if (user?.id === usr) {
-        usr = (user?.id as string);
-        user = guild?.members.cache.filter(user => user?.id !== usr).random();
-    } else usr = (user?.id as string);
-
+    if (user.id === usr) {
+        usr = (user.id);
+        user = guild.members.cache.filter(user => user.id !== usr).random()!;
+    } else usr = (user.id);
+    
     let actRow: ActionRowBuilder<ButtonBuilder> = new ActionRowBuilder();
     let ebds = [];
 
-    if (user?.avatarURL() !== null) {
+    if (user.avatarURL() !== null) {
 
         actRow.addComponents(new ButtonBuilder()
             .setStyle(ButtonStyle.Link)
-            .setURL(user?.displayAvatarURL({ extension: 'png' }) as string)
+            .setURL(user.displayAvatarURL({ extension: 'png' }).toString())
             .setLabel('Download Guild Avatar')
         );
 
         ebds.push(new EmbedBuilder()
             .setColor('#a2add0')
             .setTitle(`${user?.user.username || user?.user.globalName}'s **Guild** avatar`)
-            .setImage(user?.displayAvatarURL({ extension: 'png', forceStatic: false }) as string)
+            .setImage(user.displayAvatarURL({ extension: 'png', forceStatic: false }))
         );
 
     };
 
     actRow.addComponents(new ButtonBuilder()
         .setStyle(ButtonStyle.Link)
-        .setURL(user?.user.displayAvatarURL({ extension: 'png' }) as string)
+        .setURL(user.user.displayAvatarURL({ extension: 'png' }))
         .setLabel('Download User Avatar')
     );
 
     ebds.push(new EmbedBuilder()
         .setColor('#a2add0')
         .setTitle(`${user?.user.username || user?.user.globalName}'s **User** avatar`)
-        .setImage(user?.user.displayAvatarURL({ extension: 'png', forceStatic: false }) as string)
+        .setImage(user.user.displayAvatarURL({ extension: 'png', forceStatic: false }))
         .setTimestamp()
         .setFooter({ text: client.user?.username! })
     );

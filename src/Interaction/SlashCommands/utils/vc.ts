@@ -44,7 +44,7 @@ export const command: Command = {
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: CommandInteraction) => {
 
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
         let voiceStates = interaction.guild?.voiceStates.cache;
         let membersStates = interaction.guild?.members.cache;
 

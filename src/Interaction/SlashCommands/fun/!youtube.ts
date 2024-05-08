@@ -50,13 +50,13 @@ export default {
             return;
         };
 
-        let username = user?.globalName;
+        let username = user?.globalName!;
 
         if (username && username.length > 15) {
             username = username.substring(0, 15);
         };
 
-        let link = `https://some-random-api.com/canvas/misc/youtube-comment?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 }) as string))}&username=${encodeURIComponent((username as string))}&comment=${encodeURIComponent(args.join(' '))}`;
+        let link = `https://some-random-api.com/canvas/misc/youtube-comment?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 })))}&username=${encodeURIComponent((username))}&comment=${encodeURIComponent(args.join(' '))}`;
 
         let embed = new EmbedBuilder()
             .setColor('#000000')

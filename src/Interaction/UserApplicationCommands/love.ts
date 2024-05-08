@@ -26,13 +26,14 @@ import Jimp from 'jimp';
 
 import config from '../../files/config.js';
 import logger from '../../core/logger.js';
+import { LanguageData } from '../../../types/languageData';
 
 export const command: AnotherCommand = {
     name: "Estimate the love",
     type: ApplicationCommandType.User,
     thinking: false,
     run: async (client: Client, interaction: UserContextMenuCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         var user1 = interaction.user;
         var user2 = interaction.targetUser;
 
@@ -42,8 +43,8 @@ export const command: AnotherCommand = {
 
         try {
             let [profileImage1, profileImage2, heartEmoji] = await Promise.all([
-                Jimp.read(user1?.displayAvatarURL({ extension: 'png', size: 512 }) as string),
-                Jimp.read(user2?.displayAvatarURL({ extension: 'png', size: 512 }) as string),
+                Jimp.read(user1.displayAvatarURL({ extension: 'png', size: 512 })),
+                Jimp.read(user2.displayAvatarURL({ extension: 'png', size: 512 })),
                 Jimp.read(`${process.cwd()}/src/assets/heart.png`)
             ]);
 
@@ -83,8 +84,8 @@ export const command: AnotherCommand = {
                 .setTitle("💕")
                 .setImage(`attachment://love.png`)
                 .setDescription(data.love_embed_description
-                    .replace('${user1.username}', user1.username)
-                    .replace('${user2.username}', user2?.username)
+                    .replace('${user1.username}', user1.globalName!)
+                    .replace('${user2.username}', user2?.globalName!)
                     .replace('${randomNumber}', randomNumber.toString())
                 )
                 .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })

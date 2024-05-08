@@ -177,12 +177,12 @@ export const command: AnotherCommand = {
             `${time(new Date(), 'R')}: ${res.tracks[0]?.requester} - ${res.tracks[0].info.title} | ${res.tracks[0].info.uri} by ${res.tracks[0]?.requester}`
         );
 
-        let channel = client.channels.cache.get(player.textChannelId as string);
+        let channel = client.channels.cache.get(player.textChannelId!);
 
         (channel as BaseGuildTextChannel)?.send({
             content: data.event_mp_audioTrackAdd
                 .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-                .replace("${track.title}", res.tracks[0].info.title as string)
+                .replace("${track.title}", res.tracks[0].info.title)
         });
         setTimeout(deleteContent, 4000)
     },

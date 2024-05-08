@@ -30,7 +30,7 @@ import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let player = client.player.getPlayer(interaction.guild?.id as string);
+        let player = client.player.getPlayer(interaction.guildId as string);
 
         if (!player) {
             await interaction.editReply({ content: data.queue_iam_not_voicec });
@@ -61,8 +61,8 @@ export default {
                 .setDescription(chunk.join('\n') || data.queue_embed_description_empty)
                 .setFooter({
                     text: data.queue_embed_footer_text
-                        .replace("{index}", index + 1 as unknown as string)
-                        .replace("{track}", player.queue.tracks.length as unknown as string)
+                        .replace("{index}", index + 1 .toString())
+                        .replace("{track}", player.queue.tracks.length .toString())
                 });
 
             embeds.push(embed);

@@ -39,8 +39,8 @@ export default {
             return;
         };
 
-        let baseData = await client.db.get(`${interaction.guild?.id}.SUGGEST`);
-        let fetchId = await client.db.get(`${interaction.guild?.id}.SUGGESTION.${id}`);
+        let baseData = await client.db.get(`${interaction.guildId}.SUGGEST`);
+        let fetchId = await client.db.get(`${interaction.guildId}.SUGGESTION.${id}`);
 
         if (!baseData
             || baseData?.channel !== interaction.channel?.id
@@ -83,12 +83,12 @@ export default {
                 .replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title as string));
 
             await msg.edit({ embeds: [embed] });
-            await client.db.set(`${interaction.guild?.id}.SUGGESTION.${id}.replied`, true);
+            await client.db.set(`${interaction.guildId}.SUGGESTION.${id}.replied`, true);
 
             await interaction.deleteReply();
             await interaction.followUp({
                 content: data.suggest_accept_command_work
-                    .replace('${interaction.guild.id}', interaction.guild?.id as string)
+                    .replace('${interaction.guild.id}', interaction.guildId as string)
                     .replace('${interaction.channel.id}', interaction.channel?.id as string)
                     .replace('${fetchId?.msgId}', fetchId?.msgId),
                 ephemeral: true

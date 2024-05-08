@@ -51,12 +51,12 @@ export default {
             return;
         };
 
-        let giveawayChannel = interaction.channel;
+        let giveawayChannel = interaction.channel!;
         var giveawayDuration = interaction.options.getString("time");
-        let giveawayNumberWinners = interaction.options.getNumber("winner");
+        let giveawayNumberWinners = interaction.options.getNumber("winner")!;
         var imageUrl = interaction.options.getString('image') as string;
 
-        if (isNaN(giveawayNumberWinners as number) || (parseInt(giveawayNumberWinners as unknown as string) <= 0)) {
+        if (isNaN(giveawayNumberWinners as number) || (parseInt(giveawayNumberWinners?.toString()) <= 0)) {
             await interaction.editReply({ content: data.start_is_not_valid });
             return;
         };
@@ -67,7 +67,7 @@ export default {
         if (giveawayDurationFormated === 0) {
             await interaction.editReply({
                 content: data.start_time_not_valid
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user .toString())
             });
             return;
         };
@@ -86,7 +86,7 @@ export default {
                 .setTitle(data.reroll_logs_embed_title)
                 .setDescription(data.start_logs_embed_description
                     .replace('${interaction.user.id}', interaction.user.id)
-                    .replace(/\${giveawayChannel}/g, giveawayChannel as unknown as string)
+                    .replace(/\${giveawayChannel}/g, giveawayChannel?.toString()!)
                 );
 
             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
@@ -99,7 +99,7 @@ export default {
 
         await interaction.editReply({
             content: data.start_confirmation_command
-                .replace(/\${giveawayChannel}/g, giveawayChannel as unknown as string)
+                .replace(/\${giveawayChannel}/g, giveawayChannel.toString())
         });
 
         return;

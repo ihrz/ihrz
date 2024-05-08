@@ -56,7 +56,7 @@ export default {
         let btn = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(stop, pause, lyricsButton);
 
-        let player = client.player.getPlayer(interaction.guild?.id as string);
+        let player = client.player.getPlayer(interaction.guildId as string);
         let voiceChannel = (interaction.member as GuildMember).voice.channel;
 
         if (!player || !player.playing || !voiceChannel) {

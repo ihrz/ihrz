@@ -25,6 +25,7 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
+    User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
@@ -44,16 +45,16 @@ export default {
             return;
         };
 
-        let amount = interaction.options.get("amount");
-        let user = interaction.options.getUser("member");
+        let amount = interaction.options.getNumber("amount") as number;
+        let user = interaction.options.getUser("member") as User;
 
         await interaction.reply({
             content: data.addmoney_command_work
-                .replace("${user.user.id}", user?.id as string)
-                .replace("${amount.value}", amount?.value as string)
+                .replace("${user.user.id}", user.id)
+                .replace("${amount.value}", amount.toString())
         });
 
-        await client.db.add(`${interaction.guild?.id}.USER.${user?.id}.ECONOMY.money`, amount?.value as number);
+        await client.db.add(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`, amount);
 
         try {
             let logEmbed = new EmbedBuilder()
@@ -61,8 +62,8 @@ export default {
                 .setTitle(data.addmoney_logs_embed_title)
                 .setDescription(data.addmoney_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace(/\${amount\.value}/g, amount?.value as string)
-                    .replace(/\${user\.user\.id}/g, user?.id as string)
+                    .replace(/\${amount\.value}/g, amount.toString())
+                    .replace(/\${user\.user\.id}/g, user.id)
                 );
 
             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');

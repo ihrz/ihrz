@@ -55,7 +55,7 @@ export default {
                 logger.err(e)
             };
 
-            await client.db.set(`${interaction.guild?.id}.GUILD.TICKET.disable`, true);
+            await client.db.set(`${interaction.guildId}.GUILD.TICKET.disable`, true);
             await interaction.editReply({ content: data.disableticket_command_work_disable });
             return;
         } else if (type === "on") {
@@ -73,7 +73,7 @@ export default {
                 logger.err(e)
             };
 
-            await client.db.set(`${interaction.guild?.id}.GUILD.TICKET.disable`, false);
+            await client.db.set(`${interaction.guildId}.GUILD.TICKET.disable`, false);
             await interaction.editReply({ content: data.disableticket_command_work_enable });
             return;
         };

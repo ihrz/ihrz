@@ -31,7 +31,7 @@ import { Command } from '../../../../types/command';
 import config from '../../../files/config.js';
 import os from 'node:os';
 
-function niceBytes(a: Number) { let b = 0, c = parseInt((a as unknown as string), 10) || 0; for (; 1024 <= c && ++b;)c /= 1024; return c.toFixed(10 > c && 0 < b ? 1 : 0) + " " + ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][b] }
+function niceBytes(a: Number) { let b = 0, c = parseInt((a .toString()), 10) || 0; for (; 1024 <= c && ++b;)c /= 1024; return c.toFixed(10 > c && 0 < b ? 1 : 0) + " " + ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][b] }
 
 export const command: Command = {
     name: 'status',
@@ -45,7 +45,7 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
 
         if (interaction.user.id !== config.owner.ownerid1 && config.owner.ownerid2) {
             await interaction.reply({ content: data.status_be_bot_dev });

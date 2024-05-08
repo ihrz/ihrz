@@ -88,7 +88,7 @@ export const command: Command = {
     category: 'newfeatures',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.support_not_admin });
@@ -104,7 +104,7 @@ export const command: Command = {
             return;
         }
         if (action == "true") {
-            await client.db.set(`${interaction.guild?.id}.GUILD.SUPPORT`,
+            await client.db.set(`${interaction.guildId}.GUILD.SUPPORT`,
                 {
                     input: input,
                     rolesId: roles.id,
@@ -131,7 +131,7 @@ export const command: Command = {
                 if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
         } else {
-            await client.db.delete(`${interaction.guild?.id}.GUILD.SUPPORT`);
+            await client.db.delete(`${interaction.guildId}.GUILD.SUPPORT`);
 
             await interaction.reply({
                 content: data.support_command_work_on_disable

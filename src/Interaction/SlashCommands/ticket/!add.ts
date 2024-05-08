@@ -31,7 +31,7 @@ import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let blockQ = await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`);
+        let blockQ = await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`);
 
         if (blockQ) {
             await interaction.editReply({ content: data.add_disabled_command });

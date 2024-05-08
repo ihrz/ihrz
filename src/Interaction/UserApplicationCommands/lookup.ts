@@ -97,7 +97,7 @@ export const command: AnotherCommand = {
                 .join('');
         };
 
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
         let member = interaction.options.getUser('user') || interaction.user;
 
         async function sendMessage(user: User) {

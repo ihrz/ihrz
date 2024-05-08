@@ -45,7 +45,7 @@ export default {
 
             await interaction.editReply({
                 content: data.authorization_actions_rule_set
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user.toString())
                     .replace('${rule.toUpperCase()}', rule?.toUpperCase() as unknown as string)
                     .replace('${allow}', allow)
             });
@@ -55,7 +55,7 @@ export default {
 
             await interaction.editReply({
                 content: data.authorization_actions_rule_clear
-                    .replace('${interaction.user}', interaction.user as unknown as string)
+                    .replace('${interaction.user}', interaction.user.toString())
                     .replace('${interaction.guild.name}', interaction.guild.name)
             });
             return;

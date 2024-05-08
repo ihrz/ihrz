@@ -108,14 +108,14 @@ export const command: Command = {
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
 
         var action = (interaction.options as CommandInteractionOptionResolver).getString("action");
         var settings = (interaction.options as CommandInteractionOptionResolver).getString("settings") || "None";
         var timeout = (interaction.options as CommandInteractionOptionResolver).getString("timeout") || "None";
 
         if (action === 'on') {
-            let state = await client.db.get(`${interaction.guild?.id}.GUILD_CONFIG.rolesaver.enable`);
+            let state = await client.db.get(`${interaction.guildId}.GUILD_CONFIG.rolesaver.enable`);
 
             let embed = new EmbedBuilder()
                 .setColor("#3725a4")
@@ -129,13 +129,13 @@ export const command: Command = {
                 .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
 
             await interaction.reply({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
-            await client.db.set(`${interaction.guild?.id}.GUILD_CONFIG.rolesaver.enable`, true);
-            await client.db.set(`${interaction.guild?.id}.GUILD_CONFIG.rolesaver.timeout`, timeout);
-            await client.db.set(`${interaction.guild?.id}.GUILD_CONFIG.rolesaver.admin`, settings);
+            await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.enable`, true);
+            await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.timeout`, timeout);
+            await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.admin`, settings);
 
             return;
         } else if (action === 'off') {
-            let state = await client.db.get(`${interaction.guild?.id}.GUILD_CONFIG.rolesaver.enable`);
+            let state = await client.db.get(`${interaction.guildId}.GUILD_CONFIG.rolesaver.enable`);
 
             if (!state) {
                 await interaction.reply({ content: "The module is already disable!" });
@@ -154,7 +154,7 @@ export const command: Command = {
                 embeds: [embed],
                 files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
             });
-            await client.db.delete(`${interaction.guild?.id}.GUILD_CONFIG.rolesaver`);
+            await client.db.delete(`${interaction.guildId}.GUILD_CONFIG.rolesaver`);
             return;
         }
     },

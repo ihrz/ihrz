@@ -48,9 +48,9 @@ export const command: Command = {
     category: 'utils',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
-        var based = await client.db.get(`${interaction.guild?.id}.GUILD.SNIPE.${interaction.channel?.id}`);
+        var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel?.id}`);
 
         if (!based) {
             await interaction.reply({ content: data.snipe_no_previous_message_deleted });

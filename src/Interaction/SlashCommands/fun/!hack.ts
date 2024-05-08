@@ -23,12 +23,13 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        let victim = interaction.options.getUser("user");
+        let victim = interaction.options.getUser("user") as User;
 
         var ip = [
             '1', '100', '168', '254', '345', '128', '256', '255', '0', '144',
@@ -71,7 +72,7 @@ export default {
         let embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#800000")
             .setDescription(data.hack_embed_description
-                .replace(/\${victim\.id}/g, victim?.id as string)
+                .replace(/\${victim\.id}/g, victim.id)
                 .replace(/\${interaction\.user\.id}/g, interaction.user.id)
             )
             .addFields({ name: data.hack_embed_fields_ip, value: `\`${generatedIp}\`` },

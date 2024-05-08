@@ -80,7 +80,7 @@ export default {
                 .setTitle(data.economy_disable_logs_embed_title)
                 .setDescription(data.economy_disable_logs_embed_desc
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace('${state}', state as string)
+                    .replace('${state}', state)
                 );
 
             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');

@@ -661,6 +661,7 @@ setlogschannel_already_this_channel: "Dieser Server hat bereits diesen Kanal fü
 setlogschannel_already_deleted: "Dieser Server hat bereits keinen `SERVER_LOGS` mehr!"
 setlogschannel_command_error: "Fehler bei der Ausführung des Befehls?"
 setlogschannel_command_work: "Du hast erfolgreich `${typeOfLogs}` in <#${argsid.id}> eingerichtet!"
+setlogschannel_utils_command_work: "Du hast erfolgreich `${typeOfLogs}` in ${argsid.id} eingerichtet!"
 setlogschannel_command_work_on_delete: "Du hast erfolgreich alle `SERVER_LOGS` in **${interaction.guild.name}** gelöscht!"
 setlogschannel_logs_embed_title: "Setze ServerLogs"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> hat `${typeOfLogs}` zu <#${argsid.id}> gesetzt"

@@ -98,7 +98,7 @@ export const command: Command = {
     category: 'bot',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
         let type = interaction.options.getString("language");
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
@@ -106,15 +106,15 @@ export const command: Command = {
             return;
         };
 
-        let already = await client.db.get(`${interaction.guild?.id}.GUILD.LANG`);
+        let already = await client.db.get(`${interaction.guildId}.GUILD.LANG`);
 
         if (already?.lang === type) {
             await interaction.reply({ content: data.setserverlang_already });
             return;
         }
 
-        await client.db.set(`${interaction.guild?.id}.GUILD.LANG`, { lang: type });
-        data = await client.functions.getLanguageData(interaction.guild?.id);
+        await client.db.set(`${interaction.guildId}.GUILD.LANG`, { lang: type });
+        data = await client.functions.getLanguageData(interaction.guildId);
 
         try {
             let logEmbed = new EmbedBuilder()

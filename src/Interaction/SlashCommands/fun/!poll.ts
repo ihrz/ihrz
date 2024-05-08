@@ -38,7 +38,7 @@ export default {
 
         let pollEmbed = new EmbedBuilder()
             .setTitle(data.poll_embed_title
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username as string)
+                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username)
             )
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#ddd98b")
             .setDescription(pollMessage)

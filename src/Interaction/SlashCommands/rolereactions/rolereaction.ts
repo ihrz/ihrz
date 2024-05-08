@@ -100,7 +100,7 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.reactionroles_dont_admin_added });
@@ -137,7 +137,7 @@ export const command: Command = {
                 return;
             };
 
-            await client.db.set(`${interaction.guild?.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`,
+            await client.db.set(`${interaction.guildId}.GUILD.REACTION_ROLES.${messagei}.${reaction}`,
                 {
                     rolesID: role?.id, reactionNAME: reaction, enable: true
                 }
@@ -178,7 +178,7 @@ export const command: Command = {
                 return;
             });
 
-            let fetched = await client.db.get(`${interaction.guild?.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`);
+            let fetched = await client.db.get(`${interaction.guildId}.GUILD.REACTION_ROLES.${messagei}.${reaction}`);
 
             if (!fetched) {
                 await interaction.reply({ content: data.reactionroles_missing_reaction_remove });
@@ -193,7 +193,7 @@ export const command: Command = {
             };
             await reactionVar.users.remove(client.user?.id).catch((err: string) => { logger.err(err) });
 
-            await client.db.delete(`${interaction.guild?.id}.GUILD.REACTION_ROLES.${messagei}.${reaction}`);
+            await client.db.delete(`${interaction.guildId}.GUILD.REACTION_ROLES.${messagei}.${reaction}`);
 
             try {
                 let logEmbed = new EmbedBuilder()

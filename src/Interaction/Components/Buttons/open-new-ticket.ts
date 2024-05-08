@@ -25,7 +25,7 @@ import { ButtonInteraction, CacheType } from 'discord.js';
 export default async function (interaction: ButtonInteraction<CacheType>) {
 
     if (!await interaction.client.db.get(
-        `${interaction.guild?.id}.GUILD.TICKET.${interaction.message.id}`
+        `${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`
     )) return;
     CreateTicketChannel(interaction);
 };

@@ -79,7 +79,7 @@ export default {
         member.send({
             content: data.ban_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-                .replace(/\${interaction\.member\.user\.username}/g, interaction.user.globalName || interaction.user.username as string)
+                .replace(/\${interaction\.member\.user\.username}/g, interaction.user.globalName || interaction.user.username)
         })
             .catch(() => {
             })

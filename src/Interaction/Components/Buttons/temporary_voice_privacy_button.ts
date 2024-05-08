@@ -28,7 +28,7 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
     let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
     let member = interaction.member as GuildMember;
     let targetedChannel = member.voice.channel;
-    let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guild?.id}.${interaction.user.id}`);
+    let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
 
     if (!result) return interaction.deferUpdate();
     if (result.channelId !== interaction.channelId || getChannelOwner !== targetedChannel?.id) {
@@ -67,7 +67,7 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
         let value = i.values[0];
         let action = comp.options.find(option => option.data.value === value)?.data.label;
 
-        if (!action) return;
+        if (!action || !i.guild) return;
 
         let embed = new EmbedBuilder()
             .setDescription(`## Modifications about your temporary voice channel`)
@@ -83,17 +83,17 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
                     value: `${value === 'temporary_channel_lock_channel_menu' ? interaction.client.iHorizon_Emojis.vc.CloseAccess : interaction.client.iHorizon_Emojis.vc.OpenAcces} **Yes**`,
                     inline: true
                 });
-                targetedChannel?.permissionOverwrites.edit(i.guild?.roles.everyone.id as string, { Connect: value === 'temporary_channel_lock_channel_menu' ? false : true, Stream: value === 'temporary_channel_lock_channel_menu' ? false : true, Speak: value === 'temporary_channel_lock_channel_menu' ? false : true });
+                targetedChannel?.permissionOverwrites.edit(i.guild?.roles.everyone.id, { Connect: value === 'temporary_channel_lock_channel_menu' ? false : true, Stream: value === 'temporary_channel_lock_channel_menu' ? false : true, Speak: value === 'temporary_channel_lock_channel_menu' ? false : true });
                 break;
             case 'temporary_channel_invisible_channel_menu':
             case 'temporary_channel_visible_channel_menu':
                 embed.setFields({ name: `${action}`, value: `${value === 'temporary_channel_invisible_channel_menu' ? interaction.client.iHorizon_Emojis.vc.Unseeable : interaction.client.iHorizon_Emojis.vc.Seeable} **Yes**`, inline: true });
-                targetedChannel?.permissionOverwrites.edit(i.guild?.roles.everyone.id as string, { ViewChannel: value === 'temporary_channel_invisible_channel_menu' ? false : true });
+                targetedChannel?.permissionOverwrites.edit(i.guild?.roles.everyone.id, { ViewChannel: value === 'temporary_channel_invisible_channel_menu' ? false : true });
                 break;
             case 'temporary_channel_closechat_channel_menu':
             case 'temporary_channel_openchat_channel_menu':
                 embed.setFields({ name: `${action}`, value: `${value === 'temporary_channel_closechat_channel_menu' ? interaction.client.iHorizon_Emojis.vc.CloseChat : interaction.client.iHorizon_Emojis.vc.OpenChat} **Yes**`, inline: true });
-                targetedChannel?.permissionOverwrites.edit(i.guild?.roles.everyone.id as string, { SendMessages: value === 'temporary_channel_closechat_channel_menu' ? false : true, AddReactions: value === 'temporary_channel_closechat_channel_menu' ? false : true, UseApplicationCommands: value === 'temporary_channel_closechat_channel_menu' ? false : true });
+                targetedChannel?.permissionOverwrites.edit(i.guild?.roles.everyone.id, { SendMessages: value === 'temporary_channel_closechat_channel_menu' ? false : true, AddReactions: value === 'temporary_channel_closechat_channel_menu' ? false : true, UseApplicationCommands: value === 'temporary_channel_closechat_channel_menu' ? false : true });
                 break;
         }
 
