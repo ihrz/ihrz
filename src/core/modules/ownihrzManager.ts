@@ -23,10 +23,8 @@ import config from "../../files/config.js";
 import logger from "../logger.js";
 
 import { OwnIhrzCluster, ClusterMethod } from "../functions/apiUrlParser.js";
-import db from "../functions/DatabaseModel.js";
 import { AxiosResponse, axios } from "../functions/axios.js";
-
-import { Client } from "discord.js";
+import db from "../functions/DatabaseModel.js";
 
 class OwnIHRZ {
 
