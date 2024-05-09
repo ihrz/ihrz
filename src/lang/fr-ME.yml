@@ -593,7 +593,7 @@ setjoindm_not_admin: ":x: | Tu devez être administrateur de ce serveur pour dem
 setjoindm_logs_embed_title_on_enable: "Logs SetJoinDm"
 setjoindm_logs_embed_description_on_enable: "<@${interaction.user.id}> a configuré le message de bienvenue en DM !"
 setjoindm_not_specified_args_on_enable: "Tu devez spécifier un message valide pour ton message de bienvenue en DM."
-setjoindm_confirmation_message_on_enable: "Tu avez configuré avec succès le message de bienvenue en DM à : ${dm_msg} et l'avez activé."
+setjoindm_confirmation_message_on_enable: "Tu avez configuré avec succès le message de bienvenue en DM à : ```${dm_msg}``` et l'avez activé."
 setjoindm_command_error_on_enable: "Erreur : autorisations manquantes ou le salon n'existe pas"
 setjoindm_logs_embed_title_on_disable: "Logs SetJoinDm"
 setjoindm_logs_embed_description_on_disable: "<@${interaction.user.id}> a désactivé le message de bienvenue en DM !"
