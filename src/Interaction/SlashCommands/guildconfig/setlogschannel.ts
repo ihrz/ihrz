@@ -31,9 +31,9 @@ import {
     PermissionFlagsBits,
 } from 'discord.js';
 
-import { Command } from '../../../../types/command';
+import { Command } from '../../../../types/command.js';
 import logger from '../../../core/logger.js';
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {
     name: 'setlogschannel',
@@ -78,7 +78,7 @@ export const command: Command = {
         }
     ],
     thinking: true,
-    category: 'newfeatures',
+    category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
