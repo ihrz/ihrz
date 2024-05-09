@@ -602,6 +602,11 @@ setjoindm_command_error_on_disable: "Errore: permessi mancanti o il canale non e
 setjoindm_already_disable: "Il messaggio di benvenuto è già disabilitato!"
 setjoindm_not_setup_ls: "Non è stato impostato alcun messaggio di benvenuto qui!"
 setjoindm_command_work_ls: "Il messaggio di benvenuto è: \n${already_off}"
+setjoindm_help_embed_title: "Guida per impostare il messaggio di unione DM!"
+setjoindm_help_embed_desc: "{memberUsername} => Il nome utente del membro\n{memberMention} => Menziona il membro\n{memberCount} => Conteggio membri nel server\n{guildName} => Nome del server\n{createdAt} => Creazione dell'account in dd/mm/aaaa"
+setjoindm_buttom_set_name: "Imposta Messaggio"
+setjoindm_buttom_delete_name: "Elimina Messaggio DM"
+setjoindm_awaiting_response: "Scrivi il nuovo messaggio personalizzato di unione DM nel canale."
 
 # /setjoinmessage
 setjoinmessage_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questo comando per i canali di benvenuto!"

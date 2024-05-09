@@ -602,6 +602,11 @@ setjoindm_command_error_on_disable: "Fehler: fehlende Berechtigungen oder Kanal 
 setjoindm_already_disable: "Die Join-DM-Nachricht ist bereits deaktiviert!"
 setjoindm_not_setup_ls: "Es ist hier keine Join-DM eingerichtet!"
 setjoindm_command_work_ls: "Die Join-DM-Nachricht lautet: \n```${already_off}```"
+setjoindm_help_embed_title: "Hilfe zur Einstellung der Beitritts-DM-Nachricht!"
+setjoindm_help_embed_desc: "{memberUsername} => Der Benutzername des Mitglieds\n{memberMention} => Erwähnung des Mitglieds\n{memberCount} => Anzahl der Mitglieder im Server\n{guildName} => Name des Servers\n{createdAt} => Kontoerstellung am tt/mm/jjjj"
+setjoindm_buttom_set_name: "Nachricht festlegen"
+setjoindm_buttom_delete_name: "DM-Nachricht löschen"
+setjoindm_awaiting_response: "Schreiben Sie die neue benutzerdefinierte Beitritts-DM-Nachricht in den Kanal."
 
 # /setjoinmessage
 setjoinmessage_not_admin: ":x: | Sie müssen Administrator dieses Servers sein, um diesen Befehl zu verwenden!"

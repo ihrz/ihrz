@@ -602,6 +602,11 @@ setjoindm_command_error_on_disable: "エラー：パーミッションが足り�
 setjoindm_already_disable: "JoinDmは既に無効です！"
 setjoindm_not_setup_ls: "JoinDmは設定されていません！"
 setjoindm_command_work_ls: "JoinDmメッセージは：\n```${already_off}```"
+setjoindm_help_embed_title: "JoinDMメッセージの設定ヘルプ！"
+setjoindm_help_embed_desc: "{memberUsername} => メンバーのユーザー名\n{memberMention} => メンバーをメンション\n{memberCount} => サーバーのメンバー数\n{guildName} => サーバー名\n{createdAt} => アカウント作成日（dd/mm/yyyy）"
+setjoindm_buttom_set_name: "メッセージを設定"
+setjoindm_buttom_delete_name: "DMメッセージを削除"
+setjoindm_awaiting_response: "チャンネルに新しいカスタムJoinDMメッセージを入力してください。"
 
 # /setjoinmessage
 setjoinmessage_not_admin: ":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！"

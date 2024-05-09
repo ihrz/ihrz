@@ -602,6 +602,11 @@ setjoindm_command_error_on_disable: "Errore: autorizzazioni mancanti o il canale
 setjoindm_already_disable: "Il messaggio di join dm è già disattivato!"
 setjoindm_not_setup_ls: "Non c'è alcun messaggio di join dm impostato qui!"
 setjoindm_command_work_ls: "Il messaggio di join dm è: \n```${already_off}```"
+setjoindm_help_embed_title: "¡Ayuda para configurar el mensaje de unión por DM!"
+setjoindm_help_embed_desc: "{memberUsername} => El nombre de usuario del miembro\n{memberMention} => Mencionar al miembro\n{memberCount} => Cantidad de miembros en el servidor\n{guildName} => Nombre del servidor\n{createdAt} => Creación de la cuenta en dd/mm/aaaa"
+setjoindm_buttom_set_name: "Establecer Mensaje"
+setjoindm_buttom_delete_name: "Eliminar Mensaje DM"
+setjoindm_awaiting_response: "Escriba el nuevo mensaje personalizado de unión por DM en el canal."
 
 # /setjoinmessage
 setjoinmessage_not_admin: ":x: | ¡Debes ser administrador de este servidor para solicitar estos comandos!"

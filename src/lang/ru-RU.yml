@@ -602,6 +602,11 @@ setjoindm_command_error_on_disable: "Ошибка: отсутствуют раз
 setjoindm_already_disable: "Сообщение при входе в ЛС уже отключено!"
 setjoindm_not_setup_ls: "Здесь не настроено сообщение при входе в ЛС!"
 setjoindm_command_work_ls: "Сообщение при входе в ЛС: \n```${already_off}```"
+setjoindm_help_embed_title: "Помощь в настройке сообщения о вступлении через ЛС!"
+setjoindm_help_embed_desc: "{memberUsername} => Имя пользователя участника\n{memberMention} => Упоминание участника\n{memberCount} => Количество участников на сервере\n{guildName} => Название сервера\n{createdAt} => Дата создания аккаунта в дд/мм/гггг"
+setjoindm_buttom_set_name: "Установить сообщение"
+setjoindm_buttom_delete_name: "Удалить сообщение в ЛС"
+setjoindm_awaiting_response: "Напишите новое пользовательское сообщение о вступлении через ЛС в канале."
 
 # /setjoinmessage
 setjoinmessage_not_admin: ":x: | Для выполнения этой команды вы должны быть администратором этого сервера!"
