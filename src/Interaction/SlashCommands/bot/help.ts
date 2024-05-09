@@ -74,7 +74,7 @@ export const command: Command = {
 
         categories.sort((a, b) => a.name.localeCompare(b.name));
 
-        let select = new StringSelectMenuBuilder().setCustomId('help-menu').setPlaceholder('Make a selection!');
+        let select = new StringSelectMenuBuilder().setCustomId('help-menu').setPlaceholder(data.help_select_menu);
 
         categories.forEach((category, index) => {
             select.addOptions(new StringSelectMenuOptionBuilder()

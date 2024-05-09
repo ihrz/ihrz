@@ -201,6 +201,7 @@ export interface LanguageData {
     help_pfps_dsc: string;
     help_voicedashboard_fields: string;
     help_voicedashboard_dsc: string;
+    help_select_menu: string;
     say_footer_msg: string;
     ping_down_msg: string;
     ping_embed_desc: string;
