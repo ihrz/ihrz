@@ -593,7 +593,7 @@ setjoindm_not_admin: ":x: | Devi essere un amministratore di questo server per r
 setjoindm_logs_embed_title_on_enable: "Registri di impostazione messaggio di benvenuto"
 setjoindm_logs_embed_description_on_enable: "<@${interaction.user.id}> ha impostato il messaggio di benvenuto!"
 setjoindm_not_specified_args_on_enable: "Devi specificare un messaggio valido per il tuo messaggio di benvenuto."
-setjoindm_confirmation_message_on_enable: "Hai impostato con successo il messaggio di benvenuto su: ${dm_msg} e lo hai abilitato!"
+setjoindm_confirmation_message_on_enable: "Hai impostato con successo il messaggio di benvenuto su: ```${dm_msg}``` e lo hai abilitato!"
 setjoindm_command_error_on_enable: "Errore: permessi mancanti o il canale non esiste"
 setjoindm_logs_embed_title_on_disable: "Registri di impostazione messaggio di benvenuto"
 setjoindm_logs_embed_description_on_disable: "<@${interaction.user.id}> ha disabilitato il messaggio di benvenuto!"
