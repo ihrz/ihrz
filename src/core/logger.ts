@@ -20,6 +20,7 @@
 */
 
 import { Logger } from "../../types/logger";
+import { log as _ } from 'console';
 import "./functions/colors.js";
 
 function getCurrentTime(): string {
@@ -28,16 +29,16 @@ function getCurrentTime(): string {
 
 let logger: Logger = {
     warn(message) {
-        console.log(`[${getCurrentTime()} WRN]: `.red() + message);
+        _(`[${getCurrentTime()} WRN]: `.red() + message);
     },
     err(message) {
-        console.log(`[${getCurrentTime()} ERR]: `.red() + message);
+        _(`[${getCurrentTime()} ERR]: `.red() + message);
     },
     log(message) {
-        console.log(`[${getCurrentTime()} LOG]: `.green() + message);
+        _(`[${getCurrentTime()} LOG]: `.green() + message);
     },
     legacy(message) {
-        console.log(message);
+        _(message);
     },
 };
 
