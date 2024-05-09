@@ -26,7 +26,7 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
-import { DatabaseStucture } from '../../../core/database_structure';
+import { DatabaseStructure } from '../../../core/database_structure';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -36,7 +36,7 @@ export default {
             return;
         }
 
-        let baseData = await client.db.get(`${interaction.guildId}.GUILD`) as DatabaseStucture.db_in_id['GUILD'];
+        let baseData = await client.db.get(`${interaction.guildId}.GUILD`) as DatabaseStructure.DbInId['GUILD'];
 
         let setchannelsjoin = baseData?.GUILD_CONFIG?.join ? `<#${baseData?.GUILD_CONFIG?.join}>` : data.guildprofil_not_set_setchannelsjoin;
         let setchannelsleave = baseData?.GUILD_CONFIG?.leave ? `<#${baseData?.GUILD_CONFIG?.leave}>` : data.guildprofil_not_set_setchannelsleave;
