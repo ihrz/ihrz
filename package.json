@@ -25,8 +25,8 @@
   "dependencies": {
     "better-sqlite3": "9.6.0",
     "discord-html-transcripts": "^3.2.0",
-    "discord-rebackup": "^3.3.10",
-    "discord-regiveaways": "^1.1.20",
+    "discord-rebackup": "^3.3.11",
+    "discord-regiveaways": "^1.1.21",
     "discord.js": "v14.15.2",
     "genius-lyrics": "^4.4.7",
     "jimp": "^0.22.12",
@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "20.12.9",
+    "@types/node": "20.12.11",
     "@types/ping": "^0.4.4",
     "tslib": "^2.6.2",
     "typescript": "5.4.5"
