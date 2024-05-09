@@ -31,7 +31,7 @@ import { Command } from '../../../../types/command';
 import config from '../../../files/config.js';
 import os from 'node:os';
 
-function niceBytes(a: Number) { let b = 0, c = parseInt((a .toString()), 10) || 0; for (; 1024 <= c && ++b;)c /= 1024; return c.toFixed(10 > c && 0 < b ? 1 : 0) + " " + ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][b] }
+function niceBytes(a: Number) { let b = 0, c = parseInt((a.toString()), 10) || 0; for (; 1024 <= c && ++b;)c /= 1024; return c.toFixed(10 > c && 0 < b ? 1 : 0) + " " + ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][b] }
 
 export const command: Command = {
     name: 'status',
@@ -56,7 +56,7 @@ export const command: Command = {
             .setColor("#82cda8")
             .setFields(
                 { name: "Cpu", value: `${os.cpus()[0].model} (${os.machine()})`, inline: false },
-                { name: "Memory", value: `${niceBytes(os.freemem())}/${niceBytes(os.totalmem())}`, inline: false },
+                { name: "Memory", value: `${niceBytes(os.totalmem() - os.freemem())}/${niceBytes(os.totalmem())}`, inline: false },
                 { name: "Machine Uptime", value: `${time(new Date(Date.now() - os.uptime() * 1000), 'd')}`, inline: false },
                 { name: "OS", value: `${os.platform()} ${os.type()} ${os.release()}`, inline: false },
                 { name: "Bot Version", value: `${client.version.ClientVersion}`, inline: false },

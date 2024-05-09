@@ -29,7 +29,7 @@ import { Client } from "discord.js";
 import wait from "../functions/wait.js";
 import getIP from "../functions/getIp.js";
 
-function niceBytes(a: Number) { let b = 0, c = parseInt((a .toString()), 10) || 0; for (; 1024 <= c && ++b;)c /= 1024; return c.toFixed(10 > c && 0 < b ? 1 : 0) + " " + ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][b] }
+function niceBytes(a: Number) { let b = 0, c = parseInt((a.toString()), 10) || 0; for (; 1024 <= c && ++b;)c /= 1024; return c.toFixed(10 > c && 0 < b ? 1 : 0) + " " + ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][b] }
 
 export default async (client: Client) => {
     if (!config.core.bash) return;
@@ -70,7 +70,7 @@ export default async (client: Client) => {
     * Documentation:  https://github.com/ihrz/ihrz/blob/main/README.md
     
      System information as of mar.  ${formattedDate}
-     Memory usage:                  ${niceBytes(os.freemem())}/${niceBytes(os.totalmem())}
+     Memory usage:                  ${niceBytes(os.totalmem() - os.freemem())}/${niceBytes(os.totalmem())}
      IPv4 address for eth0:         ${await getIP({ useIPv6: false })}
      IPv6 address for eth0:         ${await getIP({ useIPv6: true })}
     
