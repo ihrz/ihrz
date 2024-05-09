@@ -625,6 +625,9 @@ setjoinmessage_help_embed_fields_custom_name: "Benutzerdefinierte Nachricht"
 setjoinmessage_help_embed_fields_custom_name_empy: "Nicht festgelegt!"
 setjoinmessage_help_embed_fields_default_name_empy: "Standardnachricht"
 setjoinmessage_help_embed_desc: "{memberUsername} => Der Benutzername des Mitglieds\n{memberMention} => Erwähnung des Mitglieds\n{inviterUsername} => Der Name des Einladenden\n{inviterMention} => Erwähnung des Einladenden\n{memberCount} => Anzahl der Mitglieder in der Gilde\n{invitesCount} => Anzahl der Einladungen des Einladenden\n{guildName} => Name der Gilde\n{createdAt} => Kontoerstellung im Format TT/MM/JJJJ"
+setjoinmessage_button_set_name: "Nachricht festlegen"
+setjoinmessage_buttom_del_name: "Standardnachricht"
+setjoinmessage_awaiting_response: "Schreiben Sie die neue benutzerdefinierte Beitrittsnachricht in den Kanal."
 
 # /setjoinroles
 setjoinroles_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"

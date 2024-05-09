@@ -625,6 +625,9 @@ setjoinmessage_help_embed_fields_custom_name: "Пользовательское 
 setjoinmessage_help_embed_fields_custom_name_empy: "Не установлено!"
 setjoinmessage_help_embed_fields_default_name_empy: "Стандартное сообщение"
 setjoinmessage_help_embed_desc: "{memberUsername} => Имя пользователя участника\n{memberMention} => Упоминание участника\n{inviterUsername} => Имя пригласившего\n{inviterMention} => Упоминание пригласившего\n{memberCount} => Количество участников на сервере\n{invitesCount} => Количество приглашений пригласившего\n{guildName} => Название сервера\n{createdAt} => Дата создания учетной записи в формате ДД/ММ/ГГГГ"
+setjoinmessage_button_set_name: "Установить сообщение"
+setjoinmessage_buttom_del_name: "Стандартное сообщение"
+setjoinmessage_awaiting_response: "Напишите новое пользовательское сообщение о вступлении в канале."
 
 # /setjoinroles
 setjoinroles_not_admin: ":x: | Для выполнения этой команды вы должны быть администратором этого сервера!"

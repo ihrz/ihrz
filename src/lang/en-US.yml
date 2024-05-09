@@ -625,6 +625,9 @@ setjoinmessage_help_embed_fields_custom_name: "Custom Message"
 setjoinmessage_help_embed_fields_custom_name_empy: "No Set!"
 setjoinmessage_help_embed_fields_default_name_empy: "Default Message"
 setjoinmessage_help_embed_desc: "{memberUsername} => The member username\n{memberMention} => Mention the member\n{inviterUsername} => The inviter's name\n{inviterMention} => Mention the inviter\n{memberCount} => Guild's member count\n{invitesCount} => Invites number of the inviter\n{guildName} => The guild's name\n{createdAt} => Account creation in dd/mm/yyyy"
+setjoinmessage_button_set_name: "Set message"
+setjoinmessage_buttom_del_name: "Default Message"
+setjoinmessage_awaiting_response: "Wrote the new custom Join Message in the channel."
 
 # /setjoinroles
 setjoinroles_not_admin: ":x: | You must be an administrator of this server to request this commands!"

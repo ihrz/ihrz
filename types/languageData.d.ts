@@ -458,6 +458,9 @@ export interface LanguageData {
     setjoinmessage_help_embed_fields_custom_name_empy: string;
     setjoinmessage_help_embed_fields_default_name_empy: string;
     setjoinmessage_help_embed_desc: string;
+    setjoinmessage_button_set_name: string;
+    setjoinmessage_buttom_del_name: string;
+    setjoinmessage_awaiting_response: string;
     setjoinroles_not_admin: string;
     setjoinroles_help_embed_title: string;
     setjoinroles_help_embed_description: string;
