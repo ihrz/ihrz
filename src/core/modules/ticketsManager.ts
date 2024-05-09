@@ -456,7 +456,6 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                 content: lang.event_ticket_whenCreated_msg
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${channel.id}', channel.id)
-                , ephemeral: true
             });
         }
 
