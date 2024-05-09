@@ -26,7 +26,7 @@ import bash from './bash/bash.js';
 import * as errorManager from './modules/errorManager.js';
 import logger from "./logger.js";
 
-import { Client, Collection, Snowflake } from "discord.js";
+import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from "discord.js";
 import { OwnIHRZ } from './modules/ownihrzManager.js';
 import emojis from './modules/emojisManager.js';
 
@@ -91,6 +91,18 @@ export default async (client: Client) => {
             await handlerFunction(client);
         }
     }
+
+    if (config.discord.phonePresence) {
+
+        const { identifyProperties } = DefaultWebSocketManagerOptions;
+
+        Object.defineProperty(identifyProperties, 'browser', {
+            value: "Discord Android",
+            writable: true,
+            enumerable: true,
+            configurable: true
+        });
+    };
 
     client.login(process.env.BOT_TOKEN || config.discord.token).then(() => {
         commandsSync(client).then(() => {
