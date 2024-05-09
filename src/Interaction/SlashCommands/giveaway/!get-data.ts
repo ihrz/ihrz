@@ -96,7 +96,7 @@ export default {
         if (giveawayData.ended) {
             embed.addFields(
                 {
-                    name: "Winner(s)",
+                    name: data.gw_getdata_embed_fields_winners,
                     value: `${giveawayData.winners.map((x: string) => `<@${x}>`)}`
                 }
             )

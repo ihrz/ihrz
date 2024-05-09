@@ -95,7 +95,7 @@ export default {
                 ephemeral: true
             });
             return;
-        }).catch(async (err: any) => {
+        }).catch(async () => {
             await interaction.deleteReply();
             await interaction.followUp({ content: data.suggest_reply_command_error, ephemeral: true });
             return;

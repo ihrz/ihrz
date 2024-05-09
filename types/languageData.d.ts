@@ -201,6 +201,7 @@ export interface LanguageData {
     help_pfps_dsc: string;
     help_voicedashboard_fields: string;
     help_voicedashboard_dsc: string;
+    help_select_menu: string;
     say_footer_msg: string;
     ping_down_msg: string;
     ping_embed_desc: string;
@@ -595,6 +596,7 @@ export interface LanguageData {
     gw_getdata_embed_fields_isValid: string;
     gw_getdata_embed_fields_time: string;
     gw_getdata_embed_fields_entriesAmount: string;
+    gw_getdata_embed_fields_winners: string;
     gw_getdata_embed_fields_value_entriesAmount: string;
     gw_getdata_yes: string;
     gw_getdata_no: string;

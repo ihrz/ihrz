@@ -144,7 +144,7 @@ export const event: BotEvent = {
                     let inviteCode = invite.code;
 
                     return 'discord.gg/' + inviteCode;
-                } catch (error: any) {
+                } catch {
                     return 'None';
                 }
             };

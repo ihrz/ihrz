@@ -25,7 +25,7 @@ import db from './functions/DatabaseModel.js';
 import * as errorManager from './modules/errorManager.js';
 import logger from "./logger.js";
 
-import { Client, Collection, Snowflake } from "discord.js";
+import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from "discord.js";
 import emojis from './modules/emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData';
@@ -76,6 +76,18 @@ export default async (client: Client) => {
     emojis(client);
     errorManager.uncaughtExceptionHandler();
 
+    if (config.discord.phonePresence) {
+
+        const { identifyProperties } = DefaultWebSocketManagerOptions;
+
+        Object.defineProperty(identifyProperties, 'browser', {
+            value: "Discord Android",
+            writable: true,
+            enumerable: true,
+            configurable: true
+        });
+    };
+
     client.login(config.discord.token).then(() => {
         client.giveawaysManager = new GiveawayManager(client, {
             storage: `${process.cwd()}/src/files/giveaways/`,
@@ -89,7 +101,7 @@ export default async (client: Client) => {
                 endedGiveawaysLifetime: 345_600_000,
             },
         });
-        
+
         commandsSync(client).then(() => {
             logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta());
             logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta());

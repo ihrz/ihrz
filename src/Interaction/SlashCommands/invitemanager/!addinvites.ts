@@ -70,7 +70,7 @@ export default {
             if (logchannel) {
                 (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
             };
-        } catch (e: any) {
+        } catch {
             return;
         };
     },

@@ -53,7 +53,7 @@ export const command: Command = {
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#319938")
             .setTitle("Pong! 🏓")
             .setDescription(data.ping_embed_desc
-                .replace('${await network}', await network)
+                .replace('${await network}', network)
                 .replace('${await API}', client.ws.ping)
             );
 

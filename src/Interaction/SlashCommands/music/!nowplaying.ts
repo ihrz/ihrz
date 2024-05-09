@@ -30,9 +30,9 @@ import {
     Guild,
     GuildMember,
     BaseGuildTextChannel,
+    User,
 } from 'discord.js';
 
-import { MetadataPlayer } from '../../../../types/metadaPlayer';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
@@ -95,7 +95,7 @@ export default {
                     };
 
                     let channel = client.channels.cache.get(player.textChannelId as string);
-                    let requesterId = (player.queue.current?.requester as any).id
+                    let requesterId = (player.queue.current?.requester as User).id
 
                     if (i.user.id === requesterId) {
                         switch (i.customId) {

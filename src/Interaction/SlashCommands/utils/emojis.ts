@@ -83,7 +83,7 @@ export const command: Command = {
 
                     cnt++;
                     nemj += `<${isAnimated ? 'a:' : ':'}${emoji.name}:${emoji.id}>`
-                }).catch((err: any) => {
+                }).catch(() => {
                     interaction.channel?.send(data.emoji_send_err_emoji
                         .replace('${emoji.name}', emoji)
                     );

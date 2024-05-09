@@ -68,7 +68,7 @@ export default {
                     return;
                 };
 
-                await interaction.guild?.bans.remove(userID as string, reason as string).catch((err: any) => { });
+                await interaction.guild?.bans.remove(userID as string, reason as string).catch(() => { });
                 await interaction.editReply({
                     content: data.unban_is_now_unbanned
                         .replace(/\${userID}/g, userID as string)

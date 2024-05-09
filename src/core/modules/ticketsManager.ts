@@ -596,7 +596,7 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) 
                         try {
                             (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(member?.user as User, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
                             interaction.editReply({ content: data.close_command_work_notify_channel, files: [attachment], embeds: [embed] });
-                        } catch (e: any) {
+                        } catch {
                             await interaction.channel?.send(data.close_command_error);
                             return;
                         };
@@ -693,7 +693,7 @@ async function TicketRemoveMember(interaction: ChatInputCommandInteraction<Cache
             return;
         } catch (e) { return };
 
-    } catch (e: any) {
+    } catch {
         await interaction.editReply({ content: data.remove_command_error });
         return;
     };

@@ -29,6 +29,7 @@ import {
     ChatInputCommandInteraction,
     StringSelectMenuInteraction,
     ApplicationCommandType,
+    ColorResolvable,
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData';
@@ -74,7 +75,7 @@ export const command: Command = {
 
         categories.sort((a, b) => a.name.localeCompare(b.name));
 
-        let select = new StringSelectMenuBuilder().setCustomId('help-menu').setPlaceholder('Make a selection!');
+        let select = new StringSelectMenuBuilder().setCustomId('help-menu').setPlaceholder(data.help_select_menu);
 
         categories.forEach((category, index) => {
             select.addOptions(new StringSelectMenuOptionBuilder()
@@ -113,14 +114,14 @@ export const command: Command = {
             embed
                 .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
                 .setDescription(categories[i.values[0] as unknown as number].description)
-                .setColor(categories[i.values[0] as unknown as number].color as any);
+                .setColor(categories[i.values[0] as unknown as number].color as ColorResolvable);
 
             embed.setFields({ name: ' ', value: ' ' });
 
-            let categoryColor = categories[i.values[0] as unknown as number].color as any;
-            let commandGroups: any[][] = [];
+            let categoryColor = categories[i.values[0] as unknown as number].color;
+            let commandGroups: { name: string, value: string, inline: boolean }[][] = [];
             let embeds: EmbedBuilder[] = [];
-            let currentGroup: any[] = [];
+            let currentGroup: { name: string, value: string, inline: boolean }[] = [];
 
             categories[i.values[0] as unknown as number].value.forEach(async (element, index) => {
                 let cmdPrefix = (element.messageCmd) ? `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**` : `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
@@ -145,7 +146,7 @@ export const command: Command = {
             });
 
             for (const group of commandGroups) {
-                let newEmbed = new EmbedBuilder().setColor(categoryColor);
+                let newEmbed = new EmbedBuilder().setColor(categoryColor as ColorResolvable);
 
                 if (embeds.length === 0) {
                     newEmbed

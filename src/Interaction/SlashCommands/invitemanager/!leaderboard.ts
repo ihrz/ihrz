@@ -25,28 +25,30 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
+import { DatabaseStructure } from '../../../core/database_structure';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         var text: string = data.leaderboard_default_text;
-        let char = await client.db.get(`${interaction.guildId}.USER`);
+        let char = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
         let tableau: Array<any> = [];
         let i: number = 1;
 
-        for (let i in char) {
-            let a = char?.[i]?.INVITES;
-            if (a?.invites >= 1) {
+        for (let key in char) {
+            let a = char?.[key]?.INVITES;
+
+            if (a && a.invites && a.invites >= 1) {
                 tableau.push({
                     invCount: a.invites,
                     text: data.leaderboard_text_inline
-                        .replace(/\${i}/g, i)
-                        .replace(/\${a\.invites\s*\|\|\s*0}/g, a.invites || 0)
-                        .replace(/\${a\.regular\s*\|\|\s*0}/g, a.regular || 0)
-                        .replace(/\${a\.bonus\s*\|\|\s*0}/g, a.bonus || 0)
-                        .replace(/\${a\.leaves\s*\|\|\s*0}/g, a.leaves || 0)
+                        .replace(/\${i}/g, key)
+                        .replace(/\${a\.invites\s*\|\|\s*0}/g, String(a.invites || 0))
+                        .replace(/\${a\.regular\s*\|\|\s*0}/g, String(a.regular || 0))
+                        .replace(/\${a\.bonus\s*\|\|\s*0}/g, String(a.bonus || 0))
+                        .replace(/\${a\.leaves\s*\|\|\s*0}/g, String(a.leaves || 0))
                 });
-            };
-        };
+            }
+        }
 
         tableau.sort((a: { invCount: number; }, b: { invCount: number; }) => b.invCount - a.invCount);
 
