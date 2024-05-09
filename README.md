@@ -25,7 +25,7 @@ IHorizon have a large variety of features, including moderation, invite manageme
 
 ## Origin
 
-The bot was primarily developed by Kisakay and was first released in **September 2020** using **discord.js v12 and now v14.13.0 , yeah the latest version !
+The bot was primarily developed by Kisakay and was first released in **September 2020** using **discord.js v12 and now v14.15.12 , yeah the latest version !
 Now, It has a strong architecture with separated modules, each with their own owner directory.**
 
 ## Is it Free ?
