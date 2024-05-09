@@ -62,12 +62,15 @@ export function generatePassword(options: PasswordOptions): string {
 
     const passwordArray: string[] = [];
     const bytesNeeded = Math.ceil((Math.log(characters.length) * length) / Math.log(256));
+    const maxValid = 256 - (256 % characters.length);
 
     while (passwordArray.length < length) {
         const randomBytes = crypto.randomBytes(bytesNeeded);
         for (let i = 0; i < randomBytes.length && passwordArray.length < length; i++) {
-            const randomIndex = randomBytes[i] % characters.length;
-            passwordArray.push(characters[randomIndex]);
+            if (randomBytes[i] < maxValid) {
+                const randomIndex = randomBytes[i] % characters.length;
+                passwordArray.push(characters[randomIndex]);
+            }
         }
     }
 
@@ -97,5 +100,5 @@ export function generateMultiplePasswords(amount: number, options: PasswordOptio
 }
 
 function randomInt(min: number, max: number): number {
-    return Math.floor(Math.random() * (max - min)) + min;
+    return Math.floor(crypto.randomInt(max - min) + min);
 }
