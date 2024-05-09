@@ -436,6 +436,11 @@ export interface LanguageData {
     setjoindm_command_error_on_disable: string;
     setjoindm_already_disable: string;
     setjoindm_not_setup_ls: string;
+    setjoindm_help_embed_title: string;
+    setjoindm_help_embed_desc: string;
+    setjoindm_buttom_set_name: string;
+    setjoindm_buttom_delete_name: string;
+    setjoindm_awaiting_response: string;
     setjoindm_command_work_ls: string;
     setjoinmessage_not_admin: string;
     setjoinmessage_help_embed_title: string;
@@ -453,6 +458,9 @@ export interface LanguageData {
     setjoinmessage_help_embed_fields_custom_name_empy: string;
     setjoinmessage_help_embed_fields_default_name_empy: string;
     setjoinmessage_help_embed_desc: string;
+    setjoinmessage_button_set_name: string;
+    setjoinmessage_buttom_del_name: string;
+    setjoinmessage_awaiting_response: string;
     setjoinroles_not_admin: string;
     setjoinroles_help_embed_title: string;
     setjoinroles_help_embed_description: string;

@@ -602,6 +602,11 @@ setjoindm_command_error_on_disable: "Ошибка: отсутствуют раз
 setjoindm_already_disable: "Сообщение при входе в ЛС уже отключено!"
 setjoindm_not_setup_ls: "Здесь не настроено сообщение при входе в ЛС!"
 setjoindm_command_work_ls: "Сообщение при входе в ЛС: \n```${already_off}```"
+setjoindm_help_embed_title: "Помощь в настройке сообщения о вступлении через ЛС!"
+setjoindm_help_embed_desc: "{memberUsername} => Имя пользователя участника\n{memberMention} => Упоминание участника\n{memberCount} => Количество участников на сервере\n{guildName} => Название сервера\n{createdAt} => Дата создания аккаунта в дд/мм/гггг"
+setjoindm_buttom_set_name: "Установить сообщение"
+setjoindm_buttom_delete_name: "Удалить сообщение в ЛС"
+setjoindm_awaiting_response: "Напишите новое пользовательское сообщение о вступлении через ЛС в канале."
 
 # /setjoinmessage
 setjoinmessage_not_admin: ":x: | Для выполнения этой команды вы должны быть администратором этого сервера!"
@@ -620,6 +625,9 @@ setjoinmessage_help_embed_fields_custom_name: "Пользовательское 
 setjoinmessage_help_embed_fields_custom_name_empy: "Не установлено!"
 setjoinmessage_help_embed_fields_default_name_empy: "Стандартное сообщение"
 setjoinmessage_help_embed_desc: "{memberUsername} => Имя пользователя участника\n{memberMention} => Упоминание участника\n{inviterUsername} => Имя пригласившего\n{inviterMention} => Упоминание пригласившего\n{memberCount} => Количество участников на сервере\n{invitesCount} => Количество приглашений пригласившего\n{guildName} => Название сервера\n{createdAt} => Дата создания учетной записи в формате ДД/ММ/ГГГГ"
+setjoinmessage_button_set_name: "Установить сообщение"
+setjoinmessage_buttom_del_name: "Стандартное сообщение"
+setjoinmessage_awaiting_response: "Напишите новое пользовательское сообщение о вступлении в канале."
 
 # /setjoinroles
 setjoinroles_not_admin: ":x: | Для выполнения этой команды вы должны быть администратором этого сервера!"

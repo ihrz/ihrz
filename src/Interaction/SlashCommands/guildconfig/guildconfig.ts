@@ -131,44 +131,6 @@ export const command: Command = {
                     },
 
                     type: 1,
-                    options: [
-                        {
-                            name: "value",
-
-                            description: "Choose the action you want to do",
-                            description_localizations: {
-                                "fr": "Choisissez l'action que vous souhaitez faire"
-                            },
-
-                            type: ApplicationCommandOptionType.String,
-                            required: true,
-                            choices: [
-                                {
-                                    name: "Power on",
-                                    value: "on"
-                                },
-                                {
-                                    name: "Power off",
-                                    value: "off"
-                                },
-                                {
-                                    name: "Show the message set",
-                                    value: "ls"
-                                }
-                            ]
-                        },
-                        {
-                            name: 'message',
-                            type: ApplicationCommandOptionType.String,
-
-                            description: '<Message if the first args is on>',
-                            description_localizations: {
-                                "fr": "<Message si le premier argument est activé>"
-                            },
-
-                            required: false
-                        }
-                    ],
                 },
                 {
                     name: 'join-message',

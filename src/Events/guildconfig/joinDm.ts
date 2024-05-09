@@ -26,10 +26,17 @@ import { BotEvent } from '../../../types/event';
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
-        
+
         try {
-            let msg_dm = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`);
+            let msg_dm = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`)
             if (!msg_dm || msg_dm === "off") return;
+
+            msg_dm = msg_dm
+                .replaceAll("{memberUsername}", member.user.username)
+                .replaceAll("{memberMention}", member.user.toString())
+                .replaceAll('{memberCount}', member.guild?.memberCount.toString()!)
+                .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                .replaceAll('{guildName}', member.guild?.name!)
 
             let button = new ButtonBuilder()
                 .setDisabled(true)
