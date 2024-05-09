@@ -32,7 +32,7 @@ import {
 import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { DatabaseStucture } from '../../../core/database_structure.js';
+import { DatabaseStructure } from '../../../core/database_structure.js';
 
 export const command: Command = {
 
@@ -49,7 +49,7 @@ export const command: Command = {
     run: async (client: Client, interaction: Message, args: string[]) => {
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
-        let all_specific_message: DatabaseStucture.DB_Guild_Object["REACT_MSG"] = await client.db.get(`${interaction.guildId}.GUILD.REACT_MSG`) || {};
+        let all_specific_message: DatabaseStructure.DbGuildObject["REACT_MSG"] = await client.db.get(`${interaction.guildId}.GUILD.REACT_MSG`) || {};
 
         let currentPage = 0;
 

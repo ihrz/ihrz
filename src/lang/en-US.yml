@@ -677,6 +677,20 @@ setlogschannel_var_voice: "Voice Logs"
 setlogschannel_var_msg: "Messages Logs"
 setlogschannel_var_boost: "Boost Logs"
 
+# /join-ghostping add
+joinghostping_add_already_set: "The channel ${channel} is already set!"
+joinghostping_add_sent_to_channel: "From now on, when a member joins the guild, I'll send a ghost message **here**."
+joinghostping_add_ok_embed_title: "Join GhostPing Module"
+joinghostping_add_ok_embed_desc: "I'll now send a ghost message in this channel whenever a member joins the guild!"
+joinghostping_add_ok_embed_fields_name: "All registered channels"
+joinghostping_add_logs_embed_title: "Join GhostPing Logs"
+joinghostping_add_logs_embed_desc: "${interaction.user} has added ${channel} to the Join GhostPing Module!"
+
+# /join-ghostping remove
+joinghostping_remove_isnt_set: "The channel ${channel} isn't set !"
+joinghostping_remove_ok_embed_desc: "The channels have been deleted from the Join GhostPing Module!"
+joinghostping_remove_logs_embed_desc: "${interaction.user} have delete ${channel} of the Join GhostPing Module !"
+
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **false**.\nNow user can send mentions in their message.\nAutoMod x iHorizon have been disabled on your server!"
 automod_block_massmention_command_on: "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **true**.\nNow user can't send more than **${max_mention}** mention(s) in their message.\nAutoMod __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"

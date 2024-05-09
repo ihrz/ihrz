@@ -42,7 +42,7 @@ export default {
                     .setColor("#bf0bb9")
                     .setTitle(data.blockbot_logs_enable_title)
                     .setDescription(data.blockbot_logs_enable_description
-                        .replace(/\${interaction\.user}/g, interaction.user .toString())
+                        .replace(/\${interaction\.user}/g, interaction.user.toString())
                     );
 
                 let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
@@ -64,7 +64,7 @@ export default {
                     .setColor("#bf0bb9")
                     .setTitle(data.blockbot_logs_disable_commmand_work)
                     .setDescription(data.blockbot_logs_disable_description
-                        .replace(/\${interaction\.user}/g, interaction.user .toString())
+                        .replace(/\${interaction\.user}/g, interaction.user.toString())
                     );
 
                 let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');

@@ -50,7 +50,7 @@ export interface LanguageData {
     sethereticket_modal_1_fields_1_placeholder: string;
     sethereticket_modal_1_fields_1_label: string;
     sethereticket_modal_1_fields_2_placeholder: string;
-    sethereticket_modal_1_fields_2_label:  string;
+    sethereticket_modal_1_fields_2_label: string;
     sethereticket_modal_2_title: string;
     sethereticket_modal_2_fields_1_placeholder: string;
     sethereticket_modal_2_fields_1_title: string;
@@ -501,6 +501,16 @@ export interface LanguageData {
     setlogschannel_var_voice: string;
     setlogschannel_var_msg: string;
     setlogschannel_var_boost: string;
+    joinghostping_add_already_set: string;
+    joinghostping_add_sent_to_channel: string;
+    joinghostping_add_ok_embed_title: string;
+    joinghostping_add_ok_embed_desc: string;
+    joinghostping_add_ok_embed_fields_name: string;
+    joinghostping_add_logs_embed_title: string;
+    joinghostping_add_logs_embed_desc: string;
+    joinghostping_remove_isnt_set: string;
+    joinghostping_remove_ok_embed_desc: string;
+    joinghostping_remove_logs_embed_desc: string;
     automod_block_massmention_command_off: string;
     automod_block_massmention_command_on: string;
     automod_block_pub_command_on: string;
