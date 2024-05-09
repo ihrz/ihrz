@@ -596,6 +596,7 @@ export interface LanguageData {
     gw_getdata_embed_fields_isValid: string;
     gw_getdata_embed_fields_time: string;
     gw_getdata_embed_fields_entriesAmount: string;
+    gw_getdata_embed_fields_winners: string;
     gw_getdata_embed_fields_value_entriesAmount: string;
     gw_getdata_yes: string;
     gw_getdata_no: string;

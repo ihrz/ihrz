@@ -53,7 +53,7 @@ export const command: Command = {
             .setColor("#319938")
             .setTitle("Pong! 🏓")
             .setDescription(data.ping_embed_desc
-                .replace('${await network}', await network)
+                .replace('${await network}', network)
                 .replace('${await API}', client.ws.ping)
             );
 
