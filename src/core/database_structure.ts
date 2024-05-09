@@ -98,16 +98,16 @@ export namespace DatabaseStructure {
 
     export interface VoiceData {
         staff_role?: string;
-        interface: {
+        interface?: {
             channelId?: string;
             messageId?: string;
         };
-        voice_channel: string | undefined;
+        voice_channel?: string | undefined;
     };
 
     export interface GhostPingData {
-        channels: string[];
-        active: boolean;
+        channels?: string[];
+        active?: boolean;
     }
 
     export interface PunishPubSchema {
