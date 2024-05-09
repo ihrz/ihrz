@@ -677,6 +677,20 @@ setlogschannel_var_voice: "音声ログ"
 setlogschannel_var_msg: "メッセージログ"
 setlogschannel_var_boost: "ブーストログ"
 
+# /join-ghostping add
+joinghostping_add_already_set: "チャンネル ${channel} はすでに設定されています！"
+joinghostping_add_sent_to_channel: "これから、メンバーがギルドに参加すると、ここに幽霊メッセージを送信します。"
+joinghostping_add_ok_embed_title: "Join GhostPing モジュール"
+joinghostping_add_ok_embed_desc: "今後、メンバーがギルドに参加するたびに、このチャンネルに幽霊メッセージを送信します！"
+joinghostping_add_ok_embed_fields_name: "すべての登録済みチャンネル"
+joinghostping_add_logs_embed_title: "Join GhostPing ログ"
+joinghostping_add_logs_embed_desc: "${interaction.user} が ${channel} を Join GhostPing モジュールに追加しました！"
+
+# /join-ghostping remove
+joinghostping_remove_isnt_set: "チャンネル ${channel} は設定されていません！"
+joinghostping_remove_ok_embed_desc: "チャンネルは Join GhostPing モジュールから削除されました！"
+joinghostping_remove_logs_embed_desc: "${interaction.user} が Join GhostPing モジュールから ${channel} を削除しました！"
+
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, あなたは`Mass-Mention AutoModルール`を**false**に設定しました。\n今、ユーザーはメッセージにメンションを送信できます。\nAutoMod x iHorizonはサーバーで無効になっています！"
 automod_block_massmention_command_on: "${interaction.user}, あなたは`Mass-Mention AutoModルール`を**true**に設定しました。\n今、ユーザーはメッセージに**${max_mention}**回以上のメンションを送信できません。\nAutoModは${logs_channel}にログを送信しています。\nAutoMod x iHorizonがサーバーを保護しています！"
