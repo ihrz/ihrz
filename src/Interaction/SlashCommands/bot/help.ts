@@ -119,9 +119,9 @@ export const command: Command = {
             embed.setFields({ name: ' ', value: ' ' });
 
             let categoryColor = categories[i.values[0] as unknown as number].color;
-            let commandGroups: any[][] = [];
+            let commandGroups: { name: string, value: string, inline: boolean }[][] = [];
             let embeds: EmbedBuilder[] = [];
-            let currentGroup: any[] = [];
+            let currentGroup: { name: string, value: string, inline: boolean }[] = [];
 
             categories[i.values[0] as unknown as number].value.forEach(async (element, index) => {
                 let cmdPrefix = (element.messageCmd) ? `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**` : `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;

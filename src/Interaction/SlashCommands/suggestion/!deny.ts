@@ -96,7 +96,7 @@ export default {
             });
 
             return;
-        }).catch(async (err: any) => {
+        }).catch(async () => {
             await interaction.deleteReply();
             await interaction.followUp({ content: data.suggest_deny_command_error, ephemeral: true });
             return;

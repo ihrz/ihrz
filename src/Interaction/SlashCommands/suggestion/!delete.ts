@@ -69,7 +69,7 @@ export default {
             await interaction.deleteReply();
             await interaction.followUp({ content: data.suggest_delete_command_work, ephemeral: true });
             return;
-        }).catch(async (err: any) => {
+        }).catch(async () => {
             await interaction.deleteReply();
             await interaction.followUp({ content: data.suggest_delete_command_error, ephemeral: true });
             return;

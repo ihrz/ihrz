@@ -32,28 +32,28 @@ export default {
 
         let alpha = " ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
         let morse = "/,.-,-...,-.-.,-..,.,..-.,--.,....,..,.---,-.-,.-..,--,-.,---,.--.,--.-,.-.,...,-,..-,...-,.--,-..-,-.--,--..,.----,..---,...--,....-,.....,-....,--...,---..,----.,-----".split(",");
-        let text: any = interaction.options.getString("input")?.toUpperCase();
+        let text = interaction.options.getString("input")?.toUpperCase() as string;
 
-        while (text?.includes("Ä") || text?.includes("Ö") || text?.includes("Ü")) {
-            text = text?.replace("Ä", "AE").replace("Ö", "OE").replace("Ü", "UE");
+        while (text.includes("Ä") || text.includes("Ö") || text.includes("Ü")) {
+            text = text.replace("Ä", "AE").replace("Ö", "OE").replace("Ü", "UE");
         };
 
-        if (text?.startsWith(".") || text?.startsWith("-")) {
-            text = text.split(" ");
-            let length = text?.length;
+        if (text.startsWith(".") || text.startsWith("-")) {
+            let textArray = text.split(" ");
+            let length = textArray.length;
             for (i = 0; i < length; i++) {
-                text[i] = alpha[morse.indexOf(text[i])];
+                textArray[i] = alpha[morse.indexOf(textArray[i])];
             };
 
-            text = text?.join("");
+            text = textArray.join("");
         } else {
-            text = text?.split("");
-            let length = text.length;
+            let textArray = text.split("");
+            let length = textArray.length;
             for (i = 0; i < length; i++) {
-                text[i] = morse[alpha.indexOf(text[i])];
+                textArray[i] = morse[alpha.indexOf(textArray[i])];
             };
 
-            text = text.join(" ");
+            text = textArray.join(" ");
         }
         await interaction.editReply({ content: "```" + text + "```" });
         return;

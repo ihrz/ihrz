@@ -77,7 +77,7 @@ export const event: BotEvent = {
                         break;
                     }
                 }
-            } catch (e: any) {
+            } catch {
                 return;
             }
         }

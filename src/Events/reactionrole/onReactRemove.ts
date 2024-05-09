@@ -51,6 +51,6 @@ export const event: BotEvent = {
                 await member?.roles.remove(role).catch(() => { });
                 return;
             };
-        } catch (e: any) { return; };
+        } catch { return; };
     },
 };
