@@ -410,7 +410,7 @@ async function CreateTicketChannel(interaction: ButtonInteraction<CacheType> | S
             interaction.deferUpdate();
             return;
         } else {
-            interaction.deferUpdate();
+            interaction.deferReply({ ephemeral: true });
 
             await CreateChannel(
                 interaction,
@@ -451,7 +451,14 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                     .replace('${channel.id}', channel.id)
                 , ephemeral: true
             });
-        };
+        } else {
+            interaction.editReply({
+                content: lang.event_ticket_whenCreated_msg
+                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${channel.id}', channel.id)
+                , ephemeral: true
+            });
+        }
 
         await channel.permissionOverwrites.edit(interaction.guild?.roles.everyone as Role,
             {
