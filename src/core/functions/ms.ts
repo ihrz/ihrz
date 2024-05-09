@@ -73,6 +73,8 @@ class iHorizonTimeCalculator {
                 case 'y':
                 case 'year':
                 case 'years':
+                case 'an':
+                case 'ans':
                     multiplier = 31557600000;
                     break;
                 default:
