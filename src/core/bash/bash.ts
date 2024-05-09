@@ -19,15 +19,16 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import logger from "../logger.js";
-import os from 'node:os';
-import readline from 'readline';
-import fs from 'node:fs';
-import config from "../../files/config.js";
-import path from 'path';
 import { Client } from "discord.js";
-import wait from "../functions/wait.js";
+import logger from "../logger.js";
+import readline from 'readline';
+import os from 'node:os';
+import fs from 'node:fs';
+import path from 'path';
+
+import config from "../../files/config.js";
 import getIP from "../functions/getIp.js";
+import wait from "../functions/wait.js";
 
 function niceBytes(a: Number) { let b = 0, c = parseInt((a.toString()), 10) || 0; for (; 1024 <= c && ++b;)c /= 1024; return c.toFixed(10 > c && 0 < b ? 1 : 0) + " " + ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][b] }
 
