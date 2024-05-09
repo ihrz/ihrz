@@ -37,22 +37,42 @@ class iHorizonTimeCalculator {
                     multiplier = 1;
                     break;
                 case 's':
+                case 'sec':
+                case 'seconde':
+                case 'secondes':
                     multiplier = 1000;
                     break;
                 case 'm':
+                case 'min':
+                case 'minute':
+                case 'minutes':
                     multiplier = 60000;
                     break;
                 case 'h':
+                case 'hour':
+                case 'hours':
+                case 'heure':
+                case 'heures':
                     multiplier = 3600000;
                     break;
                 case 'd':
+                case 'day':
+                case 'days':
                 case 'j':
+                case 'jour':
+                case 'jours':
                     multiplier = 86400000;
                     break;
                 case 'w':
+                case 'week':
+                case 'weeks':
+                case 'semaine':
+                case 'semaines':
                     multiplier = 604800000;
                     break;
                 case 'y':
+                case 'year':
+                case 'years':
                     multiplier = 31557600000;
                     break;
                 default:
