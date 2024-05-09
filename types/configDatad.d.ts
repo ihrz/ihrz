@@ -48,6 +48,7 @@ export interface ConfigData {
         apiToken: string;
         clientSecret?: string;
         oauth2Link?: string;
+        clientID: string;
     };
 
     console: {
