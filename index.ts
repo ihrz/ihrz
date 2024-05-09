@@ -22,23 +22,8 @@
 import './src/core/functions/colors.js';
 
 import { Client, Partials, GatewayIntentBits } from "discord.js";
-import { DefaultWebSocketManagerOptions } from "@discordjs/ws";
 import * as ClientVersion from "./src/version.js";
-import config from './src/files/config.js';
 import core from './src/core/core.js';
-
-if (config.discord.botPresence) {
-
-    const { identifyProperties } = DefaultWebSocketManagerOptions;
-
-    Object.defineProperty(identifyProperties, 'browser', {
-        value: "Discord Android",
-        writable: true,
-        enumerable: true,
-        configurable: true
-    });
-
-};
 
 let client = new Client({
     intents: [
