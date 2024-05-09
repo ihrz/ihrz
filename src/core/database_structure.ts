@@ -168,7 +168,7 @@ export namespace DatabaseStructure {
     }
 
     export interface MemberCountSchema {
-        member: {
+        member?: {
             name?: string;
             enable?: boolean;
             event?: string;
