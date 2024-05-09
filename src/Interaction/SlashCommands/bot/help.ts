@@ -29,6 +29,7 @@ import {
     ChatInputCommandInteraction,
     StringSelectMenuInteraction,
     ApplicationCommandType,
+    ColorResolvable,
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData';
@@ -113,11 +114,11 @@ export const command: Command = {
             embed
                 .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
                 .setDescription(categories[i.values[0] as unknown as number].description)
-                .setColor(categories[i.values[0] as unknown as number].color as any);
+                .setColor(categories[i.values[0] as unknown as number].color as ColorResolvable);
 
             embed.setFields({ name: ' ', value: ' ' });
 
-            let categoryColor = categories[i.values[0] as unknown as number].color as any;
+            let categoryColor = categories[i.values[0] as unknown as number].color;
             let commandGroups: any[][] = [];
             let embeds: EmbedBuilder[] = [];
             let currentGroup: any[] = [];
@@ -145,7 +146,7 @@ export const command: Command = {
             });
 
             for (const group of commandGroups) {
-                let newEmbed = new EmbedBuilder().setColor(categoryColor);
+                let newEmbed = new EmbedBuilder().setColor(categoryColor as ColorResolvable);
 
                 if (embeds.length === 0) {
                     newEmbed

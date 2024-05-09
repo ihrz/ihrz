@@ -21,10 +21,11 @@
 
 import { ChatInputCommandInteraction, Client, EmbedBuilder } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
+import { DatabaseStructure } from '../../../core/database_structure';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        let toAnalyze = await client.db.get(`${interaction.guildId}.USER`);
+        let toAnalyze = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
@@ -38,7 +39,7 @@ export default {
         let usersArray = Object.entries(toAnalyze);
 
         // Sort the users based on their total wealth
-        usersArray.sort((a: any, b: any) => {
+        usersArray.sort((a, b) => {
             let wealthA = (a[1]?.ECONOMY?.bank || 0) + (a[1]?.ECONOMY?.money || 0);
             let wealthB = (b[1]?.ECONOMY?.bank || 0) + (b[1]?.ECONOMY?.money || 0);
             return wealthB - wealthA;
@@ -55,7 +56,7 @@ export default {
         usersArray = usersArray.slice(0, 10);
 
         // Display the sorted leaderboard
-        usersArray.forEach((user: any, index) => {
+        usersArray.forEach((user, index) => {
             let userId = user[0];
             let userData = user[1]?.ECONOMY;
 
@@ -65,8 +66,8 @@ export default {
                     value: data.economy_leaderboard_embed_fields_value
                         .replaceAll('${client.iHorizon_Emojis.icon.Coin}', client.iHorizon_Emojis.icon.Coin)
                         .replace('${userId}', userId)
-                        .replace('${userData.bank || 0}', userData.bank || 0)
-                        .replace('${userData.money || 0}', userData.money || 0)
+                        .replace('${userData.bank || 0}', String(userData?.bank || 0))
+                        .replace('${userData.money || 0}', String(userData?.money || 0))
                     ,
                     inline: false,
                 });
