@@ -677,6 +677,20 @@ setlogschannel_var_voice: "Журналы голоса"
 setlogschannel_var_msg: "Журналы сообщений"
 setlogschannel_var_boost: "Логи Повышений"
 
+# /join-ghostping add
+joinghostping_add_already_set: "Канал ${channel} уже установлен!"
+joinghostping_add_sent_to_channel: "Теперь, когда участник присоединяется к серверу, я отправлю призрачное сообщение **сюда**."
+joinghostping_add_ok_embed_title: "Модуль Join GhostPing"
+joinghostping_add_ok_embed_desc: "Теперь, когда участник присоединяется к серверу, я буду отправлять призрачное сообщение в этот канал!"
+joinghostping_add_ok_embed_fields_name: "Все зарегистрированные каналы"
+joinghostping_add_logs_embed_title: "Журналы Join GhostPing"
+joinghostping_add_logs_embed_desc: "${interaction.user} добавил ${channel} в модуль Join GhostPing!"
+
+# /join-ghostping remove
+joinghostping_remove_isnt_set: "Канал ${channel} не установлен!"
+joinghostping_remove_ok_embed_desc: "Каналы были удалены из модуля Join GhostPing!"
+joinghostping_remove_logs_embed_desc: "${interaction.user} удалил ${channel} из модуля Join GhostPing!"
+
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, вы отключили `Правило автоматической модерации упоминаний` и теперь пользователи могут отправлять упоминания в своих сообщениях.\nAutoMod x iHorizon отключен на вашем сервере!"
 automod_block_massmention_command_on: "${interaction.user}, вы включили `Правило автоматической модерации упоминаний` и теперь пользователи не могут отправлять более **${max_mention}** упоминаний в своих сообщениях.\nAutoMod отправляет журналы в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"

@@ -677,6 +677,20 @@ setlogschannel_var_voice: "Registros de voz"
 setlogschannel_var_msg: "Registros de mensajes"
 setlogschannel_var_boost: "Registros de Impulso"
 
+# /join-ghostping add
+joinghostping_add_already_set: "¡El canal ${channel} ya está configurado!"
+joinghostping_add_sent_to_channel: "A partir de ahora, cuando un miembro se una al servidor, enviaré un mensaje fantasma **aquí**."
+joinghostping_add_ok_embed_title: "Módulo de Join GhostPing"
+joinghostping_add_ok_embed_desc: "¡Ahora enviaré un mensaje fantasma en este canal cada vez que un miembro se una al servidor!"
+joinghostping_add_ok_embed_fields_name: "Todos los canales registrados"
+joinghostping_add_logs_embed_title: "Registros de Join GhostPing"
+joinghostping_add_logs_embed_desc: "${interaction.user} ha añadido ${channel} al Módulo de Join GhostPing!"
+
+# /join-ghostping remove
+joinghostping_remove_isnt_set: "¡El canal ${channel} no está configurado!"
+joinghostping_remove_ok_embed_desc: "¡Los canales han sido eliminados del Módulo Join GhostPing!"
+joinghostping_remove_logs_embed_desc: "${interaction.user} ha eliminado ${channel} del Módulo Join GhostPing!"
+
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, has desactivado la regla de `AutoModeración de Menciones Masivas` a **falso**.\nAhora los usuarios pueden enviar menciones en sus mensajes.\nAutoModeración x iHorizon ha sido desactivada en tu servidor."
 automod_block_massmention_command_on: "${interaction.user}, has activado la regla de `AutoModeración de Menciones Masivas` a **verdadero**.\nAhora los usuarios no pueden enviar más de **${max_mention}** mención(es) en sus mensajes.\nAutoModeración __enviando registros__ en ${logs_channel}.\nAutoModeración x iHorizon protege tu servidor!"
