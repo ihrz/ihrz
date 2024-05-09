@@ -602,6 +602,11 @@ setjoindm_command_error_on_disable: "Erreur : autorisations manquantes ou le sal
 setjoindm_already_disable: "Le message de bienvenue en DM est déjà désactivé !"
 setjoindm_not_setup_ls: "Aucun message de bienvenue en DM n'a été configuré ici !"
 setjoindm_command_work_ls: "Le message de bienvenue en DM est : \n```${already_off}``` suivi dun dégage d'ici on t'aime pas"
+setjoindm_help_embed_title: "Aide pour définir le message de DM de bienvenue !"
+setjoindm_help_embed_desc: "{memberUsername} => Le nom d'utilisateur du membre\n{memberMention} => Mentionner le membre\n{memberCount} => Nombre de membres dans la guilde\n{guildName} => Nom de la guilde\n{createdAt} => Date de création du compte en jj/mm/aaaa"
+setjoindm_buttom_set_name: "Définir le Message"
+setjoindm_buttom_delete_name: "Supprimer le Message DM"
+setjoindm_awaiting_response: "Écrivez le nouveau message de bienvenue personnalisé par DM dans le canal."
 
 # /setjoinmessage
 setjoinmessage_not_admin: ":x: | Tu dois etre un admin du serv bg revient après pour demander des commandes de configuration !"
@@ -620,6 +625,9 @@ setjoinmessage_help_embed_fields_custom_name: "Message Personnalisé"
 setjoinmessage_help_embed_fields_custom_name_empy: "Non défini !"
 setjoinmessage_help_embed_fields_default_name_empy: "Message par Défaut"
 setjoinmessage_help_embed_desc: "{memberUsername} => Le nom d'utilisateur du membre\n{memberMention} => Mentionner le membre\n{inviterUsername} => Le nom de l'invitant\n{inviterMention} => Mentionner l'invitant\n{memberCount} => Nombre de membres dans la guilde\n{invitesCount} => Nombre d'invitations de l'invitant\n{guildName} => Le nom de la guilde\n{createdAt} => Date de création du compte en JJ/MM/AAAA"
+setjoinmessage_button_set_name: "Définir le message"
+setjoinmessage_buttom_del_name: "Message par défaut"
+setjoinmessage_awaiting_response: "Écrivez le nouveau message de bienvenue personnalisé dans le canal."
 
 # /setjoinroles
 setjoinroles_not_admin: ":x: | Tu dois etre un admin du serv bg revient après pour utiliser cette commande !"

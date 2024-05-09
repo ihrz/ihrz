@@ -40,7 +40,8 @@ export default {
             return;
         };
 
-        let joinMessage = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`);
+        let joinMessage = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`) as string | undefined;
+        joinMessage = joinMessage?.substring(0, 1010);
 
         let help_embed = new EmbedBuilder()
             .setColor("#ffb3cc")
@@ -78,11 +79,11 @@ export default {
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId("joinMessage-set-message")
-                    .setLabel('Set message')
+                    .setLabel(data.setjoinmessage_button_set_name)
                     .setStyle(ButtonStyle.Primary),
                 new ButtonBuilder()
                     .setCustomId("joinMessage-default-message")
-                    .setLabel('Default Message')
+                    .setLabel(data.setjoinmessage_buttom_del_name)
                     .setStyle(ButtonStyle.Danger),
             );
 
@@ -100,7 +101,7 @@ export default {
         collector.on('collect', async collectInteraction => {
             if (collectInteraction.customId === "joinMessage-set-message") {
                 await collectInteraction.reply({
-                    content: "Wrote the new custom Join Message in the channel.",
+                    content: data.setjoinmessage_awaiting_response,
                     ephemeral: true
                 });
 
@@ -111,7 +112,7 @@ export default {
                 });
 
                 questionReply?.on('collect', async collected => {
-                    let response = collected.content;
+                    let response = collected.content.substring(0, 1010);
                     let newEmbed = EmbedBuilder.from(help_embed).setFields(
                         {
                             name: data.setjoinmessage_help_embed_fields_custom_name,
@@ -164,7 +165,7 @@ export default {
             } else if (collectInteraction.customId === "joinMessage-default-message") {
                 let newEmbed = EmbedBuilder.from(help_embed).setFields(
                     {
-                        name:  data.setjoinmessage_help_embed_fields_custom_name,
+                        name: data.setjoinmessage_help_embed_fields_custom_name,
                         value: data.setjoinmessage_help_embed_fields_custom_name_empy
                     },
                 );

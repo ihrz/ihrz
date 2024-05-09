@@ -20,9 +20,13 @@
 */
 
 import {
+    ActionRowBuilder,
     BaseGuildTextChannel,
+    ButtonBuilder,
+    ButtonStyle,
     ChatInputCommandInteraction,
     Client,
+    ComponentType,
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
@@ -38,86 +42,125 @@ export default {
             return;
         };
 
-        let type = interaction.options.getString("value");
-        let dm_msg = interaction.options.getString("message");
+        let joinDm = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`) as string | undefined;
+        joinDm = joinDm?.substring(0, 1010);
 
-        if (type === "on") {
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
-                    .setTitle(data.setjoindm_logs_embed_title_on_enable)
-                    .setDescription(data.setjoindm_logs_embed_description_on_enable
-                        .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    );
+        let help_embed = new EmbedBuilder()
+            .setColor("#0014a8")
+            .setTitle(data.setjoindm_help_embed_title)
+            .setDescription(data.setjoindm_help_embed_desc)
+            .setFields(
+                {
+                    name: data.setjoinmessage_help_embed_fields_custom_name,
+                    value: joinDm ? `\`\`\`${joinDm
+                        .replaceAll("{memberUsername}", interaction.user.username)
+                        .replaceAll("{memberMention}", interaction.user.toString())
+                        .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
+                        .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
+                        .replaceAll('{guildName}', interaction.guild?.name!)
+                        }\`\`\`\n` : data.setjoinmessage_help_embed_fields_custom_name_empy
+                }
+            );
 
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+        const buttons = new ActionRowBuilder<ButtonBuilder>()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId("joinMessage-set-message")
+                    .setLabel(data.setjoindm_buttom_set_name)
+                    .setStyle(ButtonStyle.Primary),
+                new ButtonBuilder()
+                    .setCustomId("joinMessage-default-message")
+                    .setLabel(data.setjoindm_buttom_delete_name)
+                    .setStyle(ButtonStyle.Danger),
+            );
 
-                if (logchannel) {
-                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-                };
-            } catch (e: any) {
-                logger.err(e)
-            };
+        let originalResponse = await interaction.editReply({
+            embeds: [help_embed],
+            components: [buttons]
+        });
 
-            try {
-                if (!dm_msg) {
-                    await interaction.editReply({ content: data.setjoindm_not_specified_args_on_enable });
-                    return;
-                };
+        let collector = originalResponse.createMessageComponentCollector({
+            componentType: ComponentType.Button,
+            filter: (u) => u.user.id === interaction.user.id,
+            time: 80_000
+        });
 
-                await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`, dm_msg);
-                await interaction.editReply({
-                    content: data.setjoindm_confirmation_message_on_enable
-                        .replace(/\${dm_msg}/g, dm_msg)
+        collector.on('collect', async collectInteraction => {
+            if (collectInteraction.customId === "joinMessage-set-message") {
+                await collectInteraction.reply({
+                    content: data.setjoindm_awaiting_response,
+                    ephemeral: true
                 });
-                return;
-            } catch (e) {
-                await interaction.editReply({ content: data.setjoindm_command_error_on_enable });
-                return;
-            };
 
-        } else if (type === "off") {
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
-                    .setTitle(data.setjoindm_logs_embed_title_on_disable)
-                    .setDescription(data.setjoindm_logs_embed_description_on_disable
-                        .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    )
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-            } catch (e) {
-                return;
-            };
+                let questionReply = interaction.channel?.createMessageCollector({
+                    filter: (m) => m.author.id === interaction.user.id,
+                    max: 1,
+                    time: 120_000
+                });
 
-            try {
-                let already_off = await client.db.get(`joindm-${interaction.guildId}`);
-                if (already_off === "off") {
-                    await interaction.editReply({ content: data.setjoindm_already_disable });
-                    return;
+                questionReply?.on('collect', async collected => {
+                    let response = collected.content.substring(0, 1010);
+
+                    try {
+                        let logEmbed = new EmbedBuilder()
+                            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
+                            .setTitle(data.setjoindm_logs_embed_title_on_enable)
+                            .setDescription(data.setjoindm_logs_embed_description_on_enable
+                                .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                            );
+
+                        let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
+                        if (logchannel) {
+                            (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
+                        };
+                    } catch (e: any) {
+                        logger.err(e)
+                    };
+
+                    await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`, response);
+
+                    await interaction.editReply({
+                        embeds: [],
+                        content: data.setjoindm_confirmation_message_on_enable
+                            .replace(/\${dm_msg}/g, response),
+                        components: []
+                    });
+
+                    collected.delete();
+                    questionReply.stop();
+                });
+            } else if (collectInteraction.customId === "joinMessage-default-message") {
+                collectInteraction.deferUpdate();
+
+                try {
+                    let logEmbed = new EmbedBuilder()
+                        .setColor("#bf0bb9")
+                        .setTitle(data.setjoindm_logs_embed_title_on_disable)
+                        .setDescription(data.setjoindm_logs_embed_description_on_disable
+                            .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                        )
+                    let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
+                } catch { };
+
+                let already_off = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`);
+
+                if (!already_off) {
+                    await interaction.editReply({
+                        content: data.setjoindm_already_disable,
+                        embeds: [],
+                        components: []
+                    });
+                } else {
+                    await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`);
+                    await interaction.editReply({
+                        content: data.setjoindm_confirmation_message_on_disable,
+                        embeds: [],
+                        components: []
+                    });
                 };
-
-                await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`);
-                await interaction.editReply({ content: data.setjoindm_confirmation_message_on_disable });
-                return;
-
-            } catch (e) {
-                await interaction.editReply({ content: data.setjoindm_command_error_on_disable });
-                return;
-            };
-
-        } else if (type === "ls") {
-            let already_off = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`);
-            if (!already_off) {
-                await interaction.editReply({ content: data.setjoindm_not_setup_ls });
-                return;
-            };
-
-            await interaction.editReply({
-                content: data.setjoindm_command_work_ls
-                    .replace(/\${already_off}/g, already_off)
-            });
-            return;
-        };
+            }
+        });
     },
 };

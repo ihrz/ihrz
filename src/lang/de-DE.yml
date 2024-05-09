@@ -602,6 +602,11 @@ setjoindm_command_error_on_disable: "Fehler: fehlende Berechtigungen oder Kanal 
 setjoindm_already_disable: "Die Join-DM-Nachricht ist bereits deaktiviert!"
 setjoindm_not_setup_ls: "Es ist hier keine Join-DM eingerichtet!"
 setjoindm_command_work_ls: "Die Join-DM-Nachricht lautet: \n```${already_off}```"
+setjoindm_help_embed_title: "Hilfe zur Einstellung der Beitritts-DM-Nachricht!"
+setjoindm_help_embed_desc: "{memberUsername} => Der Benutzername des Mitglieds\n{memberMention} => Erwähnung des Mitglieds\n{memberCount} => Anzahl der Mitglieder im Server\n{guildName} => Name des Servers\n{createdAt} => Kontoerstellung am tt/mm/jjjj"
+setjoindm_buttom_set_name: "Nachricht festlegen"
+setjoindm_buttom_delete_name: "DM-Nachricht löschen"
+setjoindm_awaiting_response: "Schreiben Sie die neue benutzerdefinierte Beitritts-DM-Nachricht in den Kanal."
 
 # /setjoinmessage
 setjoinmessage_not_admin: ":x: | Sie müssen Administrator dieses Servers sein, um diesen Befehl zu verwenden!"
@@ -620,6 +625,9 @@ setjoinmessage_help_embed_fields_custom_name: "Benutzerdefinierte Nachricht"
 setjoinmessage_help_embed_fields_custom_name_empy: "Nicht festgelegt!"
 setjoinmessage_help_embed_fields_default_name_empy: "Standardnachricht"
 setjoinmessage_help_embed_desc: "{memberUsername} => Der Benutzername des Mitglieds\n{memberMention} => Erwähnung des Mitglieds\n{inviterUsername} => Der Name des Einladenden\n{inviterMention} => Erwähnung des Einladenden\n{memberCount} => Anzahl der Mitglieder in der Gilde\n{invitesCount} => Anzahl der Einladungen des Einladenden\n{guildName} => Name der Gilde\n{createdAt} => Kontoerstellung im Format TT/MM/JJJJ"
+setjoinmessage_button_set_name: "Nachricht festlegen"
+setjoinmessage_buttom_del_name: "Standardnachricht"
+setjoinmessage_awaiting_response: "Schreiben Sie die neue benutzerdefinierte Beitrittsnachricht in den Kanal."
 
 # /setjoinroles
 setjoinroles_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
