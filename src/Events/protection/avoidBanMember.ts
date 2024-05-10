@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildBan, PermissionsBitField, InteractionCollector } from 'discord.js'
+import { Client, AuditLogEvent, GuildBan, PermissionsBitField } from 'discord.js'
 import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {
@@ -41,7 +41,7 @@ export const event: BotEvent = {
                 limit: 1,
             });
 
-            var firstEntry = fetchedLogs.entries.first();
+            let firstEntry = fetchedLogs.entries.first();
 
             if (firstEntry?.targetId !== ban.user.id || firstEntry.executorId === client.user?.id || !firstEntry.executorId) return;
 
@@ -52,13 +52,11 @@ export const event: BotEvent = {
                 await ban.guild.bans.remove(ban.user.id);
 
                 switch (data?.['SANCTION']) {
-                    case 'simply':
-                        break;
                     case 'simply+derank':
                         user?.guild.roles.cache.forEach((element) => {
                             if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
                                 user.roles.remove(element.id);
-                            };
+                            }
                         });
                         break;
                     case 'simply+ban':
@@ -66,8 +64,8 @@ export const event: BotEvent = {
                         break;
                     default:
                         return;
-                };
-            };
+                }
+            }
         }
     },
 };

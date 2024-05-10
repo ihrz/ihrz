@@ -36,4 +36,4 @@ export interface Custom_iHorizon {
         NodePort: number;
         NodeAuth: string;
     }
-};
+}

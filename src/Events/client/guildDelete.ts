@@ -34,7 +34,7 @@ export const event: BotEvent = {
             await client.db.delete(`${guild.id}`);
 
             return client.invites.delete(guild.id);
-        };
+        }
 
         async function ownerLogs() {
             try {
@@ -42,9 +42,9 @@ export const event: BotEvent = {
 
                 if (guild.name === undefined || null) {
                     return;
-                };
+                }
 
-                if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; };
+                if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
                 let embed = new EmbedBuilder()
                     .setColor("#ff0505")
@@ -65,8 +65,8 @@ export const event: BotEvent = {
                 return (channel as BaseGuildTextChannel).send({ embeds: [embed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
             } catch (error: any) {
                 logger.err(error);
-            };
-        };
+            }
+        }
 
         ownerLogs(), inviteManager();
     },

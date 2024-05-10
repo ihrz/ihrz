@@ -22,4 +22,4 @@
 export interface VanityInviteData {
     uses: number | null,
     code: string | null,
-};
+}

@@ -38,7 +38,7 @@ export const event: BotEvent = {
                 limit: 1,
             });
 
-            var firstEntry = fetchedLogs.entries.first();
+            let firstEntry = fetchedLogs.entries.first();
 
             if (firstEntry?.targetId !== channel.id || firstEntry.executorId === client.user?.id || !firstEntry.executorId) return;
 
@@ -65,7 +65,7 @@ export const event: BotEvent = {
                         user?.guild.roles.cache.forEach((element) => {
                             if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
                                 user.roles.remove(element.id);
-                            };
+                            }
                         });
                         break;
                     case 'simply+ban':
@@ -73,8 +73,8 @@ export const event: BotEvent = {
                         break;
                     default:
                         return;
-                };
-            };
+                }
+            }
         }
 
     },

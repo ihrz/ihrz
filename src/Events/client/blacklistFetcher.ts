@@ -36,7 +36,7 @@ export const event: BotEvent = {
                     .then(() => {
                         member.ban({ reason: 'blacklisted!' });
                     });
-            };
+            }
 
         } catch (error) {
             return;
