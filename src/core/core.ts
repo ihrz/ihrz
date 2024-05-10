@@ -20,7 +20,7 @@
 */
 
 import playerManager from "./modules/playerManager.js";
-import db from './functions/DatabaseModel.js';
+import database from "./database.js";
 
 import * as errorManager from './modules/errorManager.js';
 import logger from "./logger.js";
@@ -53,7 +53,7 @@ export default async (client: Client) => {
         process.exit(1);
     });
 
-    client.db = db;
+    client.db = database;
     client.content = [];
     client.category = [];
     client.invites = new Collection();

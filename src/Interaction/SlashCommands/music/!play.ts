@@ -29,8 +29,8 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
-import { SearchPlatform, SearchResult, UnresolvedSearchResult } from 'lavalink-client';
 import maskLink from '../../../core/functions/maskLink.js';
+import { SearchPlatform } from 'lavalink-client';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -43,7 +43,7 @@ export default {
             return;
         };
 
-        if (client.functions.isAllowedLinks(check)) {
+        if (!client.functions.isAllowedLinks(check)) {
             return interaction.editReply({ content: data.p_not_allowed })
         };
 
@@ -87,7 +87,7 @@ export default {
                     )
             ]
         });
-        
+
         if (!player.playing) {
             await player.play();
         };
@@ -114,7 +114,7 @@ export default {
         await interaction.editReply({
             content: data.p_loading_message
                 .replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
-                .replace("{result}", res.playlist ? 'playlist' : 'track')
+                .replace("{result}", res.loadType === "playlist" ? 'playlist' : 'track')
             , embeds: [embed]
         });
 

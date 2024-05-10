@@ -19,10 +19,11 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import db from '../functions/DatabaseModel.js';
+import { LanguageData } from '../../../types/languageData.js';
+import database from '../database.js';
+
 import yaml from 'js-yaml';
 import fs from 'node:fs';
-import { LanguageData } from '../../../types/languageData.js';
 
 interface LangsData {
     [lang: string]: LanguageData;
@@ -31,7 +32,7 @@ interface LangsData {
 let LangsData: LangsData = {};
 
 export default async function getLanguageData(arg: string): Promise<LanguageData> {
-    let lang = await db.get(`${arg}.GUILD.LANG.lang`);
+    let lang = await database.get(`${arg}.GUILD.LANG.lang`);
 
     if (!lang) {
         lang = 'en-US';

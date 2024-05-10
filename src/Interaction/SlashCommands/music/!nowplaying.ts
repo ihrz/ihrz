@@ -70,10 +70,11 @@ export default {
         let embed = new EmbedBuilder()
             .setTitle(data.nowplaying_message_embed_title)
             .setDescription(`by: ${player.queue.current?.requester}\n**[${player.queue.current?.info.title}](${player.queue.current?.info?.uri})**, ${player.queue.current?.info?.author}`)
-            .setThumbnail(`${player.queue.current?.info?.artworkUrl}`)
             .addFields(
-                { name: '  ', value: progress?.replace(/ 0:00/g, 'LIVE') as string }
+                { name: '  ', value: progress?.replace(/ 0:00/g, 'LIVE')! }
             );
+
+        if (player.queue.current?.info?.artworkUrl) embed.setThumbnail(player.queue.current?.info?.artworkUrl);
 
         let response = await interaction.editReply({
             embeds: [embed],

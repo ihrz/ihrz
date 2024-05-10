@@ -25,10 +25,12 @@ import {
     Client,
     EmbedBuilder,
     GuildMember,
+    Message,
     MessageContextMenuCommandInteraction,
     time,
 } from 'discord.js';
 
+import { SearchResult, UnresolvedSearchResult } from 'lavalink-client/dist/types/index.js';
 import { AnotherCommand } from '../../../types/anotherCommand.js';
 
 export const command: AnotherCommand = {
@@ -40,69 +42,14 @@ export const command: AnotherCommand = {
         let data = await client.functions.getLanguageData(interaction.guildId);
         let voiceChannel = (interaction.member as GuildMember)?.voice.channel;
 
-        let msg = interaction.options.getMessage("message");
-        let check: string = "";
+        let msg = interaction.options.getMessage("message") as Message;
+        let check: string[] = [];
 
-        // if (msg && msg.attachments.size >= 1) {
-
-        //     if (msg.attachments.size == 1) {
-        //         let firstAttachement = msg?.attachments.first();
-        //         check = firstAttachement?.url as string
-        //     } else if (msg.attachments.size > 1) {
-        //         msg.attachments.forEach(async content => {
-
-        //             let result = await interaction.client.player.search(content.url, {
-        //                 requestedBy: interaction.user, searchEngine: QueryType.AUTO
-        //             });
-
-        //             let results = new EmbedBuilder()
-        //                 .setTitle(data.p_embed_title)
-        //                 .setColor('#ff0000')
-        //                 .setTimestamp();
-
-        //             if (!result.hasTracks()) {
-        //                 await interaction.editReply({ embeds: [results] });
-        //                 return;
-        //             };
-
-        //             let yes = await interaction.client.player.play((interaction.member as GuildMember).voice.channel?.id as GuildVoiceChannelResolvable, result, {
-        //                 nodeOptions: {
-        //                     metadata: {
-        //                         channel: interaction.channel,
-        //                         client: interaction.guild?.members.me,
-        //                         requestedBy: interaction.user.globalName || interaction.user.username
-        //                     },
-        //                     volume: 60,
-        //                     bufferingTimeout: 3000,
-        //                     leaveOnEnd: true,
-        //                     leaveOnEndCooldown: 150000,
-        //                     leaveOnStop: true,
-        //                     leaveOnStopCooldown: 30000,
-        //                     leaveOnEmpty: true,
-        //                 },
-        //             });
-
-        //             let embed = new EmbedBuilder()
-        //                 .setDescription(`${yes.track.playlist ? `**multiple tracks** from: **${yes.track.playlist.title}**` : `**${yes.track.title}**`}`)
-        //                 .setColor('#00cc1a')
-        //                 .setTimestamp()
-        //                 .setFooter({ text: data.p_duration + `${yes.track.playlist ? `${yess()}` : `${yes.track.duration}`}` });
-
-        //             embed
-        //                 .setThumbnail(`${yes.track.playlist ? `${yes.track.playlist.thumbnail}` : `${yes.track.thumbnail}`}`)
-
-        //             await interaction.editReply({
-        //                 content: data.p_loading_message
-        //                     .replace("{result}", result.playlist ? 'playlist' : 'track')
-        //                     .replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
-        //                 , embeds: [embed]
-        //             });
-        //         });
-
-        //         return;
-        //     }
-
-        // } else { check = msg?.content as string };
+        if (msg && msg.attachments.size >= 1) {
+            msg.attachments.forEach(content => check.push(content.url));
+        } else {
+            check.push(msg.content);
+        };
 
         if (!voiceChannel) {
             await interaction.editReply({ content: data.p_not_in_voice_channel });
@@ -119,32 +66,50 @@ export const command: AnotherCommand = {
             textChannelId: interaction.channelId,
         });
 
-        let res = await player.search({ query: msg?.content as string }, interaction.user)
+        let all_res: (SearchResult | UnresolvedSearchResult)[] = [];
 
-        if (res.tracks.length === 0) {
-            let results = new EmbedBuilder()
-                .setTitle(data.p_embed_title)
-                .setColor('#ff0000')
-                .setTimestamp();
+        for (let trackUrl of check) {
+            let res = await player.search({ query: trackUrl }, interaction.user);
+            all_res.push(res);
 
-            await interaction.editReply({ embeds: [results] });
-            return;
-        };
+            if (res.tracks.length === 0) {
+                let results = new EmbedBuilder()
+                    .setTitle(data.p_embed_title)
+                    .setColor('#ff0000')
+                    .setTimestamp();
+
+                await interaction.editReply({ embeds: [results] });
+                return;
+            }
+
+            await player.queue.add(res.tracks[0]);
+
+            let channel = client.channels.cache.get(player.textChannelId!);
+
+            (channel as BaseGuildTextChannel)?.send({
+                embeds: [
+                    new EmbedBuilder()
+                        .setColor(2829617)
+                        .setDescription(data.event_mp_audioTrackAdd
+                            .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
+                            .replace("${track.title}", res.tracks[0].info.title as string)
+                        )
+                ]
+            });
+        }
 
         if (!player.connected) {
             await player.connect();
         };
 
-        await player.queue.add(res.tracks[0]);
-
         if (!player.playing) {
             await player.play();
         };
 
-        let yes = res.tracks[0];
+        let yes = all_res[0];
 
         function timeCalcultator() {
-            let totalDurationMs = yes.info.duration
+            let totalDurationMs = yes.tracks[0].info.duration;
             let totalDurationSec = Math.floor(totalDurationMs! / 1000);
             let hours = Math.floor(totalDurationSec / 3600);
             let minutes = Math.floor((totalDurationSec % 3600) / 60);
@@ -154,16 +119,16 @@ export const command: AnotherCommand = {
         };
 
         let embed = new EmbedBuilder()
-            .setDescription(`**${yes.info.title}**`)
+            .setDescription(`**${yes.tracks[0].info.title}**`)
             .setColor('#00cc1a')
             .setTimestamp()
             .setFooter({ text: data.p_duration + `${timeCalcultator()}` })
-            .setThumbnail(yes.info.artworkUrl as string);
+            .setThumbnail(yes.tracks[0].info.artworkUrl as string);
 
         await interaction.editReply({
             content: data.p_loading_message
                 .replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
-                .replace("{result}", res.playlist ? 'playlist' : 'track')
+                .replace("{result}", yes.playlist ? 'playlist' : 'track')
             , embeds: [embed]
         });
 
@@ -172,18 +137,11 @@ export const command: AnotherCommand = {
         };
 
         await client.db.push(`${player.guildId}.MUSIC_HISTORY.buffer`,
-            `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}: PLAYED]: { ${res.tracks[0]?.requester} - ${res.tracks[0].info.title as string} | ${res.tracks[0].info.uri} } by ${res.tracks[0]?.requester}`);
+            `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}: PLAYED]: { ${yes.tracks[0]?.requester} - ${yes.tracks[0].info.title as string} | ${yes.tracks[0].info.uri} } by ${yes.tracks[0]?.requester}`);
         await client.db.push(`${player.guildId}.MUSIC_HISTORY.embed`,
-            `${time(new Date(), 'R')}: ${res.tracks[0]?.requester} - ${res.tracks[0].info.title} | ${res.tracks[0].info.uri} by ${res.tracks[0]?.requester}`
+            `${time(new Date(), 'R')}: ${yes.tracks[0]?.requester} - ${yes.tracks[0].info.title} | ${yes.tracks[0].info.uri} by ${yes.tracks[0]?.requester}`
         );
 
-        let channel = client.channels.cache.get(player.textChannelId!);
-
-        (channel as BaseGuildTextChannel)?.send({
-            content: data.event_mp_audioTrackAdd
-                .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-                .replace("${track.title}", res.tracks[0].info.title)
-        });
         setTimeout(deleteContent, 4000)
     },
-};
+}; 
