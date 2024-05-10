@@ -81,6 +81,14 @@ export const command: Command = {
                         {
                             name: "Delete Role",
                             value: "deleterole",
+                        },
+                        {
+                            name: "Ban Members",
+                            value: "banmembers",
+                        },
+                        {
+                            name: "Unban Members",
+                            value: "unbanmembers",
                         }
                     ]
                 },

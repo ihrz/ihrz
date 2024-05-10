@@ -19,48 +19,39 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel } from 'discord.js'
-
+import { Client, AuditLogEvent, GuildBan, PermissionsBitField } from 'discord.js'
 import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {
-    name: "channelDelete",
-    run: async (client: Client, channel: GuildChannel) => {
+    name: "guildBanAdd",
+    run: async (client: Client, ban: GuildBan) => {
 
-        let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
-
+        let data = await client.db.get(`${ban.guild.id}.PROTECTION`);
         if (!data) return;
 
-        if (data.deletechannel && data.deletechannel.mode === 'allowlist') {
+        if (data.banmembers && data.banmembers.mode === 'allowlist') {
 
-            let fetchedLogs = await channel.guild.fetchAuditLogs({
-                type: AuditLogEvent.ChannelDelete,
+            if (!ban.guild.members.me || !ban.guild.members.me.permissions.has([
+                PermissionsBitField.Flags.ViewAuditLog,
+                PermissionsBitField.Flags.ManageGuild
+            ])) return;
+
+            let fetchedLogs = await ban.guild.fetchAuditLogs({
+                type: AuditLogEvent.MemberBanAdd,
                 limit: 1,
             });
 
             let firstEntry = fetchedLogs.entries.first();
 
-            if (firstEntry?.targetId !== channel.id || firstEntry.executorId === client.user?.id || !firstEntry.executorId) return;
+            if (firstEntry?.targetId !== ban.user.id || firstEntry.executorId === client.user?.id || !firstEntry.executorId) return;
 
-            let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
+            let baseData = await client.db.get(`${ban.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
             if (!baseData) {
-                (await channel?.clone({
-                    name: channel.name,
-                    parent: channel.parent,
-                    permissionOverwrites: channel.permissionOverwrites.cache!,
-                    topic: (channel as BaseGuildTextChannel).topic!,
-                    nsfw: (channel as BaseGuildTextChannel).nsfw,
-                    rateLimitPerUser: (channel as BaseGuildTextChannel).rateLimitPerUser!,
-                    position: channel.rawPosition,
-                    reason: `Channel re-create by Protect (${firstEntry.executorId} break the rule!)`
-                }) as BaseGuildTextChannel).send(`**PROTECT MODE ON**\n<@${channel.guild.ownerId}>, the channel are recreated, <@${firstEntry.executorId}> attempt to delete the channel!`);
-
-                let user = channel.guild.members.cache.get(firstEntry.executorId);
+                let user = ban.guild.members.cache.get(firstEntry?.executorId);
+                await ban.guild.bans.remove(ban.user.id);
 
                 switch (data?.['SANCTION']) {
-                    case 'simply':
-                        break;
                     case 'simply+derank':
                         user?.guild.roles.cache.forEach((element) => {
                             if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
@@ -76,6 +67,5 @@ export const event: BotEvent = {
                 }
             }
         }
-
     },
 };

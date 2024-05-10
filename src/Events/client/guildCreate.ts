@@ -72,12 +72,12 @@ export const event: BotEvent = {
                     embeds: [tqtmonreuf],
                     files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
                 }).catch(() => { });
-                guild.leave();
+                await guild.leave();
                 return false;
             } else {
                 return true;
-            };
-        };
+            }
+        }
 
         async function messageToServer() {
             let welcomeMessage = [
@@ -121,7 +121,7 @@ export const event: BotEvent = {
                 files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
                 components: [buttons]
             }).catch(() => { });
-        };
+        }
 
         async function getInvites() {
             if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
@@ -129,25 +129,25 @@ export const event: BotEvent = {
                 guild.invites.fetch().then((guildInvites) => {
                     client.invites.set(guild.id, new Collection(guildInvites.map((invite) => [invite.code, invite.uses])));
                 });
-            } catch (error: any) { logger.err(error) };
-        };
+            } catch (error: any) { logger.err(error) }
+        }
 
         async function ownerLogs() {
             let i: string = '';
-            if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; };
+            if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
             let channel = guild.channels.cache.get((guild.systemChannelId as string)) || guild.channels.cache.random();
 
-            async function createInvite(chann: BaseGuildTextChannel) {
+            async function createInvite(channel: BaseGuildTextChannel) {
                 try {
-                    let invite = await chann.createInvite();
+                    let invite = await channel.createInvite();
                     let inviteCode = invite.code;
 
                     return 'discord.gg/' + inviteCode;
                 } catch {
                     return 'None';
                 }
-            };
+            }
 
             let embed = new EmbedBuilder()
                 .setColor("#00FF00")

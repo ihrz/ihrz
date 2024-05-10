@@ -141,7 +141,7 @@ export default {
                     await interaction.editReply({
                         content: data.setleavemessage_command_work_on_enable
                             .replace(
-                                "${client.iHorizon_Emojis.icon.Green_Tick_Logo}",
+                                "${client.iHorizon_Emojis.icon.Yes_Logo}",
                                 client.iHorizon_Emojis.icon.Green_Tick_Logo
                             )
                     });
