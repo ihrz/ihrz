@@ -71,6 +71,29 @@ export const command: Command = {
                     ],
                 },
                 {
+                    name: "remove",
+
+                    description: "Removing an user in the allowlist!",
+                    description_localizations: {
+                        "fr": "Supprimer un utilisateur de la liste blanche"
+                    },
+
+                    type: 1,
+                    options: [
+                        {
+                            name: 'member',
+                            type: ApplicationCommandOptionType.User,
+
+                            description: 'Whats is the member then?',
+                            description_localizations: {
+                                "fr": "Quel est le membre alors?"
+                            },
+
+                            required: true
+                        },
+                    ],
+                },
+                {
                     name: "show",
 
                     description: "List the users in the allowlist!",
