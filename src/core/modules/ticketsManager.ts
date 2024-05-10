@@ -49,7 +49,7 @@ import { LanguageData } from '../../../types/languageData.js';
 
 import { isDiscordEmoji, isSingleEmoji } from '../functions/emojiChecker.js';
 import * as discordTranscripts from 'discord-html-transcripts';
-import database from '../database.js';
+import database from '../functions/DatabaseModel.js';
 import logger from '../logger.js';
 
 interface CreatePanelData {

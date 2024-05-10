@@ -20,7 +20,7 @@
 */
 
 import { LanguageData } from '../../../types/languageData.js';
-import database from '../database.js';
+import database from './DatabaseModel.js';
 
 import yaml from 'js-yaml';
 import fs from 'node:fs';

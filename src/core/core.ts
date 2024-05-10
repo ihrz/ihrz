@@ -20,7 +20,7 @@
 */
 
 import playerManager from "./modules/playerManager.js";
-import database from "./database.js";
+import database from './functions/DatabaseModel.js';
 
 import * as errorManager from './modules/errorManager.js';
 import logger from "./logger.js";

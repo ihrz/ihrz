@@ -34,7 +34,6 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import r from '../../../core/bash/commands/r';
 
 export const command: Command = {
 
