@@ -20,7 +20,7 @@
 */
 
 import playerManager from "./modules/playerManager.js";
-import db from './functions/DatabaseModel.js';
+import database from "./database.js";
 import bash from './bash/bash.js';
 
 import * as errorManager from './modules/errorManager.js';
@@ -74,7 +74,7 @@ export default async (client: Client) => {
     bash(client);
     emojis(client);
 
-    client.db = db;
+    client.db = database;
     client.content = [];
     client.category = [];
     client.invites = new Collection();

@@ -24,13 +24,13 @@ import logger from "../logger.js";
 
 import { OwnIhrzCluster, ClusterMethod } from "../functions/apiUrlParser.js";
 import { AxiosResponse, axios } from "../functions/axios.js";
-import db from "../functions/DatabaseModel.js";
+import database from "../database.js";
 
 class OwnIHRZ {
 
     // Working
     async Startup_Cluster() {
-        var table_1 = db.table("OWNIHRZ");
+        var table_1 = database.table("OWNIHRZ");
 
         (await table_1.all()).forEach(owner_one => {
             var cluster_ownihrz = owner_one.value;
@@ -102,7 +102,7 @@ class OwnIHRZ {
 
     // Working
     async QuitProgram() {
-        let table = db.table("OWNIHRZ")
+        let table = database.table("OWNIHRZ")
         let ownihrzClusterData = await table.get("CLUSTER");
 
         if (config.core.shutdownClusterWhenStop) {

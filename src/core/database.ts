@@ -93,4 +93,12 @@ switch (config.database?.method) {
         break;
 };
 
-export default dbPromise as Promise<QuickDB<any>>
+// export default dbPromise as Promise<QuickDB<any>>
+
+let db;
+
+if (!db) {
+    db = dbPromise
+}
+
+export default await db;
