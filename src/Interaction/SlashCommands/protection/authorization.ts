@@ -85,6 +85,10 @@ export const command: Command = {
                         {
                             name: "Ban Members",
                             value: "banmembers",
+                        },
+                        {
+                            name: "Unban Members",
+                            value: "unbanmembers",
                         }
                     ]
                 },
