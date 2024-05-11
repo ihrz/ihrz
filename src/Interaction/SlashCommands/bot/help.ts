@@ -80,6 +80,9 @@ export const command: Command = {
         categories.forEach((category, index) => {
             select.addOptions(new StringSelectMenuOptionBuilder()
                 .setLabel(category.name)
+                .setDescription(data.help_select_menu_fields_desc
+                    .replace("${categories[index].value.length}", categories[index].value.length.toString())
+                )
                 .setValue(index.toString())
                 .setEmoji(category.emoji));
         });

@@ -257,6 +257,8 @@ help_pfps_dsc: "Invia un avatar utente casuale nel canale!"
 help_voicedashboard_fields: "VoiceDashboard"
 help_voicedashboard_dsc: "Crea un canale vocale temporaneo personalizzato con interfaccia!"
 help_select_menu: "Fai una selezione!"
+help_select_menu_fields_desc: "${categories[index].value.length} Comandi"
+
 
 # /say
 say_footer_msg: "\n\nInviato da `/say` da ${interaction.user}"
