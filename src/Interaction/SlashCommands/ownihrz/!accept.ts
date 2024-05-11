@@ -82,7 +82,7 @@ export default {
             NodeAuth: config.lavalink.nodes[0].authorization,
         };
 
-        await activeIntent(id_2.Auth).catch(() => {})
+        await activeIntent(id_2.Auth).catch(() => { })
 
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
@@ -125,19 +125,19 @@ export default {
             });
 
             try {
-                // axios.post(OwnIhrzCluster(cluster, ClusterMethod.CreateContainer),
-                //     id_2,
-                //     {
-                //         headers: {
-                //             'Accept': 'application/json'
-                //         }
-                //     })
-                //     .then(async () => {
-                //         await table.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
-                //     })
-                //     .catch(error => {
-                //         logger.err(error)
-                //     });
+                axios.post(OwnIhrzCluster(cluster, ClusterMethod.CreateContainer),
+                    id_2,
+                    {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(async () => {
+                        await table.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
+                    })
+                    .catch(error => {
+                        logger.err(error)
+                    });
             } catch (error: any) {
                 return logger.err(error)
             };
