@@ -36,7 +36,7 @@ import { LanguageData } from '../../../../types/languageData';
 async function isImageUrl(url: string): Promise<boolean> {
     try {
         const response = await axios.head(url);
-        const contentType = response.headers["content-type"];
+        const contentType = response.headers.get("content-type");
         return contentType.startsWith("image/");
     } catch (error) {
         return false;
@@ -67,7 +67,7 @@ export default {
         if (giveawayDurationFormated === 0) {
             await interaction.editReply({
                 content: data.start_time_not_valid
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
             });
             return;
         };
