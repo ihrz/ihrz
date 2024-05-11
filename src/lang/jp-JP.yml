@@ -257,6 +257,7 @@ help_pfps_dsc: "チャンネルにランダムなユーザーアバターを送�
 help_voicedashboard_fields: "音声ダッシュボード"
 help_voicedashboard_dsc: "インターフェイスでカスタム一時ボイスチャンネルを作成します！"
 help_select_menu: "選択してください！"
+help_select_menu_fields_desc: "${categories[index].value.length} コマンド"
 
 # /say
 say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
