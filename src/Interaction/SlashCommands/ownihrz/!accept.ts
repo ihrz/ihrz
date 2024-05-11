@@ -26,15 +26,12 @@ import {
 } from 'discord.js';
 
 import { ClusterMethod, OwnIhrzCluster } from '../../../core/functions/apiUrlParser.js';
-import { AxiosResponse, axios } from '../../../core/functions/axios.js';
-import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
-
+import { axios } from '../../../core/functions/axios.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Custom_iHorizon } from '../../../../types/ownihrz';
 
 import config from '../../../files/config.js';
 import logger from '../../../core/logger.js';
-import path from 'path';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -108,25 +105,22 @@ export default {
                 files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
             });
 
-            if (cluster) {
-                try {
-                    axios.post(OwnIhrzCluster(cluster, ClusterMethod.CreateContainer),
-                        id_2,
-                        {
-                            headers: {
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(async () => {
-                            await table.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
-                        })
-                        .catch(error => {
-                            logger.err(error)
-                        });
-                } catch (error: any) {
-                    return logger.err(error)
-                };
-
+            try {
+                axios.post(OwnIhrzCluster(cluster, ClusterMethod.CreateContainer),
+                    id_2,
+                    {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(async () => {
+                        await table.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
+                    })
+                    .catch(error => {
+                        logger.err(error)
+                    });
+            } catch (error: any) {
+                return logger.err(error)
             };
 
             return;
