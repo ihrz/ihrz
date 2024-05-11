@@ -24,7 +24,7 @@ import { axios, AxiosResponse } from "./axios.js";
 async function isImageUrl(url: string): Promise<boolean> {
     try {
         let response = await axios.head(url);
-        let contentType = response.headers["content-type"];
+        let contentType = response.headers.get("content-type");
         return contentType.startsWith("image/");
     } catch (error) {
         return false;
