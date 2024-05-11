@@ -33,6 +33,23 @@ import { Custom_iHorizon } from '../../../../types/ownihrz';
 import config from '../../../files/config.js';
 import logger from '../../../core/logger.js';
 
+async function activeIntent(token: string) {
+    try {
+        const response = await fetch("https://discord.com/api/v10/applications/@me", {
+            method: "PATCH",
+            headers: {
+                Authorization: "Bot " + token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ flags: 565248 }),
+        });
+        return await response.json();
+
+    } catch (err) {
+        logger.err((err as unknown as string));
+    }
+};
+
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
@@ -64,6 +81,8 @@ export default {
             NodePort: config.lavalink.nodes[0].port,
             NodeAuth: config.lavalink.nodes[0].authorization,
         };
+
+        await activeIntent(id_2.Auth);
 
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
