@@ -257,7 +257,7 @@ help_pfps_dsc: "Sending random user avatar in channel!"
 help_voicedashboard_fields: "VoiceDashboard"
 help_voicedashboard_dsc: "Create an custom temporary voice channel with interface!"
 help_select_menu: "Make a selection!"
-help_select_menu_fields_desc: "${categories[index].value.length} Commandes"
+help_select_menu_fields_desc: "${categories[index].value.length} Commands"
 
 
 # /say
