@@ -39,7 +39,8 @@ var timeout: number = 1_800_000;
 async function isImageUrl(url: string): Promise<boolean> {
     try {
         const response = await axios.head(url);
-        const contentType = response.headers["content-type"];
+        const contentType = response.headers.get('content-type');
+
         return contentType.startsWith("image/");
     } catch (error) {
         return false;
@@ -105,7 +106,7 @@ export const command: Command = {
                 if (isValid) {
                     client.user?.setAvatar(action_2);
                     await client.db.set(`TEMP_COOLDOWN.${interaction.user.id}.SETAVATAR`, Date.now());
-                    
+
                     return interaction.reply({ content: `La photo de profil du bot as bien été changer avec succès.` });
                 } else {
                     return interaction.reply({ content: `L'URL saisie n'est pas une image. Veuillez changer d'URL.` });
