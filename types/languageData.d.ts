@@ -203,6 +203,8 @@ export interface LanguageData {
     help_voicedashboard_dsc: string;
     help_select_menu: string;
     help_select_menu_fields_desc: string;
+    help_back_to_menu: string;
+    help_back_to_menu_desc: string;
     say_footer_msg: string;
     ping_down_msg: string;
     ping_embed_desc: string;

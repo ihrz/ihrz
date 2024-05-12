@@ -258,6 +258,9 @@ help_voicedashboard_fields: "Голосовая панель"
 help_voicedashboard_dsc: "Создайте пользовательский временный голосовой канал с интерфейсом!"
 help_select_menu: "Сделайте выбор!"
 help_select_menu_fields_desc: "${categories[index].value.length} Команды"
+help_back_to_menu: "Основное меню"
+help_back_to_menu_desc: "Вернуться в основное меню"
+
 
 # /say
 say_footer_msg: "\n\nОтправлено из `/говорить` от ${interaction.user}"

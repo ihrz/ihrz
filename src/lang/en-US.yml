@@ -258,6 +258,8 @@ help_voicedashboard_fields: "VoiceDashboard"
 help_voicedashboard_dsc: "Create an custom temporary voice channel with interface!"
 help_select_menu: "Make a selection!"
 help_select_menu_fields_desc: "${categories[index].value.length} Commands"
+help_back_to_menu: "Main menu"
+help_back_to_menu_desc: "Go back to initial menu"
 
 
 # /say

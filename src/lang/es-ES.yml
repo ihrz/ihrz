@@ -258,6 +258,9 @@ help_voicedashboard_fields: "VoiceDashboard"
 help_voicedashboard_dsc: "¡Cree un canal de voz temporal personalizado con interfaz!"
 help_select_menu: "¡Haz una selección!"
 help_select_menu_fields_desc: "${categories[index].value.length} Comandos"
+help_back_to_menu: "Menú principal"
+help_back_to_menu_desc: "Volver al menú principal"
+
 
 # /say
 say_footer_msg: "\n\nEnviado desde `/say` por ${interaction.user}"

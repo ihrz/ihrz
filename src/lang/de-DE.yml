@@ -258,6 +258,9 @@ help_voicedashboard_fields: "VoiceDashboard"
 help_voicedashboard_dsc: "Erstellen Sie einen benutzerdefinierten temporären Sprachkanal mit Benutzeroberfläche!"
 help_select_menu: "Treffe eine Auswahl!"
 help_select_menu_fields_desc: "${categories[index].value.length} Befehle"
+help_back_to_menu: "Hauptmenü"
+help_back_to_menu_desc: "Zurück zum Hauptmenü"
+
 
 # /say
 say_footer_msg: "\n\nGesendet von `/sagen` von ${interaction.user}"

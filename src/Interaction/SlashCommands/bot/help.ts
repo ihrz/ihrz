@@ -78,6 +78,12 @@ export const command: Command = {
 
         let select = new StringSelectMenuBuilder().setCustomId('help-menu').setPlaceholder(data.help_select_menu);
 
+        select.addOptions(new StringSelectMenuOptionBuilder()
+            .setLabel(data.help_back_to_menu)
+            .setDescription(data.help_back_to_menu_desc)
+            .setValue("back")
+            .setEmoji("⬅️"));
+
         categories.forEach((category, index) => {
             select.addOptions(new StringSelectMenuOptionBuilder()
                 .setLabel(category.name)
@@ -90,7 +96,7 @@ export const command: Command = {
 
         let row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
 
-        let embed = new EmbedBuilder()
+        let og_embed = new EmbedBuilder()
             .setColor('#001eff')
             .setDescription(data.help_tip_embed
                 .replaceAll('${client.user?.username}', interaction.client.user?.username)
@@ -109,8 +115,12 @@ export const command: Command = {
             .setThumbnail("attachment://icon.png")
             .setTimestamp();
 
+        let embed = new EmbedBuilder()
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setThumbnail("attachment://icon.png");
+
         let response = await interaction.reply({
-            embeds: [embed],
+            embeds: [og_embed],
             components: [row],
             files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
@@ -126,6 +136,11 @@ export const command: Command = {
             };
 
             await i.deferUpdate();
+
+            if (i.values[0] === "back") {
+                await response.edit({ embeds: [og_embed], components: [row] });
+                return;
+            }
 
             embed
                 .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
