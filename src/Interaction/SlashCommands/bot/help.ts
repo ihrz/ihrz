@@ -35,6 +35,7 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import { CategoryData } from '../../../../types/category';
 import { Command } from '../../../../types/command';
+import config from '../../../files/config.js';
 
 export const command: Command = {
     name: 'help',
@@ -91,8 +92,20 @@ export const command: Command = {
 
         let embed = new EmbedBuilder()
             .setColor('#001eff')
-            .setDescription(data.help_tip_embed)
+            .setDescription(data.help_tip_embed
+                .replaceAll('${client.user?.username}', interaction.client.user?.username)
+                .replaceAll('${client.iHorizon_Emojis.icon.Pin}', client.iHorizon_Emojis.icon.Pin)
+                .replaceAll('${categories.length}', categories.length.toString())
+                .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
+                .replaceAll('${client.content.filter(c => c.messageCmd === false).length}', client.content.filter(c => c.messageCmd === false).length.toString())
+                .replaceAll('${client.iHorizon_Emojis.icon.Crown_Logo}', client.iHorizon_Emojis.icon.Crown_Logo)
+                .replaceAll('${config.owner.ownerid1}', config.owner.ownerid1)
+                .replaceAll('${config.owner.ownerid2}', config.owner.ownerid2)
+                .replaceAll('${client.iHorizon_Emojis.vc.Region}', client.iHorizon_Emojis.vc.Region)
+                .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
+            )
             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
             .setThumbnail("attachment://icon.png")
             .setTimestamp();
 
