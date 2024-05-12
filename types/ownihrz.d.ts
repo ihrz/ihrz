@@ -24,6 +24,7 @@ export interface Custom_iHorizon {
     AdminKey: string;
     OwnerOne: string;
     OwnerTwo: string;
+    Cluster?: number;
     Bot: {
         Id: string;
         Name: string;

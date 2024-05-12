@@ -44,7 +44,6 @@ class OwnIHRZ {
                             parseInt(cluster_ownihrz[owner_id][bot_id].Cluster),
                             ClusterMethod.StartupContainer,
                             bot_id,
-                            config.api.apiToken
                         )
                     ).then(function (response: AxiosResponse) {
                         logger.log(response.data)
@@ -61,7 +60,6 @@ class OwnIHRZ {
                 cluster_id,
                 ClusterMethod.ShutdownContainer,
                 id_to_bot,
-                config.api.apiToken
             )
         ).then(function (response) {
             logger.log(response.data)
@@ -76,7 +74,6 @@ class OwnIHRZ {
                 cluster_id,
                 ClusterMethod.PowerOnContainer,
                 id_to_bot,
-                config.api.apiToken
             )
         ).then(function (response) {
             logger.log(response.data)
@@ -92,7 +89,6 @@ class OwnIHRZ {
                 cluster_id,
                 ClusterMethod.DeleteContainer,
                 id_to_bot,
-                config.api.apiToken
             )
         ).then(function (response) {
             logger.log(response.data)
@@ -114,7 +110,6 @@ class OwnIHRZ {
                             parseInt(ownihrzClusterData[userId][botId].Cluster),
                             ClusterMethod.ShutdownContainer,
                             botId,
-                            config.api.apiToken
                         )
                     ).then(function (response) {
                         logger.log(response.data)
@@ -125,23 +120,14 @@ class OwnIHRZ {
         return;
     };
 
-    async Change_Token(cluster_id: number, id_to_bot: string, bot_token: string) {
-        axios.post(
-            OwnIhrzCluster(
-                cluster_id,
-                ClusterMethod.ChangeTokenContainer,
-            ),
-            {
-                Auth: bot_token,
-                Code: id_to_bot,
-                AdminKey: config.api.apiToken
-            }
-        ).then(function (response) {
-            logger.log(response.data);
+    async Change_Token(cluster_id: number, botId: string, bot_token: string) {
+        axios.get(
+            OwnIhrzCluster(cluster_id!, ClusterMethod.ChangeTokenContainer, botId, bot_token))
+        .then(async () => {
         })
-            .catch(function (error) {
-                logger.err(error);
-            });
+        .catch(error => {
+            logger.err(error)
+        });
 
         return;
     };

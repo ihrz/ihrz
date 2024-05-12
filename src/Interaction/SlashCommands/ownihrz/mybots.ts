@@ -73,6 +73,40 @@ export const command: Command = {
             ],
         },
         {
+            name: "change-token",
+
+            description: "Change the token of your own iHorizon!",
+            description_localizations: {
+                "fr": "Changer le token de votre propre iHorizon"
+            },
+
+            type: 1,
+            options: [
+                {
+                    name: 'botid',
+                    type: ApplicationCommandOptionType.String,
+
+                    description: 'Identifiant of your own iHorizon!',
+                    description_localizations: {
+                        "fr": "l'identifiant de votre propre iHorizon"
+                    },
+
+                    required: true
+                },
+                {
+                    name: 'new_discord_bot_token',
+                    type: ApplicationCommandOptionType.String,
+
+                    description: 'The new token of your discord bot!',
+                    description_localizations: {
+                        "fr": "Le nouveau token de votre bot Discord"
+                    },
+
+                    required: true
+                },
+            ],
+        },
+        {
             name: "list",
 
             description: "List your bot",

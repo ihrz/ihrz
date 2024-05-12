@@ -32,6 +32,7 @@ import { Custom_iHorizon } from '../../../../types/ownihrz';
 
 import config from '../../../files/config.js';
 import logger from '../../../core/logger.js';
+import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 
 async function activeIntent(token: string) {
     try {
@@ -53,36 +54,38 @@ async function activeIntent(token: string) {
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let cluster = parseInt(interaction.options.getString("cluster")!);
-        let id = interaction.options.getString('id')!;
+        let botId = interaction.options.getString('botid')!;
+        let newToken = interaction.options.getString('new_discord_bot_token')!;
+        let tempTable = client.db.table('TEMP');
+        let table = client.db.table('OWNIHRZ');
 
-        var table = client.db.table("TEMP");
-        let allData = await table.get(`OWNIHRZ`);
+        let allData = await table.get("CLUSTER");
+
+        let timeout: number = 3600000;
+        let executingBefore = await tempTable.get(`OWNIHRZ_CHANGE_TOKEN.${interaction.user.id}.timeout`);
+
+        if (executingBefore !== null && timeout - (Date.now() - executingBefore) > 0) {
+            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - executingBefore));
+
+            await interaction.reply({ content: data.monthly_cooldown_error.replace(/\${time}/g, time) });
+            return;
+        };
 
         function getData() {
             for (let ownerId in allData) {
-                for (let botId in allData[ownerId]) {
-                    if (botId !== id) continue;
+                for (let bot_id in allData[ownerId]) {
+                    if (bot_id !== botId) continue;
                     return allData[ownerId][botId];
                 }
             }
         }
+
         let id_2 = getData() as Custom_iHorizon;
 
         if (!id_2) {
             await interaction.reply({ content: data.mybot_manage_accept_not_found });
             return;
         };
-
-        id_2.AdminKey = config.api?.apiToken!;
-        id_2.Code = id;
-        id_2.Lavalink = {
-            NodeHost: config.lavalink.nodes[0].host,
-            NodePort: config.lavalink.nodes[0].port,
-            NodeAuth: config.lavalink.nodes[0].authorization,
-        };
-
-        await activeIntent(id_2.Auth).catch(() => { })
 
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
@@ -91,7 +94,7 @@ export default {
 
         let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, {
             headers: {
-                Authorization: `Bot ${id_2.Auth}`
+                Authorization: `Bot ${newToken}`
             }
         }).catch(() => { }))?.data || 404;
 
@@ -125,23 +128,16 @@ export default {
             });
 
             try {
-                axios.post(OwnIhrzCluster(cluster, ClusterMethod.CreateContainer),
-                    id_2,
-                    {
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(async () => {
-                        await table.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
-                    })
-                    .catch(error => {
-                        logger.err(error)
-                    });
+                new OwnIHRZ().Change_Token(id_2.Cluster!, id_2.Code, newToken)
+
+                await table.set(`OWNIHRZ.${interaction.user.id}.${botId}`, {
+                    Auth: newToken
+                });
             } catch (error: any) {
                 return logger.err(error)
             };
 
+            await tempTable.set(`OWNIHRZ_CHANGE_TOKEN.${interaction.user.id}.timeout`, Date.now());
             return;
         };
     },
