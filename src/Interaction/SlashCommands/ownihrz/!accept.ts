@@ -25,8 +25,9 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import { ClusterMethod, OwnIhrzCluster } from '../../../core/functions/apiUrlParser.js';
+import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 import { axios } from '../../../core/functions/axios.js';
+
 import { LanguageData } from '../../../../types/languageData';
 import { Custom_iHorizon } from '../../../../types/ownihrz';
 
@@ -125,19 +126,10 @@ export default {
             });
 
             try {
-                axios.post(OwnIhrzCluster(cluster, ClusterMethod.CreateContainer),
-                    id_2,
-                    {
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(async () => {
-                        await table.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
-                    })
-                    .catch(error => {
-                        logger.err(error)
-                    });
+                new OwnIHRZ().Create_Container(cluster, id_2).then(async () => {
+                    await table.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
+                })
+
             } catch (error: any) {
                 return logger.err(error)
             };

@@ -25,6 +25,7 @@ import logger from "../logger.js";
 import { OwnIhrzCluster, ClusterMethod } from "../functions/apiUrlParser.js";
 import { AxiosResponse, axios } from "../functions/axios.js";
 import database from "../database.js";
+import { Custom_iHorizon } from "../../../types/ownihrz.js";
 
 class OwnIHRZ {
 
@@ -123,14 +124,24 @@ class OwnIHRZ {
     async Change_Token(cluster_id: number, botId: string, bot_token: string) {
         axios.get(
             OwnIhrzCluster(cluster_id!, ClusterMethod.ChangeTokenContainer, botId, bot_token))
-        .then(async () => {
-        })
-        .catch(error => {
-            logger.err(error)
-        });
+            .then(async () => {
+            })
+            .catch(error => {
+                logger.err(error)
+            });
 
         return;
     };
+
+    async Create_Container(cluster_id: number, botData: Custom_iHorizon) {
+        return await axios.post(OwnIhrzCluster(cluster_id, ClusterMethod.CreateContainer),
+            botData,
+            {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+    }
 }
 
 export { OwnIHRZ }
