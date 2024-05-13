@@ -26,7 +26,6 @@ import {
 } from 'discord.js';
 
 import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
-import { axios } from '../../../core/functions/axios.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Custom_iHorizon } from '../../../../types/ownihrz';
@@ -34,22 +33,7 @@ import { Custom_iHorizon } from '../../../../types/ownihrz';
 import config from '../../../files/config.js';
 import logger from '../../../core/logger.js';
 
-async function activeIntent(token: string) {
-    try {
-        const response = await fetch("https://discord.com/api/v10/applications/@me", {
-            method: "PATCH",
-            headers: {
-                Authorization: "Bot " + token,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ flags: 565248 }),
-        });
-        return await response.json();
-
-    } catch (err) {
-        logger.err((err as unknown as string));
-    }
-};
+const OWNIHRZ = new OwnIHRZ();
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -83,18 +67,14 @@ export default {
             NodeAuth: config.lavalink.nodes[0].authorization,
         };
 
-        await activeIntent(id_2.Auth).catch(() => { })
+        await OWNIHRZ.Active_Intents(id_2.Auth).catch(() => { })
 
         if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };
 
-        let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, {
-            headers: {
-                Authorization: `Bot ${id_2.Auth}`
-            }
-        }).catch(() => { }))?.data || 404;
+        let bot_1 = (await OWNIHRZ.Get_Bot(id_2.Auth).catch(() => { }))?.data || 404
 
         if (!bot_1.bot) {
             await interaction.reply({ content: data.mybot_manage_accept_token_error });
@@ -126,9 +106,9 @@ export default {
             });
 
             try {
-                new OwnIHRZ().Create_Container(cluster, id_2).then(async () => {
+                OWNIHRZ.Create_Container(cluster, id_2).then(async () => {
                     await table.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
-                })
+                });
 
             } catch (error: any) {
                 return logger.err(error)

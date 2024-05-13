@@ -31,6 +31,8 @@ import config from '../../../files/config.js';
 
 import { LanguageData } from '../../../../types/languageData';
 
+const OWNIHRZ = new OwnIHRZ();
+
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
@@ -71,7 +73,7 @@ export default {
                             ephemeral: true
                         });
 
-                        return new OwnIHRZ().ShutDown(fetch.Cluster, id_to_bot);
+                        return await OWNIHRZ.ShutDown(fetch.Cluster, id_to_bot);
                     }
                 }
             }
@@ -99,7 +101,7 @@ export default {
                         await tableOWNIHRZ.set(`CLUSTER.${userId}.${id_to_bot}.PowerOff`, false);
 
                         await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now Power On.\nNow, the bot container can be Power On when iHorizon-Prod booting...`, ephemeral: true });
-                        return new OwnIHRZ().PowerOn(fetch.Cluster, id_to_bot);
+                        return await OWNIHRZ.PowerOn(fetch.Cluster, id_to_bot);
                     }
                 }
             }
@@ -118,7 +120,7 @@ export default {
                             content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now deleted.\nThe bot container has been entierly erased...`,
                             ephemeral: true
                         });
-                        return new OwnIHRZ().Delete(fetch.Cluster, id_to_bot);
+                        return await OWNIHRZ.Delete(fetch.Cluster, id_to_bot);
                     }
                 }
             }

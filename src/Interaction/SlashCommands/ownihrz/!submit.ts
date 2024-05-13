@@ -25,24 +25,18 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import { generatePassword } from '../../../core/functions/random.js';
 
 import { LanguageData } from '../../../../types/languageData';
+import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
+
+const OWNIHRZ = new OwnIHRZ();
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let discord_bot_token = interaction.options.getString('discord_bot_token');
-
-        let config = {
-            headers: {
-                Authorization: `Bot ${discord_bot_token}`
-            }
-        };
-
-        let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, config)
-            .catch(() => { }))?.data || 404;
+        let discord_bot_token = interaction.options.getString('discord_bot_token') as string;
+        let bot_1 = (await OWNIHRZ.Get_Bot(discord_bot_token).catch(() => { }))?.data || 404;
 
         if (!bot_1.bot) {
             await interaction.reply({ content: data.mybot_submit_token_invalid });

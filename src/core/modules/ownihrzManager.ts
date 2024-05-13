@@ -133,7 +133,7 @@ class OwnIHRZ {
         return;
     };
 
-    async Create_Container(cluster_id: number, botData: Custom_iHorizon) {
+    async Create_Container(cluster_id: number, botData: Custom_iHorizon): Promise<AxiosResponse<any>> {
         return await axios.post(OwnIhrzCluster(cluster_id, ClusterMethod.CreateContainer),
             botData,
             {
@@ -141,7 +141,33 @@ class OwnIHRZ {
                     'Accept': 'application/json'
                 }
             });
-    }
+    };
+
+    async Active_Intents(token: string) {
+        try {
+            const response = await fetch("https://discord.com/api/v10/applications/@me", {
+                method: "PATCH",
+                headers: {
+                    Authorization: "Bot " + token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ flags: 565248 }),
+            });
+            return await response.json();
+
+        } catch (err) {
+            logger.err((err as unknown as string));
+        }
+    };
+
+    async Get_Bot(discord_bot_token: string): Promise<AxiosResponse<any>> {
+        return await axios.get('https://discord.com/api/v10/applications/@me', {
+            headers: {
+                Authorization: `Bot ${discord_bot_token}`
+            }
+        });
+    };
+
 }
 
 export { OwnIHRZ }

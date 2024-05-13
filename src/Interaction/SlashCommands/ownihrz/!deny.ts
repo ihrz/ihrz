@@ -25,10 +25,13 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import { AxiosResponse, axios } from '../../../core/functions/axios.js';
-import config from '../../../files/config.js';
+import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 
 import { LanguageData } from '../../../../types/languageData';
+
+import config from '../../../files/config.js';
+
+const OWNIHRZ = new OwnIHRZ();
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -41,7 +44,7 @@ export default {
         for (let i in id_2) {
             for (let j in id_2[i]) {
                 if (id_1 === j) {
-                    id_2 = id_2?.[i]?.[j];
+                    id_2 = id_2[i][j];
                 }
             }
         };
@@ -58,25 +61,20 @@ export default {
 
         id_2.code = id_1;
 
-        let config_2 = {
-            headers: {
-                Authorization: `Bot ${id_2.auth}`
-            }
-        };
-
-        let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, config_2)
-            .catch(() => { }))?.data || 404;
+        let bot_1 = (await OWNIHRZ.Get_Bot(id_2.auth).catch(() => { }))?.data || 404
 
         if (bot_1 === 404) {
             await interaction.reply({ content: data.mybot_instance_deny_token_error });
             return;
         } else {
+
             let utils_msg = data.mybot_instance_deny_utils_msg
                 .replace('${bot_1.bot.id}', bot_1.bot.id)
                 .replace('${bot_1.bot.username}', bot_1.bot.username)
                 .replace("${bot_1.bot_public ? 'Yes' : 'No'}",
                     bot_1.bot_public ? data.mybot_instance_deny_utils_msg_yes : data.mybot_instance_deny_utils_msg_no
-                )
+                );
+
             let embed = new EmbedBuilder()
                 .setColor('#ff0000')
                 .setTitle(data.mybot_instance_deny_embed_title
@@ -94,7 +92,6 @@ export default {
                 files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
             });
 
-            var table_1 = client.db.table("TEMP");
             await table_1.delete(`OWNIHRZ.${interaction.user.id}`);
             return;
         };

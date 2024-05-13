@@ -25,20 +25,16 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
+import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 import { format } from '../../../core/functions/date-and-time.js';
-import { axios } from '../../../core/functions/axios.js';
 
 import { LanguageData } from '../../../../types/languageData';
 
-async function buildEmbed(client: Client, data: any, botId: number, lang: LanguageData) {
+const OWNIHRZ = new OwnIHRZ();
 
-    let config = {
-        headers: {
-            Authorization: `Bot ${data.Auth}`
-        }
-    };
+async function buildEmbed(client: Client, data: any, lang: LanguageData) {
 
-    let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, config).catch(() => { }))?.data || 404;
+    let bot_1 = (await OWNIHRZ.Get_Bot(data.Auth).catch(() => { }))?.data || 404;
 
     let utils_msg = lang.mybot_list_utils_msg
         .replace('${data_2[i].bot.id}', data.Bot.Id)
@@ -60,12 +56,14 @@ async function buildEmbed(client: Client, data: any, botId: number, lang: Langua
         )
         .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
         .setTimestamp();
-}
+};
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+
         let table_1 = client.db.table("OWNIHRZ");
         let data_2 = await table_1.get(`MAIN.${interaction.user.id}`);
+        let allData = await table_1.get("CLUSTER");
 
         let lsEmbed: EmbedBuilder[] = [
             new EmbedBuilder()
@@ -77,19 +75,17 @@ export default {
 
         for (let botId in data_2) {
             if (data_2[botId]) {
-                let embed = await buildEmbed(client, data_2[botId], botId as unknown as number, data);
+                let embed = await buildEmbed(client, data_2[botId], data);
                 lsEmbed.push(embed);
             }
         }
 
-        let allData = await table_1.get("CLUSTER");
-
         if (allData) {
             for (let botId in allData[interaction.user.id]) {
-                let embed = await buildEmbed(client, allData[interaction.user.id][botId], botId as unknown as number, data);
+                let embed = await buildEmbed(client, allData[interaction.user.id][botId], data);
                 lsEmbed.push(embed);
             }
-        };
+        }
 
         await interaction.reply({
             embeds: lsEmbed,

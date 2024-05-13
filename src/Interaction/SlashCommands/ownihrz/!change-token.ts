@@ -26,7 +26,6 @@ import {
 } from 'discord.js';
 
 import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
-import { axios } from '../../../core/functions/axios.js';\
 
 import { LanguageData } from '../../../../types/languageData';
 import { Custom_iHorizon } from '../../../../types/ownihrz';
@@ -34,22 +33,7 @@ import { Custom_iHorizon } from '../../../../types/ownihrz';
 import config from '../../../files/config.js';
 import logger from '../../../core/logger.js';
 
-async function activeIntent(token: string) {
-    try {
-        const response = await fetch("https://discord.com/api/v10/applications/@me", {
-            method: "PATCH",
-            headers: {
-                Authorization: "Bot " + token,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ flags: 565248 }),
-        });
-        return await response.json();
-
-    } catch (err) {
-        logger.err((err as unknown as string));
-    }
-};
+const OWNIHRZ = new OwnIHRZ();
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -92,11 +76,7 @@ export default {
             return;
         };
 
-        let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, {
-            headers: {
-                Authorization: `Bot ${newToken}`
-            }
-        }).catch(() => { }))?.data || 404;
+        let bot_1 = (await OWNIHRZ.Get_Bot(newToken).catch(() => { }))?.data || 404
 
         if (!bot_1.bot) {
             await interaction.reply({ content: data.mybot_manage_accept_token_error });
@@ -128,7 +108,7 @@ export default {
             });
 
             try {
-                new OwnIHRZ().Change_Token(id_2.Cluster!, id_2.Code, newToken)
+                await OWNIHRZ.Change_Token(id_2.Cluster!, id_2.Code, newToken);
 
                 await table.set(`OWNIHRZ.${interaction.user.id}.${botId}`, {
                     Auth: newToken
