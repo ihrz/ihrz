@@ -25,13 +25,14 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import { axios } from '../../../core/functions/axios.js';
+import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
+import { axios } from '../../../core/functions/axios.js';\
+
 import { LanguageData } from '../../../../types/languageData';
 import { Custom_iHorizon } from '../../../../types/ownihrz';
 
 import config from '../../../files/config.js';
 import logger from '../../../core/logger.js';
-import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 
 async function activeIntent(token: string) {
     try {
