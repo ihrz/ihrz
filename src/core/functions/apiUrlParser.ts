@@ -35,8 +35,9 @@ export function assetsFinder(body: Assets, type: string): string {
     return `https://raw.githubusercontent.com/ihrz/assets/main/${type}/${Math.floor(Math.random() * body[type])}.gif`;
 };
 
-export function OwnIhrzCluster(cluster_number: number, cluster_method: number, bot_id?: string, admin_key?: string): string {
+export function OwnIhrzCluster(cluster_number: number, cluster_method: number, bot_id?: string, discord_bot_token?: string): string {
     var data = config.core.cluster[cluster_number];
+    var admin_key = config.api.apiToken;
 
     data += "/api/v1/instance/";
     switch (cluster_method) {
@@ -65,6 +66,9 @@ export function OwnIhrzCluster(cluster_number: number, cluster_method: number, b
             break;
         case 5:
             data += `change_token`
+            if (bot_id) data += `/${bot_id}`
+            if (discord_bot_token) data += `/${discord_bot_token}`
+            if (admin_key) data += `/${admin_key}`
             break;
     }
 

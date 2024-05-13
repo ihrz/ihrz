@@ -35,6 +35,7 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import { CategoryData } from '../../../../types/category';
 import { Command } from '../../../../types/command';
+import config from '../../../files/config.js';
 
 export const command: Command = {
     name: 'help',
@@ -77,6 +78,12 @@ export const command: Command = {
 
         let select = new StringSelectMenuBuilder().setCustomId('help-menu').setPlaceholder(data.help_select_menu);
 
+        select.addOptions(new StringSelectMenuOptionBuilder()
+            .setLabel(data.help_back_to_menu)
+            .setDescription(data.help_back_to_menu_desc)
+            .setValue("back")
+            .setEmoji("⬅️"));
+
         categories.forEach((category, index) => {
             select.addOptions(new StringSelectMenuOptionBuilder()
                 .setLabel(category.name)
@@ -89,15 +96,30 @@ export const command: Command = {
 
         let row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
 
-        let embed = new EmbedBuilder()
+        let og_embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#001eff')
-            .setDescription(data.help_tip_embed)
-            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
+            .setDescription(data.help_tip_embed
+                .replaceAll('${client.user?.username}', interaction.client.user?.username)
+                .replaceAll('${client.iHorizon_Emojis.icon.Pin}', client.iHorizon_Emojis.icon.Pin)
+                .replaceAll('${categories.length}', categories.length.toString())
+                .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
+                .replaceAll('${client.content.filter(c => c.messageCmd === false).length}', client.content.filter(c => c.messageCmd === false).length.toString())
+                .replaceAll('${client.iHorizon_Emojis.icon.Crown_Logo}', client.iHorizon_Emojis.icon.Crown_Logo)
+                .replaceAll('${config.owner.ownerid1}', config.owner.ownerid1)
+                .replaceAll('${config.owner.ownerid2}', config.owner.ownerid2)
+                .replaceAll('${client.iHorizon_Emojis.vc.Region}', client.iHorizon_Emojis.vc.Region)
+                .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
+            )
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setThumbnail("attachment://icon.png")
             .setTimestamp();
 
+        let embed = new EmbedBuilder()
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setThumbnail("attachment://icon.png");
+
         let response = await interaction.reply({
-            embeds: [embed],
+            embeds: [og_embed],
             components: [row],
             files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
@@ -113,6 +135,11 @@ export const command: Command = {
             };
 
             await i.deferUpdate();
+
+            if (i.values[0] === "back") {
+                await response.edit({ embeds: [og_embed], components: [row] });
+                return;
+            }
 
             embed
                 .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)

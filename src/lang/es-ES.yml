@@ -208,7 +208,7 @@ pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 status_be_bot_dev: "**:x: | ¡Tienes que ser el desarrollador del bot para hacer esto!**"
 
 # /help
-help_tip_embed: "💡 __**Consejo**__: __iHorizon ahora es multilingüe, se han corregido muchos errores__.\n**Cambie ahora el idioma de iHorizon con**: ```/setserverlang``` ¡Gracias por usar iHorizon!\nContacta con el creador: `Kisakay`.\nEsta es una lista de comandos que puedes usar."
+help_tip_embed: "```${client.user?.username} ・ Menú de ayuda```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** categorías de comandos disponibles\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** comandos Slash disponibles\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **Creado por** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```¿Sabías? ・ Consejos```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} es **100% multilingüe**\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setserverlang language:Japanese`"
 help_mod_fields: "Moderación"
 help_ranks_fields: "Rangos"
 help_fun_fields: "Diversión"
@@ -258,6 +258,9 @@ help_voicedashboard_fields: "VoiceDashboard"
 help_voicedashboard_dsc: "¡Cree un canal de voz temporal personalizado con interfaz!"
 help_select_menu: "¡Haz una selección!"
 help_select_menu_fields_desc: "${categories[index].value.length} Comandos"
+help_back_to_menu: "Menú principal"
+help_back_to_menu_desc: "Volver al menú principal"
+
 
 # /say
 say_footer_msg: "\n\nEnviado desde `/say` por ${interaction.user}"
