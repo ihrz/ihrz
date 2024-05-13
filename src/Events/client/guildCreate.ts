@@ -37,7 +37,7 @@ export const event: BotEvent = {
         //     .setColor("#f44336")
         //     .setTimestamp()
         //     .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`)
-        //     .setFooter({ text: 'iHorizon', iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
+        //     .setFooter({ text: client.user?.username!, iconURL: client.user.displayAvatarURL({ format: 'png', dynamic: true, size: 4096 }) })
         //     .setDescription(`Dear members of this server,
         // We regret to inform you that our bot will be leaving this server. We noticed that this server has less than 10 members, which may suggest that it is not an active and healthy community for our bot to be a part of.
         // We value the safety and satisfaction of our users, and we believe that being part of active and thriving communities is essential to achieving this goal. We apologize for any inconvenience this may cause and we hope to have the opportunity to serve you in a more suitable environment in the future.
@@ -62,7 +62,7 @@ export const event: BotEvent = {
                 .setColor('#FF0000')
                 .setDescription(`Dear <@${guild.ownerId}>, I'm sorry, but you have been blacklisted by the bot.\nAs a result, I will be leaving your server. If you have any questions or concerns, please contact my developer.\n\nThank you for your understanding`)
                 .setTimestamp()
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
 
             let table = client.db.table('BLACKLIST')
             let isBL = await table.get(`${guild.ownerId}.blacklisted`) || false;
@@ -90,7 +90,7 @@ export const event: BotEvent = {
 
             let embed = new EmbedBuilder()
                 .setColor(2829617)
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
                 .setDescription(
                     `## ${welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)]}\n` +
                     `Hi there! I'm excited to join your server and be a part of your community.\n` +
@@ -162,7 +162,7 @@ export const event: BotEvent = {
                     { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true }
                 )
                 .setThumbnail(guild.iconURL())
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
 
             (client.channels.cache.get(config.core.guildLogsChannelID) as BaseGuildTextChannel).send({
                 embeds: [embed],

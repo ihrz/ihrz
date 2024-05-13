@@ -45,7 +45,7 @@ export default async (client: Client) => {
         },
         client: {
             id: process.env.CLIENT_ID || client.user?.id!,
-            username: "iHorizon"
+            username: "OWNIHRZ_" + client.user?.id
         },
     });
 

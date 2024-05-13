@@ -110,12 +110,12 @@ export const command: Command = {
                 .replaceAll('${client.iHorizon_Emojis.vc.Region}', client.iHorizon_Emojis.vc.Region)
                 .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
             )
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
             .setThumbnail("attachment://icon.png")
             .setTimestamp();
 
         let embed = new EmbedBuilder()
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
             .setThumbnail("attachment://icon.png");
 
         let response = await interaction.reply({
