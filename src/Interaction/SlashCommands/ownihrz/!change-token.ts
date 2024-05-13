@@ -25,7 +25,6 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import { ClusterMethod, OwnIhrzCluster } from '../../../core/functions/apiUrlParser.js';
 import { axios } from '../../../core/functions/axios.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Custom_iHorizon } from '../../../../types/ownihrz';
