@@ -266,8 +266,8 @@ help_back_to_menu_desc: "Вернуться в основное меню"
 say_footer_msg: "\n\nОтправлено из `/говорить` от ${interaction.user}"
 
 # /ping
-ping_down_msg: "**НЕАКТИВНО**"
-ping_embed_desc: "**Сеть** : `${await network}` мс\n**API Discord** : `${await API}` мс"
+ping_down_msg: "**НЕДОСТУПНО**"
+ping_embed_desc: "# Понг! Статистика сети ${interaction.client.user.username}:\n\n**[Пинг веб-сайта Discord]** >> `${_net03}` мс.\n**[Пинг Cloudflare]** >> `${_net02}` мс.\n**[Пинг Google]** >> `${_net01}` мс.\n\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Пинг веб-сайта iHorizon]** >> `${_net04}` мс.\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Пинг веб-сокета]** `${client.ws.ping}` мс.\n\n## ${client.iHorizon_Emojis.icon.iHorizon_Pointer} **[Среднее]** >> (ср)`${averagePing}` мс."
 
 
 # Fun commands

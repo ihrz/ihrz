@@ -32,7 +32,13 @@ export const event: BotEvent = {
             const channel = member.guild.channels.cache.get(all_channels[parseInt(i)]);
             if (!channel) continue;
 
-            (channel as BaseGuildTextChannel).send({ content: member.user.toString() }).then(msg => msg.delete());
+            const msg = await (channel as BaseGuildTextChannel).send({ content: member.user.toString() });
+
+            try {
+                await msg.delete().catch(() => {});
+            } catch (e) {
+                await msg.delete().catch(() => {});
+            }
         };
     },
 };

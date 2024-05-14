@@ -267,7 +267,7 @@ say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
 
 # /ping
 ping_down_msg: "**ダウン**"
-ping_embed_desc: "**ネットワーク** : `${await network}` ms\n**Discord API** : `${await API}` ms"
+ping_embed_desc: "# Pong！${interaction.client.user.username}のネットワーク統計:\n\n**[Discord ウェブサイトの Ping]** >> `${_net03}` ms\n**[Cloudflare の Ping]** >> `${_net02}` ms\n**[Google の Ping]** >> `${_net01}` ms\n\n${client.iHorizon_Emojis.icon.Crown_Logo} **[iHorizon ウェブサイトの Ping]** >> `${_net04}` ms\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Websocket の Ping]** `${client.ws.ping}` ms\n\n## ${client.iHorizon_Emojis.icon.iHorizon_Pointer} **[平均]** >> (平均)`${averagePing}` ms"
 
 
 # Fun commands
