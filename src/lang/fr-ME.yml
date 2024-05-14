@@ -266,8 +266,8 @@ help_back_to_menu_desc: "Retour au menu initial"
 say_footer_msg: "\n\nEnvoyé depuis `/say` par ${interaction.user}"
 
 # /ping
-ping_down_msg: "**INACTIF**"
-ping_embed_desc: "**Réseau** : `${await network}` ms\n**API Discord** : `${await API}` ms"
+ping_down_msg: "**INDISPONIBLE* miskina on sfé ddos jpp*"
+ping_embed_desc: "# Pong ! Statistiques du réseau de ${interaction.client.user.username} :\n\n**[Ping du site web Discord]** >> `${_net03}` ms.\n**[Ping Cloudflare]** >> `${_net02}` ms.\n**[Ping Google]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Ping du site web iHorizon]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Ping du Websocket]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.icon.iHorizon_Pointer} **[Moyenne]** >> (moy)`${averagePing}` ms."
 
 
 # Fun commands

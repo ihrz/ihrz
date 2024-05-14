@@ -266,8 +266,8 @@ help_back_to_menu_desc: "Zurück zum Hauptmenü"
 say_footer_msg: "\n\nGesendet von `/sagen` von ${interaction.user}"
 
 # /ping
-ping_down_msg: "**INAKTIV**"
-ping_embed_desc: "**Netzwerk** : `${await network}` ms\n**Discord API** : `${await API}` ms"
+ping_down_msg: "**DOWN**"
+ping_embed_desc: "# Pong! Netzwerkstatistiken von ${interaction.client.user.username}:\n\n**[Discord Website Ping]** >> `${_net03}` ms.\n**[Cloudflare Ping]** >> `${_net02}` ms.\n**[Google Ping]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.icon.Crown_Logo} **[iHorizon Website Ping]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Websocket Ping]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.icon.iHorizon_Pointer} **[Durchschnitt]** >> (Durchschn.)`${averagePing}` ms."
 
 
 # Fun commands

@@ -66,6 +66,7 @@ interface Icon {
     iHorizon_Online: string;
     iHorizon_Idle: string;
     iHorizon_Invisible: string;
+    iHorizon_Discord_Loading: string;
 }
 
 interface Vc {
