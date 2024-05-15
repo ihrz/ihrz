@@ -38,15 +38,15 @@ async function buildEmbed(client: Client, data: any, lang: LanguageData) {
 
     let utils_msg = lang.mybot_list_utils_msg
         .replace('${data_2[i].bot.id}', data.Bot.Id)
-        .replace('${data_2[i].bot.username}', data.Bot.Name)
-        .replace("${data_2[i].bot_public ? 'Yes' : 'No'}", data.Bot.Public ? lang.mybot_list_utils_msg_yes : lang.mybot_list_utils_msg_no);
+        .replace('${data_2[i].bot.username}', bot_1?.bot?.username || data?.Bot?.Name)
+        .replace("${data_2[i].bot_public ? 'Yes' : 'No'}", bot_1?.bot_public !== undefined ? (bot_1?.bot_public ? lang.mybot_list_utils_msg_yes : lang.mybot_list_utils_msg_no) : (data?.Bot?.Public ? lang.mybot_list_utils_msg_yes : lang.mybot_list_utils_msg_no));
 
     let expire = format(new Date(data.ExpireIn), 'ddd, MMM DD YYYY');
 
     return new EmbedBuilder()
         .setColor('#ff7f50')
-        .setThumbnail(`https://cdn.discordapp.com/avatars/${data.Bot.Id}/${bot_1?.bot.avatar}.png`)
-        .setTitle(lang.mybot_list_embed1_title.replace('${data_2[i].bot.username}', data.Bot.Name))
+        .setThumbnail(`https://cdn.discordapp.com/avatars/${data.Bot.Id}/${bot_1?.bot?.avatar}.png`)
+        .setTitle(lang.mybot_list_embed1_title.replace('${data_2[i].bot.username}', bot_1?.bot?.username || data?.Bot?.Name))
         .setDescription(
             lang.mybot_list_embed1_desc
                 .replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
