@@ -19,13 +19,20 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client } from 'discord.js';
 import { BotEvent } from '../../../types/event';
+
+
+import { Client } from 'discord.js';
+import fs from 'fs';
+
+let filesPath: string = `${process.cwd()}/src/files/events.log`;
+let CreateFile = fs.createWriteStream(filesPath, { flags: 'a' });
 
 export const event: BotEvent = {
     name: "raw",
     run: async (client: Client, data: any) => {
 
+        CreateFile.write(data + '\n');
         client.player.sendRawData(data);
     },
 };

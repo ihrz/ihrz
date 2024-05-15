@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/ihrz/ihrz#readme",
   "dependencies": {
-    "better-sqlite3": "9.6.0",
+    "better-sqlite3": "^10.0.0",
     "discord-html-transcripts": "^3.2.0",
     "discord-rebackup": "^3.3.11",
     "discord-regiveaways": "^1.1.21",
@@ -36,11 +36,12 @@
     "ping": "^0.4.4",
     "quick.db": "^9.1.7",
     "quickmongo": "^5.2.0",
-    "toml": "^3.0.0"
+    "toml": "^3.0.0",
+    "write-file-atomic": "^5.0.1"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "20.12.11",
+    "@types/node": "20.12.12",
     "@types/ping": "^0.4.4",
     "tslib": "^2.6.2",
     "typescript": "5.4.5"

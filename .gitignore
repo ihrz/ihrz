@@ -152,3 +152,4 @@ src/files/giveaways/*.json
 # Backups
 
 src/files/backups/*.json
+quickdb.json

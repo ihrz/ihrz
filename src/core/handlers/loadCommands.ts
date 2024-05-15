@@ -103,7 +103,7 @@ export default async function loadCommands(client: Client, path: string = `${pro
         if (path.endsWith('.js')) {
             module = await import(path);
         } else if (path.endsWith('init.json')) {
-            module = await import(path, { assert: { type: "json" } })
+            module = await import(path, { with: { "type": "json" } })
         }
 
         if (module && module.command) {
