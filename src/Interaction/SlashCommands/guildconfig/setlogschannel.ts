@@ -60,7 +60,8 @@ export const command: Command = {
                 { name: "Moderation Logs", value: "2" },
                 { name: "Voice Logs", value: "3" },
                 { name: "Messages Logs", value: "4" },
-                { name: "Boost Logs", value: "5" }
+                { name: "Boost Logs", value: "5" },
+                { name: "Ticket Logs", value: "6" },
             ]
         },
         {
@@ -100,6 +101,7 @@ export const command: Command = {
                 { id: "message", value: data.setlogschannel_var_msg },
                 { id: "boosts", value: data.setlogschannel_var_boost },
                 { id: "roles", value: data.setlogschannel_var_roles },
+                { id: "ticket-log-channel", value: data.setlogschannel_var_tickets },
             ];
 
             interaction.guild?.channels.create({
@@ -131,7 +133,11 @@ export const command: Command = {
                                 .replace("${interaction.user.id}", interaction.user.id)
                                 .replace("${typeOfLogs}", typeOfLogs.value)
                         });
-                        await client.db.set(`${interaction.guildId}.GUILD.SERVER_LOGS.${typeOfLogs.id}`, channel.id);
+                        if (typeOfLogs.id === 'ticket-log-channel') {
+                            await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel.id);
+                        } else {
+                            await client.db.set(`${interaction.guildId}.GUILD.SERVER_LOGS.${typeOfLogs.id}`, channel.id);
+                        }
                     }
                 });
                 await Promise.all(promises);
@@ -421,5 +427,62 @@ export const command: Command = {
             });
             return;
         }
+
+        /*                                        TICKET  LOGS                                                */
+        if (type === "6") {
+            let typeOfLogs = data.setlogschannel_var_tickets;
+            let blockQ = await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`);
+
+            if (!argsid) {
+                await interaction.editReply({ content: data.setlogschannel_not_specified_args });
+                return;
+            };
+
+            if (blockQ) {
+                await interaction.editReply({ content: data.open_disabled_command });
+                return;
+            };
+
+            try {
+                let already = await client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
+
+                if (already === argsid.id) {
+                    await interaction.editReply({ content: data.setlogschannel_already_this_channel });
+                    return;
+                };
+
+                (client.channels.cache.get(argsid.id) as BaseGuildTextChannel).send({
+                    content: data.setlogschannel_confirmation_message
+                        .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+                        .replace("${interaction.user.id}", interaction.user.id)
+                        .replace("${typeOfLogs}", typeOfLogs)
+                });
+
+                await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, argsid.id);
+
+                await interaction.editReply({
+                    content: data.setlogschannel_command_work
+                        .replace("${argsid.id}", argsid.id)
+                        .replace("${typeOfLogs}", typeOfLogs)
+                });
+            } catch (e) {
+                await interaction.editReply({ content: data.setlogschannel_command_error });
+            };
+
+            try {
+                let logEmbed = new EmbedBuilder()
+                    .setColor("#bf0bb9")
+                    .setTitle(data.setlogschannel_logs_embed_title)
+                    .setDescription(data.setlogschannel_logs_embed_description_on_enable
+                        .replace(/\${argsid\.id}/g, argsid.id)
+                        .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                        .replace(/\${typeOfLogs}/g, typeOfLogs)
+                    )
+
+                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
+            } catch (e: any) { logger.err(e) };
+            return;
+        };
     },
 };

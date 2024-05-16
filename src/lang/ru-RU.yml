@@ -689,6 +689,7 @@ setlogschannel_var_mods: "Журналы модерации"
 setlogschannel_var_voice: "Журналы голоса"
 setlogschannel_var_msg: "Журналы сообщений"
 setlogschannel_var_boost: "Логи Повышений"
+setlogschannel_var_tickets: "Журналы заявок"
 
 # /join-ghostping add
 joinghostping_add_already_set: "Канал ${channel} уже установлен!"

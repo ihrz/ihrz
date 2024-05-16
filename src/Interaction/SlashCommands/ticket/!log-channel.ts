@@ -43,7 +43,7 @@ export default {
             return;
         };
 
-        client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel?.id);
+        await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel?.id);
 
         let embed = new EmbedBuilder()
             .setColor("#008000")

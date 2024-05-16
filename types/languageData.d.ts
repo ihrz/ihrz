@@ -513,6 +513,7 @@ export interface LanguageData {
     setlogschannel_var_voice: string;
     setlogschannel_var_msg: string;
     setlogschannel_var_boost: string;
+    setlogschannel_var_tickets: string;
     joinghostping_add_already_set: string;
     joinghostping_add_sent_to_channel: string;
     joinghostping_add_ok_embed_title: string;
