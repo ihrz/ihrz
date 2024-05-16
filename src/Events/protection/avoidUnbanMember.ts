@@ -29,7 +29,6 @@ export const event: BotEvent = {
         let data = await client.db.get(`${ban.guild.id}.PROTECTION`);
         if (!data) return;
 
-        console.log(data.unbanmembers)
         if (data.unbanmembers && data.unbanmembers.mode === 'allowlist') {
 
             if (!ban.guild.members.me || !ban.guild.members.me.permissions.has([
