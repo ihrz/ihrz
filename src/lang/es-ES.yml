@@ -460,6 +460,13 @@ snipe_no_previous_message_deleted: "¡No se ha eliminado ningún mensaje en este
 
 # /userinfo
 userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} ¡Espera por favor..."
+userinfo_embed_fields_1_name: "Insignia"
+userinfo_embed_fields_2_name: "Nombre de usuario"
+userinfo_embed_fields_3_name: "Nombre para mostrar"
+userinfo_embed_fields_4_name: "Fecha de creación"
+userinfo_embed_fields_5_name: "Estado de Nitro"
+userinfo_var_notfound: "`No encontrado`"
+userinfo_button_label: "Perfil de usuario"
 
 # /renew
 renew_channel_send_success: "¡${interaction.user} canal recreado!"

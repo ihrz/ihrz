@@ -460,6 +460,13 @@ snipe_no_previous_message_deleted: "Keine Nachricht in diesem Kanal gelöscht!"
 
 # /userinfo
 userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} Bitte warten..."
+userinfo_embed_fields_1_name: "Abzeichen"
+userinfo_embed_fields_2_name: "Benutzername"
+userinfo_embed_fields_3_name: "Anzeigename"
+userinfo_embed_fields_4_name: "Erstellungsdatum"
+userinfo_embed_fields_5_name: "Nitro-Status"
+userinfo_var_notfound: "`Nicht gefunden`"
+userinfo_button_label: "Benutzerprofil"
 
 # /renew
 renew_channel_send_success: "${interaction.user} Kanal wurde erfolgreich neu erstellt!"

@@ -460,6 +460,13 @@ snipe_no_previous_message_deleted: "Le message précédent n'a pas été supprim
 
 # /userinfo
 userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} Patiente mgl sois pas trop impatiant..."
+userinfo_embed_fields_1_name: "Badge"
+userinfo_embed_fields_2_name: "Nom d'utilisateur"
+userinfo_embed_fields_3_name: "Nom affiché"
+userinfo_embed_fields_4_name: "Date de création"
+userinfo_embed_fields_5_name: "Statut Nitro"
+userinfo_var_notfound: "`Non trouvé`"
+userinfo_button_label: "Profil utilisateur"
 
 # /renew
 renew_channel_send_success: "${interaction.user} jai recrée le salon , tu voulais cacher des trucs ouuu? !"

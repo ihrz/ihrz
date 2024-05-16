@@ -326,6 +326,13 @@ export interface LanguageData {
     setrankroles_command_error: string;
     snipe_no_previous_message_deleted: string;
     userinfo_wait_please: string;
+    userinfo_embed_fields_1_name: string;
+    userinfo_embed_fields_2_name: string;
+    userinfo_embed_fields_3_name: string;
+    userinfo_embed_fields_4_name: string;
+    userinfo_embed_fields_5_name: string;
+    userinfo_var_notfound: string;
+    userinfo_button_label: string;
     renew_channel_send_success: string;
     renew_dont_have_permission: string;
     renew_not_administrator: string;

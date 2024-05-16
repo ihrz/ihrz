@@ -459,7 +459,14 @@ setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} Команд
 snipe_no_previous_message_deleted: "В этом канале нет удаленных сообщений!"
 
 # /userinfo
-userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} Подождите, пожалуйста..."
+userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} Пожалуйста, подождите..."
+userinfo_embed_fields_1_name: "Значок"
+userinfo_embed_fields_2_name: "Имя пользователя"
+userinfo_embed_fields_3_name: "Отображаемое имя"
+userinfo_embed_fields_4_name: "Дата создания"
+userinfo_embed_fields_5_name: "Статус Nitro"
+userinfo_var_notfound: "`Не найдено`"
+userinfo_button_label: "Профиль пользователя"
 
 # /renew
 renew_channel_send_success: "${interaction.user} канал был восстановлен!"

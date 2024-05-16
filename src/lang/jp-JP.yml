@@ -459,7 +459,14 @@ setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} コマンド
 snipe_no_previous_message_deleted: "このチャンネルで削除されたメッセージはありません！"
 
 # /userinfo
-userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} お待ちください..."
+userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} 少々お待ちください..."
+userinfo_embed_fields_1_name: "バッジ"
+userinfo_embed_fields_2_name: "ユーザー名"
+userinfo_embed_fields_3_name: "表示名"
+userinfo_embed_fields_4_name: "作成日"
+userinfo_embed_fields_5_name: "Nitroステータス"
+userinfo_var_notfound: "`見つかりません`"
+userinfo_button_label: "ユーザープロフィール"
 
 # /renew
 renew_channel_send_success: "${interaction.user} チャンネルが再作成されました！"
