@@ -95,7 +95,7 @@ export const command: Command = {
         if (type === "auto") {
             let all_created_channels: string[] = [];
             let all_logs_possible = [
-                { id: "voices", value: data.setlogschannel_var_voice },
+                { id: "voice", value: data.setlogschannel_var_voice },
                 { id: "moderation", value: data.setlogschannel_var_mods },
                 { id: "message", value: data.setlogschannel_var_msg },
                 { id: "boosts", value: data.setlogschannel_var_boost },
