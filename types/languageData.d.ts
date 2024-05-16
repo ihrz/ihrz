@@ -354,6 +354,7 @@ export interface LanguageData {
     derank_msg_desc_embed: string;
     derank_msg_failed: string;
     action_unban_all_embed_desc: string;
+    action_unban_all_no_banned_members: string;
     action_unban_undo_embed_desc: string;
     blockpub_not_admin: string;
     blockpub_now_enable: string;
@@ -769,6 +770,15 @@ export interface LanguageData {
     embed_choose_12_error: string;
     embed_choose_13: string;
     embed_send_embed_work: string;
+    rolesaver_embed_title: string;
+    rolesaver_embed_desc: string;
+    rolesaver_embed_fields_1_name: string;
+    rolesaver_embed_fields_2_name: string;
+    rolesaver_embed_fields_3_name: string;
+    rolesaver_on_off_already_set: string;
+    rolesaver_on_off_embed_title: string;
+    rolesaver_on_off_embed_desc: string;
+    rolesaver_on_off_embed_fields_1_name: string;
     suggest_accept_not_admin: string;
     suggest_acceptnot_good_channel: string;
     suggest_accept_not_found_db: string;

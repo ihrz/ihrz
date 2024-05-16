@@ -506,6 +506,7 @@ derank_msg_failed: "Se produjo un error al eliminar los roles."
 
 # /acción desbanear todo
 action_unban_all_embed_desc: "## Desbanear a todos los miembros del gremio\n${client.iHorizon_Emojis.icon.Yes_Logo} | ¡He eliminado con éxito la prohibición de `${unbanned_members.length}` miembro(s) en el gremio!\n${client.iHorizon_Emojis.icon.No_Logo} | ¡No puedo desbanear a `${cannot_unban}` miembro(s)!"
+action_unban_all_no_banned_members: "No hay miembros baneados."
 
 # /acción deshacer desbanear
 action_unban_undo_embed_desc: "## Deshacer el desbanear todo\n${client.iHorizon_Emojis.icon.Yes_Logo} | ¡He prohibido con éxito a `${banned_members.length}` miembro(s) en el gremio!\n${client.iHorizon_Emojis.icon.No_Logo} | ¡No puedo desbanear a `${cannot_ban}` miembro(s)!"

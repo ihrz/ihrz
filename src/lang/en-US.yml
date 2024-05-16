@@ -506,6 +506,7 @@ derank_msg_failed: "An error occurred while removing roles."
 
 # /action unban all
 action_unban_all_embed_desc: "## Unban all guild members\n${client.iHorizon_Emojis.icon.Yes_Logo} | I have successfully remove the ban of `${unbanned_members.length}` member(s) in the guild!\n${client.iHorizon_Emojis.icon.No_Logo} | I can't unban `${cannot_unban}` member(s) !"
+action_unban_all_no_banned_members: "There are no banned members."
 
 # /action unban undo
 action_unban_undo_embed_desc: "## Undo the unban-all\n${client.iHorizon_Emojis.icon.Yes_Logo} | I have successfully banned `${banned_members.length}` member(s) in the guild!\n${client.iHorizon_Emojis.icon.No_Logo} | I can't unban `${cannot_ban}` member(s) !"

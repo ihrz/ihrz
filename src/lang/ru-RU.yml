@@ -506,6 +506,7 @@ derank_msg_failed: "При удалении ролей произошла оши
 
 # /действие разблокировать все
 action_unban_all_embed_desc: "## Разблокировать всех членов гильдии\n${client.iHorizon_Emojis.icon.Yes_Logo} | Я успешно убрал запрет на `${unbanned_members.length}` участника(ов) в гильдии!\n${client.iHorizon_Emojis.icon.No_Logo} | Я не могу разблокировать `${cannot_unban}` участника(ов)!"
+action_unban_all_no_banned_members: "Заблокированных участников нет."
 
 # /действие отменить разблокировку
 action_unban_undo_embed_desc: "## Отменить все разблокировки\n${client.iHorizon_Emojis.icon.Yes_Logo} | Я успешно забанил `${banned_members.length}` участника(ов) в гильдии!\n${client.iHorizon_Emojis.icon.No_Logo} | Я не могу разблокировать `${cannot_ban}` участника(ов)!"
