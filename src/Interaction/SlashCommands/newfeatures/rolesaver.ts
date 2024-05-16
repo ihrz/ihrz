@@ -23,10 +23,10 @@ import {
     Client,
     EmbedBuilder,
     ApplicationCommandOptionType,
-    CommandInteraction,
     CommandInteractionOptionResolver,
     ChatInputCommandInteraction,
     ApplicationCommandType,
+    PermissionsBitField,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
@@ -110,21 +110,26 @@ export const command: Command = {
 
         let data = await client.functions.getLanguageData(interaction.guildId);
 
-        var action = (interaction.options as CommandInteractionOptionResolver).getString("action");
-        var settings = (interaction.options as CommandInteractionOptionResolver).getString("settings") || "None";
-        var timeout = (interaction.options as CommandInteractionOptionResolver).getString("timeout") || "None";
+        var action = interaction.options.getString("action");
+        var settings = interaction.options.getString("settings") || "None";
+        var timeout = interaction.options.getString("timeout") || "None";
+
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+            await interaction.reply({ content: data.punishpub_not_admin });
+            return;
+        };
 
         if (action === 'on') {
             let state = await client.db.get(`${interaction.guildId}.GUILD_CONFIG.rolesaver.enable`);
 
             let embed = new EmbedBuilder()
                 .setColor("#3725a4")
-                .setTitle('RoleSaver Module')
-                .setDescription(`When guild members leave the server, their roles are saved in the database. Now when they join, iHorizon gives them their roles back.`)
+                .setTitle(data.rolesaver_embed_title)
+                .setDescription(data.rolesaver_embed_desc)
                 .addFields(
-                    { name: "Enable", value: `\`${action}\``, inline: false },
-                    { name: "Re-Gave Admin Roles", value: `\`${settings}\``, inline: false },
-                    { name: "Timeout", value: `\`${timeout}\``, inline: false }
+                    { name: data.rolesaver_embed_fields_1_name, value: `\`${action}\``, inline: false },
+                    { name: data.rolesaver_embed_fields_2_name, value: `\`${settings}\``, inline: false },
+                    { name: data.rolesaver_embed_fields_3_name, value: `\`${timeout}\``, inline: false }
                 )
                 .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
@@ -138,15 +143,16 @@ export const command: Command = {
             let state = await client.db.get(`${interaction.guildId}.GUILD_CONFIG.rolesaver.enable`);
 
             if (!state) {
-                await interaction.reply({ content: "The module is already disable!" });
+                await interaction.reply({ content: data.rolesaver_on_off_already_set });
                 return;
-            }
+            };
+
             let embed = new EmbedBuilder()
                 .setColor("#3725a4")
-                .setTitle('RoleSaver Module')
-                .setDescription(`When guild members leave the server, their roles are not saved in the database. Now, iHorizon no longer restores the old roles to members when they come back in the server.`)
+                .setTitle(data.rolesaver_on_off_embed_title)
+                .setDescription(data.rolesaver_on_off_embed_desc)
                 .addFields(
-                    { name: "Enable", value: `\`${action}\``, inline: false },
+                    { name: data.rolesaver_on_off_embed_fields_1_name, value: `\`${action}\``, inline: false },
                 )
                 .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 

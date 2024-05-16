@@ -1051,6 +1051,17 @@ embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | 無効な色で
 embed_choose_13: "埋め込みの色が正常に削除されました！"
 embed_send_embed_work: "<@${interaction.user.id}>さん、**埋め込みを正常に<#${message.content}>チャンネルに送信しました！**"
 
+# /rolesaver
+rolesaver_embed_title: "RoleSaverモジュール"
+rolesaver_embed_desc: "ギルドメンバーがサーバーを離れると、その役割はデータベースに保存されます。今、彼らが再参加すると、iHorizonは彼らの役割を戻します。"
+rolesaver_embed_fields_1_name: "有効にする"
+rolesaver_embed_fields_2_name: "管理者ロールの再付与"
+rolesaver_embed_fields_3_name: "タイムアウト"
+rolesaver_on_off_already_set: "モジュールはすでに無効です！"
+rolesaver_on_off_embed_title: "RoleSaverモジュール"
+rolesaver_on_off_embed_desc: "ギルドメンバーがサーバーを離れると、その役割はデータベースに保存されません。iHorizonは、メンバーがサーバーに戻ってきたときに古い役割を復元しなくなります。"
+rolesaver_on_off_embed_fields_1_name: "有効にする"
+
 
 # 提案コマンド
 # /setsuggest, /suggest

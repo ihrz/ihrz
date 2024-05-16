@@ -1051,6 +1051,17 @@ embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | Invalid color! 
 embed_choose_13: "The color of the Embed has been successfully deleted!"
 embed_send_embed_work: "<@${interaction.user.id}>, **You have successfully sent the Embed to the <#${message.content}> channel!**"
 
+# /rolesaver
+rolesaver_embed_title: "RoleSaver Module"
+rolesaver_embed_desc: "When guild members leave the server, their roles are saved in the database. Now when they join, iHorizon gives them their roles back."
+rolesaver_embed_fields_1_name: "Enable"
+rolesaver_embed_fields_2_name: "Re-Gave Admin Roles"
+rolesaver_embed_fields_3_name: "Timeout"
+rolesaver_on_off_already_set: "The module is already disable!"
+rolesaver_on_off_embed_title: "RoleSaver Module"
+rolesaver_on_off_embed_desc: " When guild members leave the server, their roles are not saved in the database. Now, iHorizon no longer restores the old roles to members when they come back in the server."
+rolesaver_on_off_embed_fields_1_name: "Enable"
+
 
 # Suggestion commands
 # /setsuggest, /suggest

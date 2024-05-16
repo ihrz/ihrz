@@ -1051,6 +1051,17 @@ embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | Colore non vali
 embed_choose_13: "Il colore dell'Embed è stato eliminato con successo!"
 embed_send_embed_work: "<@${interaction.user.id}>, **Hai inviato con successo l'Embed al canale <#${message.content}>!**"
 
+# /rolesaver
+rolesaver_embed_title: "Modulo RoleSaver"
+rolesaver_embed_desc: "Quando i membri della gilda lasciano il server, i loro ruoli vengono salvati nel database. Ora, quando rientrano, iHorizon restituisce loro i ruoli."
+rolesaver_embed_fields_1_name: "Abilitare"
+rolesaver_embed_fields_2_name: "Ruoli di amministratore riattribuiti"
+rolesaver_embed_fields_3_name: "Timeout"
+rolesaver_on_off_already_set: "Il modulo è già disabilitato!"
+rolesaver_on_off_embed_title: "Modulo RoleSaver"
+rolesaver_on_off_embed_desc: "Quando i membri della gilda lasciano il server, i loro ruoli non vengono salvati nel database. Ora, iHorizon non ripristina più i vecchi ruoli ai membri quando rientrano nel server."
+rolesaver_on_off_embed_fields_1_name: "Abilitare"
+
 
 # Comandi per i suggerimenti
 # /impostasuggerimento, /suggerisci

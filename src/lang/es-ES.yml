@@ -1051,6 +1051,17 @@ embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | ¡Color inváli
 embed_choose_13: "¡Se ha eliminado correctamente el color del Embed!"
 embed_send_embed_work: "<@${interaction.user.id}>, **Has enviado con éxito el Embed al canal <#${message.content}>!**"
 
+# /rolesaver
+rolesaver_embed_title: "Módulo RoleSaver"
+rolesaver_embed_desc: "Cuando los miembros de la guild abandonan el servidor, sus roles se guardan en la base de datos. Ahora, cuando se reincorporan, iHorizon les devuelve sus roles."
+rolesaver_embed_fields_1_name: "Habilitar"
+rolesaver_embed_fields_2_name: "Roles de administrador reestablecidos"
+rolesaver_embed_fields_3_name: "Tiempo de espera"
+rolesaver_on_off_already_set: "¡El módulo ya está deshabilitado!"
+rolesaver_on_off_embed_title: "Módulo RoleSaver"
+rolesaver_on_off_embed_desc: "Cuando los miembros de la guild abandonan el servidor, sus roles no se guardan en la base de datos. Ahora, iHorizon ya no restaura los roles antiguos a los miembros cuando regresan al servidor."
+rolesaver_on_off_embed_fields_1_name: "Habilitar"
+
 
 # Comandos de sugerencia
 # /configurarsugerencia, /sugerir

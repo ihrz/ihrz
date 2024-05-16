@@ -1051,6 +1051,17 @@ embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | Couleur Invalid
 embed_choose_13: "La couleur de l'Embed à correctement été Supprimer !"
 embed_send_embed_work: "<@${interaction.user.id}>, **Vous avez parfaitement envoyé l'Embed dans le salon <#${message.content}> !**"
 
+# /rolesaver
+rolesaver_embed_title: "Module RoleSaver"
+rolesaver_embed_desc: "Lorsque les membres de la guilde quittent le serveur, leurs rôles sont sauvegardés dans la base de données. Maintenant, lorsqu'ils rejoignent, iHorizon leur redonne leurs rôles."
+rolesaver_embed_fields_1_name: "Activer"
+rolesaver_embed_fields_2_name: "Rôles administrateur redonnés"
+rolesaver_embed_fields_3_name: "Délai d'attente"
+rolesaver_on_off_already_set: "Le module est déjà désactivé !"
+rolesaver_on_off_embed_title: "Module RoleSaver"
+rolesaver_on_off_embed_desc: "Lorsque les membres de la guilde quittent le serveur, leurs rôles ne sont pas sauvegardés dans la base de données. Désormais, iHorizon ne restaure plus les anciens rôles aux membres lorsqu'ils reviennent sur le serveur."
+rolesaver_on_off_embed_fields_1_name: "Activer"
+
 
 # Commandes de suggestion
 # /setsuggest, /suggest

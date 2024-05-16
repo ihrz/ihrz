@@ -1051,6 +1051,17 @@ embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | Ungültige Farb
 embed_choose_13: "Die Farbe der Einbettung wurde erfolgreich gelöscht!"
 embed_send_embed_work: "<@${interaction.user.id}>, **Du hast die Einbettung erfolgreich in den Kanal <#${message.content}> gesendet!**"
 
+# /rolesaver
+rolesaver_embed_title: "RoleSaver Modul"
+rolesaver_embed_desc: "Wenn Mitglieder den Server verlassen, werden ihre Rollen in der Datenbank gespeichert. Wenn sie nun wieder beitreten, gibt ihnen iHorizon ihre Rollen zurück."
+rolesaver_embed_fields_1_name: "Aktivieren"
+rolesaver_embed_fields_2_name: "Admin-Rollen erneut vergeben"
+rolesaver_embed_fields_3_name: "Zeitüberschreitung"
+rolesaver_on_off_already_set: "Das Modul ist bereits deaktiviert!"
+rolesaver_on_off_embed_title: "RoleSaver Modul"
+rolesaver_on_off_embed_desc: "Wenn Mitglieder den Server verlassen, werden ihre Rollen nicht in der Datenbank gespeichert. iHorizon stellt die alten Rollen der Mitglieder nicht wieder her, wenn sie in den Server zurückkehren."
+rolesaver_on_off_embed_fields_1_name: "Aktivieren"
+
 
 # Vorschlagsbefehle
 # /setsuggest, /suggest
