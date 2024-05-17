@@ -42,7 +42,7 @@ export default {
         let cannot_unban = 0;
 
         if (!banned_members) {
-            await interaction.editReply({ content: "There are no banned members." });
+            await interaction.editReply({ content: data.action_unban_all_no_banned_members });
             return;
         }
 

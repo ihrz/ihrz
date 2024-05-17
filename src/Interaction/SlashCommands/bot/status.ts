@@ -60,6 +60,7 @@ export const command: Command = {
                 { name: "Machine Uptime", value: `${time(new Date(Date.now() - os.uptime() * 1000), 'd')}`, inline: false },
                 { name: "OS", value: `${os.platform()} ${os.type()} ${os.release()}`, inline: false },
                 { name: "Bot Version", value: `${client.version.ClientVersion}`, inline: false },
+                { name: "NodeJS Version", value: `${process.version}`, inline: false },
             )
             .setThumbnail(interaction.guild?.iconURL() as string)
             .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })

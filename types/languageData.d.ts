@@ -82,6 +82,8 @@ export interface LanguageData {
     setticketcategory_disabled_command: string;
     setticketcategory_not_a_category: string;
     setticketcategory_command_work: string;
+    ticket_logchannel_embed_title: string;
+    ticket_logchannel_embed_desc: string;
     disablexp_not_admin: string;
     disablexp_logs_embed_title_disable: string;
     disablexp_logs_embed_description_disable: string;
@@ -109,6 +111,11 @@ export interface LanguageData {
     level_embed_fields2_name: string;
     level_embed_fields2_value: string;
     level_embed_description: string;
+    ranks_leaderboard_embed_title: string;
+    ranks_leaderboard_top_txt: string;
+    ranks_leaderboard_top_txt_raw: string;
+    ranks_leaderboard_txt_text: string;
+    ranks_leaderboard_txt_raw: string;
     owner_not_owner: string;
     owner_already_owner: string;
     owner_is_now_owner: string;
@@ -120,6 +127,9 @@ export interface LanguageData {
     blacklist_command_work: string;
     blacklist_blacklisted_but_can_ban_him: string;
     blacklist_already_blacklisted: string;
+    blacklist_no_one_blacklist: string;
+    blacklist_var_no_reason: string;
+    blacklist_embed_title: string;
     unblacklist_not_owner: string;
     unblacklist_command_work: string;
     unblacklist_not_blacklisted: string;
@@ -208,6 +218,8 @@ export interface LanguageData {
     say_footer_msg: string;
     ping_down_msg: string;
     ping_embed_desc: string;
+    fun_var_down_api: string;
+    fun_var_good_sentence: string;
     cats_embed_title: string;
     hack_embed_description: string;
     hack_embed_fields_ip: string;
@@ -326,6 +338,13 @@ export interface LanguageData {
     setrankroles_command_error: string;
     snipe_no_previous_message_deleted: string;
     userinfo_wait_please: string;
+    userinfo_embed_fields_1_name: string;
+    userinfo_embed_fields_2_name: string;
+    userinfo_embed_fields_3_name: string;
+    userinfo_embed_fields_4_name: string;
+    userinfo_embed_fields_5_name: string;
+    userinfo_var_notfound: string;
+    userinfo_button_label: string;
     renew_channel_send_success: string;
     renew_dont_have_permission: string;
     renew_not_administrator: string;
@@ -333,6 +352,7 @@ export interface LanguageData {
     prevnames_undetected: string;
     prevnames_not_admin: string;
     prevnames_data_erased: string;
+    prevnames_embed_footer_text: string;
     blockbot_not_owner: string;
     blockbot_logs_enable_title: string;
     blockbot_logs_enable_description: string;
@@ -354,6 +374,7 @@ export interface LanguageData {
     derank_msg_desc_embed: string;
     derank_msg_failed: string;
     action_unban_all_embed_desc: string;
+    action_unban_all_no_banned_members: string;
     action_unban_undo_embed_desc: string;
     blockpub_not_admin: string;
     blockpub_now_enable: string;
@@ -492,6 +513,7 @@ export interface LanguageData {
     setleavemessage_logs_embed_description_on_disable: string;
     setleavemessage_command_work_on_disable: string;
     setleavemessage_command_work_ls: string;
+    setleavemessage_awaiting_response: string;
     setup_not_admin: string;
     setup_command_work: string;
     setup_command_error: string;
@@ -513,6 +535,7 @@ export interface LanguageData {
     setlogschannel_var_voice: string;
     setlogschannel_var_msg: string;
     setlogschannel_var_boost: string;
+    setlogschannel_var_tickets: string;
     joinghostping_add_already_set: string;
     joinghostping_add_sent_to_channel: string;
     joinghostping_add_ok_embed_title: string;
@@ -549,8 +572,14 @@ export interface LanguageData {
     loop_command_work: string;
     nowplaying_no_queue: string;
     nowplaying_message_embed_title: string;
+    nowplaying_resume_button: string;
+    nowplaying_pause_button: string;
+    nowplaying_lyrics_button: string;
+    nowplaying_stop_buttom: string;
     pause_no_queue: string;
     pause_nothing_playing: string;
+    pause_var_paused: string;
+    pause_var_err: string;
     resume_nothing_playing: string;
     resume_command_work: string;
     skip_not_in_voice_channel: string;
@@ -567,6 +596,12 @@ export interface LanguageData {
     shuffle_no_queue: string;
     shuffle_no_enought: string;
     shuffle_command_work: string;
+    history_no_entries: string;
+    history_embed_title: string;
+    history_embed_footer_text: string;
+    lyrics_embed_title_unknown: string;
+    lyrics_embed_author_name_unknown: string;
+    lyrics_not_found: string;
     end_not_admin: string;
     end_not_find_giveaway: string;
     end_confirmation_message: string;
@@ -768,6 +803,15 @@ export interface LanguageData {
     embed_choose_12_error: string;
     embed_choose_13: string;
     embed_send_embed_work: string;
+    rolesaver_embed_title: string;
+    rolesaver_embed_desc: string;
+    rolesaver_embed_fields_1_name: string;
+    rolesaver_embed_fields_2_name: string;
+    rolesaver_embed_fields_3_name: string;
+    rolesaver_on_off_already_set: string;
+    rolesaver_on_off_embed_title: string;
+    rolesaver_on_off_embed_desc: string;
+    rolesaver_on_off_embed_fields_1_name: string;
     suggest_accept_not_admin: string;
     suggest_acceptnot_good_channel: string;
     suggest_accept_not_found_db: string;
@@ -1025,4 +1069,5 @@ export interface LanguageData {
     temporary_voice_trusted_member: string;
     temporary_voice_transfer_unblocked_placeholder: string;
     temporary_voice_transfer_untrust_placeholder: string;
+    protection_avoid_channel_delete: string;
 }

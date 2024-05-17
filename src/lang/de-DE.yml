@@ -84,6 +84,10 @@ setticketcategory_disabled_command: "Sie können diesen Befehl nicht verwenden, 
 setticketcategory_not_a_category: "Der angegebene Kanal ist keine Kategorie, bitte versuchen Sie es erneut."
 setticketcategory_command_work: "<@${interaction.user.id}>, Sie haben die Kategorie für den Ticket-Kanal auf `${category.name}` festgelegt!"
 
+# /ticket log-channel
+ticket_logchannel_embed_title: "Ticket-Logs-Kanal"
+ticket_logchannel_embed_desc: "${interaction.user}, du hast den Ticket-Modul-Logs-Kanal auf ${channel} gesetzt!"
+
 
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
@@ -121,6 +125,13 @@ level_embed_fields2_name: ":money_with_wings:・__Erfahrung:__"
 level_embed_fields2_value: "`${level}`"
 level_embed_description: "`${expNeededForLevelUp}` **Erfahrungspunkte benötigt für das nächste Level!**"
 
+# /ranks leaderboard
+ranks_leaderboard_embed_title: "Level-Bestenliste von ${interaction.guild?.name}"
+ranks_leaderboard_top_txt: "Top #${i}"
+ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
+ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Level**: `${a.level || '0'}`\n🔱 ➥ **XP Gesamt**: `${a.xptotal}`"
+ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Level: ${a.level || '0'}\n🔱 ➥ XP Gesamt: ${a.xptotal}"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -141,6 +152,9 @@ blacklist_bot_lol: "Ich kann mich nicht selbst auf die Blacklist setzen x)"
 blacklist_command_work: "${member.user.username} steht jetzt auf der Blacklist"
 blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.icon.No_Logo} Steht jetzt auf der Blacklist. Kann dieses Mitglied hier nicht bannen, fehlende Berechtigungen?"
 blacklist_already_blacklisted: "${member.user.username} steht bereits auf der Blacklist!"
+blacklist_no_one_blacklist: "${client.iHorizon_Emojis.icon.No_Logo} Niemand auf der schwarzen Liste gefunden!"
+blacklist_var_no_reason: "Kein Grund gefunden"
+blacklist_embed_title: "Schwarze Liste - Seite ${i / usersPerPage + 1}"
 
 # /unblacklist
 unblacklist_not_owner: "Du bist nicht der Besitzer von iHorizon Projects. Du kannst diesen Befehl nicht verwenden."
@@ -272,6 +286,10 @@ ping_embed_desc: "# Pong! Netzwerkstatistiken von ${interaction.client.user.user
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
+
+# Fun Var
+fun_var_down_api: "Fehler: Die API ist nicht erreichbar!"
+fun_var_good_sentence: "Bitte, sende einen guten Satz!"
 
 # /cats
 cats_embed_title: "Miauw :cat:"
@@ -460,6 +478,13 @@ snipe_no_previous_message_deleted: "Keine Nachricht in diesem Kanal gelöscht!"
 
 # /userinfo
 userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} Bitte warten..."
+userinfo_embed_fields_1_name: "Abzeichen"
+userinfo_embed_fields_2_name: "Benutzername"
+userinfo_embed_fields_3_name: "Anzeigename"
+userinfo_embed_fields_4_name: "Erstellungsdatum"
+userinfo_embed_fields_5_name: "Nitro-Status"
+userinfo_var_notfound: "`Nicht gefunden`"
+userinfo_button_label: "Benutzerprofil"
 
 # /renew
 renew_channel_send_success: "${interaction.user} Kanal wurde erfolgreich neu erstellt!"
@@ -471,6 +496,7 @@ prevnames_embed_title: "Liste aller Spitznamen von ${user.username}"
 prevnames_undetected: "Keine Daten gefunden!"
 prevnames_not_admin: "Du hast nicht die `ADMINISTRATOR`-Berechtigung, um diesen Befehl auszuführen!"
 prevnames_data_erased: "Ihre früheren Benutzernamen wurden auf Ihren Wunsch hin vollständig gelöscht!"
+prevnames_embed_footer_text: "iHorizon | Seite ${currentPage + 1}/${pages.length}"
 
 # /blockbot
 blockbot_not_owner: ":x: **Du bist nicht der Besitzer des Servers!**"
@@ -506,9 +532,17 @@ derank_msg_failed: "Ein Fehler ist beim Entfernen der Rollen aufgetreten."
 
 # /Aktion Entbannen alle
 action_unban_all_embed_desc: "## Alle Gildenmitglieder entbannen\n${client.iHorizon_Emojis.icon.Yes_Logo} | Ich habe erfolgreich das Verbot von `${unbanned_members.length}` Mitglied(ern) in der Gilde aufgehoben!\n${client.iHorizon_Emojis.icon.No_Logo} | Ich kann `${cannot_unban}` Mitglied(er) nicht entbannen!"
+action_unban_all_no_banned_members: "Es gibt keine gesperrten Mitglieder."
 
 # /Aktion Entbannen rückgängig machen
 action_unban_undo_embed_desc: "## Das Entbannen aller rückgängig machen\n${client.iHorizon_Emojis.icon.Yes_Logo} | Ich habe erfolgreich `${banned_members.length}` Mitglied(er) in der Gilde gebannt!\n${client.iHorizon_Emojis.icon.No_Logo} | Ich kann `${cannot_ban}` Mitglied(er) nicht entbannen!"
+
+# /vc
+vc_embed_desc: "## Sprachstatus\n`${voiceStates?.size}` Mitglied(er) sind im Sprachkanal:\n${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## Mitgliederstatus\n`${membersStates?.size}` Mitglied(er) sind in der Gilde:\n${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## Boost-Status\n`${interaction.guild?.premiumSubscriptionCount}` Boost(s) in der Gilde,\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
+vc_embed_fields_1_name: "・Mitgliederzahl"
+vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} Mitglieder```"
+vc_embed_fields_2_name: "・Kanalanzahl"
+vc_embed_fields_2_value: "```py\n${textChannelSize} Textkanal(e)\n${voiceChannelSize} Sprachkanal(e)```"
 
 
 # Guild Config commands
@@ -664,6 +698,7 @@ setleavemessage_logs_embed_title_on_disable: "SetJoinMessage-Protokolle"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> hat die Austrittsnachricht gelöscht!"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Benutzerdefinierte Austrittsnachricht erfolgreich gelöscht."
 setleavemessage_command_work_ls: "Die Austrittsnachricht lautet:"
+setleavemessage_awaiting_response: "Schreibe die neue benutzerdefinierte Abschiedsnachricht im Kanal."
 
 # /setup
 setup_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
@@ -689,6 +724,7 @@ setlogschannel_var_mods: "Moderationsprotokolle"
 setlogschannel_var_voice: "Sprachprotokolle"
 setlogschannel_var_msg: "Nachrichtenprotokolle"
 setlogschannel_var_boost: "Boost-Protokolle"
+setlogschannel_var_tickets: "Ticketprotokolle"
 
 # /join-ghostping add
 joinghostping_add_already_set: "Der Kanal ${channel} ist bereits festgelegt!"
@@ -751,10 +787,16 @@ loop_command_work: "{mode} | Loop-Modus aktualisiert"
 # /nowplaying
 nowplaying_no_queue: "Es wird gerade nichts abgespielt"
 nowplaying_message_embed_title: "Jetzt wird abgespielt"
+nowplaying_resume_button: "${interaction.user} **setzt** die Musik fort!"
+nowplaying_pause_button: "${interaction.user} **pausiert** die Musik!"
+nowplaying_lyrics_button: "Die Liedtexte für dieses Lied wurden nicht gefunden"
+nowplaying_stop_buttom: "${interaction.user} **stoppt** die Musik!"
 
 # /pause
 pause_no_queue: "${client.iHorizon_Emojis.icon.Warning_Icon} - Sie befinden sich nicht in einem Sprachkanal!"
 pause_nothing_playing: "Es wird nichts abgespielt"
+pause_var_paused: "pausiert"
+pause_var_err: "ein Fehler ist aufgetreten"
 
 # /resume
 resume_nothing_playing: "Es wird nichts abgespielt"
@@ -781,6 +823,16 @@ queue_embed_footer_text: "Seite {index} | Insgesamt {track} Titel"
 shuffle_no_queue: "Ich bin nicht in einem Sprachkanal"
 shuffle_no_enought: "Es gibt nicht genug Titel in der Warteschlange, um zu **mischen**"
 shuffle_command_work: "Ich habe die Warteschlange **gemischt**"
+
+# /music history
+history_no_entries: "Es gibt keinen Eintrag in diesem Wettbewerb."
+history_embed_title: "Musikgeschichte von ${interaction.guild?.name} | Seite ${i / usersPerPage + 1}"
+history_embed_footer_text: "iHorizon | Seite ${currentPage + 1}/${pages.length}"
+
+# /music lyrics
+lyrics_embed_title_unknown: "Unbekannter Titel"
+lyrics_embed_author_name_unknown: "Unbekannter Autor"
+lyrics_not_found: "Keine Liedtexte gefunden"
 
 
 # Giveaway commands
@@ -1049,6 +1101,17 @@ embed_choose_12: "Welche Farbe möchtest du in deine Einbettung aufnehmen? **www
 embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | Ungültige Farbe! Bitte überprüfe **www.color-hex.com**"
 embed_choose_13: "Die Farbe der Einbettung wurde erfolgreich gelöscht!"
 embed_send_embed_work: "<@${interaction.user.id}>, **Du hast die Einbettung erfolgreich in den Kanal <#${message.content}> gesendet!**"
+
+# /rolesaver
+rolesaver_embed_title: "RoleSaver Modul"
+rolesaver_embed_desc: "Wenn Mitglieder den Server verlassen, werden ihre Rollen in der Datenbank gespeichert. Wenn sie nun wieder beitreten, gibt ihnen iHorizon ihre Rollen zurück."
+rolesaver_embed_fields_1_name: "Aktivieren"
+rolesaver_embed_fields_2_name: "Admin-Rollen erneut vergeben"
+rolesaver_embed_fields_3_name: "Zeitüberschreitung"
+rolesaver_on_off_already_set: "Das Modul ist bereits deaktiviert!"
+rolesaver_on_off_embed_title: "RoleSaver Modul"
+rolesaver_on_off_embed_desc: "Wenn Mitglieder den Server verlassen, werden ihre Rollen nicht in der Datenbank gespeichert. iHorizon stellt die alten Rollen der Mitglieder nicht wieder her, wenn sie in den Server zurückkehren."
+rolesaver_on_off_embed_fields_1_name: "Aktivieren"
 
 
 # Vorschlagsbefehle
@@ -1437,5 +1500,10 @@ temporary_voice_transfer_trust_placeholder: "Ausgewählte Benutzer werden als ve
 temporary_voice_transfer_unblocked_placeholder: "Ausgewählte Benutzer werden als nicht blockiert eingestuft, um beizutreten"
 
 temporary_voice_transfer_untrust_placeholder: "Ausgewählte Benutzer werden als nicht vertrauenswürdig eingestuft, um beizutreten"
+
+# Schutzmodul
+# Ereignisnachricht
+
+protection_avoid_channel_delete: "**SCHUTZMODUS AKTIV**\n<@${channel.guild.ownerId}>, der Kanal wurde neu erstellt, <@${firstEntry.executorId}> hat versucht, den Kanal zu löschen!"
 
 # -----------------------------\ /-----------------------------

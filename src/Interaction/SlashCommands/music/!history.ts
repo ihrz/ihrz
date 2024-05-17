@@ -42,7 +42,7 @@ export default {
         let history = await client.db.get(`${interaction.guildId}.MUSIC_HISTORY`);
 
         if (!history || !history.embed || history.embed.length == 0) {
-            await interaction.editReply({ content: "There is no entry into this competition." });
+            await interaction.editReply({ content: data.history_no_entries });
             return;
         };
 
@@ -58,7 +58,9 @@ export default {
             let pageContent = pageUsers.map((userId: string) => userId).join('\n');
 
             pages.push({
-                title: `${interaction.guild?.name} Music's History | Page ${i / usersPerPage + 1}`,
+                title: data.history_embed_title
+                    .replace('${interaction.guild?.name}', interaction.guild?.name!)
+                    .replace('${i / usersPerPage + 1}', (i / usersPerPage + 1).toString()),
                 description: pageContent,
             });
         };
@@ -69,7 +71,12 @@ export default {
                 .setTimestamp()
                 .setTitle(pages[currentPage].title)
                 .setDescription(pages[currentPage].description)
-                .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: "attachment://icon.png" })
+                .setFooter({
+                    text: data.history_embed_footer_text
+                        .replace('${currentPage + 1}', (currentPage + 1).toString())
+                        .replace('${pages.length}', pages.length.toString()),
+                    iconURL: "attachment://icon.png"
+                })
                 .setTimestamp()
         };
 

@@ -84,6 +84,10 @@ setticketcategory_disabled_command: "No puedes usar este comando porque un admin
 setticketcategory_not_a_category: "El canal especificado no es una categoría, por favor, inténtalo de nuevo."
 setticketcategory_command_work: "<@${interaction.user.id}>, ¡has establecido la categoría para el canal de tickets como `${category.name}`!"
 
+# /ticket log-channel
+ticket_logchannel_embed_title: "Canal de Registros de Tickets"
+ticket_logchannel_embed_desc: "${interaction.user}, ¡has configurado el canal de registros del módulo de Tickets a ${channel}!"
+
 
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
@@ -121,6 +125,13 @@ level_embed_fields2_name: ":money_with_wings:・__Experiencia:__"
 level_embed_fields2_value: "`${level}`"
 level_embed_description: "`${expNeededForLevelUp}` **puntos de experiencia necesarios para el próximo nivel!**"
 
+# /ranks leaderboard
+ranks_leaderboard_embed_title: "Tabla de Clasificación de Niveles de ${interaction.guild?.name}"
+ranks_leaderboard_top_txt: "Top #${i}"
+ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
+ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Nivel**: `${a.level || '0'}`\n🔱 ➥ **XP Total**: `${a.xptotal}`"
+ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Nivel: ${a.level || '0'}\n🔱 ➥ XP Total: ${a.xptotal}"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -141,6 +152,9 @@ blacklist_bot_lol: "No puedo ponerme en la lista negra a mí mismo x)"
 blacklist_command_work: "${member.user.username} ahora está en la lista negra"
 blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.icon.No_Logo} Ahora está en la lista negra, no se puede expulsar a este miembro aquí, ¿faltan permisos?"
 blacklist_already_blacklisted: "${member.user.username} ya está en la lista negra!"
+blacklist_no_one_blacklist: "${client.iHorizon_Emojis.icon.No_Logo} ¡No se ha encontrado a nadie en la lista negra!"
+blacklist_var_no_reason: "No se ha encontrado ninguna razón"
+blacklist_embed_title: "Lista Negra - Página ${i / usersPerPage + 1}"
 
 # /unblacklist
 unblacklist_not_owner: "No eres el dueño de iHorizon Projects. No puedes utilizar este comando."
@@ -272,6 +286,10 @@ ping_embed_desc: "# ¡Pong! Estadísticas de red de ${interaction.client.user.us
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
+
+# Fun Var
+fun_var_down_api: "Error: ¡La API está caída!"
+fun_var_good_sentence: "¡Por favor, envía una buena frase!"
 
 # /cats
 cats_embed_title: "Miauw :cat:"
@@ -460,6 +478,13 @@ snipe_no_previous_message_deleted: "¡No se ha eliminado ningún mensaje en este
 
 # /userinfo
 userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} ¡Espera por favor..."
+userinfo_embed_fields_1_name: "Insignia"
+userinfo_embed_fields_2_name: "Nombre de usuario"
+userinfo_embed_fields_3_name: "Nombre para mostrar"
+userinfo_embed_fields_4_name: "Fecha de creación"
+userinfo_embed_fields_5_name: "Estado de Nitro"
+userinfo_var_notfound: "`No encontrado`"
+userinfo_button_label: "Perfil de usuario"
 
 # /renew
 renew_channel_send_success: "¡${interaction.user} canal recreado!"
@@ -471,6 +496,7 @@ prevnames_embed_title: "Lista de todos los apodos de ${user.username}"
 prevnames_undetected: "¡No se encontraron datos!"
 prevnames_not_admin: "¡No tienes el permiso `ADMINISTRATOR` para ejecutar este comando!"
 prevnames_data_erased: "Tus nombres de usuario anteriores se han eliminado por completo a pedido tuyo."
+prevnames_embed_footer_text: "iHorizon | Página ${currentPage + 1}/${pages.length}"
 
 # /blockbot
 blockbot_not_owner: ":x: **Non sei il proprietario del server!**"
@@ -506,9 +532,17 @@ derank_msg_failed: "Se produjo un error al eliminar los roles."
 
 # /acción desbanear todo
 action_unban_all_embed_desc: "## Desbanear a todos los miembros del gremio\n${client.iHorizon_Emojis.icon.Yes_Logo} | ¡He eliminado con éxito la prohibición de `${unbanned_members.length}` miembro(s) en el gremio!\n${client.iHorizon_Emojis.icon.No_Logo} | ¡No puedo desbanear a `${cannot_unban}` miembro(s)!"
+action_unban_all_no_banned_members: "No hay miembros baneados."
 
 # /acción deshacer desbanear
 action_unban_undo_embed_desc: "## Deshacer el desbanear todo\n${client.iHorizon_Emojis.icon.Yes_Logo} | ¡He prohibido con éxito a `${banned_members.length}` miembro(s) en el gremio!\n${client.iHorizon_Emojis.icon.No_Logo} | ¡No puedo desbanear a `${cannot_ban}` miembro(s)!"
+
+# /vc
+vc_embed_desc: "## Estados de Voz\n`${voiceStates?.size}` miembro(s) está(n) en el canal de voz:\n${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## Estados de los Miembros\n`${membersStates?.size}` miembro(s) están en la guilda:\n${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## Estados de Boost\n`${interaction.guild?.premiumSubscriptionCount}` boost(s) en la guilda,\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
+vc_embed_fields_1_name: "・Conteo de Miembros"
+vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} miembros```"
+vc_embed_fields_2_name: "・Conteo de Canales"
+vc_embed_fields_2_value: "```py\n${textChannelSize} canal(es) de texto\n${voiceChannelSize} canal(es) de voz```"
 
 
 # Guild Config commands
@@ -664,6 +698,7 @@ setleavemessage_logs_embed_title_on_disable: "Registros de SetLeaveMessage"
 setleavemessage_logs_embed_description_on_disable: "¡<@${interaction.user.id}> eliminó el mensaje de salida!"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Mensaje de salida personalizado eliminado correctamente."
 setleavemessage_command_work_ls: "El mensaje de salida es:"
+setleavemessage_awaiting_response: "Escribe el nuevo mensaje de despedida personalizado en el canal."
 
 # /setup
 setup_not_admin: ":x: | ¡Debes ser administrador de este servidor!"
@@ -689,6 +724,7 @@ setlogschannel_var_mods: "Registros de moderación"
 setlogschannel_var_voice: "Registros de voz"
 setlogschannel_var_msg: "Registros de mensajes"
 setlogschannel_var_boost: "Registros de Impulso"
+setlogschannel_var_tickets: "Registros de Tickets"
 
 # /join-ghostping add
 joinghostping_add_already_set: "¡El canal ${channel} ya está configurado!"
@@ -751,10 +787,16 @@ loop_command_work: "{mode} | Modo de bucle actualizado"
 # /nowplaying
 nowplaying_no_queue: "No se está reproduciendo nada"
 nowplaying_message_embed_title: "Reproduciendo ahora"
+nowplaying_resume_button: "¡${interaction.user} **reanuda** la música!"
+nowplaying_pause_button: "¡${interaction.user} **pausa** la música!"
+nowplaying_lyrics_button: "No se encontraron las letras de esta canción"
+nowplaying_stop_buttom: "¡${interaction.user} **detiene** la música!"
 
 # /pause
 pause_no_queue: "${client.iHorizon_Emojis.icon.Warning_Icon} - ¡No estás en un canal de voz!"
 pause_nothing_playing: "No hay nada reproduciéndose"
+pause_var_paused: "pausado"
+pause_var_err: "algo salió mal"
 
 # /resume
 resume_nothing_playing: "No hay nada reproduciéndose"
@@ -781,6 +823,16 @@ queue_embed_footer_text: "Página {index} | Total {track} canciones"
 shuffle_no_queue: "No estoy en un canal de voz"
 shuffle_no_enought: "No hay suficientes canciones en la cola para **mezclar**"
 shuffle_command_work: "He **mezclado** la cola"
+
+# /music history
+history_no_entries: "No hay ninguna entrada en esta competencia."
+history_embed_title: "Historial de Música de ${interaction.guild?.name} | Página ${i / usersPerPage + 1}"
+history_embed_footer_text: "iHorizon | Página ${currentPage + 1}/${pages.length}"
+
+# /music lyrics
+lyrics_embed_title_unknown: "Título desconocido"
+lyrics_embed_author_name_unknown: "Autor desconocido"
+lyrics_not_found: "No se encontraron letras"
 
 
 # Giveaway commands
@@ -1049,6 +1101,17 @@ embed_choose_12: "¿Qué color deseas incluir en tu Embed? **www.color-hex.com**
 embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | ¡Color inválido! Por favor, verifica **www.color-hex.com**"
 embed_choose_13: "¡Se ha eliminado correctamente el color del Embed!"
 embed_send_embed_work: "<@${interaction.user.id}>, **Has enviado con éxito el Embed al canal <#${message.content}>!**"
+
+# /rolesaver
+rolesaver_embed_title: "Módulo RoleSaver"
+rolesaver_embed_desc: "Cuando los miembros de la guild abandonan el servidor, sus roles se guardan en la base de datos. Ahora, cuando se reincorporan, iHorizon les devuelve sus roles."
+rolesaver_embed_fields_1_name: "Habilitar"
+rolesaver_embed_fields_2_name: "Roles de administrador reestablecidos"
+rolesaver_embed_fields_3_name: "Tiempo de espera"
+rolesaver_on_off_already_set: "¡El módulo ya está deshabilitado!"
+rolesaver_on_off_embed_title: "Módulo RoleSaver"
+rolesaver_on_off_embed_desc: "Cuando los miembros de la guild abandonan el servidor, sus roles no se guardan en la base de datos. Ahora, iHorizon ya no restaura los roles antiguos a los miembros cuando regresan al servidor."
+rolesaver_on_off_embed_fields_1_name: "Habilitar"
 
 
 # Comandos de sugerencia
@@ -1437,5 +1500,10 @@ temporary_voice_transfer_trust_placeholder: "Los usuarios seleccionados serán c
 temporary_voice_transfer_unblocked_placeholder: "Los usuarios seleccionados serán desbloqueados para unirse"
 
 temporary_voice_transfer_untrust_placeholder: "Los usuarios seleccionados no serán confiables para unirse"
+
+# Módulo de Protección
+# Mensaje de evento
+
+protection_avoid_channel_delete: "**MODO DE PROTECCIÓN ACTIVADO**\n<@${channel.guild.ownerId}>, el canal ha sido recreado, <@${firstEntry.executorId}> intentó eliminar el canal!"
 
 # -----------------------------\ /-----------------------------

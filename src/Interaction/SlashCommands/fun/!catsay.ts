@@ -34,8 +34,13 @@ import {
   EmbedBuilder,
 } from 'discord.js';
 
+import Jimp from 'jimp';
+
+import { LanguageData } from '../../../../types/languageData.js';
+import { axios } from '../../../core/functions/axios.js';
+
 export default {
-  run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+  run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
     let text = interaction.options.getString('text');
     let link = `https://cataas.com/cat/cute/says/${text}`;
@@ -60,7 +65,7 @@ export default {
         }
       ]
     });
-    
+
     return;
   },
 };

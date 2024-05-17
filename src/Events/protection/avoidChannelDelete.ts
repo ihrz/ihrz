@@ -22,6 +22,7 @@
 import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel } from 'discord.js'
 
 import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData';
 
 export const event: BotEvent = {
     name: "channelDelete",
@@ -37,6 +38,8 @@ export const event: BotEvent = {
                 type: AuditLogEvent.ChannelDelete,
                 limit: 1,
             });
+
+            let lang = await client.functions.getLanguageData(channel.guildId) as LanguageData;
 
             let firstEntry = fetchedLogs.entries.first();
 
@@ -54,9 +57,12 @@ export const event: BotEvent = {
                     rateLimitPerUser: (channel as BaseGuildTextChannel).rateLimitPerUser!,
                     position: channel.rawPosition,
                     reason: `Channel re-create by Protect (${firstEntry.executorId} break the rule!)`
-                }) as BaseGuildTextChannel).send(`**PROTECT MODE ON**\n<@${channel.guild.ownerId}>, the channel are recreated, <@${firstEntry.executorId}> attempt to delete the channel!`);
+                }) as BaseGuildTextChannel).send(lang.protection_avoid_channel_delete);
 
-                let user = channel.guild.members.cache.get(firstEntry.executorId);
+                let user = channel.guild.members.cache.get(firstEntry.executorId
+                    .replace('${channel.guild.ownerId}', channel.guild.ownerId)
+                    .replace('${firstEntry.executorId}', firstEntry.executorId)
+                );
 
                 switch (data?.['SANCTION']) {
                     case 'simply':

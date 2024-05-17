@@ -133,7 +133,7 @@ export const command: AnotherCommand = {
         });
 
         function deleteContent() {
-            interaction.editReply({ content: ' ' });
+            interaction.editReply({ content: null });
         };
 
         await client.db.push(`${player.guildId}.MUSIC_HISTORY.buffer`,

@@ -102,7 +102,7 @@ export default {
         collector.on('collect', async collectInteraction => {
             if (collectInteraction.customId === "leaveMessage-set-message") {
                 await collectInteraction.reply({
-                    content: "Wrote the new custom Join Message in the channel.",
+                    content: data.setleavemessage_awaiting_response,
                     ephemeral: true
                 });
 

@@ -81,7 +81,7 @@ export const command: Command = {
             );
 
         let response = await interaction.reply({
-            content: `<@${interaction.user.id}>`,
+            content: interaction.user.toString(),
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
             ],

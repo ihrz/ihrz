@@ -26,52 +26,62 @@ import {
     ChatInputCommandInteraction,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
+import { DatabaseStructure } from '../../../core/database_structure';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let char = await client.db.get(`${interaction.guildId}.USER`);
-        let tableau = [];
+        let char = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
+        let array = [];
 
         for (let i in char) {
-            var a = char?.[i]?.XP_LEVELING
+            var a = char[i].XP_LEVELING
 
             if (a) {
-                let user = await interaction.client.users.cache.get(i);
+                let user = interaction.client.users.cache.get(i);
 
                 if (user) {
-                    tableau.push({
-                        text: `👤 <@${user.id}> \`(${user.globalName})\`\n⭐ ➥ **Level**: \`${a.level || '0'}\`\n🔱 ➥ **XP Total**: \`${a.xptotal}\``, length: a.xptotal,
-                        rawText: `👤 (${user.globalName})\n⭐ ➥ Level: ${a.level || '0'}\n🔱 ➥ XP Total: ${a.xptotal}`
+                    array.push({
+                        text: data.ranks_leaderboard_txt_text
+                            .replace('${user}', user.toString())
+                            .replace('${user.globalName}', user.globalName!)
+                            .replace("${a.level || '0'}", String(a.level || '0'))
+                            .replace('${a.xptotal}', a.xptotal?.toString()!),
+                        length: a.xptotal,
+                        rawText: data.ranks_leaderboard_txt_raw
+                            .replace('${user.globalName}', user.globalName!)
+                            .replace("${a.level || '0'}", String(a.level || '0'))
+                            .replace('${a.xptotal}', a.xptotal?.toString()!)
                     });
                 };
             }
         };
 
-        tableau.sort((a, b) => b.length - a.length);
+        array.sort((a, b) => b?.length! - a?.length!);
 
         let embed = new EmbedBuilder().setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#1456b6").setTimestamp();
         let i = 1;
         let o = '';
 
-        tableau.forEach(index => {
+        array.forEach(index => {
             if (i < 4) {
-                embed.addFields({ name: `Top #${i}`, value: index.text });
+                embed.addFields({ name: data.ranks_leaderboard_top_txt.replace('${i}', i.toString()), value: index.text });
             };
-            o += `Top #${i} ${index.rawText}\n`
+            o += data.ranks_leaderboard_top_txt_raw.replace('${i}', i.toString()).replace('${index.rawText}', index.rawText);
             i++;
         });
 
         let buffer = Buffer.from(o, 'utf-8');
         let attachment = new AttachmentBuilder(buffer, { name: 'leaderboard.txt' })
 
-        embed.setThumbnail(interaction.guild?.iconURL() as string);
-        embed.setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
-        embed.setTitle(`${interaction.guild?.name}'s Levels Leaderboard`);
+        embed
+            .setThumbnail(interaction.guild?.iconURL() as string)
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
+            .setTitle(data.ranks_leaderboard_embed_title.replace('${interaction.guild?.name}', interaction.guild?.name!));
 
         await interaction.reply({
             embeds: [embed],
-            content: ' ',
+            content: undefined,
             files: [attachment, { attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
         return;

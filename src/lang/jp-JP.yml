@@ -84,6 +84,10 @@ setticketcategory_disabled_command: "このコマンドは管理者によって�
 setticketcategory_not_a_category: "指定されたチャンネルはカテゴリーではありません。もう一度試してください。"
 setticketcategory_command_work: "<@${interaction.user.id}>さん、チケットチャンネルのカテゴリーを `${category.name}` に設定しました！"
 
+# /ticket log-channel
+ticket_logchannel_embed_title: "チケットログチャンネル"
+ticket_logchannel_embed_desc: "${interaction.user}、チケットモジュールのログチャンネルを${channel}に設定しました！"
+
 
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
@@ -121,6 +125,13 @@ level_embed_fields2_name: ":money_with_wings:・__経験値:__"
 level_embed_fields2_value: "`${level}`"
 level_embed_description: "`${expNeededForLevelUp}` **次のレベルに必要な経験値ポイント！**"
 
+# /ranks leaderboard
+ranks_leaderboard_embed_title: "${interaction.guild?.name}のレベルリーダーボード"
+ranks_leaderboard_top_txt: "トップ#${i}"
+ranks_leaderboard_top_txt_raw: "トップ#${i} ${index.rawText}\n"
+ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **レベル**: `${a.level || '0'}`\n🔱 ➥ **総XP**: `${a.xptotal}`"
+ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ レベル: ${a.level || '0'}\n🔱 ➥ 総XP: ${a.xptotal}"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -141,6 +152,9 @@ blacklist_bot_lol: "自分自身をブラックリストにすることはでき
 blacklist_command_work: "${member.user.username}は今、ブラックリストに登録されています。"
 blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.icon.No_Logo} 現在ブラックリストに登録されています。このメンバーをここでBanすることはできません。パーミッションが足りませんか？"
 blacklist_already_blacklisted: "${member.user.username}はすでにブラックリストに登録されています！"
+blacklist_no_one_blacklist: "${client.iHorizon_Emojis.icon.No_Logo} ブラックリストに誰も見つかりませんでした！"
+blacklist_var_no_reason: "理由が見つかりません"
+blacklist_embed_title: "ブラックリスト - ページ ${i / usersPerPage + 1}"
 
 # /unblacklist
 unblacklist_not_owner: "あなたはiHorizonプロジェクトの所有者ではありません。このコマンドを使用することはできません。"
@@ -272,6 +286,10 @@ ping_embed_desc: "# Pong！${interaction.client.user.username}のネットワー
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
+
+# Fun Var
+fun_var_down_api: "エラー: APIがダウンしています！"
+fun_var_good_sentence: "良い文章を送ってください！"
 
 # /cats
 cats_embed_title: "ニャー🐱"
@@ -459,7 +477,14 @@ setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} コマンド
 snipe_no_previous_message_deleted: "このチャンネルで削除されたメッセージはありません！"
 
 # /userinfo
-userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} お待ちください..."
+userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} 少々お待ちください..."
+userinfo_embed_fields_1_name: "バッジ"
+userinfo_embed_fields_2_name: "ユーザー名"
+userinfo_embed_fields_3_name: "表示名"
+userinfo_embed_fields_4_name: "作成日"
+userinfo_embed_fields_5_name: "Nitroステータス"
+userinfo_var_notfound: "`見つかりません`"
+userinfo_button_label: "ユーザープロフィール"
 
 # /renew
 renew_channel_send_success: "${interaction.user} チャンネルが再作成されました！"
@@ -471,6 +496,7 @@ prevnames_embed_title: "${user.username} のニックネームのリスト"
 prevnames_undetected: "データが見つかりませんでした！"
 prevnames_not_admin: "このコマンドを実行するための `ADMINISTRATOR` 権限がありません！"
 prevnames_data_erased: "以前のユーザー名は、あなたの要望に基づいて完全に削除されました！"
+prevnames_embed_footer_text: "iHorizon | ページ ${currentPage + 1}/${pages.length}"
 
 # /blockbot
 blockbot_not_owner: ":x: **サーバーのオーナーではありません！**"
@@ -506,9 +532,17 @@ derank_msg_failed: "役職の削除中にエラーが発生しました。"
 
 # /アクション全員の禁止解除
 action_unban_all_embed_desc: "## ギルドメンバー全員の禁止を解除する\n${client.iHorizon_Emojis.icon.Yes_Logo} | ギルドで`${unbanned_members.length}`人のメンバーの禁止を成功裏に解除しました！\n${client.iHorizon_Emojis.icon.No_Logo} | `${cannot_unban}`人のメンバーを禁止解除できません！"
+action_unban_all_no_banned_members: "禁止されているメンバーはいません。"
 
 # /アクションの禁止解除を元に戻す
 action_unban_undo_embed_desc: "## 全員の禁止解除を元に戻す\n${client.iHorizon_Emojis.icon.Yes_Logo} | ギルドで`${banned_members.length}`人のメンバーを成功裏に禁止しました！\n${client.iHorizon_Emojis.icon.No_Logo} | `${cannot_ban}`人のメンバーを禁止解除できません！"
+
+# /vc
+vc_embed_desc: "## ボイスステータス\n`${voiceStates?.size}` 人がボイスチャンネルにいます：\n${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## メンバーステータス\n`${membersStates?.size}` 人がギルドにいます：\n${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## ブーストステータス\n`${interaction.guild?.premiumSubscriptionCount}` ブーストがギルドにあります、\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
+vc_embed_fields_1_name: "・メンバー数"
+vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} 人のメンバー```"
+vc_embed_fields_2_name: "・チャンネル数"
+vc_embed_fields_2_value: "```py\n${textChannelSize} テキストチャンネル\n${voiceChannelSize} ボイスチャンネル```"
 
 
 # Guild Config commands
@@ -664,6 +698,7 @@ setleavemessage_logs_embed_title_on_disable: "SetJoinMessage ログ"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}>が退出メッセージを削除しました！"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | カスタム退出メッセージを正常に削除しました。"
 setleavemessage_command_work_ls: "退出メッセージは次のとおりです。"
+setleavemessage_awaiting_response: "チャンネルに新しいカスタム退会メッセージを書いてください。"
 
 # /setup
 setup_not_admin: ":x: | このサーバーの管理者である必要があります！"
@@ -689,6 +724,7 @@ setlogschannel_var_mods: "モデレーションログ"
 setlogschannel_var_voice: "音声ログ"
 setlogschannel_var_msg: "メッセージログ"
 setlogschannel_var_boost: "ブーストログ"
+setlogschannel_var_tickets: "チケットログ"
 
 # /join-ghostping add
 joinghostping_add_already_set: "チャンネル ${channel} はすでに設定されています！"
@@ -751,10 +787,16 @@ loop_command_work: "{mode} | ループモードが更新されました"
 # /nowplaying
 nowplaying_no_queue: "再生中の曲はありません"
 nowplaying_message_embed_title: "再生中の曲"
+nowplaying_resume_button: "${interaction.user}が**音楽を再開**しました！"
+nowplaying_pause_button: "${interaction.user}が**音楽を一時停止**しました！"
+nowplaying_lyrics_button: "この曲の歌詞は見つかりませんでした"
+nowplaying_stop_buttom: "${interaction.user}が**音楽を停止**しました！"
 
 # /pause
 pause_no_queue: "${client.iHorizon_Emojis.icon.Warning_Icon} - ボイスチャンネルに接続していません！"
 pause_nothing_playing: "再生中の曲はありません"
+pause_var_paused: "一時停止"
+pause_var_err: "何かがうまくいかなかった"
 
 # /resume
 resume_nothing_playing: "再生中の曲はありません"
@@ -781,6 +823,16 @@ queue_embed_footer_text: "ページ {index} | 合計 {track} トラック"
 shuffle_no_queue: "私はボイスチャンネルにいません"
 shuffle_no_enought: "キューには **十分なトラックがありません**"
 shuffle_command_work: "キューを**シャッフル**しました"
+
+# /music history
+history_no_entries: "このコンペティションにはエントリーがありません。"
+history_embed_title: "${interaction.guild?.name}の音楽履歴 | ページ ${i / usersPerPage + 1}"
+history_embed_footer_text: "iHorizon | ページ ${currentPage + 1}/${pages.length}"
+
+# /music lyrics
+lyrics_embed_title_unknown: "不明なタイトル"
+lyrics_embed_author_name_unknown: "不明な著者"
+lyrics_not_found: "歌詞が見つかりません"
 
 
 # Giveaway commands
@@ -1049,6 +1101,17 @@ embed_choose_12: "埋め込みに含める色は何ですか？ **www.color-hex.
 embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | 無効な色です！ www.color-hex.comで調べてください。"
 embed_choose_13: "埋め込みの色が正常に削除されました！"
 embed_send_embed_work: "<@${interaction.user.id}>さん、**埋め込みを正常に<#${message.content}>チャンネルに送信しました！**"
+
+# /rolesaver
+rolesaver_embed_title: "RoleSaverモジュール"
+rolesaver_embed_desc: "ギルドメンバーがサーバーを離れると、その役割はデータベースに保存されます。今、彼らが再参加すると、iHorizonは彼らの役割を戻します。"
+rolesaver_embed_fields_1_name: "有効にする"
+rolesaver_embed_fields_2_name: "管理者ロールの再付与"
+rolesaver_embed_fields_3_name: "タイムアウト"
+rolesaver_on_off_already_set: "モジュールはすでに無効です！"
+rolesaver_on_off_embed_title: "RoleSaverモジュール"
+rolesaver_on_off_embed_desc: "ギルドメンバーがサーバーを離れると、その役割はデータベースに保存されません。iHorizonは、メンバーがサーバーに戻ってきたときに古い役割を復元しなくなります。"
+rolesaver_on_off_embed_fields_1_name: "有効にする"
 
 
 # 提案コマンド
@@ -1437,5 +1500,10 @@ temporary_voice_transfer_trust_placeholder: "選択したユーザーは参加�
 temporary_voice_transfer_unblocked_placeholder: "選択したユーザーは参加できるようになります"
 
 temporary_voice_transfer_untrust_placeholder: "選択したユーザーは参加するために信頼されません"
+
+# 保護モジュール
+# イベントメッセージ
+
+protection_avoid_channel_delete: "**保護モードオン**\n<@${channel.guild.ownerId}>, チャンネルが再作成されました, <@${firstEntry.executorId}> がチャンネルを削除しようとしました!"
 
 # -----------------------------\ /-----------------------------

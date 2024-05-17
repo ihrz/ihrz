@@ -96,7 +96,7 @@ export const event: BotEvent = {
                             .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
     
                         member?.send({
-                            content: `<@${member.id}>`,
+                            content: member.toString(),
                             embeds: [embed],
                             files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
                         }).catch(() => { });

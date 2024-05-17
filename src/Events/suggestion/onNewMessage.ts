@@ -60,7 +60,7 @@ export const event: BotEvent = {
         if (args.length < 5) return;
 
         let msg = await message.channel.send({
-            content: `<@${message.author.id}>`,
+            content: message.author.toString(),
             embeds: [suggestionEmbed],
             files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
         });

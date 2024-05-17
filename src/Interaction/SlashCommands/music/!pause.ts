@@ -50,7 +50,7 @@ export default {
 
             player.pause();
 
-            await interaction.editReply({ content: player.paused ? 'paused' : "something went wrong" });
+            await interaction.editReply({ content: player.paused ? data.pause_var_paused : data.pause_var_err });
             return;
         } catch (error: any) {
             logger.err(error);

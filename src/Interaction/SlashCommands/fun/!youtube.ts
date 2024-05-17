@@ -36,17 +36,19 @@ import {
 } from 'discord.js'
 
 import { AxiosResponse, axios } from '../../../core/functions/axios.js';
+import { LanguageData } from '../../../../types/languageData.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let entry = interaction.options.getString('comment');
         let args = entry!.split(' ');
 
         let user: User = interaction.options.getUser('user') || interaction.user;
 
         if (args.length < 1) {
-            await interaction.editReply({ content: 'Please, send a good sentence!' });
+            await interaction.editReply({ content: data.fun_var_good_sentence });
             return;
         };
 

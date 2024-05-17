@@ -167,7 +167,7 @@ export const command: AnotherCommand = {
             });
 
             await interaction.editReply({
-                content: `${client.iHorizon_Emojis.icon.Yes_Logo} Fetched !`,
+                content: client.iHorizon_Emojis.icon.Yes_Logo,
                 embeds: [embed],
                 files: files,
                 components: [

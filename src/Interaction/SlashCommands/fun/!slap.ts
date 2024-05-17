@@ -48,7 +48,7 @@ export default {
                 await interaction.editReply({ embeds: [embed] });
                 return;
             }).catch(async (err) => {
-                await interaction.editReply({ content: 'Error: The API is down!' });
+                await interaction.editReply({ content: data.fun_var_down_api });
             });
     },
 };

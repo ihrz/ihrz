@@ -34,6 +34,7 @@ import {
 
 import { axios } from '../../../core/functions/axios.js';
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {
 
@@ -130,7 +131,7 @@ export const command: Command = {
                 .join('');
         };
 
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let member = interaction.options.getUser('user') || interaction.user;
 
         async function sendMessage(user: User) {
@@ -150,34 +151,34 @@ export const command: Command = {
             };
 
             let embed = new EmbedBuilder()
-                .setFooter({ text: `iHorizon`, iconURL: "attachment://ihrz_logo.png" })
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://ihrz_logo.png" })
                 .setThumbnail("attachment://user_icon.gif")
                 .setTimestamp()
                 .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#0014a8' )
                 .setFields(
                     {
-                        name: "Badge",
-                        value: getBadges(member.flags as unknown as number) || "`Not found`",
+                        name: data.userinfo_embed_fields_1_name,
+                        value: getBadges(member.flags?.bitfield!) || data.userinfo_var_notfound,
                         inline: true,
                     },
                     {
-                        name: "Username",
+                        name: data.userinfo_embed_fields_2_name,
                         value: user.username,
                         inline: true,
                     },
                     {
-                        name: "DisplayName",
-                        value: user.displayName || "`Not found`",
+                        name: data.userinfo_embed_fields_3_name,
+                        value: user.displayName || data.userinfo_var_notfound,
                         inline: true,
                     },
                     {
-                        name: "Creation Date",
-                        value: time(user.createdAt, "D") || "`Not found`",
+                        name: data.userinfo_embed_fields_4_name,
+                        value: time(user.createdAt, "D") || data.userinfo_var_notfound,
                         inline: true,
                     },
                     {
-                        name: "Nitro Status",
-                        value: GetNitro(user_1.premium_type) || "`Not found`",
+                        name: data.userinfo_embed_fields_5_name,
+                        value: GetNitro(user_1.premium_type) || data.userinfo_var_notfound,
                         inline: true,
                     }
                 )
@@ -200,7 +201,7 @@ export const command: Command = {
             });
 
             await interaction.editReply({
-                content: `${client.iHorizon_Emojis.icon.Yes_Logo} Fetched !`,
+                content: client.iHorizon_Emojis.icon.Yes_Logo,
                 embeds: [embed],
                 files: files,
                 components: [
@@ -209,7 +210,7 @@ export const command: Command = {
                             new ButtonBuilder()
                                 .setStyle(ButtonStyle.Link)
                                 .setURL(`https://discordapp.com/users/${user.id}`)
-                                .setLabel("User Profil")
+                                .setLabel(data.userinfo_button_label)
                         )
                 ]
             });

@@ -23,6 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildChannel,
     PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
@@ -31,7 +32,7 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let blockQ = await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`);
-        let channel = interaction.options.getChannel('channel');
+        let channel = interaction.options.getChannel('channel') as GuildChannel;
 
         if (blockQ) {
             await interaction.editReply({ content: data.open_disabled_command });
@@ -43,12 +44,15 @@ export default {
             return;
         };
 
-        client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel?.id);
+        await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel?.id);
 
         let embed = new EmbedBuilder()
             .setColor("#008000")
-            .setTitle('Ticket Logs Channel')
-            .setDescription(`${interaction.user}, you have been set the Ticket Module's Channel logs to ${channel}!`)
+            .setTitle(data.ticket_logchannel_embed_title)
+            .setDescription(data.ticket_logchannel_embed_desc
+                .replace('${interaction.user}', interaction.user.toString())
+                .replace('${channel}', channel.toString())
+            )
             .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
             .setTimestamp();
 

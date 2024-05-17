@@ -37,12 +37,12 @@ export default {
                     let trimmedLyrics = response?.lyrics?.substring(0, 1997);
 
                     let embed = new EmbedBuilder()
-                        .setTitle(response?.title || 'Unknow title')
+                        .setTitle(response?.title || data.lyrics_embed_title_unknown)
                         .setURL(response?.url!)
                         .setTimestamp()
                         .setThumbnail(response?.thumbnail!)
                         .setAuthor({
-                            name: response?.artist.name || 'Unknow author',
+                            name: response?.artist.name || data.lyrics_embed_author_name_unknown,
                             iconURL: response?.artist.image,
                             url: response?.artist.url
                         })
@@ -63,7 +63,7 @@ export default {
                 })
                 .catch(async err => {
                     await interaction.deleteReply();
-                    await interaction.followUp({ content: 'No lyrics found', ephemeral: true });
+                    await interaction.followUp({ content: data.lyrics_not_found, ephemeral: true });
                     return;
                 });
 

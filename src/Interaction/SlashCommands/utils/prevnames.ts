@@ -94,7 +94,12 @@ export const command: Command = {
                 .setColor("#000000")
                 .setTitle(pages[currentPage].title)
                 .setDescription(pages[currentPage].description)
-                .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: "attachment://icon.png" })
+                .setFooter({
+                    text: data.prevnames_embed_footer_text
+                        .replace('${currentPage + 1}', (currentPage + 1).toString())
+                        .replace('${pages.length}', pages.length.toString()),
+                    iconURL: "attachment://icon.png"
+                })
                 .setTimestamp()
         };
 
