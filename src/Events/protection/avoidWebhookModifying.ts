@@ -24,7 +24,7 @@ import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel } from 'disco
 import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {
-    name: "webhookUpdate",
+    name: "webhooksUpdate",
     run: async (client: Client, channel: GuildChannel) => {
 
         let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
