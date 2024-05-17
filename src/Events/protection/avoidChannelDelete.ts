@@ -57,12 +57,12 @@ export const event: BotEvent = {
                     rateLimitPerUser: (channel as BaseGuildTextChannel).rateLimitPerUser!,
                     position: channel.rawPosition,
                     reason: `Channel re-create by Protect (${firstEntry.executorId} break the rule!)`
-                }) as BaseGuildTextChannel).send(lang.protection_avoid_channel_delete);
-
-                let user = channel.guild.members.cache.get(firstEntry.executorId
+                }) as BaseGuildTextChannel).send(lang.protection_avoid_channel_delete
                     .replace('${channel.guild.ownerId}', channel.guild.ownerId)
                     .replace('${firstEntry.executorId}', firstEntry.executorId)
                 );
+
+                let user = channel.guild.members.cache.get(firstEntry.executorId);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':

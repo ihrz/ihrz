@@ -66,7 +66,7 @@ export const command: Command = {
         };
         await interaction.deferReply() && interaction.deleteReply();
         await interaction.channel?.send({
-            content: `> ${interaction.options.getString('content')}${data.say_footer_msg.replace('${interaction.user}', interaction.user)}`
+            content: '> ' + `${interaction.options.getString('content')}${data.say_footer_msg.replace('${interaction.user}', interaction.user)}`
         });
         return;
     },
