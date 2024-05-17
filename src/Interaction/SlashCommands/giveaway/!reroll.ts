@@ -39,7 +39,7 @@ export default {
             return;
         };
 
-        if (!client.giveawaysManager.isValid(inputData as string)) {
+        if (!await client.giveawaysManager.isValid(inputData as string)) {
             await interaction.editReply({
                 content: data.reroll_dont_find_giveaway
                     .replace("{args}", inputData as string)
@@ -47,7 +47,7 @@ export default {
             return;
         };
 
-        if (!client.giveawaysManager.isEnded(inputData as string)) {
+        if (!await client.giveawaysManager.isEnded(inputData as string)) {
             await interaction.editReply({ content: data.reroll_giveaway_not_over });
             return;
         };
