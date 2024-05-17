@@ -69,5 +69,5 @@ const time_before = Date.now();
 
     logger.legacy(`[i] `.blue() + `Exporting ${tables_to_export.length} tables in ${Date.now() - time_before}ms. Done!`.gray());
     logger.legacy(`[O] `.red() + `The program was succefully done. Exiting...`.bgRed());
-    process.exit(1);
+    process.kill(0);
 })();

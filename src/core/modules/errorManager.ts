@@ -29,7 +29,7 @@ import fs from 'node:fs';
 let exec = async (driver: MongoDriver) => {
     await driver.close();
     logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database?.method})!`);
-    process.exit();
+    process.kill(0);
 };
 
 export const uncaughtExceptionHandler = () => {

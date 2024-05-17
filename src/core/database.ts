@@ -47,7 +47,7 @@ switch (config.database?.method) {
 
                 logger.err(`Exiting the code...`.bgRed());
 
-                process.exit();
+                process.kill(0);
             }
         });
         break;

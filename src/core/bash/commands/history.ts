@@ -23,11 +23,20 @@ import fs from 'node:fs';
 import path from 'path';
 import logger from '../../logger.js';
 
-let filePath = path.join(process.cwd(), 'src', 'core', 'bash', 'history', '.bash_history')
+let filePath = path.join(process.cwd(), 'src', 'core', 'bash', 'history', '.bash_history');
 
 export default function () {
   fs.readFile(filePath, 'utf-8', (err, data) => {
     if (err) throw err;
-    logger.legacy("\n" + data + "\n[Press Enter]");
+    
+    let lines = data.trim().split('\n');
+    let maxNumberLength = lines.length.toString().length;
+    
+    let formattedHistory = lines.map((line, index) => {
+      let number = (index + 1).toString().padStart(maxNumberLength, ' ');
+      return `${number}  ${line.trim()}`;
+    }).join('\n');
+    
+    logger.legacy("\n" + formattedHistory + "\n[Press Enter]");
   });
 };

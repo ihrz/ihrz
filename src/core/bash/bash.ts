@@ -73,7 +73,6 @@ export default async (client: Client) => {
      System information as of mar.  ${formattedDate}
      Memory usage:                  ${niceBytes(os.totalmem() - os.freemem())}/${niceBytes(os.totalmem())}
      IPv4 address for eth0:         ${await getIP({ useIPv6: false })}
-     IPv6 address for eth0:         ${await getIP({ useIPv6: true })}
     
     
     Last login: ${LoadFiles} from ${LoadFiles2}`);
@@ -88,10 +87,12 @@ export default async (client: Client) => {
             let command = await import(commandPath);
             command.default(client, args.join(' '));
 
-            var data = fs.readFileSync(filePath);
-
-            if (commandName) { createFiles.write(`   ${data.toString().split('\n').length}  ${line}\r\n`); };
-        } else if (commandName) logger.legacy(`Command not found: ${commandName}`);
+            if (commandName) { 
+                createFiles.write(`${line}\r\n`); 
+            }
+        } else if (commandName) {
+            logger.legacy(`Command not found: ${commandName}`);
+        }
 
         rl.prompt();
     });

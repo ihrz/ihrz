@@ -32,5 +32,5 @@ export default async function () {
     logger.legacy(`* All are successfully unloaded`.gray().bgBlack());
 
     logger.legacy(`* Power off...`.red().bgBlack());
-    process.exit(1);
+    process.kill(0);
 };
