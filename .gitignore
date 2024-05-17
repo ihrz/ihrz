@@ -153,3 +153,4 @@ src/files/giveaways/*.json
 
 src/files/backups/*.json
 quickdb.json
+mysqlCacheManager.db.mts

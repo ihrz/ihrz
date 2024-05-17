@@ -58,7 +58,7 @@ export default {
 
             await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.disable`, false);
 
-            await interaction.reply({ content: data.disablexp_command_work_disable_entierly });
+            await interaction.reply({ content: data.disablexp_command_work_disable });
             return;
         } else if (types == "disable") {
             try {
@@ -78,7 +78,7 @@ export default {
 
             await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.disable`, 'disable');
 
-            await interaction.reply({ content: data.disablexp_command_work_disable });
+            await interaction.reply({ content: data.disablexp_command_work_disable_entierly });
             return;
         } else if (types == "on") {
             try {

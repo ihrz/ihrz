@@ -26,7 +26,7 @@
     "better-sqlite3": "^10.0.0",
     "discord-html-transcripts": "^3.2.0",
     "discord-rebackup": "^3.3.11",
-    "discord-regiveaways": "^1.1.22",
+    "discord-regiveaways": "^1.1.23",
     "discord.js": "v14.15.2",
     "genius-lyrics": "^4.4.7",
     "jimp": "^0.22.12",
