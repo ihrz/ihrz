@@ -34,21 +34,32 @@ class iHorizonTimeCalculator {
 
             switch (unit) {
                 case 'ms':
+                case 'msec':
+                case 'millisecond':
+                case 'milliseconds':
+                case 'milliseconde':
+                case 'millisecondes':
                     multiplier = 1;
                     break;
                 case 's':
                 case 'sec':
+                case 'secs':
+                case 'second':
+                case 'seconds':
                 case 'seconde':
                 case 'secondes':
                     multiplier = 1000;
                     break;
                 case 'm':
                 case 'min':
+                case 'mins':
                 case 'minute':
                 case 'minutes':
                     multiplier = 60000;
                     break;
                 case 'h':
+                case 'hr':
+                case 'hrs':
                 case 'hour':
                 case 'hours':
                 case 'heure':
@@ -70,15 +81,24 @@ class iHorizonTimeCalculator {
                 case 'semaines':
                     multiplier = 604800000;
                     break;
+                case 'mo':
+                case 'mois':
+                case 'month':
+                case 'months':
+                    multiplier = 2592000000; // Approximation based on 30 days
+                    break;
                 case 'y':
+                case 'yr':
+                case 'yrs':
                 case 'year':
                 case 'years':
                 case 'an':
                 case 'ans':
-                    multiplier = 31557600000;
+                    multiplier = 31557600000; // Based on 365.25 days per year
                     break;
                 default:
-                    throw new Error('Invalid time unit');
+                    multiplier = 0;
+                    throw new Error(`Invalid time unit: ${unit}`);
             }
 
             totalMilliseconds += value * multiplier;
@@ -102,17 +122,20 @@ class iHorizonTimeCalculator {
 
         const timeUnits = [
             { unit: 'y', factor: 31557600000, longName: 'year', shortName: 'y' },
+            { unit: 'mo', factor: 2592000000, longName: 'month', shortName: 'mo' },
+            { unit: 'w', factor: 604800000, longName: 'week', shortName: 'w' },
             { unit: 'd', factor: 86400000, longName: 'day', shortName: 'd' },
             { unit: 'h', factor: 3600000, longName: 'hour', shortName: 'h' },
             { unit: 'm', factor: 60000, longName: 'minute', shortName: 'm' },
-            { unit: 's', factor: 1000, longName: 'second', shortName: 's' }
+            { unit: 's', factor: 1000, longName: 'second', shortName: 's' },
+            { unit: 'ms', factor: 1, longName: 'millisecond', shortName: 'ms' }
         ];
 
         let result = '';
         for (const { unit, factor, longName, shortName } of timeUnits) {
             if (milliseconds >= factor || unit === 'ms') {
                 const value = Math.floor(milliseconds / factor);
-                result += `${value}${longFormat ? ' ' + longName : shortName}`;
+                result += `${value}${longFormat ? ' ' + longName + (value > 1 ? 's' : '') : shortName}`;
                 milliseconds %= factor;
                 if (milliseconds > 0) {
                     result += longFormat ? ' ' : '';
