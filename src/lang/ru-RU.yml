@@ -84,6 +84,10 @@ setticketcategory_disabled_command: "Вы не можете использова
 setticketcategory_not_a_category: "Указанный канал не является категорией, пожалуйста, попробуйте еще раз."
 setticketcategory_command_work: "<@${interaction.user.id}>, вы установили категорию для канала тикета на `${category.name}`!"
 
+# /ticket log-channel
+ticket_logchannel_embed_title: "Канал логов тикетов"
+ticket_logchannel_embed_desc: "${interaction.user}, вы установили канал логов модуля тикетов на ${channel}!"
+
 
 # Команды для рангов
 # /level, /setxpchannels, /disablexp
@@ -121,6 +125,13 @@ level_embed_fields2_name: ":money_with_wings:・__Опыт:__"
 level_embed_fields2_value: "`${level}`"
 level_embed_description: "`${expNeededForLevelUp}` **опыта нужно для следующего уровня!**"
 
+# /ranks leaderboard
+ranks_leaderboard_embed_title: "Таблица лидеров уровней ${interaction.guild?.name}"
+ranks_leaderboard_top_txt: "Топ #${i}"
+ranks_leaderboard_top_txt_raw: "Топ #${i} ${index.rawText}\n"
+ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Уровень**: `${a.level || '0'}`\n🔱 ➥ **Общий опыт**: `${a.xptotal}`"
+ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Уровень: ${a.level || '0'}\n🔱 ➥ Общий опыт: ${a.xptotal}"
+
 
 # Команды владельца
 # /owner, /unowner, /blacklist, /unblacklist
@@ -141,6 +152,9 @@ blacklist_bot_lol: "Не могу внести себя в черный спис
 blacklist_command_work: "${member.user.username} теперь в черном списке"
 blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.icon.No_Logo} Теперь в черном списке, нельзя заблокировать этого участника здесь, отсутствуют разрешения?"
 blacklist_already_blacklisted: "${member.user.username} уже в черном списке!"
+blacklist_no_one_blacklist: "${client.iHorizon_Emojis.icon.No_Logo} Никого не найдено в черном списке!"
+blacklist_var_no_reason: "Причина не найдена"
+blacklist_embed_title: "Черный список - Страница ${i / usersPerPage + 1}"
 
 # /unblacklist
 unblacklist_not_owner: "Вы не являетесь владельцем проекта iHorizon. Вы не можете использовать эту команду."
@@ -272,6 +286,10 @@ ping_embed_desc: "# Понг! Статистика сети ${interaction.client
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
+
+# Fun Var
+fun_var_down_api: "Ошибка: API не доступно!"
+fun_var_good_sentence: "Пожалуйста, отправьте хорошее предложение!"
 
 # /cats
 cats_embed_title: "Мяу :cat:"
@@ -478,6 +496,7 @@ prevnames_embed_title: "Список всех никнеймов ${user.username
 prevnames_undetected: "Данных не найдено!"
 prevnames_not_admin: "У вас нет разрешения `АДМИНИСТРАТОР` для выполнения этой команды!"
 prevnames_data_erased: "Ваши предыдущие имена пользователя были полностью удалены по вашему запросу!"
+prevnames_embed_footer_text: "iHorizon | Страница ${currentPage + 1}/${pages.length}"
 
 # /blockbot
 blockbot_not_owner: ":x: **Вы не являетесь владельцем сервера!**"
@@ -517,6 +536,13 @@ action_unban_all_no_banned_members: "Заблокированных участн
 
 # /действие отменить разблокировку
 action_unban_undo_embed_desc: "## Отменить все разблокировки\n${client.iHorizon_Emojis.icon.Yes_Logo} | Я успешно забанил `${banned_members.length}` участника(ов) в гильдии!\n${client.iHorizon_Emojis.icon.No_Logo} | Я не могу разблокировать `${cannot_ban}` участника(ов)!"
+
+# /vc
+vc_embed_desc: "## Состояния Голоса\n`${voiceStates?.size}` участник(ов) в голосовом канале:\n${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## Состояния Участников\n`${membersStates?.size}` участник(ов) в гильдии:\n${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## Состояния Бустов\n`${interaction.guild?.premiumSubscriptionCount}` буст(ов) в гильдии,\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
+vc_embed_fields_1_name: "・Количество Участников"
+vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} участников```"
+vc_embed_fields_2_name: "・Количество Каналов"
+vc_embed_fields_2_value: "```py\n${textChannelSize} текстовый(е) канал(ы)\n${voiceChannelSize} голосовой(е) канал(ы)```"
 
 
 # Guild Config commands
@@ -672,6 +698,7 @@ setleavemessage_logs_embed_title_on_disable: "Журнал отключения 
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> удалил сообщение при выходе!"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Успешно удалено пользовательское сообщение при выходе."
 setleavemessage_command_work_ls: "Сообщение при выходе:"
+setleavemessage_awaiting_response: "Напишите новое пользовательское сообщение о выходе в канал."
 
 # /setup
 setup_not_admin: ":x: | Для выполнения этой команды вы должны быть администратором этого сервера!"
@@ -760,10 +787,16 @@ loop_command_work: "{mode} | Обновлен режим повторения"
 # /nowplaying
 nowplaying_no_queue: "Сейчас ничего не играет"
 nowplaying_message_embed_title: "Сейчас играет"
+nowplaying_resume_button: "${interaction.user} **возобновил(а)** музыку!"
+nowplaying_pause_button: "${interaction.user} **поставил(а) на паузу** музыку!"
+nowplaying_lyrics_button: "Тексты для этой песни не найдены"
+nowplaying_stop_buttom: "${interaction.user} **остановил(а)** музыку!"
 
 # /pause
 pause_no_queue: "${client.iHorizon_Emojis.icon.Warning_Icon} - Вы не находитесь в голосовом канале!"
 pause_nothing_playing: "Сейчас ничего не играет"
+pause_var_paused: "пауза"
+pause_var_err: "что-то пошло не так"
 
 # /resume
 resume_nothing_playing: "Сейчас ничего не играет"
@@ -790,6 +823,16 @@ queue_embed_footer_text: "Страница {index} | Всего треков {tr
 shuffle_no_queue: "Я не нахожусь в голосовом канале"
 shuffle_no_enought: "Недостаточно треков в очереди для перемешивания"
 shuffle_command_work: "Я **перемешал** очередь"
+
+# /music history
+history_no_entries: "В этом конкурсе нет записей."
+history_embed_title: "История Музыки ${interaction.guild?.name} | Страница ${i / usersPerPage + 1}"
+history_embed_footer_text: "iHorizon | Страница ${currentPage + 1}/${pages.length}"
+
+# /music lyrics
+lyrics_embed_title_unknown: "Неизвестный заголовок"
+lyrics_embed_author_name_unknown: "Неизвестный автор"
+lyrics_not_found: "Тексты не найдены"
 
 
 # Команды раздачи призов
@@ -1457,5 +1500,10 @@ temporary_voice_transfer_trust_placeholder: "Выбранные пользова
 temporary_voice_transfer_unblocked_placeholder: "Выбранные пользователи будут разблокированы для присоединения"
 
 temporary_voice_transfer_untrust_placeholder: "Выбранные пользователи не будут доверены для присоединения"
+
+# Модуль Защиты
+# Сообщение о событии
+
+protection_avoid_channel_delete: "**РЕЖИМ ЗАЩИТЫ ВКЛЮЧЕН**\n<@${channel.guild.ownerId}>, канал был воссоздан, <@${firstEntry.executorId}> пытался удалить канал!"
 
 # -----------------------------/ \-----------------------------

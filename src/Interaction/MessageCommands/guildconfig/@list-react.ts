@@ -60,7 +60,7 @@ export const command: Command = {
         });
 
         if (pages.length === 0) {
-            await interaction.reply({ content: "Aucune données as été trouvé, veuillez en ajouter avant." });
+            await interaction.reply({ content: 'Aucune données as été trouvé, veuillez en ajouter avant.' });
             return;
         }
         

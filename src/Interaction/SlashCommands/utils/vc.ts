@@ -53,34 +53,48 @@ export const command: Command = {
             return;
         };
 
+        let textChannelSize = interaction.guild?.channels.cache.filter(c => c.type === ChannelType.GuildText).size;
+        let voiceChannelSize = interaction.guild?.channels.cache.filter(c => c.type === ChannelType.GuildVoice).size;
+
         let embed = new EmbedBuilder()
             .setColor(2829617)
             .setDescription(
-                "## Voice States\n" +
-                `\`${voiceStates?.size}\` member(s) is in voice channel :\n` +
-                `${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n` +
-                `${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n` +
-                `${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n` +
-                `${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n` +
-                `## Member States\n` +
-                `\`${membersStates?.size}\` member(s) are in the guild :\n` +
-                `${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === "dnd").size}\n` +
-                `${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === "online").size}\n` +
-                `${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === "idle").size}\n` +
-                `${client.iHorizon_Emojis.icon.iHorizon_Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === "invisible").size}\n` +
-                "## Boost States\n" +
-                `\`${interaction.guild?.premiumSubscriptionCount}\` boost(s) in the guild,\n` +
-                `${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}`
+                data.vc_embed_desc
+                    .replaceAll('${voiceStates?.size}', voiceStates?.size)
+                    .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Streaming}', client.iHorizon_Emojis.icon.iHorizon_Streaming)
+                    .replaceAll('${voiceStates?.filter(vc => vc.streaming).size}', voiceStates?.filter(vc => vc.streaming).size)
+                    .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Deaf}', client.iHorizon_Emojis.icon.iHorizon_Deaf)
+                    .replaceAll('${voiceStates?.filter(vc => vc.selfDeaf).size}', voiceStates?.filter(vc => vc.selfDeaf).size)
+                    .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Mute}', client.iHorizon_Emojis.icon.iHorizon_Mute)
+                    .replaceAll('${voiceStates?.filter(vc => vc.selfMute).size}', voiceStates?.filter(vc => vc.selfMute).size)
+                    .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Camera}', client.iHorizon_Emojis.icon.iHorizon_Camera)
+                    .replaceAll('${voiceStates?.filter(vc => vc.selfVideo).size}', voiceStates?.filter(vc => vc.selfVideo).size)
+                    .replaceAll('${membersStates?.size}', membersStates?.size)
+                    .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_DND}', client.iHorizon_Emojis.icon.iHorizon_DND)
+                    .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "dnd").size}', membersStates?.filter(mbr => mbr.presence?.status === "dnd").size)
+                    .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Online}', client.iHorizon_Emojis.icon.iHorizon_Online)
+                    .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "online").size}', membersStates?.filter(mbr => mbr.presence?.status === "online").size)
+                    .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Idle}', client.iHorizon_Emojis.icon.iHorizon_Idle)
+                    .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "idle").size}', membersStates?.filter(mbr => mbr.presence?.status === "idle").size)
+                    .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Invisible}', client.iHorizon_Emojis.icon.iHorizon_Invisible)
+                    .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "invisible").size}', membersStates?.filter(mbr => mbr.presence?.status === "invisible").size)
+                    .replaceAll('${interaction.guild?.premiumSubscriptionCount}', interaction.guild?.premiumSubscriptionCount)
+                    .replaceAll('${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => <@${usr.id}>)}', interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`))
+                    .replaceAll('${interaction.guild?.premiumSubscriptionCount}', interaction.guild?.premiumSubscriptionCount)
+                    .replaceAll('${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}', interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`))
             )
             .addFields(
                 {
-                    name: `・Member Count`,
-                    value: `\`\`\`py\n${interaction.guild?.memberCount} members \`\`\``,
+                    name: data.vc_embed_fields_1_name,
+                    value: data.vc_embed_fields_1_value
+                        .replace('${interaction.guild?.memberCount}', interaction.guild?.memberCount),
                     inline: true
                 },
                 {
-                    name: `・Channel Count`,
-                    value: `\`\`\`py\n${interaction.guild?.channels.cache.filter(c => c.type === ChannelType.GuildText).size} text channel(s)\n${interaction.guild?.channels.cache.filter(c => c.type === ChannelType.GuildVoice).size} voice channel(s)\`\`\``,
+                    name: data.vc_embed_fields_2_name,
+                    value: data.vc_embed_fields_2_value
+                        .replace('${textChannelSize}', textChannelSize)
+                        .replace('${voiceChannelSize}', voiceChannelSize),
                     inline: true
                 },
             )

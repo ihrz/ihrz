@@ -33,6 +33,7 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'blacklist',
@@ -70,7 +71,8 @@ export const command: Command = {
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId);
+
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let tableOwner = client.db.table('OWNER');
         let tableBlacklist = client.db.table('BLACKLIST');
 
@@ -87,7 +89,11 @@ export const command: Command = {
 
         if (!member && !user) {
             if (!blacklistedUsers.length) {
-                await interaction.reply({ content: `${client.iHorizon_Emojis.icon.No_Logo} No one blacklisted found!`, ephemeral: true });
+                await interaction.reply({
+                    content: data.blacklist_no_one_blacklist
+                        .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
+                    ephemeral: true
+                });
                 return;
             };
 
@@ -98,11 +104,12 @@ export const command: Command = {
             for (let i = 0; i < blacklistedUsers.length; i += usersPerPage) {
                 let pageUsers = blacklistedUsers.slice(i, i + usersPerPage);
                 let pageContent = pageUsers.map(userObj => {
-                    return `<@${userObj.id}>\n\`${userObj.value.reason || 'No reason found'}\``;
+                    return `<@${userObj.id}>\n\`${userObj.value.reason || data.blacklist_var_no_reason}\``;
                 }).join('\n');
 
                 pages.push({
-                    title: `Blacklist - Page ${i / usersPerPage + 1}`,
+                    title: data.blacklist_embed_title
+                        .replace('${i / usersPerPage + 1}', (i / usersPerPage + 1).toString()),
                     description: pageContent,
                 });
             }
@@ -112,7 +119,12 @@ export const command: Command = {
                     .setColor("#2E2EFE")
                     .setTitle(pages[currentPage]?.title)
                     .setDescription(pages[currentPage]?.description)
-                    .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: "attachment://icon.png" })
+                    .setFooter({
+                        text: data.history_embed_footer_text
+                            .replace('${currentPage + 1}', (currentPage + 1).toString())
+                            .replace('${pages.length}', pages.length.toString()),
+                        iconURL: "attachment://icon.png"
+                    })
                     .setTimestamp()
             };
 

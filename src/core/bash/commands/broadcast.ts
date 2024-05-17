@@ -34,7 +34,7 @@ export default function (client: Client, args: string) {
         let channel = guild.channels.cache.find((role: { name: string; }) => role.name === 'ihorizon-logs');
         if (channel) {
             (channel as BaseGuildTextChannel).send({
-                content: "@here",
+                content: '@here',
                 embeds: [embed],
                 files: [{ attachment: await guild.client.functions.image64(client.user?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 4096 })), name: 'icon.png' }]
             })

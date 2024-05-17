@@ -55,7 +55,7 @@ export const command: Command = {
         let active: boolean;
 
         if (!permission) {
-            await interaction.reply({ content: `` });
+            await interaction.reply({ content: data.setup_not_admin });
             return;
         }
 

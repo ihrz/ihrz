@@ -45,7 +45,7 @@ export default {
             }
         };
 
-        await interaction.editReply({ content: n.join("") || 'None' });
+        await interaction.editReply({ content: n.join("") || data.serverinfo_verlvl_NONE });
         return;
     },
 };

@@ -84,6 +84,10 @@ setticketcategory_disabled_command: "Non puoi utilizzare questo comando perché 
 setticketcategory_not_a_category: "Il canale specificato non è una categoria, riprova."
 setticketcategory_command_work: "<@${interaction.user.id}>, hai impostato la categoria per il canale dei ticket su `${category.name}`!"
 
+# /ticket log-channel
+ticket_logchannel_embed_title: "Canale dei Log dei Ticket"
+ticket_logchannel_embed_desc: "${interaction.user}, hai impostato il canale dei log del modulo Ticket su ${channel}!"
+
 
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
@@ -121,6 +125,13 @@ level_embed_fields2_name: ":money_with_wings:・__Esperienza:__"
 level_embed_fields2_value: "`${level}`"
 level_embed_description: "`${expNeededForLevelUp}` **punti esperienza necessari per il prossimo livello!**"
 
+# /ranks leaderboard
+ranks_leaderboard_embed_title: "Classifica dei Livelli di ${interaction.guild?.name}"
+ranks_leaderboard_top_txt: "Top #${i}"
+ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
+ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Livello**: `${a.level || '0'}`\n🔱 ➥ **XP Totale**: `${a.xptotal}`"
+ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Livello: ${a.level || '0'}\n🔱 ➥ XP Totale: ${a.xptotal}"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -141,6 +152,9 @@ blacklist_bot_lol: "Non posso inserire me stesso nella lista nera x)"
 blacklist_command_work: "${member.user.username} è stato inserito nella lista nera"
 blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.icon.No_Logo} È stato inserito nella lista nera, non posso bannare questo utente qui, mancano i permessi?"
 blacklist_already_blacklisted: "${member.user.username} è già nella lista nera!"
+blacklist_no_one_blacklist: "${client.iHorizon_Emojis.icon.No_Logo} Nessuno trovato nella lista nera!"
+blacklist_var_no_reason: "Nessuna motivazione trovata"
+blacklist_embed_title: "Lista Nera - Pagina ${i / usersPerPage + 1}"
 
 # /unblacklist
 unblacklist_not_owner: "Non sei il proprietario del progetto iHorizon. Non puoi utilizzare questo comando."
@@ -272,6 +286,10 @@ ping_embed_desc: "# Pong! Statistiche di rete di ${interaction.client.user.usern
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
+
+# Fun Var
+fun_var_down_api: "Errore: L'API non è disponibile!"
+fun_var_good_sentence: "Per favore, invia una buona frase!"
 
 # /cats
 cats_embed_title: "Miauw :cat:"
@@ -478,6 +496,7 @@ prevnames_embed_title: "Elenco di tutti i soprannomi di ${user.username}"
 prevnames_undetected: "Nessun dato trovato!"
 prevnames_not_admin: "Non hai il permesso `ADMINISTRATOR` per eseguire questo comando!"
 prevnames_data_erased: "I tuoi vecchi nomi utente sono stati completamente eliminati su tua richiesta!"
+prevnames_embed_footer_text: "iHorizon | Pagina ${currentPage + 1}/${pages.length}"
 
 # /blockbot
 blockbot_not_owner: ":x: **¡No eres el propietario del servidor!**"
@@ -517,6 +536,13 @@ action_unban_all_no_banned_members: "Non ci sono membri bannati."
 
 # /azione annulla sblocco
 action_unban_undo_embed_desc: "## Annulla lo sblocco di tutti\n${client.iHorizon_Emojis.icon.Yes_Logo} | Ho bandito con successo `${banned_members.length}` membro(i) nella gilda!\n${client.iHorizon_Emojis.icon.No_Logo} | Non posso sbloccare `${cannot_ban}` membro(i)!"
+
+# /vc
+vc_embed_desc: "## Stati Vocali\n`${voiceStates?.size}` membro(i) è nel canale vocale:\n${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## Stati dei Membri\n`${membersStates?.size}` membro(i) sono nella gilda:\n${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## Stati dei Boost\n`${interaction.guild?.premiumSubscriptionCount}` boost nella gilda,\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
+vc_embed_fields_1_name: "・Numero di Membri"
+vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} membri```"
+vc_embed_fields_2_name: "・Numero di Canali"
+vc_embed_fields_2_value: "```py\n${textChannelSize} canale(i) di testo\n${voiceChannelSize} canale(i) vocale(i)```"
 
 
 # Guild Config commands
@@ -672,6 +698,7 @@ setleavemessage_logs_embed_title_on_disable: "SetLeaveMessage Logs"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> ha eliminato il messaggio di uscita!"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Messaggio di uscita personalizzato eliminato con successo."
 setleavemessage_command_work_ls: "Il messaggio di uscita è:"
+setleavemessage_awaiting_response: "Scrivi il nuovo messaggio di addio personalizzato nel canale."
 
 # /setup
 setup_not_admin: ":x: | Devi essere un amministratore di questo server!"
@@ -760,10 +787,16 @@ loop_command_work: "{mode} | Modalità loop aggiornata"
 # /nowplaying
 nowplaying_no_queue: "Non c'è nulla in riproduzione"
 nowplaying_message_embed_title: "In riproduzione"
+nowplaying_resume_button: "${interaction.user} **riprende** la musica!"
+nowplaying_pause_button: "${interaction.user} **mette in pausa** la musica!"
+nowplaying_lyrics_button: "I testi di questa canzone non sono stati trovati"
+nowplaying_stop_buttom: "${interaction.user} **ferma** la musica!"
 
 # /pause
 pause_no_queue: "${client.iHorizon_Emojis.icon.Warning_Icon} - You're not in a voice channel !"
 pause_nothing_playing: "There is nothing playing"
+pause_var_paused: "pausato"
+pause_var_err: "qualcosa è andato storto"
 
 # /resume
 resume_nothing_playing: "There is nothing playing"
@@ -790,6 +823,16 @@ queue_embed_footer_text: "Pagina {index} | Totale {track} brani"
 shuffle_no_queue: "I am not in a voice channel"
 shuffle_no_enought: "There aren't **enough tracks** in queue to **shuffle**"
 shuffle_command_work: "I have **shuffled** the queue"
+
+# /music history
+history_no_entries: "Non ci sono voci in questa competizione."
+history_embed_title: "Storia della Musica di ${interaction.guild?.name} | Pagina ${i / usersPerPage + 1}"
+history_embed_footer_text: "iHorizon | Pagina ${currentPage + 1}/${pages.length}"
+
+# /music lyrics
+lyrics_embed_title_unknown: "Titolo sconosciuto"
+lyrics_embed_author_name_unknown: "Autore sconosciuto"
+lyrics_not_found: "Testi non trovati"
 
 
 # Giveaway commands
@@ -1457,5 +1500,10 @@ temporary_voice_transfer_trust_placeholder: "Gli utenti selezionati saranno atte
 temporary_voice_transfer_unblocked_placeholder: "Gli utenti selezionati saranno autorizzati a unirsi"
 
 temporary_voice_transfer_untrust_placeholder: "Gli utenti selezionati non saranno attendibili per unirsi"
+
+# Modulo di Protezione
+# Messaggio di evento
+
+protection_avoid_channel_delete: "**MODALITÀ PROTEZIONE ATTIVA**\n<@${channel.guild.ownerId}>, il canale è stato ricreato, <@${firstEntry.executorId}> ha tentato di eliminare il canale!"
 
 # -----------------------------\ /-----------------------------

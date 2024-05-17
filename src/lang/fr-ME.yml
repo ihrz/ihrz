@@ -84,6 +84,10 @@ setticketcategory_disabled_command: "Tu peux pas utilisé cette commande désol�
 setticketcategory_not_a_category: "C pas une catégorie refait , sois moin con un peu nan?"
 setticketcategory_command_work: "<@${interaction.user.id}>, tu avez défini la catégorie du canal de ticket sur `${category.name}` !"
 
+# /ticket log-channel
+ticket_logchannel_embed_title: "Canal de Logs des Tickets"
+ticket_logchannel_embed_desc: "${interaction.user}, vous avez configuré le canal des logs du module des Tickets sur ${channel} !"
+
 
 # Ranks commandsa
 # /xp, /setxpchannels, /disablexp
@@ -121,6 +125,13 @@ level_embed_fields2_name: ":money_with_wings:・__Expérience :"
 level_embed_fields2_value: "`${level}`"
 level_embed_description: "`${expNeededForLevelUp}` points d'expérience nécessaires pour passer au niveau suivant !"
 
+# /ranks leaderboard
+ranks_leaderboard_embed_title: "Classement des Niveaux de ${interaction.guild?.name}"
+ranks_leaderboard_top_txt: "Top #${i}"
+ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
+ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Niveau**: `${a.level || '0'}`\n🔱 ➥ **XP Total**: `${a.xptotal}`"
+ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Niveau: ${a.level || '0'}\n🔱 ➥ XP Total: ${a.xptotal}"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -141,6 +152,9 @@ blacklist_bot_lol: "Je peux pas me blacklist moi meme trou dballe , réssaie t b
 blacklist_command_work: "${member.user.username} est maintenant blacklisté allez degage de la on veut pas de toi"
 blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.icon.No_Logo} est maintenant bl , mais jpeu pas lban dici, jcrois jai pas la perm ?"
 blacklist_already_blacklisted: "${member.user.username} est déjà blacklist trdc !"
+blacklist_no_one_blacklist: "${client.iHorizon_Emojis.icon.No_Logo} Aucun utilisateur trouvé dans la liste noire !"
+blacklist_var_no_reason: "Aucune raison trouvée"
+blacklist_embed_title: "Liste Noire - Page ${i / usersPerPage + 1}"
 
 # /unblacklist
 unblacklist_not_owner: "T'es pas le boss du projet iHorizon. Cette commande est pour les vrais boss seulement."
@@ -272,6 +286,10 @@ ping_embed_desc: "# Pong ! Statistiques du réseau de ${interaction.client.user.
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
+
+# Fun Var
+fun_var_down_api: "Erreur : L'API est hors service !"
+fun_var_good_sentence: "Veuillez envoyer une bonne phrase !"
 
 # /cats
 cats_embed_title: "Miauw , MIAUWWWW :cat:"
@@ -478,6 +496,7 @@ prevnames_embed_title: "Liste de tous les pseudos de ${user.username}"
 prevnames_undetected: "Aucune donnée trouvée !"
 prevnames_not_admin: "Il te faut la perm admin encore une fois, essaie /nayaweb c une super commande bg."
 prevnames_data_erased: "Vos ancien pseudo ont entièrement été supprimer sur votre demande p'tit con!"
+prevnames_embed_footer_text: "iHorizon | Page ${currentPage + 1}/${pages.length}"
 
 # /blockbot
 blockbot_not_owner: ":x: **Tu n'est pas le propriétaire du serveur grosse merde !**"
@@ -517,6 +536,13 @@ action_unban_all_no_banned_members: "Il n'y a pas de membres bannis."
 
 # /action débannir annuler
 action_unban_undo_embed_desc: "## Annuler le débannissement de tous (ohmygad)\n${client.iHorizon_Emojis.icon.Yes_Logo} | J'ai réussi à m'branler sur `${banned_members.length}` membre(s) dans la guilde !\n${client.iHorizon_Emojis.icon.No_Logo} | Je ne peux pas débannir `${cannot_ban}` ces bouffons !"
+
+# /vc
+vc_embed_desc: "## États Vocaux\n`${voiceStates?.size}` membre(s) est dans le canal vocal :\n${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## États des Membres\n`${membersStates?.size}` membre(s) sont dans la guilde :\n${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## États des Boosts\n`${interaction.guild?.premiumSubscriptionCount}` boost(s) dans la guilde,\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
+vc_embed_fields_1_name: "・Nombre de Membres"
+vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} membres```"
+vc_embed_fields_2_name: "・Nombre de Canaux"
+vc_embed_fields_2_value: "```py\n${textChannelSize} canal(aux) texte\n${voiceChannelSize} canal(aux) vocal(aux)```"
 
 
 # Guild Config commands
@@ -672,6 +698,7 @@ setleavemessage_logs_embed_title_on_disable: "Logs de message de départ configu
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> a supprimé le message de départ personnalisé !"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Message de départ personnalisé supprimé avec succès."
 setleavemessage_command_work_ls: "Le message de départ est le suivant:"
+setleavemessage_awaiting_response: "Écrivez le nouveau message de départ personnalisé dans le canal."
 
 # /setup
 setup_not_admin: ":x: | Tu devez être administrateur de ce serveur !"
@@ -760,10 +787,16 @@ loop_command_work: "{mode} | Mode de boucle mis à jour"
 # /nowplaying
 nowplaying_no_queue: "Il n'y a rien qui joue actuellement"
 nowplaying_message_embed_title: "En train de jouer"
+nowplaying_resume_button: "${interaction.user} **reprend** la musique !"
+nowplaying_pause_button: "${interaction.user} **met en pause** la musique !"
+nowplaying_lyrics_button: "Les paroles de cette chanson n'ont pas été trouvées"
+nowplaying_stop_buttom: "${interaction.user} **arrête** la musique !"
 
 # /pause
 pause_no_queue: "${client.iHorizon_Emojis.icon.Warning_Icon} - Tu n'est pas dans un salon vocal !"
 pause_nothing_playing: "Il n'y a rien qui est en train d'être joué"
+pause_var_paused: "en pause"
+pause_var_err: "quelque chose a mal tourné"
 
 # /resume
 resume_nothing_playing: "Il n'y a rien en train de jouer"
@@ -790,6 +823,16 @@ queue_embed_footer_text: "Page {index} | {track} morceaux au total"
 shuffle_no_queue: "Je ne suis pas dans un salon vocal"
 shuffle_no_enought: "Il n'y a pas **assez de pistes** dans la file d'attente pour mélanger"
 shuffle_command_work: "J'ai **mélangé** la file d'attente"
+
+# /music history
+history_no_entries: "Il n'y a aucune entrée dans cette compétition."
+history_embed_title: "Historique Musical de ${interaction.guild?.name} | Page ${i / usersPerPage + 1}"
+history_embed_footer_text: "iHorizon | Page ${currentPage + 1}/${pages.length}"
+
+# /music lyrics
+lyrics_embed_title_unknown: "Titre inconnu"
+lyrics_embed_author_name_unknown: "Auteur inconnu"
+lyrics_not_found: "Paroles non trouvées"
 
 
 # Giveaway commands
@@ -1457,5 +1500,10 @@ temporary_voice_transfer_trust_placeholder: "Les utilisateurs sélectionnés ser
 temporary_voice_transfer_unblocked_placeholder: "Les utilisateurs sélectionnés seront autorisés à rejoindre"
 
 temporary_voice_transfer_untrust_placeholder: "Les utilisateurs sélectionnés ne seront pas fiables pour rejoindre"
+
+# Module de Protection
+# Message d'événement
+
+protection_avoid_channel_delete: "**MODE PROTECTION ACTIVÉ**\n<@${channel.guild.ownerId}>, le canal a été recréé, <@${firstEntry.executorId}> a tenté de supprimer le canal!"
 
 # -----------------------------\ /-----------------------------

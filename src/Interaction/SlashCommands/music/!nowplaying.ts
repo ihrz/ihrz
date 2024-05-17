@@ -105,11 +105,11 @@ export default {
                                 if (paused) {
                                     player.resume();
                                     paused = false;
-                                    (channel as BaseGuildTextChannel)?.send({ content: `${interaction.user} **resume** the music!` });
+                                    (channel as BaseGuildTextChannel)?.send({ content: data.nowplaying_resume_button.replace('${interaction.user}', interaction.user.toString()) });
                                 } else {
                                     player.pause();
                                     paused = true;
-                                    (channel as BaseGuildTextChannel)?.send({ content: `${interaction.user} **pause** the music!` });
+                                    (channel as BaseGuildTextChannel)?.send({ content: data.nowplaying_pause_button.replace('${interaction.user}', interaction.user.toString()) });
                                 }
                                 break;
                             case "lyrics":
@@ -123,7 +123,7 @@ export default {
                                 })
 
                                 if (!lyrics) {
-                                    i.reply({ content: 'The lyrics for this song were not found', ephemeral: true });
+                                    i.reply({ content: data.nowplaying_lyrics_button, ephemeral: true });
                                 } else {
                                     let trimmedLyrics = lyrics.lyrics.substring(0, 1997);
                                     let embed = new EmbedBuilder()
@@ -147,12 +147,12 @@ export default {
                             case "stop":
                                 i.deferUpdate();
                                 player.destroy();
-                                (channel as BaseGuildTextChannel)?.send({ content: `${interaction.user} **stop** the music!` });
+                                (channel as BaseGuildTextChannel)?.send({ content: data.nowplaying_stop_buttom.replace('${interaction.user}', interaction.user.toString()) });
                                 break;
                         }
 
                     } else {
-                        await i.reply({ content: ':no_entry_sign:', ephemeral: true });
+                        await i.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
                     }
                 }
             });

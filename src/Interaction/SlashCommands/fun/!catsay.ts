@@ -34,11 +34,13 @@ import {
   EmbedBuilder,
 } from 'discord.js';
 
-import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import Jimp from 'jimp';
 
+import { LanguageData } from '../../../../types/languageData.js';
+import { axios } from '../../../core/functions/axios.js';
+
 export default {
-  run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+  run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
     let baseImg = (await axios.get('https://api.thecatapi.com/v1/images/search?mime_types=jpg,png')).data;
     let text = interaction.options.getString('text')?.slice(0, 30);
@@ -72,7 +74,7 @@ export default {
       };
 
     } catch {
-      await interaction.editReply({ content: "Api down." });
+      await interaction.editReply({ content: data.fun_var_down_api });
     }
 
     return;

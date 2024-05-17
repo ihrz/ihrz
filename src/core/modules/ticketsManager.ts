@@ -150,7 +150,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
     let og_interaction = await interaction.editReply({
         embeds: [panel_for_create],
         components: [button],
-        content: '  ',
+        content: null,
         files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
     });
 
@@ -317,7 +317,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                 };
 
                 let panel_message = await og_interaction.channel.send({
-                    content: '** **',
+                    content: undefined,
                     files: [
                         {
                             attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
@@ -537,7 +537,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
 
         (channel as BaseGuildTextChannel).send({
             embeds: [welcome],
-            content: `${interaction.user}`,
+            content: interaction.user.toString(),
             components: [
                 new ActionRowBuilder<UserSelectMenuBuilder>()
                     .addComponents(selectUsersMenu)

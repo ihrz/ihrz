@@ -55,7 +55,7 @@ export default {
 
             text = textArray.join(" ");
         }
-        await interaction.editReply({ content: "```" + text + "```" });
+        await interaction.editReply({ content: '```' + text + '```' });
         return;
     },
 };

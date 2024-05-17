@@ -47,7 +47,7 @@ export const event: BotEvent = {
         let command = client.commands?.get(interaction.commandName);
 
         if (!command) {
-            return interaction.reply({ content: "Connection error.", ephemeral: true });
+            return interaction.reply({ content: 'Connection error.', ephemeral: true });
         };
 
         if (await cooldDown(client, interaction)) {

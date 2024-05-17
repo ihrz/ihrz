@@ -117,7 +117,7 @@ export const event: BotEvent = {
                 ;
             (channel as GuildTextBasedChannel)?.send({
                 embeds: [embed],
-                content: `discord.gg/ihorizon\ndiscord.com/application-directory/945202900907470899`,
+                content: 'discord.gg/ihorizon\ndiscord.com/application-directory/945202900907470899',
                 files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
                 components: [buttons]
             }).catch(() => { });
