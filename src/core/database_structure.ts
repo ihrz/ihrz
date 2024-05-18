@@ -253,6 +253,7 @@ export namespace DatabaseStructure {
             voice?: string;
             message?: string;
             boosts?: string;
+            user?: string;
         };
         SUPPORT?: {
             input?: string | null;
