@@ -207,7 +207,7 @@ botinfo_embed_fields_created_by: "Créé par (les meilleurs dev):"
 
 # /invite
 invite_embed_title: "Merci d'avoir ajouté iHorizon !"
-invite_embed_description: "Je t'aime, montre-moi ton amour en retour ! Invite-moi !"
+invite_embed_description: "Je t'aime (no-homo), montre-moi ton amour en retour (et pas ta chatte) ! Invite-moi !"
 
 # /kisakay
 kisakay_message: "Wsh c ma owner, elle est blg et a un vrai beau cul, elle m'a construit mais moi je veux la détruire 🤤🤤🤤"
@@ -288,7 +288,7 @@ ping_embed_desc: "# Pong ! Statistiques du réseau de ${interaction.client.user.
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
 
 # Fun Var
-fun_var_down_api: "Erreur : L'API est hors service !"
+fun_var_down_api: "Erreur : L'API est hors service ! Ptn ya pas que mon carisme qui est down"
 fun_var_good_sentence: "Veuillez envoyer une bonne phrase !"
 
 # /cats
@@ -391,7 +391,7 @@ work_embed_author: "${interaction.user.username}, ça a payé !"
 work_embed_description: "${interaction.user.username}, tu avez travaillé et gagné ${amount}$ c'est bien bon esclave de la société!"
 
 # /withdraw
-withdraw_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | Vous ne pouvez pas retirer une somme supérieure à celle que vous avez dans votre banque !"
+withdraw_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | Vous ne pouvez pas retirer une somme supérieure à celle que vous avez dans votre banque ! mais frère fait gaffe aussi"
 withdraw_embed_title: "Retrait de votre banque"
 withdraw_embed_desc: "${interaction.user}, vous avez retiré ${toWithdraw}${client.iHorizon_Emojis.icon.Coin} de votre `banque`"
 withdraw_embed_fields1_name: "Banque"
@@ -423,7 +423,7 @@ economy_disable_logs_embed_title: "Logs Économiques dla Hess"
 setprofilage_command_work: "**Ton âge de profil a été mis à jour avec succès.**"
 
 # /setprofildescriptions
-setprofildescriptions_command_work: "**Ton description a été mise à jour avec succès.**"
+setprofildescriptions_command_work: "**Ta description de profil a été mise à jour avec succès.**"
 
 # /profil
 profil_not_description_set: "Aucune description définie !"
@@ -436,7 +436,7 @@ profil_embed_fields_xplevels: "💳 ・ __Niveau d'XP__"
 profil_embed_fields_xplevels_value: " niveaux d'XP"
 profil_embed_fields_age: "🎂 ・ __Âge__"
 profil_embed_fields_age_value: " ans"
-profil_embed_fields_gender: "👤 ・ __Genre__"
+profil_embed_fields_gender: "👤 ・ __C'que t'a entre les jambes__"
 
 
 # Utils commands
@@ -702,12 +702,12 @@ setleavemessage_command_work_ls: "Le message de départ est le suivant:"
 setleavemessage_awaiting_response: "Écrivez le nouveau message de départ personnalisé dans le canal."
 
 # /setup
-setup_not_admin: ":x: | Tu devez être administrateur de ce serveur !"
+setup_not_admin: ":x: | Tu dois être administrateur de ce serveur !"
 setup_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} | Configuration du salon terminée."
 setup_command_error: "Le bot a déjà configuré les salons de logs ! Ou le bot n'a pas la permission..."
 
 # /setlogschannel
-setlogschannel_not_admin:  ":x: | Tu devez être administrateur de ce serveur pour exécuter cette commande !"
+setlogschannel_not_admin:  ":x: | Tu dois être administrateur de ce serveur pour exécuter cette commande !"
 setlogschannel_not_specified_args: "Tu devez spécifier un canal valide pour ton module."
 setlogschannel_confirmation_message: "${client.iHorizon_Emojis.icon.Yes_Logo} | Le canal pour les `${typeOfLogs}` est maintenant configuré par <@${interaction.user.id}> !"
 setlogschannel_already_this_channel: "Ce serveur a déjà ce canal pour les logs !"
@@ -804,13 +804,13 @@ resume_nothing_playing: "Il n'y a rien en train de jouer"
 resume_command_work: "Reprise de la lecture avec succès"
 
 # /skip
-skip_not_in_voice_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} - Tu n'est pas dans un canal vocal !"
-skip_nothing_playing: "Il n'y a rien qui est en train de jouer"
+skip_not_in_voice_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} - Tu n'est pas dans un canal vocal chacal !"
+skip_nothing_playing: "Il n'y a rien qui est en train de jouer par ce que ta vie c'est dla merde chef"
 skip_command_work: "Piste passée : {queue}"
 
 # /stop
 stop_nothing_playing: "Il n'y a rien qui joue actuellement."
-stop_command_work: "La file d'attente a été arrêtée."
+stop_command_work: "La file d'attente a été arrêtée. (j'éspère les autres membre en vocal vont te niquer ta râce)"
 
 # /queue
 queue_iam_not_voicec: "Je ne suis pas dans un canal vocal"
@@ -1105,7 +1105,7 @@ embed_send_embed_work: "<@${interaction.user.id}>, **Tu avez parfaitement envoy�
 
 # /rolesaver
 rolesaver_embed_title: "Module RoleSaver"
-rolesaver_embed_desc: "Lorsque les membres de la guilde quittent le serveur, leurs rôles sont sauvegardés dans la base de données. Maintenant, lorsqu'ils rejoignent, iHorizon leur redonne leurs rôles car c'est des enculer de flemmard."
+rolesaver_embed_desc: "Lorsque les con de la guilde quittent le serveur, leurs rôles sont sauvegardés dans la base de données. Maintenant, lorsqu'ils rejoignent, iHorizon leur redonne leurs rôles car c'est des enculer de flemmard."
 rolesaver_embed_fields_1_name: "Activer ( bha ouais logique )"
 rolesaver_embed_fields_2_name: "Rôles administrateur redonnés ( ptn vsy c pas drôle )"
 rolesaver_embed_fields_3_name: "Délai d'attente ( ROOH NTM )"
@@ -1181,7 +1181,7 @@ security_role_to_give_not_admin: "Tu n'est pas administrateur !"
 security_role_to_give_command_work: "${interaction.user}, tu avez défini le rôle ${role} pour le module de sécurité !"
 
 # /securite canal
-security_channel_not_admin: "Tu n'est pas administrateur !"
+security_channel_not_admin: "Tu n'est pas administrateur ptdr !"
 security_channel_command_work: "${interaction.user}, tu avez défini le canal ${channel} pour le module de sécurité !"
 
 
@@ -1189,7 +1189,7 @@ security_channel_command_work: "${interaction.user}, tu avez défini le canal ${
 # /planifier
 
 # /planifier
-schedule_menu_placeholder: "Que souhaite-tu faire ?"
+schedule_menu_placeholder: "Que souhaite-tu faire ma belle ?"
 schedule_menu_choice_0: "Créer une planification"
 schedule_menu_choice_1: "Supprimer une planification"
 schedule_menu_choice_2: "Supprimer toutes les planifications"
@@ -1239,27 +1239,27 @@ pfps_channel_command_error: "${interaction.user}, la commande a renvoyé une err
 
 # /actions d'autorisation
 authorization_actions_not_permited: "Seul le propriétaire du serveur peut modifier les règles d'autorisation du module de protection !"
-authorization_actions_everyone: "Tout le monde"
+authorization_actions_everyone: "Tout les con"
 authorization_actions_allowlist: "Membre(s) de la liste blanche"
 authorization_actions_rule_set: "${interaction.user}, la règle pour `${rule.toUpperCase()}` a été définie. **${allow}** sont autorisés à la contourner !"
 authorization_actions_rule_clear: "${interaction.user}, toutes les règles pour `${interaction.guild.name}` ont été supprimées. Le module de protection est maintenant désactivé !"
 
 # /sanction d'autorisation
-authorization_sanction_not_permited: "Seul le propriétaire du serveur peut modifier les règles d'autorisation du module de protection !"
+authorization_sanction_not_permited: "Seul le propriétaire du serveur peut modifier les règles d'autorisation du module de protection ! J'ai juré il veut raid le serveur lui ? jvé le mogu mogu"
 authorization_sanction_simply: "N/D"
 authorization_sanction_simply_unrank: "DÉRANKER"
-authorization_sanction_simply_ban: "BANNIR"
+authorization_sanction_simply_ban: "L'ENCULER (vous mle banner lui)"
 authorization_sanction_command_work: "${interaction.user}, la règle de sanction a été définie. Lorsqu'un utilisateur enfreint la règle, c'est **${choose}**. Et le bot annule son action."
 
 # /config-show d'autorisation
 authorization_configshow_not_permited: "Seul le propriétaire du serveur peut modifier les règles d'autorisation du module de protection !"
-authorization_configshow_not_anything_setup: "Vous n'avez rien configuré dans le module de protection !"
+authorization_configshow_not_anything_setup: "Vous n'avez rien configuré dans le module de protection sale batard !"
 authorization_configshow_simply: "Annuler simplement l'action"
 authorization_configshow_simply_ban: "Annuler simplement l'action et bannir"
 authorization_configshow_simply_unrank: "Annuler simplement l'action et déranker"
 authorization_configshow_punishement: "```Sanction : ${okay}```"
 authorization_configshow_embed1_author: "Liste des règles"
-authorization_configshow_embed2_author: "Liste blanche"
+authorization_configshow_embed2_author: "Liste blanche tah les blanc"
 
 # /allowlist show
 allowlist_show_not_permited: "Vous n'avez pas l'autorisation d'utiliser cette commande ! Vous devez être sur la liste blanche !"
@@ -1273,10 +1273,10 @@ allowlist_add_already_in: "Le membre que vous souhaitez ajouter à la liste blan
 allowlist_add_command_work: "${member.user} a été ajouté à la liste blanche !"
 
 # /allowlist delete
-allowlist_delete_not_permited: "Vous n'êtes pas autorisé à utiliser cette commande ! Vous devez être sur la liste blanche !"
+allowlist_delete_not_permited: "Vous n'êtes pas autorisé à utiliser cette commande ! Vous devez être sur la liste blanche ! Sérieux toi? ta craquer"
 allowlist_delete_not_owner: "Seul le propriétaire du serveur peut ajouter/supprimer des utilisateurs de la liste blanche !"
 allowlist_delete_member_unreachable: "Le membre que vous souhaitiez supprimer de la liste blanche est injoignable !"
-allowlist_delete_cant_remove_owner: "Il n'est pas possible de supprimer le propriétaire du serveur de la liste blanche !"
+allowlist_delete_cant_remove_owner: "Attend, tu t'est pris pour qui ?? Frère tu fait pitié à essayer de retirer le propriétaire du serveur de la liste blanche!"
 allowlist_delete_isnt_in: "Le membre que vous souhaitez supprimer de la liste blanche n'y est pas !"
 allowlist_delete_command_work: "${member.user} a été supprimé de la liste blanche !"
 
@@ -1323,7 +1323,7 @@ mybot_instance_deny_embed_desc: "Le bot a été refusé\n\n${utils_msg}"
 # /texte, /voix, /statut, /personnel
 
 # Interface /voix pour définir le canal de texte
-tempvoice_if_text_not_admin: "<@${interaction.user.id}>, vous n'êtes pas autorisé à utiliser cette commande !"
+tempvoice_if_text_not_admin: "<@${interaction.user.id}>, vous n'êtes pas autorisé à utiliser cette commande crevard!"
 tempvoice_if_text_desc_embed: "## Interface TempVoice\nCette **interface** peut être utilisée pour gérer des salons vocaux temporaires.\n"
 tempvoice_if_text_fields_value_limit: "${client.iHorizon_Emojis.vc.Limit} **Modifier la limite**"
 tempvoice_if_text_fields_value_name: "${client.iHorizon_Emojis.vc.Name} **Modifier le nom**"
