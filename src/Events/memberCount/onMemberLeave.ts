@@ -22,6 +22,7 @@
 import { Client, GuildMember } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
+import { DatabaseStructure } from '../../core/database_structure';
 
 export const event: BotEvent = {
     name: "guildMemberRemove",
@@ -31,30 +32,30 @@ export const event: BotEvent = {
             let botMembers = member.guild.members.cache.filter((member) => member.user.bot);
             let rolesCount = member.guild.roles.cache.size;
 
-            let baseData = await client.db.get(`${member.guild.id}.GUILD.MCOUNT`);
+            let baseData = await client.db.get(`${member.guild.id}.GUILD.MCOUNT`) as DatabaseStructure.DbGuildObject['MCOUNT'];
             let bot = baseData?.bot;
             let member_2 = baseData?.member;
             let roles = baseData?.roles;
 
             if (bot) {
-                let joinmsgreplace = bot.name
-                    .replace("{botcount}", botMembers.size);
+                let joinmsgreplace = bot?.name!
+                    .replace("{botcount}", String(botMembers.size));
 
-                let Fetched = member.guild.channels.cache.get(bot.channel);
+                let Fetched = member.guild.channels.cache.get(String(bot.channel));
                 Fetched?.edit({ name: joinmsgreplace });
                 return;
             } else if (member_2) {
-                let joinmsgreplace = member_2.name
-                    .replace("{membercount}", member.guild.memberCount);
+                let joinmsgreplace = member_2.name!
+                    .replace("{membercount}", member.guild.memberCount.toString());
 
-                let Fetched = member.guild.channels.cache.get(member_2.channel);
+                let Fetched = member.guild.channels.cache.get(member_2.channel!);
                 Fetched?.edit({ name: joinmsgreplace });
                 return;
             } else if (roles) {
-                let joinmsgreplace = roles.name
-                    .replace("{rolescount}", rolesCount);
+                let joinmsgreplace = roles.name!
+                    .replace("{rolescount}", String(rolesCount));
 
-                let Fetched = member.guild.channels.cache.get(roles.channel);
+                let Fetched = member.guild.channels.cache.get(roles.channel!);
                 Fetched?.edit({ name: joinmsgreplace });
                 return;
             };
