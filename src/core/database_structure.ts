@@ -253,6 +253,7 @@ export namespace DatabaseStructure {
             voice?: string;
             message?: string;
             boosts?: string;
+            user?: string;
         };
         SUPPORT?: {
             input?: string | null;
@@ -270,6 +271,7 @@ export namespace DatabaseStructure {
         REACTION_ROLES?: ReactionRolesData;
         RANK_ROLES?: {
             roles: string;
+            nicknames: string;
         };
         SNIPE?: SnipeData;
         REACT_MSG: {
