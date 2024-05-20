@@ -274,7 +274,8 @@ help_select_menu: "Сделайте выбор!"
 help_select_menu_fields_desc: "${categories[index].value.length} Команды"
 help_back_to_menu: "Основное меню"
 help_back_to_menu_desc: "Вернуться в основное меню"
-
+help_confession_dsc: "Хотите сделать признание? Очень хорошо, каким бы мерзким оно ни было, iHorizon здесь для вас!"
+help_confession_fields: "Исповедь"
 
 # /say
 say_footer_msg: "\n\nОтправлено из `/говорить` от ${interaction.user}"
@@ -1344,7 +1345,35 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, у вас нет прав н
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, у вас нет прав на использование этой команды!"
 tempvoice_staff_desc_embed: "## Роль персонала временного голосового канала\nТеперь <@&${targetedRole?.id}> может войти в канал в режиме модератора!\n"
 
+
+# Модуль Исповедей
+# /cooldown, /disable, /channel
+
+# /confession channel
+confession_channel_command_work: "Панель исповедей была отправлена в ${channel?.toString()}"
+confession_channel_panel_embed_desc: "# **Анонимные Исповеди**\n\nНажмите кнопку ниже, чтобы открыть форму исповеди. Вы можете написать то, что хотите исповедовать. Если хотите, вы можете сделать вашу исповедь приватной.\n\n## **Сделать Исповедь**\n\n*Примечание: Чтобы сделать вашу исповедь приватной, укажите соответствующий вариант в форме.*"
+confession_channel_log_embed_title: "Модуль SetChannel Исповедей"
+confession_channel_log_embed_desc: "${interaction.user} установил канал на ${channel}"
+
+# /confession cooldown
+confession_coolodwn_command_work: "${interaction.user.toString()}, время ожидания для исповеди теперь составляет **${client.timeCalculator.to_beautiful_string(time)}**!"
+confession_cooldown_log_embed_title: "Модуль SetCooldown Исповедей"
+confession_cooldown_log_embed_desc: "${interaction.user} установил время ожидания на `${client.timeCalculator.to_beautiful_string(time)}`"
+
+# /confession disable
+confession_disable_command_work_on: "Модуль исповедей теперь включен."
+confession_disable_command_work_off: "Модуль исповедей теперь отключен."
+confession_log_embed_title_on_enable: "Включение/Отключение Исповеди"
+confession_log_embed_desc_on_enable: "${interaction.user} включил модуль исповедей!"
+confession_log_embed_desc_on_disabled: "${interaction.user} отключил модуль исповедей!"
+
 # -----------------------------/ \-----------------------------
+# События Модуля Исповедей
+confession_module_modal_title: "Отправить исповедь"
+confession_module_modal_components1_label: "Что вы хотите исповедать?"
+confession_module_modal_components1_placeholder: "Ммхх"
+confession_module_modal_components2_label: "Это приватно?"
+
 # События проигрывателя музыки
 
 event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Сейчас играет `${track.title}` в **${queue.channel.name}** ..."

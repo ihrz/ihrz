@@ -167,6 +167,22 @@ export namespace DatabaseStructure {
         role?: string;
     }
 
+    export interface ConfessionSchema {
+        panel?: {
+            channelId: string;
+            messageId: string;
+        }
+        disable?: boolean;
+        ALL_CONFESSIONS?: {
+            [confessionId: string]: {
+                userId?: string;
+                timestamp?: number;
+                private?: boolean;
+            }
+        }
+        cooldown?: number
+    }
+
     export interface MemberCountSchema {
         member?: {
             name?: string;
@@ -201,6 +217,7 @@ export namespace DatabaseStructure {
             disabled: boolean;
         };
         SECURITY?: SecuritySchema;
+        CONFESSION?: ConfessionSchema;
         UTILS?: {
             unban_members?: string[];
         };
