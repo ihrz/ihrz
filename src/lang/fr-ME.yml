@@ -274,7 +274,8 @@ help_select_menu: "Faites une sélection !"
 help_select_menu_fields_desc: "${categories[index].value.length} Commandes"
 help_back_to_menu: "Menu principal"
 help_back_to_menu_desc: "Retour au menu initial"
-
+help_confession_dsc: "Tu as une confession à faire ? Très bien, aussi sordide soit-elle, iHorizon est là pour toi !"
+help_confession_fields: "Confession"
 
 # /say
 say_footer_msg: "\n\nEnvoyé depuis `/say` par ${interaction.user}"
@@ -1344,7 +1345,35 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, vous n'êtes pas autorisé �
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, vous n'êtes pas autorisé à utiliser cette commande !"
 tempvoice_staff_desc_embed: "## Rôle du Personnel TempVoice\nLe <@&${targetedRole?.id}> peut maintenant modérer le salon !\n"
 
+
+# Module de Confession
+# /cooldown, /disable, /channel
+
+# /confession channel
+confession_channel_command_work: "Le panneau de confession a été envoyé à ${channel?.toString()} tu vas pouvoir dire que ta bz ta soeur en secret"
+confession_channel_panel_embed_desc: "# **Confessions Anonymes**\n\nCliquez sur le bouton ci-dessous pour ouvrir le formulaire de confession. Vous pouvez écrire ce que vous avez besoin de confesser. Si vous le souhaitez, vous pouvez choisir de rendre votre confession privée.\n\n## **Faire une Confession**\n\n*Remarque : Pour rendre votre confession privée, écrivez l'option correspondante dans le formulaire.*"
+confession_channel_log_embed_title: "Module SetChannel Confession"
+confession_channel_log_embed_desc: "${interaction.user} a défini le canal sur ${channel}"
+
+# /confession cooldown
+confession_coolodwn_command_work: "${interaction.user.toString()}, le cooldown de la confession est maintenant de **${client.timeCalculator.to_beautiful_string(time)}**!"
+confession_cooldown_log_embed_title: "Module SetCooldown Confession"
+confession_cooldown_log_embed_desc: "${interaction.user} a défini le délai d'attente sur `${client.timeCalculator.to_beautiful_string(time)}`"
+
+# /confession disable
+confession_disable_command_work_on: "Le module de confession est maintenant activé."
+confession_disable_command_work_off: "Le module de confession est maintenant désactivé."
+confession_log_embed_title_on_enable: "Activer/Désactiver Confession"
+confession_log_embed_desc_on_enable: "${interaction.user} a activé le module de confession!"
+confession_log_embed_desc_on_disabled: "${interaction.user} a désactivé le module de confession!"
+
 # -----------------------------/ \-----------------------------
+# Événements du Module de Confession
+confession_module_modal_title: "Envoyer une confession"
+confession_module_modal_components1_label: "Que voulez-vous confesser?"
+confession_module_modal_components1_placeholder: "Mmhh"
+confession_module_modal_components2_label: "Est-ce privé?"
+
 # Music Player Events
 
 event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Lecture de `${track.title}` en cours dans **${queue.channel.name}** ambiencez tu !!! ..."

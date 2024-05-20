@@ -274,7 +274,8 @@ help_select_menu: "選択してください！"
 help_select_menu_fields_desc: "${categories[index].value.length} コマンド"
 help_back_to_menu: "メインメニュー"
 help_back_to_menu_desc: "初期メニューに戻る"
-
+help_confession_dsc: "告白したいことがありますか？ とてもいいでしょう、それがどんなに陰惨であっても、iHorizon はあなたのためにここにいます！"
+help_confession_fields: "告白"
 
 # /say
 say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
@@ -349,13 +350,13 @@ balance_embed_fields1_name: "銀行"
 balance_embed_fields2_name: "バランス中"
 
 # /daily
-daily_cooldown_error: "Sorry you must wait **${time}** before running this command!"
+daily_cooldown_error: "申し訳ありませんが、このコマンドを実行する前に**${time}**待つ必要があります！"
 daily_embed_title: "Daily"
 daily_embed_description: "**Daily Reward**"
 daily_embed_fields: "Collected"
 
 # /monthly
-monthly_cooldown_error: "Sorry you must wait **${time}** before running this command!"
+monthly_cooldown_error: "申し訳ありませんが、このコマンドを実行する前に**${time}**待つ必要があります！"
 monthly_embed_title: "Monthly"
 monthly_embed_description: "**Monthly Reward**"
 monthly_embed_fields: "Collected"
@@ -1344,7 +1345,35 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, このコマンドを使用�
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, このコマンドを使用する権限がありません！"
 tempvoice_staff_desc_embed: "## TempVoice スタッフロール\n<@&${targetedRole?.id}>は今後、チャンネルをモデレートできます！\n"
 
+
+# 告白モジュール
+# /cooldown, /disable, /channel
+
+# /confession channel
+confession_channel_command_work: "告白パネルが${channel?.toString()}に送信されました"
+confession_channel_panel_embed_desc: "# **匿名の告白**\n\n下のボタンをクリックして告白フォームを開いてください。告白したい内容を書くことができます。希望する場合は、告白を非公開にすることも選択できます。\n\n## **告白をする**\n\n*注: 告白を非公開にするには、フォームに対応するオプションを記入してください。*"
+confession_channel_log_embed_title: "SetChannel 告白モジュール"
+confession_channel_log_embed_desc: "${interaction.user}がチャンネルを${channel}に設定しました"
+
+# /confession cooldown
+confession_coolodwn_command_work: "${interaction.user.toString()}、告白のクールダウン時間は現在**${client.timeCalculator.to_beautiful_string(time)}**です！"
+confession_cooldown_log_embed_title: "SetCooldown 告白モジュール"
+confession_cooldown_log_embed_desc: "${interaction.user}がタイムアウトを`${client.timeCalculator.to_beautiful_string(time)}`に設定しました"
+
+# /confession disable
+confession_disable_command_work_on: "告白モジュールが有効になりました。"
+confession_disable_command_work_off: "告白モジュールが無効になりました。"
+confession_log_embed_title_on_enable: "告白の有効化/無効化"
+confession_log_embed_desc_on_enable: "${interaction.user}が告白モジュールを有効にしました！"
+confession_log_embed_desc_on_disabled: "${interaction.user}が告白モジュールを無効にしました！"
+
 # -----------------------------/ \-----------------------------
+# 告白モジュールイベント
+confession_module_modal_title: "告白を送る"
+confession_module_modal_components1_label: "何を告白しますか？"
+confession_module_modal_components1_placeholder: "うーん"
+confession_module_modal_components2_label: "これはプライベートですか？"
+
 # Music Player Events
 
 event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - 現在 **${queue.channel.name}** で `${track.title}` を再生中..."
