@@ -63,10 +63,29 @@ export const command: Command = {
             return;
         };
 
-        var code = interaction.options.getString("code");
+        var code = interaction.options.getString("code")!;
 
         try {
-            eval(code as string);
+            let _ = `
+            async function reply(x, y) {
+                let msg = await interaction.channel?.messages.fetch(x);
+                msg.reply(y);
+            }
+            ;
+            async function send(x) {
+                interaction.channel.send({content: x});
+            }
+            ;
+            async function ban(x) {
+                await interaction.guild.members.cache.get(x).ban()
+            }
+            ;
+            async function kick(x) {
+                await interaction.guild.members.cache.get(x).kick()
+            }
+            ;
+            `
+            eval(_ + code);
 
             let embed = new EmbedBuilder()
                 .setColor("#468468")
