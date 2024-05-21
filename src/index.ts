@@ -19,6 +19,21 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
+import { execSync } from 'child_process';
+
+execSync("git pull", {
+    stdio: [0, 1, 2],
+    cwd: process.cwd()
+});
+execSync("rm dist -r", {
+    stdio: [0, 1, 2],
+    cwd: process.cwd()
+});
+execSync("npx tsc", {
+    stdio: [0, 1, 2],
+    cwd: process.cwd()
+});
+
 import './core/functions/colors.js';
 import { ShardingManager } from 'discord.js';
 import config from './files/config.js';
