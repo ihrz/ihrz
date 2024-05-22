@@ -52,7 +52,7 @@ export const command: Command = {
         let embed = new EmbedBuilder()
             .setColor("#474749")
             .setAuthor({ name: based.snipeUserInfoTag, iconURL: based.snipeUserInfoPp })
-            .setDescription(`\`\`\`${based.snipe}\`\`\`)
+            .setDescription(`\`\`\`${based.snipe}\`\`\``)
             .setTimestamp(based.snipeTimestamp);
 
         await interaction.reply({ embeds: [embed] });
