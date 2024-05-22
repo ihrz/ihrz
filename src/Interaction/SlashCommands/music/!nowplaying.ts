@@ -101,7 +101,7 @@ export default {
                     if (i.user.id === requesterId) {
                         switch (i.customId) {
                             case "pause":
-                                i.deferUpdate();
+                                await i.deferUpdate();
                                 if (paused) {
                                     player.resume();
                                     paused = false;
@@ -113,7 +113,7 @@ export default {
                                 }
                                 break;
                             case "lyrics":
-                                i.deferReply({ ephemeral: true });
+                                await i.deferReply({ ephemeral: true });
 
                                 var lyrics = await client.lyricsSearcher.search(
                                     player.queue.current?.info?.title as string +
@@ -145,7 +145,7 @@ export default {
                                 };
                                 break;
                             case "stop":
-                                i.deferUpdate();
+                                await i.deferUpdate();
                                 player.destroy();
                                 (channel as BaseGuildTextChannel)?.send({ content: data.nowplaying_stop_buttom.replace('${interaction.user}', interaction.user.toString()) });
                                 break;

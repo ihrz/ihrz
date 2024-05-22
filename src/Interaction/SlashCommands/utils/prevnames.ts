@@ -125,8 +125,8 @@ export const command: Command = {
         });
 
         let collector = messageEmbed.createMessageComponentCollector({
-            filter: (i) => {
-                i.deferUpdate();
+            filter: async (i) => {
+                await i.deferUpdate();
                 return interaction.user.id === i.user.id;
             }, time: 60000
         });

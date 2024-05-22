@@ -36,7 +36,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
 
     if (!result) return interaction.deferUpdate();
     if (result.channelId !== interaction.channelId
-        || getChannelOwner !== targetedChannel?.id) return interaction.deferUpdate();
+        || getChannelOwner !== targetedChannel?.id) return await interaction.deferUpdate();
 
     if (!member.voice.channel) {
         await interaction.deferUpdate()

@@ -78,8 +78,8 @@ export default {
         let messageEmbed = await interaction.editReply({ embeds: [em], components: [components] });
 
         let collector = messageEmbed.createMessageComponentCollector({
-            filter: (i) => {
-                i.deferUpdate();
+            filter: async (i) => {
+                await i.deferUpdate();
                 return interaction.user.id === i.user.id;
             }, time: 15000
         });

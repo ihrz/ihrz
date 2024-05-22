@@ -64,7 +64,7 @@ export const command: Command = {
             await interaction.reply({ content: data.setserverlang_not_admin });
             return;
         };
-        await interaction.deferReply() && interaction.deleteReply();
+        await interaction.deferReply() && await interaction.deleteReply();
         await interaction.channel?.send({
             content: '> ' + `${interaction.options.getString('content')}${data.say_footer_msg.replace('${interaction.user}', interaction.user)}`
         });

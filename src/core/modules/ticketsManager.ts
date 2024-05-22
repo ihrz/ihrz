@@ -196,7 +196,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
     collector?.on('collect', async i => {
         // Remove
         if (i.customId === "remove_selection") {
-            i.deferUpdate();
+            await i.deferUpdate();
 
             if (case_list.length > 0) {
                 case_list.pop();
@@ -234,7 +234,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                 if (lastModal_0_IdRegisterd === parseInt(interaction.id)) return;
                 lastModal_0_IdRegisterd = parseInt(interaction.id);
 
-                interaction.deferUpdate();
+                await interaction.deferUpdate();
 
                 let optionBuilder = new StringSelectMenuOptionBuilder()
                     .setLabel(name)
@@ -306,7 +306,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                 if (lastModal_1_IdRegisterd === parseInt(interaction.id)) return;
                 lastModal_1_IdRegisterd = parseInt(interaction.id);
 
-                interaction.deferUpdate();
+                await interaction.deferUpdate();
 
                 let title = interaction.fields.getTextInputValue("embed_title");
                 let desc = interaction.fields.getTextInputValue("embed_desc");
@@ -391,7 +391,7 @@ async function CreateTicketChannel(interaction: ButtonInteraction<CacheType> | S
             || result.messageID !== interaction.message.id) return;
 
         if (userTickets) {
-            interaction.deferUpdate();
+            await interaction.deferUpdate();
             return;
         } else {
             await CreateChannel(
@@ -411,7 +411,7 @@ async function CreateTicketChannel(interaction: ButtonInteraction<CacheType> | S
             interaction.deferUpdate();
             return;
         } else {
-            interaction.deferReply({ ephemeral: true });
+            await interaction.deferReply({ ephemeral: true });
 
             await CreateChannel(
                 interaction,
@@ -446,14 +446,14 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
         };
 
         if (interaction instanceof ButtonInteraction) {
-            interaction.reply({
+            await interaction.reply({
                 content: lang.event_ticket_whenCreated_msg
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${channel.id}', channel.id)
                 , ephemeral: true
             });
         } else {
-            interaction.editReply({
+            await interaction.editReply({
                 content: lang.event_ticket_whenCreated_msg
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${channel.id}', channel.id)
