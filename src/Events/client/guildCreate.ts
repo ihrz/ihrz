@@ -136,7 +136,8 @@ export const event: BotEvent = {
             let i: string = '';
             if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
-            let channel = guild.channels.cache.get((guild.systemChannelId as string)) || guild.channels.cache.random();
+            let owner1 = config.owner.ownerid1;
+            let owner2 = config.owner.ownerid2;
 
             async function createInvite(channel: BaseGuildTextChannel) {
                 try {
@@ -152,7 +153,7 @@ export const event: BotEvent = {
             let embed = new EmbedBuilder()
                 .setColor("#00FF00")
                 .setTimestamp(guild.joinedTimestamp)
-                .setDescription(`**A new guild added iHorizon !**`)
+                .setDescription(`**A new guild added your bot !**`)
                 .addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
                     { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
                     { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
@@ -164,10 +165,15 @@ export const event: BotEvent = {
                 .setThumbnail(guild.iconURL())
                 .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
 
-            (client.channels.cache.get(config.core.guildLogsChannelID) as BaseGuildTextChannel).send({
+            await (client.users.cache.get(owner1))?.send({
                 embeds: [embed],
                 files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
-            }).catch(() => { });
+            });
+
+            await (client.users.cache.get(owner2))?.send({
+                embeds: [embed],
+                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            });
         };
 
         // let c = await antiPoubelle();

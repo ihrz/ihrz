@@ -56,33 +56,8 @@ const config: ConfigData = {
 
     core: {
 
-        devMode: true,
-        // true => log's ERROR are been in the console OR false => In the .err_logs folder.
-
-        bash: false,
-        // true => Beautiful iHorizon bash on the console OR false => Disable them.
-
         blacklistPictureInEmbed: "An png url",
         // The image of the blacklist's Embed (When blacklisted user attempt to interact with the bot)
-
-        guildLogsChannelID: "The Discord Channel's ID for logs when guildCreate/guildRemove",
-        // The channel where the robot informs of the arrival on a server or when it leaves.
-
-        reportChannelID: "The Discord Channel's ID for logs when bugs/message are reported",
-        // The channel where the robot informs of a bug reported by a user of the bot.
-
-        cluster: [
-            "http://localhost:9030"
-        ],
-        // The Clusters's URL for the OwnIHRZ-ClusterManager
-
-        shutdownClusterWhenStop: false
-        /*
-        This option permit to,
-        
-        * Every OWNIhrz which are hosted by a Cluster to be shutdown
-        When the bot are stoped
-        */
 
     },
 
@@ -128,23 +103,6 @@ const config: ConfigData = {
 
         }
 
-    },
-
-    database: {
-        method: 'SQLITE',
-        // The method you want for the database
-
-        mongoDb: "mongodb://ihrz:1337/iHorizonDB",
-        // If you use MongoDB, put the address of the MongoDB connection.
-
-        mySQL: {
-            host: '',
-            password: '',
-            database: '',
-            user: '',
-            port: 3306
-        },
-        // The MySQL connection configuration if you using MySQL
     },
 
 };

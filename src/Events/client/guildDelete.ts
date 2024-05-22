@@ -44,12 +44,15 @@ export const event: BotEvent = {
                     return;
                 }
 
+                let owner1 = config.owner.ownerid1;
+                let owner2 = config.owner.ownerid2;
+
                 if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
                 let embed = new EmbedBuilder()
                     .setColor("#ff0505")
                     .setTimestamp(guild.joinedTimestamp)
-                    .setDescription(`**A guild removed iHorizon !**`)
+                    .setDescription(`**A guild removed your bot !**`)
                     .addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
                         { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
                         { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
@@ -60,9 +63,15 @@ export const event: BotEvent = {
                     .setThumbnail(guild.iconURL())
                     .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
 
-                let channel = client.channels.cache.get(config.core.guildLogsChannelID);
+                await (client.users.cache.get(owner1))?.send({
+                    embeds: [embed],
+                    files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+                });
 
-                return (channel as BaseGuildTextChannel).send({ embeds: [embed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
+                await (client.users.cache.get(owner2))?.send({
+                    embeds: [embed],
+                    files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+                });
             } catch (error: any) {
                 logger.err(error);
             }

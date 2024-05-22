@@ -19,15 +19,15 @@ export interface ConfigData {
     };
 
     core: {
-        devMode: boolean;
-        bash: boolean;
+        devMode?: boolean;
+        bash?: boolean;
         blacklistPictureInEmbed: string;
-        guildLogsChannelID: string;
-        reportChannelID: string;
+        guildLogsChannelID?: string;
+        reportChannelID?: string;
 
-        cluster: string[];
+        cluster?: string[];
 
-        shutdownClusterWhenStop: boolean;
+        shutdownClusterWhenStop?: boolean;
     };
 
     command: {

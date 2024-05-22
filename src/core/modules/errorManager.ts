@@ -22,15 +22,7 @@
 import { format } from '../functions/date-and-time.js';
 import config from '../../files/config.js';
 import logger from '../logger.js';
-
-import { MongoDriver } from 'quickmongo';
 import fs from 'node:fs';
-
-let exec = async (driver: MongoDriver) => {
-    await driver.close();
-    logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database?.method})!`);
-    process.kill(0);
-};
 
 export const uncaughtExceptionHandler = () => {
     process.on('uncaughtException', function (err) {
@@ -47,10 +39,4 @@ export const uncaughtExceptionHandler = () => {
 
         logger.err(err.stack || err.message);
     });
-};
-
-export let exit = async (driver: MongoDriver) => {
-    process.on('exit', async () => { await exec(driver); });
-    process.on('abort', async () => { await exec(driver); });
-    process.on('SIGINT', async () => { await exec(driver); });
 };
