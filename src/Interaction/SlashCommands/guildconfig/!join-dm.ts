@@ -131,7 +131,7 @@ export default {
                     questionReply.stop();
                 });
             } else if (collectInteraction.customId === "joinMessage-default-message") {
-                collectInteraction.deferUpdate();
+                await collectInteraction.deferUpdate();
 
                 try {
                     let logEmbed = new EmbedBuilder()

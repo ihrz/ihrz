@@ -118,8 +118,8 @@ export const command: Command = {
             .setDescription(data.reactionroles_embed_message_description_added);
 
         if (type == "add") {
-            if (!role) { interaction.reply({ embeds: [help_embed] }) };
-            if (!reaction) { return interaction.reply({ content: data.reactionroles_missing_reaction_added }) };
+            if (!role) { await interaction.reply({ embeds: [help_embed] }) };
+            if (!reaction) { return await interaction.reply({ content: data.reactionroles_missing_reaction_added }) };
 
             try {
                 await interaction.channel?.messages.fetch((messagei as string))?.then((message) => { message.react(reaction as string) });
@@ -173,8 +173,8 @@ export const command: Command = {
                 return;
             };
 
-            let message = await interaction.channel?.messages.fetch(messagei as string).catch(() => {
-                interaction.reply({ content: data.reactionroles_cant_fetched_reaction_remove })
+            let message = await interaction.channel?.messages.fetch(messagei as string).catch(async () => {
+                await interaction.reply({ content: data.reactionroles_cant_fetched_reaction_remove })
                 return;
             });
 

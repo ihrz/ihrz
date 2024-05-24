@@ -33,9 +33,9 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     let targetedChannel = (interaction.member as GuildMember).voice.channel;
     let getChannelId = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
 
-    if (!result) return interaction.deferUpdate();
+    if (!result) return await interaction.deferUpdate();
     if (result.channelId !== interaction.channelId
-        || getChannelId !== targetedChannel?.id) return interaction.deferUpdate();
+        || getChannelId !== targetedChannel?.id) return await interaction.deferUpdate();
 
     if (!member.voice.channel) {
         await interaction.deferUpdate()

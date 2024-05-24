@@ -43,7 +43,7 @@ function isAllowedLinks(link: string): boolean {
             return allowedDomains.includes(parsedUrl.hostname);
         }
     };
-    return false;
+    return true;
 };
 
 export default isAllowedLinks;

@@ -125,7 +125,7 @@ export const event: BotEvent = {
                     .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
                     .replaceAll('{createdAt}', member.user.createdAt.toDateString())
                     .replaceAll('{guildName}', member.guild.name!)
-                    .replaceAll('{inviterUsername}', VanityURL.code)
+                    .replaceAll('{inviterUsername}', '.gg/' + VanityURL.code)
                     .replaceAll('{inviterMention}', VanityURL.code)
                     .replaceAll('{invitesCount}', VanityURL.uses)
                     .replaceAll("\\n", '\n');

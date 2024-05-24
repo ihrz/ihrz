@@ -22,6 +22,7 @@
 import { Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
+import { DatabaseStructure } from '../../core/database_structure';
 
 export const event: BotEvent = {
     name: "guildMemberRemove",
@@ -33,10 +34,13 @@ export const event: BotEvent = {
             let base = await client.db.get(`${member.guild.id}.USER.${member.user.id}.INVITES.BY`);
             let inviter = await client.users.fetch(base.inviter);
 
-            let check = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES`);
+            let check = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES`) as DatabaseStructure.InvitesUserData
 
             if (check) {
-                await client.db.sub(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`, 1);
+                if (check?.invites! >= 1) {
+                    await client.db.sub(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`, 1);
+                }
+
                 await client.db.add(`${member.guild.id}.USER.${inviter.id}.INVITES.leaves`, 1);
             };
 
