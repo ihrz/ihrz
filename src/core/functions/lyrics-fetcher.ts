@@ -77,7 +77,8 @@ export class LyricsManager {
 
                     resolve(data);
                 })
-                .catch(() => {
+                .catch((err) => {
+                    console.log(err)
                     reject(new Error('Could not parse lyrics'));
                 });
         });
