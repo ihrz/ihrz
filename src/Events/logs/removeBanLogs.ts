@@ -50,7 +50,7 @@ export const event: BotEvent = {
                 .replace("${firstEntry.executor.id}", firstEntry?.executor?.id)
                 .replace("${firstEntry.target.username}", firstEntry?.target?.username)
             )
-            .setTimestamp();
+            .setTimestamp().setFooter({ text: firstEntry?.reason! });
 
         await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
     },
