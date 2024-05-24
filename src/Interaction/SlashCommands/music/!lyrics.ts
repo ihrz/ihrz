@@ -62,7 +62,6 @@ export default {
                     return;
                 })
                 .catch(async err => {
-                    console.log(err)
                     await interaction.deleteReply();
                     await interaction.followUp({ content: data.lyrics_not_found, ephemeral: true });
                     return;
