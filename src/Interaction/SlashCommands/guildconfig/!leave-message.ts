@@ -80,11 +80,11 @@ export default {
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId("leaveMessage-set-message")
-                    .setLabel('Set message')
+                    .setLabel(data.setjoinmessage_button_set_name)
                     .setStyle(ButtonStyle.Primary),
                 new ButtonBuilder()
                     .setCustomId("leaveMessage-default-message")
-                    .setLabel('Default Message')
+                    .setLabel(data.setjoinmessage_buttom_del_name)
                     .setStyle(ButtonStyle.Danger),
             );
 
