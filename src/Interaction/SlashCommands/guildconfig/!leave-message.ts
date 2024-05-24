@@ -172,9 +172,9 @@ export default {
                     },
                 );
 
-                collectInteraction.deferUpdate();
+                await collectInteraction.deferUpdate();
                 newEmbed.addFields(embedFields[1]);
-                originalResponse.edit({ embeds: [newEmbed] });
+                await originalResponse.edit({ embeds: [newEmbed] });
 
                 await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.leavemessage`);
 

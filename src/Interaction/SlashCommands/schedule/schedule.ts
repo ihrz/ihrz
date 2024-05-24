@@ -128,7 +128,7 @@ export const command: Command = {
             });
 
         } catch (e) {
-            return interaction.reply({ content: data.embed_timeout_getbtn });
+            return await interaction.reply({ content: data.embed_timeout_getbtn });
         };
 
         async function chooseAction(i: StringSelectMenuInteraction) {
@@ -179,7 +179,7 @@ export const command: Command = {
                     });
                     break;
                 case '3':
-                    i.deferUpdate();
+                    await i.deferUpdate();
                     __3();
                     break;
                 default:

@@ -64,7 +64,7 @@ export default {
 
         let response = await interaction.editReply({
             content: data.sethereticket_command_type_menu_question
-            .replace("${interaction.user.id}", interaction.user.id),
+                .replace("${interaction.user.id}", interaction.user.id),
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
             ]
@@ -83,7 +83,7 @@ export default {
                     description: panelDesc
                 });
 
-                i.deferUpdate();
+                await i.deferUpdate();
 
                 interaction.editReply({
                     components: [],
@@ -92,7 +92,7 @@ export default {
 
             } else if (i.values[0] === 'select_panel') {
 
-                i.deferUpdate();
+                await i.deferUpdate();
 
                 await CreateSelectPanel(interaction, {
                     name: panelName,

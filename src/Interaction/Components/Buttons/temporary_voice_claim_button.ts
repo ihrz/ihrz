@@ -33,8 +33,8 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     let targetedChannel = (interaction.member as GuildMember).voice.channel;
     let allChannel = await table.get(`CUSTOM_VOICE.${interaction.guildId}`);
 
-    if (!result || !allChannel) return interaction.deferUpdate();
-    if (result.channelId !== interaction.channelId) return interaction.deferUpdate();
+    if (!result || !allChannel) return await interaction.deferUpdate();
+    if (result.channelId !== interaction.channelId) return await interaction.deferUpdate();
 
     function getPreviousOwner(guild: Guild): GuildMember | undefined {
         var result = '';
@@ -50,7 +50,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     let previousOwner = getPreviousOwner(interaction.guild!);
 
     // Check if the previous owner is in their channel
-    if (targetedChannel?.members.get(previousOwner?.id!)) return interaction.deferUpdate();
+    if (targetedChannel?.members.get(previousOwner?.id!)) return await interaction.deferUpdate();
 
     if (!member.voice.channel) {
         await interaction.deferUpdate()

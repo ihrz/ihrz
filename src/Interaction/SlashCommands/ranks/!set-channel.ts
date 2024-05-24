@@ -65,7 +65,7 @@ export default {
 
             try {
                 let already = await client.db.get(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`);
-                if (already === argsid.id) return interaction.reply({ content: data.setxpchannels_already_with_this_config });
+                if (already === argsid.id) return await interaction.reply({ content: data.setxpchannels_already_with_this_config });
 
                 (client.channels.cache.get(argsid.id) as BaseGuildTextChannel).send({ content: data.setxpchannels_confirmation_message });
                 await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`, argsid.id);

@@ -52,7 +52,7 @@ export const command: Command = {
         let embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || "#474749")
             .setAuthor({ name: based.snipeUserInfoTag, iconURL: based.snipeUserInfoPp })
-            .setDescription(`\`${based.snipe || 0}\``)
+            .setDescription(`\`\`\`${based.snipe}\`\`\``)
             .setTimestamp(based.snipeTimestamp);
 
         await interaction.reply({ embeds: [embed] });

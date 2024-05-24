@@ -63,7 +63,7 @@ export const command: Command = {
             await interaction.reply({ content: 'Aucune données as été trouvé, veuillez en ajouter avant.' });
             return;
         }
-        
+
         let createEmbed = () => {
             return new EmbedBuilder()
                 .setColor("#000000")
@@ -90,8 +90,8 @@ export const command: Command = {
         });
 
         let collector = messageEmbed.createMessageComponentCollector({
-            filter: (i) => {
-                i.deferUpdate();
+            filter: async (i) => {
+                await i.deferUpdate();
                 return interaction.author.id === i.user.id;
             }, time: 60000
         });
