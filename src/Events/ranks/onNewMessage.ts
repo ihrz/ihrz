@@ -22,7 +22,9 @@
 import { Client, PermissionsBitField, ChannelType, Message, GuildTextBasedChannel, ClientUser } from 'discord.js';
 
 import { isMessageCommand } from '../interaction/messageCommandHandler.js';
+import { LanguageData } from '../../../types/languageData';
 import { BotEvent } from '../../../types/event';
+import { DatabaseStructure } from '../../core/database_structure.js';
 
 export const event: BotEvent = {
     name: "messageCreate",
@@ -30,25 +32,25 @@ export const event: BotEvent = {
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        let data = await client.functions.getLanguageData(message.guild.id);
+        let data = await client.functions.getLanguageData(message.guild.id) as LanguageData;
 
         if ((await isMessageCommand(client, message.content)).s) return;
 
         if (!message.guild || message.author.bot || message.channel.type !== ChannelType.GuildText) return;
 
-        var baseData = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING`);
-        var xpTurn = await client.db.get(`${message.guild.id}.GUILD.XP_LEVELING.disable`);
+        var baseData = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING`) as DatabaseStructure.XpLevelingUserSchema;
+        var xpData = await client.db.get(`${message.guild.id}.GUILD.XP_LEVELING`) as DatabaseStructure.DbGuildObject['XP_LEVELING'];
+        var xpTurn = xpData?.disable;
 
         if (xpTurn === 'disable') return;
 
-        var xp = baseData?.xp;
         var level = baseData?.level || 1;
-        var randomNumber = Math.floor(Math.random() * 100) + 50;
+        var randomNumber = Math.floor(Math.random() * 3) + 35;
 
         await client.db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, randomNumber);
         await client.db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xptotal`, randomNumber);
 
-        if ((level * 500) < xp) {
+        if ((level * 500) < baseData?.xp!) {
             await client.db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`, 1);
             await client.db.add(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`, randomNumber);
 
@@ -59,7 +61,7 @@ export const event: BotEvent = {
             if (xpTurn === false
                 || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)) return;
 
-            let xpChan = await client.db.get(`${message.guild.id}.GUILD.XP_LEVELING.xpchannels`);
+            let xpChan = xpData?.xpchannels!;
             let MsgChannel = message.guild.channels.cache.get(xpChan) as GuildTextBasedChannel;
 
             if (!xpChan) {

@@ -711,7 +711,7 @@ async function TicketAddMember(interaction: ChatInputCommandInteraction<CacheTyp
     let member = interaction.options.getUser("user");
 
     if (!member) {
-        await interaction.editReply({ content: data.add_incorect_syntax });
+        await interaction.editReply({ content: data.add_command_error });
         return;
     };
 

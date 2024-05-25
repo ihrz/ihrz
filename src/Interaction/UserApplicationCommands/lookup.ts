@@ -21,6 +21,8 @@
 
 import { Client, EmbedBuilder, ChatInputCommandInteraction, ApplicationCommandType, User, time, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { AnotherCommand } from '../../../types/anotherCommand';
+import { LanguageData } from '../../../types/languageData';
+
 import { axios } from '../../core/functions/axios.js';
 
 export const command: AnotherCommand = {
@@ -97,7 +99,7 @@ export const command: AnotherCommand = {
                 .join('');
         };
 
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let member = interaction.options.getUser('user') || interaction.user;
 
         async function sendMessage(user: User) {
@@ -123,28 +125,28 @@ export const command: AnotherCommand = {
                 .setColor('#0014a8')
                 .setFields(
                     {
-                        name: "Badge",
+                        name: data.userinfo_embed_fields_1_name,
                         value: getBadges(member.flags as unknown as number) || "`Not found`",
                         inline: true,
                     },
                     {
-                        name: "Username",
+                        name: data.userinfo_embed_fields_2_name,
                         value: user.username,
                         inline: true,
                     },
                     {
-                        name: "DisplayName",
-                        value: user.displayName || "`Not found`",
+                        name: data.userinfo_embed_fields_3_name,
+                        value: user.displayName || data.userinfo_var_notfound,
                         inline: true,
                     },
                     {
-                        name: "Creation Date",
-                        value: time(user.createdAt, "D") || "`Not found`",
+                        name: data.userinfo_embed_fields_4_name,
+                        value: time(user.createdAt, "D") || data.userinfo_var_notfound,
                         inline: true,
                     },
                     {
-                        name: "Nitro Status",
-                        value: GetNitro(user_1.premium_type) || "`Not found`",
+                        name: data.userinfo_embed_fields_5_name,
+                        value: GetNitro(user_1.premium_type) || data.userinfo_var_notfound,
                         inline: true,
                     }
                 )
@@ -176,7 +178,7 @@ export const command: AnotherCommand = {
                             new ButtonBuilder()
                                 .setStyle(ButtonStyle.Link)
                                 .setURL(`https://discordapp.com/users/${user.id}`)
-                                .setLabel("User Profil")
+                                .setLabel(data.userinfo_button_label)
                         )
                 ]
             });

@@ -6,7 +6,6 @@
 
 # /add
 add_disabled_command: "このコマンドは管理者によって無効化されています！"
-add_incorect_syntax: "構文が間違っています！ **正しい使い方:** `.add <member>`"
 add_command_work: "${member.tag} をチケットに追加しました！"
 add_command_error: "エラーが発生しました。もう一度お試しください。"
 

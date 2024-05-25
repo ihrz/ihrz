@@ -32,7 +32,7 @@ interface LangsData {
 let LangsData: LangsData = {};
 
 export default async function getLanguageData(arg: string): Promise<LanguageData> {
-    let lang = await database.get(`${arg}.GUILD.LANG.lang`);
+    let lang = await database.get(`${arg}.GUILD.LANG.lang`) as string;
 
     if (!lang) {
         lang = 'en-US';

@@ -114,7 +114,7 @@ export const command: Command = {
                 .setStyle(ButtonStyle.Secondary),
             new ButtonBuilder()
                 .setCustomId("trash-prevnames-embed")
-                .setLabel("🗑️")
+                .setLabel('🗑️')
                 .setStyle(ButtonStyle.Danger)
         );
 

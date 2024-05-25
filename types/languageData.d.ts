@@ -21,7 +21,6 @@
 
 export interface LanguageData {
     add_disabled_command: string;
-    add_incorrect_syntax: string;
     add_command_work: string;
     add_command_error: string;
     close_disabled_command: string;

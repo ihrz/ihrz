@@ -6,7 +6,6 @@
 
 # /add
 add_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé les commandes de ticket!"
-add_incorrect_syntax: "Syntaxe incorrecte! **Utilisation correcte**: .add <membre>"
 add_command_work: "Membre ${member.tag} ajouté avec succès au ticket!"
 add_command_error: "Une erreur est survenue, veuillez réessayer."
 

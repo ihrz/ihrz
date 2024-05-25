@@ -46,14 +46,14 @@ export default {
                 {
                     name: data.level_embed_fields1_name, value: data.level_embed_fields1_value
                         .replace('${currentxp}', currentxp)
-                        .replace('${xpNeeded}', xpNeeded .toString()), inline: true
+                        .replace('${xpNeeded}', xpNeeded.toString()), inline: true
                 },
                 {
                     name: data.level_embed_fields2_name, value: data.level_embed_fields2_value
                         .replace('${level}', level), inline: true
                 }
             )
-            .setDescription(data.level_embed_description.replace('${expNeededForLevelUp}', expNeededForLevelUp .toString())
+            .setDescription(data.level_embed_description.replace('${expNeededForLevelUp}', expNeededForLevelUp.toString())
             )
             .setTimestamp()
             .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });

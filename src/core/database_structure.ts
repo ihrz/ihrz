@@ -282,7 +282,7 @@ export namespace DatabaseStructure {
             disable?: boolean;
         };
         XP_LEVELING?: {
-            disable?: boolean;
+            disable?: 'disable' | boolean;
             xpchannels?: string;
         };
         REACTION_ROLES?: ReactionRolesData;
