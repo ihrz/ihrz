@@ -105,14 +105,14 @@ export const event: BotEvent = {
                 .addComponents(
                     new ButtonBuilder()
                         .setEmoji(client.iHorizon_Emojis.icon.Crown_Logo)
-                        .setLabel("Invite iHorizon")
+                        .setLabel('Invite iHorizon')
                         .setStyle(ButtonStyle.Link)
                         .setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`),
                     new ButtonBuilder()
                         .setEmoji(client.iHorizon_Emojis.icon.Sparkles)
-                        .setLabel("iHorizon Website")
+                        .setLabel('iHorizon Website')
                         .setStyle(ButtonStyle.Link)
-                        .setURL(`https://ihorizon.me`),
+                        .setURL('https://ihorizon.me'),
                 )
                 ;
             (channel as GuildTextBasedChannel)?.send({

@@ -42,7 +42,7 @@ export const event: BotEvent = {
                 .setDisabled(true)
                 .setCustomId('join-dm-from-server')
                 .setStyle(ButtonStyle.Secondary)
-                .setLabel(`Message from ${member.guild.id}`);
+                .setLabel('Message from ' + member.guild.id);
 
             member.send({
                 content: msg_dm,

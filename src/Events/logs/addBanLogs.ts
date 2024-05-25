@@ -26,7 +26,7 @@ import { BotEvent } from '../../../types/event';
 export const event: BotEvent = {
     name: "guildBanAdd",
     run: async (client: Client, ban: GuildBan) => {
-        
+
         let data = await client.functions.getLanguageData(ban.guild.id);
 
         if (!ban.guild.members.me || !ban.guild.members.me.permissions.has([
@@ -51,7 +51,7 @@ export const event: BotEvent = {
             .setDescription(data.event_srvLogs_banAdd_description
                 .replace("${firstEntry.executor.id}", firstEntry?.executor?.id)
                 .replace("${firstEntry.target.id}", firstEntry?.target?.id)
-            ).setTimestamp();
+            ).setTimestamp().setFooter({ text: firstEntry?.reason! });
 
         await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
     },
