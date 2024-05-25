@@ -196,5 +196,12 @@ export default {
                 });
             }
         })
+
+        collector.on('end', async () => {
+            buttons.components.forEach(x => {
+                x.setDisabled(true)
+            })
+            await originalResponse.edit({ components: [buttons] });
+        });
     },
 };
