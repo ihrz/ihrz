@@ -106,6 +106,11 @@ export default {
 
         collector.on('collect', async (i) => {
 
+            if (i.user.id !== interaction.user.id) {
+                await i.reply({ content: data.help_not_for_you, ephemeral: true });
+                return;
+            };
+
             if (i.customId === 'guildconfig-channel-panel-change-join-channel') {
                 const channelSelectMenu = new ActionRowBuilder<ChannelSelectMenuBuilder>()
                     .addComponents(
@@ -190,7 +195,7 @@ export default {
                 });
 
                 i2Collector?.on('end', async () => {
-                    await i2.delete();
+                    await i2.delete().catch(() => { });
                 })
 
             } else if (i.customId === 'guildconfig-channel-panel-change-leave-channel') {
@@ -277,7 +282,7 @@ export default {
                 });
 
                 i2Collector?.on('end', async () => {
-                    await i2.delete();
+                    await i2.delete().catch(() => { });
                 })
 
             } else if (i.customId === 'guildconfig-channel-panel-erase-data') {
