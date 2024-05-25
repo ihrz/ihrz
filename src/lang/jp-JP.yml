@@ -1084,7 +1084,7 @@ embed_interaction_not_for_you: "このインタラクションはあなた向け
 embed_first_message: "何を行いたいですか？"
 embed_save_message: "<@${interaction.user.id}>さん、**埋め込みの設定を保存しました！**```埋め込みのID：${await saveEmbed()}```"
 embed_cancel_message: "<@${interaction.user.id}>さん、**埋め込みの設定を中止しました！**"
-embed_send_message: "<@${interaction.user.id}>さん、**この埋め込みをどのチャンネルに送信しますか？** (*チャンネルのIDを使用してください*)"
+embed_send_message: "<@${interaction.user.id}>さん、**この埋め込みをどのチャンネルに送信しますか？**"
 embed_timeout_getbtn: "<@${interaction.user.id}>さん、**回答に時間がかかりすぎました。操作を中止します！**"
 embed_choose_0: "埋め込みに含めるメッセージは何ですか？"
 embed_choose_1: "埋め込みに含めるタイトルは何ですか？"
