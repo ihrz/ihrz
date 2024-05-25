@@ -82,7 +82,7 @@ export default {
         });
 
         var paused: boolean = false;
-        let collector = response.createMessageComponentCollector({ componentType: ComponentType.Button, time: 3_600_000 });
+        let collector = response.createMessageComponentCollector({ componentType: ComponentType.Button, time: 60_000 });
 
         try {
 
@@ -155,6 +155,13 @@ export default {
                         await i.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
                     }
                 }
+            });
+
+            collector.on('end', async (i) => {
+                btn.components.forEach(x => {
+                    x.setDisabled(true)
+                })
+                await response.edit({ components: [] });
             });
         } catch {
             await interaction.channel?.send(client.iHorizon_Emojis.icon.Timer);
