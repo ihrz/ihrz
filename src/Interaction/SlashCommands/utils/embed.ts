@@ -40,6 +40,7 @@ import {
     ChannelType,
     ButtonInteraction,
     ChannelSelectMenuInteraction,
+    Message,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
@@ -246,7 +247,7 @@ export const command: Command = {
             }
         }
 
-        async function handleCollector(i: StringSelectMenuInteraction<CacheType>, replyContent: LanguageDataKeys, onCollect: (message: any) => void) {
+        async function handleCollector(i: StringSelectMenuInteraction<CacheType>, replyContent: LanguageDataKeys, onCollect: (message: Message) => void) {
             const replyMessage = Array.isArray(data[replyContent]) ? (data[replyContent] as string[]).join(' ') : data[replyContent];
             let reply = await i.reply({ content: replyMessage.toString() });
             let messageCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 120_000 });
