@@ -1,4 +1,3 @@
-import wait from '../src/core/functions/wait.js';
 import logger from '../src/core/logger.js'
 import '../src/core/functions/colors.js';
 
