@@ -228,8 +228,8 @@ function xpStatsToString(xp: any, data: LanguageData): string {
     return (xp?.disable === false) ? (xp?.xpchannels ? data.guildprofil_another_enable_xp.replace('${xp.xpchannels}', xp.xpchannels) : data.guildprofil_enable_xp) : data.guildprofil_disable_xp;
 }
 
-function logsToString(logs: any, data: LanguageData): string {
-    return logs ? [logs.roles, logs.moderation, logs.voice, logs.message].filter(Boolean).map(log => `<#${log}>`).join(',') : data.guildprofil_not_logs_set;
+function logsToString(logs: DatabaseStructure.DbGuildObject['SERVER_LOGS'], data: LanguageData): string {
+    return logs ? [logs.roles, logs.moderation, logs.voice, logs.message, logs.boosts].filter(Boolean).map(log => `<#${log}>`).join(',') : data.guildprofil_not_logs_set;
 }
 
 function blockBotToString(blockBot: any, data: LanguageData): string {
