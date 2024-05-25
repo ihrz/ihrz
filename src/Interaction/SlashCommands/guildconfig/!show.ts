@@ -131,7 +131,9 @@ export default {
                     pages[currentPage]
                         .setColor("#016c9a")
                         .setFooter({
-                            text: `Page ${currentPage + 1} / ${pages.length}`
+                            text: data.prevnames_embed_footer_text
+                                .replace('${currentPage + 1}', (currentPage + 1).toString())
+                                .replace('${pages.length}', pages.length.toString())
                         })
                 ],
                 components: [generateActionRow()],
