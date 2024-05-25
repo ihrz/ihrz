@@ -24,6 +24,8 @@ import {
     BaseGuildTextChannel,
     ButtonBuilder,
     ButtonStyle,
+    ChannelSelectMenuBuilder,
+    ChannelType,
     ChatInputCommandInteraction,
     Client,
     ComponentType,
@@ -34,6 +36,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
+import { DatabaseStructure } from '../../../core/database_structure';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -43,16 +46,18 @@ export default {
             return;
         };
 
-        var current_join_channel = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`);
-        if (current_join_channel) {
-            current_join_channel = `<#${current_join_channel}>`
+        var baseData = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG`) as DatabaseStructure.DbGuildObject['GUILD_CONFIG'];
+        var current_join_channel = '';
+        var current_leave_channel = '';
+
+        if (baseData?.join) {
+            current_join_channel = `<#${baseData.join}>`
         } else {
             current_join_channel = client.iHorizon_Emojis.icon.No_Logo
         };
 
-        var current_leave_channel = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`);
-        if (current_leave_channel) {
-            current_leave_channel = `<#${current_leave_channel}>`
+        if (baseData?.leave) {
+            current_leave_channel = `<#${baseData.leave}>`
         } else {
             current_leave_channel = client.iHorizon_Emojis.icon.No_Logo
         };
@@ -102,21 +107,36 @@ export default {
         collector.on('collect', async (i) => {
 
             if (i.customId === 'guildconfig-channel-panel-change-join-channel') {
-
+                const channelSelectMenu = new ActionRowBuilder<ChannelSelectMenuBuilder>()
+                    .addComponents(
+                        new ChannelSelectMenuBuilder()
+                            .setCustomId('guildconfig-channel-selectMenu-join-channel')
+                            .setChannelTypes(ChannelType.GuildText)
+                            .addDefaultChannels(baseData?.join || interaction.channel?.id!)
+                            .setMaxValues(1)
+                            .setMinValues(1)
+                    )
+                    ;
                 let i2 = await i.reply({
-                    content: data.setchannels_which_channel.replace('${interaction.user.id}', interaction.user.id)
+                    content: data.setchannels_which_channel.replace('${interaction.user.id}', interaction.user.id),
+                    components: [channelSelectMenu]
                 });
-                let i2Collector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 20_000 });
 
-                i2Collector?.on('collect', async (msg) => {
-                    const channelId = msg.content.match(/\d+/)?.[0];
+                let i2Collector = interaction.channel?.createMessageComponentCollector({
+                    filter: (x) => x.user.id === interaction.user.id && x.customId === 'guildconfig-channel-selectMenu-join-channel',
+                    componentType: ComponentType.ChannelSelect,
+                    time: 30_000,
+                })
+
+                i2Collector?.on('collect', async (result) => {
+                    const channelId = result.channels.first()?.id
 
                     var channel = interaction.guild?.channels.cache.get(channelId as string) as TextChannel;
                     current_join_channel = `<#${channelId}>`;
 
                     if (!(channel instanceof TextChannel)) {
                         i2.delete();
-                        msg.reply(data.setchannels_not_a_text_channel
+                        result.reply(data.setchannels_not_a_text_channel
                             .replace('${client.iHorizon_Emojis.icon.Warning_Icon}', client.iHorizon_Emojis.icon.Warning_Icon)
                         );
                     } else {
@@ -141,7 +161,7 @@ export default {
                             let already = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`);
 
                             if (already === channelId) {
-                                await msg.reply({ content: data.setchannels_already_this_channel_on_join });
+                                await result.reply({ content: data.setchannels_already_this_channel_on_join });
                                 return;
                             };
 
@@ -149,7 +169,8 @@ export default {
                             await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`, channelId);
 
                             i2.delete();
-                            await msg.reply({
+                            i2Collector.stop();
+                            await result.reply({
                                 content: data.setchannels_command_work_on_join
                                     .replace(/\${argsid\.id}/g, channelId as string)
                             });
@@ -161,30 +182,48 @@ export default {
                             response.edit({ embeds: [embed] });
                             return;
                         } catch (e) {
-                            msg.reply({ content: data.setchannels_command_error_on_join });
+                            result.reply({ content: data.setchannels_command_error_on_join });
                         };
 
                     }
 
                 });
 
+                i2Collector?.on('end', async () => {
+                    await i2.delete();
+                })
 
             } else if (i.customId === 'guildconfig-channel-panel-change-leave-channel') {
-
+                const channelSelectMenu = new ActionRowBuilder<ChannelSelectMenuBuilder>()
+                    .addComponents(
+                        new ChannelSelectMenuBuilder()
+                            .setCustomId('guildconfig-channel-selectMenu-leave-channel')
+                            .setChannelTypes(ChannelType.GuildText)
+                            .addDefaultChannels(baseData?.leave || interaction.channel?.id!)
+                            .setMaxValues(1)
+                            .setMinValues(1)
+                    )
+                    ;
                 let i2 = await i.reply({
-                    content: data.setchannels_which_channel.replace('${interaction.user.id}', interaction.user.id)
+                    content: data.setchannels_which_channel.replace('${interaction.user.id}', interaction.user.id),
+                    components: [channelSelectMenu]
                 });
-                let i2Collector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 20_000 });
 
-                i2Collector?.on('collect', async (msg) => {
-                    const channelId = msg.content.match(/\d+/)?.[0];
+                let i2Collector = interaction.channel?.createMessageComponentCollector({
+                    filter: (x) => x.user.id === interaction.user.id && x.customId === 'guildconfig-channel-selectMenu-leave-channel',
+                    componentType: ComponentType.ChannelSelect,
+                    time: 30_000,
+                })
+
+                i2Collector?.on('collect', async (result) => {
+                    const channelId = result.channels.first()?.id
 
                     var channel = interaction.guild?.channels.cache.get(channelId as string) as TextChannel;
                     current_leave_channel = `<#${channelId}>`;
 
                     if (!(channel instanceof TextChannel)) {
                         i2.delete();
-                        msg.reply(data.setchannels_not_a_text_channel
+                        result.reply(data.setchannels_not_a_text_channel
                             .replace('${client.iHorizon_Emojis.icon.Warning_Icon}', client.iHorizon_Emojis.icon.Warning_Icon)
                         );
                         return;
@@ -211,7 +250,7 @@ export default {
                         let already = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`);
 
                         if (already === channelId as string) {
-                            await msg.reply({ content: data.setchannels_already_this_channel_on_leave });
+                            await result.reply({ content: data.setchannels_already_this_channel_on_leave });
                             return;
                         };
 
@@ -219,7 +258,8 @@ export default {
                         await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`, channelId as string);
 
                         i2.delete();
-                        await msg.reply({
+                        i2Collector.stop();
+                        await result.reply({
                             content: data.setchannels_command_work_on_leave
                                 .replace(/\${argsid\.id}/g, channelId as string)
                         });
@@ -230,15 +270,17 @@ export default {
                         );
                         response.edit({ embeds: [embed] });
                     } catch (e) {
-                        await msg.reply({ content: data.setchannels_command_error_on_leave });
+                        await result.reply({ content: data.setchannels_command_error_on_leave });
                         return;
                     };
 
                 });
 
+                i2Collector?.on('end', async () => {
+                    await i2.delete();
+                })
 
             } else if (i.customId === 'guildconfig-channel-panel-erase-data') {
-
                 try {
                     let logEmbed = new EmbedBuilder()
                         .setColor("#bf0bb9")
@@ -276,7 +318,14 @@ export default {
                     response.edit({ embeds: [embed] });
                 }
             };
-        })
+        });
 
+        collector.on('end', async () => {
+            action_row.components.forEach(x => {
+                x.setDisabled(true)
+            });
+
+            response.edit({ components: [action_row] });
+        })
     },
 };
