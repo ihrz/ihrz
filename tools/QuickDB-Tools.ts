@@ -1,6 +1,6 @@
-import wait from './src/core/functions/wait.js';
-import config from './src/files/config.js';
-import logger from './src/core/logger.js'
+import wait from '../src/core/functions/wait.js';
+import config from '../src/files/config.js';
+import logger from '../src/core/logger.js'
 import './src/core/functions/colors.js';
 
 import { QuickDB, MySQLDriver } from "quick.db";
