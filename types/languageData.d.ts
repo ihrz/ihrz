@@ -996,6 +996,8 @@ export interface LanguageData {
     event_ticket_embed_description: string;
     event_ticket_add_member: string;
     event_ticket_del_member: string;
+    event_ticket_button_name: string;
+    event_ticket_category_awaiting_response: string;
     iC_event_cooldown: string;
     iC_event_connection_error: string;
     Msg_cooldown: string;

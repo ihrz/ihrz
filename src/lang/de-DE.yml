@@ -1402,6 +1402,8 @@ event_xp_level_earn: "**GG**, <@${message.author.id}> du hast +1 für dein XP-Le
 event_ticket_embed_description: "Hallo ${user.username}, willkommen in deinem Ticket! Bitte hab etwas Geduld, wir werden bald bei dir sein. Wenn du das Ticket schließen möchtest, gib bitte `/ticket close` ein."
 event_ticket_add_member: "${interaction.user}, Sie haben **hinzugefügt** ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')} zum Ticket ${interaction.channel} !"
 event_ticket_del_member: "${interaction.user}, Sie haben **entfernt** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} vom Ticket ${interaction.channel} !"
+event_ticket_button_name: "Ticket erstellen"
+event_ticket_category_awaiting_response: "Welche Kategorie [${x.emojis ?? interaction.client.iHorizon_Emojis.icon.iHorizon_Pointer}] >> ${x.name}"
 
 # interactionCreate-Ereignisse:
 iC_event_cooldown: "Abklingzeit, bitte warten Sie zwischen den Befehlen einen Moment!"

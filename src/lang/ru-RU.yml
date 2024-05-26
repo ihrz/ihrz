@@ -1402,6 +1402,8 @@ event_xp_level_earn: "**GG**, <@${message.author.id}>, вы получили +1 
 event_ticket_embed_description: "Привет, ${user.username}, добро пожаловать в ваш бил"
 event_ticket_add_member: "${interaction.user}, вы **добавили** ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')} в билет ${interaction.channel} !"
 event_ticket_del_member: "${interaction.user}, вы **удалили** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} из билета ${interaction.channel} !"
+event_ticket_button_name: "Создать тикет"
+event_ticket_category_awaiting_response: "Выберите категорию [${x.emojis ?? interaction.client.iHorizon_Emojis.icon.iHorizon_Pointer}] >> ${x.name}"
 
 # События interactionCreate:
 iC_event_cooldown: "Кулдаун, пожалуйста, подождите немного между командами!"

@@ -1402,6 +1402,8 @@ event_xp_level_earn: "**GG**, <@${message.author.id}> sei salito di livello (Liv
 event_ticket_embed_description: "Ciao ${user.username}, benvenuto al tuo ticket! Sii paziente, saremo con te al più presto. Se vuoi chiudere questo ticket, esegui `/ticket close`."
 event_ticket_add_member: "${interaction.user}, hai **aggiunto** ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')} al ticket ${interaction.channel} !"
 event_ticket_del_member: "${interaction.user}, hai **rimosso** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} dal ticket ${interaction.channel} !"
+event_ticket_button_name: "Crea Ticket"
+event_ticket_category_awaiting_response: "Quale categoria [${x.emojis ?? interaction.client.iHorizon_Emojis.icon.iHorizon_Pointer}] >> ${x.name}"
 
 # Eventi di interactionCreate:
 iC_event_cooldown: "Cooldown, attendere un po' tra i comandi!"
