@@ -43,6 +43,8 @@ import {
     TextInputStyle,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
+    ChannelSelectMenuBuilder,
+    ModalSubmitInteraction,
 } from 'discord.js';
 
 import { LanguageData } from '../../../types/languageData.js';
@@ -60,7 +62,7 @@ interface CreatePanelData {
 
 async function CreatePanel(interaction: ChatInputCommandInteraction<CacheType>, data: CreatePanelData) {
 
-    let lang = await interaction.client.functions.getLanguageData(interaction.guildId);
+    let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
     let panel = new EmbedBuilder()
         .setTitle(data.name)
@@ -71,7 +73,7 @@ async function CreatePanel(interaction: ChatInputCommandInteraction<CacheType>, 
     let confirm = new ButtonBuilder()
         .setCustomId('open-new-ticket')
         .setEmoji('📩')
-        .setLabel('Create Ticket')
+        .setLabel(lang.event_ticket_button_name)
         .setStyle(ButtonStyle.Secondary);
 
     interaction.channel?.send({
@@ -100,8 +102,8 @@ async function CreatePanel(interaction: ChatInputCommandInteraction<CacheType>, 
             .setColor("#008000")
             .setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
             .setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc
-                .replace('${data.name}', data.name)
-                .replace('${interaction}', interaction.channel)
+                .replace('${data.name}', data.name!)
+                .replace('${interaction}', interaction.channel?.toString()!)
             )
             .setFooter({ text: interaction.client.user?.username!, iconURL: "attachment://icon.png" })
             .setTimestamp();
@@ -116,6 +118,8 @@ export interface CaseList {
 
     emojis: string | undefined;
     name: string;
+
+    categoryId?: string;
 }
 
 async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheType>, data: CreatePanelData) {
@@ -160,6 +164,15 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
         time: 240_000
     });
 
+    let collector2wish = og_interaction.createMessageComponentCollector({
+        componentType: ComponentType.StringSelect,
+        filter: async (i) => {
+            await i.deferUpdate(); return interaction.user.id === i.user.id;
+        },
+        time: 240_000
+    });
+    collector2wish?.on('end', () => { });
+
     let modal = new ModalBuilder()
         .setCustomId('selection_modal')
         .setTitle(lang.sethereticket_modal_1_title);
@@ -190,36 +203,19 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
             )
     );
 
-    var lastModal_0_IdRegisterd = 0;
-    var lastModal_1_IdRegisterd = 0;
+    let lastModal_0_IdRegisterd = 0;
+    let lastModal_1_IdRegisterd = 0;
 
     collector?.on('collect', async i => {
-        // Remove
         if (i.customId === "remove_selection") {
             await i.deferUpdate();
-
             if (case_list.length > 0) {
                 case_list.pop();
                 comp.options.pop();
-
-                if (case_list.length === 0) {
-                    await og_interaction.edit({
-                        components: [
-                            og_interaction.components[0]
-                        ]
-                    });
-                } else {
-                    await og_interaction.edit({
-                        components: [
-                            og_interaction.components[0],
-                            new ActionRowBuilder<StringSelectMenuBuilder>()
-                                .addComponents(comp)
-                        ]
-                    });
-                }
-            };
-
-            // Add
+                await og_interaction.edit({
+                    components: case_list.length === 0 ? [og_interaction.components[0]] : [og_interaction.components[0], new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)]
+                });
+            }
         } else if (i.customId === 'add_selection') {
             await i.showModal(modal);
 
@@ -227,7 +223,6 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                 filter: (u) => u.user.id === i.user.id,
                 time: 70_000
             }).then(async (interaction) => {
-
                 let name = interaction.fields.getTextInputValue("case_name");
                 let emoji = interaction.fields.getTextInputValue("case_emoji");
 
@@ -243,8 +238,8 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                 if (emoji !== '') {
                     if (isSingleEmoji(emoji) || isDiscordEmoji(emoji)) {
                         optionBuilder.setEmoji(emoji);
-                    };
-                };
+                    }
+                }
 
                 comp.addOptions(optionBuilder);
 
@@ -257,15 +252,11 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                 await og_interaction.edit({
                     components: [
                         og_interaction.components[0],
-                        new ActionRowBuilder<StringSelectMenuBuilder>()
-                            .addComponents(comp)
+                        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
                     ]
                 });
             });
-
-            // Save
         } else if (i.customId === "save_selection") {
-
             let modal = new ModalBuilder()
                 .setCustomId('embed_saved_modal')
                 .setTitle(lang.sethereticket_modal_2_title);
@@ -302,7 +293,6 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                 filter: (u) => u.user.id === i.user.id && u.customId === 'embed_saved_modal',
                 time: 50_000
             }).then(async (interaction) => {
-
                 if (lastModal_1_IdRegisterd === parseInt(interaction.id)) return;
                 lastModal_1_IdRegisterd = parseInt(interaction.id);
 
@@ -312,9 +302,13 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                 let desc = interaction.fields.getTextInputValue("embed_desc");
 
                 if (desc === '') {
-                    desc = lang.sethereticket_description_embed
-                        .replace("${user.username}", interaction.user.username)
-                };
+                    desc = lang.sethereticket_description_embed.replace("${user.username}", interaction.user.username);
+                }
+
+                for (let x in case_list) {
+                    let _ = await sendCategorySelection(interaction, case_list[x]);
+                    case_list[x].categoryId = _;
+                }
 
                 let panel_message = await og_interaction.channel.send({
                     content: undefined,
@@ -331,8 +325,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                             .setFooter({ text: interaction.client.user?.username!, iconURL: "attachment://icon.png" })
                     ],
                     components: [
-                        new ActionRowBuilder<StringSelectMenuBuilder>()
-                            .addComponents(comp)
+                        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
                     ]
                 });
 
@@ -343,16 +336,14 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                     content: lang.sethereticket_command_work
                 });
 
-                await database.set(`${i.guildId}.GUILD.TICKET.${panel_message.id}`,
-                    {
-                        author: data.author,
-                        used: true,
-                        selection: case_list,
-                        panelName: data.name,
-                        channel: panel_message.channel.id,
-                        messageID: panel_message.id,
-                    }
-                );
+                await database.set(`${i.guildId}.GUILD.TICKET.${panel_message.id}`, {
+                    author: data.author,
+                    used: true,
+                    selection: case_list,
+                    panelName: data.name,
+                    channel: panel_message.channel.id,
+                    messageID: panel_message.id,
+                });
 
                 collector?.stop();
 
@@ -364,11 +355,8 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                     let embed = new EmbedBuilder()
                         .setColor("#008000")
                         .setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
-                        .setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc
-                            .replace('${data.name}', data.name!)
-                            .replace('${interaction}', `${interaction.channel}`)
-                        )
-                        .setFooter({ text: interaction.client.user?.username!, iconURL: "attachment://icon.png" })
+                        .setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc.replace('${data.name}', data.name!).replace('${interaction}', `${interaction.channel}`))
+                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                         .setTimestamp();
 
                     TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
@@ -378,8 +366,36 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
         }
     });
 
-};
+    async function sendCategorySelection(interaction: ModalSubmitInteraction<CacheType>, x: CaseList): Promise<string | undefined> {
+        const action_row_category = new ActionRowBuilder<ChannelSelectMenuBuilder>()
+            .addComponents(
+                new ChannelSelectMenuBuilder()
+                    .setMaxValues(1)
+                    .setMinValues(1)
+                    .setCustomId('ticket-sethere-category-for-type')
+                    .setChannelTypes(ChannelType.GuildCategory)
+            );
 
+        const i_category = await interaction.channel?.send({
+            content: lang.event_ticket_category_awaiting_response
+                .replace('${x.emojis ?? interaction.client.iHorizon_Emojis.icon.iHorizon_Pointer}', x.emojis ?? interaction.client.iHorizon_Emojis.icon.iHorizon_Pointer)
+                .replace('${x.name}', x.name),
+            components: [action_row_category]
+        });
+
+        const response = await i_category?.awaitMessageComponent({
+            componentType: ComponentType.ChannelSelect,
+            time: 30399999
+        });
+
+        if (response) {
+            response.deferUpdate();
+            i_category?.delete();
+
+            return response.channels.first()?.id;
+        }
+    }
+}
 
 async function CreateTicketChannel(interaction: ButtonInteraction<CacheType> | StringSelectMenuInteraction<CacheType>) {
 
@@ -428,6 +444,7 @@ interface ResultButton {
         id: number;
         name: string;
         emojis: string;
+        categoryId?: string;
     }[];
 };
 
@@ -438,7 +455,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
     await interaction.guild?.channels.create({
         name: `ticket-${interaction.user.username}`,
         type: ChannelType.GuildText,
-        parent: category
+        parent: interaction instanceof StringSelectMenuInteraction ? result.selection?.find(item => item.id === parseInt(interaction.values[0]))?.categoryId : category
     }).then(async (channel) => {
 
         if (category) {
