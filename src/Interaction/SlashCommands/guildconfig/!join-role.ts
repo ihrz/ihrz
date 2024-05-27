@@ -95,7 +95,6 @@ export default {
 
         const buttonCollector = og_response.createMessageComponentCollector({
             componentType: ComponentType.Button,
-            max: 1,
             time: 240_000,
             filter: (i) => i.user.id === interaction.user.id
         });
