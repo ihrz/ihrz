@@ -22,17 +22,29 @@
 import { Client, GuildMember, PermissionsBitField } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
+import { DatabaseStructure } from '../../core/database_structure';
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
 
-        if (!member?.guild?.members?.me?.permissions.has(PermissionsBitField.Flags.ManageRoles)) return;
+        if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageRoles)) return;
 
-        let roleid = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`);
-        let role = member.guild.roles.cache.get(roleid);
-        if (!roleid || !role) return;
+        let roleid = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`) as DatabaseStructure.GuildConfigSchema['joinroles']
+        if (!roleid) return;
 
-        member.roles.add(roleid);
+        if (Array.isArray(roleid)) {
+            for (let id of roleid) {
+                let role = member.guild.roles.cache.get(id);
+                if (role) {
+                    await member.roles.add(role);
+                }
+            }
+        } else {
+            let role = member.guild.roles.cache.get(roleid);
+            if (role) {
+                await member.roles.add(role);
+            }
+        }
     },
 };
