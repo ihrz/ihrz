@@ -110,7 +110,7 @@ let TypingFiles: TypingsFiles = {};
     const langsPath = path.join(process.cwd(), 'src', 'lang');
     const langsContent = readdirSync(langsPath);
 
-    console.log(`[-] Starting to check ${langsContent.length} lang files!`);
+    logger.legacy(`[-] Starting to check ${langsContent.length} lang files!`);
 
     for (const langFile of langsContent) {
         const langData = yaml.load(readFileSync(path.join(langsPath, langFile), 'utf-8'));

@@ -250,7 +250,7 @@ export namespace DatabaseStructure {
             join?: string;
             leave?: string;
             joindm?: string;
-            joinroles?: string;
+            joinroles?: string | string[];
             leavemessage?: string;
             mass_mention?: string;
             antipub?: string;

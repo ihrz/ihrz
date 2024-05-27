@@ -151,48 +151,6 @@ export const command: Command = {
                     },
 
                     type: 1,
-                    options: [
-                        {
-                            name: "value",
-
-                            description: "<Power on /Power off/Show the message set>",
-                            description_localizations: {
-                                "fr": "<Power on /Power off/Show the message set>"
-                            },
-
-                            type: ApplicationCommandOptionType.String,
-                            required: true,
-                            choices: [
-                                {
-                                    name: "Power on",
-                                    value: "true"
-                                },
-                                {
-                                    name: "Power off",
-                                    value: "false"
-                                },
-                                {
-                                    name: "Show the roles set",
-                                    value: "ls"
-                                },
-                                {
-                                    name: "Need help",
-                                    value: "needhelp"
-                                }
-                            ]
-                        },
-                        {
-                            name: 'roles',
-                            type: ApplicationCommandOptionType.Role,
-
-                            description: '<roles id>',
-                            description_localizations: {
-                                "fr": "<Indentifiant du rôle>"
-                            },
-
-                            required: false
-                        }
-                    ],
                 },
                 {
                     name: 'leave-message',
