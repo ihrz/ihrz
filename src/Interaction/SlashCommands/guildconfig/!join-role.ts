@@ -39,6 +39,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../core/database_structure.js';
+import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -64,6 +65,7 @@ export default {
         let roleSelectMenu = new RoleSelectMenuBuilder()
             .setCustomId('guildconfig-joinRoles-role-selecter')
             .setMaxValues(8)
+            .setDefaultRoles(all_channels?.joinroles as string[])
             .setMinValues(0);
 
         let saveButton = new ButtonBuilder()
@@ -186,7 +188,7 @@ export default {
                         (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
                     };
                 } catch (e: any) {
-                    console.error(e)
+                    logger.err(e)
                 };
 
                 await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinroles`, all_roles);
@@ -202,7 +204,7 @@ export default {
         });
 
         function updateEmbed(embed: EmbedBuilder, roles: Role[], data: LanguageData) {
-            const roleValues = roles.map(role => `<@&${role.id}>`).join(', ') || data.serverinfo_verlvl_NONE;
+            const roleValues = roles.map(role => `<@&${role.id}>`).join(', ') || data.setjoinroles_var_none;
             embed.setFields({
                 name: data.setjoinroles_help_embed_fields_1_name,
                 value: roleValues

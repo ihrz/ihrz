@@ -54,7 +54,12 @@ export default {
         const setChannelsLeaveField = { name: data.guildprofil_embed_fields_setchannelsleave, value: baseData?.GUILD_CONFIG?.leave ? `<#${baseData?.GUILD_CONFIG?.leave}>` : data.guildprofil_not_set_setchannelsleave };
         const setChannelsJoinField = { name: data.guildprofil_embed_fields_setchannelsjoin, value: baseData?.GUILD_CONFIG?.join ? `<#${baseData?.GUILD_CONFIG?.join}>` : data.guildprofil_not_set_setchannelsjoin };
 
-        const joinRolesField = { name: data.guildprofil_embed_fields_joinroles, value: baseData?.GUILD_CONFIG?.joinroles ? `<@&${baseData?.GUILD_CONFIG?.joinroles}>` : data.guildprofil_not_set_joinroles };
+        const joinRolesField = {
+            name: data.guildprofil_embed_fields_joinroles,
+            value: Array.isArray(baseData?.GUILD_CONFIG?.joinroles) && baseData?.GUILD_CONFIG?.joinroles.length > 0
+                ? baseData?.GUILD_CONFIG?.joinroles.map(x => `<@&${x}>`).join(', ')
+                : data.guildprofil_not_set_joinroles
+        };
         const blockPubField = { name: data.guildprofil_embed_fields_blockpub, value: (baseData?.GUILD_CONFIG?.antipub === 'on') ? data.guildprofil_set_blockpub : data.guildprofil_not_set_blockpub };
 
         const punishPubField = {
