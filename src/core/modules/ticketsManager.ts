@@ -305,6 +305,11 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                     desc = lang.sethereticket_description_embed.replace("${user.username}", interaction.user.username);
                 }
 
+                button.components.forEach(x => {
+                    x.setDisabled(true);
+                })
+                await og_interaction.edit({ components: [button, new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)] });
+
                 for (let x in case_list) {
                     let _ = await sendCategorySelection(interaction, case_list[x]);
                     case_list[x].categoryId = _;
@@ -455,7 +460,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
     await interaction.guild?.channels.create({
         name: `ticket-${interaction.user.username}`,
         type: ChannelType.GuildText,
-        parent: interaction instanceof StringSelectMenuInteraction ? result.selection?.find(item => item.id === parseInt(interaction.values[0]))?.categoryId : category
+        parent: interaction instanceof StringSelectMenuInteraction ? (result.selection?.find(item => item.id === parseInt(interaction.values[0]))?.categoryId ?? category) : category
     }).then(async (channel) => {
 
         if (category) {
