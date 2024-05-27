@@ -235,6 +235,21 @@ export namespace DatabaseStructure {
         };
     }
 
+    export interface GuildConfigSchema {
+        joinmessage?: string;
+        join?: string;
+        leave?: string;
+        joindm?: string;
+        joinroles?: string | string[];
+        leavemessage?: string;
+        mass_mention?: string;
+        antipub?: string;
+        spam?: string;
+        hey_reaction?: boolean;
+        rolesaver?: RoleSaverSchema;
+        GHOST_PING: GhostPingData;
+    }
+
     export interface DbGuildObject {
         LANG?: {
             lang: string;
@@ -245,20 +260,7 @@ export namespace DatabaseStructure {
             disable?: boolean;
             category?: string;
         };
-        GUILD_CONFIG?: {
-            joinmessage?: string;
-            join?: string;
-            leave?: string;
-            joindm?: string;
-            joinroles?: string | string[];
-            leavemessage?: string;
-            mass_mention?: string;
-            antipub?: string;
-            spam?: string;
-            hey_reaction?: boolean;
-            rolesaver?: RoleSaverSchema;
-            GHOST_PING: GhostPingData;
-        };
+        GUILD_CONFIG?: GuildConfigSchema
         BLOCK_BOT?: boolean;
         MCOUNT?: MemberCountSchema;
         PUNISH?: {
