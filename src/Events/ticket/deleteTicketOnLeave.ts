@@ -19,8 +19,9 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, GuildMember } from 'discord.js'
+import { Client, EmbedBuilder, GuildMember } from 'discord.js'
 
+import { LanguageData } from '../../../types/languageData';
 import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {
@@ -30,8 +31,28 @@ export const event: BotEvent = {
         let fetch = await client.db.get(`${member.guild.id}.TICKET_ALL.${member.user.id}`);
 
         for (let channelId in fetch) {
+            let lang = await client.functions.getLanguageData(member.guild.id) as LanguageData;
             let channel = member.guild.channels.cache.get(fetch[channelId].channel);
             await channel?.delete().catch(() => { });
+
+            try {
+                let TicketLogsChannel = await client.db.get(`${member.guild.id}.GUILD.TICKET.logs`);
+                TicketLogsChannel = member.guild?.channels.cache.get(TicketLogsChannel);
+                if (!TicketLogsChannel) return;
+
+                let embed = new EmbedBuilder()
+                    .setColor("#008000")
+                    .setTitle(lang.event_ticket_logsChannel_onDelete_embed_title)
+                    .setDescription(lang.event_ticket_logsChannel_onDelete_embed_desc
+                        .replace('${interaction.user}', member.user.toString())
+                        .replace('${interaction.channel.name}', channel?.name!)
+                    )
+                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                    .setTimestamp();
+
+                TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
+            } catch (e) { };
+
             await client.db.delete(`${member.guild.id}.TICKET_ALL.${member.user.id}`)
         };
     },
