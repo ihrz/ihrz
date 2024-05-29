@@ -65,8 +65,12 @@ export default {
         let roleSelectMenu = new RoleSelectMenuBuilder()
             .setCustomId('guildconfig-joinRoles-role-selecter')
             .setMaxValues(8)
-            .setDefaultRoles(all_channels?.joinroles as string[])
             .setMinValues(0);
+
+        if (all_channels?.joinroles !== undefined && all_channels?.joinroles.length > 1) {
+            const roles: string[] = Array.isArray(all_channels.joinroles) ? all_channels.joinroles : [all_channels.joinroles];
+            roleSelectMenu.setDefaultRoles(roles);
+        }
 
         let saveButton = new ButtonBuilder()
             .setCustomId('guildconfig-joinRoles-save-button')
