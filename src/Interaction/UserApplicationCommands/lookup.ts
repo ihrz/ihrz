@@ -24,6 +24,7 @@ import { AnotherCommand } from '../../../types/anotherCommand';
 import { LanguageData } from '../../../types/languageData';
 
 import { axios } from '../../core/functions/axios.js';
+import config from '../../files/config.js';
 
 export const command: AnotherCommand = {
     name: 'User Lookup',
@@ -108,7 +109,7 @@ export const command: AnotherCommand = {
 
             let user_1 = (await axios.get(`https://discord.com/api/v10/users/${user?.id}`, {
                 headers: {
-                    Authorization: `Bot ${client.token}`
+                    Authorization: `Bot ${config.discord.token}`
                 }
             })).data;
 

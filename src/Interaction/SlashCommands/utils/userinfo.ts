@@ -35,6 +35,7 @@ import {
 import { axios } from '../../../core/functions/axios.js';
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData.js';
+import config from '../../../files/config.js';
 
 export const command: Command = {
 
@@ -140,7 +141,7 @@ export const command: Command = {
 
             let user_1 = (await axios.get(`https://discord.com/api/v10/users/${user?.id}`, {
                 headers: {
-                    Authorization: `Bot ${client.token}`
+                    Authorization: `Bot ${config.discord.token}`
                 }
             })).data;
 

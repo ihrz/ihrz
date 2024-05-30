@@ -105,6 +105,8 @@ export default async (client: Client) => {
     };
 
     client.login(process.env.BOT_TOKEN || config.discord.token).then(() => {
+        client.token = "Mais ptdr, ta vraiment crue avoir le token d'iHorizon ? Sale tocard và! Nique tes morts!";
+
         commandsSync(client).then(() => {
             logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta());
             logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta());
