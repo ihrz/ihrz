@@ -130,7 +130,7 @@ export const command: Command = {
 
         let collector = response.createMessageComponentCollector({
             componentType: ComponentType.StringSelect,
-            time: 420_000
+            time: 1_420_000
         });
 
         collector.on('collect', async (i) => {
