@@ -532,7 +532,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
             return;
         }
     } else {
-        // await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ ephemeral: true });
     };
 
     await interaction.guild?.channels.create({
@@ -545,11 +545,10 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
         };
 
         if (interaction instanceof ButtonInteraction) {
-            await interaction.reply({
+            await interaction.editReply({
                 content: lang.event_ticket_whenCreated_msg
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${channel.id}', channel.id)
-                , ephemeral: true
             });
         } else {
             await interaction.editReply({
