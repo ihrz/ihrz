@@ -601,7 +601,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                 embeds.push(
                     new EmbedBuilder()
                         .setColor(2829617)
-                        .setDescription(`# Ticket Reason\n\`\`\`${reason}\`\`\``)
+                        .setDescription(lang.event_ticket_reason_embed_desc.replace('${reason}', reason))
                         .setFooter({
                             text: 'iHorizon',
                             iconURL: "attachment://icon.png"

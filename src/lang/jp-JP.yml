@@ -1417,6 +1417,7 @@ event_ticket_category_awaiting_response: "カテゴリは何ですか [${x.emoji
 event_ticket_reason_awaiting_response: "${interaction.user.toString()} ユーザーはチケットを作成する前に理由を入力する必要がありますか？"
 event_ticket_create_reason_modal_title: "チケットの理由は何ですか？"
 event_ticket_create_reason_modal_fields_1_label: "チケットの理由"
+event_ticket_reason_embed_desc: "# チケットの理由\n`${reason}`"
 
 # interactionCreateイベント：
 iC_event_cooldown: "クールダウン、コマンド間に少し待ってください！"

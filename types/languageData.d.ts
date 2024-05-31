@@ -1020,6 +1020,7 @@ export interface LanguageData {
     event_ticket_reason_awaiting_response: string;
     event_ticket_create_reason_modal_title: string;
     event_ticket_create_reason_modal_fields_1_label: string;
+    event_ticket_reason_embed_desc: string;
     iC_event_cooldown: string;
     iC_event_connection_error: string;
     Msg_cooldown: string;

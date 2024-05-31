@@ -1417,6 +1417,7 @@ event_ticket_category_awaiting_response: "¿Cuál es la categoría [${x.emojis ?
 event_ticket_reason_awaiting_response: "${interaction.user.toString()} ¿Debería el usuario indicar el motivo antes de crear el ticket?"
 event_ticket_create_reason_modal_title: "¿Cuál es el motivo de su ticket?"
 event_ticket_create_reason_modal_fields_1_label: "Motivo del ticket"
+event_ticket_reason_embed_desc: "# Motivo del ticket\n`${reason}`"
 
 # Eventos interactionCreate:
 iC_event_cooldown: "Cooldown, por favor, espere un poco entre los comandos!"

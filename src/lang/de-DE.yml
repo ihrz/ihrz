@@ -1417,6 +1417,7 @@ event_ticket_category_awaiting_response: "Welche Kategorie [${x.emojis ?? intera
 event_ticket_reason_awaiting_response: "${interaction.user.toString()} Sollte der Benutzer einen Grund angeben, bevor er ein Ticket erstellt?"
 event_ticket_create_reason_modal_title: "Was ist der Grund für Ihr Ticket?"
 event_ticket_create_reason_modal_fields_1_label: "Grund für das Ticket"
+event_ticket_reason_embed_desc: "# Ticketgrund\n`${reason}`"
 
 # interactionCreate-Ereignisse:
 iC_event_cooldown: "Abklingzeit, bitte warten Sie zwischen den Befehlen einen Moment!"
