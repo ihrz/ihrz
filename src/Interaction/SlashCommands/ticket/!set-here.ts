@@ -29,7 +29,7 @@ import {
     StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
-import { CreatePanel, CreateSelectPanel } from '../../../core/modules/ticketsManager.js';
+import { CreateButtonPanel, CreateSelectPanel } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
@@ -77,7 +77,7 @@ export default {
         }).then(async (i) => {
 
             if (i.values[0] === 'button_panel') {
-                await CreatePanel(interaction, {
+                await CreateButtonPanel(interaction, {
                     name: panelName,
                     author: interaction.user.id,
                     description: panelDesc
