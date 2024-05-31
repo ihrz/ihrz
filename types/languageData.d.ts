@@ -1017,6 +1017,9 @@ export interface LanguageData {
     event_ticket_del_member: string;
     event_ticket_button_name: string;
     event_ticket_category_awaiting_response: string;
+    event_ticket_reason_awaiting_response: string;
+    event_ticket_create_reason_modal_title: string;
+    event_ticket_create_reason_modal_fields_1_label: string;
     iC_event_cooldown: string;
     iC_event_connection_error: string;
     Msg_cooldown: string;

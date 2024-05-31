@@ -45,6 +45,7 @@ import {
     StringSelectMenuOptionBuilder,
     ChannelSelectMenuBuilder,
     ModalSubmitInteraction,
+    Embed,
 } from 'discord.js';
 
 import { LanguageData } from '../../../types/languageData.js';
@@ -60,7 +61,7 @@ interface CreatePanelData {
     author: string
 }
 
-async function CreatePanel(interaction: ChatInputCommandInteraction<CacheType>, data: CreatePanelData) {
+async function CreateButtonPanel(interaction: ChatInputCommandInteraction<CacheType>, data: CreatePanelData) {
 
     let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
@@ -87,6 +88,7 @@ async function CreatePanel(interaction: ChatInputCommandInteraction<CacheType>, 
                 author: data.author,
                 used: true,
                 panelName: data.name,
+                reason: false,
                 channel: message.channel.id,
                 messageID: message.id,
             }
@@ -315,6 +317,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                     case_list[x].categoryId = _;
                 }
 
+                let reason = await reasonTicket(interaction);
                 let panel_message = await og_interaction.channel.send({
                     content: undefined,
                     files: [
@@ -344,6 +347,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                 await database.set(`${i.guildId}.GUILD.TICKET.${panel_message.id}`, {
                     author: data.author,
                     used: true,
+                    reason: reason,
                     selection: case_list,
                     panelName: data.name,
                     channel: panel_message.channel.id,
@@ -400,6 +404,40 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
             return response.channels.first()?.id;
         }
     }
+
+    async function reasonTicket(interaction: ModalSubmitInteraction<CacheType>): Promise<boolean | undefined> {
+        const action_row_category = new StringSelectMenuBuilder()
+            .setCustomId('ticket-sethere-reason')
+            .addOptions(
+                new StringSelectMenuOptionBuilder()
+                    .setLabel(lang.mybot_submit_utils_msg_yes)
+                    .setValue('yes'),
+                new StringSelectMenuOptionBuilder()
+                    .setLabel(lang.mybot_submit_utils_msg_no)
+                    .setValue('no')
+            )
+
+        const i_category = await interaction.channel?.send({
+            content: lang.event_ticket_reason_awaiting_response.replace('${interaction.user.toString()}', interaction.user.toString()),
+            components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(action_row_category)]
+        });
+
+        const response = await i_category?.awaitMessageComponent({
+            componentType: ComponentType.StringSelect,
+            time: 30399999
+        });
+
+        if (response) {
+            response.deferUpdate();
+            i_category?.delete();
+
+            if (response.values[0] === 'yes') {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
 }
 
 async function CreateTicketChannel(interaction: ButtonInteraction<CacheType> | StringSelectMenuInteraction<CacheType>) {
@@ -432,8 +470,6 @@ async function CreateTicketChannel(interaction: ButtonInteraction<CacheType> | S
             interaction.deferUpdate();
             return;
         } else {
-            await interaction.deferReply({ ephemeral: true });
-
             await CreateChannel(
                 interaction,
                 result,
@@ -445,6 +481,7 @@ async function CreateTicketChannel(interaction: ButtonInteraction<CacheType> | S
 
 interface ResultButton {
     panelName: string;
+    reason?: boolean
     selection?: {
         id: number;
         name: string;
@@ -453,16 +490,56 @@ interface ResultButton {
     }[];
 };
 
+var lastModal_1_IdRegisterd: number[] = [];
+
 async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringSelectMenuInteraction<CacheType>, result: ResultButton) {
     let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
     let category = await database.get(`${interaction.message.guildId}.GUILD.TICKET.category`);
+
+    let reason = '';
+    if (result && result?.reason) {
+        let modal = new ModalBuilder()
+            .setCustomId('ticket_reason_modal')
+            .setTitle(lang.event_ticket_create_reason_modal_title);
+
+        modal.addComponents(
+            new ActionRowBuilder<TextInputBuilder>()
+                .addComponents(
+                    new TextInputBuilder()
+                        .setCustomId('ticket_reason')
+                        .setLabel(lang.event_ticket_create_reason_modal_fields_1_label)
+                        .setStyle(TextInputStyle.Short)
+                        .setRequired(true)
+                        .setMaxLength(350)
+                        .setMinLength(8)
+                )
+        );
+
+        await interaction.showModal(modal);
+
+        try {
+            const interaction_2 = await interaction.awaitModalSubmit({
+                filter: (u) => u.user.id === interaction.user.id && u.customId === 'ticket_reason_modal',
+                time: 50_000
+            });
+
+            if (lastModal_1_IdRegisterd.includes(parseInt(interaction_2.id))) return;
+            lastModal_1_IdRegisterd.push(parseInt(interaction_2.id));
+
+            reason = interaction_2.fields.getTextInputValue("ticket_reason");
+            await interaction_2.deferUpdate();
+        } catch (error) {
+            return;
+        }
+    } else {
+        await interaction.deferReply({ ephemeral: true });
+    };
 
     await interaction.guild?.channels.create({
         name: `ticket-${interaction.user.username}`,
         type: ChannelType.GuildText,
         parent: interaction instanceof StringSelectMenuInteraction ? (result.selection?.find(item => item.id === parseInt(interaction.values[0]))?.categoryId ?? category) : category
     }).then(async (channel) => {
-
         if (category) {
             channel.lockPermissions();
         };
@@ -501,34 +578,48 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
             }
         );
 
-        let welcome = new EmbedBuilder();
+        let embeds: EmbedBuilder[] = []
 
         if (interaction instanceof StringSelectMenuInteraction) {
 
-            welcome
-                .setColor(2829617)
-                .setDescription(
-                    lang.sethereticket_panel_select_embed_desc
-                        .replace('${result.panelName}', result.panelName)
-                        .replace('{msg}', lang.event_ticket_embed_description.replace("${user.username}", interaction.user.username))
-                        .replace('{category}', result.selection?.find(item => item.id === parseInt(interaction.values[0]))?.name!)
-                )
-                .setFooter({
-                    text: 'iHorizon',
-                    iconURL: "attachment://icon.png"
-                })
-                ;
+            embeds.push(
+                new EmbedBuilder()
+                    .setColor(2829617)
+                    .setDescription(
+                        lang.sethereticket_panel_select_embed_desc
+                            .replace('${result.panelName}', result.panelName)
+                            .replace('{msg}', lang.event_ticket_embed_description.replace("${user.username}", interaction.user.username))
+                            .replace('{category}', result.selection?.find(item => item.id === parseInt(interaction.values[0]))?.name!)
+                    )
+                    .setFooter({
+                        text: 'iHorizon',
+                        iconURL: "attachment://icon.png"
+                    })
+            );
+
+            if (result.reason && result.reason) {
+                embeds.push(
+                    new EmbedBuilder()
+                        .setColor(2829617)
+                        .setDescription(`# Ticket Reason\n\`\`\`${reason}\`\`\``)
+                        .setFooter({
+                            text: 'iHorizon',
+                            iconURL: "attachment://icon.png"
+                        })
+                );
+            }
         } else {
-            welcome
-                .setColor("#3b8f41")
-                .setDescription(lang.event_ticket_embed_description
-                    .replace("${user.username}", interaction.user.username)
-                )
-                .setFooter({
-                    text: 'iHorizon',
-                    iconURL: "attachment://icon.png"
-                })
-                ;
+            embeds.push(
+                new EmbedBuilder()
+                    .setColor("#3b8f41")
+                    .setDescription(lang.event_ticket_embed_description
+                        .replace("${user.username}", interaction.user.username)
+                    )
+                    .setFooter({
+                        text: 'iHorizon',
+                        iconURL: "attachment://icon.png"
+                    })
+            )
         };
 
         await database.set(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}.${channel.id}`,
@@ -558,7 +649,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
             .setMaxValues(10);
 
         (channel as BaseGuildTextChannel).send({
-            embeds: [welcome],
+            embeds: embeds,
             content: interaction.user.toString(),
             components: [
                 new ActionRowBuilder<UserSelectMenuBuilder>()
@@ -943,7 +1034,7 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<CacheTyp
 };
 
 export {
-    CreatePanel,
+    CreateButtonPanel,
 
     CloseTicket,
     CreateTicketChannel,

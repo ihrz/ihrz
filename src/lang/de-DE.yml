@@ -1414,6 +1414,9 @@ event_ticket_add_member: "${interaction.user}, Sie haben **hinzugefügt** ${adde
 event_ticket_del_member: "${interaction.user}, Sie haben **entfernt** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} vom Ticket ${interaction.channel} !"
 event_ticket_button_name: "Ticket erstellen"
 event_ticket_category_awaiting_response: "Welche Kategorie [${x.emojis ?? interaction.client.iHorizon_Emojis.icon.iHorizon_Pointer}] >> ${x.name}"
+event_ticket_reason_awaiting_response: "${interaction.user.toString()} Sollte der Benutzer einen Grund angeben, bevor er ein Ticket erstellt?"
+event_ticket_create_reason_modal_title: "Was ist der Grund für Ihr Ticket?"
+event_ticket_create_reason_modal_fields_1_label: "Grund für das Ticket"
 
 # interactionCreate-Ereignisse:
 iC_event_cooldown: "Abklingzeit, bitte warten Sie zwischen den Befehlen einen Moment!"

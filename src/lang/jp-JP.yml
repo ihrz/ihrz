@@ -1414,6 +1414,9 @@ event_ticket_add_member: "${interaction.user}, あなたはチケット ${intera
 event_ticket_del_member: "${interaction.user}, あなたはチケット ${interaction.channel} から**削除**しました：${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')}！"
 event_ticket_button_name: "チケットを作成する"
 event_ticket_category_awaiting_response: "カテゴリは何ですか [${x.emojis ?? interaction.client.iHorizon_Emojis.icon.iHorizon_Pointer}] >> ${x.name}"
+event_ticket_reason_awaiting_response: "${interaction.user.toString()} ユーザーはチケットを作成する前に理由を入力する必要がありますか？"
+event_ticket_create_reason_modal_title: "チケットの理由は何ですか？"
+event_ticket_create_reason_modal_fields_1_label: "チケットの理由"
 
 # interactionCreateイベント：
 iC_event_cooldown: "クールダウン、コマンド間に少し待ってください！"

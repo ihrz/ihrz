@@ -1414,6 +1414,9 @@ event_ticket_add_member: "${interaction.user}, vous avez **ajouté** ${addedMemb
 event_ticket_del_member: "${interaction.user}, vous avez **retiré** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} du ticket ${interaction.channel} !"
 event_ticket_button_name: "Créer un Ticket"
 event_ticket_category_awaiting_response: "Quelle est la catégorie [${x.emojis ?? interaction.client.iHorizon_Emojis.icon.iHorizon_Pointer}] >> ${x.name}"
+event_ticket_reason_awaiting_response: "${interaction.user.toString()} l'utilisateur doit-il préciser la raison avant de créer un ticket ?"
+event_ticket_create_reason_modal_title: "Quelle est la raison de votre ticket ?"
+event_ticket_create_reason_modal_fields_1_label: "Raison du ticket"
 
 # Événements interactionCreate :
 iC_event_cooldown: "Cooldown, veuillez patienter un peu entre les commandes !"
