@@ -532,7 +532,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
             return;
         }
     } else {
-        await interaction.deferReply({ ephemeral: true });
+        // await interaction.deferReply({ ephemeral: true });
     };
 
     await interaction.guild?.channels.create({
