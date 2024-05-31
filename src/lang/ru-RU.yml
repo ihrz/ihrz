@@ -1414,6 +1414,10 @@ event_ticket_add_member: "${interaction.user}, вы **добавили** ${added
 event_ticket_del_member: "${interaction.user}, вы **удалили** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} из билета ${interaction.channel} !"
 event_ticket_button_name: "Создать тикет"
 event_ticket_category_awaiting_response: "Выберите категорию [${x.emojis ?? interaction.client.iHorizon_Emojis.icon.iHorizon_Pointer}] >> ${x.name}"
+event_ticket_reason_awaiting_response: "${interaction.user.toString()} нужен ли пользователю указать причину перед созданием тикета?"
+event_ticket_create_reason_modal_title: "В чем причина вашего обращения?"
+event_ticket_create_reason_modal_fields_1_label: "Причина обращения"
+event_ticket_reason_embed_desc: "# Причина обращения\n`${reason}`"
 
 # События interactionCreate:
 iC_event_cooldown: "Кулдаун, пожалуйста, подождите немного между командами!"
