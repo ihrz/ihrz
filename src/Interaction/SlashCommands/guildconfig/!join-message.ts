@@ -159,7 +159,7 @@ export default {
                                     )
                             });
                         } catch (e) {
-                            console.error(e);
+                            logger.err(e as any);
                         }
                     });
                 } else if (collectInteraction.customId === "joinMessage-default-message") {
