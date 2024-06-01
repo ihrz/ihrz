@@ -26,11 +26,12 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
+import { DatabaseStructure } from '../../../core/database_structure';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let balance = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`);
+        let dataAccount = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY`) as DatabaseStructure.EconomyUserSchema;
         let toWithdraw = interaction.options.getNumber('how-much') as number;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
@@ -41,7 +42,7 @@ export default {
             return;
         };
 
-        if (toWithdraw && toWithdraw > balance) {
+        if (toWithdraw && toWithdraw > dataAccount?.bank!) {
             await interaction.reply({
                 content: data.withdraw_cannot_abuse.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
