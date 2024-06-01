@@ -26,7 +26,7 @@ async function PfpsManager_Init(client: Client) {
 
     setInterval(() => {
         Refresh(client);
-    }, 120000);
+    }, 30000);
 }
 
 async function Refresh(client: Client) {
