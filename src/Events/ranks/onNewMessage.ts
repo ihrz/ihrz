@@ -26,9 +26,20 @@ import { LanguageData } from '../../../types/languageData';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure.js';
 
+const processedMembers = new Set<string>();
+
 export const event: BotEvent = {
     name: "messageCreate",
     run: async (client: Client, message: Message) => {
+        /**
+         * Why doing this?
+         * On iHorizon Production, we have some ~discord.js problems~ 👎
+         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
+         * As always, fuck discord.js
+         */
+        if (processedMembers.has(message.author.id)) return;
+        processedMembers.add(message.author.id);
+        setTimeout(() => processedMembers.delete(message.author.id), 4000);
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
