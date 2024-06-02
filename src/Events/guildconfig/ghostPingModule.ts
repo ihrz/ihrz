@@ -23,9 +23,21 @@ import { BaseGuildTextChannel, Client, GuildMember } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';
 
+const processedMembers = new Set<string>();
+
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
+        /**
+         * Why doing this?
+         * On iHorizon Production, we have some ~discord.js problems~ 👎
+         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
+         * As always, fuck discord.js
+         */
+        if (processedMembers.has(member.id)) return;
+        processedMembers.add(member.id);
+        setTimeout(() => processedMembers.delete(member.id), 7000);
+
         let all_channels = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) as DatabaseStructure.GhostPingData['channels'];
 
         for (let i in all_channels) {
@@ -35,9 +47,9 @@ export const event: BotEvent = {
             const msg = await (channel as BaseGuildTextChannel).send({ content: member.user.toString() });
 
             try {
-                await msg.delete().catch(() => {});
+                await msg.delete().catch(() => { });
             } catch (e) {
-                await msg.delete().catch(() => {});
+                await msg.delete().catch(() => { });
             }
         };
     },
