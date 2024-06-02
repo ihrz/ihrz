@@ -45,7 +45,7 @@ export const event: BotEvent = {
             || interaction.user.bot) return;
 
         if (interaction.channel?.type === ChannelType.DM) {
-            interaction.reply({
+            await interaction.reply({
                 embeds: [
                     new EmbedBuilder()
                         .setColor(2829617)
