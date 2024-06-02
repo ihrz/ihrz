@@ -20,12 +20,22 @@
 */
 
 import { BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField } from 'discord.js';
-
 import { BotEvent } from '../../../types/event';
+
+const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
+        /**
+         * Why doing this?
+         * On iHorizon Production, we have some ~discord.js problems~ 👎
+         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
+         * As always, fuck discord.js
+         */
+        if (processedMembers.has(member.id)) return;
+        processedMembers.add(member.id);
+        setTimeout(() => processedMembers.delete(member.id), 7000);
 
         let data = await client.functions.getLanguageData(member.guild.id);
 
