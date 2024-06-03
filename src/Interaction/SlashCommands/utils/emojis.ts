@@ -29,6 +29,7 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
 
@@ -56,7 +57,7 @@ export const command: Command = {
     thinking: true,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let str = (interaction.options.getString('emojis') as string).split(' ');
         let cnt: number = 0;
         let nemj: string = '';
@@ -77,8 +78,8 @@ export const command: Command = {
                     name: match[1]
                 }).then((emoji) => {
                     interaction.channel?.send(data.emoji_send_new_emoji
-                        .replace('${emoji.name}', emoji.name)
-                        .replace('${emoji}', emoji)
+                        .replace('${emoji.name}', emoji.name!)
+                        .replace('${emoji}', emoji.toString())
                     );
 
                     cnt++;
@@ -96,8 +97,8 @@ export const command: Command = {
             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTimestamp()
             .setDescription(data.emoji_embed_desc_work
-                .replace('${cnt}', cnt)
-                .replace('${interaction.guild.name}', interaction.guild?.name)
+                .replace('${cnt}', cnt.toString())
+                .replace('${interaction.guild.name}', interaction.guild?.name!)
                 .replace('${nemj}', nemj)
             )
 

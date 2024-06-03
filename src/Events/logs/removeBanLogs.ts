@@ -22,11 +22,12 @@
 import { BaseGuildTextChannel, Client, EmbedBuilder, PermissionsBitField, AuditLogEvent, GuildBan } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData';
 
 export const event: BotEvent = {
     name: "guildBanRemove",
     run: async (client: Client, ban: GuildBan) => {
-        let data = await client.functions.getLanguageData(ban.guild.id);
+        let data = await client.functions.getLanguageData(ban.guild.id) as LanguageData;
 
         if (!ban.guild.members.me
             || !ban.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
@@ -47,8 +48,8 @@ export const event: BotEvent = {
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setDescription(data.event_srvLogs_banRemove_description
-                .replace("${firstEntry.executor.id}", firstEntry?.executor?.id)
-                .replace("${firstEntry.target.username}", firstEntry?.target?.username)
+                .replace("${firstEntry.executor.id}", firstEntry?.executor?.id!)
+                .replace("${firstEntry.target.username}", firstEntry?.target?.username!)
             )
             .setTimestamp().setFooter({ text: firstEntry?.reason! });
 

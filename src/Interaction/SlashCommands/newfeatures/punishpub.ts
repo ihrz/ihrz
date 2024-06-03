@@ -30,6 +30,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'punishpub',
@@ -102,7 +103,7 @@ export const command: Command = {
     category: 'newfeatures',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.punishpub_not_admin });
@@ -141,8 +142,8 @@ export const command: Command = {
                     .setTitle(data.punishpub_logs_embed_title)
                     .setDescription(data.punishpub_logs_embed_description
                         .replace("${interaction.user.id}", interaction.user.id)
-                        .replace("${amount}", amount)
-                        .replace("${punishement}", punishment)
+                        .replace("${amount}", amount.toString())
+                        .replace("${punishement}", punishment?.toString()!)
                     )
                 let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
@@ -151,8 +152,8 @@ export const command: Command = {
             await interaction.reply({
                 content: data.punishpub_confirmation_message_enable
                     .replace("${interaction.user.id}", interaction.user.id)
-                    .replace("${amount}", amount)
-                    .replace("${punishement}", punishment)
+                    .replace("${amount}", amount.toString())
+                    .replace("${punishement}", punishment!)
             });
             return;
         } else {

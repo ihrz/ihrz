@@ -23,6 +23,7 @@ import { BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
 import { LavalinkManager } from "lavalink-client";
 
 import config from '../../files/config.js';
+import { LanguageData } from '../../../types/languageData.js';
 
 export default async (client: Client) => {
 
@@ -50,7 +51,7 @@ export default async (client: Client) => {
     });
 
     client.player.on("trackStart", async (player, track) => {
-        let data = await client.functions.getLanguageData(player.guildId);
+        let data = await client.functions.getLanguageData(player.guildId) as LanguageData;
 
         const channel = client.channels.cache.get(player.textChannelId!);
 
@@ -69,7 +70,7 @@ export default async (client: Client) => {
     });
 
     client.player.on("queueEnd", async player => {
-        let data = await client.functions.getLanguageData(player.guildId);
+        let data = await client.functions.getLanguageData(player.guildId) as LanguageData;
 
         const channel = client.channels.cache.get(player.textChannelId!);
         

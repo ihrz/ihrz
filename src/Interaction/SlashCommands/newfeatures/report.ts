@@ -30,6 +30,7 @@ import {
 
 import { Command } from '../../../../types/command';
 import config from '../../../files/config.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'report',
@@ -57,7 +58,7 @@ export const command: Command = {
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         var sentences = interaction.options.getString("message-to-dev")
         let timeout = 18000000

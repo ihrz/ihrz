@@ -25,6 +25,7 @@ import logger from "../../core/logger.js";
 import captcha from "../../core/captcha.js";
 
 import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
@@ -33,7 +34,7 @@ export const event: BotEvent = {
         let baseData = await client.db.get(`${member.guild.id}.SECURITY`);
         if (!baseData || baseData?.disable === true) return;
 
-        let data = await client.functions.getLanguageData(member.guild.id);
+        let data = await client.functions.getLanguageData(member.guild.id) as LanguageData;
         let channel = member.guild.channels.cache.get(baseData?.channel);
         let c = await captcha(280, 100)
 
@@ -41,7 +42,7 @@ export const event: BotEvent = {
 
         (channel as GuildTextBasedChannel).send({
             content: data.event_security
-                .replace('${member}', member),
+                .replace('${member}', member.toString()),
             files: [new AttachmentBuilder(sfbuff)]
         }).then(async (msg) => {
             let filter = (m: Message) => m.author.id === member.id;

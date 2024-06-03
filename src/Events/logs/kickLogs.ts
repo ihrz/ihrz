@@ -22,12 +22,13 @@
 import { EmbedBuilder, PermissionsBitField, AuditLogEvent, Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData';
 
 export const event: BotEvent = {
     name: "guildMemberRemove",
     run: async (client: Client, member: GuildMember) => {
 
-        let data = await client.functions.getLanguageData(member.guild.id);
+        let data = await client.functions.getLanguageData(member.guild.id) as LanguageData;
 
         if (!member.guild) return;
         if (!member.guild.members.me) return;
@@ -54,7 +55,7 @@ export const event: BotEvent = {
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setDescription(data.event_srvLogs_guildMemberRemove_description
-                .replace("${firstEntry.executor.id}", firstEntry.executor?.id)
+                .replace("${firstEntry.executor.id}", firstEntry.executor?.id!)
                 .replace("${firstEntry.target.id}", firstEntry.target.id)
             )
             .setTimestamp();
