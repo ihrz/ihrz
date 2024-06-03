@@ -545,6 +545,10 @@ vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} membri```"
 vc_embed_fields_2_name: "・Numero di Canali"
 vc_embed_fields_2_value: "```py\n${textChannelSize} canale(i) di testo\n${voiceChannelSize} canale(i) vocale(i)```"
 
+# /massmove
+massmove_results: "${interaction.user}, iHorizon ha spostato i membri tra i canali vocali.\n\n**${movedCount}** membro/i sono stati spostati con successo da ${fromChannel} a ${toChannel}.\n**${errorCount}** membro/i non hanno potuto essere spostati (vedere i log del server per i dettagli)."
+massmove_too_much_member: "Troppi membri, non posso farlo a causa di un possibile rate limiting!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
