@@ -28,7 +28,7 @@ const config: ConfigData = {
         token: "The bot token",
         // The Discord Bot Token
 
-        phonePresence: true
+        phonePresence: false
         // If the bot have Phone Bot Activity Presence
     },
 
