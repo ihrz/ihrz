@@ -250,6 +250,11 @@ export namespace DatabaseStructure {
         GHOST_PING: GhostPingData;
     }
 
+    export interface BlockNewAccountSchema {
+        state: boolean;
+        req: number;
+    }
+
     export interface DbGuildObject {
         LANG?: {
             lang: string;
@@ -293,9 +298,10 @@ export namespace DatabaseStructure {
             nicknames: string;
         };
         SNIPE?: SnipeData;
-        REACT_MSG: {
+        REACT_MSG?: {
             [message: string]: string;
         };
+        BLOCK_NEW_ACCOUNT: BlockNewAccountSchema
     }
 
     export interface DbTicketConfigurationObject {

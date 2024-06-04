@@ -36,7 +36,7 @@ export default {
 
         let tomute = interaction.options.getMember("user") as GuildMember;
         let mutetime = interaction.options.getString("time")!;
-        let mutetimeMS = client.timeCalculator.to_ms(mutetime);
+        let mutetimeMS = client.timeCalculator.to_ms(mutetime)!;
         let mutetimeString = client.timeCalculator.to_beautiful_string(mutetime);
 
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages);
