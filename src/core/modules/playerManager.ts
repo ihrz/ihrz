@@ -41,7 +41,7 @@ export default async (client: Client) => {
         },
         playerOptions: {
             onEmptyQueue: {
-                destroyAfterMs: 30_00
+                destroyAfterMs: 30_000,
             }
         },
         client: {
