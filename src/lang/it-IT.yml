@@ -671,7 +671,7 @@ setjoinmessage_help_embed_fields_default_name_empy: "Messaggio Predefinito"
 setjoinmessage_help_embed_desc: "{memberUsername} => Il nome utente del membro\n{memberMention} => Menziona il membro\n{inviterUsername} => Il nome dell'invitante\n{inviterMention} => Menziona l'invitante\n{memberCount} => Numero di membri nella gilda\n{invitesCount} => Numero di inviti dell'invitante\n{guildName} => Il nome della gilda\n{createdAt} => Data di creazione dell'account in GG/MM/AAAA"
 setjoinmessage_button_set_name: "Imposta messaggio"
 setjoinmessage_buttom_del_name: "Messaggio predefinito"
-setjoinmessage_awaiting_response: "Scrivi il nuovo messaggio di benvenuto personalizzato nel canale."
+setjoinmessage_awaiting_response: "Scrivi il nuovo messaggio di benvenuto."
 
 # /setjoinroles
 setjoinroles_var_none: "Nessuno"
@@ -713,7 +713,7 @@ setleavemessage_logs_embed_title_on_disable: "SetLeaveMessage Logs"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> ha eliminato il messaggio di uscita!"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Messaggio di uscita personalizzato eliminato con successo."
 setleavemessage_command_work_ls: "Il messaggio di uscita è:"
-setleavemessage_awaiting_response: "Scrivi il nuovo messaggio di addio personalizzato nel canale."
+setleavemessage_awaiting_response: "Scrivi il nuovo messaggio di congedo."
 
 # /setup
 setup_not_admin: ":x: | Devi essere un amministratore di questo server!"

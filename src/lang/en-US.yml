@@ -671,7 +671,7 @@ setjoinmessage_help_embed_fields_default_name_empy: "Default Message"
 setjoinmessage_help_embed_desc: "{memberUsername} => The member username\n{memberMention} => Mention the member\n{inviterUsername} => The inviter's name\n{inviterMention} => Mention the inviter\n{memberCount} => Guild's member count\n{invitesCount} => Invites number of the inviter\n{guildName} => The guild's name\n{createdAt} => Account creation in dd/mm/yyyy"
 setjoinmessage_button_set_name: "Set message"
 setjoinmessage_buttom_del_name: "Default Message"
-setjoinmessage_awaiting_response: "Wrote the new custom Join Message in the channel."
+setjoinmessage_awaiting_response: "Wrote the new custom Join Message."
 
 # /setjoinroles
 setjoinroles_var_none: "None"
@@ -713,7 +713,7 @@ setleavemessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deleted the leave message !"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Successfully deleted custom leave message."
 setleavemessage_command_work_ls: "The leave message is:"
-setleavemessage_awaiting_response: "Wrote the new custom Leave Message in the channel."
+setleavemessage_awaiting_response: "Wrote the new custom Leave Message."
 
 # /setup
 setup_not_admin: ":x: | You must be an administrator of this server !"

@@ -671,7 +671,7 @@ setjoinmessage_help_embed_fields_default_name_empy: "Mensaje Predeterminado"
 setjoinmessage_help_embed_desc: "{memberUsername} => Nombre de usuario del miembro\n{memberMention} => Mención del miembro\n{inviterUsername} => Nombre del que invitó\n{inviterMention} => Mención del que invitó\n{memberCount} => Número de miembros en el servidor\n{invitesCount} => Número de invitaciones del que invitó\n{guildName} => Nombre del servidor\n{createdAt} => Fecha de creación de la cuenta en DD/MM/AAAA"
 setjoinmessage_button_set_name: "Establecer mensaje"
 setjoinmessage_buttom_del_name: "Mensaje predeterminado"
-setjoinmessage_awaiting_response: "Escriba el nuevo mensaje personalizado de bienvenida en el canal."
+setjoinmessage_awaiting_response: "Creó un nuevo mensaje de unión personalizado."
 
 # /setjoinroles
 setjoinroles_var_none: "Ninguno"

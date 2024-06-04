@@ -671,7 +671,7 @@ setjoinmessage_help_embed_fields_default_name_empy: "Standardnachricht"
 setjoinmessage_help_embed_desc: "{memberUsername} => Der Benutzername des Mitglieds\n{memberMention} => Erwähnung des Mitglieds\n{inviterUsername} => Der Name des Einladenden\n{inviterMention} => Erwähnung des Einladenden\n{memberCount} => Anzahl der Mitglieder in der Gilde\n{invitesCount} => Anzahl der Einladungen des Einladenden\n{guildName} => Name der Gilde\n{createdAt} => Kontoerstellung im Format TT/MM/JJJJ"
 setjoinmessage_button_set_name: "Nachricht festlegen"
 setjoinmessage_buttom_del_name: "Standardnachricht"
-setjoinmessage_awaiting_response: "Schreiben Sie die neue benutzerdefinierte Beitrittsnachricht in den Kanal."
+setjoinmessage_awaiting_response: "Schreiben Sie eine Beitrittsnachricht"
 
 # /setjoinroles
 setjoinroles_var_none: "Keine"
@@ -713,7 +713,7 @@ setleavemessage_logs_embed_title_on_disable: "SetJoinMessage-Protokolle"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> hat die Austrittsnachricht gelöscht!"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Benutzerdefinierte Austrittsnachricht erfolgreich gelöscht."
 setleavemessage_command_work_ls: "Die Austrittsnachricht lautet:"
-setleavemessage_awaiting_response: "Schreibe die neue benutzerdefinierte Abschiedsnachricht im Kanal."
+setleavemessage_awaiting_response: "Schreiben Sie die Hinterlassensnachricht"
 
 # /setup
 setup_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"

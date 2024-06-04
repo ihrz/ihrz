@@ -28,9 +28,11 @@ import {
     Client,
     ComponentType,
     EmbedBuilder,
+    ModalBuilder,
     PermissionsBitField,
+    TextInputBuilder,
+    TextInputStyle
 } from 'discord.js';
-
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
 
@@ -43,38 +45,22 @@ export default {
         };
 
         let leaveMessage = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.leavemessage`);
+        leaveMessage = leaveMessage?.substring(0, 1010);
 
-        let help_embed = new EmbedBuilder()
+        const helpEmbed = new EmbedBuilder()
             .setColor("#ffb3cc")
             .setDescription(data.setjoinmessage_help_embed_desc)
             .setTitle(data.setleavemessage_help_embed_title)
-            .setFields(
+            .addFields(
                 {
                     name: data.setjoinmessage_help_embed_fields_custom_name,
-                    value: leaveMessage ? `\`\`\`${leaveMessage}\`\`\`\n${leaveMessage
-                        .replaceAll("{memberUsername}", interaction.user.username)
-                        .replaceAll("{memberMention}", interaction.user.toString())
-                        .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
-                        .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
-                        .replaceAll('{guildName}', interaction.guild?.name!)
-                        .replaceAll('{inviterUsername}', interaction.client.user?.username)
-                        .replaceAll('{inviterMention}', interaction.client.user.toString())
-                        .replaceAll('{invitesCount}', '1337')
-                        }` : data.setjoinmessage_help_embed_fields_custom_name_empy
+                    value: leaveMessage ? `\`\`\`${leaveMessage}\`\`\`\n${generateLeaveMessagePreview(leaveMessage, interaction)}` : data.setjoinmessage_help_embed_fields_custom_name_empy
                 },
                 {
                     name: data.setjoinmessage_help_embed_fields_default_name_empy,
-                    value: `\`\`\`${data.event_goodbye_inviter}\`\`\`\n${data.event_goodbye_inviter
-                        .replace("{memberMention}", interaction.user.toString())
-                        .replace('{createdAt}', interaction.user.createdAt.toDateString())
-                        .replace('{inviterUsername}', interaction.client.user?.username)
-                        .replace('{invitesCount}', '1337')
-                        .replace('{memberCount}', interaction.guild?.memberCount.toString()!)
-                        .replace('{guildName}', interaction.guild?.name!)
-                        }`
+                    value: `\`\`\`${data.event_goodbye_inviter}\`\`\`\n${generateLeaveMessagePreview(data.event_goodbye_inviter, interaction)}`
                 }
             );
-        let embedFields = help_embed.data?.fields ?? [];
 
         const buttons = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
@@ -88,95 +74,112 @@ export default {
                     .setStyle(ButtonStyle.Danger),
             );
 
-        let originalResponse = await interaction.editReply({
-            embeds: [help_embed],
+        const originalResponse = await interaction.editReply({
+            embeds: [helpEmbed],
             components: [buttons]
         });
 
-        let collector = originalResponse.createMessageComponentCollector({
+        const collector = originalResponse.createMessageComponentCollector({
             componentType: ComponentType.Button,
             filter: (u) => u.user.id === interaction.user.id,
             time: 80_000
         });
 
-        collector.on('collect', async collectInteraction => {
-            if (collectInteraction.customId === "leaveMessage-set-message") {
-                await collectInteraction.reply({
-                    content: data.setleavemessage_awaiting_response,
+        let lastModal_0_IdRegisterd = 0;
+
+        collector.on('collect', async (buttonInteraction) => {
+            if (buttonInteraction.user.id !== interaction.user.id) {
+                await buttonInteraction.reply({ content: data.help_not_for_you, ephemeral: true });
+                return;
+            };
+
+            if (buttonInteraction.customId === "leaveMessage-set-message") {
+                const modal = new ModalBuilder()
+                    .setCustomId('leaveMessage-modal')
+                    .setTitle(data.setleavemessage_awaiting_response);
+
+                const messageInput = new TextInputBuilder()
+                    .setCustomId('leaveMessage-input')
+                    .setLabel(data.guildprofil_embed_fields_leavemessage)
+                    .setMaxLength(1010)
+                    .setStyle(TextInputStyle.Paragraph);
+
+                modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(messageInput));
+                await buttonInteraction.showModal(modal);
+
+                const modalInteraction = await interaction.awaitModalSubmit({
+                    filter: (i) => i.customId === 'leaveMessage-modal',
+                    time: 120_000
+                }).catch(() => null);
+
+                if (!modalInteraction) {
+                    return;
+                }
+
+                if (lastModal_0_IdRegisterd === parseInt(interaction.id)) return;
+                lastModal_0_IdRegisterd = parseInt(interaction.id);
+
+                const response = modalInteraction.fields.getTextInputValue('leaveMessage-input');
+                const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
+                    {
+                        name: data.setjoinmessage_help_embed_fields_custom_name,
+                        value: response ? `\`\`\`${response}\`\`\`\n${response
+                            .replaceAll("{memberUsername}", interaction.user.username)
+                            .replaceAll("{memberMention}", interaction.user.toString())
+                            .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
+                            .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
+                            .replaceAll('{guildName}', interaction.guild?.name!)
+                            .replaceAll('{inviterUsername}', interaction.client.user?.username)
+                            .replaceAll('{inviterMention}', interaction.client.user.toString())
+                            .replaceAll('{invitesCount}', '1337')
+                            .replaceAll("\\n", '\n')
+                            }` : data.setjoinmessage_help_embed_fields_custom_name_empy
+                    },
+                );
+
+                await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.leavemessage`, response);
+                await modalInteraction.reply({
+                    content: data.setleavemessage_command_work_on_enable
+                        .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo),
                     ephemeral: true
                 });
+                newEmbed.addFields(helpEmbed.data.fields![1]);
+                await originalResponse.edit({ embeds: [newEmbed] });
 
-                let questionReply = interaction.channel?.createMessageCollector({
-                    filter: (m) => m.author.id === interaction.user.id,
-                    max: 1,
-                    time: 120_000
-                });
+                try {
+                    let logEmbed = new EmbedBuilder()
+                        .setColor("#bf0bb9")
+                        .setTitle(data.setleavemessage_logs_embed_title_on_enable)
+                        .setDescription(data.setleavemessage_logs_embed_description_on_enable
+                            .replace("${interaction.user.id}", interaction.user.id)
+                        );
 
-                questionReply?.on('collect', async collected => {
-                    let response = collected.content;
-                    let newEmbed = EmbedBuilder.from(help_embed).setFields(
-                        {
-                            name: data.setjoinmessage_help_embed_fields_custom_name,
-                            value: response ? `\`\`\`${response}\`\`\`\n${response
-                                .replaceAll("{memberUsername}", interaction.user.username)
-                                .replaceAll("{memberMention}", interaction.user.toString())
-                                .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
-                                .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
-                                .replaceAll('{guildName}', interaction.guild?.name!)
-                                .replaceAll('{inviterUsername}', interaction.client.user?.username)
-                                .replaceAll('{inviterMention}', interaction.client.user.toString())
-                                .replaceAll('{invitesCount}', '1337')
-                                .replaceAll("\\n", '\n')
-                                }` : data.setjoinmessage_help_embed_fields_custom_name_empy
-                        },
-                    );
+                    let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
-                    await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.leavemessage`, response);
-
-                    collected.delete();
-                    newEmbed.addFields(embedFields[1]);
-                    originalResponse.edit({ embeds: [newEmbed] });
-                    questionReply.stop();
-
-                    await interaction.editReply({
-                        content: data.setleavemessage_command_work_on_enable
-                            .replace(
-                                "${client.iHorizon_Emojis.icon.Yes_Logo}",
-                                client.iHorizon_Emojis.icon.Green_Tick_Logo
-                            )
-                    });
-
-                    try {
-                        let logEmbed = new EmbedBuilder()
-                            .setColor("#bf0bb9")
-                            .setTitle(data.setleavemessage_logs_embed_title_on_enable)
-                            .setDescription(data.setleavemessage_logs_embed_description_on_enable
-                                .replace("${interaction.user.id}", interaction.user.id)
-                            );
-
-                        let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-                        if (logchannel) {
-                            (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
-                        };
-                    } catch (e: any) {
-                        logger.err(e);
+                    if (logchannel) {
+                        (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
                     };
-
-                });
-            } else if (collectInteraction.customId === "leaveMessage-default-message") {
-                let newEmbed = EmbedBuilder.from(help_embed).setFields(
+                } catch (e: any) {
+                    logger.err(e);
+                };
+            } else if (buttonInteraction.customId === "leaveMessage-default-message") {
+                let newEmbed = EmbedBuilder.from(helpEmbed).setFields(
                     {
                         name: data.setjoinmessage_help_embed_fields_custom_name,
                         value: data.setjoinmessage_help_embed_fields_custom_name_empy
                     },
                 );
 
-                await collectInteraction.deferUpdate();
-                newEmbed.addFields(embedFields[1]);
-                await originalResponse.edit({ embeds: [newEmbed] });
-
                 await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.leavemessage`);
+
+                await buttonInteraction.reply({
+                    content: data.setleavemessage_command_work_on_enable
+                        .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo),
+                    ephemeral: true
+                });
+
+                newEmbed.addFields(helpEmbed.data.fields![1]);
+                await originalResponse.edit({ embeds: [newEmbed] });
 
                 try {
                     let logEmbed = new EmbedBuilder()
@@ -194,12 +197,8 @@ export default {
                 } catch (e: any) {
                     logger.err(e)
                 };
-
-                await interaction.editReply({
-                    content: data.setleavemessage_command_work_on_disable.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
-                });
             }
-        })
+        });
 
         collector.on('end', async () => {
             buttons.components.forEach(x => {
@@ -209,3 +208,17 @@ export default {
         });
     },
 };
+
+
+function generateLeaveMessagePreview(message: string, interaction: ChatInputCommandInteraction): string {
+    return message
+        .replaceAll("{memberUsername}", interaction.user.username)
+        .replaceAll("{memberMention}", interaction.user.toString())
+        .replaceAll('{memberCount}', interaction.guild?.memberCount?.toString()!)
+        .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
+        .replaceAll('{guildName}', interaction.guild?.name!)
+        .replaceAll('{inviterUsername}', interaction.client.user?.username)
+        .replaceAll('{inviterMention}', interaction.client.user?.toString())
+        .replaceAll('{invitesCount}', '1337')
+        .replaceAll("\\n", '\n');
+}

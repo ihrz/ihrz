@@ -671,7 +671,7 @@ setjoinmessage_help_embed_fields_default_name_empy: "Стандартное со
 setjoinmessage_help_embed_desc: "{memberUsername} => Имя пользователя участника\n{memberMention} => Упоминание участника\n{inviterUsername} => Имя пригласившего\n{inviterMention} => Упоминание пригласившего\n{memberCount} => Количество участников на сервере\n{invitesCount} => Количество приглашений пригласившего\n{guildName} => Название сервера\n{createdAt} => Дата создания учетной записи в формате ДД/ММ/ГГГГ"
 setjoinmessage_button_set_name: "Установить сообщение"
 setjoinmessage_buttom_del_name: "Стандартное сообщение"
-setjoinmessage_awaiting_response: "Напишите новое пользовательское сообщение о вступлении в канале."
+setjoinmessage_awaiting_response: "Написал новое сообщение о присоединении."
 
 # /setjoinroles
 setjoinroles_var_none: "Нет"
@@ -713,7 +713,7 @@ setleavemessage_logs_embed_title_on_disable: "Журнал отключения 
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> удалил сообщение при выходе!"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Успешно удалено пользовательское сообщение при выходе."
 setleavemessage_command_work_ls: "Сообщение при выходе:"
-setleavemessage_awaiting_response: "Напишите новое пользовательское сообщение о выходе в канал."
+setleavemessage_awaiting_response: "Напишите оставьте сообщение."
 
 # /setup
 setup_not_admin: ":x: | Для выполнения этой команды вы должны быть администратором этого сервера!"

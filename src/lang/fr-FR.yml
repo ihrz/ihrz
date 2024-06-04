@@ -671,7 +671,7 @@ setjoinmessage_help_embed_fields_default_name_empy: "Message par Défaut"
 setjoinmessage_help_embed_desc: "{memberUsername} => Le nom d'utilisateur du membre\n{memberMention} => Mentionner le membre\n{inviterUsername} => Le nom de l'invitant\n{inviterMention} => Mentionner l'invitant\n{memberCount} => Nombre de membres dans la guilde\n{invitesCount} => Nombre d'invitations de l'invitant\n{guildName} => Le nom de la guilde\n{createdAt} => Date de création du compte en JJ/MM/AAAA"
 setjoinmessage_button_set_name: "Définir le message"
 setjoinmessage_buttom_del_name: "Message par défaut"
-setjoinmessage_awaiting_response: "Écrivez le nouveau message de bienvenue personnalisé dans le canal."
+setjoinmessage_awaiting_response: "Écrivez le message de bienvenue."
 
 # /setjoinroles
 setjoinroles_var_none: "Aucun"
@@ -713,7 +713,7 @@ setleavemessage_logs_embed_title_on_disable: "Logs de message de départ configu
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> a supprimé le message de départ personnalisé !"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Message de départ personnalisé supprimé avec succès."
 setleavemessage_command_work_ls: "Le message de départ est le suivant:"
-setleavemessage_awaiting_response: "Écrivez le nouveau message de départ personnalisé dans le canal."
+setleavemessage_awaiting_response: "Écrivez le nouveau message de départ."
 
 # /setup
 setup_not_admin: ":x: | Vous devez être administrateur de ce serveur !"

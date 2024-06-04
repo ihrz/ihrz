@@ -33,18 +33,17 @@ import { DatabaseStructure } from '../../../core/database_structure';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.guildprofil_not_admin });
             return;
         }
 
+        const originalResponse = await interaction.editReply({
+            content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading
+        });
+
         let baseData = await client.db.get(`${interaction.guildId}.GUILD`) as DatabaseStructure.DbInId['GUILD'];
-
-        if (!baseData) {
-            await interaction.editReply({ content: data.prevnames_undetected });
-            return;
-        }
-
         const pages: EmbedBuilder[] = [];
 
         const joinDmMessageField = { name: data.guildprofil_embed_fields_joinDmMessage, value: baseData?.GUILD_CONFIG?.joindm ? '```' + baseData?.GUILD_CONFIG?.joindm + '```' : data.guildprofil_not_set_joinDmMessage };
@@ -132,6 +131,7 @@ export default {
 
         const editCurrentPage = async () => {
             await interaction.editReply({
+                content: null,
                 embeds: [
                     pages[currentPage]
                         .setColor("#016c9a")
@@ -164,8 +164,10 @@ export default {
 
         await editCurrentPage();
 
-        const filter = (interaction: any) => interaction.user.id === interaction.user.id;
-        const collector = interaction.channel?.createMessageComponentCollector({ filter, time: 60000 });
+        const collector = interaction.channel?.createMessageComponentCollector({
+            filter: (i) => originalResponse.id == i.message.id && i.user.id === i.user.id,
+            time: 60000
+        });
 
         collector?.on('collect', async interaction => {
             await interaction.deferUpdate();

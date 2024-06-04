@@ -671,7 +671,7 @@ setjoinmessage_help_embed_fields_default_name_empy: "デフォルトメッセー
 setjoinmessage_help_embed_desc: "{memberUsername} => メンバーのユーザー名\n{memberMention} => メンバーのメンション\n{inviterUsername} => 招待者の名前\n{inviterMention} => 招待者のメンション\n{memberCount} => ギルドのメンバー数\n{invitesCount} => 招待者の招待数\n{guildName} => ギルドの名前\n{createdAt} => アカウント作成日（DD/MM/YYYY形式）"
 setjoinmessage_button_set_name: "メッセージを設定"
 setjoinmessage_buttom_del_name: "デフォルトメッセージ"
-setjoinmessage_awaiting_response: "チャンネルに新しいカスタムJoinメッセージを入力してください。"
+setjoinmessage_awaiting_response: "新しいカスタム参加メッセージを作成しました"
 
 # /setjoinroles
 setjoinroles_var_none: "なし"
@@ -713,7 +713,7 @@ setleavemessage_logs_embed_title_on_disable: "SetJoinMessage ログ"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}>が退出メッセージを削除しました！"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | カスタム退出メッセージを正常に削除しました。"
 setleavemessage_command_work_ls: "退出メッセージは次のとおりです。"
-setleavemessage_awaiting_response: "チャンネルに新しいカスタム退会メッセージを書いてください。"
+setleavemessage_awaiting_response: "休暇メッセージを書きます。"
 
 # /setup
 setup_not_admin: ":x: | このサーバーの管理者である必要があります！"
