@@ -42,7 +42,7 @@ export const event: BotEvent = {
             subCmd += (interaction.options as CommandInteractionOptionResolver).getSubcommand()
         };
 
-        let logMessage = `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}}] "${interaction.guild?.name}" #${interaction.channel ? (interaction.channel as GuildChannel).name : 'Unknown Channel'}:\n` +
+        let logMessage = `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}] "${interaction.guild?.name}" #${interaction.channel ? (interaction.channel as GuildChannel).name : 'Unknown Channel'}:\n` +
             `${interaction.user.username}:\n` +
             `/${interaction.commandName} ${subCmd} ${optionsList?.join(' ')}\n\n`;
 
