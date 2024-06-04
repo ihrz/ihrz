@@ -21,6 +21,7 @@
 
 import { Client, PermissionsBitField, ChannelType, Message } from 'discord.js';
 import { BotEvent } from '../../../types/event';
+import { DatabaseStructure } from '../../core/database_structure';
 
 export const event: BotEvent = {
     name: "messageCreate",
@@ -34,7 +35,7 @@ export const event: BotEvent = {
             return;
         };
 
-        let type = await client.db.get(`${message.guild.id}.GUILD.GUILD_CONFIG.antipub`);
+        let type = await client.db.get(`${message.guild.id}.GUILD.GUILD_CONFIG.antipub`) as DatabaseStructure.GuildConfigSchema['antipub'];
 
         if (type === "off" || message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return;
@@ -43,7 +44,7 @@ export const event: BotEvent = {
         let member = message.guild.members.cache.get(message.author.id);
 
         if (type === "on") {
-            let LOG = await client.db.get(`${message.guild.id}.GUILD.PUNISH.PUNISH_PUB`);
+            let LOG = await client.db.get(`${message.guild.id}.GUILD.PUNISH.PUNISH_PUB`) as DatabaseStructure.PunishPubSchema;
             let table = client.db.table("TEMP");
             let LOGfetched = await table.get(`${message.guild.id}.PUNISH_DATA.${message.author.id}`);
 
@@ -63,7 +64,7 @@ export const event: BotEvent = {
             };
 
             try {
-                let blacklist = ["https://", "http://", "://", ".com", ".xyz", ".fr", "www.", ".gg", "g/", ".gg/", "youtube.be", "/?"];
+                let blacklist = ["https://", "http://", ".gg/"];
                 let contentLower = message.content.toLowerCase();
                 let table = client.db.table("TEMP");
 
