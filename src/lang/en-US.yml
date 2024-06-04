@@ -1440,6 +1440,8 @@ ticket_module_remove_question: "Who is the user you want to remove from your tic
 
 # Server Logs
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **banned** <@${firstEntry.target.id}>"
+event_srvLogs_banAdd_fields_name: "Reason"
+event_srvLogs_banAdd_fields_value: "```{reason}```"
 event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **revoked the ban** on ${firstEntry.target.username}"
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **kicked** <@${firstEntry.target.id}>"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> removed the ${removedRoles} role from ${oldMember.user.username}"

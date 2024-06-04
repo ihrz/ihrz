@@ -1440,6 +1440,8 @@ ticket_module_remove_question: "Qui est l'utilisateur que tu souhaites retirer d
 
 # Server Logs
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **a banni** <@${firstEntry.target.id}> suivi de 'on t'aime pas dégage'"
+event_srvLogs_banAdd_fields_name: "Raison"
+event_srvLogs_banAdd_fields_value: "`{reason}`"
 event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> a **révoqué le bannissement** de ${firstEntry.target.username} revient parmi nous débillos"
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **a kické** <@${firstEntry.target.id}>"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> a supprimé le rôle ${removedRoles} à ${oldMember.user.username}, bruh"

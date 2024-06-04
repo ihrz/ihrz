@@ -1440,6 +1440,8 @@ ticket_module_remove_question: "チケットから削除したいユーザーは
 
 # サーバーログ
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **が<@${firstEntry.target.id}>をBANしました**"
+event_srvLogs_banAdd_fields_name: "理由"
+event_srvLogs_banAdd_fields_value: "`{reason}`"
 event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **が${firstEntry.target.username}のBANを解除しました**"
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **が<@${firstEntry.target.id}>をキックしました**"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> **が${oldMember.user.username}から${removedRoles}役職を削除しました**"

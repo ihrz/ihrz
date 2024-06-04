@@ -1440,6 +1440,8 @@ ticket_module_remove_question: "Wer ist der Benutzer, den du aus deinem Ticket e
 
 # Server-Protokolle
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **hat <@${firstEntry.target.id}> gebannt**"
+event_srvLogs_banAdd_fields_name: "Grund"
+event_srvLogs_banAdd_fields_value: "`{reason}`"
 event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **hat das Bann von ${firstEntry.target.username} aufgehoben**"
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **hat <@${firstEntry.target.id}> gekickt**"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> **hat die Rolle ${removedRoles} von ${oldMember.user.username} entfernt**"

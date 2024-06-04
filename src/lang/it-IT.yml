@@ -1440,6 +1440,8 @@ ticket_module_remove_question: "Chi è l'utente che desideri rimuovere dal tuo t
 
 # Registri del Server
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **ha bannato** <@${firstEntry.target.id}>"
+event_srvLogs_banAdd_fields_name: "Motivo"
+event_srvLogs_banAdd_fields_value: "`{reason}`"
 event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **ha revocato il ban** di ${firstEntry.target.username}"
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **ha cacciato** <@${firstEntry.target.id}>"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> ha rimosso il ruolo ${removedRoles} da ${oldMember.user.username}"

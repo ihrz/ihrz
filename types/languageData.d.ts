@@ -1032,6 +1032,8 @@ export interface LanguageData {
   ticket_module_add_question: string;
   ticket_module_remove_question: string;
   event_srvLogs_banAdd_description: string;
+  event_srvLogs_banAdd_fields_name: string;
+  event_srvLogs_banAdd_fields_value: string;
   event_srvLogs_banRemove_description: string;
   event_srvLogs_guildMemberRemove_description: string;
   event_srvLogs_guildMemberUpdate_description: string;

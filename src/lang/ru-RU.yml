@@ -1440,6 +1440,8 @@ ticket_module_remove_question: "Кого вы хотите удалить из �
 
 # Журналы сервера
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **забанил** <@${firstEntry.target.id}>"
+event_srvLogs_banAdd_fields_name: "Причина"
+event_srvLogs_banAdd_fields_value: "`{reason}`"
 event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **снял бан** с ${firstEntry.target.username}"
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **выгнал** <@${firstEntry.target.id}>"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> снял роль ${removedRoles} с ${oldMember.user.username}"

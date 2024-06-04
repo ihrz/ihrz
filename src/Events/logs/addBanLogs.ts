@@ -52,7 +52,12 @@ export const event: BotEvent = {
             .setDescription(data.event_srvLogs_banAdd_description
                 .replace("${firstEntry.executor.id}", firstEntry?.executor?.id!)
                 .replace("${firstEntry.target.id}", firstEntry?.target?.id!)
-            ).setTimestamp().setFooter({ text: firstEntry?.reason! });
+            )
+            .addFields({
+                name: data.event_srvLogs_banAdd_fields_name,
+                value: data.event_srvLogs_banAdd_fields_value.replace('{reason}', firstEntry?.reason || data.blacklist_var_no_reason)
+            })
+            .setTimestamp();
 
         await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
     },

@@ -1440,6 +1440,8 @@ ticket_module_remove_question: "¿Quién es el usuario que deseas eliminar de tu
 
 # Registros del Servidor
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **ha baneado a** <@${firstEntry.target.id}>"
+event_srvLogs_banAdd_fields_name: "Razón"
+event_srvLogs_banAdd_fields_value: "`{reason}`"
 event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **ha revocado el ban** de ${firstEntry.target.username}"
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **ha expulsado a** <@${firstEntry.target.id}>"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> ha eliminado el rol ${removedRoles} de ${oldMember.user.username}"
