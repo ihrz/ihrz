@@ -159,9 +159,9 @@ export const command: Command = {
                         { name: "Youtube", value: "ytsearch" },
                         { name: "Youtube Music", value: "ytmsearch" },
                         { name: "Soundcloud", value: "scsearch" },
-                        { name: "Deezer", value: "dzsearch" },
+                        // { name: "Deezer", value: "dzsearch" },
                         { name: "Spotify", value: "spsearch" },
-                        { name: "Apple Music", value: "amsearch" },
+                        // { name: "Apple Music", value: "amsearch" },
                     ],
 
                     required: true
