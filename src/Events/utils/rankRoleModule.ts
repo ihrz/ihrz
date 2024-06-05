@@ -22,6 +22,7 @@
 import { Client, EmbedBuilder, PermissionsBitField, ChannelType, Message, ClientUser } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';
+import { LanguageData } from '../../../types/languageData';
 
 export const event: BotEvent = {
     name: "messageCreate",
@@ -29,7 +30,7 @@ export const event: BotEvent = {
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        let data = await client.functions.getLanguageData(message.guild.id);
+        let data = await client.functions.getLanguageData(message.guild.id) as LanguageData;
 
         if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || message.author.bot
             || message.author.id === client.user?.id || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)

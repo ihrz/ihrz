@@ -545,6 +545,10 @@ vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} 人のメン�
 vc_embed_fields_2_name: "・チャンネル数"
 vc_embed_fields_2_value: "```py\n${textChannelSize} テキストチャンネル\n${voiceChannelSize} ボイスチャンネル```"
 
+# /massmove
+massmove_results: "${interaction.user}さん、iHorizonはボイスチャンネル間でメンバーを移動しました。\n\n**${movedCount}**人のメンバーが${fromChannel}から${toChannel}に正常に移動しました。\n**${errorCount}**人のメンバーは移動できませんでした (詳細はサーバーログをご確認ください)。"
+massmove_too_much_member: "メンバーが多すぎます。レート制限の可能性があるため、実行できません。"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -667,7 +671,7 @@ setjoinmessage_help_embed_fields_default_name_empy: "デフォルトメッセー
 setjoinmessage_help_embed_desc: "{memberUsername} => メンバーのユーザー名\n{memberMention} => メンバーのメンション\n{inviterUsername} => 招待者の名前\n{inviterMention} => 招待者のメンション\n{memberCount} => ギルドのメンバー数\n{invitesCount} => 招待者の招待数\n{guildName} => ギルドの名前\n{createdAt} => アカウント作成日（DD/MM/YYYY形式）"
 setjoinmessage_button_set_name: "メッセージを設定"
 setjoinmessage_buttom_del_name: "デフォルトメッセージ"
-setjoinmessage_awaiting_response: "チャンネルに新しいカスタムJoinメッセージを入力してください。"
+setjoinmessage_awaiting_response: "新しいカスタム参加メッセージを作成しました"
 
 # /setjoinroles
 setjoinroles_var_none: "なし"
@@ -709,7 +713,7 @@ setleavemessage_logs_embed_title_on_disable: "SetJoinMessage ログ"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}>が退出メッセージを削除しました！"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | カスタム退出メッセージを正常に削除しました。"
 setleavemessage_command_work_ls: "退出メッセージは次のとおりです。"
-setleavemessage_awaiting_response: "チャンネルに新しいカスタム退会メッセージを書いてください。"
+setleavemessage_awaiting_response: "休暇メッセージを書きます。"
 
 # /setup
 setup_not_admin: ":x: | このサーバーの管理者である必要があります！"
@@ -762,6 +766,15 @@ automod_block_pub_command_off: "${interaction.user}, あなたは`Pub AutoModル
 # /automod block spam
 automod_block_spam_command_on: "${interaction.user}, あなたは`Spam AutoModルール`を**true**に設定しました。\n今、ユーザーはスパムできません。\nAutoModは${logs_channel}にログを送信しています。\nAutoMod x iHorizonがサーバーを保護しています！"
 automod_block_spam_command_off: "${interaction.user}, あなたは`Spam AutoModルール`を**false**に設定しました。\n今、ユーザーはスパムできます。\nAutoMod x iHorizonはサーバーで無効になっています！"
+
+# /guildconfig block too-new-account
+too_new_account_dont_specified_time_on_enable: "時間が指定されていません。このモジュールを有効にするには、アカウントの最低年齢が必要です！"
+too_new_account_invalid_time_on_enable: "入力した時間が無効です！ **有効な時間の例**: `3h; 30m; 4w; 4y` -> 3時間; 30分; 4週間; 4年"
+too_new_account_logEmbed_title: "TooNewAccount モジュール"
+too_new_account_logEmbed_desc_on_enable: "${interaction.user} は TooNewAccount モジュールを有効にしました。アカウントには現在、最低 ${beautifulTime} の年齢が必要です！"
+too_new_account_command_work_on_enable: "${interaction.user}、**${interaction.guild?.name}** に参加する新しいメンバーは、アカウントが `${beautifulTime}` より若い場合、強制退出させられます。"
+too_new_account_logEmbed_desc_on_disable: "${interaction.user} がモジュールを無効にしました！"
+too_new_account_command_work_on_disable: "${interaction.user}、モジュールは正常に無効化されました。新しいメンバーのアカウント作成日はチェックされなくなります。"
 
 
 # Member Count commands
@@ -1436,6 +1449,8 @@ ticket_module_remove_question: "チケットから削除したいユーザーは
 
 # サーバーログ
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **が<@${firstEntry.target.id}>をBANしました**"
+event_srvLogs_banAdd_fields_name: "理由"
+event_srvLogs_banAdd_fields_value: "`{reason}`"
 event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **が${firstEntry.target.username}のBANを解除しました**"
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **が<@${firstEntry.target.id}>をキックしました**"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> **が${oldMember.user.username}から${removedRoles}役職を削除しました**"

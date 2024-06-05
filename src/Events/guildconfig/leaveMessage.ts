@@ -23,6 +23,7 @@ import { Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';
+import { LanguageData } from '../../../types/languageData';
 
 const processedMembers = new Set<string>();
 
@@ -39,7 +40,7 @@ export const event: BotEvent = {
         processedMembers.add(member.id);
         setTimeout(() => processedMembers.delete(member.id), 7000);
 
-        let data = await client.functions.getLanguageData(member.guild.id);
+        let data = await client.functions.getLanguageData(member.guild.id) as LanguageData;
 
         try {
             let base = await client.db.get(`${member.guild.id}.USER.${member.user.id}.INVITES.BY`);

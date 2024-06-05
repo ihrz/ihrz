@@ -74,7 +74,7 @@ async function loadEvents(client: Client, pathDir = pathJoin(process.cwd(), 'dis
 
         try {
             const imported = await import(filePath);
-
+            if (!imported?.event) return;
             client.on((imported.event as BotEvent).name, (imported.event as BotEvent).run.bind(null, client));
         } catch (error) {
             logger.err(`Error loading event from file: ${filePath}`);

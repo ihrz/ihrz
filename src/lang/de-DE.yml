@@ -545,6 +545,10 @@ vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} Mitglieder```
 vc_embed_fields_2_name: "・Kanalanzahl"
 vc_embed_fields_2_value: "```py\n${textChannelSize} Textkanal(e)\n${voiceChannelSize} Sprachkanal(e)```"
 
+# /massmove
+massmove_results: "${interaction.user}, iHorizon hat Mitglieder zwischen Sprachkanälen verschoben.\n\n**${movedCount}** Mitglied(er) wurden erfolgreich von ${fromChannel} nach ${toChannel} verschoben.\n**${errorCount}** Mitglied(er) konnten nicht verschoben werden (siehe Serverprotokolle für Details)."
+massmove_too_much_member: "Zu viele Mitglieder, kann es aufgrund möglicher Ratenbegrenzung nicht tun!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -667,7 +671,7 @@ setjoinmessage_help_embed_fields_default_name_empy: "Standardnachricht"
 setjoinmessage_help_embed_desc: "{memberUsername} => Der Benutzername des Mitglieds\n{memberMention} => Erwähnung des Mitglieds\n{inviterUsername} => Der Name des Einladenden\n{inviterMention} => Erwähnung des Einladenden\n{memberCount} => Anzahl der Mitglieder in der Gilde\n{invitesCount} => Anzahl der Einladungen des Einladenden\n{guildName} => Name der Gilde\n{createdAt} => Kontoerstellung im Format TT/MM/JJJJ"
 setjoinmessage_button_set_name: "Nachricht festlegen"
 setjoinmessage_buttom_del_name: "Standardnachricht"
-setjoinmessage_awaiting_response: "Schreiben Sie die neue benutzerdefinierte Beitrittsnachricht in den Kanal."
+setjoinmessage_awaiting_response: "Schreiben Sie eine Beitrittsnachricht"
 
 # /setjoinroles
 setjoinroles_var_none: "Keine"
@@ -709,7 +713,7 @@ setleavemessage_logs_embed_title_on_disable: "SetJoinMessage-Protokolle"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> hat die Austrittsnachricht gelöscht!"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Benutzerdefinierte Austrittsnachricht erfolgreich gelöscht."
 setleavemessage_command_work_ls: "Die Austrittsnachricht lautet:"
-setleavemessage_awaiting_response: "Schreibe die neue benutzerdefinierte Abschiedsnachricht im Kanal."
+setleavemessage_awaiting_response: "Schreiben Sie die Hinterlassensnachricht"
 
 # /setup
 setup_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
@@ -762,6 +766,15 @@ automod_block_pub_command_off: "${interaction.user}, du hast die `Werbe-AutoMod-
 # /automod block spam
 automod_block_spam_command_on: "${interaction.user}, du hast die `Spam-AutoMod-Regel` auf **true** gesetzt.\nJetzt können Benutzer keinen Spam mehr senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt deinen Server!"
 automod_block_spam_command_off: "${interaction.user}, du hast die `Spam-AutoMod-Regel` auf **false** gesetzt.\nJetzt können Benutzer Spam senden.\nAutoMod x iHorizon wurde auf deinem Server deaktiviert!"
+
+# /guildconfig block too-new-account
+too_new_account_dont_specified_time_on_enable: "Sie haben keine Zeit angegeben. Um dieses Modul zu aktivieren, ist ein Mindestalter des Kontos erforderlich!"
+too_new_account_invalid_time_on_enable: "Die eingegebene Zeit ist nicht gültig! **Beispiel für gültige Zeit**: `3h; 30m; 4w; 4y` -> 3 Stunden; 30 Minuten; 4 Wochen; 4 Jahre"
+too_new_account_logEmbed_title: "TooNewAccount Modul"
+too_new_account_logEmbed_desc_on_enable: "${interaction.user} hat das TooNewAccount Modul aktiviert. Konten benötigen jetzt ein Mindestalter von ${beautifulTime}!"
+too_new_account_command_work_on_enable: "${interaction.user}, neue Mitglieder, die **${interaction.guild?.name}** beitreten, deren Konten jünger als `${beautifulTime}` sind, werden jetzt entfernt."
+too_new_account_logEmbed_desc_on_disable: "${interaction.user} hat das Modul deaktiviert!"
+too_new_account_command_work_on_disable: "${interaction.user}, das Modul wurde erfolgreich deaktiviert. Neue Mitgliedskonten werden nicht mehr überprüft."
 
 
 # Member Count commands
@@ -1436,6 +1449,8 @@ ticket_module_remove_question: "Wer ist der Benutzer, den du aus deinem Ticket e
 
 # Server-Protokolle
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **hat <@${firstEntry.target.id}> gebannt**"
+event_srvLogs_banAdd_fields_name: "Grund"
+event_srvLogs_banAdd_fields_value: "`{reason}`"
 event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **hat das Bann von ${firstEntry.target.username} aufgehoben**"
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **hat <@${firstEntry.target.id}> gekickt**"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> **hat die Rolle ${removedRoles} von ${oldMember.user.username} entfernt**"

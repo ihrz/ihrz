@@ -32,6 +32,7 @@ import {
 
 import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'membercount',
@@ -89,7 +90,7 @@ export const command: Command = {
     category: 'membercount',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setmembercount_not_admin });
@@ -141,7 +142,7 @@ export const command: Command = {
                     .setTitle(data.setmembercount_logs_embed_title_on_enable)
                     .setDescription(data.setmembercount_logs_embed_description_on_enable
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                        .replace(/\${channel\.id}/g, channel?.id)
+                        .replace(/\${channel\.id}/g, channel?.id!)
                         .replace(/\${messagei}/g, messagei)
                     );
 

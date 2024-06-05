@@ -22,12 +22,13 @@
 import { EmbedBuilder, Client, VoiceState, BaseGuildTextChannel } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData';
 
 export const event: BotEvent = {
     name: "voiceStateUpdate",
     run: async (client: Client, oldState: VoiceState, newState: VoiceState) => {
-        
-        let data = await client.functions.getLanguageData(oldState.guild.id);
+
+        let data = await client.functions.getLanguageData(oldState.guild.id) as LanguageData;
 
         if (!oldState || !oldState.guild) return;
 
@@ -60,7 +61,7 @@ export const event: BotEvent = {
         if (user && !channelID) {
             logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_description
                 .replace("${targetUser.id}", targetUser.id)
-                .replace("${OchannelID}", OchannelID)
+                .replace("${OchannelID}", OchannelID?.toString()!)
             );
             await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
             return;
@@ -69,7 +70,7 @@ export const event: BotEvent = {
         if (Ouser && !OchannelID) {
             logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_2_description
                 .replace("${targetUser.id}", targetUser.id)
-                .replace("${channelID}", channelID)
+                .replace("${channelID}", channelID?.toString()!)
             );
             await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
             return;
@@ -79,7 +80,7 @@ export const event: BotEvent = {
         if (!Ostatus.selfDeaf && status.selfDeaf) {
             logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_3_description
                 .replace("${targetUser.id}", targetUser.id)
-                .replace("${channelID}", channelID)
+                .replace("${channelID}", channelID?.toString()!)
             );
             await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
             return;
@@ -88,7 +89,7 @@ export const event: BotEvent = {
         if (Ostatus.selfDeaf && !status.selfDeaf) {
             logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_4_description
                 .replace("${targetUser.id}", targetUser.id)
-                .replace("${channelID}", channelID)
+                .replace("${channelID}", channelID?.toString()!)
             );
             await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
             return;
@@ -98,7 +99,7 @@ export const event: BotEvent = {
         if (!Ostatus.selfMute && status.selfMute) {
             logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_5_description
                 .replace("${targetUser.id}", targetUser.id)
-                .replace("${channelID}", channelID)
+                .replace("${channelID}", channelID?.toString()!)
             );
             await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
             return;
@@ -107,7 +108,7 @@ export const event: BotEvent = {
         if (Ostatus.selfMute && !status.selfMute) {
             logsEmbed.setDescription(data.event_srvLogs_voiceStateUpdate_6_description
                 .replace("${targetUser.id}", targetUser.id)
-                .replace("${channelID}", channelID)
+                .replace("${channelID}", channelID?.toString()!)
             );
             await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
             return;

@@ -545,6 +545,10 @@ vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} miembros```"
 vc_embed_fields_2_name: "・Conteo de Canales"
 vc_embed_fields_2_value: "```py\n${textChannelSize} canal(es) de texto\n${voiceChannelSize} canal(es) de voz```"
 
+# /massmove
+massmove_results: "${interaction.user}, iHorizon ha movido miembros entre canales de voz.\n\n**${movedCount}** miembro(s) fueron movidos exitosamente de ${fromChannel} a ${toChannel}.\n**${errorCount}** miembro(s) no pudieron ser movidos (ver los registros del servidor para más detalles)."
+massmove_too_much_member: "¡Demasiados miembros, no puedo hacerlo debido a un posible límite de velocidad!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -667,7 +671,7 @@ setjoinmessage_help_embed_fields_default_name_empy: "Mensaje Predeterminado"
 setjoinmessage_help_embed_desc: "{memberUsername} => Nombre de usuario del miembro\n{memberMention} => Mención del miembro\n{inviterUsername} => Nombre del que invitó\n{inviterMention} => Mención del que invitó\n{memberCount} => Número de miembros en el servidor\n{invitesCount} => Número de invitaciones del que invitó\n{guildName} => Nombre del servidor\n{createdAt} => Fecha de creación de la cuenta en DD/MM/AAAA"
 setjoinmessage_button_set_name: "Establecer mensaje"
 setjoinmessage_buttom_del_name: "Mensaje predeterminado"
-setjoinmessage_awaiting_response: "Escriba el nuevo mensaje personalizado de bienvenida en el canal."
+setjoinmessage_awaiting_response: "Creó un nuevo mensaje de unión personalizado."
 
 # /setjoinroles
 setjoinroles_var_none: "Ninguno"
@@ -762,6 +766,15 @@ automod_block_pub_command_off: "${interaction.user}, has desactivado la regla de
 # /automod block spam
 automod_block_spam_command_on: "${interaction.user}, has activado la regla de `AutoModeración de Spam` a **verdadero**.\nAhora los usuarios no pueden hacer spam.\nAutoModeración __enviando registros__ en ${logs_channel}.\nAutoModeración x iHorizon protege tu servidor!"
 automod_block_spam_command_off: "${interaction.user}, has desactivado la regla de `AutoModeración de Spam` a **falso**.\nAhora los usuarios pueden hacer spam.\nAutoModeración x iHorizon ha sido desactivada en tu servidor!"
+
+# /guildconfig block too-new-account
+too_new_account_dont_specified_time_on_enable: "¡No especificaste un tiempo! Para habilitar este módulo, se requiere una antigüedad mínima de la cuenta."
+too_new_account_invalid_time_on_enable: "¡El tiempo que ingresaste no es válido! **Ejemplo de tiempo válido**: `3h; 30m; 4w; 4y` -> 3 horas; 30 minutos; 4 semanas; 4 años"
+too_new_account_logEmbed_title: "Módulo TooNewAccount"
+too_new_account_logEmbed_desc_on_enable: "¡${interaction.user} ha habilitado el módulo TooNewAccount. Las cuentas ahora requieren una antigüedad mínima de ${beautifulTime}!"
+too_new_account_command_work_on_enable: "${interaction.user}, los nuevos miembros que se unan a **${interaction.guild?.name}** con cuentas de menos de `${beautifulTime}` serán expulsados."
+too_new_account_logEmbed_desc_on_disable: "¡${interaction.user} ha deshabilitado el módulo!"
+too_new_account_command_work_on_disable: "${interaction.user}, el módulo ha sido deshabilitado con éxito. Ya no se comprobará la fecha de creación de nuevas cuentas de miembros."
 
 
 # Member Count commands
@@ -1436,6 +1449,8 @@ ticket_module_remove_question: "¿Quién es el usuario que deseas eliminar de tu
 
 # Registros del Servidor
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **ha baneado a** <@${firstEntry.target.id}>"
+event_srvLogs_banAdd_fields_name: "Razón"
+event_srvLogs_banAdd_fields_value: "`{reason}`"
 event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **ha revocado el ban** de ${firstEntry.target.username}"
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **ha expulsado a** <@${firstEntry.target.id}>"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> ha eliminado el rol ${removedRoles} de ${oldMember.user.username}"

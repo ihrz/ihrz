@@ -43,6 +43,7 @@ import { format } from '../../../core/functions/date-and-time.js';
 import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
 import { generatePassword } from '../../../core/functions/random.js';
+import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {
     name: "schedule",
@@ -55,7 +56,7 @@ export const command: Command = {
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let table = client.db.table("SCHEDULE");
 
         let select = new StringSelectMenuBuilder()
@@ -309,7 +310,7 @@ export const command: Command = {
                 dateCollector?.on('collect', async (message) => {
                     await message.delete() && u.delete();
                     dateCollector?.stop();
-                    __0(client.timeCalculator.to_ms(message.content), collection);
+                    __0(client.timeCalculator.to_ms(message.content)!, collection);
                 });
 
 
@@ -320,7 +321,7 @@ export const command: Command = {
                         response.edit({
                             embeds: [],
                             content: data.schedule_create_not_number_time
-                                .replace('${interaction.user}', interaction.user),
+                                .replace('${interaction.user}', interaction.user.toString()),
                         });
                         return;
                     };
@@ -334,7 +335,7 @@ export const command: Command = {
                             }).setTitle(data.schedule_create_embed_title_confirm.replace('${scheduleCode}', scheduleCode))
                         ],
                         content: data.schedule_create_confirm_msg
-                            .replace('${interaction.user}', interaction.user)
+                            .replace('${interaction.user}', interaction.user.toString())
                             .replace('${scheduleCode}', scheduleCode)
                     });
 

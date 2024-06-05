@@ -1,9 +1,9 @@
 import logger from '../src/core/logger.js'
 import '../src/core/functions/colors.js';
-
-import { readdirSync, readFileSync } from 'fs';
+import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import yaml from 'js-yaml';
 import path from 'path';
+import readline from 'readline';
 
 logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray());
 logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray());
@@ -22,15 +22,15 @@ function generateTypeScriptType(json: any, name: string = "Root"): string {
             return `${arrayType}[]`;
         }
     } else if (typeof json === 'object' && json !== null) {
-        let typeString = `{`;
+        let typeString = `{\n`;
         for (const key in json) {
             if (json.hasOwnProperty(key)) {
                 const value = json[key];
                 const valueType = generateTypeScriptType(value, capitalizeFirstLetter(key));
-                typeString += ` ${key}: ${valueType};`;
+                typeString += `  ${key}: ${valueType};\n`;
             }
         }
-        typeString += ` }`;
+        typeString += `}`;
         return typeString;
     } else {
         return getPrimitiveType(json);
@@ -104,13 +104,49 @@ function compareParsedTypes(parsed1: any, parsed2: any, path: string = ''): stri
     return differences;
 }
 
-let TypingFiles: TypingsFiles = {};
+function mergeTypes(type1: string, type2: string): string {
+    const parsedType1 = parseType(type1);
+    const parsedType2 = parseType(type2);
 
-(async () => {
+    const mergedType = { ...parsedType1, ...parsedType2 };
+
+    return generateMergedTypeString(mergedType);
+}
+
+function generateMergedTypeString(json: any): string {
+    let typeString = `{\n`;
+    for (const key in json) {
+        if (json.hasOwnProperty(key)) {
+            const value = json[key];
+            const valueType = typeof value === 'object' && value !== null ? generateMergedTypeString(value) : value;
+            typeString += `  ${key}: ${valueType};\n`;
+        }
+    }
+    typeString += `}`;
+    return typeString;
+}
+
+function promptUser(): Promise<number> {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    return new Promise((resolve) => {
+        rl.question('Choose an option:\n1. Verify the integrity of files and do nothing more\n2. Verify the integrity of files and create TypeScript Interface files\n', (answer) => {
+            rl.close();
+            resolve(parseInt(answer, 10));
+        });
+    });
+}
+
+async function main() {
     const langsPath = path.join(process.cwd(), 'src', 'lang');
     const langsContent = readdirSync(langsPath);
 
     logger.legacy(`[-] Starting to check ${langsContent.length} lang files!`);
+
+    let TypingFiles: TypingsFiles = {};
 
     for (const langFile of langsContent) {
         const langData = yaml.load(readFileSync(path.join(langsPath, langFile), 'utf-8'));
@@ -139,4 +175,22 @@ let TypingFiles: TypingsFiles = {};
     } else {
         logger.log('Some typings do not match.');
     }
-})();
+
+    const userChoice = await promptUser();
+
+    if (userChoice === 2) {
+        let mergedType = referenceType;
+
+        for (let i = 1; i < typeValues.length; i++) {
+            const [_, currentType] = typeValues[i];
+            mergedType = mergeTypes(mergedType, currentType);
+        }
+
+        const outputFilePath = path.join(langsPath, `LanguageData.d.ts`);
+        const interfaceContent = `export interface LanguageData ${mergedType}`;
+        writeFileSync(outputFilePath, interfaceContent, 'utf-8');
+        logger.log(`[+] TypeScript definition file created: ${outputFilePath}`);
+    }
+}
+
+main();

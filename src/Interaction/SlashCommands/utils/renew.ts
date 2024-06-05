@@ -29,6 +29,7 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'renew',
@@ -42,7 +43,7 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
             await interaction.reply({ content: data.renew_not_administrator });
@@ -65,7 +66,7 @@ export const command: Command = {
                 reason: `Channel re-create by ${interaction.user} (${interaction.user.id})`
             });
 
-            here.send({ content: data.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.user) });
+            here.send({ content: data.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.user.toString()) });
             return;
         } catch (error) {
             await interaction.reply({ content: data.renew_dont_have_permission });

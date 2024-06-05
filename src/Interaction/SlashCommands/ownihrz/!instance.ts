@@ -148,7 +148,7 @@ export default {
                     if (botId === id_to_bot) {
                         let time = interaction.options.getString('time') || '0d';
 
-                        await tableOWNIHRZ.add(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`, client.timeCalculator.to_ms(time));
+                        await tableOWNIHRZ.add(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`, client.timeCalculator.to_ms(time)!);
 
                         let ExpireIn = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`);
                         let expire: string | null = null;
@@ -170,7 +170,7 @@ export default {
                     if (botId === id_to_bot) {
                         let time = interaction.options.getString('time') || '0d';
 
-                        await tableOWNIHRZ.sub(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`, client.timeCalculator.to_ms(time));
+                        await tableOWNIHRZ.sub(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`, client.timeCalculator.to_ms(time)!);
 
                         let ExpireIn = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`);
                         let expire: string | null = null;

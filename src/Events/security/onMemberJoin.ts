@@ -19,12 +19,13 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { AttachmentBuilder, Client, GuildMember, GuildTextBasedChannel, Message } from 'discord.js';
+import { AttachmentBuilder, Client, EmbedBuilder, GuildMember, GuildTextBasedChannel, Message } from 'discord.js';
 
 import logger from "../../core/logger.js";
 import captcha from "../../core/captcha.js";
 
 import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
@@ -33,43 +34,58 @@ export const event: BotEvent = {
         let baseData = await client.db.get(`${member.guild.id}.SECURITY`);
         if (!baseData || baseData?.disable === true) return;
 
-        let data = await client.functions.getLanguageData(member.guild.id);
+        let data = await client.functions.getLanguageData(member.guild.id) as LanguageData;
         let channel = member.guild.channels.cache.get(baseData?.channel);
-        let c = await captcha(280, 100)
+        let generatedCaptcha = await captcha(280, 100)
 
-        let sfbuff = Buffer.from((c?.image).split(",")[1], "base64");
+        let sfbuff = Buffer.from((generatedCaptcha?.image).split(",")[1], "base64");
+        const memberJoinDate = member.joinedAt;
+
+        let embed = new EmbedBuilder()
+            .setColor('#c4001f')
+            .setTimestamp()
+            .setImage("attachment://captcha.png")
+            .setDescription(data.event_security.replace('${member}', member.toString()))
+            ;
 
         (channel as GuildTextBasedChannel).send({
-            content: data.event_security
-                .replace('${member}', member),
-            files: [new AttachmentBuilder(sfbuff)]
+            content: member.toString(),
+            embeds: [embed],
+            files: [
+                { name: "captcha.png", attachment: sfbuff },
+            ]
         }).then(async (msg) => {
-            let filter = (m: Message) => m.author.id === member.id;
-            let collector = msg.channel.createMessageCollector({ filter: filter, time: 30000 });
+            let collector = msg.channel.createMessageCollector({
+                filter: (m) => m.author.id === member.id,
+                time: 30_000
+            });
+
             let passedtest = false;
 
-            collector.on('collect', (m) => {
-                m.delete();
+            collector.on('collect', async (m) => {
+                collector.stop();
+                await m.delete();
 
-                if (c.code === m.content) {
+                if (generatedCaptcha.code === m.content) {
                     member.roles.add(baseData?.role);
-                    msg.delete();
+                    msg.delete().catch(() => { });
                     passedtest = true;
-                    collector.stop();
                     return;
                 } else {
-                    // the member has failed the captcha 
-                    msg.delete();
+                    msg.delete().catch(() => { });
                     member.kick();
                     return;
                 }
             });
 
-            collector.on('end', (collected) => {
-                if (!member.joinedAt) member.kick();
+            collector.on('end', () => {
                 if (passedtest) return;
 
-                msg.delete();
+                if (!member.joinedAt && memberJoinDate === member.joinedAt) {
+                    member.kick();
+                }
+
+                msg.delete().catch(() => { });
             });
 
         }).catch((error: any) => {

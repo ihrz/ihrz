@@ -545,6 +545,10 @@ vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} участн�
 vc_embed_fields_2_name: "・Количество Каналов"
 vc_embed_fields_2_value: "```py\n${textChannelSize} текстовый(е) канал(ы)\n${voiceChannelSize} голосовой(е) канал(ы)```"
 
+# /massmove
+massmove_results: "${interaction.user}, iHorizon переместил участников между голосовыми каналами.\n\n**${movedCount}** участник(ов) были успешно перемещены из ${fromChannel} в ${toChannel}.\n**${errorCount}** участник(ов) не удалось переместить (подробнее см. в журналах сервера)."
+massmove_too_much_member: "Слишком много участников, не могу сделать это из-за возможного ограничения скорости!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -667,7 +671,7 @@ setjoinmessage_help_embed_fields_default_name_empy: "Стандартное со
 setjoinmessage_help_embed_desc: "{memberUsername} => Имя пользователя участника\n{memberMention} => Упоминание участника\n{inviterUsername} => Имя пригласившего\n{inviterMention} => Упоминание пригласившего\n{memberCount} => Количество участников на сервере\n{invitesCount} => Количество приглашений пригласившего\n{guildName} => Название сервера\n{createdAt} => Дата создания учетной записи в формате ДД/ММ/ГГГГ"
 setjoinmessage_button_set_name: "Установить сообщение"
 setjoinmessage_buttom_del_name: "Стандартное сообщение"
-setjoinmessage_awaiting_response: "Напишите новое пользовательское сообщение о вступлении в канале."
+setjoinmessage_awaiting_response: "Написал новое сообщение о присоединении."
 
 # /setjoinroles
 setjoinroles_var_none: "Нет"
@@ -709,7 +713,7 @@ setleavemessage_logs_embed_title_on_disable: "Журнал отключения 
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> удалил сообщение при выходе!"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Успешно удалено пользовательское сообщение при выходе."
 setleavemessage_command_work_ls: "Сообщение при выходе:"
-setleavemessage_awaiting_response: "Напишите новое пользовательское сообщение о выходе в канал."
+setleavemessage_awaiting_response: "Напишите оставьте сообщение."
 
 # /setup
 setup_not_admin: ":x: | Для выполнения этой команды вы должны быть администратором этого сервера!"
@@ -762,6 +766,15 @@ automod_block_pub_command_off: "${interaction.user}, вы отключили `П
 # /automod block spam
 automod_block_spam_command_on: "${interaction.user}, вы включили `Правило автоматической модерации спама` и теперь пользователи не могут спамить.\nAutoMod отправляет журналы в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
 automod_block_spam_command_off: "${interaction.user}, вы отключили `Правило автоматической модерации спама` и теперь пользователи могут спамить.\nAutoMod x iHorizon отключен на вашем сервере!"
+
+# /guildconfig block too-new-account
+too_new_account_dont_specified_time_on_enable: "Вы не указали время. Для включения этого модуля требуется минимальный возраст аккаунта!"
+too_new_account_invalid_time_on_enable: "Введенное вами время недействительно! **Пример допустимого времени**: `3h; 30m; 4w; 4y` -> 3 часа; 30 минут; 4 недели; 4 года"
+too_new_account_logEmbed_title: "Модуль TooNewAccount"
+too_new_account_logEmbed_desc_on_enable: "${interaction.user} включил модуль TooNewAccount. Теперь для аккаунтов требуется минимальный возраст в ${beautifulTime}!"
+too_new_account_command_work_on_enable: "${interaction.user}, новые участники, присоединившиеся к **${interaction.guild?.name}** с аккаунтами младше `${beautifulTime}`, будут удалены."
+too_new_account_logEmbed_desc_on_disable: "${interaction.user} отключил модуль!"
+too_new_account_command_work_on_disable: "${interaction.user}, модуль успешно отключен. Даты создания новых аккаунтов участников больше не будут проверяться."
 
 
 # Commandes de décompte des membres
@@ -1436,6 +1449,8 @@ ticket_module_remove_question: "Кого вы хотите удалить из �
 
 # Журналы сервера
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **забанил** <@${firstEntry.target.id}>"
+event_srvLogs_banAdd_fields_name: "Причина"
+event_srvLogs_banAdd_fields_value: "`{reason}`"
 event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **снял бан** с ${firstEntry.target.username}"
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **выгнал** <@${firstEntry.target.id}>"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> снял роль ${removedRoles} с ${oldMember.user.username}"
