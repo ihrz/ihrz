@@ -32,14 +32,14 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let action = interaction.options.getString("time") as string;
-        let time: number = client.timeCalculator.to_ms(action);
+        let time = client.timeCalculator.to_ms(action);
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.security_disable_not_admin });
             return;
         };
 
-        if (time === 0) {
+        if (!time) {
             await interaction.editReply({
                 content: data.start_time_not_valid
                     .replace('${interaction.user}', interaction.user.toString())

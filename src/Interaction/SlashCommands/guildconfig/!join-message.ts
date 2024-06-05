@@ -28,16 +28,18 @@ import {
     Client,
     ComponentType,
     EmbedBuilder,
+    ModalBuilder,
     PermissionsBitField,
+    TextInputBuilder,
+    TextInputStyle
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.setjoinmessage_not_admin });
+            await interaction.reply({ content: data.setjoinmessage_not_admin, ephemeral: true });
             return;
         }
 
@@ -51,27 +53,11 @@ export default {
             .addFields(
                 {
                     name: data.setjoinmessage_help_embed_fields_custom_name,
-                    value: joinMessage ? `\`\`\`${joinMessage}\`\`\`\n${joinMessage
-                        .replaceAll("{memberUsername}", interaction.user.username)
-                        .replaceAll("{memberMention}", interaction.user.toString())
-                        .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
-                        .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
-                        .replaceAll('{guildName}', interaction.guild?.name!)
-                        .replaceAll('{inviterUsername}', interaction.client.user?.username)
-                        .replaceAll('{inviterMention}', interaction.client.user.toString())
-                        .replaceAll('{invitesCount}', '1337')
-                        }` : data.setjoinmessage_help_embed_fields_custom_name_empy
+                    value: joinMessage ? `\`\`\`${joinMessage}\`\`\`\n${generateJoinMessagePreview(joinMessage, interaction)}` : data.setjoinmessage_help_embed_fields_custom_name_empy
                 },
                 {
                     name: data.setjoinmessage_help_embed_fields_default_name_empy,
-                    value: `\`\`\`${data.event_welcomer_inviter}\`\`\`\n${data.event_welcomer_inviter
-                        .replace("{memberMention}", interaction.user.toString())
-                        .replace('{createdAt}', interaction.user.createdAt.toDateString())
-                        .replace('{inviterUsername}', interaction.client.user?.username)
-                        .replace('{invitesCount}', '1337')
-                        .replace('{memberCount}', interaction.guild?.memberCount.toString()!)
-                        .replace('{guildName}', interaction.guild?.name!)
-                        }`
+                    value: `\`\`\`${data.event_welcomer_inviter}\`\`\`\n${generateJoinMessagePreview(data.event_welcomer_inviter, interaction)}`
                 }
             );
 
@@ -87,121 +73,147 @@ export default {
                     .setStyle(ButtonStyle.Danger),
             );
 
-        const originalResponse = await interaction.editReply({
+        const message = await interaction.editReply({
             embeds: [helpEmbed],
             components: [buttons]
         });
 
-        const collector = originalResponse.createMessageComponentCollector({
+        const collector = message.createMessageComponentCollector({
             componentType: ComponentType.Button,
-            filter: (u) => u.user.id === interaction.user.id,
             time: 80_000
         });
 
-        collector.on('collect', async (collectInteraction) => {
-            try {
-                if (collectInteraction.customId === "joinMessage-set-message") {
-                    await collectInteraction.reply({
-                        content: data.setjoinmessage_awaiting_response,
-                        ephemeral: true
-                    });
+        let lastModal_0_IdRegisterd = 0;
 
-                    const questionReply = interaction.channel?.createMessageCollector({
-                        filter: (m) => m.author.id === interaction.user.id,
-                        max: 1,
-                        time: 120_000
-                    });
+        collector.on('collect', async (buttonInteraction) => {
+            if (buttonInteraction.user.id !== interaction.user.id) {
+                await buttonInteraction.reply({ content: data.help_not_for_you, ephemeral: true });
+                return;
+            };
 
-                    questionReply?.on('collect', async (collected) => {
-                        try {
-                            const response = collected.content.substring(0, 1010);
-                            const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
-                                {
-                                    name: data.setjoinmessage_help_embed_fields_custom_name,
-                                    value: response ? `\`\`\`${response}\`\`\`\n${response
-                                        .replaceAll("{memberUsername}", interaction.user.username)
-                                        .replaceAll("{memberMention}", interaction.user.toString())
-                                        .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
-                                        .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
-                                        .replaceAll('{guildName}', interaction.guild?.name!)
-                                        .replaceAll('{inviterUsername}', interaction.client.user?.username)
-                                        .replaceAll('{inviterMention}', interaction.client.user.toString())
-                                        .replaceAll('{invitesCount}', '1337')
-                                        .replaceAll("\\n", '\n')
-                                        }` : data.setjoinmessage_help_embed_fields_custom_name_empy
-                                },
-                            );
+            if (buttonInteraction.customId === "joinMessage-set-message") {
+                const modal = new ModalBuilder()
+                    .setCustomId('joinMessage-modal')
+                    .setTitle(data.setjoinmessage_awaiting_response);
 
-                            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`, response);
+                const messageInput = new TextInputBuilder()
+                    .setCustomId('joinMessage-input')
+                    .setLabel(data.guildprofil_embed_fields_joinmessage)
+                    .setMaxLength(1010)
+                    .setStyle(TextInputStyle.Paragraph);
 
-                            collected.delete();
-                            newEmbed.addFields(helpEmbed.data.fields![1]);
-                            await originalResponse.edit({ embeds: [newEmbed] });
-                            questionReply.stop();
+                modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(messageInput));
 
-                            const logEmbed = new EmbedBuilder()
-                                .setColor("#bf0bb9")
-                                .setTitle(data.setjoinmessage_logs_embed_title_on_enable)
-                                .setDescription(data.setjoinmessage_logs_embed_description_on_enable
-                                    .replace("${interaction.user.id}", interaction.user.id)
-                                );
+                await buttonInteraction.showModal(modal);
 
-                            const logchannel = interaction.guild?.channels.cache.find((channel: { name: string }) => channel.name === 'ihorizon-logs');
-                            if (logchannel) {
-                                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
-                            }
+                const modalInteraction = await interaction.awaitModalSubmit({
+                    filter: (i) => i.customId === 'joinMessage-modal',
+                    time: 120_000
+                }).catch(() => null);
 
-                            await interaction.editReply({
-                                content: data.setjoinmessage_command_work_on_enable
-                                    .replace(
-                                        "${client.iHorizon_Emojis.icon.Green_Tick_Logo}",
-                                        client.iHorizon_Emojis.icon.Green_Tick_Logo
-                                    )
-                            });
-                        } catch (e) {
-                            logger.err(e as any);
-                        }
-                    });
-                } else if (collectInteraction.customId === "joinMessage-default-message") {
+                if (!modalInteraction) {
+                    return;
+                }
+
+                if (lastModal_0_IdRegisterd === parseInt(interaction.id)) return;
+                lastModal_0_IdRegisterd = parseInt(interaction.id);
+
+                try {
+                    const response = modalInteraction.fields.getTextInputValue('joinMessage-input');
+
                     const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
                         {
                             name: data.setjoinmessage_help_embed_fields_custom_name,
-                            value: data.setjoinmessage_help_embed_fields_custom_name_empy
+                            value: response ? `\`\`\`${response}\`\`\`\n${response
+                                .replaceAll("{memberUsername}", interaction.user.username)
+                                .replaceAll("{memberMention}", interaction.user.toString())
+                                .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
+                                .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
+                                .replaceAll('{guildName}', interaction.guild?.name!)
+                                .replaceAll('{inviterUsername}', interaction.client.user?.username)
+                                .replaceAll('{inviterMention}', interaction.client.user.toString())
+                                .replaceAll('{invitesCount}', '1337')
+                                .replaceAll("\\n", '\n')
+                                }` : data.setjoinmessage_help_embed_fields_custom_name_empy
                         },
                     );
 
-                    await collectInteraction.deferUpdate();
+                    await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`, response);
+                    await modalInteraction.reply({
+                        content: data.setjoinmessage_command_work_on_enable
+                            .replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo),
+                        ephemeral: true
+                    });
                     newEmbed.addFields(helpEmbed.data.fields![1]);
-                    await originalResponse.edit({ embeds: [newEmbed] });
-
-                    await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`);
+                    await message.edit({ embeds: [newEmbed] });
 
                     const logEmbed = new EmbedBuilder()
                         .setColor("#bf0bb9")
-                        .setTitle(data.setjoinmessage_logs_embed_title_on_disable)
-                        .setDescription(data.setjoinmessage_logs_embed_description_on_disable
+                        .setTitle(data.setjoinmessage_logs_embed_title_on_enable)
+                        .setDescription(data.setjoinmessage_logs_embed_description_on_enable
                             .replace("${interaction.user.id}", interaction.user.id)
                         );
 
                     const logchannel = interaction.guild?.channels.cache.find((channel: { name: string }) => channel.name === 'ihorizon-logs');
+
                     if (logchannel) {
                         (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
                     }
-
-                    await interaction.editReply({
-                        content: data.setjoinmessage_command_work_on_disable.replace('${client.iHorizon_Emojis.icon.Yes_Logo}', client.iHorizon_Emojis.icon.Yes_Logo)
-                    });
+                } catch (e) {
+                    logger.err(e as any);
                 }
-            } catch (e) {
-                logger.err(e as any);
+            } else if (buttonInteraction.customId === "joinMessage-default-message") {
+                const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
+                    {
+                        name: data.setjoinmessage_help_embed_fields_custom_name,
+                        value: data.setjoinmessage_help_embed_fields_custom_name_empy
+                    },
+                );
+
+                await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`);
+
+                await buttonInteraction.reply({
+                    content: data.setjoinmessage_command_work_on_enable
+                        .replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo),
+                    ephemeral: true
+                });
+
+                newEmbed.addFields(helpEmbed.data.fields![1]);
+                await message.edit({ embeds: [newEmbed] });
+
+                const logEmbed = new EmbedBuilder()
+                    .setColor("#bf0bb9")
+                    .setTitle(data.setjoinmessage_logs_embed_title_on_disable)
+                    .setDescription(data.setjoinmessage_logs_embed_description_on_disable
+                        .replace("${interaction.user.id}", interaction.user.id)
+                    );
+
+                const logchannel = interaction.guild?.channels.cache.find((channel: { name: string }) => channel.name === 'ihorizon-logs');
+                if (logchannel) {
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
+                }
             }
         });
 
         collector.on('end', async () => {
             buttons.components.forEach(x => {
-                x.setDisabled(true);
-            });
-            await originalResponse.edit({ components: [buttons] });
+                x.setDisabled(true)
+            })
+            await message.edit({ components: [buttons] });
         });
     },
 };
+
+
+function generateJoinMessagePreview(message: string, interaction: ChatInputCommandInteraction): string {
+    return message
+        .replaceAll("{memberUsername}", interaction.user.username)
+        .replaceAll("{memberMention}", interaction.user.toString())
+        .replaceAll('{memberCount}', interaction.guild?.memberCount?.toString()!)
+        .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
+        .replaceAll('{guildName}', interaction.guild?.name!)
+        .replaceAll('{inviterUsername}', interaction.client.user?.username)
+        .replaceAll('{inviterMention}', interaction.client.user?.toString())
+        .replaceAll('{invitesCount}', '1337')
+        .replaceAll("\\n", '\n');
+}

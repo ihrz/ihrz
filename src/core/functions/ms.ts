@@ -21,7 +21,7 @@
 
 class iHorizonTimeCalculator {
 
-    to_ms(timeString: string): number {
+    to_ms(timeString: string): number | undefined {
         const regex = /(-?\d*\.?\d+)([a-zA-Z]+)/g;
         let totalMilliseconds = 0;
         let matches;
@@ -104,14 +104,14 @@ class iHorizonTimeCalculator {
             totalMilliseconds += value * multiplier;
         };
 
-        return totalMilliseconds;
+        return totalMilliseconds === 0 ? undefined : totalMilliseconds;
     };
 
     to_beautiful_string(timeStringOrMs: string | number, options?: { long?: boolean }): string {
         let milliseconds: number;
 
         if (typeof timeStringOrMs === 'string') {
-            milliseconds = this.to_ms(timeStringOrMs);
+            milliseconds = this.to_ms(timeStringOrMs)!;
         } else if (typeof timeStringOrMs === 'number') {
             milliseconds = timeStringOrMs;
         } else {

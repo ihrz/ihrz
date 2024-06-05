@@ -21,6 +21,7 @@
 
 import { BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField } from 'discord.js';
 import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData';
 
 const processedMembers = new Set<string>();
 
@@ -37,7 +38,7 @@ export const event: BotEvent = {
         processedMembers.add(member.id);
         setTimeout(() => processedMembers.delete(member.id), 7000);
 
-        let data = await client.functions.getLanguageData(member.guild.id);
+        let data = await client.functions.getLanguageData(member.guild.id) as LanguageData;
 
         if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
 
@@ -136,8 +137,8 @@ export const event: BotEvent = {
                     .replaceAll('{createdAt}', member.user.createdAt.toDateString())
                     .replaceAll('{guildName}', member.guild.name!)
                     .replaceAll('{inviterUsername}', '.gg/' + VanityURL.code)
-                    .replaceAll('{inviterMention}', VanityURL.code)
-                    .replaceAll('{invitesCount}', VanityURL.uses)
+                    .replaceAll('{inviterMention}', VanityURL.code!)
+                    .replaceAll('{invitesCount}', VanityURL.uses.toString()!)
                     .replaceAll("\\n", '\n');
 
                 channel.send({ content: msg });
