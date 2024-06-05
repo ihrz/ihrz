@@ -30,6 +30,7 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'nickrole',
@@ -88,7 +89,7 @@ export const command: Command = {
     category: 'utils',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let action_1 = interaction.options.getString("action");
         let part_of_nickname = interaction.options.getString("nickname")?.toLowerCase() as string;
@@ -139,12 +140,12 @@ export const command: Command = {
                 .setTimestamp()
                 .setThumbnail(interaction.guild?.iconURL() as string)
                 .setDescription(data.nickrole_add_command_work
-                    .replace('${interaction.user}', interaction.user)
-                    .replace('${a}', a)
-                    .replace('${s}', s)
-                    .replace('${e}', e)
+                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${a}', a.toString())
+                    .replace('${s}', s.toString())
+                    .replace('${e}', e.toString())
                     .replace('${part_of_nickname}', part_of_nickname)
-                    .replaceAll('${role}', role)
+                    .replaceAll('${role}', role?.toString()!)
                 );
 
             await interaction.editReply({
@@ -188,12 +189,12 @@ export const command: Command = {
                 .setTimestamp()
                 .setThumbnail(interaction.guild?.iconURL() as string)
                 .setDescription(data.nickrole_sub_command_work
-                    .replace('${interaction.user}', interaction.user)
-                    .replace('${a}', a)
-                    .replace('${s}', s)
-                    .replace('${e}', e)
+                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${a}', a.toString())
+                    .replace('${s}', s.toString())
+                    .replace('${e}', e.toString())
                     .replace('${part_of_nickname}', part_of_nickname)
-                    .replaceAll('${role}', role)
+                    .replaceAll('${role}', role?.toString()!)
                 );
 
             await interaction.editReply({

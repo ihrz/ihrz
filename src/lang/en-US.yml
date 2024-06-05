@@ -545,6 +545,10 @@ vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} members```"
 vc_embed_fields_2_name: "・Channel Count"
 vc_embed_fields_2_value: "```py\n${textChannelSize} text channel(s)\n${voiceChannelSize} voice channel(s)```"
 
+# /massmove
+massmove_results: "${interaction.user}, iHorizon has moved members between voice channels.\n\n**${movedCount}** member(s) were successfully moved from ${fromChannel} to ${toChannel}.\n**${errorCount}** member(s) could not be moved (see the server logs for details)."
+massmove_too_much_member: "Too many members, can't do it due to possible rate limiting!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -667,7 +671,7 @@ setjoinmessage_help_embed_fields_default_name_empy: "Default Message"
 setjoinmessage_help_embed_desc: "{memberUsername} => The member username\n{memberMention} => Mention the member\n{inviterUsername} => The inviter's name\n{inviterMention} => Mention the inviter\n{memberCount} => Guild's member count\n{invitesCount} => Invites number of the inviter\n{guildName} => The guild's name\n{createdAt} => Account creation in dd/mm/yyyy"
 setjoinmessage_button_set_name: "Set message"
 setjoinmessage_buttom_del_name: "Default Message"
-setjoinmessage_awaiting_response: "Wrote the new custom Join Message in the channel."
+setjoinmessage_awaiting_response: "Wrote the new custom Join Message."
 
 # /setjoinroles
 setjoinroles_var_none: "None"
@@ -709,7 +713,7 @@ setleavemessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deleted the leave message !"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Successfully deleted custom leave message."
 setleavemessage_command_work_ls: "The leave message is:"
-setleavemessage_awaiting_response: "Wrote the new custom Leave Message in the channel."
+setleavemessage_awaiting_response: "Wrote the new custom Leave Message."
 
 # /setup
 setup_not_admin: ":x: | You must be an administrator of this server !"
@@ -762,6 +766,15 @@ automod_block_pub_command_off: "${interaction.user}, you have set the `Pub AutoM
 # /automod block spam
 automod_block_spam_command_on: "${interaction.user}, you have set the `Spam AutoMod Rule` to **true**.\nNow user can't spam.\nAutoMod __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
 automod_block_spam_command_off: "${interaction.user}, you have set the `Spam AutoMod Rule` to **false**.\nNow user can spam.\nAutoMod x iHorizon have been disabled on your server!"
+
+# /guildconfig block too-new-account
+too_new_account_dont_specified_time_on_enable: "You did not specify a time. To enable this module, a minimum account age is required!"
+too_new_account_invalid_time_on_enable: "The time you entered is not valid! **Example of valid time**: `3h; 30m; 4w; 4y` -> 3 hours; 30 minutes; 4 weeks; 4 years"
+too_new_account_logEmbed_title: "TooNewAccount Module"
+too_new_account_logEmbed_desc_on_enable: "${interaction.user} has enabled the TooNewAccount module. Accounts now require a minimum of ${beautifulTime} age!"
+too_new_account_command_work_on_enable: "${interaction.user}, new members joining **${interaction.guild?.name}** with accounts younger than `${beautifulTime}` will now be kicked."
+too_new_account_logEmbed_desc_on_disable: "${interaction.user} has disabled the module!"
+too_new_account_command_work_on_disable: "${interaction.user}, the module has been successfully disabled. New member account creation dates will no longer be checked."
 
 
 # Member Count commands
@@ -1436,6 +1449,8 @@ ticket_module_remove_question: "Who is the user you want to remove from your tic
 
 # Server Logs
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **banned** <@${firstEntry.target.id}>"
+event_srvLogs_banAdd_fields_name: "Reason"
+event_srvLogs_banAdd_fields_value: "```{reason}```"
 event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **revoked the ban** on ${firstEntry.target.username}"
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **kicked** <@${firstEntry.target.id}>"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> removed the ${removedRoles} role from ${oldMember.user.username}"

@@ -545,6 +545,10 @@ vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} membres```"
 vc_embed_fields_2_name: "・Nombre de Canaux"
 vc_embed_fields_2_value: "```py\n${textChannelSize} canal(aux) texte\n${voiceChannelSize} canal(aux) vocal(aux)```"
 
+# /massmove
+massmove_results: "${interaction.user}, iHorizon a déplacé des membres entre les canaux vocaux.\n\n**${movedCount}** membre(s) ont été déplacé(s) avec succès de ${fromChannel} à ${toChannel}.\n**${errorCount}** membre(s) n'ont pas pu être déplacé(s) (voir les logs du serveur pour plus de détails)."
+massmove_too_much_member: "Trop de membres, je ne peux pas le faire en raison d'une éventuelle limitation de débit !"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -667,7 +671,7 @@ setjoinmessage_help_embed_fields_default_name_empy: "Message par Défaut"
 setjoinmessage_help_embed_desc: "{memberUsername} => Le nom d'utilisateur du membre\n{memberMention} => Mentionner le membre\n{inviterUsername} => Le nom de l'invitant\n{inviterMention} => Mentionner l'invitant\n{memberCount} => Nombre de membres dans la guilde\n{invitesCount} => Nombre d'invitations de l'invitant\n{guildName} => Le nom de la guilde\n{createdAt} => Date de création du compte en JJ/MM/AAAA"
 setjoinmessage_button_set_name: "Définir le message"
 setjoinmessage_buttom_del_name: "Message par défaut"
-setjoinmessage_awaiting_response: "Écrivez le nouveau message de bienvenue personnalisé dans le canal."
+setjoinmessage_awaiting_response: "Écrivez le message de bienvenue."
 
 # /setjoinroles
 setjoinroles_var_none: "Aucun"
@@ -709,7 +713,7 @@ setleavemessage_logs_embed_title_on_disable: "Logs de message de départ configu
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> a supprimé le message de départ personnalisé !"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Message de départ personnalisé supprimé avec succès."
 setleavemessage_command_work_ls: "Le message de départ est le suivant:"
-setleavemessage_awaiting_response: "Écrivez le nouveau message de départ personnalisé dans le canal."
+setleavemessage_awaiting_response: "Écrivez le nouveau message de départ."
 
 # /setup
 setup_not_admin: ":x: | Tu dois être administrateur de ce serveur !"
@@ -762,6 +766,15 @@ automod_block_pub_command_off: "${interaction.user}, tu avez désactivé la règ
 # /automod block spam
 automod_block_spam_command_on: "${interaction.user}, tu avez activé la règle `AutoModération de Spam` à **true**.\nMaintenant, les utilisateurs ne peuvent pas spammer.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège ton serveur !"
 automod_block_spam_command_off: "${interaction.user}, tu avez désactivé la règle `AutoModération de Spam` à **false**.\nMaintenant, les utilisateurs peuvent spammer.\nAutoMod x iHorizon a été désactivé sur ton serveur !"
+
+# /guildconfig block too-new-account
+too_new_account_dont_specified_time_on_enable: "Vous n'avez pas spécifié de délai. Pour activer ce module, un âge minimum du compte est requis !"
+too_new_account_invalid_time_on_enable: "Le délai que vous avez entré n'est pas valide ! **Exemple de délai valide** : `3h ; 30m ; 4w ; 4y` -> 3 heures ; 30 minutes ; 4 semaines ; 4 ans"
+too_new_account_logEmbed_title: "Module TooNewAccount"
+too_new_account_logEmbed_desc_on_enable: "${interaction.user} a activé le module TooNewAccount. Les comptes nécessitent désormais un âge minimum de ${beautifulTime} !"
+too_new_account_command_work_on_enable: "${interaction.user}, les nouveaux membres rejoignant **${interaction.guild?.name}** avec des comptes âgés de moins de `${beautifulTime}` seront désormais expulsés."
+too_new_account_logEmbed_desc_on_disable: "${interaction.user} a désactivé le module !"
+too_new_account_command_work_on_disable: "${interaction.user}, le module a été désactivé avec succès. La date de création des comptes des nouveaux membres ne sera plus vérifiée."
 
 
 # Member Count commands
@@ -1436,6 +1449,8 @@ ticket_module_remove_question: "Qui est l'utilisateur que tu souhaites retirer d
 
 # Server Logs
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **a banni** <@${firstEntry.target.id}> suivi de 'on t'aime pas dégage'"
+event_srvLogs_banAdd_fields_name: "Raison"
+event_srvLogs_banAdd_fields_value: "`{reason}`"
 event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> a **révoqué le bannissement** de ${firstEntry.target.username} revient parmi nous débillos"
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **a kické** <@${firstEntry.target.id}>"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> a supprimé le rôle ${removedRoles} à ${oldMember.user.username}, bruh"

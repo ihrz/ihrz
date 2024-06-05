@@ -29,6 +29,7 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'owner',
@@ -55,7 +56,7 @@ export const command: Command = {
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let tableOwner = client.db.table('OWNER');
         let isOwner = await tableOwner.get(interaction.user.id);
 
@@ -92,7 +93,7 @@ export const command: Command = {
         };
 
         await tableOwner.set(`${member.user.id}`, { owner: true });
-        await interaction.reply({ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.user.globalName) });
+        await interaction.reply({ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.user.globalName!) });
         return;
     },
 };

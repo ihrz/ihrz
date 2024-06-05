@@ -29,6 +29,7 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'links',
@@ -37,12 +38,12 @@ export const command: Command = {
     description_localizations: {
         "fr": "Afficher tous les liens en rapport avec iHorizon"
     },
-    
+
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let websitebutton = new ButtonBuilder()
             .setLabel(data.links_website)

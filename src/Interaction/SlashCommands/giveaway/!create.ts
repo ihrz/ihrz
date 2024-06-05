@@ -64,7 +64,7 @@ export default {
         let giveawayPrize = interaction.options.getString("prize");
         let giveawayDurationFormated = client.timeCalculator.to_ms(giveawayDuration!);
 
-        if (giveawayDurationFormated === 0) {
+        if (!giveawayDurationFormated) {
             await interaction.editReply({
                 content: data.start_time_not_valid
                     .replace('${interaction.user}', interaction.user.toString())

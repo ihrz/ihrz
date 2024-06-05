@@ -48,7 +48,7 @@ import {
     Embed,
 } from 'discord.js';
 
-import { LanguageData } from '../../../types/languageData.js';
+import { LanguageData } from '../../../types/languageData';
 
 import { isDiscordEmoji, isSingleEmoji } from '../functions/emojiChecker.js';
 import * as discordTranscripts from 'discord-html-transcripts';
@@ -686,7 +686,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
 };
 
 async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guildId);
+    let data = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
     let fetch = await database.get(
         `${interaction.guildId}.TICKET_ALL`
@@ -729,8 +729,8 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) 
                                 .setColor("#008000")
                                 .setTitle(data.event_ticket_logsChannel_onClose_embed_title)
                                 .setDescription(data.event_ticket_logsChannel_onClose_embed_desc
-                                    .replace('${interaction.user}', interaction.user)
-                                    .replace('${interaction.channel.id}', interaction.channel?.id)
+                                    .replace('${interaction.user}', interaction.user.toString())
+                                    .replace('${interaction.channel.id}', interaction.channel?.id!)
                                 )
                                 .setFooter({ text: interaction.client.user?.username!, iconURL: "attachment://icon.png" })
                                 .setTimestamp();
@@ -746,7 +746,7 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) 
 };
 
 async function TicketTranscript(interaction: ButtonInteraction<CacheType>) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guildId);
+    let data = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
     let interactionChannel = interaction.channel;
 
     let fetch = await database.get(
@@ -785,12 +785,12 @@ async function TicketTranscript(interaction: ButtonInteraction<CacheType>) {
 };
 
 async function TicketRemoveMember(interaction: ChatInputCommandInteraction<CacheType>) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guildId);
+    let data = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
     let member = interaction.options.getUser("user");
 
     try {
         (interaction.channel as BaseGuildTextChannel)?.permissionOverwrites.create(member as User, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
-        interaction.editReply({ content: data.remove_command_work.replace(/\${member\.tag}/g, member?.username) });
+        interaction.editReply({ content: data.remove_command_work.replace(/\${member\.tag}/g, member?.username!) });
 
         try {
             let TicketLogsChannel = await database.get(`${interaction.guildId}.GUILD.TICKET.logs`);
@@ -801,9 +801,9 @@ async function TicketRemoveMember(interaction: ChatInputCommandInteraction<Cache
                 .setColor("#008000")
                 .setTitle(data.event_ticket_logsChannel_onRemoveMember_embed_title)
                 .setDescription(data.event_ticket_logsChannel_onRemoveMember_embed_desc
-                    .replace('${member}', member)
-                    .replace('${interaction.user}', interaction.user)
-                    .replace('${interaction.channel.id}', interaction.channel?.id)
+                    .replace('${member}', member?.toString()!)
+                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${interaction.channel.id}', interaction.channel?.id!)
                 )
                 .setFooter({ text: interaction.client.user?.username!, iconURL: "attachment://icon.png" })
                 .setTimestamp();
@@ -819,7 +819,7 @@ async function TicketRemoveMember(interaction: ChatInputCommandInteraction<Cache
 };
 
 async function TicketAddMember(interaction: ChatInputCommandInteraction<CacheType>) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guildId);
+    let data = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
     let member = interaction.options.getUser("user");
 
     if (!member) {
@@ -840,9 +840,9 @@ async function TicketAddMember(interaction: ChatInputCommandInteraction<CacheTyp
                 .setColor("#008000")
                 .setTitle(data.event_ticket_logsChannel_onAddMember_embed_title)
                 .setDescription(data.event_ticket_logsChannel_onAddMember_embed_desc
-                    .replace('${member}', member)
-                    .replace('${interaction.user}', interaction.user)
-                    .replace('${interaction.channel.id}', interaction.channel?.id)
+                    .replace('${member}', member.toString())
+                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${interaction.channel.id}', interaction.channel?.id!)
                 )
                 .setFooter({ text: interaction.client.user?.username!, iconURL: "attachment://icon.png" })
                 .setTimestamp();
@@ -858,7 +858,7 @@ async function TicketAddMember(interaction: ChatInputCommandInteraction<CacheTyp
 };
 
 async function TicketReOpen(interaction: ChatInputCommandInteraction<CacheType>) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guildId);
+    let data = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
     let fetch = await database.get(`${interaction.guildId}.TICKET_ALL`);
 
     for (let user in fetch) {
@@ -877,7 +877,7 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<CacheType>)
                         .then(() => {
                             interaction.editReply({
                                 content: data.open_command_work
-                                    .replace(/\${interaction\.channel}/g, interaction.channel)
+                                    .replace(/\${interaction\.channel}/g, interaction.channel?.toString()!)
                             });
                             return;
                         });
@@ -891,7 +891,7 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<CacheType>)
                             .setColor("#008000")
                             .setTitle(data.event_ticket_logsChannel_onReopen_embed_title)
                             .setDescription(data.event_ticket_logsChannel_onReopen_embed_desc
-                                .replace('${interaction.user}', interaction.user)
+                                .replace('${interaction.user}', interaction.user.toString())
                                 .replace('${interaction.channel.id}', interaction.channel.id)
                             )
                             .setFooter({ text: interaction.client.user?.username!, iconURL: "attachment://icon.png" })
@@ -911,7 +911,7 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<CacheType>)
 };
 
 async function TicketDelete(interaction: Interaction<CacheType>) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guildId);
+    let data = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
     let fetch = await database.get(`${interaction.guildId}.TICKET_ALL`);
 
     for (let user in fetch) {
@@ -935,7 +935,7 @@ async function TicketDelete(interaction: Interaction<CacheType>) {
                         .setColor("#008000")
                         .setTitle(data.event_ticket_logsChannel_onDelete_embed_title)
                         .setDescription(data.event_ticket_logsChannel_onDelete_embed_desc
-                            .replace('${interaction.user}', interaction.user)
+                            .replace('${interaction.user}', interaction.user.toString())
                             .replace('${interaction.channel.name}', (interaction.channel as BaseGuildTextChannel)?.name)
                         )
                         .setFooter({ text: interaction.client.user?.username!, iconURL: "attachment://icon.png" })
@@ -950,7 +950,7 @@ async function TicketDelete(interaction: Interaction<CacheType>) {
 };
 
 async function TicketAddMember_2(interaction: UserSelectMenuInteraction<CacheType>) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guildId);
+    let data = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;;
     let owner_ticket = await database.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}.${interaction.channel?.id}`);
 
     if (!owner_ticket) {
@@ -993,18 +993,18 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<CacheTyp
     if (addedMembers.length > 0) {
         interaction.channel?.send({
             content: data.event_ticket_add_member
-                .replace('${interaction.user}', interaction.user)
+                .replace('${interaction.user}', interaction.user.toString())
                 .replace("${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')}", addedMembers.map((memberId) => `<@${memberId}>`).join(' '))
-                .replace('${interaction.channel}', interaction.channel)
+                .replace('${interaction.channel}', interaction.channel.toString())
         });
     };
 
     if (removedMembers.length > 0) {
         interaction.channel?.send({
             content: data.event_ticket_del_member
-                .replace('${interaction.user}', interaction.user)
+                .replace('${interaction.user}', interaction.user.toString())
                 .replace("${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')}", removedMembers.map((memberId) => `<@${memberId}>`).join(' '))
-                .replace('${interaction.channel}', interaction.channel)
+                .replace('${interaction.channel}', interaction.channel.toString())
         });
     };
     await interaction.deferUpdate();
@@ -1018,10 +1018,10 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<CacheTyp
             .setColor("#008000")
             .setTitle(data.event_ticket_logsChannel_onAddMember2_embed_title)
             .setDescription(data.event_ticket_logsChannel_onAddMember2_embed_desc
-                .replace('${interaction.user}', interaction.user)
+                .replace('${interaction.user}', interaction.user.toString())
                 .replace("${removedMembers}", removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'None')
                 .replace("${addedMembers}", addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'None')
-                .replace('${interaction.channel}', interaction.channel)
+                .replace('${interaction.channel}', interaction.channel?.toString()!)
 
             )
             .setFooter({ text: interaction.client.user?.username!, iconURL: "attachment://icon.png" })

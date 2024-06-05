@@ -29,6 +29,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
 
@@ -44,7 +45,7 @@ export const command: Command = {
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: CommandInteraction) => {
 
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let voiceStates = interaction.guild?.voiceStates.cache;
         let membersStates = interaction.guild?.members.cache;
 
@@ -60,41 +61,41 @@ export const command: Command = {
             .setColor(2829617)
             .setDescription(
                 data.vc_embed_desc
-                    .replaceAll('${voiceStates?.size}', voiceStates?.size)
+                    .replaceAll('${voiceStates?.size}', voiceStates?.size.toString()!)
                     .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Streaming}', client.iHorizon_Emojis.icon.iHorizon_Streaming)
-                    .replaceAll('${voiceStates?.filter(vc => vc.streaming).size}', voiceStates?.filter(vc => vc.streaming).size)
+                    .replaceAll('${voiceStates?.filter(vc => vc.streaming).size}', voiceStates?.filter(vc => vc.streaming).size.toString()!)
                     .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Deaf}', client.iHorizon_Emojis.icon.iHorizon_Deaf)
-                    .replaceAll('${voiceStates?.filter(vc => vc.selfDeaf).size}', voiceStates?.filter(vc => vc.selfDeaf).size)
+                    .replaceAll('${voiceStates?.filter(vc => vc.selfDeaf).size}', voiceStates?.filter(vc => vc.selfDeaf).size.toString()!)
                     .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Mute}', client.iHorizon_Emojis.icon.iHorizon_Mute)
-                    .replaceAll('${voiceStates?.filter(vc => vc.selfMute).size}', voiceStates?.filter(vc => vc.selfMute).size)
+                    .replaceAll('${voiceStates?.filter(vc => vc.selfMute).size}', voiceStates?.filter(vc => vc.selfMute).size.toString()!)
                     .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Camera}', client.iHorizon_Emojis.icon.iHorizon_Camera)
-                    .replaceAll('${voiceStates?.filter(vc => vc.selfVideo).size}', voiceStates?.filter(vc => vc.selfVideo).size)
-                    .replaceAll('${membersStates?.size}', membersStates?.size)
+                    .replaceAll('${voiceStates?.filter(vc => vc.selfVideo).size}', voiceStates?.filter(vc => vc.selfVideo).size.toString()!)
+                    .replaceAll('${membersStates?.size}', membersStates?.size.toString()!)
                     .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_DND}', client.iHorizon_Emojis.icon.iHorizon_DND)
-                    .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "dnd").size}', membersStates?.filter(mbr => mbr.presence?.status === "dnd").size)
+                    .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "dnd").size}', membersStates?.filter(mbr => mbr.presence?.status === "dnd").size.toString()!)
                     .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Online}', client.iHorizon_Emojis.icon.iHorizon_Online)
-                    .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "online").size}', membersStates?.filter(mbr => mbr.presence?.status === "online").size)
+                    .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "online").size}', membersStates?.filter(mbr => mbr.presence?.status === "online").size.toString()!)
                     .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Idle}', client.iHorizon_Emojis.icon.iHorizon_Idle)
-                    .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "idle").size}', membersStates?.filter(mbr => mbr.presence?.status === "idle").size)
+                    .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "idle").size}', membersStates?.filter(mbr => mbr.presence?.status === "idle").size.toString()!)
                     .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Invisible}', client.iHorizon_Emojis.icon.iHorizon_Invisible)
-                    .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "invisible").size}', membersStates?.filter(mbr => mbr.presence?.status === "invisible").size)
-                    .replaceAll('${interaction.guild?.premiumSubscriptionCount}', interaction.guild?.premiumSubscriptionCount)
-                    .replaceAll('${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => <@${usr.id}>)}', interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`))
-                    .replaceAll('${interaction.guild?.premiumSubscriptionCount}', interaction.guild?.premiumSubscriptionCount)
-                    .replaceAll('${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}', interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`))
+                    .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "invisible").size}', membersStates?.filter(mbr => mbr.presence?.status === "invisible").size.toString()!)
+                    .replaceAll('${interaction.guild?.premiumSubscriptionCount}', interaction.guild?.premiumSubscriptionCount?.toString()!)
+                    .replaceAll('${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => <@${usr.id}>)}', interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`).toString()!)
+                    .replaceAll('${interaction.guild?.premiumSubscriptionCount}', interaction.guild?.premiumSubscriptionCount?.toString()!)
+                    .replaceAll('${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}', interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`).toString()!)
             )
             .addFields(
                 {
                     name: data.vc_embed_fields_1_name,
                     value: data.vc_embed_fields_1_value
-                        .replace('${interaction.guild?.memberCount}', interaction.guild?.memberCount),
+                        .replace('${interaction.guild?.memberCount}', interaction.guild?.memberCount.toString()!),
                     inline: true
                 },
                 {
                     name: data.vc_embed_fields_2_name,
                     value: data.vc_embed_fields_2_value
-                        .replace('${textChannelSize}', textChannelSize)
-                        .replace('${voiceChannelSize}', voiceChannelSize),
+                        .replace('${textChannelSize}', textChannelSize?.toString()!)
+                        .replace('${voiceChannelSize}', voiceChannelSize?.toString()!),
                     inline: true
                 },
             )

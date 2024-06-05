@@ -31,6 +31,7 @@ import {
 
 import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'rolereaction',
@@ -100,7 +101,7 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.reactionroles_dont_admin_added });
@@ -149,9 +150,9 @@ export const command: Command = {
                     .setTitle(data.reactionroles_logs_embed_title_added)
                     .setDescription(data.reactionroles_logs_embed_description_added
                         .replace("${interaction.user.id}", interaction.user.id)
-                        .replace("${messagei}", messagei)
+                        .replace("${messagei}", messagei!)
                         .replace("${reaction}", reaction)
-                        .replace("${role}", role)
+                        .replace("${role}", role?.toString()!)
                     )
                 let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
@@ -159,9 +160,9 @@ export const command: Command = {
 
             await interaction.reply({
                 content: data.reactionroles_command_work_added
-                    .replace("${messagei}", messagei)
+                    .replace("${messagei}", messagei!)
                     .replace("${reaction}", reaction)
-                    .replace("${role}", role)
+                    .replace("${role}", role?.toString()!)
                 , ephemeral: true
             });
             return;
@@ -201,8 +202,8 @@ export const command: Command = {
                     .setTitle(data.reactionroles_logs_embed_title_remove)
                     .setDescription(data.reactionroles_logs_embed_description_remove
                         .replace("${interaction.user.id}", interaction.user.id)
-                        .replace("${messagei}", messagei)
-                        .replace("${reaction}", reaction)
+                        .replace("${messagei}", messagei!)
+                        .replace("${reaction}", reaction!)
                     );
                 let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
@@ -210,8 +211,8 @@ export const command: Command = {
 
             await interaction.reply({
                 content: data.reactionroles_command_work_remove
-                    .replace("${reaction}", reaction)
-                    .replace("${messagei}", messagei)
+                    .replace("${reaction}", reaction!)
+                    .replace("${messagei}", messagei!)
                 , ephemeral: true
             });
             return;

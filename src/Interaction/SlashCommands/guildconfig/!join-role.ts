@@ -200,10 +200,17 @@ export default {
             }
         });
 
-        collector.on('end', collected => {
-            if (collected.size === 0) {
-                interaction.followUp({ content: data.setjoinroles_var_timesup, ephemeral: true });
-            }
+        collector.on('end', async () => {
+            interaction.followUp({ content: data.setjoinroles_var_timesup, ephemeral: true });
+            comp.components.forEach(x => {
+                x.setDisabled(true)
+            });
+
+            comp_2.components.forEach(x => {
+                x.setDisabled(true);
+            })
+
+            await og_response.edit({ components: [comp, comp_2] });
         });
 
         function updateEmbed(embed: EmbedBuilder, roles: Role[], data: LanguageData) {

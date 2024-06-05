@@ -23,6 +23,7 @@ import { Client, EmbedBuilder, Message } from 'discord.js';
 import { generatePassword } from '../../core/functions/random.js';
 
 import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData.js';
 
 const processedMembers = new Set<string>();
 
@@ -41,7 +42,7 @@ export const event: BotEvent = {
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        let data = await client.functions.getLanguageData(message.guild.id);
+        let data = await client.functions.getLanguageData(message.guild.id) as LanguageData;
 
         let baseData = await client.db.get(`${message.guildId}.SUGGEST`);
 

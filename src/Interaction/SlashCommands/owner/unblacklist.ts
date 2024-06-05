@@ -28,6 +28,7 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'unblacklist',
@@ -36,7 +37,7 @@ export const command: Command = {
     description_localizations: {
         "fr": "Enlever un utilisateur de la liste noir.(Seulement pour les dev)"
     },
-    
+
     options: [
         {
             name: 'user',
@@ -54,7 +55,7 @@ export const command: Command = {
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let tableOwner = client.db.table('OWNER');
         let tableBlacklist = client.db.table('BLACKLIST');
 
@@ -67,7 +68,7 @@ export const command: Command = {
         let fetched = await tableBlacklist.get(`${member?.id}`);
 
         if (!fetched) {
-            await interaction.reply({ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member?.id) });
+            await interaction.reply({ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member?.id!) });
             return;
         };
 
@@ -82,7 +83,7 @@ export const command: Command = {
             await tableBlacklist.delete(`${member?.id}`);
             await interaction.guild?.members.unban(bannedMember);
 
-            await interaction.reply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member?.id) });
+            await interaction.reply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member?.id!) });
             return;
         } catch (e) {
             await tableBlacklist.delete(`${member?.id}`);

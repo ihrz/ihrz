@@ -22,12 +22,13 @@
 import { EmbedBuilder, PermissionsBitField, AuditLogEvent, Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData';
 
 export const event: BotEvent = {
     name: "guildMemberUpdate",
     run: async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
 
-        let data = await client.functions.getLanguageData(newMember.guild.id);
+        let data = await client.functions.getLanguageData(newMember.guild.id) as LanguageData;
 
         if (!newMember.guild.members.me?.permissions.has([
             PermissionsBitField.Flags.ViewAuditLog,
@@ -78,16 +79,16 @@ export const event: BotEvent = {
 
         if (removeObjects.length >= 1) {
             desc += data.event_srvLogs_guildMemberUpdate_description
-                .replace("${firstEntry.executor.id}", firstEntry.executor?.id)
-                .replace("${removedRoles}", removeObjectIds.map(value => `<@&${value}>`))
-                .replace("${oldMember.user.username}", firstEntry.target?.username) + '\n';
+                .replace("${firstEntry.executor.id}", firstEntry.executor?.id!)
+                .replace("${removedRoles}", removeObjectIds.map(value => `<@&${value}>`).toString())
+                .replace("${oldMember.user.username}", firstEntry.target?.username!) + '\n';
         };
 
         if (newObjects.length >= 1) {
             desc += data.event_srvLogs_guildMemberUpdate_2_description
-                .replace("${firstEntry.executor.id}", firstEntry.executor?.id)
-                .replace("${addedRoles}", newObjectsnewObjectIds.map(value => `<@&${value}>`))
-                .replace("${oldMember.user.username}", firstEntry.target?.username);
+                .replace("${firstEntry.executor.id}", firstEntry.executor?.id!)
+                .replace("${addedRoles}", newObjectsnewObjectIds.map(value => `<@&${value}>`).toString())
+                .replace("${oldMember.user.username}", firstEntry.target?.username!);
         };
         logsEmbed.setDescription(desc);
 

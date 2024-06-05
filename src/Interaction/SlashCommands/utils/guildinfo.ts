@@ -29,6 +29,7 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'guildinfo',
@@ -42,7 +43,7 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let verlvl = {
             0: data.serverinfo_verlvl_NONE,
@@ -58,7 +59,7 @@ export const command: Command = {
             )
             .setAuthor({
                 name: data.serverinfo_embed_author
-                    .replace(/\${interaction\.guild\.name}/g, interaction.guild?.name)
+                    .replace(/\${interaction\.guild\.name}/g, interaction.guild?.name!)
                 , iconURL: interaction.guild?.iconURL() as string
             })
             .setDescription(data.serverinfo_embed_description

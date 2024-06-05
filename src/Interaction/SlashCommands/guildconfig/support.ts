@@ -31,6 +31,7 @@ import {
 
 import { Command } from '../../../../types/command.js';
 import logger from '../../../core/logger.js';
+import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {
     name: 'support',
@@ -88,7 +89,7 @@ export const command: Command = {
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.support_not_admin });
@@ -114,8 +115,8 @@ export const command: Command = {
 
             await interaction.reply({
                 content: data.support_command_work
-                    .replace("${interaction.guild.name}", interaction.guild?.name)
-                    .replace("${input}", input)
+                    .replace("${interaction.guild.name}", interaction.guild?.name!)
+                    .replace("${input}", input!)
                     .replace("${roles.id}", roles.id)
             });
 
@@ -135,7 +136,7 @@ export const command: Command = {
 
             await interaction.reply({
                 content: data.support_command_work_on_disable
-                    .replace("${interaction.guild.name}", interaction.guild?.name)
+                    .replace("${interaction.guild.name}", interaction.guild?.name!)
             })
 
             try {

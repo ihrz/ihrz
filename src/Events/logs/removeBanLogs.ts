@@ -22,11 +22,12 @@
 import { BaseGuildTextChannel, Client, EmbedBuilder, PermissionsBitField, AuditLogEvent, GuildBan } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData';
 
 export const event: BotEvent = {
     name: "guildBanRemove",
     run: async (client: Client, ban: GuildBan) => {
-        let data = await client.functions.getLanguageData(ban.guild.id);
+        let data = await client.functions.getLanguageData(ban.guild.id) as LanguageData;
 
         if (!ban.guild.members.me
             || !ban.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
@@ -47,10 +48,14 @@ export const event: BotEvent = {
         let logsEmbed = new EmbedBuilder()
             .setColor(await client.db.get(`${ban.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#000000")
             .setDescription(data.event_srvLogs_banRemove_description
-                .replace("${firstEntry.executor.id}", firstEntry?.executor?.id)
-                .replace("${firstEntry.target.username}", firstEntry?.target?.username)
+                .replace("${firstEntry.executor.id}", firstEntry?.executor?.id!)
+                .replace("${firstEntry.target.username}", firstEntry?.target?.username!)
             )
-            .setTimestamp().setFooter({ text: firstEntry?.reason! });
+            .addFields({
+                name: data.event_srvLogs_banAdd_fields_name,
+                value: data.event_srvLogs_banAdd_fields_value.replace('{reason}', firstEntry?.reason || data.blacklist_var_no_reason)
+            })
+            .setTimestamp();
 
         await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
     },

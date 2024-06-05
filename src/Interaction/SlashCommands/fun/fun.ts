@@ -27,6 +27,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: "fun",
@@ -430,7 +431,7 @@ export const command: Command = {
     category: 'fun',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let command = interaction.options.getSubcommand();
 
         const commandModule = await import(`./!${command}.js`);

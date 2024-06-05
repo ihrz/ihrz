@@ -32,6 +32,7 @@ import {
 
 import { SearchResult, UnresolvedSearchResult } from 'lavalink-client/dist/types/index.js';
 import { AnotherCommand } from '../../../types/anotherCommand.js';
+import { LanguageData } from '../../../types/languageData.js';
 
 export const command: AnotherCommand = {
     name: "Play it in a voice channel",
@@ -39,7 +40,7 @@ export const command: AnotherCommand = {
     thinking: true,
     run: async (client: Client, interaction: MessageContextMenuCommandInteraction) => {
 
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let voiceChannel = (interaction.member as GuildMember)?.voice.channel;
 
         let msg = interaction.options.getMessage("message") as Message;
