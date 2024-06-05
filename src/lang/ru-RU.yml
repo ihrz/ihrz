@@ -767,6 +767,15 @@ automod_block_pub_command_off: "${interaction.user}, вы отключили `П
 automod_block_spam_command_on: "${interaction.user}, вы включили `Правило автоматической модерации спама` и теперь пользователи не могут спамить.\nAutoMod отправляет журналы в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
 automod_block_spam_command_off: "${interaction.user}, вы отключили `Правило автоматической модерации спама` и теперь пользователи могут спамить.\nAutoMod x iHorizon отключен на вашем сервере!"
 
+# /guildconfig block too-new-account
+too_new_account_dont_specified_time_on_enable: "Вы не указали время. Для включения этого модуля требуется минимальный возраст аккаунта!"
+too_new_account_invalid_time_on_enable: "Введенное вами время недействительно! **Пример допустимого времени**: `3h; 30m; 4w; 4y` -> 3 часа; 30 минут; 4 недели; 4 года"
+too_new_account_logEmbed_title: "Модуль TooNewAccount"
+too_new_account_logEmbed_desc_on_enable: "${interaction.user} включил модуль TooNewAccount. Теперь для аккаунтов требуется минимальный возраст в ${beautifulTime}!"
+too_new_account_command_work_on_enable: "${interaction.user}, новые участники, присоединившиеся к **${interaction.guild?.name}** с аккаунтами младше `${beautifulTime}`, будут удалены."
+too_new_account_logEmbed_desc_on_disable: "${interaction.user} отключил модуль!"
+too_new_account_command_work_on_disable: "${interaction.user}, модуль успешно отключен. Даты создания новых аккаунтов участников больше не будут проверяться."
+
 
 # Commandes de décompte des membres
 # /setmembercount

@@ -767,6 +767,15 @@ automod_block_pub_command_off: "${interaction.user}, vous avez désactivé la r�
 automod_block_spam_command_on: "${interaction.user}, vous avez activé la règle `AutoModération de Spam` à **true**.\nMaintenant, les utilisateurs ne peuvent pas spammer.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur !"
 automod_block_spam_command_off: "${interaction.user}, vous avez désactivé la règle `AutoModération de Spam` à **false**.\nMaintenant, les utilisateurs peuvent spammer.\nAutoMod x iHorizon a été désactivé sur votre serveur !"
 
+# /guildconfig block too-new-account
+too_new_account_dont_specified_time_on_enable: "Vous n'avez pas spécifié de délai. Pour activer ce module, un âge minimum du compte est requis !"
+too_new_account_invalid_time_on_enable: "Le délai que vous avez entré n'est pas valide ! **Exemple de délai valide** : `3h ; 30m ; 4w ; 4y` -> 3 heures ; 30 minutes ; 4 semaines ; 4 ans"
+too_new_account_logEmbed_title: "Module TooNewAccount"
+too_new_account_logEmbed_desc_on_enable: "${interaction.user} a activé le module TooNewAccount. Les comptes nécessitent désormais un âge minimum de ${beautifulTime} !"
+too_new_account_command_work_on_enable: "${interaction.user}, les nouveaux membres rejoignant **${interaction.guild?.name}** avec des comptes âgés de moins de `${beautifulTime}` seront désormais expulsés."
+too_new_account_logEmbed_desc_on_disable: "${interaction.user} a désactivé le module !"
+too_new_account_command_work_on_disable: "${interaction.user}, le module a été désactivé avec succès. La date de création des comptes des nouveaux membres ne sera plus vérifiée."
+
 
 # Member Count commands
 # /setmembercount

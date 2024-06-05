@@ -495,6 +495,12 @@ export interface LanguageData {
   setjoinmessage_button_set_name: string;
   setjoinmessage_buttom_del_name: string;
   setjoinmessage_awaiting_response: string;
+  too_new_account_dont_specified_time_on_enable: string;
+  too_new_account_invalid_time_on_enable: string;
+  too_new_account_logEmbed_title: string;
+  too_new_account_logEmbed_desc_on_disable: string;
+  too_new_account_logEmbed_desc_on_enable: string;
+  too_new_account_command_work_on_disable: string;
   setjoinroles_var_none: string;
   setjoinroles_var_perm_admin: string;
   setjoinroles_var_perm_manage_guild: string;

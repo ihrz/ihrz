@@ -91,6 +91,53 @@ export const command: Command = {
                         }
                     ],
                 },
+                {
+                    name: 'too-new-account',
+                    name_localizations: {
+                        fr: "compte-trop-recent"
+                    },
+
+                    description: 'Block accounts that are too new from joining your server',
+                    description_localizations: {
+                        "fr": "Bloquer les compte trop récent de rejoindre votre serveur"
+                    },
+
+                    type: 1,
+                    options: [
+                        {
+                            name: 'action',
+                            type: ApplicationCommandOptionType.String,
+
+                            description: 'What you want to do?',
+                            description_localizations: {
+                                "fr": "Que veux-tu faire?"
+                            },
+
+                            required: true,
+                            choices: [
+                                {
+                                    name: 'Power On',
+                                    value: "on"
+                                },
+                                {
+                                    name: "Power Off",
+                                    value: "off"
+                                }
+                            ],
+                        },
+                        {
+                            name: 'maximum-date',
+                            type: ApplicationCommandOptionType.String,
+
+                            description: 'Minimum seniority time',
+                            description_localizations: {
+                                "fr": "Temps minimum d'ancienneté"
+                            },
+
+                            required: false,
+                        }
+                    ],
+                },
             ],
         },
         {
