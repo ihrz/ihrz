@@ -19,8 +19,9 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ActionRowBuilder, BaseGuildTextChannel, ButtonInteraction, CacheType, Embed, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
-import { DatabaseStructure } from '../../../core/database_structure';
+import { BaseGuildTextChannel, ButtonInteraction, CacheType, EmbedBuilder, TextInputStyle } from 'discord.js';
+import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
+import { DatabaseStructure } from '../../../core/database_structure.js';
 import { generatePassword } from '../../../core/functions/random.js'
 import { LanguageData } from '../../../../types/languageData';
 import maskLink from '../../../core/functions/maskLink.js';
@@ -56,84 +57,71 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
         return;
     }
 
-    let modal = new ModalBuilder()
-        .setCustomId('selection_modal')
-        .setTitle(lang.confession_module_modal_title);
+    let submitInteraction = await iHorizonModalResolve({
+        customId: 'selection_modal',
+        title: lang.confession_module_modal_title,
+        fields: [
+            {
+                customId: 'case_name',
+                label: lang.confession_module_modal_components1_label,
+                placeHolder: lang.confession_module_modal_components1_placeholder,
+                style: TextInputStyle.Paragraph,
+                required: true,
+                maxLength: 200,
+                minLength: 2
+            },
+            {
+                customId: 'case_private',
+                label: lang.confession_module_modal_components2_label,
+                placeHolder: "Yes/No",
+                style: TextInputStyle.Short,
+                required: true,
+                maxLength: 3,
+            },
+        ]
+    }, interaction);
 
-    modal.addComponents(
-        new ActionRowBuilder<TextInputBuilder>()
-            .addComponents(
-                new TextInputBuilder()
-                    .setCustomId('case_name')
-                    .setPlaceholder(lang.confession_module_modal_components1_placeholder)
-                    .setLabel(lang.confession_module_modal_components1_label)
-                    .setStyle(TextInputStyle.Paragraph)
-                    .setRequired(true)
-                    .setMaxLength(200)
-                    .setMinLength(2)
-            ),
-        new ActionRowBuilder<TextInputBuilder>()
-            .addComponents(
-                new TextInputBuilder()
-                    .setCustomId('case_private')
-                    .setPlaceholder("Yes/No")
-                    .setLabel(lang.confession_module_modal_components2_label)
-                    .setStyle(TextInputStyle.Short)
-                    .setRequired(true)
-                    .setMaxLength(3)
-            )
-    );
+    if (!submitInteraction) return;
 
-    await interaction.showModal(modal);
+    let name = maskLink(submitInteraction.fields.getTextInputValue("case_name"));
+    let view: string | boolean = submitInteraction.fields.getTextInputValue("case_private");
+    let code = generatePassword({ length: 6, numbers: true, lowercase: true });
+    let files = [];
 
-    interaction.awaitModalSubmit({
-        filter: (u) => u.user.id === interaction.user.id,
-        time: 120_000
-    }).then(async (submitInteraction) => {
+    await submitInteraction.deferUpdate();
 
-        if (modalIdRegistered.includes(parseInt(submitInteraction.id))) return;
-        modalIdRegistered.push(parseInt(submitInteraction.id));
+    const embed = new EmbedBuilder()
+        .setColor(2829617)
+        .setDescription(`### Confession #${code}\n\n` + '`' + name + '`')
+        .setTimestamp()
+        ;
 
-        let name = maskLink(submitInteraction.fields.getTextInputValue("case_name"));
-        let view: string | boolean = submitInteraction.fields.getTextInputValue("case_private");
-        let code = generatePassword({ length: 6, numbers: true, lowercase: true });
-        let files = [];
+    if (view.toLowerCase().includes('no')) {
+        view = false;
 
-        await submitInteraction.deferUpdate();
-
-        const embed = new EmbedBuilder()
-            .setColor(2829617)
-            .setDescription(`### Confession #${code}\n\n` + '`' + name + '`')
-            .setTimestamp()
-            ;
-
-        if (view.toLowerCase().includes('no')) {
-            view = false;
-
-            files.push({
-                attachment: await interaction.client.functions.image64(interaction.user.displayAvatarURL()),
-                name: 'userIcon.png'
-            });
-
-            embed.setFooter({ text: interaction.user.username, iconURL: 'attachment://userIcon.png' });
-
-        } else {
-            view = true;
-        }
-
-        await interaction.client.db.push(`${interaction.guildId}.GUILD.CONFESSION.ALL_CONFESSIONS`, {
-            code: code,
-            userId: interaction.user.id,
-            timestamp: Date.now(),
-            private: view,
+        files.push({
+            attachment: await interaction.client.functions.image64(interaction.user.displayAvatarURL()),
+            name: 'userIcon.png'
         });
 
-        await interaction.client.db.table('TEMP').set(`CONFESSION_COOLDOWN.${interaction.user.id}`, Date.now());
+        embed.setFooter({ text: interaction.user.username, iconURL: 'attachment://userIcon.png' });
 
-        await (channel as BaseGuildTextChannel).send({
-            embeds: [embed],
-            files: files
-        });
-        return;
-    }).catch(() => { });
+    } else {
+        view = true;
+    }
+
+    await interaction.client.db.push(`${interaction.guildId}.GUILD.CONFESSION.ALL_CONFESSIONS`, {
+        code: code,
+        userId: interaction.user.id,
+        timestamp: Date.now(),
+        private: view,
+    });
+
+    await interaction.client.db.table('TEMP').set(`CONFESSION_COOLDOWN.${interaction.user.id}`, Date.now());
+
+    await (channel as BaseGuildTextChannel).send({
+        embeds: [embed],
+        files: files
+    });
+    return;
 };

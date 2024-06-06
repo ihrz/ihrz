@@ -38,8 +38,6 @@ import {
     Role,
     StringSelectMenuInteraction,
     ComponentType,
-    ModalBuilder,
-    TextInputBuilder,
     TextInputStyle,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
@@ -176,9 +174,6 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
     });
     collector2wish?.on('end', () => { });
 
-    let lastModal_0_IdRegisterd = 0;
-    let lastModal_1_IdRegisterd = 0;
-
     collector?.on('collect', async i => {
         if (i.customId === "remove_selection") {
             await i.deferUpdate();
@@ -212,11 +207,10 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                     }
                 ]
             }, i);
+
+            if (!response) return;
             let name = response?.fields.getTextInputValue("case_name")!;
             let emoji = response?.fields.getTextInputValue("case_emoji")!;
-
-            if (lastModal_0_IdRegisterd === parseInt(interaction.id)) return;
-            lastModal_0_IdRegisterd = parseInt(interaction.id);
 
             let optionBuilder = new StringSelectMenuOptionBuilder()
                 .setLabel(name)
@@ -266,9 +260,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                 ]
             }, i);
 
-
-            if (lastModal_1_IdRegisterd === parseInt(interaction.id)) return;
-            lastModal_1_IdRegisterd = parseInt(interaction.id);
+            if (!response) return;
 
             let title = response?.fields.getTextInputValue("embed_title")!;
             let desc = response?.fields.getTextInputValue("embed_desc")!;
@@ -459,8 +451,6 @@ interface ResultButton {
     }[];
 };
 
-var lastModal_1_IdRegisterd: number[] = [];
-
 async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringSelectMenuInteraction<CacheType>, result: ResultButton) {
     let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
     let category = await database.get(`${interaction.message.guildId}.GUILD.TICKET.category`);
@@ -482,10 +472,8 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
             ]
         }, interaction);
 
+        if (!response) return;
         try {
-            if (lastModal_1_IdRegisterd.includes(parseInt(response?.id!))) return;
-            lastModal_1_IdRegisterd.push(parseInt(response?.id!));
-
             reason = response?.fields.getTextInputValue("ticket_reason")!;
         } catch (error) {
             return;

@@ -34,6 +34,7 @@ import {
 export interface ModalOptionsBuilder {
     title: string;
     customId: string;
+    deferUpdate?: boolean;
 
     fields: {
         customId: string;
@@ -73,6 +74,9 @@ export function iHorizonModalBuilder(modalOptions: ModalOptionsBuilder): APIModa
 const cache: number[] = [];
 
 export async function iHorizonModalResolve(modalOptions: ModalOptionsBuilder, interaction: Interaction): Promise<ModalSubmitInteraction<CacheType> | undefined> {
+    const { deferUpdate = true } = modalOptions;
+    modalOptions.deferUpdate = deferUpdate;
+
     let modal = iHorizonModalBuilder(modalOptions);
 
     await (interaction as MessageComponentInteraction).showModal(modal);
@@ -86,6 +90,9 @@ export async function iHorizonModalResolve(modalOptions: ModalOptionsBuilder, in
         return undefined;
     };
     cache.push(parseInt(response.id));
-    await response.deferUpdate();
+    if (deferUpdate) {
+        await response.deferUpdate();
+    }
+
     return response;
 }
