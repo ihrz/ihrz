@@ -55,9 +55,9 @@ export function iHorizonModalBuilder(modalOptions: ModalOptionsBuilder): APIModa
             .setCustomId(content.customId)
             .setLabel(content.label)
             .setStyle(content.style)
-            .setRequired(true)
-            .setMaxLength(24)
-            .setMinLength(2);
+            .setRequired(content.required)
+            .setMaxLength(content.maxLength || 20)
+            .setMinLength(content.minLength || 5);
 
         if (content?.placeHolder) {
             _.setPlaceholder(content.placeHolder)
