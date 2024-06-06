@@ -45,6 +45,7 @@ export interface ModalOptionsBuilder {
         minLength?: number
     }[]
 }
+
 export function iHorizonModalBuilder(modalOptions: ModalOptionsBuilder): APIModalInteractionResponseCallbackData {
     let modal = new ModalBuilder()
         .setCustomId(modalOptions.customId)
@@ -69,6 +70,8 @@ export function iHorizonModalBuilder(modalOptions: ModalOptionsBuilder): APIModa
     return modal.toJSON();
 }
 
+const cache: number[] = [];
+
 export async function iHorizonModalResolve(modalOptions: ModalOptionsBuilder, interaction: Interaction): Promise<ModalSubmitInteraction<CacheType> | undefined> {
     let modal = iHorizonModalBuilder(modalOptions);
 
@@ -79,6 +82,10 @@ export async function iHorizonModalResolve(modalOptions: ModalOptionsBuilder, in
         time: 240_000
     });
 
+    if (cache.includes(parseInt(response.id))) {
+        return undefined;
+    };
+    cache.push(parseInt(response.id));
     await response.deferUpdate();
     return response;
 }
