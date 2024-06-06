@@ -77,6 +77,7 @@ export const command: Command = {
         categories.sort((a, b) => a.name.localeCompare(b.name));
 
         let select = new StringSelectMenuBuilder().setCustomId('help-menu').setPlaceholder(data.help_select_menu);
+        let select_2 = new StringSelectMenuBuilder().setCustomId('help-menu-2').setPlaceholder(data.help_select_menu);
 
         select.addOptions(new StringSelectMenuOptionBuilder()
             .setLabel(data.help_back_to_menu)
@@ -84,7 +85,18 @@ export const command: Command = {
             .setValue("back")
             .setEmoji("⬅️"));
 
+        select_2.addOptions(new StringSelectMenuOptionBuilder()
+            .setLabel(data.help_back_to_menu)
+            .setDescription(data.help_back_to_menu_desc)
+            .setValue("back")
+            .setEmoji("⬅️"));
+
+        let i = 0;
+        let toAddInAnotherSelect: CategoryData[] = [];
+
         categories.forEach((category, index) => {
+            i++
+            if (i >= categories.length / 2) return toAddInAnotherSelect.push(category);
             select.addOptions(new StringSelectMenuOptionBuilder()
                 .setLabel(category.name)
                 .setDescription(data.help_select_menu_fields_desc
@@ -94,7 +106,17 @@ export const command: Command = {
                 .setEmoji(category.emoji));
         });
 
+        toAddInAnotherSelect.forEach((category, index) => {
+            select_2.addOptions(new StringSelectMenuOptionBuilder()
+                .setLabel(category.name)
+                .setDescription(data.help_select_menu_fields_desc
+                    .replace("${categories[index].value.length}", categories[index].value.length.toString())
+                )
+                .setValue(index.toString())
+                .setEmoji(category.emoji));
+        })
         let row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
+        let row_2 = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select_2);
 
         let og_embed = new EmbedBuilder()
             .setColor('#001eff')
@@ -121,7 +143,7 @@ export const command: Command = {
 
         let response = await interaction.reply({
             embeds: [og_embed],
-            components: [row],
+            components: [row, row_2],
             files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
 
@@ -138,7 +160,7 @@ export const command: Command = {
             await i.deferUpdate();
 
             if (i.values[0] === "back") {
-                await response.edit({ embeds: [og_embed], components: [row] });
+                await response.edit({ embeds: [og_embed], components: [row, row_2] });
                 return;
             }
 
@@ -205,7 +227,10 @@ export const command: Command = {
 
         collector.on('end', async i => {
             await response.edit({
-                components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(true))]
+                components: [
+                    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(true)),
+                    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select_2.setDisabled(true))
+                ]
             });
 
             return;
