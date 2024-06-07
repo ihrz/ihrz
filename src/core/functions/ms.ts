@@ -98,7 +98,6 @@ class iHorizonTimeCalculator {
                     break;
                 default:
                     multiplier = 0;
-                    throw new Error(`Invalid time unit: ${unit}`);
             }
 
             totalMilliseconds += value * multiplier;

@@ -19,7 +19,8 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ActionRowBuilder, ButtonInteraction, CacheType, ComponentType, EmbedBuilder, Guild, GuildMember, ModalBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
+import { ButtonInteraction, CacheType, EmbedBuilder, GuildMember, TextInputStyle } from 'discord.js';
+import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default async function (interaction: ButtonInteraction<CacheType>) {
@@ -42,27 +43,22 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
         await interaction.deferUpdate()
         return;
     } else {
+        let response = await iHorizonModalResolve({
+            customId: 'modal',
+            title: lang.temporary_voice_modal_title,
+            fields: [
+                {
+                    customId: 'name',
+                    label: lang.temporary_voice_limit_button_menu_label,
+                    style: TextInputStyle.Short,
+                    required: true,
+                    maxLength: 20,
+                    minLength: 2
+                },
+            ]
+        }, interaction);
 
-        let modal = new ModalBuilder()
-            .setCustomId('modal')
-            .setTitle(lang.temporary_voice_modal_title);
-
-        modal.addComponents(new ActionRowBuilder<TextInputBuilder>()
-            .addComponents(
-                new TextInputBuilder()
-                    .setCustomId('name')
-                    .setLabel(lang.temporary_voice_limit_button_menu_label)
-                    .setStyle(TextInputStyle.Short)
-                    .setRequired(true)
-            )
-        );
-
-        await interaction.showModal(modal);
-
-        let response = await interaction.awaitModalSubmit({
-            filter: (i) => i.customId === 'modal',
-            time: 60_000
-        });
+        if (!response) return;
 
         let channel = (interaction.member as GuildMember).voice.channel;
         let userLimit = parseInt(response.fields.getField('name').value);

@@ -28,11 +28,10 @@ import {
     Client,
     ComponentType,
     EmbedBuilder,
-    ModalBuilder,
     PermissionsBitField,
-    TextInputBuilder,
     TextInputStyle
 } from 'discord.js';
+import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
 
@@ -85,39 +84,32 @@ export default {
             time: 80_000
         });
 
-        let lastModal_0_IdRegisterd = 0;
-
         collector.on('collect', async (buttonInteraction) => {
+
             if (buttonInteraction.user.id !== interaction.user.id) {
                 await buttonInteraction.reply({ content: data.help_not_for_you, ephemeral: true });
                 return;
             };
 
             if (buttonInteraction.customId === "leaveMessage-set-message") {
-                const modal = new ModalBuilder()
-                    .setCustomId('leaveMessage-modal')
-                    .setTitle(data.setleavemessage_awaiting_response);
-
-                const messageInput = new TextInputBuilder()
-                    .setCustomId('leaveMessage-input')
-                    .setLabel(data.guildprofil_embed_fields_leavemessage)
-                    .setMaxLength(1010)
-                    .setStyle(TextInputStyle.Paragraph);
-
-                modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(messageInput));
-                await buttonInteraction.showModal(modal);
-
-                const modalInteraction = await interaction.awaitModalSubmit({
-                    filter: (i) => i.customId === 'leaveMessage-modal',
-                    time: 120_000
-                }).catch(() => null);
+                let modalInteraction = (await iHorizonModalResolve({
+                    customId: 'leaveMessage-modal',
+                    title: data.setleavemessage_awaiting_response,
+                    deferUpdate: false,
+                    fields: [
+                        {
+                            customId: 'leaveMessage-input',
+                            label: data.guildprofil_embed_fields_leavemessage,
+                            style: TextInputStyle.Paragraph,
+                            required: true,
+                            maxLength: 1010,
+                        },
+                    ]
+                }, buttonInteraction))!;
 
                 if (!modalInteraction) {
                     return;
                 }
-
-                if (lastModal_0_IdRegisterd === parseInt(interaction.id)) return;
-                lastModal_0_IdRegisterd = parseInt(interaction.id);
 
                 const response = modalInteraction.fields.getTextInputValue('leaveMessage-input');
                 const newEmbed = EmbedBuilder.from(helpEmbed).setFields(

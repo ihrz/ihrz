@@ -26,9 +26,7 @@ import {
     EmbedBuilder,
     ActionRowBuilder,
     ComponentType,
-    ModalBuilder,
     TextInputStyle,
-    TextInputBuilder,
     Collection,
     ChatInputCommandInteraction,
     StringSelectMenuInteraction,
@@ -44,6 +42,7 @@ import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
 import { generatePassword } from '../../../core/functions/random.js';
 import { LanguageData } from '../../../../types/languageData.js';
+import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 
 export const command: Command = {
     name: "schedule",
@@ -88,30 +87,6 @@ export const command: Command = {
             ],
         });
 
-        let modal = new ModalBuilder()
-            .setCustomId('modal')
-            .setTitle(data.schedule_modal_title);
-
-        let theScheduleName = new TextInputBuilder()
-            .setCustomId('name')
-            .setLabel(data.schedule_modal_fields_1_label)
-            .setStyle(TextInputStyle.Short)
-            .setMaxLength(30)
-            .setMinLength(5)
-            .setRequired(true);
-
-        let theScheduleDescription = new TextInputBuilder()
-            .setCustomId('desc')
-            .setLabel(data.schedule_modal_fields_2_label)
-            .setStyle(TextInputStyle.Paragraph)
-            .setRequired(true)
-            .setMaxLength(500);
-
-        let firstActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(theScheduleName)
-        let secondActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(theScheduleDescription);
-
-        modal.addComponents(firstActionRow, secondActionRow);
-
         try {
 
             let collector = response.createMessageComponentCollector({
@@ -135,16 +110,31 @@ export const command: Command = {
         async function chooseAction(i: StringSelectMenuInteraction) {
             switch (i.values[0]) {
                 case '0':
-                    await i.showModal(modal);
-                    let filter = (i: { customId: string; }) => i.customId === 'modal';
+                    let response = await iHorizonModalResolve({
+                        customId: 'modal',
+                        title: data.schedule_modal_title,
+                        fields: [
+                            {
+                                customId: 'name',
+                                label: data.schedule_modal_fields_1_label,
+                                style: TextInputStyle.Short,
+                                required: true,
+                                maxLength: 30,
+                                minLength: 5
+                            },
+                            {
+                                customId: 'desc',
+                                label: data.schedule_modal_fields_2_label,
+                                style: TextInputStyle.Paragraph,
+                                required: true,
+                                maxLength: 400,
+                                minLength: 10
+                            },
+                        ]
+                    }, interaction);
 
-                    i.awaitModalSubmit({ filter, time: 60_000 })
-                        .then((interaction) => {
-                            executeAfterModal(interaction);
-                        })
-                        .catch((error: any) => {
-                            logger.err(error)
-                        });
+                    if (!response) return;
+                    executeAfterModal(response);
                     break;
                 case '1':
                     let u = await i.reply({ content: data.schedule_delete_question, ephemeral: false });

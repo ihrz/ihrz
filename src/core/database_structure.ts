@@ -21,6 +21,7 @@
 
 import { EmbedBuilder } from "@discordjs/builders";
 import { CaseList } from "./modules/ticketsManager.js";
+import { AntiSpam } from "../../types/antispam.js";
 
 export namespace DatabaseStructure {
 
@@ -278,6 +279,7 @@ export namespace DatabaseStructure {
             message?: string;
             boosts?: string;
             user?: string;
+            antispam?: string;
         };
         SUPPORT?: {
             input?: string | null;
@@ -301,7 +303,8 @@ export namespace DatabaseStructure {
         REACT_MSG?: {
             [message: string]: string;
         };
-        BLOCK_NEW_ACCOUNT: BlockNewAccountSchema
+        BLOCK_NEW_ACCOUNT?: BlockNewAccountSchema;
+        ANTISPAM?: AntiSpam.AntiSpamOptions;
     }
 
     export interface DbTicketConfigurationObject {
