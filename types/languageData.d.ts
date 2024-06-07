@@ -216,6 +216,8 @@ export interface LanguageData {
   help_back_to_menu_desc: string;
   help_confession_dsc: string;
   help_confession_fields: string;
+  help_antispam_dsc: string;
+  help_antispam_dsc: string;
   say_footer_msg: string;
   ping_down_msg: string;
   ping_embed_desc: string;
@@ -561,6 +563,7 @@ export interface LanguageData {
   setlogschannel_var_msg: string;
   setlogschannel_var_boost: string;
   setlogschannel_var_tickets: string;
+  setlogschannel_var_antispam: string;
   joinghostping_add_already_set: string;
   joinghostping_add_sent_to_channel: string;
   joinghostping_add_ok_embed_title: string;

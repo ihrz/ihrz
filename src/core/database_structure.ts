@@ -278,6 +278,7 @@ export namespace DatabaseStructure {
             message?: string;
             boosts?: string;
             user?: string;
+            antispam?: string;
         };
         SUPPORT?: {
             input?: string | null;

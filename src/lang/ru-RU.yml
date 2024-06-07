@@ -275,6 +275,8 @@ help_back_to_menu: "Основное меню"
 help_back_to_menu_desc: "Вернуться в основное меню"
 help_confession_dsc: "Хотите сделать признание? Очень хорошо, каким бы мерзким оно ни было, iHorizon здесь для вас!"
 help_confession_fields: "Исповедь"
+help_antispam_dsc: "Надоел спам? Отлично! iHorizon здесь, чтобы модерировать спам!"
+help_antispam_fields: "AntiSpam"
 
 # /say
 say_footer_msg: "\n\nОтправлено из `/говорить` от ${interaction.user}"
@@ -740,6 +742,7 @@ setlogschannel_var_voice: "Журналы голоса"
 setlogschannel_var_msg: "Журналы сообщений"
 setlogschannel_var_boost: "Логи Повышений"
 setlogschannel_var_tickets: "Журналы заявок"
+setlogschannel_var_antispam: "Журналы AntiSpam"
 
 # /join-ghostping add
 joinghostping_add_already_set: "Канал ${channel} уже установлен!"

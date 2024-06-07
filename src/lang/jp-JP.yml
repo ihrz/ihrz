@@ -275,6 +275,8 @@ help_back_to_menu: "メインメニュー"
 help_back_to_menu_desc: "初期メニューに戻る"
 help_confession_dsc: "告白したいことがありますか？ とてもいいでしょう、それがどんなに陰惨であっても、iHorizon はあなたのためにここにいます！"
 help_confession_fields: "告白"
+help_antispam_dsc: "スパムにうんざり？大丈夫！iHorizonがスパムをモデレートします！"
+help_antispam_fields: "AntiSpam"
 
 # /say
 say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
@@ -740,6 +742,7 @@ setlogschannel_var_voice: "音声ログ"
 setlogschannel_var_msg: "メッセージログ"
 setlogschannel_var_boost: "ブーストログ"
 setlogschannel_var_tickets: "チケットログ"
+setlogschannel_var_antispam: "AntiSpam ログ"
 
 # /join-ghostping add
 joinghostping_add_already_set: "チャンネル ${channel} はすでに設定されています！"

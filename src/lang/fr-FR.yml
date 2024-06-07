@@ -275,6 +275,8 @@ help_back_to_menu: "Menu principal"
 help_back_to_menu_desc: "Retour au menu initial"
 help_confession_dsc: "Tu as une confession à faire ? Très bien, aussi sordide soit-elle, iHorizon est là pour toi !"
 help_confession_fields: "Confession"
+help_antispam_dsc: "Fatigué du spam ? Super ! iHorizon est là pour modérer le spam."
+help_antispam_fields: "AntiSpam"
 
 # /say
 say_footer_msg: "\n\nEnvoyé depuis `/say` par ${interaction.user}"
@@ -740,6 +742,7 @@ setlogschannel_var_voice: "Logs vocaux"
 setlogschannel_var_msg: "Logs des messages"
 setlogschannel_var_boost: "Logs de Boost"
 setlogschannel_var_tickets: "Logs des Tickets"
+setlogschannel_var_antispam: "Journaux AntiSpam"
 
 # /join-ghostping add
 joinghostping_add_already_set: "Le canal ${channel} est déjà défini !"
