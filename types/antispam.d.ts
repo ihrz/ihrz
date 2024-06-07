@@ -41,6 +41,7 @@ export namespace AntiSpam {
     }
 
     export interface AntiSpamOptions {
+        BY?: string[];
         ignoreBots: boolean;
         maxDuplicatesInterval: number;
         maxInterval: number;
