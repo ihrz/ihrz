@@ -275,6 +275,8 @@ help_back_to_menu: "Hauptmenü"
 help_back_to_menu_desc: "Zurück zum Hauptmenü"
 help_confession_dsc: "Möchtest du ein Geständnis ablegen? Sehr gut, egal wie schmutzig es ist, iHorizon ist für dich da!"
 help_confession_fields: "Beichte"
+help_antispam_dsc: "Genervt von Spam? Kein Problem! iHorizon ist da, um Spam zu moderieren!"
+help_antispam_fields: "AntiSpam"
 
 # /say
 say_footer_msg: "\n\nGesendet von `/sagen` von ${interaction.user}"
@@ -740,6 +742,7 @@ setlogschannel_var_voice: "Sprachprotokolle"
 setlogschannel_var_msg: "Nachrichtenprotokolle"
 setlogschannel_var_boost: "Boost-Protokolle"
 setlogschannel_var_tickets: "Ticketprotokolle"
+setlogschannel_var_antispam: "AntiSpam-Protokolle"
 
 # /join-ghostping add
 joinghostping_add_already_set: "Der Kanal ${channel} ist bereits festgelegt!"
@@ -1389,6 +1392,43 @@ confession_log_embed_title_on_enable: "Bekenntnis Ein-/Ausschalten"
 confession_log_embed_desc_on_enable: "${interaction.user} hat das Bekenntnismodul aktiviert!"
 confession_log_embed_desc_on_disabled: "${interaction.user} hat das Bekenntnismodul deaktiviert!"
 
+
+# AntiSpam Modul
+# /antispam manage
+
+# /antispam manage
+antispam_manage_embed_title: "AntiSpam Moduleinstellungen"
+antispam_manage_choices_1_label: "Modul aktivieren"
+antispam_manage_choices_1_desc: "Antispam-Modul aktivieren oder deaktivieren"
+antispam_manage_choices_2_label: "Bots ignorieren"
+antispam_manage_choices_2_desc: "Spamming von Bots im Server ignorieren"
+antispam_manage_choices_3_label: "Strafart"
+antispam_manage_choices_3_desc: "Welche Art von Sanktion soll ich dem Benutzer geben?"
+antispam_manage_choices_4_label: "Strafdauer"
+antispam_manage_choices_4_desc: "Wie lange die Sanktion dauert"
+antispam_manage_choices_5_label: "Strafzeit-Multiplikator"
+antispam_manage_choices_5_desc: "Ob die Dauer der Sanktion für jede Strafe multipliziert wird"
+antispam_manage_choices_6_label: "Nachrichten entfernen"
+antispam_manage_choices_6_desc: "Die Spam-Nachricht löschen"
+antispam_manage_choices_7_label: "Maximales Nachrichtenintervall"
+antispam_manage_choices_7_desc: "Maximales Intervall zwischen Nachrichten, um als Spam betrachtet zu werden"
+antispam_manage_choices_8_label: "Max. doppelte Nachrichten"
+antispam_manage_choices_8_desc: "Anzahl maximaler doppelter Nachrichten vor Sanktion"
+antispam_manage_choices_9_label: "Max. Intervall für doppelte Nachrichten"
+antispam_manage_choices_9_desc: "Das Intervall zwischen doppelten Nachrichten, um den Benutzer zu markieren"
+antispam_manage_choices_10_label: "Max. ähnliche Nachrichten"
+antispam_manage_choices_10_desc: "Anzahl maximaler ähnlicher Nachrichten vor Sanktion"
+antispam_manage_choices_11_label: "Intervall zwischen Warnungen"
+antispam_manage_choices_11_desc: "Das Intervall zwischen Warnmeldungen"
+antispam_manage_choices_12_label: "Schwellenwert vor Warnung"
+antispam_manage_choices_12_desc: "Der Schwellenwert vor der Warnmeldung"
+antispam_manage_select_menu_punish_mute_label: "Mitglieder stummschalten"
+antispam_manage_modal_title: "AntiSpam Modal"
+antispam_manage_button_label: "Konfiguration speichern"
+
+# /antispam bypass-roles
+antispan_bypassroles_embed_desc: "Alle unten stehenden Rollen können das Antispam-Modul umgehen"
+
 # -----------------------------/ \-----------------------------
 # Bekenntnismodul Ereignisse
 confession_module_modal_title: "Ein Geständnis ablegen"
@@ -1565,5 +1605,20 @@ temporary_voice_transfer_untrust_placeholder: "Ausgewählte Benutzer werden als 
 # Ereignisnachricht
 
 protection_avoid_channel_delete: "**SCHUTZMODUS AKTIV**\n<@${channel.guild.ownerId}>, der Kanal wurde neu erstellt, <@${firstEntry.executorId}> hat versucht, den Kanal zu löschen!"
+
+# AntiSpam Modul
+# Ereignismeldung
+
+# Basiswarnmeldung
+antispam_base_warn_message: "Achtung ${mentionedMembers}, du spammst und könntest bestraft werden."
+
+# Zusätzliche Warnmeldungen basierend auf der Art der Bestrafung
+antispam_more_ban_msg: " Wenn du weitermachst, wirst du vom Server gebannt."
+antispam_more_mute_msg: " Wenn du weitermachst, wirst du stummgeschaltet."
+antispam_more_kick_msg: " Wenn du weitermachst, wirst du vom Server gekickt."
+
+# Einbettungsprotokolle von AntiSpam
+antispam_log_embed_title: "[AntiSpam] Neue ${actionType}"
+antispam_log_embed_desc: "${client.user?.toString()} hat **${actionType}** ${user.toString()}"
 
 # -----------------------------\ /-----------------------------

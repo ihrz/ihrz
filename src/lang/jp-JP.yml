@@ -275,6 +275,8 @@ help_back_to_menu: "メインメニュー"
 help_back_to_menu_desc: "初期メニューに戻る"
 help_confession_dsc: "告白したいことがありますか？ とてもいいでしょう、それがどんなに陰惨であっても、iHorizon はあなたのためにここにいます！"
 help_confession_fields: "告白"
+help_antispam_dsc: "スパムにうんざり？大丈夫！iHorizonがスパムをモデレートします！"
+help_antispam_fields: "AntiSpam"
 
 # /say
 say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
@@ -740,6 +742,7 @@ setlogschannel_var_voice: "音声ログ"
 setlogschannel_var_msg: "メッセージログ"
 setlogschannel_var_boost: "ブーストログ"
 setlogschannel_var_tickets: "チケットログ"
+setlogschannel_var_antispam: "AntiSpam ログ"
 
 # /join-ghostping add
 joinghostping_add_already_set: "チャンネル ${channel} はすでに設定されています！"
@@ -1389,6 +1392,43 @@ confession_log_embed_title_on_enable: "告白の有効化/無効化"
 confession_log_embed_desc_on_enable: "${interaction.user}が告白モジュールを有効にしました！"
 confession_log_embed_desc_on_disabled: "${interaction.user}が告白モジュールを無効にしました！"
 
+
+# アンチスパムモジュール
+# /antispam manage
+
+# /antispam manage
+antispam_manage_embed_title: "アンチスパムモジュール設定"
+antispam_manage_choices_1_label: "モジュールを有効にする"
+antispam_manage_choices_1_desc: "アンチスパムモジュールを有効または無効にする"
+antispam_manage_choices_2_label: "ボットを無視する"
+antispam_manage_choices_2_desc: "サーバー内のボットのスパムを無視する"
+antispam_manage_choices_3_label: "処罰の種類"
+antispam_manage_choices_3_desc: "ユーザーにどのような種類の制裁を与えるか"
+antispam_manage_choices_4_label: "処罰時間"
+antispam_manage_choices_4_desc: "制裁がどれくらい続くか"
+antispam_manage_choices_5_label: "処罰時間倍率"
+antispam_manage_choices_5_desc: "制裁の期間がそれぞれの処罰に対して乗算されるかどうか"
+antispam_manage_choices_6_label: "メッセージを削除する"
+antispam_manage_choices_6_desc: "スパムメッセージを削除する"
+antispam_manage_choices_7_label: "最大メッセージ間隔"
+antispam_manage_choices_7_desc: "スパムと見なすためのメッセージ間の最大間隔"
+antispam_manage_choices_8_label: "最大重複メッセージ数"
+antispam_manage_choices_8_desc: "制裁前の最大重複メッセージ数"
+antispam_manage_choices_9_label: "最大重複間隔"
+antispam_manage_choices_9_desc: "ユーザーをフラグするための重複メッセージ間の間隔"
+antispam_manage_choices_10_label: "最大類似メッセージ数"
+antispam_manage_choices_10_desc: "制裁前の最大類似メッセージ数"
+antispam_manage_choices_11_label: "警告間の間隔"
+antispam_manage_choices_11_desc: "警告メッセージ間の間隔"
+antispam_manage_choices_12_label: "警告前のしきい値"
+antispam_manage_choices_12_desc: "警告メッセージ前のしきい値"
+antispam_manage_select_menu_punish_mute_label: "メンバーをミュートする"
+antispam_manage_modal_title: "アンチスパムモーダル"
+antispam_manage_button_label: "設定を保存"
+
+# /antispam bypass-roles
+antispan_bypassroles_embed_desc: "以下のすべてのロールはアンチスパムモジュールをバイパスできます"
+
 # -----------------------------/ \-----------------------------
 # 告白モジュールイベント
 confession_module_modal_title: "告白を送る"
@@ -1565,5 +1605,20 @@ temporary_voice_transfer_untrust_placeholder: "選択したユーザーは参加
 # イベントメッセージ
 
 protection_avoid_channel_delete: "**保護モードオン**\n<@${channel.guild.ownerId}>, チャンネルが再作成されました, <@${firstEntry.executorId}> がチャンネルを削除しようとしました!"
+
+# アンチスパムモジュール
+# イベントメッセージ
+
+# 基本的な警告メッセージ
+antispam_base_warn_message: "警告 ${mentionedMembers}、あなたはスパム行為をしており、罰せられる可能性があります。"
+
+# 処罰の種類に基づいた追加の警告メッセージ
+antispam_more_ban_msg: " 続行すると、サーバーから追放されます。"
+antispam_more_mute_msg: " 続行すると、ミュートされます。"
+antispam_more_kick_msg: " 続行すると、サーバーからキックされます。"
+
+# AntiSpamのログを埋め込む
+antispam_log_embed_title: "[AntiSpam] 新しい ${actionType}"
+antispam_log_embed_desc: "${client.user?.toString()} が **${actionType}** ${user.toString()} を行いました"
 
 # -----------------------------\ /-----------------------------

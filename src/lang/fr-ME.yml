@@ -275,6 +275,8 @@ help_back_to_menu: "Menu principal"
 help_back_to_menu_desc: "Retour au menu initial"
 help_confession_dsc: "Tu as une confession à faire ? Très bien, aussi sordide soit-elle, iHorizon est là pour toi !"
 help_confession_fields: "Confession"
+help_antispam_dsc: "Fatigué du spam ? Super ! iHorizon est là pour modérer le spam."
+help_antispam_fields: "AntiSpam"
 
 # /say
 say_footer_msg: "\n\nEnvoyé depuis `/say` par ${interaction.user}"
@@ -740,6 +742,7 @@ setlogschannel_var_voice: "Logs vocaux"
 setlogschannel_var_msg: "Logs des messages"
 setlogschannel_var_boost: "Logs de Boost"
 setlogschannel_var_tickets: "Logs des Tickets"
+setlogschannel_var_antispam: "Journaux AntiSpam"
 
 # /join-ghostping add
 joinghostping_add_already_set: "Le canal ${channel} est déjà défini Mtn je vais pouvoir ping ptdr!"
@@ -1389,6 +1392,43 @@ confession_log_embed_title_on_enable: "Activer/Désactiver Confession"
 confession_log_embed_desc_on_enable: "${interaction.user} a activé le module de confession!"
 confession_log_embed_desc_on_disabled: "${interaction.user} a désactivé le module de confession!"
 
+
+# Module AntiSpam
+# /antispam manage
+
+# /antispam manage
+antispam_manage_embed_title: "Configurations du Module AntiSpam"
+antispam_manage_choices_1_label: "Activer le module"
+antispam_manage_choices_1_desc: "Activer ou désactiver le module antispam"
+antispam_manage_choices_2_label: "Ignorer les Bots"
+antispam_manage_choices_2_desc: "Ignorer le spam des bots dans le serveur"
+antispam_manage_choices_3_label: "Type de sanction"
+antispam_manage_choices_3_desc: "Quel type de sanction vais-je donner à l'utilisateur ?"
+antispam_manage_choices_4_label: "Durée de la sanction"
+antispam_manage_choices_4_desc: "Combien de temps dure la sanction"
+antispam_manage_choices_5_label: "Multiplicateur de la durée de la sanction"
+antispam_manage_choices_5_desc: "Si la durée de la sanction est multipliée pour chaque sanction"
+antispam_manage_choices_6_label: "Supprimer les messages"
+antispam_manage_choices_6_desc: "Supprimer le message de spam"
+antispam_manage_choices_7_label: "Intervalle maximum entre les messages"
+antispam_manage_choices_7_desc: "Intervalle maximum entre les messages pour considérer qu'il s'agit de spam"
+antispam_manage_choices_8_label: "Nombre maximum de messages dupliqués"
+antispam_manage_choices_8_desc: "Nombre maximum de messages dupliqués avant sanction"
+antispam_manage_choices_9_label: "Intervalle maximum entre les messages dupliqués"
+antispam_manage_choices_9_desc: "L'intervalle entre les messages dupliqués pour signaler l'utilisateur"
+antispam_manage_choices_10_label: "Nombre maximum de messages similaires"
+antispam_manage_choices_10_desc: "Nombre maximum de messages similaires avant sanction"
+antispam_manage_choices_11_label: "Intervalle entre les avertissements"
+antispam_manage_choices_11_desc: "L'intervalle entre les messages d'avertissement"
+antispam_manage_choices_12_label: "Seuil avant avertissement"
+antispam_manage_choices_12_desc: "Le seuil avant le message d'avertissement"
+antispam_manage_select_menu_punish_mute_label: "Rendre muets les membres"
+antispam_manage_modal_title: "Modale AntiSpam"
+antispam_manage_button_label: "Sauvegarder la configuration"
+
+# /antispam bypass-roles
+antispan_bypassroles_embed_desc: "Tous les rôles ci-dessous peuvent contourner le module antispam"
+
 # -----------------------------/ \-----------------------------
 # Événements du Module de Confession
 confession_module_modal_title: "Envoyer une confession"
@@ -1565,5 +1605,20 @@ temporary_voice_transfer_untrust_placeholder: "Les utilisateurs sélectionnés n
 # Message d'événement
 
 protection_avoid_channel_delete: "**MODE PROTECTION ACTIVÉ**\n<@${channel.guild.ownerId}>, le canal a été recréé, <@${firstEntry.executorId}> a tenté de supprimer le canal!"
+
+# Module AntiSpam
+# Message d'événement
+
+# Message d'avertissement de base
+antispam_base_warn_message: "Attention ${mentionedMembers}, vous êtes en train de spammer et vous risquez d'être sanctionnés."
+
+# Messages d'avertissement supplémentaires en fonction du type de sanction
+antispam_more_ban_msg: " Si vous continuez, vous serez bannis du serveur."
+antispam_more_mute_msg: " Si vous continuez, vous serez mis en sourdine."
+antispam_more_kick_msg: " Si vous continuez, vous serez expulsés du serveur."
+
+# Intégrer les journaux d'AntiSpam
+antispam_log_embed_title: "[AntiSpam] Nouveau ${actionType}"
+antispam_log_embed_desc: "${client.user?.toString()} a **${actionType}** ${user.toString()}"
 
 # -----------------------------\ /-----------------------------

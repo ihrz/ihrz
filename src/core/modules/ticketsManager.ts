@@ -38,8 +38,6 @@ import {
     Role,
     StringSelectMenuInteraction,
     ComponentType,
-    ModalBuilder,
-    TextInputBuilder,
     TextInputStyle,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
@@ -51,6 +49,7 @@ import {
 import { LanguageData } from '../../../types/languageData';
 
 import { isDiscordEmoji, isSingleEmoji } from '../functions/emojiChecker.js';
+import { iHorizonModalResolve } from '../functions/modalHelper.js';
 import * as discordTranscripts from 'discord-html-transcripts';
 import database from '../database.js';
 import logger from '../logger.js';
@@ -175,39 +174,6 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
     });
     collector2wish?.on('end', () => { });
 
-    let modal = new ModalBuilder()
-        .setCustomId('selection_modal')
-        .setTitle(lang.sethereticket_modal_1_title);
-
-    modal.addComponents(
-        new ActionRowBuilder<TextInputBuilder>()
-            .addComponents(
-                new TextInputBuilder()
-                    .setCustomId('case_name')
-                    .setPlaceholder(lang.sethereticket_modal_1_fields_1_placeholder)
-                    .setLabel(lang.sethereticket_modal_1_fields_1_label)
-                    .setStyle(TextInputStyle.Short)
-                    .setRequired(true)
-                    .setMaxLength(24)
-                    .setMinLength(2)
-            )
-    );
-
-    modal.addComponents(
-        new ActionRowBuilder<TextInputBuilder>()
-            .addComponents(
-                new TextInputBuilder()
-                    .setCustomId('case_emoji')
-                    .setLabel(lang.sethereticket_modal_1_fields_2_label)
-                    .setStyle(TextInputStyle.Short)
-                    .setPlaceholder(lang.sethereticket_modal_1_fields_2_placeholder)
-                    .setRequired(false)
-            )
-    );
-
-    let lastModal_0_IdRegisterd = 0;
-    let lastModal_1_IdRegisterd = 0;
-
     collector?.on('collect', async i => {
         if (i.customId === "remove_selection") {
             await i.deferUpdate();
@@ -219,159 +185,156 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                 });
             }
         } else if (i.customId === 'add_selection') {
-            await i.showModal(modal);
-
-            i.awaitModalSubmit({
-                filter: (u) => u.user.id === i.user.id,
-                time: 70_000
-            }).then(async (interaction) => {
-                let name = interaction.fields.getTextInputValue("case_name");
-                let emoji = interaction.fields.getTextInputValue("case_emoji");
-
-                if (lastModal_0_IdRegisterd === parseInt(interaction.id)) return;
-                lastModal_0_IdRegisterd = parseInt(interaction.id);
-
-                await interaction.deferUpdate();
-
-                let optionBuilder = new StringSelectMenuOptionBuilder()
-                    .setLabel(name)
-                    .setValue((comp.options.length + 1).toString());
-
-                if (emoji !== '') {
-                    if (isSingleEmoji(emoji) || isDiscordEmoji(emoji)) {
-                        optionBuilder.setEmoji(emoji);
+            let response = await iHorizonModalResolve({
+                customId: 'selection_modal',
+                title: lang.sethereticket_modal_1_title,
+                fields: [
+                    {
+                        customId: 'case_name',
+                        placeHolder: lang.sethereticket_modal_1_fields_1_placeholder,
+                        label: lang.sethereticket_modal_1_fields_1_label,
+                        style: TextInputStyle.Short,
+                        required: true,
+                        maxLength: 24,
+                        minLength: 2
+                    },
+                    {
+                        customId: 'case_emoji',
+                        placeHolder: lang.sethereticket_modal_1_fields_2_placeholder,
+                        label: lang.sethereticket_modal_1_fields_2_label,
+                        style: TextInputStyle.Short,
+                        required: false,
+                        minLength: 1
                     }
+                ]
+            }, i);
+
+            if (!response) return;
+            let name = response?.fields.getTextInputValue("case_name")!;
+            let emoji = response?.fields.getTextInputValue("case_emoji")!;
+
+            let optionBuilder = new StringSelectMenuOptionBuilder()
+                .setLabel(name)
+                .setValue((comp.options.length + 1).toString());
+
+            if (emoji !== '') {
+                if (isSingleEmoji(emoji) || isDiscordEmoji(emoji)) {
+                    optionBuilder.setEmoji(emoji);
                 }
+            }
 
-                comp.addOptions(optionBuilder);
+            comp.addOptions(optionBuilder);
 
-                case_list.push({
-                    id: comp.options.length,
-                    name: name,
-                    emojis: emoji === '' ? undefined : emoji
-                });
+            case_list.push({
+                id: comp.options.length,
+                name: name,
+                emojis: emoji === '' ? undefined : emoji
+            });
 
-                await og_interaction.edit({
-                    components: [
-                        og_interaction.components[0],
-                        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
-                    ]
-                });
+            await og_interaction.edit({
+                components: [
+                    og_interaction.components[0],
+                    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
+                ]
             });
         } else if (i.customId === "save_selection") {
-            let modal = new ModalBuilder()
-                .setCustomId('embed_saved_modal')
-                .setTitle(lang.sethereticket_modal_2_title);
+            let response = await iHorizonModalResolve({
+                customId: 'embed_saved_modal',
+                title: lang.sethereticket_modal_2_title,
+                fields: [
+                    {
+                        customId: 'embed_title',
+                        placeHolder: lang.sethereticket_modal_2_fields_1_placeholder,
+                        label: lang.sethereticket_modal_2_fields_1_title,
+                        style: TextInputStyle.Short,
+                        required: true,
+                        maxLength: 24,
+                        minLength: 2
+                    },
+                    {
+                        customId: 'embed_desc',
+                        placeHolder: lang.sethereticket_modal_2_fields_2_title,
+                        label: lang.sethereticket_modal_2_fields_2_placeholder,
+                        style: TextInputStyle.Short,
+                        required: false,
+                        minLength: 12
+                    }
+                ]
+            }, i);
 
-            modal.addComponents(
-                new ActionRowBuilder<TextInputBuilder>()
-                    .addComponents(
-                        new TextInputBuilder()
-                            .setCustomId('embed_title')
-                            .setPlaceholder(lang.sethereticket_modal_2_fields_1_placeholder)
-                            .setLabel(lang.sethereticket_modal_2_fields_1_title)
-                            .setStyle(TextInputStyle.Short)
-                            .setRequired(true)
-                            .setMaxLength(24)
-                            .setMinLength(2)
-                    )
-            );
+            if (!response) return;
 
-            modal.addComponents(
-                new ActionRowBuilder<TextInputBuilder>()
-                    .addComponents(
-                        new TextInputBuilder()
-                            .setCustomId('embed_desc')
-                            .setLabel(lang.sethereticket_modal_2_fields_2_title)
-                            .setStyle(TextInputStyle.Short)
-                            .setPlaceholder(lang.sethereticket_modal_2_fields_2_placeholder)
-                            .setRequired(false)
-                    )
-            );
+            let title = response?.fields.getTextInputValue("embed_title")!;
+            let desc = response?.fields.getTextInputValue("embed_desc")!;
 
-            i.showModal(modal);
+            if (desc === '') {
+                desc = lang.sethereticket_description_embed.replace("${user.username}", interaction.user.username);
+            }
 
-            i.awaitModalSubmit({
-                filter: (u) => u.user.id === i.user.id && u.customId === 'embed_saved_modal',
-                time: 50_000
-            }).then(async (interaction) => {
-                if (lastModal_1_IdRegisterd === parseInt(interaction.id)) return;
-                lastModal_1_IdRegisterd = parseInt(interaction.id);
+            button.components.forEach(x => {
+                x.setDisabled(true);
+            })
+            await og_interaction.edit({ components: [button, new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)] });
 
-                await interaction.deferUpdate();
+            for (let x in case_list) {
+                let _ = await sendCategorySelection(response!, case_list[x]);
+                case_list[x].categoryId = _;
+            }
 
-                let title = interaction.fields.getTextInputValue("embed_title");
-                let desc = interaction.fields.getTextInputValue("embed_desc");
-
-                if (desc === '') {
-                    desc = lang.sethereticket_description_embed.replace("${user.username}", interaction.user.username);
-                }
-
-                button.components.forEach(x => {
-                    x.setDisabled(true);
-                })
-                await og_interaction.edit({ components: [button, new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)] });
-
-                for (let x in case_list) {
-                    let _ = await sendCategorySelection(interaction, case_list[x]);
-                    case_list[x].categoryId = _;
-                }
-
-                let reason = await reasonTicket(interaction);
-                let panel_message = await og_interaction.channel.send({
-                    content: undefined,
-                    files: [
-                        {
-                            attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
-                            name: 'icon.png'
-                        }
-                    ],
-                    embeds: [
-                        new EmbedBuilder()
-                            .setColor(2829617)
-                            .setDescription(`## ${title}\n${desc}`)
-                            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
-                    ],
-                    components: [
-                        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
-                    ]
-                });
-
-                await og_interaction.edit({
-                    components: [],
-                    embeds: [],
-                    files: [],
-                    content: lang.sethereticket_command_work
-                });
-
-                await database.set(`${i.guildId}.GUILD.TICKET.${panel_message.id}`, {
-                    author: data.author,
-                    used: true,
-                    reason: reason,
-                    selection: case_list,
-                    panelName: data.name,
-                    channel: panel_message.channel.id,
-                    messageID: panel_message.id,
-                });
-
-                collector?.stop();
-
-                try {
-                    let TicketLogsChannel = await database.get(`${interaction.guildId}.GUILD.TICKET.logs`);
-                    TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
-                    if (!TicketLogsChannel) return;
-
-                    let embed = new EmbedBuilder()
-                        .setColor("#008000")
-                        .setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
-                        .setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc.replace('${data.name}', data.name!).replace('${interaction}', `${interaction.channel}`))
+            let reason = await reasonTicket(response!);
+            let panel_message = await og_interaction.channel.send({
+                content: undefined,
+                files: [
+                    {
+                        attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
+                        name: 'icon.png'
+                    }
+                ],
+                embeds: [
+                    new EmbedBuilder()
+                        .setColor(2829617)
+                        .setDescription(`## ${title}\n${desc}`)
                         .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
-                        .setTimestamp();
-
-                    TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
-                    return;
-                } catch (e) { return };
+                ],
+                components: [
+                    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
+                ]
             });
+
+            await og_interaction.edit({
+                components: [],
+                embeds: [],
+                files: [],
+                content: lang.sethereticket_command_work
+            });
+
+            await database.set(`${i.guildId}.GUILD.TICKET.${panel_message.id}`, {
+                author: data.author,
+                used: true,
+                reason: reason,
+                selection: case_list,
+                panelName: data.name,
+                channel: panel_message.channel.id,
+                messageID: panel_message.id,
+            });
+
+            collector?.stop();
+
+            try {
+                let TicketLogsChannel = await database.get(`${interaction.guildId}.GUILD.TICKET.logs`);
+                TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
+                if (!TicketLogsChannel) return;
+
+                let embed = new EmbedBuilder()
+                    .setColor("#008000")
+                    .setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
+                    .setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc.replace('${data.name}', data.name!).replace('${interaction}', `${interaction.channel}`))
+                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                    .setTimestamp();
+
+                TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+                return;
+            } catch (e) { return };
         }
     });
 
@@ -490,44 +453,34 @@ interface ResultButton {
     }[];
 };
 
-var lastModal_1_IdRegisterd: number[] = [];
-
 async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringSelectMenuInteraction<CacheType>, result: ResultButton) {
     let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
     let category = await database.get(`${interaction.message.guildId}.GUILD.TICKET.category`);
 
     let reason = '';
+    let reasonInteraction: ModalSubmitInteraction<CacheType>;
+
     if (result && result?.reason) {
-        let modal = new ModalBuilder()
-            .setCustomId('ticket_reason_modal')
-            .setTitle(lang.event_ticket_create_reason_modal_title);
+        let response = await iHorizonModalResolve({
+            customId: 'ticket_reason_modal',
+            title: lang.event_ticket_create_reason_modal_title,
+            deferUpdate: false,
+            fields: [
+                {
+                    customId: 'ticket_reason',
+                    label: lang.event_ticket_create_reason_modal_fields_1_label,
+                    style: TextInputStyle.Short,
+                    required: true,
+                    maxLength: 350,
+                    minLength: 8
+                },
+            ]
+        }, interaction);
 
-        modal.addComponents(
-            new ActionRowBuilder<TextInputBuilder>()
-                .addComponents(
-                    new TextInputBuilder()
-                        .setCustomId('ticket_reason')
-                        .setLabel(lang.event_ticket_create_reason_modal_fields_1_label)
-                        .setStyle(TextInputStyle.Short)
-                        .setRequired(true)
-                        .setMaxLength(350)
-                        .setMinLength(8)
-                )
-        );
-
-        await interaction.showModal(modal);
-
+        if (!response) return;
         try {
-            const interaction_2 = await interaction.awaitModalSubmit({
-                filter: (u) => u.user.id === interaction.user.id && u.customId === 'ticket_reason_modal',
-                time: 50_000
-            });
-
-            if (lastModal_1_IdRegisterd.includes(parseInt(interaction_2.id))) return;
-            lastModal_1_IdRegisterd.push(parseInt(interaction_2.id));
-
-            reason = interaction_2.fields.getTextInputValue("ticket_reason");
-            await interaction_2.deferUpdate();
+            reason = response?.fields.getTextInputValue("ticket_reason")!;
+            reasonInteraction = response;
         } catch (error) {
             return;
         }
@@ -551,10 +504,12 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                     .replace('${channel.id}', channel.id)
             });
         } else {
-            await interaction.editReply({
+            console.log('test')
+            await reasonInteraction.reply({
                 content: lang.event_ticket_whenCreated_msg
                     .replace('${interaction.user}', interaction.user.toString())
-                    .replace('${channel.id}', channel.id)
+                    .replace('${channel.id}', channel.id),
+                ephemeral: true
             });
         }
 
