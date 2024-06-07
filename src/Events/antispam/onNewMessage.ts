@@ -76,7 +76,6 @@ function levenshtein(a: string, b: string): number {
 async function logsAction(lang: LanguageData, client: Client, user: GuildMember, actionType: 'sanction' | 'warn', sanctionType?: 'mute' | 'kick' | 'ban') {
     let inDb = await client.db.get(`${user.guild.id}.GUILD.SERVER_LOGS.antispam`) as string | null;
 
-    console.log(inDb)
     if (!inDb) return;
 
     let channel = user.guild.channels.cache.get(inDb);
@@ -164,7 +163,6 @@ async function clearSpamMessages(messages: AntiSpam.CachedMessage[], client: Cli
             const channel = client.channels.cache.get(channelId) as BaseGuildTextChannel | undefined;
             if (channel && messagesToDelete.size > 0) {
                 await channel.bulkDelete(messagesToDelete, true);
-                console.log('bulkDelete')
             }
         }
     } catch (error) {
