@@ -1392,6 +1392,43 @@ confession_log_embed_title_on_enable: "Abilita/Disabilita Confessioni"
 confession_log_embed_desc_on_enable: "${interaction.user} ha abilitato il modulo delle confessioni!"
 confession_log_embed_desc_on_disabled: "${interaction.user} ha disabilitato il modulo delle confessioni!"
 
+
+# Modulo AntiSpam
+# /antispam manage
+
+# /antispam manage
+antispam_manage_embed_title: "Configurazioni del Modulo AntiSpam"
+antispam_manage_choices_1_label: "Abilita modulo"
+antispam_manage_choices_1_desc: "Abilita o disabilita il modulo antispam"
+antispam_manage_choices_2_label: "Ignora i Bot"
+antispam_manage_choices_2_desc: "Ignora lo spamming dei bot nel server"
+antispam_manage_choices_3_label: "Tipo di punizione"
+antispam_manage_choices_3_desc: "Che tipo di sanzione darò all'utente?"
+antispam_manage_choices_4_label: "Tempo di punizione"
+antispam_manage_choices_4_desc: "Quanto dura la sanzione"
+antispam_manage_choices_5_label: "Moltiplicatore del tempo di punizione"
+antispam_manage_choices_5_desc: "Se la durata della sanzione viene moltiplicata per ogni punizione"
+antispam_manage_choices_6_label: "Rimuovi messaggi"
+antispam_manage_choices_6_desc: "Elimina il messaggio di spam"
+antispam_manage_choices_7_label: "Intervallo massimo tra i messaggi"
+antispam_manage_choices_7_desc: "Intervallo massimo tra i messaggi per considerarli spam"
+antispam_manage_choices_8_label: "Max messaggi duplicati"
+antispam_manage_choices_8_desc: "Quantità massima di messaggi duplicati prima della sanzione"
+antispam_manage_choices_9_label: "Intervallo massimo tra duplicati"
+antispam_manage_choices_9_desc: "L'intervallo tra messaggi duplicati per segnalare l'utente"
+antispam_manage_choices_10_label: "Max messaggi simili"
+antispam_manage_choices_10_desc: "Quantità massima di messaggi simili prima della sanzione"
+antispam_manage_choices_11_label: "Intervallo tra avvisi"
+antispam_manage_choices_11_desc: "L'intervallo tra i messaggi di avviso"
+antispam_manage_choices_12_label: "Soglia prima dell'avviso"
+antispam_manage_choices_12_desc: "La soglia prima del messaggio di avviso"
+antispam_manage_select_menu_punish_mute_label: "Silenzia membri"
+antispam_manage_modal_title: "Modale AntiSpam"
+antispam_manage_button_label: "Salva configurazione"
+
+# /antispam bypass-roles
+antispan_bypassroles_embed_desc: "Tutti i ruoli sottostanti possono bypassare il modulo antispam"
+
 # -----------------------------/ \-----------------------------
 # Eventi del Modulo Confessioni
 confession_module_modal_title: "Invia una confessione"
@@ -1568,5 +1605,20 @@ temporary_voice_transfer_untrust_placeholder: "Gli utenti selezionati non sarann
 # Messaggio di evento
 
 protection_avoid_channel_delete: "**MODALITÀ PROTEZIONE ATTIVA**\n<@${channel.guild.ownerId}>, il canale è stato ricreato, <@${firstEntry.executorId}> ha tentato di eliminare il canale!"
+
+# Modulo AntiSpam
+# Evento messaggio
+
+# Messaggio di avviso base
+antispam_base_warn_message: "Attenzione ${mentionedMembers}, stai spammando e potresti essere punito."
+
+# Messaggi di avviso aggiuntivi in base al tipo di punizione
+antispam_more_ban_msg: " Se continui, verrai bannato dal server."
+antispam_more_mute_msg: " Se continui, verrai mutato."
+antispam_more_kick_msg: " Se continui, verrai espulso dal server."
+
+# Embed dei log di AntiSpam
+antispam_log_embed_title: "[AntiSpam] Nuovo ${actionType}"
+antispam_log_embed_desc: "${client.user?.toString()} ha **${actionType}** ${user.toString()}"
 
 # -----------------------------\ /-----------------------------

@@ -1392,6 +1392,43 @@ confession_log_embed_title_on_enable: "Confession Enable/Disable"
 confession_log_embed_desc_on_enable: "${interaction.user} have enabled the Confession Module !"
 confession_log_embed_desc_on_disabled: "${interaction.user} have disabled the Confession Module !"
 
+
+# AntiSpam Module
+# /antispam manage
+
+# /antispam manage
+antispam_manage_embed_title: "AntiSpam Module Configurations"
+antispam_manage_choices_1_label: "Enable module"
+antispam_manage_choices_1_desc: "Enable or disable the antispam module"
+antispam_manage_choices_2_label: "Ignore Bots"
+antispam_manage_choices_2_desc: "Ignore the spamming of bot in the guild"
+antispam_manage_choices_3_label: "Punishment type"
+antispam_manage_choices_3_desc: "What's type of sanction i will give to user"
+antispam_manage_choices_4_label: "Punishment Time"
+antispam_manage_choices_4_desc: "How long the sanction are"
+antispam_manage_choices_5_label: "Punishment Time Multiplier"
+antispam_manage_choices_5_desc: "If the duration of the sanction multiplied for each punishment"
+antispam_manage_choices_6_label: "Remove messages"
+antispam_manage_choices_6_desc: "Delete the spam message"
+antispam_manage_choices_7_label: "Max interval messages"
+antispam_manage_choices_7_desc: "Max interval between message for considerating that like spam"
+antispam_manage_choices_8_label: "Max duplicates messages"
+antispam_manage_choices_8_desc: "Amount of max duplicates message before sanction"
+antispam_manage_choices_9_label: "Max duplicates interval"
+antispam_manage_choices_9_desc: "The interval between duplicates mesasge for flag user"
+antispam_manage_choices_10_label: "Max Similar Messages"
+antispam_manage_choices_10_desc: "Amount of max similar message before sanction"
+antispam_manage_choices_11_label: "Interval Between Warn"
+antispam_manage_choices_11_desc: "The interval between warn message"
+antispam_manage_choices_12_label: "Threshold before warning"
+antispam_manage_choices_12_desc: "The threshold before warning message"
+antispam_manage_select_menu_punish_mute_label: "Mute Members"
+antispam_manage_modal_title: "AntiSpam Modal"
+antispam_manage_button_label: "Save config"
+
+# /antispam bypass-roles
+antispan_bypassroles_embed_desc: "All of the roles bellow can bypass the antispam module"
+
 # -----------------------------/ \-----------------------------
 # Confession Module Events
 confession_module_modal_title: "Send a confession"
@@ -1568,5 +1605,20 @@ temporary_voice_transfer_untrust_placeholder: "Selected users will be untrusted 
 # Event message
 
 protection_avoid_channel_delete: "**PROTECT MODE ON**\n<@${channel.guild.ownerId}>, the channel are recreated, <@${firstEntry.executorId}> attempt to delete the channel!"
+
+# AntiSpam Module
+# Event message
+
+# Base warning message
+antispam_base_warn_message: "Warning ${mentionedMembers}, you are spamming and may be punished."
+
+# Additional warning messages based on punishment type
+antispam_more_ban_msg: " If you continue, you will be banned from the server."
+antispam_more_mute_msg: " If you continue, you will be muted."
+antispam_more_kick_msg: " If you continue, you will be kicked from the server."
+
+# Embed Logs of AntiSpam
+antispam_log_embed_title: "[AntiSpam] New ${actionType}"
+antispam_log_embed_desc: "${client.user?.toString()} have **${actionType}** ${user.toString()}"
 
 # -----------------------------\ /-----------------------------
