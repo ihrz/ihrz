@@ -40,7 +40,7 @@ export namespace AntiSpam {
     }
 
     export interface AntiSpamOptions {
-        BY?: string[];
+        BYPASS_ROLES?: string[];
         ignoreBots: boolean;
         maxDuplicatesInterval: number;
         maxInterval: number;
