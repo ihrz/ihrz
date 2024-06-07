@@ -204,6 +204,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                         label: lang.sethereticket_modal_1_fields_2_label,
                         style: TextInputStyle.Short,
                         required: false,
+                        minLength: 1
                     }
                 ]
             }, i);
@@ -256,6 +257,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                         label: lang.sethereticket_modal_2_fields_2_placeholder,
                         style: TextInputStyle.Short,
                         required: false,
+                        minLength: 12
                     }
                 ]
             }, i);
@@ -456,10 +458,13 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
     let category = await database.get(`${interaction.message.guildId}.GUILD.TICKET.category`);
 
     let reason = '';
+    let reasonInteraction: ModalSubmitInteraction<CacheType>;
+
     if (result && result?.reason) {
         let response = await iHorizonModalResolve({
             customId: 'ticket_reason_modal',
             title: lang.event_ticket_create_reason_modal_title,
+            deferUpdate: false,
             fields: [
                 {
                     customId: 'ticket_reason',
@@ -475,6 +480,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
         if (!response) return;
         try {
             reason = response?.fields.getTextInputValue("ticket_reason")!;
+            reasonInteraction = response;
         } catch (error) {
             return;
         }
@@ -498,10 +504,12 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                     .replace('${channel.id}', channel.id)
             });
         } else {
-            await interaction.editReply({
+            console.log('test')
+            await reasonInteraction.reply({
                 content: lang.event_ticket_whenCreated_msg
                     .replace('${interaction.user}', interaction.user.toString())
-                    .replace('${channel.id}', channel.id)
+                    .replace('${channel.id}', channel.id),
+                ephemeral: true
             });
         }
 
