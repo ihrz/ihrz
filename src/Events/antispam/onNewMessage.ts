@@ -326,19 +326,16 @@ export const event: BotEvent = {
             }
         }
         if (userCanBePunish && duplicateMatches.length >= options.maxDuplicates) {
-            console.log('Envoie des message identique et vite -> punis 2');
             await PunishUsers(lang, [message.member!], [...duplicateMatches, ...spamOtherDuplicates], options);
             return sanctioned = true;
         }
 
         if (elapsedTime && elapsedTime < options.maxInterval && cache.warnedUsersStatus[message.author.id]) {
-            console.log('Envoie des message trop vite -> punis');
             await PunishUsers(lang, [message.member!], [...cachedMessages, ...duplicateMatches, ...spamMatches, ...spamOtherDuplicates, currentMessage], options);
             return sanctioned = true;
         }
 
         if (userCanBePunish && similarMessages && similarMessages.length! >= options.similarMessageThreshold) {
-            console.log('Envoie des message trop ressemblant et vite -> punis');
             await PunishUsers(lang, [message.member!], [...similarMessages, ...spamOtherDuplicates], options);
             return sanctioned = true;
         }
