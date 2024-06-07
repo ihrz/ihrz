@@ -32,12 +32,11 @@ export namespace AntiSpam {
     }
 
     export interface AntiSpamCache {
-        warnedUsers: Snowflake[];
         kickedUsers: Snowflake[];
-        mutedUsers: Snowflake[];
         bannedUsers: Snowflake[];
         messages: CachedMessage[];
         warnedUsersStatus: { [key: string]: boolean };
+        warnedAmount: { [userId: string]: number }
     }
 
     export interface AntiSpamOptions {
@@ -53,5 +52,6 @@ export namespace AntiSpam {
         punishTime: number;
         similarMessageThreshold: number;
         intervalBetweenWarn: number;
+        punishTimeMultiplier: boolean;
     }
 }
