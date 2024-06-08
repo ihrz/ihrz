@@ -1,12 +1,17 @@
-import { Client, Partials, GatewayIntentBits, ActivityType } from "discord.js";
+import { Client, Partials, GatewayIntentBits, ActivityType, BaseGuildTextChannel } from "discord.js";
 import { log as Ox } from 'console';
+import { readFile } from "fs/promises";
 
 const ALL_CLIENT: Client[] = [];
-const ALL_TOKEN: string[] = [
-]
+
+let ALL_TOKEN = (await readFile(`${process.cwd()}/all_discord_bot_tokens.txt`, 'utf-8')).split('\n');
+
 const DEVELOPER: string[] = [
-    '1181123770845503600'
+    '1181123770845503600',
+    '233657223190937601'
 ]
+
+let FIRST_BOT: string | false = false;
 
 async function i(x: string) {
     try {
@@ -32,7 +37,7 @@ function w(milliseconds: number): Promise<void> {
 };
 
 for (const token in ALL_TOKEN) {
-    await i(ALL_TOKEN[token]);
+    // await i(ALL_TOKEN[token]);
 
     let _ = new Client({
         intents: [
@@ -54,6 +59,8 @@ for (const token in ALL_TOKEN) {
     let spamInterval: NodeJS.Timeout | null = null;
 
     _.on('ready', async _ => {
+        if (FIRST_BOT === false) FIRST_BOT = _.user?.id!;
+
         _.user.setActivity({ type: ActivityType.Listening, name: 'orders' })
         Ox(`${_.user.tag} >> Ready | https://discord.com/oauth2/authorize?client_id=${_.user.id}&scope=bot&permissions=0`);
     })
@@ -71,12 +78,44 @@ for (const token in ALL_TOKEN) {
             let count = parseInt(args[1]) || 1;
             for (let i = 0; i < count; i++) {
                 if (!isSpamming) break;
-                m.channel.send("le code d'anaïs est spé").catch(() => { });
+                m.channel.send("le code d'anaïs & sown est spé").catch(() => { });
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
         } else if (m.content.startsWith('stop')) {
             isSpamming = false;
             m.react('✅').catch(() => { });
+        } else if (m.content.startsWith('cspam')) {
+            m.react('✅').catch(() => { });
+            isSpamming = true;
+            let count = parseInt(args[1]) || 1;
+            m.guild.channels.cache.forEach(async channel => {
+                if (channel.isTextBased() && channel instanceof BaseGuildTextChannel) {
+                    for (let i = 0; i < count; i++) {
+                        if (!isSpamming) break;
+                        (channel as BaseGuildTextChannel).send("le code d'anaïs & sown est spé").catch(() => { });
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                }
+            })
+        } else if (m.content.startsWith('renew')) {
+            if (FIRST_BOT !== m.client.user.id) return m.react('❌');
+
+            let ignore = args[1]?.split(',');
+            m.guild.channels.cache.forEach(async channel => {
+                if (channel.isTextBased() && channel instanceof BaseGuildTextChannel && !ignore?.includes(channel.id)) {
+                    await channel?.delete();
+                    await channel?.clone({
+                        name: channel.name,
+                        parent: channel.parent,
+                        permissionOverwrites: channel.permissionOverwrites.cache!,
+                        topic: (channel as BaseGuildTextChannel).topic!,
+                        nsfw: channel.nsfw,
+                        rateLimitPerUser: channel.rateLimitPerUser!,
+                        position: channel.rawPosition,
+                        reason: `Channel re-create by ${m.author.username}`
+                    });
+                }
+            })
         }
     });
 
