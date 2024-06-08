@@ -110,7 +110,7 @@ export const command: Command = {
 
                 await interaction.editReply({
                     content: data.setlogschannel_command_work
-                        .replace("${channel.id}", channel.id)
+                        .replace("${argsid.id}", channel.id)
                         .replace("${typeOfLogs}", typeOfLogs)
                 });
 
@@ -118,9 +118,9 @@ export const command: Command = {
                     .setColor("#bf0bb9")
                     .setTitle(data.setlogschannel_logs_embed_title)
                     .setDescription(data.setlogschannel_logs_embed_description_on_enable
-                        .replace(/\${channel\.id}/g, channel.id)
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                        .replace(/\${typeOfLogs}/g, typeOfLogs)
+                        .replace("${argsid.id}", channel.id)
+                        .replace("${typeOfLogs}", typeOfLogs)
                     );
 
                 let logChannel = interaction.guild?.channels.cache.find(ch => ch.name === 'ihorizon-logs') as BaseGuildTextChannel;
