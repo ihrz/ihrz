@@ -40,8 +40,10 @@ export const event: BotEvent = {
 
         let all_channels = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) as DatabaseStructure.GhostPingData['channels'];
 
-        for (let i in all_channels) {
-            const channel = member.guild.channels.cache.get(all_channels[parseInt(i)]);
+        if (!all_channels) return;
+
+        for (let i of all_channels) {
+            const channel = member.guild.channels.cache.get(i);
             if (!channel) continue;
 
             const msg = await (channel as BaseGuildTextChannel).send({ content: member.user.toString() });

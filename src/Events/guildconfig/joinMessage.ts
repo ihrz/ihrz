@@ -112,7 +112,7 @@ export const event: BotEvent = {
                     .replaceAll("\\n", '\n');
             };
 
-            channel.send({ content: msg });
+            await channel.send({ content: msg });
             return;
 
         } else if (member.guild.features.includes(GuildFeature.VanityURL)) {
