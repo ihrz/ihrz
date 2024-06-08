@@ -32,7 +32,7 @@ export namespace AntiSpam {
     }
 
     export interface AntiSpamCache {
-        warnInfo: Map<string, { amount?: number; state?: boolean }>;
+        warnInfo: Map<string, { value: number | boolean }>;
         messages: Set<CachedMessage>;
 
         kickedUsers: Set<Snowflake>;
