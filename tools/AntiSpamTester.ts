@@ -2,7 +2,8 @@ import { Client, Partials, GatewayIntentBits, ActivityType } from "discord.js";
 import { log as Ox } from 'console';
 
 const ALL_CLIENT: Client[] = [];
-const ALL_TOKEN: string[] = []
+const ALL_TOKEN: string[] = [
+]
 const DEVELOPER: string[] = [
     '1181123770845503600'
 ]
@@ -57,32 +58,27 @@ for (const token in ALL_TOKEN) {
         Ox(`${_.user.tag} >> Ready | https://discord.com/oauth2/authorize?client_id=${_.user.id}&scope=bot&permissions=0`);
     })
 
-    let isSpamming: number = 0;
+    let isSpamming: boolean = false;
 
     _.on('messageCreate', async (m) => {
         if (!DEVELOPER.includes(m.author.id)) return;
         if (!m.guild || !m.channel) return;
+        let args = m.content.split(' ');
 
         if (m.content.startsWith('start')) {
-            console.log('start');
             m.react('✅').catch(() => { });
-            isSpamming = 1;
-
-            spamInterval = setInterval(() => {
-                if (isSpamming) {
-                    m.channel.send("le code d'anaïs est spé").catch(() => { });
-                }
-            }, 900);
-        } else if (m.content.startsWith('stop')) {
-            isSpamming = 0;
-            if (spamInterval) {
-                clearInterval(spamInterval);
-                spamInterval = null;
+            isSpamming = true;
+            let count = parseInt(args[1]) || 1;
+            for (let i = 0; i < count; i++) {
+                if (!isSpamming) break;
+                m.channel.send("le code d'anaïs est spé").catch(() => { });
+                await new Promise(resolve => setTimeout(resolve, 1000));
             }
+        } else if (m.content.startsWith('stop')) {
+            isSpamming = false;
             m.react('✅').catch(() => { });
         }
     });
-
 
     _.login(ALL_TOKEN[token]).then(() => ALL_CLIENT.push(_))
 }
