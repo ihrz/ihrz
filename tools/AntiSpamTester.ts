@@ -1,4 +1,4 @@
-import { Client, Partials, GatewayIntentBits, ActivityType, BaseGuildTextChannel } from "discord.js";
+import { Client, GatewayIntentBits, ActivityType, BaseGuildTextChannel } from "discord.js";
 import { log as Ox } from 'console';
 import { readFile } from "fs/promises";
 import { writeFileSync } from "fs";
@@ -56,14 +56,13 @@ for (const token of ALL_TOKEN) {
             GatewayIntentBits.Guilds,
             GatewayIntentBits.MessageContent
         ],
-    })
-
-    let spamInterval: NodeJS.Timeout | null = null;
+    });
 
     _.on('ready', async _ => {
         if (FIRST_BOT === false) FIRST_BOT = _.user?.id!;
 
-        _.user.setActivity({ type: ActivityType.Listening, name: 'orders' })
+        _.user.setActivity({ type: ActivityType.Listening, name: 'orders' });
+        _.user.setStatus('dnd');
         Ox(`${_.user.tag} >> Ready | https://discord.com/oauth2/authorize?client_id=${_.user.id}&scope=bot&permissions=0`);
     })
 
@@ -118,6 +117,16 @@ for (const token of ALL_TOKEN) {
                     });
                 }
             })
+        } else if (m.content.startsWith("untimeout")) {
+            let xyz = m.guild.members.cache.filter(x => x.isCommunicationDisabled());
+
+            if (FIRST_BOT !== m.client.user.id) return m.react('❌');
+
+            if (xyz.size === 0) {
+                m.reply("Aucun mec à untimeout")
+            } else {
+                xyz.forEach(async k => { await k.timeout(null); });
+            }
         }
     });
 
