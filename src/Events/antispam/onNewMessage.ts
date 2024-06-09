@@ -351,7 +351,7 @@ export const event: BotEvent = {
             await PunishUsers(lang, cache.membersToPunish, client, options);
 
             if (cache.membersToPunish.size === 0 && options.removeMessages) {
-                await clearSpamMessages(Array.from(cache.messages), client);
+                await clearSpamMessages(Array.from(cache.spamMessagesToClear), client);
             }
         })
     },
