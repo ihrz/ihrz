@@ -504,13 +504,20 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                     .replace('${channel.id}', channel.id)
             });
         } else {
-            console.log('test')
-            await reasonInteraction.reply({
-                content: lang.event_ticket_whenCreated_msg
-                    .replace('${interaction.user}', interaction.user.toString())
-                    .replace('${channel.id}', channel.id),
-                ephemeral: true
-            });
+            if (reasonInteraction) {
+                await reasonInteraction.reply({
+                    content: lang.event_ticket_whenCreated_msg
+                        .replace('${interaction.user}', interaction.user.toString())
+                        .replace('${channel.id}', channel.id),
+                    ephemeral: true
+                });
+            } else {
+                await interaction.editReply({
+                    content: lang.event_ticket_whenCreated_msg
+                        .replace('${interaction.user}', interaction.user.toString())
+                        .replace('${channel.id}', channel.id)
+                });
+            }
         }
 
         await channel.permissionOverwrites.edit(interaction.guild?.roles.everyone as Role,
