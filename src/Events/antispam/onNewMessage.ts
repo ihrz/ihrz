@@ -348,7 +348,7 @@ export const event: BotEvent = {
         };
 
         waitForFinish().then(async () => {
-            await PunishUsers(lang, cache.membersToPunish.add(message.member!), client, options);
+            await PunishUsers(lang, cache.membersToPunish, client, options);
 
             if (cache.membersToPunish.size === 0 && options.removeMessages) {
                 await clearSpamMessages(Array.from(cache.messages), client);
