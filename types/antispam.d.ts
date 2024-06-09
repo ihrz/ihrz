@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Collection, Message, Snowflake } from "discord.js";
+import { Collection, GuildMember, Message, Snowflake } from "discord.js";
 
 export namespace AntiSpam {
     export interface CachedMessage {
@@ -32,11 +32,14 @@ export namespace AntiSpam {
     }
 
     export interface AntiSpamCache {
-        kickedUsers: Snowflake[];
-        bannedUsers: Snowflake[];
-        messages: CachedMessage[];
-        warnedUsersStatus: { [key: string]: boolean };
-        warnedAmount: { [userId: string]: number }
+        warnInfo: Map<string, { value: number | boolean }>;
+        messages: Set<CachedMessage>;
+
+        kickedUsers: Set<Snowflake>;
+        bannedUsers: Set<Snowflake>;
+
+        membersToPunish: Set<GuildMember>;
+        spamMessagesToClear: CachedMessage[];
     }
 
     export interface AntiSpamOptions {
