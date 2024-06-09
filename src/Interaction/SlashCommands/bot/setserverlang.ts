@@ -73,10 +73,6 @@ export const command: Command = {
                     value: "fr-FR"
                 },
                 {
-                    name: "Rude French",
-                    value: "fr-ME"
-                },
-                {
                     name: "Italian",
                     value: "it-IT"
                 },
@@ -85,13 +81,21 @@ export const command: Command = {
                     value: "jp-JP"
                 },
                 {
-                    name: "Spanish",
-                    value: "es-ES"
+                    name: "Portuguese",
+                    value: "pt-PT"
+                },
+                {
+                    name: "Rude French",
+                    value: "fr-ME"
                 },
                 {
                     name: "Russian",
                     value: "ru-RU"
-                }
+                },
+                {
+                    name: "Spanish",
+                    value: "es-ES"
+                },
             ],
         }
     ],

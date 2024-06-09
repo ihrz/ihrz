@@ -217,7 +217,7 @@ export interface LanguageData {
   help_confession_dsc: string;
   help_confession_fields: string;
   help_antispam_dsc: string;
-  help_antispam_dsc: string;
+  help_antispam_fields: string;
   say_footer_msg: string;
   ping_down_msg: string;
   ping_embed_desc: string;
@@ -497,12 +497,6 @@ export interface LanguageData {
   setjoinmessage_button_set_name: string;
   setjoinmessage_buttom_del_name: string;
   setjoinmessage_awaiting_response: string;
-  too_new_account_dont_specified_time_on_enable: string;
-  too_new_account_invalid_time_on_enable: string;
-  too_new_account_logEmbed_title: string;
-  too_new_account_logEmbed_desc_on_disable: string;
-  too_new_account_logEmbed_desc_on_enable: string;
-  too_new_account_command_work_on_disable: string;
   setjoinroles_var_none: string;
   setjoinroles_var_perm_admin: string;
   setjoinroles_var_perm_manage_guild: string;
@@ -580,6 +574,13 @@ export interface LanguageData {
   automod_block_pub_command_off: string;
   automod_block_spam_command_on: string;
   automod_block_spam_command_off: string;
+  too_new_account_dont_specified_time_on_enable: string;
+  too_new_account_invalid_time_on_enable: string;
+  too_new_account_logEmbed_title: string;
+  too_new_account_logEmbed_desc_on_enable: string;
+  too_new_account_command_work_on_enable: string;
+  too_new_account_logEmbed_desc_on_disable: string;
+  too_new_account_command_work_on_disable: string;
   setmembercount_not_admin: string;
   setmembercount_helpembed_title: string;
   setmembercount_helpembed_description: string;
@@ -1004,7 +1005,6 @@ export interface LanguageData {
   confession_log_embed_title_on_enable: string;
   confession_log_embed_desc_on_enable: string;
   confession_log_embed_desc_on_disabled: string;
-  confession_module_modal_title: string;
   antispam_manage_embed_title: string;
   antispam_manage_choices_1_label: string;
   antispam_manage_choices_1_desc: string;
@@ -1034,6 +1034,7 @@ export interface LanguageData {
   antispam_manage_modal_title: string;
   antispam_manage_button_label: string;
   antispan_bypassroles_embed_desc: string;
+  confession_module_modal_title: string;
   confession_module_modal_components1_label: string;
   confession_module_modal_components1_placeholder: string;
   confession_module_modal_components2_label: string;
