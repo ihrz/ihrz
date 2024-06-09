@@ -172,7 +172,7 @@ async function clearSpamMessages(messages: AntiSpam.CachedMessage[], client: Cli
 
             messagesByChannel.clear();
         }
-    } catch {}
+    } catch { }
 }
 
 async function PunishUsers(
