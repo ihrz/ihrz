@@ -1,10 +1,12 @@
 import { Client, Partials, GatewayIntentBits, ActivityType, BaseGuildTextChannel } from "discord.js";
 import { log as Ox } from 'console';
 import { readFile } from "fs/promises";
+import { writeFileSync } from "fs";
 
 const ALL_CLIENT: Client[] = [];
 
-let ALL_TOKEN = (await readFile(`${process.cwd()}/all_discord_bot_tokens.txt`, 'utf-8')).split('\n');
+let tokens_path = `${process.cwd()}/all_discord_bot_tokens.txt`
+let ALL_TOKEN = (await readFile(tokens_path, 'utf-8')).split('\n');
 
 const DEVELOPER: string[] = [
     '1181123770845503600',
@@ -36,7 +38,7 @@ function w(milliseconds: number): Promise<void> {
     });
 };
 
-for (const token in ALL_TOKEN) {
+for (const token of ALL_TOKEN) {
     // await i(ALL_TOKEN[token]);
 
     let _ = new Client({
@@ -119,7 +121,11 @@ for (const token in ALL_TOKEN) {
         }
     });
 
-    _.login(ALL_TOKEN[token]).then(() => ALL_CLIENT.push(_))
+    _.login(token).then(() => ALL_CLIENT.push(_)).catch(() => {
+        Ox(`[INVALID-TOKEN] >> ` + token)
+        ALL_TOKEN = ALL_TOKEN.filter(z => z !== token);
+        writeFileSync(tokens_path, ALL_TOKEN.join('\n'));
+    });
 }
 
 process.on('SIGINT', async () => {
