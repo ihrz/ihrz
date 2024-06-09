@@ -103,20 +103,18 @@ disablexp_command_work_disable_entierly: "Ви успішно відключил
 
 # /setxpchannels
 setxpchannels_not_admin: ":x: | Ви повинні бути адміністратором цього сервера, щоб використовувати цю команду!"
-
-setxpchannels_logs_embed_title_disable: "Логи вимкнення каналів досвіду"
-setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> вимкнув користувацькі канали досвіду. Я встановив налаштування за замовчуванням..."
-setxpchannels_already_disabled_disable: "Користувацькі канали досвіду вже вимкнені!"
-setxpchannels_command_work_disable: "Ви успішно вимкнули користувацький канал досвіду!"
-setxpchannels_command_error_disable: "Помилка: недостатньо прав або канал не існує"
-
-setxpchannels_logs_embed_title_enable: "Логи увімкнення каналів досвіду"
-setxpchannels_logs_embed_description_enable: "<@${interaction.user.id}> встановив користувацькі канали досвіду на: <#${argsid}>"
-setxpchannels_valid_channel_message: "Ви повинні вказати дійсний канал для ваших налаштувань."
-setxpchannels_already_with_this_config: "Користувацькі канали досвіду вже налаштовані з цим ідентифікатором каналу!"
-setxpchannels_confirmation_message: "**Користувацький канал досвіду встановлено тут!**"
-setxpchannels_command_work_enable: "Ви успішно встановили користувацький канал досвіду на <#${argsid}>!"
-setxpchannels_command_error_enable: "Помилка: недостатньо прав або канал не існує"
+setxpchannels_logs_embed_title_disable: "Логи установки каналов опыта"
+setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> отключил пользовательские каналы опыта. Я установил настройки по умолчанию..."
+setxpchannels_already_disabled_disable: "Пользовательские каналы опыта уже отключены!"
+setxpchannels_command_work_disable: "Вы успешно отключили пользовательский канал опыта!"
+setxpchannels_command_error_disable: "Ошибка: недостаточно прав или канал не существует"
+setxpchannels_logs_embed_title_enable: "Логи установки каналов опыта"
+setxpchannels_logs_embed_description_enable: "<@${interaction.user.id}> установил пользовательские каналы опыта на: <#${argsid}>"
+setxpchannels_valid_channel_message: "Вы должны указать действительный канал для ваших настроек."
+setxpchannels_already_with_this_config: "Пользовательские каналы опыта уже настроены с этим идентификатором канала!"
+setxpchannels_confirmation_message: "**Пользовательский канал опыта установлен здесь!**"
+setxpchannels_command_work_enable: "Вы успешно установили пользовательский канал опыта на <#${argsid}>!"
+setxpchannels_command_error_enable: "Ошибка: недостаточно прав или канал не существует"
 
 # /level
 level_embed_title: "__**Рівень - XP**__: `${user.username}`"
@@ -1054,7 +1052,7 @@ reactionroles_command_work_remove: "${reaction} було видалено з п�
 reactionroles_dont_message_found: "Я не можу отримати повідомлення з поточним"
 
 
-# New feature commands
+# Команды новых функций
 # /punishpub, /report, /support
 
 # /punishpub
@@ -1509,7 +1507,7 @@ event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> увімкн�
 event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> вимкнув звук у каналі <#${channelID}>"
 event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> увімкнув звук у каналі <#${channelID}>"
 
-# RankUp event
+# Событие повышения уровня
 event_rank_role: "<@${message.author.id}>, у вас тепер є нова роль <@&${fetch.id}>"
 
 # Событие предложения
