@@ -19,89 +19,91 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
+import { ConfigData } from '../../types/configDatad.js';
+
 import { JSONDriver, MySQLDriver, QuickDB } from 'quick.db';
 import { MongoDriver } from 'quickmongo';
-
 import * as proc from './modules/errorManager.js';
-import config from '../files/config.js';
 import logger from './logger.js';
 import fs from 'fs';
 
-let dbPromise: Promise<QuickDB> | undefined = undefined;
-let sqlitePath = `${process.cwd()}/src/files`;
+let dbInstance: QuickDB<any>;
 
-if (!fs.existsSync(sqlitePath)) {
-    fs.mkdirSync(sqlitePath, { recursive: true });
-}
+export const initializeDatabase = async (config: ConfigData) => {
+    let dbPromise;
+    let sqlitePath = `${process.cwd()}/src/files`;
 
-switch (config.database?.method) {
-    case 'MONGO_DB':
-        dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
-            let driver = new MongoDriver(config.database?.mongoDb!);
+    if (!fs.existsSync(sqlitePath)) {
+        fs.mkdirSync(sqlitePath, { recursive: true });
+    }
 
-            try {
-                await driver.connect();
-                logger.log((`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`));
-                resolve(new QuickDB({ driver }));
-                proc.exit(driver);
-            } catch (error: any) {
-                logger.err(`${config.console.emojis.ERROR} >> ${error.toString().split('\n')[0]}`.red());
-                logger.err(`${config.console.emojis.ERROR} >> Database is unreachable (${config.database?.method}) !`.red());
-                logger.err(`${config.console.emojis.ERROR} >> Please use a different database than ${config.database?.method} !`.red());
-                logger.err(`${config.console.emojis.ERROR} >> in the /src/files/config.ts at: 'database.method'.`.red());
+    switch (config.database?.method) {
+        case 'MONGO_DB':
+            dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
+                let driver = new MongoDriver(config.database?.mongoDb!);
 
-                logger.err(`Exiting the code...`.bgRed());
+                try {
+                    await driver.connect();
+                    logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
+                    resolve(new QuickDB({ driver }));
+                    proc.exit(driver, config);
+                } catch (error: any) {
+                    logger.err(`${config.console.emojis.ERROR} >> ${error.toString().split('\n')[0]}`.red());
+                    logger.err(`${config.console.emojis.ERROR} >> Database is unreachable (${config.database?.method}) !`.red());
+                    logger.err(`${config.console.emojis.ERROR} >> Please use a different database than ${config.database?.method}) !`.red());
+                    logger.err(`${config.console.emojis.ERROR} >> in the /src/files/config.ts at: 'database.method'.`.red());
+                    logger.err(`Exiting the code...`.bgRed());
 
-                process.kill(0);
-            }
-        });
-        break;
-    case 'JSON':
-        dbPromise = new Promise<QuickDB>((resolve, reject) => {
-            logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green());
-            resolve(new QuickDB({ driver: new JSONDriver() }));
-        });
-        break;
-    case 'MYSQL':
-        dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
-            logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green());
-
-            let mysql = new MySQLDriver({
-                host: config.database?.mySQL?.host,
-                user: config.database?.mySQL?.user,
-                password: config.database?.mySQL?.password,
-                database: config.database?.mySQL?.database,
-                port: config.database?.mySQL?.port,
+                    process.kill(0);
+                }
             });
+            break;
+        case 'JSON':
+            dbPromise = new Promise<QuickDB>((resolve, reject) => {
+                logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green());
+                resolve(new QuickDB({ driver: new JSONDriver() }));
+            });
+            break;
+        case 'MYSQL':
+            dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
+                logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green());
 
-            await mysql.connect();
+                let mysql = new MySQLDriver({
+                    host: config.database?.mySQL?.host,
+                    user: config.database?.mySQL?.user,
+                    password: config.database?.mySQL?.password,
+                    database: config.database?.mySQL?.database,
+                    port: config.database?.mySQL?.port,
+                });
 
-            let db = new QuickDB({
-                driver: mysql
-            }); db.table('OWNER'); db.table('OWNIHRZ'); db.table('BLACKLIST'); db.table('PREVNAMES'); db.table('API'); db.table('TEMP'); db.table('SCHEDULE'); db.table('USER_PROFIL');
-            resolve(
-                db
-            );
-        });
-        break;
-    case 'SQLITE':
-        dbPromise = new Promise<QuickDB>((resolve, reject) => {
-            logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
-            resolve(new QuickDB({ filePath: sqlitePath + '/db.sqlite' }));
-        });
-        break;
-    default:
-        dbPromise = new Promise<QuickDB>((resolve, reject) => {
-            logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green());
-            resolve(new QuickDB({ filePath: sqlitePath + '/db.sqlite' }));
-        })
-        break;
+                await mysql.connect();
+
+                let db = new QuickDB({ driver: mysql });
+                db.table('OWNER'); db.table('OWNIHRZ'); db.table('BLACKLIST'); db.table('PREVNAMES'); db.table('API'); db.table('TEMP'); db.table('SCHEDULE'); db.table('USER_PROFIL');
+                resolve(db);
+            });
+            break;
+        case 'SQLITE':
+            dbPromise = new Promise<QuickDB>((resolve, reject) => {
+                logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
+                resolve(new QuickDB({ filePath: sqlitePath + '/db.sqlite' }));
+            });
+            break;
+        default:
+            dbPromise = new Promise<QuickDB>((resolve, reject) => {
+                logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green());
+                resolve(new QuickDB({ filePath: sqlitePath + '/db.sqlite' }));
+            });
+            break;
+    }
+
+    dbInstance = await dbPromise;
+    return dbInstance;
 };
 
-let db;
-
-if (!db) {
-    db = dbPromise
-}
-
-export default await db;
+export const getDatabaseInstance = (): QuickDB<any> => {
+    if (!dbInstance) {
+        throw new Error('Database has not been initialized. Call initializeDatabaseWithConfig first.');
+    }
+    return dbInstance;
+};

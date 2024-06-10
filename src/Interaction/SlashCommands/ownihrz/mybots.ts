@@ -26,9 +26,9 @@ import {
     ApplicationCommandType,
 } from 'discord.js';
 
-import { Command } from '../../../../types/command';
-import config from '../../../files/config.js';
 import { LanguageData } from '../../../../types/languageData';
+import { Command } from '../../../../types/command';
+import { getConfig } from '../../../core/core.js';
 
 export const command: Command = {
     name: "mybots",
@@ -156,7 +156,7 @@ export const command: Command = {
                             description_localizations: {
                                 "fr": "Le cluster où seras localisé l'ownihrz"
                             },
-                            choices: Object.entries(config.core.cluster).map(([key, value]) => ({
+                            choices: Object.entries(getConfig().core.cluster).map(([key, value]) => ({
                                 name: `Cluster #${key}`,
                                 value: key,
                             })),

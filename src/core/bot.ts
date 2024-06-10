@@ -21,7 +21,7 @@
 
 import { Client, Partials, GatewayIntentBits } from "discord.js";
 import * as ClientVersion from "../version.js";
-import core from './core.js';
+import * as core from './core.js';
 import config from "../files/config.js";
 
 let client = new Client({
@@ -59,4 +59,4 @@ let client = new Client({
 
 client.version = ClientVersion
 client.config = config;
-core(client);
+core.main(client);
