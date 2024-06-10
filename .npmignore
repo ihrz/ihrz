@@ -22,3 +22,6 @@
 /src/files/db.sqlite
 /src/files/error.log
 /src/files/slash.log
+
+/dist/src/files/config.js
+/dist/src/files/backups
