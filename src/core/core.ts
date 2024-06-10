@@ -43,10 +43,18 @@ import assetsCalc from "./functions/assetsCalc.js";
 import { fileURLToPath } from 'url';
 import path from 'path';
 
+import fs from 'fs';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-backup.setStorageFolder(`${process.cwd()}/src/files/backups`);
+const backups_folder = `${process.cwd()}/src/files/backups`;
+
+if (!fs.existsSync(backups_folder)) {
+    fs.mkdirSync(backups_folder, { recursive: true });
+}
+
+backup.setStorageFolder(backups_folder);
 
 export default async (client: Client) => {
     logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray());
