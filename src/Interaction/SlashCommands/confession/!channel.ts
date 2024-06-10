@@ -36,6 +36,7 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let channel = interaction.options.getChannel("to") as TextChannel;
+        let buttonTitle = interaction.options.getString('button-title')?.substring(0, 22) || '+';
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.security_channel_not_admin });
@@ -59,7 +60,7 @@ export default {
         let actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder()
                 .setStyle(ButtonStyle.Secondary)
-                .setLabel(interaction.options.getString('button-title')?.substring(0, 22)!)
+                .setLabel(buttonTitle)
                 .setCustomId('new-confession-button')
         )
 
@@ -67,7 +68,7 @@ export default {
             embeds: [embed],
             files: [
                 {
-                    attachment: await interaction.client.functions.image64(interaction.guild?.iconURL()),
+                    attachment: await interaction.client.functions.image64(interaction.guild?.iconURL() || client.user?.displayAvatarURL()),
                     name: 'guild_icon.png'
                 }
             ],
