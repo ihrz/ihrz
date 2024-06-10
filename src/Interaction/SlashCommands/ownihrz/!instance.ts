@@ -27,7 +27,6 @@ import {
 
 import { format } from '../../../core/functions/date-and-time.js';
 import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
-import config from '../../../files/config.js';
 
 import { LanguageData } from '../../../../types/languageData';
 
@@ -39,7 +38,7 @@ export default {
         let action_to_do = interaction.options.getString('action');
         let id_to_bot = interaction.options.getString('id');
 
-        if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
+        if ((interaction.user.id !== client.config.owner.ownerid1) && (interaction.user.id !== client.config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };

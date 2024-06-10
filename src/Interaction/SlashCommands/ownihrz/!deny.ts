@@ -29,8 +29,6 @@ import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 
 import { LanguageData } from '../../../../types/languageData';
 
-import config from '../../../files/config.js';
-
 const OWNIHRZ = new OwnIHRZ();
 
 export default {
@@ -49,7 +47,7 @@ export default {
             }
         };
 
-        if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
+        if ((interaction.user.id !== client.config.owner.ownerid1) && (interaction.user.id !== client.config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };

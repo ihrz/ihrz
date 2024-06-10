@@ -24,16 +24,20 @@ import logger from "../logger.js";
 import readline from 'readline';
 import os from 'node:os';
 import fs from 'node:fs';
-import path from 'path';
 
-import config from "../../files/config.js";
 import getIP from "../functions/getIp.js";
 import wait from "../functions/wait.js";
+
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function niceBytes(a: Number) { let b = 0, c = parseInt((a.toString()), 10) || 0; for (; 1024 <= c && ++b;)c /= 1024; return c.toFixed(10 > c && 0 < b ? 1 : 0) + " " + ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][b] }
 
 export default async (client: Client) => {
-    if (!config.core.bash) return;
+    if (!client.config.core.bash) return;
 
     let rl = readline.createInterface({
         input: process.stdin,
@@ -62,8 +66,13 @@ export default async (client: Client) => {
     let LoadFiles = await table.get(`LAST_LOGIN`) || "None";
     let LoadFiles2 = "127.0.0.1";
 
-    let filePath = path.join(process.cwd(), 'src', 'core', 'bash', 'history', '.bash_history');
-    let createFiles = fs.createWriteStream(filePath, { flags: 'a' });
+    let bash_history_path = `${process.cwd()}/src/files`
+
+    if (!fs.existsSync(bash_history_path)) {
+        fs.mkdirSync(bash_history_path, { recursive: true });
+    }
+
+    let createFiles = fs.createWriteStream(bash_history_path + '/.bash_history', { flags: 'a' });
 
     await table.set(`LAST_LOGIN`, dateStr);
     logger.legacy(`Welcome to iHorizon Bash
@@ -81,14 +90,14 @@ export default async (client: Client) => {
     rl.prompt();
     rl.on('line', async (line) => {
         let [commandName, ...args] = line.trim().split(' ');
-        let commandPath = `${process.cwd()}/dist/src/core/bash/commands/${commandName}.js`;
+        let commandPath = path.join(__dirname, 'commands', commandName + '.js')
 
         if (fs.existsSync(commandPath)) {
             let command = await import(commandPath);
             command.default(client, args.join(' '));
 
-            if (commandName) { 
-                createFiles.write(`${line}\r\n`); 
+            if (commandName) {
+                createFiles.write(`${line}\r\n`);
             }
         } else if (commandName) {
             logger.legacy(`Command not found: ${commandName}`);

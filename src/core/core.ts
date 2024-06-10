@@ -33,13 +33,18 @@ import emojis from './modules/emojisManager.js';
 import { VanityInviteData } from '../../types/vanityUrlData';
 import { readdirSync } from "node:fs";
 import commandsSync from './commandsSync.js';
-import config from '../files/config.js';
 import { GiveawayManager } from 'discord-regiveaways';
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import { LyricsManager } from './functions/lyrics-fetcher.js';
 
 import backup from 'discord-rebackup';
 import assetsCalc from "./functions/assetsCalc.js";
+
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 backup.setStorageFolder(`${process.cwd()}/src/files/backups`);
 
@@ -82,7 +87,7 @@ export default async (client: Client) => {
     client.lyricsSearcher = new LyricsManager();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 
-    let handlerPath = `${process.cwd()}/dist/src/core/handlers`;
+    let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
     let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
 
     for (const file of handlerFiles) {
@@ -92,7 +97,7 @@ export default async (client: Client) => {
         }
     }
 
-    if (config.discord.phonePresence) {
+    if (client.config.discord.phonePresence) {
 
         const { identifyProperties } = DefaultWebSocketManagerOptions;
 
@@ -104,13 +109,13 @@ export default async (client: Client) => {
         });
     };
 
-    client.login(process.env.BOT_TOKEN || config.discord.token).then(() => {
+    client.login(process.env.BOT_TOKEN || client.config.discord.token).then(() => {
         commandsSync(client).then(() => {
             logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta());
             logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta());
             logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta());
             logger.log(`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`.magenta());
-            logger.log(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta());
+            logger.log(`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta());
         });
     });
 };

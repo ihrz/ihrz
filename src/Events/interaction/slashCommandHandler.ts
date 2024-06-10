@@ -21,7 +21,6 @@
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, Client, EmbedBuilder, Interaction } from 'discord.js';
 import { BotEvent } from '../../../types/event';
-import config from '../../files/config.js';
 import logger from '../../core/logger.js';
 import { LanguageData } from '../../../types/languageData';
 
@@ -89,7 +88,7 @@ export const event: BotEvent = {
                     embeds: [
                         new EmbedBuilder()
                             .setColor("#0827F5").setTitle(":(")
-                            .setImage(config.core.blacklistPictureInEmbed)
+                            .setImage(client.config.core.blacklistPictureInEmbed)
                     ], ephemeral: true
                 });
                 return;
@@ -101,7 +100,8 @@ export const event: BotEvent = {
 
             await command.run(client, interaction);
         } catch (e: any) {
-            logger.err(e);
+            // logger.err(e);
+            console.error(e)
         };
     },
 };

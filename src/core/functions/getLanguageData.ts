@@ -25,6 +25,12 @@ import database from '../database.js';
 import yaml from 'js-yaml';
 import fs from 'node:fs';
 
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 interface LangsData {
     [lang: string]: LanguageData;
 }
@@ -39,9 +45,9 @@ export default async function getLanguageData(arg: string): Promise<LanguageData
     };
 
     let dat = LangsData[lang];
-    
+
     if (!dat) {
-        dat = yaml.load(fs.readFileSync(`${process.cwd()}/src/lang/${lang}.yml`, 'utf8')) as LanguageData;
+        dat = yaml.load(fs.readFileSync(path.join(__dirname, '..', '..', '..', '..', 'src', 'lang', lang + '.yml'), 'utf8')) as LanguageData;
         LangsData[lang] = dat;
     };
 

@@ -30,7 +30,6 @@ import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Custom_iHorizon } from '../../../../types/ownihrz';
 
-import config from '../../../files/config.js';
 import logger from '../../../core/logger.js';
 
 const OWNIHRZ = new OwnIHRZ();
@@ -71,8 +70,8 @@ export default {
             return;
         };
 
-        if ((interaction.user.id !== config.owner.ownerid1) &&
-            (interaction.user.id !== config.owner.ownerid2) &&
+        if ((interaction.user.id !== client.config.owner.ownerid1) &&
+            (interaction.user.id !== client.config.owner.ownerid2) &&
             (id_2.OwnerOne !== interaction.user.id)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
