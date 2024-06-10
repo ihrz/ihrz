@@ -149,7 +149,7 @@ export default {
                         (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
                     }
                 } catch (e) {
-                    console.error(e as any);
+                    logger.err(e as any);
                 }
             } else if (buttonInteraction.customId === "joinMessage-default-message") {
                 const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
