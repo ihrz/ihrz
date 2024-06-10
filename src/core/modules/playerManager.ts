@@ -22,13 +22,12 @@
 import { BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
 import { LavalinkManager } from "lavalink-client";
 
-import config from '../../files/config.js';
 import { LanguageData } from '../../../types/languageData.js';
 import logger from '../logger.js';
 
 export default async (client: Client) => {
 
-    let nodes = config.lavalink.nodes;
+    let nodes = client.config.lavalink.nodes;
 
     nodes.forEach(i => {
         i.retryAmount = 100

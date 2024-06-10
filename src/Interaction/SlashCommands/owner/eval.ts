@@ -28,7 +28,6 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
-import config from '../../../files/config.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
@@ -59,7 +58,7 @@ export const command: Command = {
 
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
-        if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
+        if ((interaction.user.id !== client.config.owner.ownerid1) && (interaction.user.id !== client.config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };

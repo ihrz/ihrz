@@ -22,7 +22,6 @@
 import { Collection, EmbedBuilder, PermissionsBitField, Guild, GuildTextBasedChannel, Client, BaseGuildTextChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
 import logger from "../../core/logger.js";
-import config from '../../files/config.js';
 
 import { BotEvent } from '../../../types/event.js';
 
@@ -164,7 +163,7 @@ export const event: BotEvent = {
                 .setThumbnail(guild.iconURL())
                 .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
-            (client.channels.cache.get(config.core.guildLogsChannelID) as BaseGuildTextChannel).send({
+            (client.channels.cache.get(client.config.core.guildLogsChannelID) as BaseGuildTextChannel).send({
                 embeds: [embed],
                 files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
             }).catch(() => { });

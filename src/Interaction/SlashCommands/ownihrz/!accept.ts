@@ -30,7 +30,6 @@ import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Custom_iHorizon } from '../../../../types/ownihrz';
 
-import config from '../../../files/config.js';
 import logger from '../../../core/logger.js';
 
 const OWNIHRZ = new OwnIHRZ();
@@ -59,17 +58,17 @@ export default {
             return;
         };
 
-        id_2.AdminKey = config.api?.apiToken!;
+        id_2.AdminKey = client.config.api?.apiToken!;
         id_2.Code = id;
         id_2.Lavalink = {
-            NodeHost: config.lavalink.nodes[0].host,
-            NodePort: config.lavalink.nodes[0].port,
-            NodeAuth: config.lavalink.nodes[0].authorization,
+            NodeHost: client.config.lavalink.nodes[0].host,
+            NodePort: client.config.lavalink.nodes[0].port,
+            NodeAuth: client.config.lavalink.nodes[0].authorization,
         };
 
         await OWNIHRZ.Active_Intents(id_2.Auth).catch(() => { })
 
-        if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
+        if ((interaction.user.id !== client.config.owner.ownerid1) && (interaction.user.id !== client.config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };

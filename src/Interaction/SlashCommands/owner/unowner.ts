@@ -28,7 +28,6 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
-import config from '../../../files/config.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
@@ -66,7 +65,7 @@ export const command: Command = {
 
         var member = interaction.options.getUser('member');
 
-        if ((member?.id === config.owner.ownerid1) || (member?.id === config.owner.ownerid2)) {
+        if ((member?.id === client.config.owner.ownerid1) || (member?.id === client.config.owner.ownerid2)) {
             await interaction.reply({ content: data.unowner_cant_unowner_creator });
             return;
         };

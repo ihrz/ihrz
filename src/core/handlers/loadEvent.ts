@@ -23,10 +23,15 @@ import { join as pathJoin } from 'node:path';
 import { opendir } from 'fs/promises';
 import { Client } from 'discord.js';
 
-import config from '../../files/config.js';
 import logger from '../logger.js';
 
 import { BotEvent } from '../../../types/event.js';
+
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const loadedEvents = new Set<string>();
 
@@ -60,8 +65,9 @@ function buildPaths(basePath: string, directoryTree: DirectoryTreeItem[]): strin
     return paths;
 }
 
+let p = path.join(__dirname, '..', '..', 'Events');
 
-async function loadEvents(client: Client, pathDir = pathJoin(process.cwd(), 'dist/src/Events')): Promise<void> {
+async function loadEvents(client: Client, pathDir = p): Promise<void> {
     const directoryTree = await buildDirectoryTree(pathDir);
     const paths = buildPaths(pathDir, directoryTree);
 
@@ -82,7 +88,7 @@ async function loadEvents(client: Client, pathDir = pathJoin(process.cwd(), 'dis
         }
     }));
 
-    logger.log(`${config.console.emojis.OK} >> Loaded ${paths.length} events.`);
+    logger.log(`${client.config.console.emojis.OK} >> Loaded ${paths.length} events.`);
 }
 
 export default loadEvents;

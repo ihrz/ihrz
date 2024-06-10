@@ -24,8 +24,13 @@ import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
 import logger from "../logger.js";
 import { Command } from "../../../types/command";
-import config from "../../files/config.js";
 import { EltType } from "../../../types/eltType";
+
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     let result = [];
@@ -61,7 +66,9 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
     return paths;
 };
 
-async function loadCommands(client: Client, path: string = `${process.cwd()}/dist/src/Interaction/MessageCommands`): Promise<void> {
+let p = path.join(__dirname, '..', '..', 'Interaction', 'MessageCommands');
+
+async function loadCommands(client: Client, path: string = p): Promise<void> {
 
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
@@ -88,7 +95,7 @@ async function loadCommands(client: Client, path: string = `${process.cwd()}/dis
         client.message_commands.set(command.name, command);
     };
 
-    logger.log(`${config.console.emojis.OK} >> Loaded ${i} Message commands.`);
+    logger.log(`${client.config.console.emojis.OK} >> Loaded ${i} Message commands.`);
 };
 
 export default loadCommands;
