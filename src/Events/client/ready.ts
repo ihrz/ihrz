@@ -22,7 +22,6 @@
 import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature, User } from 'discord.js';
 import { PfpsManager_Init } from "../../core/modules/pfpsManager.js";
 import logger from "../../core/logger.js";
-import config from "../../files/config.js";
 
 import { format } from '../../core/functions/date-and-time.js';
 
@@ -52,8 +51,8 @@ export const event: BotEvent = {
     
         async function refreshDatabaseModel() {
             let table = client.db.table('OWNER');
-            await table.set(`${config.owner.ownerid1}`, { owner: true });
-            await table.set(`${config.owner.ownerid2}`, { owner: true });
+            await table.set(`${client.config.owner.ownerid1}`, { owner: true });
+            await table.set(`${client.config.owner.ownerid2}`, { owner: true });
             await client.db.delete(`TEMP`);
         };
     

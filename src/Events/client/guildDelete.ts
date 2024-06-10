@@ -22,7 +22,6 @@
 import { BaseGuildTextChannel, Client, Guild, EmbedBuilder } from 'discord.js';
 
 import logger from "../../core/logger.js";
-import config from '../../files/config.js';
 
 import { BotEvent } from '../../../types/event.js';
 

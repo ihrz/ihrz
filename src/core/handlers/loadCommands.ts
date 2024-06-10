@@ -27,8 +27,13 @@ import { Command } from "../../../types/command.js";
 import { EltType } from "../../../types/eltType.js";
 import { Option } from "../../../types/option.js";
 
-import config from "../../files/config.js";
 import logger from "../logger.js";
+
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     let result = [];
@@ -87,7 +92,9 @@ async function processOptions(options: Option[], category: string, parentName: s
     };
 };
 
-export default async function loadCommands(client: Client, path: string = `${process.cwd()}/dist/src/Interaction/SlashCommands`): Promise<void> {
+let p = path.join(__dirname, '..', '..', 'Interaction', 'SlashCommands');
+
+export default async function loadCommands(client: Client, path: string = p): Promise<void> {
 
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
@@ -129,5 +136,5 @@ export default async function loadCommands(client: Client, path: string = `${pro
         };
     };
 
-    logger.log(`${config.console.emojis.OK} >> Loaded ${i} Slash commands.`);
+    logger.log(`${client.config.console.emojis.OK} >> Loaded ${i} Slash commands.`);
 };

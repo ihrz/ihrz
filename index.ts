@@ -24,6 +24,7 @@ import './src/core/functions/colors.js';
 import { Client, Partials, GatewayIntentBits } from "discord.js";
 import * as ClientVersion from "./src/version.js";
 import core from './src/core/core.js';
+import config from './src/files/config.js';
 
 let client = new Client({
     intents: [
@@ -59,4 +60,6 @@ let client = new Client({
 });
 client.version = ClientVersion;
 
+client.version = ClientVersion
+client.config = config;
 core(client);
