@@ -19,13 +19,11 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { initializeDatabase, getDatabaseInstance } from './database.js';
 import commandsSync from './commandsSync.js';
 import logger from "./logger.js";
 
 import * as errorManager from './modules/errorManager.js';
 import playerManager from "./modules/playerManager.js";
-import { OwnIHRZ } from './modules/ownihrzManager.js';
 import emojis from './modules/emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData';
@@ -42,6 +40,7 @@ import fs from 'fs';
 import { LyricsManager } from './functions/lyrics-fetcher.js';
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";
+import database from './functions/DatabaseModel.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -67,7 +66,6 @@ export async function main(client: Client) {
 
     process.on('SIGINT', async () => {
         client.destroy();
-        await new OwnIHRZ().QuitProgram(client);
         process.exit();
     });
 
@@ -75,8 +73,7 @@ export async function main(client: Client) {
     playerManager(client);
     emojis(client);
 
-    await initializeDatabase(client.config);
-    client.db = getDatabaseInstance();
+    client.db = database;
     client.content = [];
     client.category = [];
     client.invites = new Collection();
@@ -97,7 +94,7 @@ export async function main(client: Client) {
     assetsCalc(client);
     playerManager(client);
     emojis(client);
-    errorManager.uncaughtExceptionHandler();
+    errorManager.uncaughtExceptionHandler(client);
 
     if (client.config.discord.phonePresence) {
 
