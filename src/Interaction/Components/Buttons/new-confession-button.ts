@@ -73,10 +73,11 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
             {
                 customId: 'case_private',
                 label: lang.confession_module_modal_components2_label,
-                placeHolder: "Yes/No",
+                placeHolder: `${lang.mybot_submit_utils_msg_yes} / ${lang.mybot_submit_utils_msg_no}`,
                 style: TextInputStyle.Short,
                 required: true,
-                maxLength: 3,
+                minLength: 2,
+                maxLength: 8,
             },
         ]
     }, interaction);
@@ -88,15 +89,13 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     let code = generatePassword({ length: 6, numbers: true, lowercase: true });
     let files = [];
 
-    await submitInteraction.deferUpdate();
-
     const embed = new EmbedBuilder()
         .setColor(2829617)
-        .setDescription(`### Confession #${code}\n\n` + '`' + name + '`')
+        .setDescription(`### ${lang.help_confession_fields} #${code}\n\n` + '`' + name + '`')
         .setTimestamp()
         ;
 
-    if (view.toLowerCase().includes('no')) {
+    if (view.toLowerCase().includes('no') || view.toLowerCase().includes(lang.mybot_submit_utils_msg_no)) {
         view = false;
 
         files.push({
