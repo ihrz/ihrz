@@ -677,7 +677,6 @@ setjoinmessage_button_set_name: "Встановити повідомлення"
 setjoinmessage_buttom_del_name: "Стандартне повідомлення"
 setjoinmessage_awaiting_response: "Написав нове повідомлення про приєднання."
 
-
 # /setjoinroles
 setjoinroles_var_none: "Немає"
 setjoinroles_var_perm_admin: "Адміністратор"
