@@ -19,36 +19,47 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import playerManager from "./modules/playerManager.js";
 import { initializeDatabase, getDatabaseInstance } from './database.js';
+import commandsSync from './commandsSync.js';
 import bash from './bash/bash.js';
-
-import * as errorManager from './modules/errorManager.js';
 import logger from "./logger.js";
 
-import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from "discord.js";
+import * as errorManager from './modules/errorManager.js';
+import playerManager from "./modules/playerManager.js";
 import { OwnIHRZ } from './modules/ownihrzManager.js';
 import emojis from './modules/emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData';
-import { readdirSync } from "node:fs";
-import commandsSync from './commandsSync.js';
+import { ConfigData } from '../../types/configDatad.js';
+
+import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from "discord.js";
 import { GiveawayManager } from 'discord-regiveaways';
-import { iHorizonTimeCalculator } from './functions/ms.js';
-import { LyricsManager } from './functions/lyrics-fetcher.js';
-
+import { readdirSync } from "node:fs";
 import backup from 'discord-rebackup';
-import assetsCalc from "./functions/assetsCalc.js";
-
 import { fileURLToPath } from 'url';
 import path from 'path';
+import fs from 'fs';
+
+import { LyricsManager } from './functions/lyrics-fetcher.js';
+import { iHorizonTimeCalculator } from './functions/ms.js';
+import assetsCalc from "./functions/assetsCalc.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-backup.setStorageFolder(`${process.cwd()}/src/files/backups`);
+const backups_folder = `${process.cwd()}/src/files/backups`;
 
-export default async (client: Client) => {
+let global_config: ConfigData;
+
+if (!fs.existsSync(backups_folder)) {
+    fs.mkdirSync(backups_folder, { recursive: true });
+}
+
+backup.setStorageFolder(backups_folder);
+
+export async function main(client: Client) {
+    initConfig(client.config);
+
     logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray());
     logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray());
     logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".gray());
@@ -119,4 +130,15 @@ export default async (client: Client) => {
             logger.log(`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta());
         });
     });
+};
+
+export const initConfig = (config: ConfigData) => {
+    global_config = config
+};
+
+export const getConfig = (): ConfigData => {
+    if (!global_config) {
+        throw new Error('Configuration file has not been initialized. Call initConfig first.');
+    }
+    return global_config;
 };

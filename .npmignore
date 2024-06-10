@@ -22,3 +22,9 @@
 /src/files/db.sqlite
 /src/files/error.log
 /src/files/slash.log
+
+/dist/src/index.js
+/bun.lockb
+/dist/tools
+/dist/package.json
+/dist/src/files/
