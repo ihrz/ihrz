@@ -354,7 +354,6 @@ export const event: BotEvent = {
         await sendWarningMessage(lang, cache.membersToPunish, message.channel as BaseGuildTextChannel, options)
 
         if (options.removeMessages && cache.spamMessagesToClear.size > 0) {
-            console.log('Delete', cache.spamMessagesToClear.size)
             await clearSpamMessages(cache.spamMessagesToClear, client);
         }
     },
