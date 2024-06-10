@@ -93,7 +93,7 @@ export default async (client: Client) => {
         });
     };
 
-    client.login(config.discord.token).then(() => {
+    client.login(client.config.discord.token).then(() => {
         client.giveawaysManager = new GiveawayManager(client, {
             storage: `${process.cwd()}/src/files/giveaways/`,
             config: {

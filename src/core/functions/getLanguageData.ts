@@ -41,7 +41,7 @@ export default async function getLanguageData(arg: string): Promise<LanguageData
     let lang = await database.get(`${arg}.GUILD.LANG.lang`) as string;
 
     if (!lang) {
-        lang = 'en-US';
+        lang = 'fr-FR';
     };
 
     let dat = LangsData[lang];

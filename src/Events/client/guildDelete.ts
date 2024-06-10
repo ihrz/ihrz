@@ -43,8 +43,8 @@ export const event: BotEvent = {
                     return;
                 }
 
-                let owner1 = config.owner.ownerid1;
-                let owner2 = config.owner.ownerid2;
+                let owner1 = client.config.owner.ownerid1;
+                let owner2 = client.config.owner.ownerid2;
 
                 if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 

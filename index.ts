@@ -58,7 +58,6 @@ let client = new Client({
         Partials.ThreadMember
     ]
 });
-client.version = ClientVersion;
 
 client.version = ClientVersion
 client.config = config;
