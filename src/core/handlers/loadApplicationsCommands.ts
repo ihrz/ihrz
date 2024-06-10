@@ -23,11 +23,17 @@ import { AnotherCommand } from '../../../types/anotherCommand';
 import { Client, Collection } from 'discord.js';
 import { readdirSync } from 'node:fs';
 
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 export default async (client: Client) => {
     client.applicationsCommands = new Collection<string, AnotherCommand>();
 
     let loadCommands = async (commandType: string) => {
-        let commandPath = `${process.cwd()}/dist/src/Interaction/${commandType}ApplicationCommands`;
+        let commandPath = path.join(__dirname, '..', '..', 'Interaction', commandType + 'ApplicationCommands');
 
         let files = readdirSync(commandPath);
 

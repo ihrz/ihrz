@@ -20,12 +20,18 @@
 */
 
 import { Emojis } from '../../../types/emojis';
+import { fileURLToPath } from 'url';
 
-import toml from 'toml';
 import fs from 'node:fs';
 
+import path from 'path';
+import toml from 'toml';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 function emojis_(): Emojis {
-    return toml.parse(String(fs.readFileSync(process.cwd() + "/src/files/emojis.toml"))) as Emojis
+    return toml.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', '..', 'src', 'files', 'emojis.toml'), 'utf-8')) as Emojis
 };
 
 let emojis : Emojis;

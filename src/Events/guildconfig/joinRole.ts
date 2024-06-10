@@ -48,13 +48,17 @@ export const event: BotEvent = {
             for (let id of roleid) {
                 let role = member.guild.roles.cache.get(id);
                 if (role) {
-                    await member.roles.add(role);
+                    try {
+                        await member.roles.add(role)
+                    } catch { }
                 }
             }
         } else {
             let role = member.guild.roles.cache.get(roleid);
             if (role) {
-                await member.roles.add(role);
+                try {
+                    await member.roles.add(role)
+                } catch { }
             }
         }
     },

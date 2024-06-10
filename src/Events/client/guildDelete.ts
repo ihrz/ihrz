@@ -22,7 +22,6 @@
 import { BaseGuildTextChannel, Client, Guild, EmbedBuilder } from 'discord.js';
 
 import logger from "../../core/logger.js";
-import config from '../../files/config.js';
 
 import { BotEvent } from '../../../types/event.js';
 
@@ -60,7 +59,7 @@ export const event: BotEvent = {
                     .setThumbnail(guild.iconURL())
                     .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
-                let channel = client.channels.cache.get(config.core.guildLogsChannelID);
+                let channel = client.channels.cache.get(client.config.core.guildLogsChannelID);
 
                 return (channel as BaseGuildTextChannel).send({ embeds: [embed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
             } catch (error: any) {

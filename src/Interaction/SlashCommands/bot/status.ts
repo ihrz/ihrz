@@ -27,10 +27,10 @@ import {
     ApplicationCommandType
 } from 'discord.js'
 
-import { Command } from '../../../../types/command';
-import config from '../../../files/config.js';
-import os from 'node:os';
 import { LanguageData } from '../../../../types/languageData';
+import { Command } from '../../../../types/command';
+
+import os from 'node:os';
 
 function niceBytes(a: Number) { let b = 0, c = parseInt((a.toString()), 10) || 0; for (; 1024 <= c && ++b;)c /= 1024; return c.toFixed(10 > c && 0 < b ? 1 : 0) + " " + ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][b] }
 
@@ -48,7 +48,7 @@ export const command: Command = {
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
-        if (interaction.user.id !== config.owner.ownerid1 && config.owner.ownerid2) {
+        if (interaction.user.id !== client.config.owner.ownerid1 && client.config.owner.ownerid2) {
             await interaction.reply({ content: data.status_be_bot_dev });
             return;
         };

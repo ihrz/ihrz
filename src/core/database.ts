@@ -25,9 +25,14 @@ import { MongoDriver } from 'quickmongo';
 import * as proc from './modules/errorManager.js';
 import config from '../files/config.js';
 import logger from './logger.js';
-
+import fs from 'fs';
 
 let dbPromise: Promise<QuickDB> | undefined = undefined;
+let sqlitePath = `${process.cwd()}/src/files`;
+
+if (!fs.existsSync(sqlitePath)) {
+    fs.mkdirSync(sqlitePath, { recursive: true });
+}
 
 switch (config.database?.method) {
     case 'MONGO_DB':
@@ -82,13 +87,13 @@ switch (config.database?.method) {
     case 'SQLITE':
         dbPromise = new Promise<QuickDB>((resolve, reject) => {
             logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
-            resolve(new QuickDB({ filePath: `${process.cwd()}/src/files/db.sqlite` }));
+            resolve(new QuickDB({ filePath: sqlitePath + '/db.sqlite' }));
         });
         break;
     default:
         dbPromise = new Promise<QuickDB>((resolve, reject) => {
             logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green());
-            resolve(new QuickDB({ filePath: `${process.cwd()}/src/files/db.sqlite` }));
+            resolve(new QuickDB({ filePath: sqlitePath + '/db.sqlite' }));
         })
         break;
 };
