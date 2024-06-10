@@ -57,6 +57,7 @@ class iHorizonBuilder {
         });
 
         this.client.config = this.config;
+        this.client.isModuled = true;
         this.client.version = ClientVersion;
     }
 

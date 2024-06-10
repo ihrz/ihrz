@@ -109,7 +109,7 @@ export default {
             });
 
             try {
-                await OWNIHRZ.Change_Token(id_2.Cluster!, id_2.Code, newToken);
+                await OWNIHRZ.Change_Token(client.config, id_2.Cluster!, id_2.Code, newToken);
 
                 await table.set(`OWNIHRZ.${interaction.user.id}.${botId}`, {
                     Auth: newToken
