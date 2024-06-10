@@ -20,7 +20,7 @@
 */
 
 import { Assets } from "../../../types/assets.js";
-import config from "../../files/config.js";
+import { ConfigData } from "../../../types/configDatad.js";
 
 export const ClusterMethod = {
     CreateContainer: 0,
@@ -35,7 +35,7 @@ export function assetsFinder(body: Assets, type: string): string {
     return `https://raw.githubusercontent.com/ihrz/assets/main/${type}/${Math.floor(Math.random() * body[type])}.gif`;
 };
 
-export function OwnIhrzCluster(cluster_number: number, cluster_method: number, bot_id?: string, discord_bot_token?: string): string {
+export function OwnIhrzCluster(config: ConfigData, cluster_number: number, cluster_method: number, bot_id?: string, discord_bot_token?: string): string {
     var data = config.core.cluster[cluster_number];
     var admin_key = config.api.apiToken;
 

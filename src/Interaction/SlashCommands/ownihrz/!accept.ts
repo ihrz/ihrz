@@ -105,7 +105,7 @@ export default {
             });
 
             try {
-                OWNIHRZ.Create_Container(cluster, id_2).then(async () => {
+                OWNIHRZ.Create_Container(client.config, cluster, id_2).then(async () => {
                     await table.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
                 });
 

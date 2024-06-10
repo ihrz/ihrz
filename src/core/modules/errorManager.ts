@@ -19,24 +19,25 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
+import { ConfigData } from '../../../types/configDatad.js';
 import { format } from '../functions/date-and-time.js';
-import config from '../../files/config.js';
 import logger from '../logger.js';
 
 import { MongoDriver } from 'quickmongo';
 import fs from 'node:fs';
+import { Client } from 'discord.js';
 
-let exec = async (driver: MongoDriver) => {
+let exec = async (driver: MongoDriver, config: ConfigData) => {
     await driver.close();
     logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database?.method})!`);
     process.kill(0);
 };
 
-export const uncaughtExceptionHandler = () => {
+export const uncaughtExceptionHandler = (client: Client) => {
     process.on('uncaughtException', function (err) {
-        if (!config.core.devMode) {
-            logger.err(`${config.console.emojis.ERROR} >> Error detected`.red());
-            logger.err(`${config.console.emojis.OK} >> Save in the logs`.gray());
+        if (!client.config.core.devMode) {
+            logger.err(`${client.config.console.emojis.ERROR} >> Error detected`.red());
+            logger.err(`${client.config.console.emojis.OK} >> Save in the logs`.gray());
 
             let filesPath: string = `${process.cwd()}/src/files/error.log`;
             let CreateFile = fs.createWriteStream(filesPath, { flags: 'a' });
@@ -49,8 +50,8 @@ export const uncaughtExceptionHandler = () => {
     });
 };
 
-export let exit = async (driver: MongoDriver) => {
-    process.on('exit', async () => { await exec(driver); });
-    process.on('abort', async () => { await exec(driver); });
-    process.on('SIGINT', async () => { await exec(driver); });
+export let exit = async (driver: MongoDriver, config: ConfigData) => {
+    process.on('exit', async () => { await exec(driver, config); });
+    process.on('abort', async () => { await exec(driver, config); });
+    process.on('SIGINT', async () => { await exec(driver, config); });
 };

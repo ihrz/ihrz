@@ -43,7 +43,6 @@ import {
     StringSelectMenuOptionBuilder,
     ChannelSelectMenuBuilder,
     ModalSubmitInteraction,
-    Embed,
 } from 'discord.js';
 
 import { LanguageData } from '../../../types/languageData';
@@ -51,8 +50,10 @@ import { LanguageData } from '../../../types/languageData';
 import { isDiscordEmoji, isSingleEmoji } from '../functions/emojiChecker.js';
 import { iHorizonModalResolve } from '../functions/modalHelper.js';
 import * as discordTranscripts from 'discord-html-transcripts';
-import database from '../database.js';
+import { getDatabaseInstance } from '../database.js';
 import logger from '../logger.js';
+
+const database = getDatabaseInstance();
 
 interface CreatePanelData {
     name: string | null;

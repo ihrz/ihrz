@@ -20,7 +20,7 @@
 */
 
 import playerManager from "./modules/playerManager.js";
-import database from "./database.js";
+import { initializeDatabase, getDatabaseInstance } from './database.js';
 import bash from './bash/bash.js';
 
 import * as errorManager from './modules/errorManager.js';
@@ -53,7 +53,7 @@ export default async (client: Client) => {
     logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray());
     logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".gray());
 
-    errorManager.uncaughtExceptionHandler();
+    errorManager.uncaughtExceptionHandler(client);
 
     client.giveawaysManager = new GiveawayManager(client, {
         storage: `${process.cwd()}/src/files/giveaways/`,
@@ -70,7 +70,7 @@ export default async (client: Client) => {
 
     process.on('SIGINT', async () => {
         client.destroy();
-        await new OwnIHRZ().QuitProgram();
+        await new OwnIHRZ().QuitProgram(client);
         process.exit();
     });
 
@@ -79,7 +79,8 @@ export default async (client: Client) => {
     bash(client);
     emojis(client);
 
-    client.db = database;
+    await initializeDatabase(client.config);
+    client.db = getDatabaseInstance();
     client.content = [];
     client.category = [];
     client.invites = new Collection();

@@ -144,7 +144,7 @@ export const event: BotEvent = {
 
         await client.player.init({ id: client.user?.id as string, username: 'bot_' + client.user?.id });
 
-        new OwnIHRZ().Startup_Cluster();
+        new OwnIHRZ().Startup_Cluster(client);
 
         setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000);
 
