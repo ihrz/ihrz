@@ -32,14 +32,14 @@ export namespace AntiSpam {
     }
 
     export interface AntiSpamCache {
-        warnInfo: Map<string, { value: number | boolean }>;
+        raidInfo: Map<string, { value: number | boolean }>;
         messages: Set<CachedMessage>;
 
         kickedUsers: Set<Snowflake>;
         bannedUsers: Set<Snowflake>;
 
         membersToPunish: Set<GuildMember>;
-        spamMessagesToClear: CachedMessage[];
+        spamMessagesToClear: Set<CachedMessage>;
     }
 
     export interface AntiSpamOptions {
