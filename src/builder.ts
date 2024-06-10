@@ -8,7 +8,7 @@ import { ConfigData } from '../types/configDatad.js';
 
 import * as ClientVersion from "./version.js";
 import logger from './core/logger.js';
-import core from './core/core.js';
+import * as core from './core/core.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -62,7 +62,7 @@ class iHorizonBuilder {
     }
 
     public start() {
-        core(this.client);
+        core.main(this.client);
     }
 }
 
