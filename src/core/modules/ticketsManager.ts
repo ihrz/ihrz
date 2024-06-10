@@ -43,7 +43,6 @@ import {
     StringSelectMenuOptionBuilder,
     ChannelSelectMenuBuilder,
     ModalSubmitInteraction,
-    Embed,
 } from 'discord.js';
 
 import { LanguageData } from '../../../types/languageData';

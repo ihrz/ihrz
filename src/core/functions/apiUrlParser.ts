@@ -20,7 +20,7 @@
 */
 
 import { Assets } from "../../../types/assets.js";
-import config from "../../files/config.js";
+import { ConfigData } from "../../../types/configDatad.js";
 
 export const ClusterMethod = {
     CreateContainer: 0,

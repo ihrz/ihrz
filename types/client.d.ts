@@ -60,6 +60,7 @@ declare module 'discord.js' {
         lyricsSearcher: LyricsManager,
         version: typeof ClientVersion,
         assets: Assets,
-        config: ConfigData
+        config: ConfigData,
+        isModuled?: boolean
     }
 };
