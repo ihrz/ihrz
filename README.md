@@ -13,6 +13,7 @@ IHorizon have a large variety of features, including moderation, invite manageme
 * Japanese
 * Spanish
 * Russian
+* Portuguese
 * And soon more !
 
 ## Contributor's Wall
@@ -23,59 +24,70 @@ IHorizon have a large variety of features, including moderation, invite manageme
 - [Maxine](https://github.com/mxi1n) (She/Her)
 - [Wyene](https://github.com/WyeneCloud) (He/Him)
 
-## Origin
-
-The bot was primarily developed by Kisakay and was first released in **September 2020** using **discord.js v12 and now v14.15.12 , yeah the latest version !
-Now, It has a strong architecture with separated modules, each with their own owner directory.**
-
 ## Is it Free ?
 
 The iHorizon project is licensed under the  [`Creative Commons Attribution-NonCommercial-ShareAlike 2.0`](https://creativecommons.org/licenses/by-nc-sa/2.0/) license.
 
-**Is allowed to :**
+## How to configure the module ?
 
-- **Share** — copy and redistribute the material in any medium or format
-- **Adapt** — remix, transform, and build upon the material
+### Linux & Mac os & Windows
 
-**Is unallowed to :**
+```ts
+import { iHorizonBuilder } from 'ihrz';
 
-- **Attribution** — You must give [appropriate credit](https://creativecommons.org/licenses/by-nc-sa/2.0/#), provide a link to the license, and [indicate if changes were made](https://creativecommons.org/licenses/by-nc-sa/2.0/#). You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
-- **NonCommercial** — You may not use the material for [commercial purposes](https://creativecommons.org/licenses/by-nc-sa/2.0/#).
-- **ShareAlike** — If you remix, transform, or build upon the material, you must distribute your contributions under the [same license](https://creativecommons.org/licenses/by-nc-sa/2.0/#) as the original.
-- **No additional restrictions** — You may not apply legal terms or [technological measures](https://creativecommons.org/licenses/by-nc-sa/2.0/#) that legally restrict others from doing anything the license permits.
-
-# How to selfhost ?
-
-_There are only some few software needed :_
-
-- [NodeJS](https://nodejs.org) (**18 or higher required**)
-- [Npm](https://npmjs.com) (**With NodeJS**)
-
-### How to configure the bot ?
-
-* Open [config.example.ts](https://github.com/ihrz/ihrz/blob/main/src/files/config.example.ts) in file Editor (Notepad, VSCode...), enter your informations, and rename to config.ts.
-
-After your configuration in the config.ts :
-
-## Linux & Mac os
-
-```bash
-node -v  &&  npm -v
+new iHorizonBuilder({
+    discord: {
+        token: "Discord Bot Token",
+        phonePresence: false
+    },
+    lavalink: {
+        nodes: [
+            {
+                id: "Node ID",
+                host: "Node Host",
+                port: 2333,
+                authorization: "Node Password",
+            }
+        ],
+    },
+    core: {
+        devMode: true,
+        bash: false,
+        blacklistPictureInEmbed: "An png url",
+        guildLogsChannelID: "The Discord Channel's ID for logs when guildCreate/guildRemove",
+        reportChannelID: "The Discord Channel's ID for logs when bugs/message are reported",
+        cluster: ["http://localhost:9030"],
+        shutdownClusterWhenStop: false
+    },
+    command: {
+        alway100: []
+    },
+    owner: {
+        ownerid1: "Owner 1 ID",
+        ownerid2: "Owner 2 ID",
+    },
+    api: {
+        apiToken: "my-super-api-token-between-ihorizon-and-clusterManager",
+        clientID: ""
+    },
+    console: {
+        emojis: {
+            OK: "✅", ERROR: "❌", HOST: "💻", KISA: "👩", LOAD: "🔄"
+        }
+    },
+    database: {
+        method: 'SQLITE',
+        mongoDb: "mongodb://ihrz:1337/iHorizonDB",
+        mySQL: {
+            host: '',
+            password: '',
+            database: '',
+            user: '',
+            port: 25570
+        },
+    }
+}).start();
 ```
-
-If it shows an error please install npm and node.js.
-
-```bash
-npm build && npm start
-```
-
-## Docker Method
-
-[Soon!](https://hub.docker.com/r/kisakay/ihorizon "See more")
-# A host is too expensive?
-Well iHorizon is happy to offer really cheap hosting of an iHorizon instance (ownihrz), it's actually way cheaper than most hosts and offers an intense quality!<br>
-Only 2.00 euros per month! (0.50 euro for the activation)<br>
-Your bot is faster than most popular bots and you can do what you want with it, even making a public bot out of it that can make you money! :)
 
 # About the bot
 IHorizon is trusted by more than **275 000** users!<br>
