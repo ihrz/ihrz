@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import pkg from "./../package.json" with { "type": "json" }
+import pkg from "././../package.json" with { "type": "json" }
 
 const env = "production"; // production, ownihrz, dev, main
 const version = pkg.version;
