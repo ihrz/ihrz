@@ -29,9 +29,22 @@ IHorizon have a large variety of features, including moderation, invite manageme
 The iHorizon project is licensed under the  [`Creative Commons Attribution-NonCommercial-ShareAlike 2.0`](https://creativecommons.org/licenses/by-nc-sa/2.0/) license.
 
 ## How to configure the module ?
-
 ### Linux & Mac os & Windows
 
+### Install the module
+```bash
+# Npm
+npm install ihrz
+
+# Yarn
+yarn add ihrz
+
+# Bun
+bun add ihrz
+
+...
+```
+#### index.js
 ```ts
 import { iHorizonBuilder } from 'ihrz';
 
@@ -88,7 +101,24 @@ new iHorizonBuilder({
     }
 }).start();
 ```
+#### package.json
 
+Very Important!! package.json need to have type: module!
+
+```json
+{
+  "dependencies": {
+    "ihrz": "latest"
+  },
+  "type": "module"
+}
+```
+
+### Run the bot
+
+```bash
+node index.js
+```
 # About the bot
 IHorizon is trusted by more than **275 000** users!<br>
 Used by more than 450 servers!
