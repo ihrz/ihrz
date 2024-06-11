@@ -33,7 +33,6 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import logger from '../../../core/logger.js';
 
 export const command: Command = {
     name: 'massmove',
@@ -55,7 +54,7 @@ export const command: Command = {
                 "fr": "Le canal vocal d'où déplacer les membres"
             },
 
-            required: true,
+            required: false,
         },
         {
             name: 'to',
@@ -77,10 +76,11 @@ export const command: Command = {
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
-        const fromChannel = interaction.options.getChannel('from')! as BaseGuildVoiceChannel;
+        const fromChannel = interaction.options.getChannel('from') as BaseGuildVoiceChannel | null;
+        const allChannel = Array.from(interaction.guild?.channels.cache.values()!).filter(x => x.type === (ChannelType.GuildVoice || ChannelType.GuildStageVoice)) || [];
         const toChannel = interaction.options.getChannel('to')! as BaseGuildVoiceChannel;
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.MoveMembers)) {
+        if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
             await interaction.editReply({ content: "You don't have Move Members permission" });
             return;
         }
@@ -88,12 +88,25 @@ export const command: Command = {
         let movedCount = 0;
         let errorCount = 0;
 
-        for (const member of (fromChannel as BaseGuildVoiceChannel).members.values()) {
-            try {
-                await member.voice.setChannel((toChannel as VoiceChannel));
-                movedCount++;
-            } catch (error) {
-                errorCount++;
+        if (fromChannel) {
+            for (const member of (fromChannel as BaseGuildVoiceChannel).members.values()) {
+                try {
+                    await member.voice.setChannel((toChannel as VoiceChannel));
+                    movedCount++;
+                } catch (error) {
+                    errorCount++;
+                }
+            }
+        } else if (allChannel) {
+            for (const channel of allChannel) {
+                for (const member of (channel as BaseGuildVoiceChannel).members.values()) {
+                    try {
+                        await member.voice.setChannel((toChannel as VoiceChannel));
+                        movedCount++;
+                    } catch (error) {
+                        errorCount++;
+                    }
+                }
             }
         }
 
@@ -106,7 +119,7 @@ export const command: Command = {
                 .replace('${interaction.user}', interaction.user.toString())
                 .replace('${movedCount}', movedCount.toString())
                 .replace('${errorCount}', errorCount.toString())
-                .replace('${fromChannel}', fromChannel.toString())
+                .replace('${fromChannel}', fromChannel?.toString() || allChannel.map(x => x.toString()).join(","))
                 .replace('${toChannel}', toChannel.toString())
             );
 
