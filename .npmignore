@@ -22,6 +22,7 @@
 /src/files/error.log
 /src/files/slash.log
 
+/dist/package.json
 /dist/src/index.js
 /bun.lockb
 /dist/tools
