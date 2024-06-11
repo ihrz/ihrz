@@ -9,7 +9,6 @@
 /src/Events
 /src/Core
 /src/lang
-/src/assets
 /src/builder.ts
 /src/index.ts
 /src/version.ts
