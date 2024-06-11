@@ -19,8 +19,13 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import pkg from "./../package.json" with { "type": "json" }
+import { fileURLToPath } from 'url';
+import path from 'path';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const pkg = (await import(path.join(__dirname, '..', '..', 'package.json'), { with: { "type": "json" } })).default;
 const env = "npmjs"; // production, ownihrz, dev, main, npmjs
 const version = pkg.version;
 const djs = pkg.dependencies['discord.js'];
