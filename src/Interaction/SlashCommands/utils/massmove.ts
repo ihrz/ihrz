@@ -44,19 +44,6 @@ export const command: Command = {
 
     options: [
         {
-            name: 'from',
-            type: ApplicationCommandOptionType.Channel,
-
-            channel_types: [ChannelType.GuildVoice],
-
-            description: 'The voice channel to move members from',
-            description_localizations: {
-                "fr": "Le canal vocal d'où déplacer les membres"
-            },
-
-            required: false,
-        },
-        {
             name: 'to',
             type: ApplicationCommandOptionType.Channel,
 
@@ -68,6 +55,19 @@ export const command: Command = {
             },
 
             required: true,
+        },
+        {
+            name: 'from',
+            type: ApplicationCommandOptionType.Channel,
+
+            channel_types: [ChannelType.GuildVoice],
+
+            description: 'The voice channel to move members from',
+            description_localizations: {
+                "fr": "Le canal vocal d'où déplacer les membres"
+            },
+
+            required: false,
         },
     ],
     thinking: true,
