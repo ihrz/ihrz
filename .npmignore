@@ -5,6 +5,7 @@
 /.dockerignore
 /types
 /lavalink
+
 /src/Interaction
 /src/Events
 /src/Core
@@ -22,6 +23,7 @@
 /src/files/slash.log
 
 /dist/src/index.js
+/dist/package.json
 /bun.lockb
 /dist/tools
 /dist/src/files/
