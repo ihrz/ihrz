@@ -19,11 +19,9 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Message } from 'discord.js';
+import { Client, Message, SnowflakeUtil } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
-
-const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "messageCreate",
@@ -34,9 +32,7 @@ export const event: BotEvent = {
          * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
          * As always, fuck discord.js
          */
-        if (processedMembers.has(message.author.id)) return;
-        processedMembers.add(message.author.id);
-        setTimeout(() => processedMembers.delete(message.author.id), 2500);
+        const nonce = SnowflakeUtil.generate().toString();
 
         if (!message.guild || message.author.bot || !message.channel) return;
 

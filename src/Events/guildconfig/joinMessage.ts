@@ -19,25 +19,13 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField } from 'discord.js';
+import { BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
-
-const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
-        /**
-         * Why doing this?
-         * On iHorizon Production, we have some ~discord.js problems~ 👎
-         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-         * As always, fuck discord.js
-         */
-        if (processedMembers.has(member.id)) return;
-        processedMembers.add(member.id);
-        setTimeout(() => processedMembers.delete(member.id), 7000);
-
         let data = await client.functions.getLanguageData(member.guild.id) as LanguageData;
 
         if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
@@ -46,6 +34,14 @@ export const event: BotEvent = {
         let newInvites = await member.guild.invites.fetch();
 
         let invite = newInvites.find((i: Invite) => i.uses && i.uses > (oldInvites?.get(i.code) || 0));
+
+        /**
+         * Why doing this?
+         * On iHorizon Production, we have some ~discord.js problems~ 👎
+         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
+         * As always, fuck discord.js
+         */
+        const nonce = SnowflakeUtil.generate().toString();
 
         if (invite) {
             let inviter = await client.users.fetch(invite?.inviterId!);
@@ -112,7 +108,7 @@ export const event: BotEvent = {
                     .replaceAll("\\n", '\n');
             };
 
-            await channel.send({ content: msg });
+            await channel.send({ content: msg, enforceNonce: true, nonce: nonce });
             return;
 
         } else if (member.guild.features.includes(GuildFeature.VanityURL)) {
@@ -141,7 +137,7 @@ export const event: BotEvent = {
                     .replaceAll('{invitesCount}', VanityURL.uses.toString()!)
                     .replaceAll("\\n", '\n');
 
-                channel.send({ content: msg });
+                channel.send({ content: msg, enforceNonce: true, nonce: nonce });
                 return;
             };
 
@@ -162,7 +158,7 @@ export const event: BotEvent = {
                 .replaceAll('{invitesCount}', invitesAmount)
                 .replaceAll("\\n", '\n');
 
-            channel.send({ content: msg });
+            channel.send({ content: msg, enforceNonce: true, nonce: nonce });
             return;
         };
 
