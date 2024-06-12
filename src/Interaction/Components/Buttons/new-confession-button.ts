@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, ButtonInteraction, CacheType, EmbedBuilder, TextInputStyle } from 'discord.js';
+import { BaseGuildTextChannel, ButtonInteraction, CacheType, EmbedBuilder, TextInputStyle, SnowflakeUtil } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { DatabaseStructure } from '../../../core/database_structure.js';
 import { generatePassword } from '../../../core/functions/random.js'
@@ -29,6 +29,14 @@ import maskLink from '../../../core/functions/maskLink.js';
 var modalIdRegistered: number[] = [];
 
 export default async function (interaction: ButtonInteraction<CacheType>) {
+
+    /**
+     * Why doing this?
+     * On iHorizon Production, we have some ~discord.js problems~ 👎
+     * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
+     * As always, fuck discord.js
+     */
+    const nonce = SnowflakeUtil.generate().toString();
 
     if (await interaction.client.db.get(
         `${interaction.guildId}.GUILD.CONFESSION.disable`
@@ -120,7 +128,8 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
 
     await (channel as BaseGuildTextChannel).send({
         embeds: [embed],
-        files: files
+        files: files,
+        enforceNonce: true, nonce: nonce
     });
     return;
 };

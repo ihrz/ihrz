@@ -19,27 +19,23 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, GuildMember } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, GuildMember, SnowflakeUtil } from 'discord.js';
 import { BotEvent } from '../../../types/event';
-
-const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
-        /**
-         * Why doing this?
-         * On iHorizon Production, we have some ~discord.js problems~ 👎
-         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-         * As always, fuck discord.js
-         */
-        if (processedMembers.has(member.id)) return;
-        processedMembers.add(member.id);
-        setTimeout(() => processedMembers.delete(member.id), 7000);
-
         try {
             let msg_dm = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`)
             if (!msg_dm || msg_dm === "off") return;
+
+            /**
+             * Why doing this?
+             * On iHorizon Production, we have some ~discord.js problems~ 👎
+             * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
+             * As always, fuck discord.js
+             */
+            const nonce = SnowflakeUtil.generate().toString();
 
             msg_dm = msg_dm
                 .replaceAll("{memberUsername}", member.user.username)
@@ -58,7 +54,9 @@ export const event: BotEvent = {
                 content: msg_dm,
                 components: [
                     new ActionRowBuilder<ButtonBuilder>().addComponents(button)
-                ]
+                ],
+                enforceNonce: true,
+                nonce: nonce
             });
         } catch { return; };
     },

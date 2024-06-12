@@ -19,14 +19,12 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, PermissionsBitField, ChannelType, Message, GuildTextBasedChannel, ClientUser } from 'discord.js';
+import { Client, PermissionsBitField, ChannelType, Message, GuildTextBasedChannel, ClientUser, SnowflakeUtil } from 'discord.js';
 
 import { isMessageCommand } from '../interaction/messageCommandHandler.js';
 import { LanguageData } from '../../../types/languageData';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure.js';
-
-const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "messageCreate",
@@ -37,9 +35,7 @@ export const event: BotEvent = {
          * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
          * As always, fuck discord.js
          */
-        if (processedMembers.has(message.author.id)) return;
-        processedMembers.add(message.author.id);
-        setTimeout(() => processedMembers.delete(message.author.id), 4000);
+        const nonce = SnowflakeUtil.generate().toString();
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
@@ -79,7 +75,7 @@ export const event: BotEvent = {
                 message.channel.send({
                     content: data.event_xp_level_earn
                         .replace("${message.author.id}", message.author.id)
-                        .replace("${newLevel}", newLevel)
+                        .replace("${newLevel}", newLevel), enforceNonce: true, nonce: nonce
                 })
                 return;
             }
@@ -87,7 +83,7 @@ export const event: BotEvent = {
             MsgChannel.send({
                 content: data.event_xp_level_earn
                     .replace("${message.author.id}", message.author.id)
-                    .replace("${newLevel}", newLevel)
+                    .replace("${newLevel}", newLevel), enforceNonce: true, nonce: nonce
             });
             return;
         }
