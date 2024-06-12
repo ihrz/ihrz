@@ -19,12 +19,10 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, GuildMember } from 'discord.js';
+import { Client, GuildMember, SnowflakeUtil } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';
-
-const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
@@ -35,9 +33,7 @@ export const event: BotEvent = {
          * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
          * As always, fuck discord.js
          */
-        if (processedMembers.has(member.user.id)) return;
-        processedMembers.add(member.user.id);
-        setTimeout(() => processedMembers.delete(member.user.id), 2500);
+        const nonce = SnowflakeUtil.generate().toString();
 
         if (!member.guild || member.user.bot) return;
 

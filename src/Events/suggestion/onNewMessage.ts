@@ -19,13 +19,11 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, Message } from 'discord.js';
+import { Client, EmbedBuilder, Message, SnowflakeUtil } from 'discord.js';
 import { generatePassword } from '../../core/functions/random.js';
 
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData.js';
-
-const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "messageCreate",
@@ -36,9 +34,7 @@ export const event: BotEvent = {
          * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
          * As always, fuck discord.js
          */
-        if (processedMembers.has(message.author.id)) return;
-        processedMembers.add(message.author.id);
-        setTimeout(() => processedMembers.delete(message.author.id), 4000);
+        const nonce = SnowflakeUtil.generate().toString();
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
@@ -74,7 +70,8 @@ export const event: BotEvent = {
         let msg = await message.channel.send({
             content: message.author.toString(),
             embeds: [suggestionEmbed],
-            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
+            enforceNonce: true, nonce: nonce
         });
 
         await msg.react(client.iHorizon_Emojis.icon.Yes_Logo);

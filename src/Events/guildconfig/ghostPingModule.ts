@@ -19,34 +19,30 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, GuildMember } from 'discord.js';
+import { BaseGuildTextChannel, Client, GuildMember, SnowflakeUtil } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';
-
-const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
+        let all_channels = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) as DatabaseStructure.GhostPingData['channels'];
+
+        if (!all_channels) return;
+
         /**
          * Why doing this?
          * On iHorizon Production, we have some ~discord.js problems~ 👎
          * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
          * As always, fuck discord.js
          */
-        if (processedMembers.has(member.id)) return;
-        processedMembers.add(member.id);
-        setTimeout(() => processedMembers.delete(member.id), 7000);
-
-        let all_channels = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) as DatabaseStructure.GhostPingData['channels'];
-
-        if (!all_channels) return;
+        const nonce = SnowflakeUtil.generate().toString();
 
         for (let i of all_channels) {
             const channel = member.guild.channels.cache.get(i);
             if (!channel) continue;
 
-            const msg = await (channel as BaseGuildTextChannel).send({ content: member.user.toString() });
+            const msg = await (channel as BaseGuildTextChannel).send({ content: member.user.toString(), enforceNonce: true, nonce: nonce });
 
             try {
                 await msg.delete().catch(() => { });

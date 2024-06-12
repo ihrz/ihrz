@@ -19,15 +19,51 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, GuildMember } from 'discord.js';
+import { AuditLogEvent, Client, EmbedBuilder, GuildMember, PermissionsBitField } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
 
-        if (await client.db.get(`${member.guild.id}.GUILD.BLOCK_BOT`) && member.user.bot) {
-            member.ban({ reason: 'The BlockBot function are enable!' });
+        let data = await client.db.get(`${member.guild.id}.GUILD.BLOCK_BOT`) || false;
+
+        if (!member.guild.members.me?.permissions.has([
+            PermissionsBitField.Flags.Administrator
+        ])) return;
+
+        let fetchedLogs = await member.guild.fetchAuditLogs({
+            type: AuditLogEvent.BotAdd,
+        });
+
+        let filteredLog = fetchedLogs.entries.filter(x => x.targetId === member.id).first();
+
+        if (data === true && member.user.bot && filteredLog?.executorId !== member.guild.ownerId) {
+            await member.ban({ reason: 'The BlockBot function are enable!' });
+
+            let executor = member.guild.members.cache.get(filteredLog?.executorId!);
+
+            executor?.roles.cache.forEach(async r => {
+                executor.roles.remove(r, 'Attempt to add an discord bot into this guild! -> Derank')
+                    .catch(() => { })
+                    .then(() => { });
+            });
+
+            let owner = member.guild.members.cache.get(member.guild.ownerId);
+            let embed = new EmbedBuilder()
+                .setColor(2829617)
+                .setTitle(`⚠️ Danger in ${member.guild.name} ⚠️`)
+                .setDescription(`# PunishPub Warning\nSomeone have try to add discord bot.`)
+                .setFields(
+                    { name: "User", value: filteredLog?.executor?.toString() || '`Not detected`', inline: true },
+                    { name: "Target bot", value: member.toString(), inline: true },
+                )
+                .setTimestamp()
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+
+            owner?.send({ embeds: [embed] })
+                .catch(() => { })
+                .then(() => { });
         };
     },
 };
