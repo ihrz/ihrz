@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, GuildMember, SnowflakeUtil } from 'discord.js';
+import { BaseGuildTextChannel, Client, GuildMember, SnowflakeUtil, PermissionsBitField } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';
 
@@ -30,29 +30,21 @@ export const event: BotEvent = {
 
         if (!all_channels) return;
 
-        /**
-         * Why doing this?
-         * On iHorizon Production, we have some ~discord.js problems~ 👎
-         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-         * As always, fuck discord.js
-         */
-        const nonce = SnowflakeUtil.generate().toString();
-
         for (let i of all_channels) {
-            const channel = member.guild.channels.cache.get(i);
-            if (!channel) continue;
-
-            const msg = await (channel as BaseGuildTextChannel).send({ content: member.user.toString(), enforceNonce: true, nonce: nonce });
+            const channel = member.guild.channels.cache.get(i) as BaseGuildTextChannel;
+            if (!channel || !channel.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) continue;
 
             try {
-                msg.delete()
-                    .catch(() => { })
-                    .then(() => { });
-            } catch (e) {
-                msg.delete()
-                    .catch(() => { })
-                    .then(() => { });
+                const nonce = SnowflakeUtil.generate().toString();
+                const msg = await channel.send({
+                    content: `${member.user} ${channel} ${nonce}`,
+                    enforceNonce: true,
+                    nonce: nonce
+                });
+
+                await msg.delete();
+            } catch {
             }
-        };
+        }
     },
 };
