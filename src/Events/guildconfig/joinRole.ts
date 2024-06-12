@@ -38,7 +38,9 @@ export const event: BotEvent = {
                 let role = member.guild.roles.cache.get(id);
                 if (role) {
                     try {
-                        await member.roles.add(role)
+                        member.roles.add(role)
+                            .catch(() => { })
+                            .then(() => { });
                     } catch { }
                 }
             }
@@ -46,7 +48,9 @@ export const event: BotEvent = {
             let role = member.guild.roles.cache.get(roleid);
             if (role) {
                 try {
-                    await member.roles.add(role)
+                    member.roles.add(role)
+                        .catch(() => { })
+                        .then(() => { });
                 } catch { }
             }
         }
