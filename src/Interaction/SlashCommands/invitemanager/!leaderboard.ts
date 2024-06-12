@@ -46,11 +46,11 @@ export default {
                 tableau.push({
                     invCount: a.invites,
                     text: data.leaderboard_text_inline
-                        .replace(/\${i}/g, key)
-                        .replace(/\${a\.invites\s*\|\|\s*0}/g, String(a.invites || 0))
-                        .replace(/\${a\.regular\s*\|\|\s*0}/g, String(a.regular || 0))
-                        .replace(/\${a\.bonus\s*\|\|\s*0}/g, String(a.bonus || 0))
-                        .replace(/\${a\.leaves\s*\|\|\*0}/g, String(a.leaves || 0))
+                        .replace("${i}", key)
+                        .replace("${a.invites || 0}", String(a.invites || 0))
+                        .replace("${a.regular || 0}", String(a.regular || 0))
+                        .replace("${a.bonus || 0}", String(a.bonus || 0))
+                        .replace("${a.leaves || 0}", String(a.leaves || 0))
                 });
             }
         }
