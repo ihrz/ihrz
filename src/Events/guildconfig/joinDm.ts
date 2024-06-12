@@ -57,7 +57,9 @@ export const event: BotEvent = {
                 ],
                 enforceNonce: true,
                 nonce: nonce
-            });
+            })
+                .catch(() => { })
+                .then(() => { });
         } catch { return; };
     },
 };

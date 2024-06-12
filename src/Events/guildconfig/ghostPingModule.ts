@@ -45,9 +45,13 @@ export const event: BotEvent = {
             const msg = await (channel as BaseGuildTextChannel).send({ content: member.user.toString(), enforceNonce: true, nonce: nonce });
 
             try {
-                await msg.delete().catch(() => { });
+                msg.delete()
+                    .catch(() => { })
+                    .then(() => { });
             } catch (e) {
-                await msg.delete().catch(() => { });
+                msg.delete()
+                    .catch(() => { })
+                    .then(() => { });
             }
         };
     },

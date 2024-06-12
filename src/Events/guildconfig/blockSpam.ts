@@ -74,7 +74,9 @@ export const event: BotEvent = {
                         FLAGS_FETCH = FLAGS_FETCH || 0;
 
                         await table.set(`${message.guild.id}.PUNISH_DATA.${message.author.id}`, { flags: FLAGS_FETCH + 1 });
-                        await message.delete();
+                        message.delete()
+                            .catch(() => { })
+                            .then(() => { });
                         break;
                     }
                 }
