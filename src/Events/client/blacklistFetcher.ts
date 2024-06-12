@@ -30,12 +30,15 @@ export const event: BotEvent = {
         try {
             let table = client.db.table('BLACKLIST')
 
-            if (await table.get(`${member.user.id}.blacklisted`)) {
-                member.send({ content: 'You\'ve been banned, because you are blacklisted' })
+            let data = await table.get(`${member.user.id}`);
+
+            if (data.blacklisted === true) {
+                member.send({ content: "You've been banned, because you are blacklisted ! \nReason: \`" + data.reason + '\`' })
                     .catch(() => { })
-                    .then(() => {
-                        member.ban({ reason: 'blacklisted!' });
-                    });
+                    .then(() => { });
+                member.ban({ reason: 'iHorizon Project Punishement - Blacklist' })
+                    .catch(() => { })
+                    .then(() => { });
             }
 
         } catch (error) {
