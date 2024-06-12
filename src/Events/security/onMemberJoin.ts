@@ -36,6 +36,7 @@ export const event: BotEvent = {
 
         let data = await client.functions.getLanguageData(member.guild.id) as LanguageData;
         let channel = member.guild.channels.cache.get(baseData?.channel);
+        if (!channel) return;
         let generatedCaptcha = await captcha(280, 100)
 
         let sfbuff = Buffer.from((generatedCaptcha?.image).split(",")[1], "base64");
@@ -64,16 +65,26 @@ export const event: BotEvent = {
 
             collector.on('collect', async (m) => {
                 collector.stop();
-                await m.delete();
+                m.delete()
+                    .catch(() => { })
+                    .then(() => { });
 
                 if (generatedCaptcha.code === m.content) {
-                    member.roles.add(baseData?.role);
-                    msg.delete().catch(() => { });
+                    member.roles.add(baseData?.role)
+                        .catch(() => { })
+                        .then(() => { });
+                    msg.delete()
+                        .catch(() => { })
+                        .then(() => { });
                     passedtest = true;
                     return;
                 } else {
-                    msg.delete().catch(() => { });
-                    member.kick();
+                    msg.delete()
+                        .catch(() => { })
+                        .then(() => { });
+                    member.kick()
+                        .catch(() => { })
+                        .then(() => { });
                     return;
                 }
             });
@@ -85,7 +96,9 @@ export const event: BotEvent = {
                     member.kick();
                 }
 
-                msg.delete().catch(() => { });
+                msg.delete()
+                    .catch(() => { })
+                    .then(() => { });
             });
 
         }).catch((error: any) => {

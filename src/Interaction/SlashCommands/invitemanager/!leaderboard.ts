@@ -23,16 +23,21 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ComponentType,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../core/database_structure';
 
+const itemsPerPage = 15;
+
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        var text: string = data.leaderboard_default_text;
+        let text: string = data.leaderboard_default_text;
         let char = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
-        let tableau: Array<any> = [];
-        let i: number = 1;
+        let tableau: { invCount: number; text: string; }[] = [];
 
         for (let key in char) {
             let a = char?.[key]?.INVITES;
@@ -45,26 +50,79 @@ export default {
                         .replace(/\${a\.invites\s*\|\|\s*0}/g, String(a.invites || 0))
                         .replace(/\${a\.regular\s*\|\|\s*0}/g, String(a.regular || 0))
                         .replace(/\${a\.bonus\s*\|\|\s*0}/g, String(a.bonus || 0))
-                        .replace(/\${a\.leaves\s*\|\|\s*0}/g, String(a.leaves || 0))
+                        .replace(/\${a\.leaves\s*\|\|\*0}/g, String(a.leaves || 0))
                 });
             }
         }
 
-        tableau.sort((a: { invCount: number; }, b: { invCount: number; }) => b.invCount - a.invCount);
+        tableau.sort((a, b) => b.invCount - a.invCount);
 
-        tableau.forEach((index: { text: string; }) => {
-            text += `Top #${i} - ${index.text}`;
-            i++;
+        const generateEmbed = async (start: number) => {
+            const current = tableau.slice(start, start + itemsPerPage);
+            let pageText = text;
+            let i = start + 1;
+            current.forEach((index) => {
+                pageText += `Top #${i} - ${index.text}\n`;
+                i++;
+            });
+
+            return new EmbedBuilder()
+                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#FFB6C1")
+                .setDescription(pageText)
+                .setTimestamp()
+                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
+                .setThumbnail(interaction.guild?.iconURL() as string);
+        };
+
+        const canFitOnOnePage = tableau.length <= itemsPerPage;
+        const embedMessage = await interaction.editReply({
+            embeds: [await generateEmbed(0)],
+            components: canFitOnOnePage ? [] : [new ActionRowBuilder<ButtonBuilder>().addComponents(
+                new ButtonBuilder()
+                    .setCustomId('previous')
+                    .setLabel('⬅️')
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(true),
+                new ButtonBuilder()
+                    .setCustomId('next')
+                    .setLabel('➡️')
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(tableau.length <= itemsPerPage)
+            )],
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
 
-        let embed = new EmbedBuilder()
-            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#FFB6C1")
-            .setDescription(text)
-            .setTimestamp()
-            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
-            .setThumbnail(interaction.guild?.iconURL() as string);
+        if (canFitOnOnePage) return;
 
-        await interaction.editReply({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
-        return;
+        const collector = embedMessage.createMessageComponentCollector({ filter: (i) => i.customId === 'previous' || i.customId === 'next', componentType: ComponentType.Button, time: 60000 });
+
+        let currentIndex = 0;
+        collector.on('collect', async (i) => {
+            if (i.customId === 'previous') {
+                currentIndex -= itemsPerPage;
+            } else if (i.customId === 'next') {
+                currentIndex += itemsPerPage;
+            }
+
+            await i.update({
+                embeds: [await generateEmbed(currentIndex)],
+                components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('previous')
+                        .setLabel('⬅️')
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(currentIndex === 0),
+                    new ButtonBuilder()
+                        .setCustomId('next')
+                        .setLabel('➡️')
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(currentIndex + itemsPerPage >= tableau.length)
+                )],
+            });
+        });
+
+        collector.on('end', () => {
+            embedMessage.edit({ components: [] });
+        });
     },
 };
