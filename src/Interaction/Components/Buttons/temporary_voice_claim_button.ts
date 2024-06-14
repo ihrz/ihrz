@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ActionRowBuilder, BaseGuildVoiceChannel, ButtonInteraction, CacheType, Client, ComponentType, Embed, EmbedBuilder, Guild, GuildMember, UserSelectMenuBuilder } from 'discord.js';
+import { ActionRowBuilder, BaseGuildVoiceChannel, ButtonInteraction, CacheType, Client, ComponentType, Embed, EmbedBuilder, Guild, GuildMember, UserSelectMenuBuilder } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 export default async function (interaction: ButtonInteraction<CacheType>) {

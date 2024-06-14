@@ -21,7 +21,7 @@
 
 import logger from "../logger.js";
 
-import { Client } from 'discord.js';
+import { Client } from 'pwss';
 import { OwnIhrzCluster, ClusterMethod } from "../functions/apiUrlParser.js";
 import { AxiosResponse, axios } from "../functions/axios.js";
 import { Custom_iHorizon } from "../../../types/ownihrz.js";

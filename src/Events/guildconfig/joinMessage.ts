@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil } from 'discord.js';
+import { BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil } from 'pwss';
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
 
@@ -37,9 +37,8 @@ export const event: BotEvent = {
 
         /**
          * Why doing this?
-         * On iHorizon Production, we have some ~discord.js problems~ 👎
+         * On iHorizon Production, we have some ~problems~ 👎
          * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-         * As always, fuck discord.js
          */
         const nonce = SnowflakeUtil.generate().toString();
 

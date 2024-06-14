@@ -20,7 +20,7 @@
 */
 
 import { AnotherCommand } from '../../../types/anotherCommand';
-import { Client, Collection } from 'discord.js';
+import { Client, Collection } from 'pwss';
 import { readdirSync } from 'node:fs';
 
 import { fileURLToPath } from 'url';

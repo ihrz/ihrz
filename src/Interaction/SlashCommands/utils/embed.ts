@@ -41,7 +41,7 @@ import {
     ButtonInteraction,
     ChannelSelectMenuInteraction,
     Message,
-} from 'discord.js';
+} from 'pwss';
 
 import { Command } from '../../../../types/command';
 import { generatePassword } from '../../../core/functions/random.js';

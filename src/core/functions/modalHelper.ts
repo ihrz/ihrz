@@ -29,7 +29,7 @@ import {
     ModalSubmitInteraction,
     TextInputBuilder,
     TextInputStyle
-} from "discord.js";
+} from 'pwss';
 
 export interface ModalOptionsBuilder {
     title: string;
