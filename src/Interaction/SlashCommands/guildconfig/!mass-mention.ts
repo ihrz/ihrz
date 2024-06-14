@@ -24,7 +24,7 @@ import {
     PermissionsBitField,
     AutoModerationRuleTriggerType,
     ChatInputCommandInteraction
-} from 'discord.js';
+} from 'pwss';
 
 interface Action {
     type: number;

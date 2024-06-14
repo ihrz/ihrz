@@ -30,7 +30,7 @@ import {
     StringSelectMenuInteraction,
     ApplicationCommandType,
     ColorResolvable,
-} from 'discord.js'
+} from 'pwss'
 
 import { LanguageData } from '../../../../types/languageData';
 import { CategoryData } from '../../../../types/category';

@@ -24,7 +24,7 @@ import {
     Client,
     EmbedBuilder,
     GuildMember,
-} from 'discord.js';
+} from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {

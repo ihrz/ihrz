@@ -1,6 +1,6 @@
 import './core/functions/colors.js';
 
-import { ShardingManager, Client, Partials, GatewayIntentBits } from 'discord.js';
+import { ShardingManager, Client, Partials, GatewayIntentBits } from 'pwss';
 import { fileURLToPath } from 'url';
 import path from 'path';
 

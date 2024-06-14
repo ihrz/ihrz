@@ -25,7 +25,7 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
-} from 'discord.js';
+} from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
@@ -53,6 +53,7 @@ export default {
             return;
         };
 
+        // @ts-ignore
         client.giveawaysManager.end(client, inputData as string)
 
         await interaction.editReply({

@@ -24,7 +24,7 @@ import {
     Client,
     Guild,
     PermissionsBitField,
-} from 'discord.js';
+} from 'pwss';
 
 import backup from 'discord-rebackup';
 import { BackupData } from 'discord-rebackup/lib/types';
@@ -61,6 +61,7 @@ export default {
         });
 
         backup.fetch(backupID).then(async () => {
+            // @ts-ignore
             backup.load(backupID, interaction.guild as Guild).then(() => {
                 backup.remove(backupID);
             }).catch((err) => {

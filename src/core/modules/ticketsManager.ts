@@ -43,7 +43,7 @@ import {
     StringSelectMenuOptionBuilder,
     ChannelSelectMenuBuilder,
     ModalSubmitInteraction,
-} from 'discord.js';
+} from 'pwss';
 
 import { LanguageData } from '../../../types/languageData';
 
@@ -663,7 +663,8 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) 
                 if (interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member?.user.id) {
                     interaction.channel.messages.fetch().then(async (messages) => {
 
-                        let attachment = await discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
+                        //@ts-ignore
+                        let attachment = await discordTranscripts.createTranscript(interaction.channel, {
                             limit: -1,
                             filename: 'transcript.html',
                             footerText: "Exported {number} message{s}",
@@ -723,6 +724,7 @@ async function TicketTranscript(interaction: ButtonInteraction<CacheType>) {
                 let member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
 
                 if (interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member?.user.id) {
+                    // @ts-ignore
                     let attachment = await discordTranscripts.createTranscript(interactionChannel as TextBasedChannel, {
                         limit: -1,
                         filename: 'transcript.html',

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { initializeDatabase, getDatabaseInstance } from './database.js';
+import { initializeDatabase } from './database.js';
 import commandsSync from './commandsSync.js';
 import bash from './bash/bash.js';
 import logger from "./logger.js";
@@ -32,7 +32,7 @@ import emojis from './modules/emojisManager.js';
 import { VanityInviteData } from '../../types/vanityUrlData';
 import { ConfigData } from '../../types/configDatad.js';
 
-import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from "discord.js";
+import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'pwss';
 import { GiveawayManager } from 'discord-regiveaways';
 import { readdirSync } from "node:fs";
 import backup from 'discord-rebackup';
@@ -66,6 +66,7 @@ export async function main(client: Client) {
 
     errorManager.uncaughtExceptionHandler(client);
 
+    // @ts-ignore
     client.giveawaysManager = new GiveawayManager(client, {
         storage: `${process.cwd()}/src/files/giveaways/`,
         config: {
@@ -90,8 +91,7 @@ export async function main(client: Client) {
     bash(client);
     emojis(client);
 
-    await initializeDatabase(client.config);
-    client.db = getDatabaseInstance();
+    client.db = await initializeDatabase(client.config);
     client.content = [];
     client.category = [];
     client.invites = new Collection();

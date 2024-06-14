@@ -24,7 +24,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-} from 'discord.js'
+} from 'pwss'
 
 import { Command } from '../../../../types/command';
 import ping from 'ping';

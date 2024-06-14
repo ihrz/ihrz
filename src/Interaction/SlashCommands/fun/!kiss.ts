@@ -24,7 +24,7 @@ import {
     Client,
     EmbedBuilder,
     User,
-} from 'discord.js';
+} from 'pwss';
 
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData';

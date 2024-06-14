@@ -23,7 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-} from 'discord.js';
+} from 'pwss';
 
 import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 

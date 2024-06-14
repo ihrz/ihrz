@@ -25,7 +25,7 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
-} from 'discord.js';
+} from 'pwss';
 
 
 import logger from '../../../core/logger.js';
@@ -49,6 +49,7 @@ export default {
 
         let svMsg = interaction.options.getBoolean('save-message');
 
+        // @ts-ignore
         backup.create(interaction.guild, {
             maxMessagesPerChannel: svMsg ? 10 : 0,
             jsonBeautify: true

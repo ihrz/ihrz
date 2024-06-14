@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ButtonInteraction, CacheType, EmbedBuilder, GuildMember, TextInputStyle } from 'discord.js';
+import { ButtonInteraction, CacheType, EmbedBuilder, GuildMember, TextInputStyle } from 'pwss';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData';
 
