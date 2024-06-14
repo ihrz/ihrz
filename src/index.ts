@@ -20,7 +20,7 @@
 */
 
 import './core/functions/colors.js';
-import { ShardingManager } from 'discord.js';
+import { ShardingManager } from 'pwss';
 import config from './files/config.js';
 import logger from './core/logger.js';
 

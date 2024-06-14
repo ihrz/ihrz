@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, GuildMember, BaseGuildTextChannel, SnowflakeUtil } from 'discord.js';
+import { Client, GuildMember, BaseGuildTextChannel, SnowflakeUtil } from 'pwss';
 
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';

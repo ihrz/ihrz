@@ -24,7 +24,7 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
-} from 'discord.js';
+} from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 
@@ -51,6 +51,7 @@ export default {
             return;
         };
 
+        // @ts-ignore
         await client.giveawaysManager.listEntries(interaction, inputData)
         return;
     },

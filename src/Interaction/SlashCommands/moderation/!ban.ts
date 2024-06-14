@@ -26,7 +26,7 @@ import {
     EmbedBuilder,
     GuildMemberRoleManager,
     PermissionsBitField,
-} from 'discord.js';
+} from 'pwss';
 
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData';
