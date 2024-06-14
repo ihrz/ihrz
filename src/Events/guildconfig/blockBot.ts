@@ -43,12 +43,7 @@ export const event: BotEvent = {
 
             let executor = member.guild.members.cache.get(filteredLog?.executorId!);
 
-            executor?.roles.cache.forEach(async r => {
-                executor.roles.remove(r, 'Attempt to add an discord bot into this guild! -> Derank')
-                    .catch(() => { })
-                    .then(() => { });
-            });
-
+            await executor?.roles.set([], "Attempt to add an discord bot into this guild! -> Derank");
             let owner = member.guild.members.cache.get(member.guild.ownerId);
             let embed = new EmbedBuilder()
                 .setColor(2829617)

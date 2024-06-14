@@ -68,11 +68,7 @@ export const event: BotEvent = {
                     case 'simply':
                         break;
                     case 'simply+derank':
-                        user?.guild.roles.cache.forEach((element) => {
-                            if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
-                                user.roles.remove(element.id);
-                            }
-                        });
+                        await user?.roles.set([], "Punish");
                         break;
                     case 'simply+ban':
                         user?.ban({ reason: 'Protect!' }).catch(() => { });
