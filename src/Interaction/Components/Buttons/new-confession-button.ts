@@ -32,9 +32,8 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
 
     /**
      * Why doing this?
-     * On iHorizon Production, we have some ~discord.js problems~ 👎
+     * On iHorizon Production, we have some ~problems~ 👎
      * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-     * As always, fuck discord.js
      */
     const nonce = SnowflakeUtil.generate().toString();
 
