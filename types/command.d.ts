@@ -29,7 +29,7 @@ import {
     Message,
     PermissionFlagsBits,
     RESTPostAPIApplicationCommandsJSONBody
-} from "discord.js";
+} from 'pwss';
 
 import { Option } from "./option";
 

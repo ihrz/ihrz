@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { AuditLogEvent, Client, EmbedBuilder, GuildMember, PermissionsBitField } from 'discord.js';
+import { AuditLogEvent, Client, EmbedBuilder, GuildMember, PermissionsBitField } from 'pwss';
 import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {
@@ -43,12 +43,7 @@ export const event: BotEvent = {
 
             let executor = member.guild.members.cache.get(filteredLog?.executorId!);
 
-            executor?.roles.cache.forEach(async r => {
-                executor.roles.remove(r, 'Attempt to add an discord bot into this guild! -> Derank')
-                    .catch(() => { })
-                    .then(() => { });
-            });
-
+            await executor?.roles.set([], "Attempt to add an discord bot into this guild! -> Derank");
             let owner = member.guild.members.cache.get(member.guild.ownerId);
             let embed = new EmbedBuilder()
                 .setColor(2829617)

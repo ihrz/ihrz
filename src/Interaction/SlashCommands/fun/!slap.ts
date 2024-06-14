@@ -23,7 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-} from 'discord.js';
+} from 'pwss';
 
 import { axios, AxiosResponse } from '../../../core/functions/axios.js';
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';

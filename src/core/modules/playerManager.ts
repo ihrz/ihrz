@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
+import { BaseGuildTextChannel, Client, EmbedBuilder } from 'pwss';
 import { LavalinkManager } from "lavalink-client";
 
 import { LanguageData } from '../../../types/languageData.js';
