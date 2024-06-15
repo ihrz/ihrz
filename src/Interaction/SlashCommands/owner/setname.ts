@@ -23,7 +23,7 @@ import {
     Client,
     ApplicationCommandOptionType,
     ApplicationCommandType
-} from 'pwss'
+} from 'discord.js'
 
 var timeout: number = 1_800_000;
 

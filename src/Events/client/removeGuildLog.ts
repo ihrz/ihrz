@@ -36,6 +36,9 @@ export const event: BotEvent = {
                 return;
             }
 
+            let owner1 = client.config.owner.ownerid1;
+            let owner2 = client.config.owner.ownerid2;
+
             if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
             let embed = new EmbedBuilder()
@@ -52,9 +55,15 @@ export const event: BotEvent = {
                 .setThumbnail(guild.iconURL())
                 .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
-            let channel = client.channels.cache.get(client.config.core.guildLogsChannelID);
+            await (client.users.cache.get(owner1))?.send({
+                embeds: [embed],
+                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            });
 
-            return (channel as BaseGuildTextChannel).send({ embeds: [embed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
+            await (client.users.cache.get(owner2))?.send({
+                embeds: [embed],
+                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            });
         } catch (error: any) {
             logger.err(error);
         }
