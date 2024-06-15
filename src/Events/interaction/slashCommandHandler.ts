@@ -98,10 +98,9 @@ export const event: BotEvent = {
                 await interaction.deferReply();
             };
 
-            await command.run(client, interaction);
+            await command.run(client, interaction, Date.now(), []);
         } catch (e: any) {
-            // logger.err(e);
-            console.error(e)
+            logger.err(e);
         };
     },
 };
