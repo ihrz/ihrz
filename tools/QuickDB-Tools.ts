@@ -48,10 +48,10 @@ let tables_to_export = [
     'API'
 ];
 
-logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray());
-logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray());
-logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".gray());
-logger.legacy(`Table(s) to export: ${tables_to_export.length}`.green());
+logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
+logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray);
+logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".gray);
+logger.legacy(`Table(s) to export: ${tables_to_export.length}`.green);
 
 const time_before = Date.now();
 
@@ -70,25 +70,25 @@ const time_before = Date.now();
 
         let table_mysql = db_mysql.table(table);
 
-        logger.legacy(`[-]`.gray() + ` Starting to export ${table} table !`.white());
+        logger.legacy(`[-]`.gray + ` Starting to export ${table} table !`.white);
 
         let table_sqlite = db_sqlite.table(table);
 
         let content = await table_sqlite.all();
 
         for (const item of content) {
-            logger.legacy(`[+]`.green() + ` (line:${i}) <${table}> `.gray() + `${item.id}`.blue());
+            logger.legacy(`[+]`.green + ` (line:${i}) <${table}> `.gray + `${item.id}`.blue);
 
             await table_mysql.set(item.id, item.value);
             i++;
         };
 
-        logger.legacy(`[-]`.gray() + ` Ending of the export ${table} table !`.white());
+        logger.legacy(`[-]`.gray + ` Ending of the export ${table} table !`.white);
 
         await wait(1000);
     }
 
-    logger.legacy(`[i] `.blue() + `Exporting ${tables_to_export.length} tables in ${Date.now() - time_before}ms. Done!`.gray());
-    logger.legacy(`[O] `.red() + `The program was succefully done. Exiting...`.bgRed());
+    logger.legacy(`[i] `.blue + `Exporting ${tables_to_export.length} tables in ${Date.now() - time_before}ms. Done!`.gray);
+    logger.legacy(`[O] `.red + `The program was succefully done. Exiting...`.bgRed);
     process.kill(0);
 })();

@@ -45,7 +45,7 @@ export const event: BotEvent = {
                         });
                     }
                 } catch (error: any) {
-                    logger.err(`Error fetching invites for guild ${guild.id}: ${error}`.red());
+                    logger.err(`Error fetching invites for guild ${guild.id}: ${error}`.red);
                 };
             });
         };

@@ -36,8 +36,8 @@ let exec = async (driver: MongoDriver, config: ConfigData) => {
 export const uncaughtExceptionHandler = (client: Client) => {
     process.on('uncaughtException', function (err) {
         if (!client.config.core.devMode) {
-            logger.err(`${client.config.console.emojis.ERROR} >> Error detected`.red());
-            logger.err(`${client.config.console.emojis.OK} >> Save in the logs`.gray());
+            logger.err(`${client.config.console.emojis.ERROR} >> Error detected`.red);
+            logger.err(`${client.config.console.emojis.OK} >> Save in the logs`.gray);
 
             let filesPath: string = `${process.cwd()}/src/files/error.log`;
             let CreateFile = fs.createWriteStream(filesPath, { flags: 'a' });
