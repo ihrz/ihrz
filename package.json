@@ -33,7 +33,7 @@
     "lavalink-client": "2.1.7",
     "mysql2": "3.10.0",
     "ping": "^0.4.4",
-    "pwss": "^1.0.6",
+    "pwss": "1.0.5",
     "quick.db": "^9.1.7",
     "quickmongo": "^5.2.0",
     "toml": "^3.0.0"
