@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, ApplicationCommandType, UserContextMenuCommandInteraction } from 'pwss';
+import { Client, EmbedBuilder, ApplicationCommandType, UserContextMenuCommandInteraction } from 'discord.js';
 import { AnotherCommand } from '../../../types/anotherCommand';
 
 import Jimp from 'jimp';

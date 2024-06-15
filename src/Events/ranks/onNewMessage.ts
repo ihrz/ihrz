@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, PermissionsBitField, ChannelType, Message, GuildTextBasedChannel, ClientUser, SnowflakeUtil } from 'pwss';
+import { Client, PermissionsBitField, ChannelType, Message, GuildTextBasedChannel, ClientUser, SnowflakeUtil } from 'discord.js';
 
 import { isMessageCommand } from '../interaction/messageCommandHandler.js';
 import { LanguageData } from '../../../types/languageData';

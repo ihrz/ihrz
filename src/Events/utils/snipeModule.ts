@@ -21,7 +21,7 @@
 
 import hidden from '../../core/functions/maskLink.js';
 
-import { Client, Message } from 'pwss';
+import { Client, Message } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {

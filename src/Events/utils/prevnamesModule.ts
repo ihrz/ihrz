@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, User, time } from 'pwss';
+import { Client, User, time } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
 

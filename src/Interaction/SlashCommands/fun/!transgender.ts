@@ -32,7 +32,7 @@ import {
   ChatInputCommandInteraction,
   Client,
   EmbedBuilder,
-} from 'pwss'
+} from 'discord.js'
 
 import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 

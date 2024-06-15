@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, CommandInteractionOptionResolver, GuildChannel, Interaction } from 'pwss';
+import { Client, CommandInteractionOptionResolver, GuildChannel, Interaction } from 'discord.js';
 
 import logger from '../../core/logger.js';
 import fs from 'node:fs';

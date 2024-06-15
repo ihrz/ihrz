@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Invite } from 'pwss';
+import { Client, Invite } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
 

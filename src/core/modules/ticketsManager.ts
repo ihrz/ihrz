@@ -43,7 +43,7 @@ import {
     StringSelectMenuOptionBuilder,
     ChannelSelectMenuBuilder,
     ModalSubmitInteraction,
-} from 'pwss';
+} from 'discord.js';
 
 import { LanguageData } from '../../../types/languageData';
 

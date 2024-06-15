@@ -34,7 +34,7 @@ import {
     CacheType,
     TextInputComponent,
     ApplicationCommandType
-} from 'pwss';
+} from 'discord.js';
 
 import { format } from '../../../core/functions/date-and-time.js';
 

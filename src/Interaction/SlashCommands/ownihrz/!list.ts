@@ -23,7 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-} from 'pwss';
+} from 'discord.js';
 
 import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 import { format } from '../../../core/functions/date-and-time.js';

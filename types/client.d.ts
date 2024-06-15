@@ -23,7 +23,7 @@ import { LyricsManager } from "../src/core/functions/lyrics-fetcher.js";
 import { iHorizonTimeCalculator } from "../src/core/functions/ms.js";
 
 import { GiveawayManager } from "discord-regiveaways";
-import { Collection, Snowflake } from 'pwss';
+import { Collection, Snowflake } from 'discord.js';
 import { LavalinkManager } from "lavalink-client";
 import { QuickDB } from "quick.db";
 
@@ -40,7 +40,7 @@ import * as ClientVersion from "../src/version.js";
 import { Assets } from "./assets";
 import { ConfigData } from "./configDatad.js";
 
-declare module 'pwss' {
+declare module 'discord.js' {
     export interface Client {
         functions: clientFunction,
         commands: Collection<string, Command>,

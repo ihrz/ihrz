@@ -26,7 +26,7 @@ import {
     ChatInputCommandInteraction,
     GuildChannel,
     EmbedBuilder,
-} from 'pwss';
+} from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../core/database_structure';
 

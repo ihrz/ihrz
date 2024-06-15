@@ -24,7 +24,7 @@ import {
     Client,
     EmbedBuilder,
     User,
-} from 'pwss';
+} from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import crypto from 'crypto';
 

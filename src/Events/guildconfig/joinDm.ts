@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, GuildMember, SnowflakeUtil } from 'pwss';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, GuildMember, SnowflakeUtil } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {

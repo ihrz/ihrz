@@ -24,7 +24,7 @@ import {
     ApplicationCommandType,
     ChatInputCommandInteraction,
     Client,
-} from 'pwss'
+} from 'discord.js'
 
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';

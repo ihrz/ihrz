@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client } from 'pwss';
+import { Client } from 'discord.js';
 import logger from "../logger.js";
 import readline from 'readline';
 import os from 'node:os';
@@ -47,13 +47,13 @@ export default async (client: Client) => {
     let now2 = new Date();
     let dateStr = `${now2.toLocaleString('default', { day: '2-digit' })} ${now2.toLocaleString('default', { month: 'short' })} ${now2.getFullYear().toString().substr(-2)} ${now2.toLocaleTimeString('en-US', { hour12: false })} 2023`.toString();
 
-    logger.legacy(`* iHorizon bash terminal is in power on...`.gray().bgBlack());
+    logger.legacy(`* iHorizon bash terminal is in power on...`.gray.bgBlack);
     await wait(1000);
-    logger.legacy(`* iHorizon bash terminal is in booting...`.gray().bgBlack());
+    logger.legacy(`* iHorizon bash terminal is in booting...`.gray.bgBlack);
     await wait(1000);
-    logger.legacy(`* iHorizon bash terminal is in loading...`.gray().bgBlack());
+    logger.legacy(`* iHorizon bash terminal is in loading...`.gray.bgBlack);
     await wait(1000);
-    logger.legacy(`* iHorizon has been loaded !`.gray().bgBlack());
+    logger.legacy(`* iHorizon has been loaded !`.gray.bgBlack);
 
     let now = new Date();
 
@@ -86,7 +86,7 @@ export default async (client: Client) => {
     
     Last login: ${LoadFiles} from ${LoadFiles2}`);
 
-    rl.setPrompt('kisakay@ihorizon'.green() + ":".white() + `${process.cwd()}`.blue() + "$ ".white());
+    rl.setPrompt('kisakay@ihorizon'.green + ":".white + `${process.cwd()}`.blue + "$ ".white);
     rl.prompt();
     rl.on('line', async (line) => {
         let [commandName, ...args] = line.trim().split(' ');

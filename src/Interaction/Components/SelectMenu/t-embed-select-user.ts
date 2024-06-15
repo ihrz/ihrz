@@ -20,7 +20,7 @@
 */
 
 import { TicketAddMember_2 } from '../../../core/modules/ticketsManager.js';
-import { UserSelectMenuInteraction } from 'pwss';
+import { UserSelectMenuInteraction } from 'discord.js';
 
 export default async function (interaction: UserSelectMenuInteraction) {
     TicketAddMember_2(interaction);

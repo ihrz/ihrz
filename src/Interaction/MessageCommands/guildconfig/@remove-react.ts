@@ -30,7 +30,7 @@ import {
     GuildVoiceChannelResolvable,
     Message,
     PermissionsBitField,
-} from 'pwss';
+} from 'discord.js';
 
 import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
 import { LanguageData } from '../../../../types/languageData';

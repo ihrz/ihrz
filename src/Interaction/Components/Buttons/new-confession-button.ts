@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, ButtonInteraction, CacheType, EmbedBuilder, TextInputStyle, SnowflakeUtil } from 'pwss';
+import { BaseGuildTextChannel, ButtonInteraction, CacheType, EmbedBuilder, TextInputStyle, SnowflakeUtil } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { DatabaseStructure } from '../../../core/database_structure.js';
 import { generatePassword } from '../../../core/functions/random.js'

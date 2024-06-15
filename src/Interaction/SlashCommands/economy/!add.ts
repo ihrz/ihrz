@@ -26,7 +26,7 @@ import {
     EmbedBuilder,
     PermissionsBitField,
     User,
-} from 'pwss';
+} from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {

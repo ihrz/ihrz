@@ -27,7 +27,7 @@ import {
     ButtonBuilder,
     ButtonStyle,
     ComponentType,
-} from 'pwss';
+} from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../core/database_structure';
 

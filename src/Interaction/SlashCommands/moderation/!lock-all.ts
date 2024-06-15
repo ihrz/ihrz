@@ -28,7 +28,7 @@ import {
     GuildChannel,
     GuildTextBasedChannel,
     BaseGuildTextChannel,
-} from 'pwss';
+} from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';

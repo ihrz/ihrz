@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, ChatInputCommandInteraction, ApplicationCommandType, User, time, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'pwss';
+import { Client, EmbedBuilder, ChatInputCommandInteraction, ApplicationCommandType, User, time, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { AnotherCommand } from '../../../types/anotherCommand';
 import { LanguageData } from '../../../types/languageData';
 

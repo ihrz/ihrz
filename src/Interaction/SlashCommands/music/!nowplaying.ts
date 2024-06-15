@@ -31,7 +31,7 @@ import {
     GuildMember,
     BaseGuildTextChannel,
     User,
-} from 'pwss';
+} from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
 

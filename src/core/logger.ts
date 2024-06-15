@@ -29,13 +29,13 @@ function getCurrentTime(): string {
 
 let logger: Logger = {
     warn(message) {
-        _(`[${getCurrentTime()} WRN]: `.red() + message);
+        _(`[${getCurrentTime()} WRN]: `.red + message);
     },
     err(message) {
-        _(`[${getCurrentTime()} ERR]: `.red() + message);
+        _(`[${getCurrentTime()} ERR]: `.red + message);
     },
     log(message) {
-        _(`[${getCurrentTime()} LOG]: `.green() + message);
+        _(`[${getCurrentTime()} LOG]: `.green + message);
     },
     legacy(message) {
         _(message);

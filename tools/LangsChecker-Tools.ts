@@ -26,9 +26,9 @@ import yaml from 'js-yaml';
 import path from 'path';
 import readline from 'readline';
 
-logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray());
-logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray());
-logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".gray());
+logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
+logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray);
+logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".gray);
 
 interface TypingsFiles {
     [key: string]: string;

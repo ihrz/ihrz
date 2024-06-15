@@ -25,7 +25,7 @@ import {
     CommandInteraction,
     CommandInteractionOptionResolver,
     PermissionFlagsBits
-} from 'pwss';
+} from 'discord.js';
 import { Option } from "./option";
 
 export interface AnotherCommand {

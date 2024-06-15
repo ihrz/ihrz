@@ -20,7 +20,7 @@
 */
 
 import { BotEvent } from '../../../types/event';
-import { Client } from 'pwss';
+import { Client } from 'discord.js';
 
 export const event: BotEvent = {
     name: "raw",

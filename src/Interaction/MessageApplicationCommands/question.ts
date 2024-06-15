@@ -24,7 +24,7 @@ import {
     EmbedBuilder,
     ApplicationCommandType,
     MessageContextMenuCommandInteraction,
-} from 'pwss';
+} from 'discord.js';
 import { AnotherCommand } from '../../../types/anotherCommand';
 import { LanguageData } from '../../../types/languageData';
 
