@@ -35,15 +35,16 @@ export const event: BotEvent = {
         async function fetchInvites() {
             client.guilds.cache.forEach(async (guild) => {
                 try {
-                    if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
-                    var firstInvites = await guild.invites.fetch();
-                    client.invites.set(guild.id, new Collection(firstInvites.map((invite) => [invite.code, invite.uses])));
+                    if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
+                    guild.invites.fetch().then(guildInvites => {
+                        client.invites.set(guild.id, new Collection(guildInvites.map((invite) => [invite.code, invite.uses])));
 
-                    if (guild.features.includes(GuildFeature.VanityURL)) {
-                        guild.fetchVanityData().then((vanityInvite) => {
-                            client.vanityInvites.set(guild.id, vanityInvite);
-                        });
-                    }
+                        if (guild.features.includes(GuildFeature.VanityURL)) {
+                            guild.fetchVanityData().then((vanityInvite) => {
+                                client.vanityInvites.set(guild.id, vanityInvite);
+                            });
+                        }
+                    })
                 } catch (error: any) {
                     logger.err(`Error fetching invites for guild ${guild.id}: ${error}`.red);
                 };
@@ -54,7 +55,7 @@ export const event: BotEvent = {
             let table = client.db.table('OWNER');
             await table.set(`${client.config.owner.ownerid1}`, { owner: true });
             await table.set(`${client.config.owner.ownerid2}`, { owner: true });
-            await client.db.delete(`TEMP`);
+            await client.db.table(`TEMP`).deleteAll();
         };
 
         async function quotesPresence() {
