@@ -105,7 +105,7 @@ export const command: Command = {
             for (let i = 0; i < blacklistedUsers.length; i += usersPerPage) {
                 let pageUsers = blacklistedUsers.slice(i, i + usersPerPage);
                 let pageContent = pageUsers.map(userObj => {
-                    return `<@${userObj.id}>\n├─ ${format(new Date(userObj.value.createdAt), 'MMM DD YYYY')}\n├─ \`${userObj.value.reason || data.blacklist_var_no_reason}\`\n├─ By ${userObj.value.owner || data.profil_unknown}`
+                    return `<@${userObj.id}>\n├─ ${userObj.value.createdAt !== undefined ? format(new Date(userObj.value.createdAt), 'MMM DD YYYY') : data.profil_unknown}\n├─ \`${userObj.value.reason || data.blacklist_var_no_reason}\`\n├─ By ${userObj.value.owner || data.profil_unknown}`
                 }).join('\n');
 
                 pages.push({
