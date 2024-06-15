@@ -23,7 +23,7 @@ import { ConfigData } from '../../../types/configDatad.js';
 import { format } from '../functions/date-and-time.js';
 import logger from '../logger.js';
 import fs from 'node:fs';
-import { Client } from 'pwss';
+import { Client } from 'discord.js';
 import { MongoDriver } from 'quick.db';
 
 let exec = async (driver: MongoDriver, config: ConfigData) => {
@@ -35,8 +35,8 @@ let exec = async (driver: MongoDriver, config: ConfigData) => {
 export const uncaughtExceptionHandler = (client: Client) => {
     process.on('uncaughtException', function (err) {
         if (!client.config.core.devMode) {
-            logger.err(`${client.config.console.emojis.ERROR} >> Error detected`.red());
-            logger.err(`${client.config.console.emojis.OK} >> Save in the logs`.gray());
+            logger.err(`${client.config.console.emojis.ERROR} >> Error detected`.red);
+            logger.err(`${client.config.console.emojis.OK} >> Save in the logs`.gray);
 
             let filesPath: string = `${process.cwd()}/src/files/error.log`;
             let CreateFile = fs.createWriteStream(filesPath, { flags: 'a' });

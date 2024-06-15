@@ -19,174 +19,94 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-enum Color {
-    Reset = '\x1b[0m',
-    Bright = '\x1b[1m',
-    Dim = '\x1b[2m',
-    Underscore = '\x1b[4m',
-    Blink = '\x1b[5m',
-    Reverse = '\x1b[7m',
-    Hidden = '\x1b[8m',
-    Black = '\x1b[30m',
-    Red = '\x1b[31m',
-    Green = '\x1b[32m',
-    Yellow = '\x1b[33m',
-    Blue = '\x1b[34m',
-    Magenta = '\x1b[35m',
-    Cyan = '\x1b[36m',
-    White = '\x1b[37m',
-    BGBlack = '\x1b[40m',
-    BGRed = '\x1b[41m',
-    BGGreen = '\x1b[42m',
-    BGYellow = '\x1b[43m',
-    BGBlue = '\x1b[44m',
-    BGMagenta = '\x1b[45m',
-    BGCyan = '\x1b[46m',
-    BGWhite = '\x1b[47m',
-    Gray = '\x1b[90m'
-}
+const Color = {
+    Black: "\x1b[30m",
+    Red: "\x1b[31m",
+    Green: "\x1b[32m",
+    Yellow: "\x1b[33m",
+    Blue: "\x1b[34m",
+    Magenta: "\x1b[35m",
+    Cyan: "\x1b[36m",
+    White: "\x1b[37m",
+    BGBlack: "\x1b[40m",
+    BGRed: "\x1b[41m",
+    BGGreen: "\x1b[42m",
+    BGYellow: "\x1b[43m",
+    BGBlue: "\x1b[44m",
+    BGMagenta: "\x1b[45m",
+    BGCyan: "\x1b[46m",
+    BGWhite: "\x1b[47m",
+    Dim: "\x1b[2m",
+    Italic: "\x1b[3m",
+    Underscore: "\x1b[4m",
+    Reverse: "\x1b[7m",
+    Hidden: "\x1b[8m",
+    Strikethrough: "\x1b[9m",
+    Gray: "\x1b[90m",
+    Reset: "\x1b[0m"
+};
 
-export {};
+export { };
 
 declare global {
     interface String {
-        black(): string;
-        red(): string;
-        green(): string;
-        yellow(): string;
-        blue(): string;
-        magenta(): string;
-        cyan(): string;
-        white(): string;
-        bgBlack(): string;
-        bgRed(): string;
-        bgGreen(): string;
-        bgYellow(): string;
-        bgBlue(): string;
-        bgMagenta(): string;
-        bgCyan(): string;
-        bgWhite(): string;
-        dim(): string;
-        italic(): string;
-        underline(): string;
-        inverse(): string;
-        hidden(): string;
-        strikethrough(): string;
-        gray(): string;
+        black: string;
+        red: string;
+        green: string;
+        yellow: string;
+        blue: string;
+        magenta: string;
+        cyan: string;
+        white: string;
+        bgBlack: string;
+        bgRed: string;
+        bgGreen: string;
+        bgYellow: string;
+        bgBlue: string;
+        bgMagenta: string;
+        bgCyan: string;
+        bgWhite: string;
+        dim: string;
+        italic: string;
+        underline: string;
+        inverse: string;
+        hidden: string;
+        strikethrough: string;
+        gray: string;
     }
 }
 
-// @ts-ignore
-String.prototype.black = function (this: string): string {
-    return Color.Black + this + Color.Reset;
-};
 
-// @ts-ignore
-String.prototype.red = function (this: string): string {
-    return Color.Red + this + Color.Reset;
-};
+function addStringPrototypeGetter(name: string, colorCode: string) {
+    Object.defineProperty(String.prototype, name, {
+        get: function () {
+            return colorCode + this + Color.Reset;
+        },
+        configurable: true,
+        enumerable: false
+    });
+}
 
-// @ts-ignore
-String.prototype.green = function (this: string): string {
-    return Color.Green + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.yellow = function (this: string): string {
-    return Color.Yellow + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.blue = function (this: string): string {
-    return Color.Blue + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.magenta = function (this: string): string {
-    return Color.Magenta + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.cyan = function (this: string): string {
-    return Color.Cyan + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.white = function (this: string): string {
-    return Color.White + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.bgBlack = function (this: string): string {
-    return Color.BGBlack + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.bgRed = function (this: string): string {
-    return Color.BGRed + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.bgGreen = function (this: string): string {
-    return Color.BGGreen + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.bgYellow = function (this: string): string {
-    return Color.BGYellow + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.bgBlue = function (this: string): string {
-    return Color.BGBlue + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.bgMagenta = function (this: string): string {
-    return Color.BGMagenta + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.bgCyan = function (this: string): string {
-    return Color.BGCyan + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.bgWhite = function (this: string): string {
-    return Color.BGWhite + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.dim = function (this: string): string {
-    return Color.Dim + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.italic = function (this: string): string {
-    return Color.Dim + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.underline = function (this: string): string {
-    return Color.Underscore + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.inverse = function (this: string): string {
-    return Color.Reverse + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.hidden = function (this: string): string {
-    return Color.Hidden + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.strikethrough = function (this: string): string {
-    return Color.Dim + this + Color.Reset;
-};
-
-// @ts-ignore
-String.prototype.gray = function (this: string): string {
-    return Color.Gray + this + Color.Reset;
-};
+addStringPrototypeGetter('black', Color.Black);
+addStringPrototypeGetter('red', Color.Red);
+addStringPrototypeGetter('green', Color.Green);
+addStringPrototypeGetter('yellow', Color.Yellow);
+addStringPrototypeGetter('blue', Color.Blue);
+addStringPrototypeGetter('magenta', Color.Magenta);
+addStringPrototypeGetter('cyan', Color.Cyan);
+addStringPrototypeGetter('white', Color.White);
+addStringPrototypeGetter('bgBlack', Color.BGBlack);
+addStringPrototypeGetter('bgRed', Color.BGRed);
+addStringPrototypeGetter('bgGreen', Color.BGGreen);
+addStringPrototypeGetter('bgYellow', Color.BGYellow);
+addStringPrototypeGetter('bgBlue', Color.BGBlue);
+addStringPrototypeGetter('bgMagenta', Color.BGMagenta);
+addStringPrototypeGetter('bgCyan', Color.BGCyan);
+addStringPrototypeGetter('bgWhite', Color.BGWhite);
+addStringPrototypeGetter('dim', Color.Dim);
+addStringPrototypeGetter('italic', Color.Italic);
+addStringPrototypeGetter('underline', Color.Underscore);
+addStringPrototypeGetter('inverse', Color.Reverse);
+addStringPrototypeGetter('hidden', Color.Hidden);
+addStringPrototypeGetter('strikethrough', Color.Strikethrough);
+addStringPrototypeGetter('gray', Color.Gray);
