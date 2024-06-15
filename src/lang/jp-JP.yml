@@ -177,8 +177,8 @@ invites_confirmation_embed_description: "<@${member.user.id}>さんは`${inv || 
 invites_confirmation_embed_title: "招待状統計情報"
 
 # /leaderboard
-leaderboard_text_inline: "<@${i}>さんは**${a.invites || 0}**の招待状を持っています（**${a.regular || 0}**レギュラー、**${a.bonus || 0}**ボーナス、**${a.leaves || 0}**リーブス）\n"
-leaderboard_default_text: "**__リーダーボード:__**\n"
+leaderboard_text_inline: "`${i} ` <@${index.inviter}> • 招待∶ **${index.invites}**\n  ┖ 通常 **${index.regular}**, ボーナス∶ **${index.bonus}**, 退出∶ **${index.leaves}**\n"
+leaderboard_default_text: "**__リーダーボード__**"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "管理者である必要があります！"

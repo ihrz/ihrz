@@ -35,34 +35,38 @@ const itemsPerPage = 15;
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        let text: string = data.leaderboard_default_text;
+        let text: string = data.leaderboard_default_text + " • " + interaction.guild?.name + "\n";
         let char = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
-        let tableau: { invCount: number; text: string; }[] = [];
+        let arr: { invites: number; regular: number; bonus: number; leaves: number; inviter: string; }[] = [];
 
         for (let key in char) {
             let a = char?.[key]?.INVITES;
 
             if (a && a.invites && a.invites >= 1) {
-                tableau.push({
-                    invCount: a.invites,
-                    text: data.leaderboard_text_inline
-                        .replace("${i}", key)
-                        .replace("${a.invites || 0}", String(a.invites || 0))
-                        .replace("${a.regular || 0}", String(a.regular || 0))
-                        .replace("${a.bonus || 0}", String(a.bonus || 0))
-                        .replace("${a.leaves || 0}", String(a.leaves || 0))
+                arr.push({
+                    invites: a.invites || 0,
+                    regular: a.regular || 0,
+                    bonus: a.bonus || 0,
+                    leaves: a.leaves || 0,
+                    inviter: key,
                 });
             }
         }
 
-        tableau.sort((a, b) => b.invCount - a.invCount);
+        arr.sort((a, b) => b.invites - a.invites);
 
         const generateEmbed = async (start: number) => {
-            const current = tableau.slice(start, start + itemsPerPage);
+            const current = arr.slice(start, start + itemsPerPage);
             let pageText = text;
             let i = start + 1;
             current.forEach((index) => {
-                pageText += `Top #${i} - ${index.text}\n`;
+                pageText += data.leaderboard_text_inline
+                    .replace("${i}", i.toString())
+                    .replace("${index.invites}", index.invites.toString())
+                    .replace("${index.regular}", index.regular.toString())
+                    .replace("${index.bonus}", index.bonus.toString())
+                    .replace("${index.inviter}", index.inviter.toString())
+                    .replace("${index.leaves}", index.leaves.toString());
                 i++;
             });
 
@@ -74,7 +78,7 @@ export default {
                 .setThumbnail(interaction.guild?.iconURL() as string);
         };
 
-        const canFitOnOnePage = tableau.length <= itemsPerPage;
+        const canFitOnOnePage = arr.length <= itemsPerPage;
         const embedMessage = await interaction.editReply({
             embeds: [await generateEmbed(0)],
             components: canFitOnOnePage ? [] : [new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -87,7 +91,7 @@ export default {
                     .setCustomId('next')
                     .setLabel('➡️')
                     .setStyle(ButtonStyle.Primary)
-                    .setDisabled(tableau.length <= itemsPerPage)
+                    .setDisabled(arr.length <= itemsPerPage)
             )],
             files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
@@ -110,13 +114,13 @@ export default {
                     new ButtonBuilder()
                         .setCustomId('previous')
                         .setLabel('⬅️')
-                        .setStyle(ButtonStyle.Primary)
+                        .setStyle(ButtonStyle.Secondary)
                         .setDisabled(currentIndex === 0),
                     new ButtonBuilder()
                         .setCustomId('next')
                         .setLabel('➡️')
-                        .setStyle(ButtonStyle.Primary)
-                        .setDisabled(currentIndex + itemsPerPage >= tableau.length)
+                        .setStyle(ButtonStyle.Secondary)
+                        .setDisabled(currentIndex + itemsPerPage >= arr.length)
                 )],
             });
         });
