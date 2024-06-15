@@ -177,8 +177,8 @@ invites_confirmation_embed_description: "<@${member.user.id}> have `${inv || 0}`
 invites_confirmation_embed_title: "Inviter Stats"
 
 # /leaderboard
-leaderboard_text_inline: "<@${i}> Have **${a.invites || 0}** Invites (**${a.regular || 0}** Regular ** ${a.bonus || 0}** Bonus **${a.leaves || 0}** Leaves)\n"
-leaderboard_default_text: "**__Leaderboard :__**\n"
+leaderboard_text_inline: "`${i} ` <@${index.inviter}> • Invitaciones∶ **${index.invites}**\n  ┖ Regular **${index.regular}**, Bonus∶ **${index.bonus}**, Salidas∶ **${index.leaves}**\n"
+leaderboard_default_text: "**__Leaderboard__**"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "You need admin to use this!"
