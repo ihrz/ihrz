@@ -28,12 +28,13 @@ import {
     ActionRowBuilder,
     ChatInputCommandInteraction,
     GuildMember,
-    GuildMemberManager,
     ApplicationCommandType
 } from 'pwss'
 
-import { Command } from '../../../../types/command';
+import { format } from '../../../core/functions/date-and-time.js';
+
 import { LanguageData } from '../../../../types/languageData';
+import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'blacklist',
@@ -104,7 +105,7 @@ export const command: Command = {
             for (let i = 0; i < blacklistedUsers.length; i += usersPerPage) {
                 let pageUsers = blacklistedUsers.slice(i, i + usersPerPage);
                 let pageContent = pageUsers.map(userObj => {
-                    return `<@${userObj.id}>\n\`${userObj.value.reason || data.blacklist_var_no_reason}\``;
+                    return `<@${userObj.id}>\n├─ ${format(new Date(userObj.value.createdAt), 'MMM DD YYYY')}\n├─ \`${userObj.value.reason || data.blacklist_var_no_reason}\`\n├─ By ${userObj.value.owner || data.profil_unknown}`
                 }).join('\n');
 
                 pages.push({
@@ -190,7 +191,9 @@ export const command: Command = {
 
             await tableBlacklist.set(`${member.user.id}`, {
                 blacklisted: true,
-                reason: reason
+                reason: reason,
+                owner: interaction.user.id,
+                createdAt: new Date().getTime()
             });
 
             member.ban({ reason: 'blacklisted !' }).then(async () => {
@@ -226,7 +229,9 @@ export const command: Command = {
 
             await tableBlacklist.set(`${user.id}`, {
                 blacklisted: true,
-                reason: reason
+                reason: reason,
+                owner: interaction.user.id,
+                createdAt: new Date().getTime()
             });
 
             await interaction.reply({

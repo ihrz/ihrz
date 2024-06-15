@@ -114,6 +114,7 @@ export const event: BotEvent = {
                         .setURL('https://ihorizon.me'),
                 )
                 ;
+            if (!channel) return;
             (channel as GuildTextBasedChannel)?.send({
                 embeds: [embed],
                 content: 'discord.gg/ihorizon\ndiscord.com/application-directory/945202900907470899',

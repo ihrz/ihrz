@@ -125,7 +125,6 @@ export const command: Command = {
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
                 new ActionRowBuilder<ButtonBuilder>().addComponents(save, send, cancel)
             ],
-            fetchReply: true
         });
 
         let collector = response.createMessageComponentCollector({

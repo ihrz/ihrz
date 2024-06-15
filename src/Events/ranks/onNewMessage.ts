@@ -68,7 +68,7 @@ export const event: BotEvent = {
                 || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)) return;
 
             let xpChan = xpData?.xpchannels!;
-            let MsgChannel = message.guild.channels.cache.get(xpChan) as GuildTextBasedChannel;
+            let MsgChannel = message.guild.channels.cache.get(xpChan) as GuildTextBasedChannel | null;
 
             if (!xpChan) {
                 message.channel.send({
@@ -78,6 +78,8 @@ export const event: BotEvent = {
                 })
                 return;
             }
+
+            if (!MsgChannel) return;
 
             MsgChannel.send({
                 content: data.event_xp_level_earn
