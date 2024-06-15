@@ -179,6 +179,9 @@ invites_confirmation_embed_title: "Статистика приглашений"
 # /leaderboard
 leaderboard_text_inline: "`${i} ` <@${index.inviter}> • Приглашения∶ **${index.invites}**\n  ┖ Обычные **${index.regular}**, Бонус∶ **${index.bonus}**, Покинули∶ **${index.leaves}**\n"
 leaderboard_default_text: "**__Таблица лидеров__**"
+leaderboard_rank_text: "🏅Вы в настоящее время занимаете `${userRank + 1}` место из `${arr.length}` с **${arr[userRank].invites}** приглашениями\n\n"
+leaderboard_rank_none: "🏅Вы в настоящее время не занесены в рейтинг.\n\n"
+leaderboard_gen_time_msg: "Таблица лидеров **${interaction.guild?.name}** сгенерирована за ${Date.now() - execTimestamp}мс.\n\n"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "Вам нужны права администратора для использования этой команды!"

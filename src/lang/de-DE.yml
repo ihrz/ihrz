@@ -179,6 +179,9 @@ invites_confirmation_embed_title: "Inviter-Statistik"
 # /leaderboard
 leaderboard_text_inline: "`${i} ` <@${index.inviter}> • Einladungen∶ **${index.invites}**\n  ┖ Regulär **${index.regular}**, Bonus∶ **${index.bonus}**, Verlassen∶ **${index.leaves}**\n"
 leaderboard_default_text: "**__Bestenliste__**"
+leaderboard_rank_text: "🏅Du bist derzeit auf Platz `${userRank + 1}` von `${arr.length}` mit **${arr[userRank].invites}** Einladungen\n\n"
+leaderboard_rank_none: "🏅Du bist derzeit nicht im Ranking.\n\n"
+leaderboard_gen_time_msg: "Die Bestenliste von **${interaction.guild?.name}** wurde in ${Date.now() - execTimestamp}ms erstellt.\n\n"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "Du benötigst Administratorrechte, um diesen Befehl zu verwenden!"
