@@ -25,7 +25,7 @@ import {
     AutoModerationRuleTriggerType,
     ChatInputCommandInteraction,
     TextChannel
-} from 'pwss';
+} from 'discord.js';
 
 interface Action {
     type: number;

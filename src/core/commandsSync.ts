@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { REST, Routes, Client, ApplicationCommand } from 'pwss';
+import { REST, Routes, Client, ApplicationCommand } from 'discord.js';
 import logger from "./logger.js";
 
 const synchronizeCommands = async (client: Client): Promise<void> => {

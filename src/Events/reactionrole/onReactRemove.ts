@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, MessageReaction, User } from 'pwss';
+import { Client, MessageReaction, User } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {

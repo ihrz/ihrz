@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { AttachmentBuilder, Client, EmbedBuilder, GuildMember, GuildTextBasedChannel, Message } from 'pwss';
+import { AttachmentBuilder, Client, EmbedBuilder, GuildMember, GuildTextBasedChannel, Message } from 'discord.js';
 
 import logger from "../../core/logger.js";
 import captcha from "../../core/captcha.js";

@@ -23,7 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     GuildMember,
-} from 'pwss';
+} from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';

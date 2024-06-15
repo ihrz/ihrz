@@ -26,7 +26,7 @@ import {
     PermissionFlagsBits,
     BaseGuildTextChannel,
     ChatInputCommandInteraction,
-} from 'pwss';
+} from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
