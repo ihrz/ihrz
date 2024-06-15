@@ -48,11 +48,11 @@ export const initializeDatabase = async (config: ConfigData) => {
                     resolve(new QuickDB({ driver }));
                     proc.exit(driver, config);
                 } catch (error: any) {
-                    logger.err(`${config.console.emojis.ERROR} >> ${error.toString().split('\n')[0]}`.red());
-                    logger.err(`${config.console.emojis.ERROR} >> Database is unreachable (${config.database?.method}) !`.red());
-                    logger.err(`${config.console.emojis.ERROR} >> Please use a different database than ${config.database?.method}) !`.red());
-                    logger.err(`${config.console.emojis.ERROR} >> in the /src/files/config.ts at: 'database.method'.`.red());
-                    logger.err(`Exiting the code...`.bgRed());
+                    logger.err(`${config.console.emojis.ERROR} >> ${error.toString().split('\n')[0]}`.red);
+                    logger.err(`${config.console.emojis.ERROR} >> Database is unreachable (${config.database?.method}) !`.red);
+                    logger.err(`${config.console.emojis.ERROR} >> Please use a different database than ${config.database?.method}) !`.red);
+                    logger.err(`${config.console.emojis.ERROR} >> in the /src/files/config.ts at: 'database.method'.`.red);
+                    logger.err(`Exiting the code...`.bgRed);
 
                     process.kill(0);
                 }
@@ -60,13 +60,13 @@ export const initializeDatabase = async (config: ConfigData) => {
             break;
         case 'JSON':
             dbPromise = new Promise<QuickDB>((resolve, reject) => {
-                logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green());
+                logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
                 resolve(new QuickDB({ driver: new JSONDriver() }));
             });
             break;
         case 'MYSQL':
             dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
-                logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green());
+                logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
 
                 let mysql = new MySQLDriver({
                     host: config.database?.mySQL?.host,
@@ -91,7 +91,7 @@ export const initializeDatabase = async (config: ConfigData) => {
             break;
         default:
             dbPromise = new Promise<QuickDB>((resolve, reject) => {
-                logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green());
+                logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
                 resolve(new QuickDB({ filePath: sqlitePath + '/db.sqlite' }));
             });
             break;

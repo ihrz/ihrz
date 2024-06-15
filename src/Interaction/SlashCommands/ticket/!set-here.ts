@@ -27,7 +27,7 @@ import {
     PermissionsBitField,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
-} from 'pwss';
+} from 'discord.js';
 
 import { CreateButtonPanel, CreateSelectPanel } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData';

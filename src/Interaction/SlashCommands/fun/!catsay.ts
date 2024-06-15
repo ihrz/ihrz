@@ -32,7 +32,7 @@ import {
   ChatInputCommandInteraction,
   Client,
   EmbedBuilder,
-} from 'pwss';
+} from 'discord.js';
 
 import Jimp from 'jimp';
 

@@ -32,7 +32,7 @@ import emojis from './modules/emojisManager.js';
 import { VanityInviteData } from '../../types/vanityUrlData';
 import { ConfigData } from '../../types/configDatad.js';
 
-import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'pwss';
+import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'discord.js';
 import { GiveawayManager } from 'discord-regiveaways';
 import { readdirSync } from "node:fs";
 import backup from 'discord-rebackup';
@@ -60,9 +60,9 @@ backup.setStorageFolder(backups_folder);
 export async function main(client: Client) {
     initConfig(client.config);
 
-    logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray());
-    logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray());
-    logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".gray());
+    logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
+    logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray);
+    logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".gray);
 
     errorManager.uncaughtExceptionHandler(client);
 
@@ -124,11 +124,11 @@ export async function main(client: Client) {
     client.login(process.env.BOT_TOKEN || client.config.discord.token).then(() => {
         client.token = "Mais ptdr, ta vraiment crue avoir le token d'iHorizon ? Sale tocard và! Nique tes morts!";
         commandsSync(client).then(() => {
-            logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta());
-            logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta());
-            logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta());
-            logger.log(`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`.magenta());
-            logger.log(`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta());
+            logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);
+            logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta);
+            logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta);
+            logger.log(`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`.magenta);
+            logger.log(`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta);
         });
     });
 };

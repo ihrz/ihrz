@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, EmbedBuilder } from 'pwss';
+import { BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
 import logger from "../../logger.js";
 
 export default function (client: Client, args: string) {
@@ -41,5 +41,5 @@ export default function (client: Client, args: string) {
         };
     });
 
-    logger.legacy(`* All are successfully sended`.gray().bgBlack());
+    logger.legacy(`* All are successfully sended`.gray.bgBlack);
 };

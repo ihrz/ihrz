@@ -28,7 +28,7 @@ import {
     BaseGuildTextChannel,
     GuildMember,
     ApplicationCommandType
-} from 'pwss'
+} from 'discord.js'
 
 import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';

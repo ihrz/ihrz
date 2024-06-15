@@ -28,7 +28,7 @@ import {
     Collection,
     Snowflake,
     EmbedBuilder
-} from 'pwss';
+} from 'discord.js';
 
 import { DatabaseStructure } from '../../core/database_structure';
 
