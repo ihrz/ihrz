@@ -39,6 +39,7 @@ export namespace AntiSpam {
         bannedUsers: Set<Snowflake>;
 
         membersToPunish: Set<GuildMember>;
+        membersFlags: Map<string, { value: number }>;
         spamMessagesToClear: Set<CachedMessage>;
     }
 
