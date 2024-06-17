@@ -246,7 +246,7 @@ async function PunishUsers(
                 break;
         }
         cache.membersToPunish.delete(member);
-
+        cache.membersFlags.delete(`${member.guild.id}.${member.id}`)
         // await logsAction(lang, client, member, "sanction", options.punishment_type);
     });
 
