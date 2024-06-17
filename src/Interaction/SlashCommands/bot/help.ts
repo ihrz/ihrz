@@ -75,47 +75,47 @@ export const command: Command = {
 
         categories.sort((a, b) => a.name.localeCompare(b.name));
 
-        let select = new StringSelectMenuBuilder().setCustomId('help-menu').setPlaceholder(data.help_select_menu);
-        let select_2 = new StringSelectMenuBuilder().setCustomId('help-menu-2').setPlaceholder(data.help_select_menu);
+        const selectMenus = [];
+        const categoriesPerMenu = Math.ceil(categories.length / 2);
 
-        select.addOptions(new StringSelectMenuOptionBuilder()
-            .setLabel(data.help_back_to_menu)
-            .setDescription(data.help_back_to_menu_desc)
-            .setValue("back")
-            .setEmoji("⬅️"));
+        let index = 0;
 
-        select_2.addOptions(new StringSelectMenuOptionBuilder()
-            .setLabel(data.help_back_to_menu)
-            .setDescription(data.help_back_to_menu_desc)
-            .setValue("back")
-            .setEmoji("⬅️"));
+        for (let i = 0; i < 2; i++) {
+            const selectMenu = new StringSelectMenuBuilder()
+                .setCustomId(`help-menu-${i + 1}`)
+                .setPlaceholder(data.help_select_menu);
 
-        let i = 0;
-        let toAddInAnotherSelect: CategoryData[] = [];
+            selectMenu.addOptions(
+                new StringSelectMenuOptionBuilder()
+                    .setLabel(data.help_back_to_menu)
+                    .setDescription(data.help_back_to_menu_desc)
+                    .setValue("back")
+                    .setEmoji("⬅️")
+            );
 
-        categories.forEach((category, index) => {
-            i++
-            if (i >= categories.length / 2) return toAddInAnotherSelect.push(category);
-            select.addOptions(new StringSelectMenuOptionBuilder()
-                .setLabel(category.name)
-                .setDescription(data.help_select_menu_fields_desc
-                    .replace("${categories[index].value.length}", categories[index].value.length.toString())
-                )
-                .setValue(index.toString())
-                .setEmoji(category.emoji));
+            const categoriesCalc = categories.slice(i * categoriesPerMenu, (i + 1) * categoriesPerMenu);
+            categoriesCalc.forEach((category) => {
+                selectMenu.addOptions(
+                    new StringSelectMenuOptionBuilder()
+                        .setLabel(category.name)
+                        .setDescription(
+                            data.help_select_menu_fields_desc.replace(
+                                "${categories[index].value.length}",
+                                category.value.length.toString()
+                            )
+                        )
+                        .setValue(index.toString())
+                        .setEmoji(category.emoji)
+                );
+                index++;
+            });
+
+            selectMenus.push(selectMenu);
+        }
+
+        const rows = selectMenus.map((selectMenu, index) => {
+            return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
         });
-
-        toAddInAnotherSelect.forEach((category, index) => {
-            select_2.addOptions(new StringSelectMenuOptionBuilder()
-                .setLabel(category.name)
-                .setDescription(data.help_select_menu_fields_desc
-                    .replace("${categories[index].value.length}", categories[index].value.length.toString())
-                )
-                .setValue(index.toString())
-                .setEmoji(category.emoji));
-        })
-        let row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
-        let row_2 = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select_2);
 
         let og_embed = new EmbedBuilder()
             .setColor('#001eff')
@@ -142,7 +142,7 @@ export const command: Command = {
 
         let response = await interaction.reply({
             embeds: [og_embed],
-            components: [row, row_2],
+            components: rows,
             files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
 
@@ -159,7 +159,7 @@ export const command: Command = {
             await i.deferUpdate();
 
             if (i.values[0] === "back") {
-                await response.edit({ embeds: [og_embed], components: [row, row_2] });
+                await response.edit({ embeds: [og_embed], components: rows });
                 return;
             }
 
@@ -225,13 +225,13 @@ export const command: Command = {
         });
 
         collector.on('end', async i => {
-            await response.edit({
-                components: [
-                    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(true)),
-                    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select_2.setDisabled(true))
-                ]
+            rows.forEach((comp, i) => {
+                comp.components.forEach((component) => {
+                    component.setDisabled(true);
+                });
             });
 
+            await response.edit({ components: rows });
             return;
         });
     },
