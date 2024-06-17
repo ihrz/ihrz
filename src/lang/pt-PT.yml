@@ -179,6 +179,9 @@ invites_confirmation_embed_title: "Estatísticas de Convite"
 # /leaderboard
 leaderboard_text_inline: "`${i} ` <@${index.inviter}> • Convites∶ **${index.invites}**\n  ┖ Regulares **${index.regular}**, Bônus∶ **${index.bonus}**, Saídas∶ **${index.leaves}**\n"
 leaderboard_default_text: "**__Tabela de Classificação__**"
+leaderboard_rank_text: "🏅Você está atualmente classificado em `${userRank + 1}`/`${arr.length}` com **${arr[userRank].invites}** convites\n\n"
+leaderboard_rank_none: "🏅Você não está atualmente classificado.\n\n"
+leaderboard_gen_time_msg: "A tabela de classificação de **${interaction.guild?.name}** foi gerada em ${Date.now() - execTimestamp}ms.\n\n"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "Você precisa ser administrador para usar isso!"

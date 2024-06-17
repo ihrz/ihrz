@@ -179,6 +179,8 @@ invites_confirmation_embed_title: "Estadísticas de Invitaciones"
 # /leaderboard
 leaderboard_text_inline: "`${i} ` <@${index.inviter}> • Invitaciones∶ **${index.invites}**\n  ┖ Regular **${index.regular}**, Bonus∶ **${index.bonus}**, Salidas∶ **${index.leaves}**\n"
 leaderboard_default_text: "__**Tabla de clasificación**__"
+leaderboard_rank_text: "🏅Actualmente estás clasificado en `${userRank + 1}`/`${arr.length}` con **${arr[userRank].invites}** invitaciones\n\n"
+leaderboard_rank_none: "🏅Actualmente no estás clasificado.\n\n"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "¡Necesitas ser administrador para usar este comando!"

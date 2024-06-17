@@ -34,8 +34,7 @@ import { DatabaseStructure } from '../../../core/database_structure';
 const itemsPerPage = 15;
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        let text: string = data.leaderboard_default_text + " • " + interaction.guild?.name + "\n";
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData, execTimestamp: number) => {
         let char = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
         let arr: { invites: number; regular: number; bonus: number; leaves: number; inviter: string; }[] = [];
 
@@ -52,16 +51,22 @@ export default {
                 });
             }
         }
-
         arr.sort((a, b) => b.invites - a.invites);
+
+        const userId = interaction.user.id;
+        const userRank = arr.findIndex(user => user.inviter === userId);
+        const userRankText = userRank !== -1
+            ? data.leaderboard_rank_text.replace('${userRank + 1}', String(userRank + 1)).replace('${arr.length}', arr.length.toString()).replace('${arr[userRank].invites}', String(arr[userRank].invites))
+            : data.leaderboard_rank_none;
 
         const generateEmbed = async (start: number) => {
             const current = arr.slice(start, start + itemsPerPage);
+            let text: string = data.leaderboard_gen_time_msg.replace("${interaction.guild?.name}", interaction.guild?.name!).replace('${Date.now() - execTimestamp}', String(Date.now() - execTimestamp));
             let pageText = text;
             let i = start + 1;
             current.forEach((index) => {
                 pageText += data.leaderboard_text_inline
-                    .replace("${i}", i.toString())
+                    .replace("${i}", String(i === 1 ? "🥇" : i === 2 ? "🥈" : i === 3 ? "🥉" : i.toString()))
                     .replace("${index.invites}", index.invites.toString())
                     .replace("${index.regular}", index.regular.toString())
                     .replace("${index.bonus}", index.bonus.toString())
@@ -70,12 +75,17 @@ export default {
                 i++;
             });
 
+            if (start === 0) {
+                pageText += `\n${userRankText}`;
+            }
+
             return new EmbedBuilder()
                 .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#FFB6C1")
+                .setTitle(data.leaderboard_default_text + " • " + interaction.guild?.name)
                 .setDescription(pageText)
                 .setTimestamp()
-                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
-                .setThumbnail(interaction.guild?.iconURL() as string);
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setThumbnail("attachment://guildIcon.png");
         };
 
         const canFitOnOnePage = arr.length <= itemsPerPage;
@@ -85,15 +95,18 @@ export default {
                 new ButtonBuilder()
                     .setCustomId('previous')
                     .setLabel('⬅️')
-                    .setStyle(ButtonStyle.Primary)
+                    .setStyle(ButtonStyle.Secondary)
                     .setDisabled(true),
                 new ButtonBuilder()
                     .setCustomId('next')
                     .setLabel('➡️')
-                    .setStyle(ButtonStyle.Primary)
+                    .setStyle(ButtonStyle.Secondary)
                     .setDisabled(arr.length <= itemsPerPage)
             )],
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [
+                { attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL() || ''), name: 'icon.png' },
+                { attachment: await interaction.client.functions.image64(interaction.guild?.iconURL({ size: 512 }) || interaction.client.user?.displayAvatarURL()), name: 'guildIcon.png' }
+            ]
         });
 
         if (canFitOnOnePage) return;

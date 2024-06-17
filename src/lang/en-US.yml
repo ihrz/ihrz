@@ -177,8 +177,11 @@ invites_confirmation_embed_description: "<@${member.user.id}> have `${inv || 0}`
 invites_confirmation_embed_title: "Inviter Stats"
 
 # /leaderboard
-leaderboard_text_inline: "`${i} ` <@${index.inviter}> • Invitaciones∶ **${index.invites}**\n  ┖ Regular **${index.regular}**, Bonus∶ **${index.bonus}**, Salidas∶ **${index.leaves}**\n"
+leaderboard_text_inline: "`${i} ` <@${index.inviter}> • Invites∶ **${index.invites}**\n  ┖ Regular **${index.regular}**, Bonus∶ **${index.bonus}**, Left∶ **${index.leaves}**\n"
 leaderboard_default_text: "**__Leaderboard__**"
+leaderboard_rank_text: "🏅You are currently ranked `${userRank + 1}`/`${arr.length}` with **${arr[userRank].invites}** invites\n\n"
+leaderboard_rank_none: "🏅You are not currently ranked.\n\n"
+leaderboard_gen_time_msg: "**${interaction.guild?.name}**'s leaderboard generated in ${Date.now() - execTimestamp}ms.\n\n"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "You need admin to use this!"

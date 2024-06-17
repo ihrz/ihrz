@@ -47,7 +47,7 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, interaction: Message, args: string[]) => {
+    run: async (client: Client, interaction: Message) => {
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);

@@ -179,6 +179,9 @@ invites_confirmation_embed_title: "招待状統計情報"
 # /leaderboard
 leaderboard_text_inline: "`${i} ` <@${index.inviter}> • 招待∶ **${index.invites}**\n  ┖ 通常 **${index.regular}**, ボーナス∶ **${index.bonus}**, 退出∶ **${index.leaves}**\n"
 leaderboard_default_text: "**__リーダーボード__**"
+leaderboard_rank_text: "🏅あなたは現在 `${userRank + 1}` 位 / `${arr.length}` 位で、**${arr[userRank].invites}** 招待があります\n\n"
+leaderboard_rank_none: "🏅あなたは現在ランクインしていません。\n\n"
+leaderboard_gen_time_msg: "**${interaction.guild?.name}** のリーダーボードは ${Date.now() - execTimestamp} ミリ秒で生成されました。\n\n"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "管理者である必要があります！"
