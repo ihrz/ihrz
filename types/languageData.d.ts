@@ -142,6 +142,9 @@ export interface LanguageData {
   invites_confirmation_embed_title: string;
   leaderboard_text_inline: string;
   leaderboard_default_text: string;
+  leaderboard_rank_text: string;
+  leaderboard_rank_none: string;
+  leaderboard_gen_time_msg: string;
   removeinvites_not_admin_embed_description: string;
   removeinvites_confirmation_embed_description: string;
   removeinvites_logs_embed_title: string;

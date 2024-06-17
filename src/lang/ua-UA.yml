@@ -180,7 +180,7 @@ invites_confirmation_embed_title: "Статистика приглашений"
 
 # /leaderboard
 leaderboard_text_inline: "<@${i}> Має **${a.invites || 0}** Запрошень (**${a.regular || 0}** Звичайних **${a.bonus || 0}** Бонусних **${a.leaves || 0}** Відказів)\n"
-leaderboard_default_text: "**__Таблиця лідерів:__**\n"
+leaderboard_default_text: "**__Таблиця лідерів__**"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "Вам потрібні права адміністратора для використання цієї команди!"

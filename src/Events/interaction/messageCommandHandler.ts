@@ -45,7 +45,7 @@ export const event: BotEvent = {
         let result = await isMessageCommand(client, message.content);
 
         if (result.s) {
-            result.c?.run(client, message, result.a);
+            result.c?.run(client, message, Date.now(), result.a);
             return true;
         } else {
             return false;

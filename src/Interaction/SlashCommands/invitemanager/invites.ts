@@ -141,11 +141,11 @@ export const command: Command = {
     thinking: true,
     category: 'invitemanager',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, execTimestamp: number) => {
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let command = interaction.options.getSubcommand();
 
         const commandModule = await import(`./!${command}.js`);
-        await commandModule.default.run(client, interaction, data);
+        await commandModule.default.run(client, interaction, data, execTimestamp);
     },
 };
