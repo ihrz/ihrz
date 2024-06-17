@@ -114,8 +114,6 @@ async function sendWarningMessage(
 ): Promise<void> {
     const membersToWarn = [...members].filter(member => !cache.raidInfo.get(`${channel?.guildId}_${member.id}.warned`)?.value === true);
 
-    console.log(membersToWarn);
-
     for (const member of membersToWarn) {
         cache.raidInfo.set(`${channel?.guildId}_${member.id}.warned`, { value: true });
         let amountOfWarn = cache.raidInfo.get(`${channel?.guildId}_${member.id}.amount`)?.value as number;
@@ -262,7 +260,7 @@ export const event: BotEvent = {
 
         let cancelAnalyze = false;
         for (let role in options.BYPASS_ROLES) {
-            if (message.member?.roles.cache.has(role)) {
+            if (message.member?.roles.cache.has(options.BYPASS_ROLES[parseInt(role)])) {
                 cancelAnalyze = true;
             }
         };
