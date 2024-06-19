@@ -95,7 +95,7 @@ export const command: Command = {
 
         let db = client.db.table('API');
 
-        let get = await db.get(`VANITY`);
+        let get = await db.get('VANITY');
 
         let guildGet = get?.[`${interaction.guildId}`]?.['code'];
 
