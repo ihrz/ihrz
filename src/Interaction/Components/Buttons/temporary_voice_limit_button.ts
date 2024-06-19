@@ -45,6 +45,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     } else {
         let response = await iHorizonModalResolve({
             customId: 'modal',
+            deferUpdate: false,
             title: lang.temporary_voice_modal_title,
             fields: [
                 {
@@ -53,7 +54,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                     style: TextInputStyle.Short,
                     required: true,
                     maxLength: 20,
-                    minLength: 2
+                    minLength: 1
                 },
             ]
         }, interaction);
