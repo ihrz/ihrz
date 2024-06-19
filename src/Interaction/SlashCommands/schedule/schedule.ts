@@ -80,7 +80,7 @@ export const command: Command = {
                     .setValue('3'),
             );
 
-        let response = await interaction.reply({
+        let original_interaction = await interaction.reply({
             content: interaction.user.toString(),
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
@@ -89,7 +89,7 @@ export const command: Command = {
 
         try {
 
-            let collector = response.createMessageComponentCollector({
+            let collector = original_interaction.createMessageComponentCollector({
                 filter: (member) => member.user.id === interaction.user.id,
                 componentType: ComponentType.StringSelect,
                 time: 420_000
@@ -110,9 +110,10 @@ export const command: Command = {
         async function chooseAction(i: StringSelectMenuInteraction) {
             switch (i.values[0]) {
                 case '0':
-                    let response = await iHorizonModalResolve({
+                    let modal = await iHorizonModalResolve({
                         customId: 'modal',
                         title: data.schedule_modal_title,
+                        deferUpdate: false,
                         fields: [
                             {
                                 customId: 'name',
@@ -131,10 +132,10 @@ export const command: Command = {
                                 minLength: 10
                             },
                         ]
-                    }, interaction);
+                    }, i);
 
-                    if (!response) return;
-                    executeAfterModal(response);
+                    if (!modal) return;
+                    executeAfterModal(modal);
                     break;
                 case '1':
                     let u = await i.reply({ content: data.schedule_delete_question, ephemeral: false });
@@ -181,7 +182,7 @@ export const command: Command = {
                 let fetched = await table.get(`${interaction.user.id}`);
 
                 if (!fetched || !fetched[arg0]) {
-                    await response.edit({
+                    await original_interaction.edit({
                         content: data.schedule_delete_not_found
                             .replace('${arg0}', arg0), embeds: []
                     });
@@ -201,7 +202,7 @@ export const command: Command = {
                         .setTimestamp();
 
                     await table.delete(`${interaction.user.id}.${arg0}`);
-                    await response.edit({
+                    await original_interaction.edit({
                         content: data.schedule_delete_confirm, embeds: [embed],
                         files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
                     });
@@ -223,13 +224,13 @@ export const command: Command = {
                         .setTitle(data.schedule_deleteall_title_embed)
                         .setDescription(data.schedule_deleteall_desc_embed)
 
-                    await response.edit({
+                    await original_interaction.edit({
                         content: data.schedule_deleteall_confirm,
                         embeds: [embed],
                         files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
                     });
                 } else {
-                    await response.edit({
+                    await original_interaction.edit({
                         content: data.schedule_deleteall_cancel,
                     });
                     return;
@@ -240,7 +241,7 @@ export const command: Command = {
                 let fetched = await table.get(`${interaction.user.id}`);
 
                 if (!fetched) {
-                    await response.edit({ content: data.schedule_list_not_schedule, embeds: [] });
+                    await original_interaction.edit({ content: data.schedule_list_not_schedule, embeds: [] });
                     return;
                 };
 
@@ -264,7 +265,7 @@ export const command: Command = {
                     });
                 };
 
-                await response.edit({
+                await original_interaction.edit({
                     content: data.schedule_list_content_message,
                     embeds: [embed],
                     files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
@@ -288,7 +289,7 @@ export const command: Command = {
                     .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
                     .setTimestamp();
 
-                await response.edit({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+                await original_interaction.edit({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
                 let u = await i.reply({ content: data.schedule_create_when_question });
 
                 let dateCollector = interaction.channel?.createMessageCollector({
@@ -308,7 +309,7 @@ export const command: Command = {
                     var scheduleCode = generatePassword({ length: 16 });
 
                     if (Number.isNaN(date0)) {
-                        response.edit({
+                        original_interaction.edit({
                             embeds: [],
                             content: data.schedule_create_not_number_time
                                 .replace('${interaction.user}', interaction.user.toString()),
@@ -316,7 +317,7 @@ export const command: Command = {
                         return;
                     };
 
-                    response.edit({
+                    original_interaction.edit({
                         embeds: [
                             embed.addFields({
                                 name: data.schedule_create_embed_fields_name_confirm,
