@@ -51,7 +51,7 @@ function VerifyVanityCode(VanityCode: string) {
 async function VanityCodeAlreadyExist(AllVanityGuild: any, code: string): Promise<boolean> {
     let _ = false;
     for (let guildId in AllVanityGuild) {
-        if (AllVanityGuild[guildId]?.code === code) _ = true;
+        if (AllVanityGuild[guildId]?.vanity === code) _ = true;
     }
     return _;
 }
@@ -95,12 +95,12 @@ export const command: Command = {
 
         let db = client.db.table('API');
 
-        let get = await db.get(`VANITY`);
+        let get = await db.get('VANITY');
 
         let guildGet = get?.[`${interaction.guildId}`]?.['code'];
 
         if (!VerifyVanityCode(VanityCode)) {
-            await interaction.reply({ content: `The URL Vanity code \`${VanityCode}\ is invalid. The string should be alphanumeric and can include hyphens between words. The maximum length is 32 characters. Hyphens cannot be at the beginning or end of the string.` });
+            await interaction.reply({ content: `The URL Vanity code \`${VanityCode}\` is invalid. The string should be alphanumeric and can include hyphens between words. The maximum length is 32 characters. Hyphens cannot be at the beginning or end of the string.` });
             return;
         };
 
@@ -109,7 +109,7 @@ export const command: Command = {
             return;
         };
 
-        let guildInvite = await interaction.guild?.invites.create((interaction.channel as TextChannel), { temporary: false, reason: "iHorizon - VanityGenerator" });
+        let guildInvite = await interaction.guild?.invites.create((interaction.channel as TextChannel), { temporary: false, reason: "iHorizon - VanityGenerator", maxAge: 0 });
 
         if (guildGet) {
             await interaction.reply({ content: `The URL Vanity code \`${guildGet}\` have been overwrited for \`${VanityCode}\`. The guild is now joinable at: https://discord.wf/${VanityCode}` });

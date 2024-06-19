@@ -77,20 +77,25 @@ export const event: BotEvent = {
             let wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
 
             let channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
+            let isCustomVanity = false; // Is discord.wf link
             let msg = '';
 
             if (!wChan || !channel) return;
 
-            if (!joinMessage) {
+            let CustomVanityInvite = await (client.db.table('API')).get(`VANITY.${member.guild.id}`)
+            if (inviter.id === client.user?.id && CustomVanityInvite.invite === invite.code) {
+                isCustomVanity = true;
+            }
 
+            if (!joinMessage) {
                 msg = data.event_welcomer_inviter
                     .replaceAll("{memberUsername}", member.user.username)
                     .replaceAll("{memberMention}", member.user.toString())
                     .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
                     .replaceAll('{createdAt}', member.user.createdAt.toDateString())
                     .replaceAll('{guildName}', member.guild.name!)
-                    .replaceAll('{inviterUsername}', inviter.username)
-                    .replaceAll('{inviterMention}', inviter.toString())
+                    .replaceAll('{inviterUsername}', isCustomVanity ? ".wf/" + CustomVanityInvite.vanity : inviter.username)
+                    .replaceAll('{inviterMention}', isCustomVanity ? "discord.wf/" + CustomVanityInvite.vanity : inviter.toString())
                     .replaceAll('{invitesCount}', invitesAmount)
                     .replaceAll("\\n", '\n');
             } else {
@@ -101,8 +106,8 @@ export const event: BotEvent = {
                     .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
                     .replaceAll('{createdAt}', member.user.createdAt.toDateString())
                     .replaceAll('{guildName}', member.guild.name!)
-                    .replaceAll('{inviterUsername}', inviter.username)
-                    .replaceAll('{inviterMention}', inviter.toString())
+                    .replaceAll('{inviterUsername}', isCustomVanity ? ".wf/" + CustomVanityInvite.vanity : inviter.username)
+                    .replaceAll('{inviterMention}', isCustomVanity ? "discord.wf/" + CustomVanityInvite.vanity : inviter.toString())
                     .replaceAll('{invitesCount}', invitesAmount)
                     .replaceAll("\\n", '\n');
             };
