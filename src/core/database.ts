@@ -20,17 +20,19 @@
 */
 
 import { ConfigData } from '../../types/configDatad.js';
-
-import { JSONDriver, MySQLDriver, QuickDB } from 'quick.db';
-import { MongoDriver } from 'quickmongo';
+import { JSONDriver, MemoryDriver, MySQLDriver, QuickDB } from 'quick.db';
 import * as proc from './modules/errorManager.js';
 import logger from './logger.js';
 import fs from 'fs';
+import { setInterval } from 'timers';
+import { MongoDriver } from 'quickmongo';
 
 let dbInstance: QuickDB<any>;
 
+const tables = ['OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', 'json'];
+
 export const initializeDatabase = async (config: ConfigData) => {
-    let dbPromise;
+    let dbPromise: Promise<QuickDB<any>>;
     let sqlitePath = `${process.cwd()}/src/files`;
 
     if (!fs.existsSync(sqlitePath)) {
@@ -40,7 +42,7 @@ export const initializeDatabase = async (config: ConfigData) => {
     switch (config.database?.method) {
         case 'MONGO_DB':
             dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
-                let driver = new MongoDriver(config.database?.mongoDb!);
+                const driver = new MongoDriver(config.database?.mongoDb!);
 
                 try {
                     await driver.connect();
@@ -68,7 +70,7 @@ export const initializeDatabase = async (config: ConfigData) => {
             dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
                 logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
 
-                let mysql = new MySQLDriver({
+                const mysql = new MySQLDriver({
                     host: config.database?.mySQL?.host,
                     user: config.database?.mySQL?.user,
                     password: config.database?.mySQL?.password,
@@ -78,8 +80,10 @@ export const initializeDatabase = async (config: ConfigData) => {
 
                 await mysql.connect();
 
-                let db = new QuickDB({ driver: mysql });
-                db.table('OWNER'); db.table('OWNIHRZ'); db.table('BLACKLIST'); db.table('PREVNAMES'); db.table('API'); db.table('TEMP'); db.table('SCHEDULE'); db.table('USER_PROFIL');
+                const db = new QuickDB({ driver: mysql });
+                for (let table of tables) {
+                    db.table(table);
+                };
                 resolve(db);
             });
             break;
@@ -87,6 +91,48 @@ export const initializeDatabase = async (config: ConfigData) => {
             dbPromise = new Promise<QuickDB>((resolve, reject) => {
                 logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
                 resolve(new QuickDB({ filePath: sqlitePath + '/db.sqlite' }));
+            });
+            break;
+        case 'CACHED_SQL':
+            dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
+                logger.log(`${config.console.emojis.HOST} >> Initializing cached database setup (${config.database?.method}) !`.green);
+
+                const mysql = new MySQLDriver({
+                    host: config.database?.mySQL?.host,
+                    user: config.database?.mySQL?.user,
+                    password: config.database?.mySQL?.password,
+                    database: config.database?.mySQL?.database,
+                    port: config.database?.mySQL?.port,
+                });
+
+                await mysql.connect();
+
+                const memoryDB = new QuickDB({ driver: new MemoryDriver() });
+
+                for (const table of tables) {
+                    const mysqlTable = new QuickDB({ driver: mysql }).table(table);
+                    const memoryTable = memoryDB.table(table);
+                    const allData = await mysqlTable.all();
+                    for (const { id, value } of allData) {
+                        await memoryTable.set(id, value);
+                    }
+                }
+
+                const syncToMySQL = async () => {
+                    for (const table of tables) {
+                        const mysqlTable = new QuickDB({ driver: mysql }).table(table);
+                        const memoryTable = memoryDB.table(table);
+                        const allData = await memoryTable.all();
+                        for (const { id, value } of allData) {
+                            await mysqlTable.set(id, value);
+                        }
+                    }
+                    logger.log(`${config.console.emojis.HOST} >> Synchronized memory database to MySQL`);
+                };
+
+                setInterval(syncToMySQL, 10 * 60 * 100);
+
+                resolve(memoryDB);
             });
             break;
         default:
@@ -103,7 +149,7 @@ export const initializeDatabase = async (config: ConfigData) => {
 
 export const getDatabaseInstance = (): QuickDB<any> => {
     if (!dbInstance) {
-        throw new Error('Database has not been initialized. Call initializeDatabaseWithConfig first.');
+        throw new Error('Database has not been initialized. Call initializeDatabase first.');
     }
     return dbInstance;
 };
