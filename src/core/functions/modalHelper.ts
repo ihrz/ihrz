@@ -34,7 +34,7 @@ import {
 export interface ModalOptionsBuilder {
     title: string;
     customId: string;
-    deferUpdate?: boolean;
+    deferUpdate: boolean;
 
     fields: {
         customId: string;
