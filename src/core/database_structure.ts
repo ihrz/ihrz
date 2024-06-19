@@ -203,6 +203,18 @@ export namespace DatabaseStructure {
             event?: string;
             channel?: string;
         };
+        boost?: {
+            name?: string;
+            enable?: boolean;
+            event?: string;
+            channel?: string;
+        };
+        channel?: {
+            name?: string;
+            enable?: boolean;
+            event?: string;
+            channel?: string;
+        };
     }
 
     export interface DbInId {

@@ -67,6 +67,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     let submitInteraction = await iHorizonModalResolve({
         customId: 'selection_modal',
         title: lang.confession_module_modal_title,
+        deferUpdate: true,
         fields: [
             {
                 customId: 'case_name',

@@ -46,6 +46,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
         let response = await iHorizonModalResolve({
             customId: 'modal',
             title: lang.temporary_voice_modal_title,
+            deferUpdate: false,
             fields: [
                 {
                     customId: 'name',

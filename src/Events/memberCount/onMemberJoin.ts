@@ -19,49 +19,44 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, GuildMember } from 'discord.js';
+import { Client, GuildMember, TextChannel } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';
+import logger from '../../core/logger.js';
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
-
         try {
-            let botMembers = member.guild.members.cache.filter((member) => member.user.bot);
-            let rolesCount = member.guild.roles.cache.size;
+            const guild = member.guild;
+            const botMembersCount = guild.members.cache.filter((m) => m.user.bot).size;
+            const rolesCount = guild.roles.cache.size;
+            const baseData = await client.db.get(`${guild.id}.GUILD.MCOUNT`) as DatabaseStructure.MemberCountSchema;
 
-            let baseData = await client.db.get(`${member.guild.id}.GUILD.MCOUNT`) as DatabaseStructure.DbGuildObject['MCOUNT'];
-            let bot = baseData?.bot;
-            let member_2 = baseData?.member;
-            let roles = baseData?.roles;
+            if (!baseData) return;
 
-            if (bot) {
+            const mappings: { key: keyof DatabaseStructure.MemberCountSchema, count: number }[] = [
+                { key: 'bot', count: botMembersCount },
+                { key: 'member', count: guild.memberCount },
+                { key: 'roles', count: rolesCount },
+                { key: 'boost', count: rolesCount },
+                { key: 'channel', count: rolesCount }
+            ];
 
-                let joinmsgreplace = bot?.name!
-                    .replace("{botcount}", String(botMembers.size));
+            for (const { key, count } of mappings) {
+                const data = baseData[key];
+                if (data) {
 
-                let Fetched = member.guild.channels.cache.get(bot.channel!);
-                Fetched?.edit({ name: joinmsgreplace });
-                return;
-            } else if (member_2) {
-
-                let joinmsgreplace = member_2.name!
-                    .replace("{membercount}", String(member.guild.memberCount));
-
-                let Fetched = member.guild.channels.cache.get(member_2.channel!);
-                Fetched?.edit({ name: joinmsgreplace });
-                return;
-            } else if (roles) {
-
-                let joinmsgreplace = roles.name!
-                    .replace("{rolescount}", String(rolesCount));
-
-                let Fetched = member.guild.channels.cache.get(roles.channel!);
-                Fetched?.edit({ name: joinmsgreplace });
-                return;
-            };
-        } catch (e) { return };
+                    const channel = guild.channels.cache.get(data.channel!) as TextChannel;
+                    if (channel && channel.isTextBased()) {
+                        const newName = data.name!.replace(/{\w+count}/, String(count));
+                        channel.edit({ name: newName });
+                    }
+                }
+            }
+        } catch (error) {
+            logger.err('Error handling guildMemberAdd event:' + error as any);
+        }
     },
 };
