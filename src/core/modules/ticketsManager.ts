@@ -187,6 +187,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
             let response = await iHorizonModalResolve({
                 customId: 'selection_modal',
                 title: lang.sethereticket_modal_1_title,
+                deferUpdate: true,
                 fields: [
                     {
                         customId: 'case_name',
@@ -240,6 +241,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
             let response = await iHorizonModalResolve({
                 customId: 'embed_saved_modal',
                 title: lang.sethereticket_modal_2_title,
+                deferUpdate: true,
                 fields: [
                     {
                         customId: 'embed_title',

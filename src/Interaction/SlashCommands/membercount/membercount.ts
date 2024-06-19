@@ -80,9 +80,9 @@ export const command: Command = {
             required: false,
             type: ApplicationCommandOptionType.String,
 
-            description: `{botcount}, {rolescount}, {membercount}`,
+            description: `{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount}`,
             description_localizations: {
-                "fr": "{botcount}, {rolescount}, {membercount}"
+                "fr": "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount}"
             }
         },
     ],
@@ -98,7 +98,7 @@ export const command: Command = {
         };
 
         let type = interaction.options.getString("action");
-        let messagei = interaction.options.getString("name");
+        let messagei = interaction.options.getString("name")?.toLowerCase()!;
         let channel = interaction.options.getChannel("channel");
 
         let help_embed = new EmbedBuilder()
@@ -110,7 +110,9 @@ export const command: Command = {
         if (type == "on") {
             let botMembers = interaction.guild?.members.cache.filter((member: GuildMember) => member.user.bot);
             let rolesCollection = interaction.guild?.roles.cache;
-            let rolesCount = rolesCollection?.size as number;
+            let channelsCount = interaction.guild?.channels.cache.size.toString()!;
+            let rolesCount = rolesCollection?.size!;
+            let boostsCount = interaction.guild?.premiumSubscriptionCount?.toString() || '0';
 
             if (!messagei) {
                 await interaction.editReply({ embeds: [help_embed] });
@@ -118,8 +120,10 @@ export const command: Command = {
             };
 
             let joinmsgreplace = messagei
+                .replace("{membercount}", interaction.guild?.memberCount.toString()!)
                 .replace("{rolescount}", rolesCount.toString())
-                .replace("{membercount}", interaction.guild?.memberCount as unknown as string)
+                .replace("{channelcount}", channelsCount)
+                .replace("{boostcount}", boostsCount)
                 .replace("{botcount}", botMembers?.size.toString()!);
 
             if (messagei.includes("member")) {
@@ -129,6 +133,14 @@ export const command: Command = {
             } else if (messagei.includes("roles")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.roles`,
                     { name: messagei, enable: true, event: "roles", channel: channel?.id }
+                );
+            } else if (messagei.includes("channel")) {
+                await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.channel`,
+                    { name: messagei, enable: true, event: "bot", channel: channel?.id }
+                );
+            } else if (messagei.includes("boost")) {
+                await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.boost`,
+                    { name: messagei, enable: true, event: "bot", channel: channel?.id }
                 );
             } else if (messagei.includes("bot")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.bot`,
