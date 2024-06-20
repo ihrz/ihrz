@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature, User } from 'discord.js';
+import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature, User } from 'pwss';
 import { PfpsManager_Init } from "../../core/modules/pfpsManager.js";
 import logger from "../../core/logger.js";
 
@@ -52,8 +52,10 @@ export const event: BotEvent = {
     
         async function refreshDatabaseModel() {
             let table = client.db.table('OWNER');
-            await table.set(`${client.config.owner.ownerid1}`, { owner: true });
-            await table.set(`${client.config.owner.ownerid2}`, { owner: true });
+
+            client.owners.forEach(async ownerId => {
+                await table.set(ownerId, { owner: true })
+            });
             await client.db.table(`TEMP`).deleteAll();
         };
     

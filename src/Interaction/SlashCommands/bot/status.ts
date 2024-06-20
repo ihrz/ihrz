@@ -25,7 +25,7 @@ import {
     ChatInputCommandInteraction,
     time,
     ApplicationCommandType
-} from 'discord.js'
+} from 'pwss'
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
@@ -48,7 +48,7 @@ export const command: Command = {
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
-        if (interaction.user.id !== client.config.owner.ownerid1 && client.config.owner.ownerid2) {
+        if (!client.owners.includes(interaction.user.id)) {
             await interaction.reply({ content: data.status_be_bot_dev });
             return;
         };

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, GuildMember, SnowflakeUtil, PermissionsBitField } from 'discord.js';
+import { BaseGuildTextChannel, Client, GuildMember, SnowflakeUtil, PermissionsBitField } from 'pwss';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';
 
@@ -37,7 +37,7 @@ export const event: BotEvent = {
             try {
                 const nonce = SnowflakeUtil.generate().toString();
                 const msg = await channel.send({
-                    content: `${member.user} ${channel} ${nonce}`,
+                    content: `${member.user}`,
                     enforceNonce: true,
                     nonce: nonce
                 });

@@ -24,7 +24,7 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
-} from 'discord.js';
+} from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 

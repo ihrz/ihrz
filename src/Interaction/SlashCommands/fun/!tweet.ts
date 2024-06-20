@@ -33,7 +33,7 @@ import {
     Client,
     EmbedBuilder,
     User,
-} from 'discord.js'
+} from 'pwss'
 
 import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import { LanguageData } from '../../../../types/languageData.js';

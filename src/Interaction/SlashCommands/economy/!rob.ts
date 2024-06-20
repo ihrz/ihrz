@@ -24,7 +24,7 @@ import {
     Client,
     EmbedBuilder,
     User,
-} from 'discord.js';
+} from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 let talkedRecentlyforr = new Set();

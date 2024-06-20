@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, GuildMember } from 'discord.js'
+import { Client, EmbedBuilder, GuildMember } from 'pwss'
 
 import { LanguageData } from '../../../types/languageData';
 import { BotEvent } from '../../../types/event';

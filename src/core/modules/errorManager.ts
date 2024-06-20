@@ -23,7 +23,7 @@ import { ConfigData } from '../../../types/configDatad.js';
 import { format } from '../functions/date-and-time.js';
 import logger from '../logger.js';
 import fs from 'node:fs';
-import { Client } from 'discord.js';
+import { Client } from 'pwss';
 import { MongoDriver } from 'quick.db';
 
 let exec = async (driver: MongoDriver, config: ConfigData) => {

@@ -22,7 +22,7 @@
 import {
     Client,
     Message
-} from 'discord.js'
+} from 'pwss'
 
 import { Command } from '../../../../types/command';
 

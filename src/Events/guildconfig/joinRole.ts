@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, GuildMember, PermissionsBitField } from 'discord.js';
+import { Client, GuildMember, PermissionsBitField } from 'pwss';
 
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';
@@ -34,16 +34,9 @@ export const event: BotEvent = {
         if (!roleid) return;
 
         if (Array.isArray(roleid)) {
-            for (let id of roleid) {
-                let role = member.guild.roles.cache.get(id);
-                if (role) {
-                    try {
-                        member.roles.add(role)
-                            .catch(() => { })
-                            .then(() => { });
-                    } catch { }
-                }
-            }
+            member.roles.set(roleid)
+                .catch(() => { })
+                .then(() => { });
         } else {
             let role = member.guild.roles.cache.get(roleid);
             if (role) {

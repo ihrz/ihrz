@@ -29,7 +29,7 @@ import emojis from './modules/emojisManager.js';
 import { VanityInviteData } from '../../types/vanityUrlData';
 import { ConfigData } from '../../types/configDatad.js';
 
-import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'discord.js';
+import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'pwss';
 import { GiveawayManager } from 'discord-regiveaways';
 import { readdirSync } from "node:fs";
 import backup from 'discord-rebackup';
@@ -63,6 +63,14 @@ export async function main(client: Client) {
     logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
     logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray);
     logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".gray);
+
+    client.owners = [];
+
+    client.config.owner.owners?.forEach(owner => {
+        if (!Number.isNaN(Number.parseInt(owner))) client.owners.push(owner);
+    });
+    if (!Number.isNaN(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
+    if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
 
     errorManager.uncaughtExceptionHandler(client);
 

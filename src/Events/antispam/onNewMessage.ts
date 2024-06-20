@@ -28,7 +28,7 @@ import {
     Collection,
     Snowflake,
     EmbedBuilder
-} from 'discord.js';
+} from 'pwss';
 
 import { DatabaseStructure } from '../../core/database_structure';
 
@@ -336,14 +336,12 @@ export const event: BotEvent = {
 
         if (duplicateMessages.length >= options.maxDuplicates) {
             cache.membersFlags.set(`${message.guildId}.${message.author.id}`, { value: memberTotalWarn + 1 });
-            cache.membersToPunish = cache.membersToPunish.add(message.member!);
             duplicateMessages.forEach(msg => cache.spamMessagesToClear.add(msg));
             spamOtherDuplicates.forEach(msg => cache.spamMessagesToClear.add(msg));
         }
 
         if (elapsedTime && elapsedTime < options.maxInterval) {
             cache.membersFlags.set(`${message.guildId}.${message.author.id}`, { value: memberTotalWarn + 1 });
-            cache.membersToPunish = cache.membersToPunish.add(message.member!);
             cacheMessages.forEach(msg => cache.spamMessagesToClear.add(msg));
             duplicateMessages.forEach(msg => cache.spamMessagesToClear.add(msg));
             spamMatches.forEach(msg => cache.spamMessagesToClear.add(msg));
@@ -353,10 +351,13 @@ export const event: BotEvent = {
 
         if (similarMessages && similarMessages.length! >= options.similarMessageThreshold) {
             cache.membersFlags.set(`${message.guildId}.${message.author.id}`, { value: memberTotalWarn + 1 });
-            cache.membersToPunish = cache.membersToPunish.add(message.member!);
             similarMessages.forEach(msg => cache.spamMessagesToClear.add(msg));
             spamOtherDuplicates.forEach(msg => cache.spamMessagesToClear.add(msg));
         }
+
+        if (cache.membersFlags.get(`${message.guildId}.${message.author.id}`)?.value! >= options.Threshold) {
+            cache.membersToPunish = cache.membersToPunish.add(message.member!);
+        };
 
         if (cache.membersToPunish.size >= 1 && cache.membersFlags.get(`${message.guildId}.${message.author.id}`)?.value! >= options.Threshold) {
             await waitForFinish(lastMessage!);

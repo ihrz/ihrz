@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ActionRowBuilder, ButtonInteraction, CacheType, ComponentType, EmbedBuilder, GuildMember, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonInteraction, CacheType, ComponentType, EmbedBuilder, GuildMember, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 export default async function handleButtonInteraction(interaction: ButtonInteraction<CacheType>) {

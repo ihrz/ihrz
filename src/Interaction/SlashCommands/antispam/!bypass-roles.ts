@@ -29,7 +29,7 @@ import {
     EmbedBuilder,
     PermissionsBitField,
     RoleSelectMenuBuilder
-} from 'discord.js';
+} from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 import { AntiSpam } from '../../../../types/antispam';
 import { DatabaseStructure } from '../../../core/database_structure';

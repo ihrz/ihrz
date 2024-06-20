@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { AttachmentBuilder, Client, EmbedBuilder, GuildMember, GuildTextBasedChannel, Message } from 'discord.js';
+import { SnowflakeUtil, Client, EmbedBuilder, GuildMember, GuildTextBasedChannel, Message } from 'pwss';
 
 import logger from "../../core/logger.js";
 import captcha from "../../core/captcha.js";
@@ -49,12 +49,19 @@ export const event: BotEvent = {
             .setDescription(data.event_security.replace('${member}', member.toString()))
             ;
 
+        /**
+         * Why doing this?
+         * On iHorizon Production, we have some ~problems~ 👎
+         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
+         */
+        const nonce = SnowflakeUtil.generate().toString();
+
         (channel as GuildTextBasedChannel).send({
             content: member.toString(),
             embeds: [embed],
             files: [
                 { name: "captcha.png", attachment: sfbuff },
-            ]
+            ], enforceNonce: true, nonce: nonce
         }).then(async (msg) => {
             let collector = msg.channel.createMessageCollector({
                 filter: (m) => m.author.id === member.id,
