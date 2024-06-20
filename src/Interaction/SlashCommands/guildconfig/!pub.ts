@@ -75,9 +75,7 @@ export default {
                     triggerMetadata:
                     {
                         regexPatterns: [
-                            '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
-                            '\bhttps?:\/\/\S+\b',
-                            '\b(https?:\/\/)?\S+\.\S+\b'
+                            '(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li)|discordapp\.com\/invite)\/.+[a-z]',
                         ]
                     },
                     actions: arrayActionsForRule
@@ -104,7 +102,7 @@ export default {
                         {
                             type: 2,
                             metadata: {
-                                channel: (logs_channel as unknown as TextChannel)
+                                channel: logs_channel as TextChannel
                             }
                         },
                     ]
