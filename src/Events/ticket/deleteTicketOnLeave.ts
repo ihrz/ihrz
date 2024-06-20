@@ -41,13 +41,13 @@ export const event: BotEvent = {
                 if (!TicketLogsChannel) return;
 
                 let embed = new EmbedBuilder()
-                    .setColor("#008000")
+                    .setColor(await client.db.get(`${member.guild?.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#008000")
                     .setTitle(lang.event_ticket_logsChannel_onDelete_embed_title)
                     .setDescription(lang.event_ticket_logsChannel_onDelete_embed_desc
                         .replace('${interaction.user}', member.user.toString())
                         .replace('${interaction.channel.name}', channel?.name!)
                     )
-                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                    .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
                     .setTimestamp();
 
                 TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });

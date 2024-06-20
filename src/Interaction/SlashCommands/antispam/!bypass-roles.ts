@@ -47,7 +47,7 @@ export default {
         let all_roles = await client.db.get(`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_ROLES`) as AntiSpam.AntiSpamOptions['BYPASS_ROLES'];
 
         const embed = new EmbedBuilder()
-            .setColor("#6666ff")
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#6666ff")
             .setTitle(lang.antispam_manage_embed_title)
             .setDescription(lang.antispan_bypassroles_embed_desc)
             .setThumbnail(interaction.guild?.iconURL({ forceStatic: false })!)
@@ -58,7 +58,7 @@ export default {
                     : lang.setjoinroles_var_none
             })
             .setFooter({
-                text: "iHorizon",
+                text: interaction.client.user.username,
                 iconURL: interaction.client.user.displayAvatarURL({ forceStatic: false })
             });
 

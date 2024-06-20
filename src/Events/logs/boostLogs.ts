@@ -37,7 +37,7 @@ export const event: BotEvent = {
         if (!someinfo || !Msgchannel) return;
 
         let embed = new EmbedBuilder()
-            .setColor("#a27cec")
+            .setColor(await client.db.get(`${newMember.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#a27cec")
             .setAuthor({ name: newMember?.user.username, iconURL: newMember?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
             .setTimestamp();
 

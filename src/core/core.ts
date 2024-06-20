@@ -48,6 +48,7 @@ const __dirname = path.dirname(__filename);
 const backups_folder = `${process.cwd()}/src/files/backups`;
 
 let global_config: ConfigData;
+let global_client: Client;
 
 if (!fs.existsSync(backups_folder)) {
     fs.mkdirSync(backups_folder, { recursive: true });
@@ -57,6 +58,7 @@ backup.setStorageFolder(backups_folder);
 
 export async function main(client: Client) {
     initConfig(client.config);
+    initClient(client);
 
     logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
     logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray);
@@ -123,6 +125,7 @@ export async function main(client: Client) {
             },
         });
 
+        global_client = client;
         commandsSync(client).then(() => {
             logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);
             logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta);
@@ -142,4 +145,15 @@ export const getConfig = (): ConfigData => {
         throw new Error('Configuration file has not been initialized. Call initConfig first.');
     }
     return global_config;
+};
+
+export const initClient = (client: Client) => {
+    global_client = client
+};
+
+export const getClient = (): Client => {
+    if (!global_client) {
+        throw new Error('Client has not been initialized. Call initClient first.');
+    }
+    return global_client;
 };

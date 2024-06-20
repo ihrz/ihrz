@@ -34,9 +34,9 @@ import { LanguageData } from '../../../../types/languageData';
 export const command: Command = {
     name: 'links',
 
-    description: 'Show all links about iHorizon',
+    description: 'Show all links about me',
     description_localizations: {
-        "fr": "Afficher tous les liens en rapport avec iHorizon"
+        "fr": "Afficher tous les liens en rapport avec moi"
     },
 
     category: 'bot',

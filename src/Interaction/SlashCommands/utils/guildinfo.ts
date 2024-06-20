@@ -76,7 +76,7 @@ export const command: Command = {
                 { name: data.serverinfo_embed_fields_joinat, value: `\`${(interaction.member as GuildMember)?.joinedAt}\``, inline: true },
                 { name: data.serverinfo_embed_fields_createat, value: `\`${interaction.guild?.createdAt}\``, inline: true }
             )
-            .setFooter({ text: `iHorizon`, iconURL: "attachment://icon.png" })
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
             .setTimestamp()
             .setThumbnail(interaction.guild?.iconURL() as string)
             .setImage(`https://cdn.discordapp.com/icons/${interaction.guildId}/${interaction.guild?.banner}.png`);

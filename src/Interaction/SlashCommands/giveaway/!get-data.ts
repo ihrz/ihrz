@@ -45,7 +45,7 @@ export default {
                 name: interaction.guild?.name as string,
                 iconURL: interaction.guild?.iconURL({ size: 512, forceStatic: false })!
             })
-            .setColor("#0099ff")
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.gw`) || "#0099ff")
             .setTitle(data.gw_getdata_embed_title)
             .setFields(
                 {

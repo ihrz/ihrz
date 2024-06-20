@@ -42,7 +42,7 @@ export default {
             });
             return;
         };
-        
+
         if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - monthly));
 
@@ -51,10 +51,10 @@ export default {
         } else {
             let embed = new EmbedBuilder()
                 .setAuthor({ name: data.monthly_embed_title, iconURL: interaction.user.displayAvatarURL() })
-                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#a4cb80")
+                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#a4cb80")
                 .setDescription(data.monthly_embed_description)
                 .addFields({ name: data.monthly_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` });
-    
+
             await interaction.reply({ embeds: [embed] });
             await client.db.add(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, amount);
             await client.db.set(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.monthly`, Date.now());

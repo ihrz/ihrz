@@ -33,7 +33,7 @@ export const event: BotEvent = {
         let data = await client.functions.getLanguageData(channel.guild.id) as LanguageData;
 
         let setup_embed = new EmbedBuilder()
-            .setColor("#1e1d22")
+            .setColor(await client.db.get(`${channel.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#1e1d22")
             .setTitle(data.event_channel_create_message_embed_title)
             .setDescription(data.event_channel_create_message_embed_description);
 

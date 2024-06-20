@@ -47,7 +47,7 @@ export default {
         await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel?.id);
 
         let embed = new EmbedBuilder()
-            .setColor("#008000")
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#008000")
             .setTitle(data.ticket_logchannel_embed_title)
             .setDescription(data.ticket_logchannel_embed_desc
                 .replace('${interaction.user}', interaction.user.toString())

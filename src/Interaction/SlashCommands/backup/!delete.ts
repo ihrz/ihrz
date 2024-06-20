@@ -53,7 +53,7 @@ export default {
             .setTitle(data.backup_really_want
                 .replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
             )
-            .setColor("#ff1100")
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#ff1100")
             .setTimestamp()
             .addFields({
                 name: `${data_2.guildName} - (||${backupID}||)`,

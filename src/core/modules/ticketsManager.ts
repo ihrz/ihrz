@@ -295,7 +295,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                     new EmbedBuilder()
                         .setColor(2829617)
                         .setDescription(`## ${title}\n${desc}`)
-                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                        .setFooter({ text: interaction.client.user.username, iconURL: "attachment://icon.png" })
                 ],
                 components: [
                     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
@@ -330,7 +330,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                     .setColor("#008000")
                     .setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
                     .setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc.replace('${data.name}', data.name!).replace('${interaction}', `${interaction.channel}`))
-                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                    .setFooter({ text: interaction.client.user.username, iconURL: "attachment://icon.png" })
                     .setTimestamp();
 
                 TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
@@ -565,7 +565,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                         .setColor(2829617)
                         .setDescription(lang.event_ticket_reason_embed_desc.replace('${reason}', reason))
                         .setFooter({
-                            text: 'iHorizon',
+                            text: interaction.client.user.username,
                             iconURL: "attachment://icon.png"
                         })
                 );
@@ -578,7 +578,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                         .replace("${user.username}", interaction.user.username)
                     )
                     .setFooter({
-                        text: 'iHorizon',
+                        text: interaction.client.user.username,
                         iconURL: "attachment://icon.png"
                     })
             )
@@ -674,7 +674,7 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) 
 
                         let embed = new EmbedBuilder()
                             .setDescription(data.close_title_sourcebin)
-                            .setColor('#0014a8');
+                            .setColor(await interaction.client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0014a8");
 
                         try {
                             (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(member?.user as User, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
@@ -735,7 +735,7 @@ async function TicketTranscript(interaction: ButtonInteraction<CacheType>) {
 
                     let embed = new EmbedBuilder()
                         .setDescription(data.close_title_sourcebin)
-                        .setColor('#0014a8');
+                        .setColor(await interaction.client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0014a8");
 
                     if (interaction.deferred) {
                         await interaction.editReply({ embeds: [embed], content: data.transript_command_work, files: [attachment] });

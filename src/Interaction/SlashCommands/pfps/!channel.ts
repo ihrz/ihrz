@@ -45,16 +45,16 @@ export default {
             await client.db.set(`${interaction.guildId}.PFPS.channel`, channel.id);
 
             let embed = new EmbedBuilder()
-                .setColor('#333333')
+                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#333333")
                 .setTitle(data.pfps_channel_embed_title)
                 .setDescription(data.pfps_channel_embed_desc
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
                 )
                 .setTimestamp();
 
             await interaction.reply({
                 content: data.pfps_channel_command_work
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
                     .replace('${channel}', channel.toString())
             });
 
@@ -64,7 +64,7 @@ export default {
         } else {
             await interaction.reply({
                 content: data.pfps_channel_command_error
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
             });
             return;
         };

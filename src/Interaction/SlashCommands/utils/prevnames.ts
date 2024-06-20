@@ -89,9 +89,9 @@ export const command: Command = {
             });
         };
 
-        let createEmbed = () => {
+        let createEmbed = async () => {
             return new EmbedBuilder()
-                .setColor("#000000")
+                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#000000")
                 .setTitle(pages[currentPage].title)
                 .setDescription(pages[currentPage].description)
                 .setFooter({
@@ -119,7 +119,7 @@ export const command: Command = {
         );
 
         let messageEmbed = await interaction.reply({
-            embeds: [createEmbed()],
+            embeds: [await createEmbed()],
             components: [row],
             files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
@@ -157,7 +157,7 @@ export const command: Command = {
                 }
             };
 
-            messageEmbed.edit({ embeds: [createEmbed()] });
+            messageEmbed.edit({ embeds: [await createEmbed()] });
         });
 
         collector.on('end', () => {

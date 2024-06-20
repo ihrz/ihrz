@@ -67,7 +67,7 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
         usr = (user.id);
         user = guild.members.cache.filter(user => user.id !== usr).random()!;
     } else usr = (user.id);
-    
+
     let actRow: ActionRowBuilder<ButtonBuilder> = new ActionRowBuilder();
     let ebds = [];
 
@@ -80,7 +80,7 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
         );
 
         ebds.push(new EmbedBuilder()
-            .setColor('#a2add0')
+            .setColor(await client.db.get(`${channel.guild?.id}.GUILD.GUILD_CONFIG.embed_color.mod-cmd`) || "#a2add0")
             .setTitle(`${user?.user.username || user?.user.globalName}'s **Guild** avatar`)
             .setImage(user.displayAvatarURL({ extension: 'png', forceStatic: false }))
         );
@@ -94,7 +94,7 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
     );
 
     ebds.push(new EmbedBuilder()
-        .setColor('#a2add0')
+        .setColor(await client.db.get(`${channel.guild?.id}.GUILD.GUILD_CONFIG.embed_color.mod-cmd`) || "#a2add0")
         .setTitle(`${user?.user.username || user?.user.globalName}'s **User** avatar`)
         .setImage(user.user.displayAvatarURL({ extension: 'png', forceStatic: false }))
         .setTimestamp()

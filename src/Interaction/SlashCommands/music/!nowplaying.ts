@@ -136,7 +136,7 @@ export default {
                                             iconURL: lyrics.artist.image,
                                         })
                                         .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
-                                        .setColor('#cd703a')
+                                        .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#cd703a")
                                         .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
                                     i.editReply({
                                         embeds: [embed],

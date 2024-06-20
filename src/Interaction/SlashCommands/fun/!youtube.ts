@@ -61,10 +61,10 @@ export default {
         let link = `https://some-random-api.com/canvas/misc/youtube-comment?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 })))}&username=${encodeURIComponent((username))}&comment=${encodeURIComponent(args.join(' '))}`;
 
         let embed = new EmbedBuilder()
-            .setColor('#000000')
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#000000")
             .setImage('attachment://all-human-have-rights-elektra.png')
             .setTimestamp()
-            .setFooter({ text: 'iHorizon x ElektraBots', iconURL: "attachment://icon.png" });
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
 
         let imgs: AttachmentBuilder;
 

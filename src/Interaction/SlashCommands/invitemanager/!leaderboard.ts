@@ -84,7 +84,7 @@ export default {
                 .setTitle(data.leaderboard_default_text + " • " + interaction.guild?.name)
                 .setDescription(pageText)
                 .setTimestamp()
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
                 .setThumbnail("attachment://guildIcon.png");
         };
 

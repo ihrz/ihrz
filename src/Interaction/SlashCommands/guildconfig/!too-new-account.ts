@@ -60,7 +60,7 @@ export default {
 
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
+                    .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                     .setTitle(data.too_new_account_logEmbed_title)
                     .setDescription(data.too_new_account_logEmbed_desc_on_disable
                         .replace('${interaction.user}', interaction.user.toString())
@@ -91,7 +91,7 @@ export default {
         } else if (action === 'off') {
             try {
                 let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
+                    .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                     .setTitle(data.too_new_account_logEmbed_title)
                     .setDescription(data.too_new_account_logEmbed_desc_on_disable
                         .replace('${interaction.user}', interaction.user.toString())

@@ -124,7 +124,7 @@ export const command: Command = {
             let state = await client.db.get(`${interaction.guildId}.GUILD_CONFIG.rolesaver.enable`);
 
             let embed = new EmbedBuilder()
-                .setColor("#3725a4")
+                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#3725a4")
                 .setTitle(data.rolesaver_embed_title)
                 .setDescription(data.rolesaver_embed_desc)
                 .addFields(
@@ -149,7 +149,7 @@ export const command: Command = {
             };
 
             let embed = new EmbedBuilder()
-                .setColor("#3725a4")
+                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#3725a4")
                 .setTitle(data.rolesaver_on_off_embed_title)
                 .setDescription(data.rolesaver_on_off_embed_desc)
                 .addFields(

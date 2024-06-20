@@ -53,7 +53,7 @@ export const event: BotEvent = {
         if (!Msgchannel) return;
 
         let logsEmbed = new EmbedBuilder()
-            .setColor("#000000")
+            .setColor(await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#000000")
             .setDescription(data.event_srvLogs_guildMemberRemove_description
                 .replace("${firstEntry.executor.id}", firstEntry.executor?.id!)
                 .replace("${firstEntry.target.id}", firstEntry.target.id)

@@ -37,7 +37,7 @@ export default {
             return;
         };
 
-        let em = new EmbedBuilder().setDescription(data.backup_all_of_your_backup).setColor("#bf0bb9").setTimestamp();
+        let em = new EmbedBuilder().setDescription(data.backup_all_of_your_backup).setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9").setTimestamp();
         let data2 = await client.db.get(`BACKUPS.${interaction.user.id}`);
         let b: number = 1;
 

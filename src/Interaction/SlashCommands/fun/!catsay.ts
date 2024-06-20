@@ -34,10 +34,7 @@ import {
   EmbedBuilder,
 } from 'discord.js';
 
-import Jimp from 'jimp';
-
 import { LanguageData } from '../../../../types/languageData.js';
-import { axios } from '../../../core/functions/axios.js';
 
 export default {
   run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -46,11 +43,11 @@ export default {
     let link = `https://cataas.com/cat/cute/says/${text}`;
 
     let embed = new EmbedBuilder()
-      .setColor('#000000')
+      .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#000000")
       .setImage('attachment://all-human-have-rights-elektra.png')
       .setTimestamp()
       .setImage(`attachment://catsay.jpg`)
-      .setFooter({ text: 'iHorizon x ElektraBots', iconURL: "attachment://icon.png" });
+      .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
 
     let imgs: AttachmentBuilder | undefined;
 

@@ -52,7 +52,7 @@ export default {
 
         let embed = new EmbedBuilder()
             .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL() })
-            .setColor("#a4cb80")
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#a4cb80")
             .setTitle(data.deposit_embed_title)
             .setDescription(data.deposit_embed_desc
                 .replace('${client.iHorizon_Emojis.icon.Coin}', client.iHorizon_Emojis.icon.Coin)

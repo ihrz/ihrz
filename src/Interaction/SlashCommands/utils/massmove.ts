@@ -111,8 +111,8 @@ export const command: Command = {
         }
 
         let embed = new EmbedBuilder()
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
-            .setColor('#007fff')
+            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#007fff")
             .setTimestamp()
             .setThumbnail(interaction.guild?.iconURL() as string)
             .setDescription(data.massmove_results

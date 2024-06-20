@@ -64,11 +64,16 @@ export const command: Command = {
             return;
         }
 
-        let createEmbed = () => {
+        let createEmbed = async () => {
             return new EmbedBuilder()
-                .setColor("#000000")
+                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#000000")
                 .setDescription(pages[currentPage])
-                .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: "attachment://icon.png" })
+                .setFooter({
+                    text: data.prevnames_embed_footer_text
+                        .replace("${currentPage + 1}", `${currentPage + 1}`)
+                        .replace("${pages.length}", `${pages.length}`),
+                    iconURL: "attachment://icon.png"
+                })
                 .setTimestamp()
         };
 
@@ -84,7 +89,7 @@ export const command: Command = {
         );
 
         let messageEmbed = await interaction.reply({
-            embeds: [createEmbed()],
+            embeds: [await createEmbed()],
             components: [(row as ActionRowBuilder<ButtonBuilder>)],
             files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
@@ -96,14 +101,14 @@ export const command: Command = {
             }, time: 60000
         });
 
-        collector.on('collect', (interaction: { customId: string; }) => {
+        collector.on('collect', async (interaction: { customId: string; }) => {
             if (interaction.customId === 'previousPage') {
                 currentPage = (currentPage - 1 + pages.length) % pages.length;
             } else if (interaction.customId === 'nextPage') {
                 currentPage = (currentPage + 1) % pages.length;
             }
 
-            messageEmbed.edit({ embeds: [createEmbed()] });
+            messageEmbed.edit({ embeds: [await createEmbed()] });
         });
 
         collector.on('end', () => {

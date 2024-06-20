@@ -50,8 +50,8 @@ export default {
             return;
         } else {
             let embed = new EmbedBuilder()
+                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#a4cb80")
                 .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL() })
-                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#a4cb80")
                 .setDescription(data.daily_embed_description)
                 .addFields({ name: data.daily_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` })
 

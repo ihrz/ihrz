@@ -58,7 +58,7 @@ export const event: BotEvent = {
                 || guild.channels.cache.random();
 
             let tqtmonreuf = new EmbedBuilder()
-                .setColor('#FF0000')
+                .setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.owner`) || "#FF0000")
                 .setDescription(`Dear <@${guild.ownerId}>, I'm sorry, but you have been blacklisted by the bot.\nAs a result, I will be leaving your server. If you have any questions or concerns, please contact my developer.\n\nThank you for your understanding`)
                 .setTimestamp()
                 .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
@@ -82,9 +82,9 @@ export const event: BotEvent = {
             let welcomeMessage = [
                 "Welcome to our server! 🎉",
                 "Greetings, fellow Discordians! 👋",
-                "iHorizon has joined the chat! 💬",
-                "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂",
-                "Let's give a warm welcome to iHorizon! 🔥",
+                client.user?.username! + " has joined the chat! 💬",
+                `It's a bird, it's a plane, no, it's ${client.user?.username!}! 🦸‍♂`,
+                `Let's give a warm welcome to ${client.user?.username!} ! 🔥`,
             ];
 
             let embed = new EmbedBuilder()
@@ -93,7 +93,7 @@ export const event: BotEvent = {
                 .setDescription(
                     `## ${welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)]}\n` +
                     `Hi there! I'm excited to join your server and be a part of your community.\n` +
-                    `My name is iHorizon and I'm here to help you with all your needs. Feel free to use my commands and explore all the features I have to offer.\n` +
+                    `My name is ${client.user?.username!} and I'm here to help you with all your needs. Feel free to use my commands and explore all the features I have to offer.\n` +
                     `If you have any questions or run into any issues, don't hesitate to reach out to me.\n` +
                     `I'm here to make your experience on this server the best it can be.\n` +
                     `Thanks for choosing me and let's have some fun together!\n`
@@ -104,12 +104,12 @@ export const event: BotEvent = {
                 .addComponents(
                     new ButtonBuilder()
                         .setEmoji(client.iHorizon_Emojis.icon.Crown_Logo)
-                        .setLabel('Invite iHorizon')
+                        .setLabel('Invite ' + client.user?.username)
                         .setStyle(ButtonStyle.Link)
                         .setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`),
                     new ButtonBuilder()
                         .setEmoji(client.iHorizon_Emojis.icon.Sparkles)
-                        .setLabel('iHorizon Website')
+                        .setLabel('Main Website')
                         .setStyle(ButtonStyle.Link)
                         .setURL('https://ihorizon.me'),
                 )
@@ -151,7 +151,7 @@ export const event: BotEvent = {
             }
 
             let embed = new EmbedBuilder()
-                .setColor("#00FF00")
+                .setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#00FF00")
                 .setTimestamp(guild.joinedTimestamp)
                 .setDescription(`**A new guild added your bot !**`)
                 .addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },

@@ -54,7 +54,7 @@ export const event: BotEvent = {
                     { name: "Target bot", value: member.toString(), inline: true },
                 )
                 .setTimestamp()
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
 
             owner?.send({ embeds: [embed] })
                 .catch(() => { })

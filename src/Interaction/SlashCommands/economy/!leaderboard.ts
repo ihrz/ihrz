@@ -46,7 +46,7 @@ export default {
         });
 
         let embed = new EmbedBuilder()
-            .setColor('#e4b7ff')
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#e4b7ff")
             .setTitle(data.economy_leaderboard_embed_title
                 .replace('${interaction.guild.name}', interaction.guild?.name as string)
             )

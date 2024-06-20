@@ -49,7 +49,7 @@ export const event: BotEvent = {
                 if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
                 let embed = new EmbedBuilder()
-                    .setColor("#ff0505")
+                    .setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#ff0505")
                     .setTimestamp(guild.joinedTimestamp)
                     .setDescription(`**A guild removed your bot !**`)
                     .addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },

@@ -49,19 +49,19 @@ export const event: BotEvent = {
                     new EmbedBuilder()
                         .setColor(2829617)
                         .setImage('https://ihorizon.me/assets/img/banner/ihrz_en-US.png')
-                        .setDescription(`# Uhh Oh!!\n\nIt seems you are using iHorizon in a private conversation.\nI want to clarify that iHorizon can only be used in a Discord server!\n\nTo unleash my full potential, add me!`)
+                        .setDescription(`# Uhh Oh!!\n\nIt seems you are using ${client.user?.username!} in a private conversation.\nI want to clarify that ${client.user?.username!} can only be used in a Discord server!\n\nTo unleash my full potential, add me!`)
                 ],
                 components: [
                     new ActionRowBuilder<ButtonBuilder>()
                         .addComponents(
                             new ButtonBuilder()
                                 .setEmoji(client.iHorizon_Emojis.icon.Crown_Logo)
-                                .setLabel('Invite iHorizon')
+                                .setLabel('Invite ' + client.user?.username!)
                                 .setStyle(ButtonStyle.Link)
                                 .setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`),
                             new ButtonBuilder()
                                 .setEmoji(client.iHorizon_Emojis.icon.Sparkles)
-                                .setLabel('iHorizon Website')
+                                .setLabel('Main Website')
                                 .setStyle(ButtonStyle.Link)
                                 .setURL('https://ihorizon.me'),
                         )

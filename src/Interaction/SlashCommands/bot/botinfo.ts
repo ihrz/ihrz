@@ -58,7 +58,7 @@ export const command: Command = {
                 { name: data.botinfo_embed_fields_created_by, value: ":green_circle: <@171356978310938624>", inline: false },
             )
             .setTimestamp()
-            .setFooter({ text: `iHorizon ${client.version.ClientVersion}`, iconURL: "attachment://icon.png" })
+            .setFooter({ text: `OWNIHRZ ${client.version.ClientVersion}`, iconURL: "attachment://icon.png" })
             .setTimestamp()
 
         await interaction.reply({ embeds: [clientembed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });

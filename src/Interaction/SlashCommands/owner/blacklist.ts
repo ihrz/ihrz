@@ -115,9 +115,9 @@ export const command: Command = {
                 });
             }
 
-            let createEmbed = () => {
+            let createEmbed = async () => {
                 return new EmbedBuilder()
-                    .setColor("#2E2EFE")
+                    .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.owner`) || "#2E2EFE")
                     .setTitle(pages[currentPage]?.title)
                     .setDescription(pages[currentPage]?.description)
                     .setFooter({
@@ -141,7 +141,7 @@ export const command: Command = {
             );
 
             let messageEmbed = await interaction.reply({
-                embeds: [createEmbed()],
+                embeds: [await createEmbed()],
                 components: [row],
                 files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
             });
@@ -153,14 +153,14 @@ export const command: Command = {
                 time: 60000
             });
 
-            collector.on('collect', (interaction: { customId: string; }) => {
+            collector.on('collect', async (interaction) => {
                 if (interaction.customId === 'previousPage') {
                     currentPage = (currentPage - 1 + pages.length) % pages.length;
                 } else if (interaction.customId === 'nextPage') {
                     currentPage = (currentPage + 1) % pages.length;
                 }
 
-                messageEmbed.edit({ embeds: [createEmbed()] });
+                messageEmbed.edit({ embeds: [await createEmbed()] });
             });
 
             collector.on('end', () => {

@@ -109,7 +109,7 @@ export const command: Command = {
             return;
         };
 
-        let guildInvite = await interaction.guild?.invites.create((interaction.channel as TextChannel), { temporary: false, reason: "iHorizon - VanityGenerator", maxAge: 0 });
+        let guildInvite = await interaction.guild?.invites.create((interaction.channel as TextChannel), { temporary: false, reason: client.user?.username! + " - VanityGenerator", maxAge: 0 });
 
         if (guildGet) {
             await interaction.reply({ content: `The URL Vanity code \`${guildGet}\` have been overwrited for \`${VanityCode}\`. The guild is now joinable at: https://discord.wf/${VanityCode}` });

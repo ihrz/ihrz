@@ -65,7 +65,7 @@ export default {
                 .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username)
                 .replace(/\${amount}/g, amount.toString())
             )
-            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#f1d488");
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#f1d488");
 
         await interaction.reply({ embeds: [embed] });
 

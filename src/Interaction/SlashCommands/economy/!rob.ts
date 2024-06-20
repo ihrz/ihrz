@@ -70,7 +70,7 @@ export default {
                 .replace(/\${user\.id}/g, user?.id)
                 .replace(/\${random}/g, random.toString())
             )
-            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#a4cb80")
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#a4cb80")
             .setTimestamp()
 
         await interaction.reply({ embeds: [embed] });

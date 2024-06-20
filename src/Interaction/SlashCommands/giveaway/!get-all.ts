@@ -42,7 +42,7 @@ export default {
         let filtered = giveawayData.filter((giveaway) => giveaway.giveawayData.guildId === interaction.guildId && !giveaway.giveawayData.ended);
 
         let embed = new EmbedBuilder()
-            .setColor("#2986cc")
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.gw`) || "#2986cc")
             .setTimestamp()
             .setTitle(data.gw_getall_embed_title
                 .replace('${interaction.guild?.name}', interaction.guild?.name as string)

@@ -34,7 +34,7 @@ export const command: Command = {
 
     description: 'Set the embed color !',
     description_localizations: {
-        "fr": "Changer les couleurs dans les embed d'iHorizon"
+        "fr": "Changer les couleurs dans les embed de votre bot"
     },
 
     options: [
@@ -58,8 +58,16 @@ export const command: Command = {
                     value: 'ihrz-logs'
                 },
                 {
+                    name: 'Set for Owner Module Embed!',
+                    value: 'owner'
+                },
+                {
                     name: 'Set for Giveaway Embed!',
                     value: 'gw'
+                },
+                {
+                    name: 'Set for Economy Embed!',
+                    value: 'economy'
                 },
                 {
                     name: 'Set for Audits-Logs Embed!',

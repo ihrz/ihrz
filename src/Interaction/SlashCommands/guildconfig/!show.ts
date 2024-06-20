@@ -92,16 +92,16 @@ export default {
             value: blockBotToString(baseData?.BLOCK_BOT, data)
         };
 
-        const generateEmbedForFields = (fields: { name: string, value: string }[]) => {
+        const generateEmbedForFields = async (fields: { name: string, value: string }[]) => {
             const embed = new EmbedBuilder()
-                .setColor("#016c9a")
+                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#016c9a")
                 .setDescription(data.guildprofil_embed_description.replace(/\${interaction\.guild\.name}/g, interaction.guild?.name as string))
                 .addFields(fields)
                 .setThumbnail(interaction.guild?.iconURL() as string);
             pages.push(embed);
         };
 
-        generateEmbedForFields([
+        await generateEmbedForFields([
             joinMessageField,
             leaveMessageField,
             setChannelsJoinField,
@@ -110,18 +110,18 @@ export default {
             joinDmMessageField
         ]);
 
-        generateEmbedForFields([
+        await generateEmbedForFields([
             ticketFetchedField,
             reactionRoleField
         ]);
 
-        generateEmbedForFields([
+        await generateEmbedForFields([
             blockPubField,
             punishPubField,
             supportConfigField,
         ]);
 
-        generateEmbedForFields([
+        await generateEmbedForFields([
             xpStatsField,
             logsField,
             blockBotField
@@ -134,7 +134,7 @@ export default {
                 content: null,
                 embeds: [
                     pages[currentPage]
-                        .setColor("#016c9a")
+                        .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#016c9a")
                         .setFooter({
                             text: data.prevnames_embed_footer_text
                                 .replace('${currentPage + 1}', (currentPage + 1).toString())

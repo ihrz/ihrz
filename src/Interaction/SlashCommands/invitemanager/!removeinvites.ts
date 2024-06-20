@@ -36,7 +36,7 @@ export default {
         let amount = interaction.options.getNumber("amount") as number;
 
         let a = new EmbedBuilder()
-            .setColor("#FF0000")
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#FF0000")
             .setDescription(data.removeinvites_not_admin_embed_description);
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {

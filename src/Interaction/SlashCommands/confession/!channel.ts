@@ -51,7 +51,7 @@ export default {
         });
 
         let embed = new EmbedBuilder()
-            .setColor('#ff05aa')
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#ff05aa")
             .setFooter({ text: interaction.guild?.name!, iconURL: 'attachment://guild_icon.png' })
             .setTimestamp()
             .setDescription(data.confession_channel_panel_embed_desc)
@@ -82,7 +82,7 @@ export default {
 
         try {
             let logEmbed = new EmbedBuilder()
-                .setColor("#bf0bb9")
+                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                 .setTitle(data.confession_channel_log_embed_title)
                 .setDescription(data.confession_channel_log_embed_desc
                     .replace('${interaction.user}', interaction.user.toString())

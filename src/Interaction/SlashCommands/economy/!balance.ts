@@ -37,7 +37,7 @@ export default {
             });
             return;
         };
-        
+
         let member: User = interaction.options.getUser('user') || interaction.user;
         var bal = await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY.money`);
 
@@ -46,7 +46,7 @@ export default {
             await interaction.reply({
                 content: data.balance_he_dont_have_wallet
                     .replace("${client.iHorizon_Emojis.icon.Wallet_Logo}", client.iHorizon_Emojis.icon.Wallet_Logo)
-                    .replace('${user}', interaction.user .toString())
+                    .replace('${user}', interaction.user.toString())
             });
             return;
         };
@@ -54,12 +54,12 @@ export default {
         let totalWallet = (bal || 0) + (await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.bank`) || 0);
 
         let embed = new EmbedBuilder()
-            .setColor('#e3c6ff')
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#e3c6ff")
             .setTitle(`\`${member.username}\`'s Wallet`)
             .setThumbnail(member.displayAvatarURL())
             .setDescription(data.balance_he_have_wallet
                 .replace(/\${bal}/g, totalWallet)
-                .replace('${user}', member .toString())
+                .replace('${user}', member.toString())
                 .replace("${client.iHorizon_Emojis.icon.Wallet_Logo}", client.iHorizon_Emojis.icon.Wallet_Logo)
             )
             .addFields(

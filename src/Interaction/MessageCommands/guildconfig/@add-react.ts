@@ -40,9 +40,9 @@ export const command: Command = {
 
     name: 'add-react',
 
-    description: 'Add reaction by iHorizon when user send message',
+    description: 'Add reaction by your bot when user send message',
     description_localizations: {
-        "fr": "Ajouter une réaction d'iHorizon lorsque l'utilisateur envoie un message spécifiqe"
+        "fr": "Ajouter une réaction que votre bot réagiras lorsque l'utilisateur envoie un message spécifiqe"
     },
 
     thinking: false,

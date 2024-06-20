@@ -115,7 +115,7 @@ export const command: Command = {
                 });
 
                 const logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
+                    .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                     .setTitle(data.setlogschannel_logs_embed_title)
                     .setDescription(data.setlogschannel_logs_embed_description_on_enable
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)

@@ -151,10 +151,10 @@ export const command: Command = {
             };
 
             let embed = new EmbedBuilder()
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://ihrz_logo.png" })
+                .setFooter({ text: client.user?.username!, iconURL: "attachment://ihrz_logo.png" })
                 .setThumbnail("attachment://user_icon.gif")
                 .setTimestamp()
-                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#0014a8' )
+                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#0014a8')
                 .setFields(
                     {
                         name: data.userinfo_embed_fields_1_name,

@@ -40,9 +40,9 @@ export const command: Command = {
 
     name: 'remove-react',
 
-    description: 'Remove reaction by iHorizon when user send message',
+    description: 'Remove reaction from your bot when user send message',
     description_localizations: {
-        "fr": "Supprimer une réaction d'iHorizon lorsque l'utilisateur envoie un message spécifiqe"
+        "fr": "Supprimer une réaction que votre bot réagiras lorsque l'utilisateur envoie un message spécifiqe"
     },
 
     thinking: false,

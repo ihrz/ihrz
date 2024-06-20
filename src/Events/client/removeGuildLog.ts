@@ -42,9 +42,9 @@ export const event: BotEvent = {
             if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
             let embed = new EmbedBuilder()
-                .setColor("#ff0505")
+                .setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.owner`) || "#ff0505")
                 .setTimestamp(guild.joinedTimestamp)
-                .setDescription(`**A guild removed iHorizon !**`)
+                .setDescription(`**A guild removed ${client.user?.username!} !**`)
                 .addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
                     { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
                     { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
@@ -53,7 +53,7 @@ export const event: BotEvent = {
                     { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true }
                 )
                 .setThumbnail(guild.iconURL())
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
 
             await (client.users.cache.get(owner1))?.send({
                 embeds: [embed],

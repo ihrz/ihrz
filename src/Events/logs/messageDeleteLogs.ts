@@ -42,7 +42,7 @@ export const event: BotEvent = {
         let iconURL = message.author.displayAvatarURL();
         let saves_emb: EmbedBuilder[] = [];
         let logsEmbed = new EmbedBuilder()
-            .setColor("#000000")
+            .setColor(await client.db.get(`${message.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#000000")
             .setAuthor({
                 name: message.author.username,
                 iconURL: iconURL

@@ -54,7 +54,7 @@ export const command: Command = {
         };
 
         let embed = new EmbedBuilder()
-            .setColor("#82cda8")
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.owner`) || "#82cda8")
             .setFields(
                 { name: "Cpu", value: `${os.cpus()[0].model} (${os.machine()})`, inline: false },
                 { name: "Memory", value: `${niceBytes(os.totalmem() - os.freemem())}/${niceBytes(os.totalmem())}`, inline: false },
