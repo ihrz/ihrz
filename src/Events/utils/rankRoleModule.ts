@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, PermissionsBitField, ChannelType, Message, ClientUser } from 'discord.js';
+import { Client, EmbedBuilder, PermissionsBitField, ChannelType, Message, ClientUser, SnowflakeUtil } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';
 import { LanguageData } from '../../../types/languageData';
@@ -41,6 +41,13 @@ export const event: BotEvent = {
         if (!dbGet || !dbGet.roles) return;
 
         let fetch = message.guild.roles.cache.find((role) => role.id === dbGet.roles);
+
+        /**
+         * Why doing this?
+         * On iHorizon Production, we have some ~problems~ 👎
+         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
+         */
+        const nonce = SnowflakeUtil.generate().toString();
 
         if (fetch) {
             let target = message.guild.members.cache.get(message.author.id);
@@ -64,7 +71,9 @@ export const event: BotEvent = {
             message.member?.roles.add(fetch).catch(() => { });
             message.channel.send({
                 embeds: [embed],
-                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
+                enforceNonce: true,
+                nonce
             }).catch(() => { });
         }
     },

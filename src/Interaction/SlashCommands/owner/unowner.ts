@@ -65,7 +65,7 @@ export const command: Command = {
 
         var member = interaction.options.getUser('member');
 
-        if ((member?.id === client.config.owner.ownerid1) || (member?.id === client.config.owner.ownerid2)) {
+        if (client.owners.includes(member?.id!)) {
             await interaction.reply({ content: data.unowner_cant_unowner_creator });
             return;
         };

@@ -53,8 +53,10 @@ export const event: BotEvent = {
 
         async function refreshDatabaseModel() {
             let table = client.db.table('OWNER');
-            await table.set(`${client.config.owner.ownerid1}`, { owner: true });
-            await table.set(`${client.config.owner.ownerid2}`, { owner: true });
+
+            client.owners.forEach(async ownerId => {
+                await table.set(ownerId, { owner: true })
+            });
             await client.db.table(`TEMP`).deleteAll();
         };
 
