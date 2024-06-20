@@ -64,6 +64,14 @@ export async function main(client: Client) {
     logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray);
     logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".gray);
 
+    client.owners = [];
+
+    client.config.owner.owners?.forEach(owner => {
+        if (!Number.isNaN(Number.parseInt(owner))) client.owners.push(owner);
+    });
+    if (!Number.isNaN(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
+    if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
+
     errorManager.uncaughtExceptionHandler(client);
 
     // @ts-ignore

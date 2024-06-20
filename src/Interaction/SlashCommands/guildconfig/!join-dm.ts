@@ -103,7 +103,7 @@ export default {
 
                     try {
                         let logEmbed = new EmbedBuilder()
-                            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
+                            .setColor("#bf0bb9")
                             .setTitle(data.setjoindm_logs_embed_title_on_enable)
                             .setDescription(data.setjoindm_logs_embed_description_on_enable
                                 .replace(/\${interaction\.user\.id}/g, interaction.user.id)

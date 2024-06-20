@@ -61,6 +61,7 @@ declare module 'discord.js' {
         version: typeof ClientVersion,
         assets: Assets,
         config: ConfigData,
-        isModuled?: boolean
+        isModuled?: boolean,
+        owners: string[]
     }
 };
