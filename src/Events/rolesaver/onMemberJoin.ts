@@ -32,12 +32,9 @@ export const event: BotEvent = {
             let array: Role[] | null = await client.db.get(`${member.guild.id}.ROLE_SAVER.${member.user.id}`)
             if (!array || array.length >= 0) return;
 
-            array.forEach(async (role: Role) => {
-                member.roles.add(role);
-            });
+            await member.roles.set(array);
 
             await client.db.delete(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
-
             return;
         }
     },
