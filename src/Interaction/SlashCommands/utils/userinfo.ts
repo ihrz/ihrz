@@ -30,7 +30,7 @@ import {
     ButtonBuilder,
     ButtonStyle,
     ChatInputCommandInteraction
-} from 'discord.js';
+} from 'pwss';
 
 import { axios } from '../../../core/functions/axios.js';
 import { Command } from '../../../../types/command';

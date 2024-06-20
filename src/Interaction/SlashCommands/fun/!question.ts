@@ -23,7 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-} from 'discord.js';
+} from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {

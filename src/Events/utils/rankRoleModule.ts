@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, PermissionsBitField, ChannelType, Message, ClientUser, SnowflakeUtil } from 'discord.js';
+import { Client, EmbedBuilder, PermissionsBitField, ChannelType, Message, ClientUser, SnowflakeUtil } from 'pwss';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';
 import { LanguageData } from '../../../types/languageData';

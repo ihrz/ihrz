@@ -26,7 +26,7 @@ import {
     EmbedBuilder,
     PermissionsBitField,
     TextBasedChannel,
-} from 'discord.js';
+} from 'pwss';
 
 import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import logger from '../../../core/logger.js';

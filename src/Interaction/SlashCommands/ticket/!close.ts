@@ -25,7 +25,7 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
-} from 'discord.js';
+} from 'pwss';
 
 import { CloseTicket } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData';

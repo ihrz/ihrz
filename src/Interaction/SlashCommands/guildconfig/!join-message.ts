@@ -30,7 +30,7 @@ import {
     EmbedBuilder,
     PermissionsBitField,
     TextInputStyle
-} from 'discord.js';
+} from 'pwss';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
