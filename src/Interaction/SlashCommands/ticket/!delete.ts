@@ -23,7 +23,7 @@ import {
     BaseGuildTextChannel,
     ChatInputCommandInteraction,
     Client,
-} from 'discord.js';
+} from 'pwss';
 
 import { TicketDelete } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData';

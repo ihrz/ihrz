@@ -28,7 +28,7 @@ import {
     Message,
     MessageContextMenuCommandInteraction,
     time,
-} from 'discord.js';
+} from 'pwss';
 
 import { SearchResult, UnresolvedSearchResult } from 'lavalink-client/dist/types/index.js';
 import { AnotherCommand } from '../../../types/anotherCommand.js';

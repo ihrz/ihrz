@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, GatewayIntentBits, ActivityType, BaseGuildTextChannel } from 'discord.js';
+import { Client, GatewayIntentBits, ActivityType, BaseGuildTextChannel } from 'pwss';
 import { log as Ox } from 'console';
 import { readFile } from "fs/promises";
 import { writeFileSync } from "fs";

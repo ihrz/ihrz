@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, PermissionsBitField, Presence } from 'discord.js';
+import { Client, PermissionsBitField, Presence } from 'pwss';
 
 import { BotEvent } from '../../../types/event';
 

@@ -29,7 +29,7 @@ import {
     ChatInputCommandInteraction,
     GuildMember,
     ApplicationCommandType
-} from 'discord.js'
+} from 'pwss'
 
 import { format } from '../../../core/functions/date-and-time.js';
 

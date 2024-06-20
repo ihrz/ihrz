@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Collection } from 'discord.js';
+import { Client, Collection } from 'pwss';
 import { readdirSync } from "node:fs";
 
 import { fileURLToPath } from 'url';
