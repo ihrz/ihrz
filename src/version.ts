@@ -28,7 +28,7 @@ const __dirname = path.dirname(__filename);
 const pkg = (await import(path.join(__dirname, '..', '..', 'package.json'), { with: { "type": "json" } })).default;
 const env = "npmjs"; // production, ownihrz, dev, main, npmjs
 const version = pkg.version;
-const djs = pkg.dependencies['discord.js'];
+const djs = pkg.dependencies['pwss'];
 
 const ClientVersion = `${env}@${version} djs@${djs}`;
 

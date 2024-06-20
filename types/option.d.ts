@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ApplicationCommandOptionType } from 'discord.js';
+import { ApplicationCommandOptionType } from 'pwss';
 import { DescriptionLocalizations, NameLocalizations } from './command';
 import { Choice } from "./choice";
 

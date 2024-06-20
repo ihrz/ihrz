@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Guild, Invite, PermissionsBitField } from 'discord.js';
+import { Client, Guild, Invite, PermissionsBitField } from 'pwss';
 
 import { BotEvent } from '../../../types/event';
 

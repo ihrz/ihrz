@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client } from 'discord.js';
+import { Client } from 'pwss';
 import { axios } from "./axios.js";
 
 import { Assets } from "../../../types/assets.js";

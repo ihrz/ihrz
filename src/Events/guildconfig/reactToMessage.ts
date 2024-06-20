@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Message, SnowflakeUtil } from 'discord.js';
+import { Client, Message, SnowflakeUtil } from 'pwss';
 
 import { BotEvent } from '../../../types/event';
 

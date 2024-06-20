@@ -21,7 +21,7 @@
 
 import { Command } from '../../../types/command';
 import { BotEvent } from '../../../types/event';
-import { Client, Message } from 'discord.js';
+import { Client, Message } from 'pwss';
 
 export async function isMessageCommand(client: Client, message: string): Promise<{ s: boolean, a?: string[], c?: Command }> {
     var prefix = `<@${client.user?.id}>`;

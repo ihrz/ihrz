@@ -25,7 +25,7 @@ import {
     CacheType,
     ChatInputCommandInteraction,
     Client,
-} from 'discord.js';
+} from 'pwss';
 
 import { TicketTranscript } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData';

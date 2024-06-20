@@ -1,6 +1,6 @@
 # Official iHorizon Repo
 
-iHorizon is a Discord bot written in [TypeScript](https://www.typescriptlang.org/) and using [discord.js] !
+iHorizon is a Discord bot written in [TypeScript](https://www.typescriptlang.org/) and using [pwss](https://npmjs.com/pwss) !
 IHorizon have a large variety of features, including moderation, invite management, guild configuration, fun commands, music playback, giveaways, backup and lot more!
 
 ## Languages

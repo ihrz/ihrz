@@ -31,7 +31,7 @@ import {
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
     TextInputStyle,
-} from 'discord.js';
+} from 'pwss';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 
 import { LanguageData } from '../../../../types/languageData';

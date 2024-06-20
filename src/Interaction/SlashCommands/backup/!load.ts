@@ -24,7 +24,7 @@ import {
     Client,
     Guild,
     PermissionsBitField,
-} from 'discord.js';
+} from 'pwss';
 
 import backup from 'discord-rebackup';
 import { BackupData } from 'discord-rebackup/lib/types';

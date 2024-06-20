@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client } from 'discord.js';
+import { Client } from 'pwss';
 import logger from "../logger.js";
 import readline from 'readline';
 import os from 'node:os';

@@ -24,7 +24,7 @@ import {
     EmbedBuilder,
     ChatInputCommandInteraction,
     ApplicationCommandType
-} from 'discord.js'
+} from 'pwss'
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
@@ -53,7 +53,7 @@ export const command: Command = {
                 { name: data.botinfo_embed_fields_mychannels, value: `:green_circle: ${client.channels.cache.size}`, inline: false },
                 { name: data.botinfo_embed_fields_myservers, value: `:green_circle: ${client.guilds.cache.size}`, inline: false },
                 { name: data.botinfo_embed_fields_members, value: `:green_circle: ${usersize}`, inline: false },
-                { name: data.botinfo_embed_fields_libraires, value: `:green_circle: discord.js@${client.version.djs}`, inline: false },
+                { name: data.botinfo_embed_fields_libraires, value: `:green_circle: pwss@${client.version.djs}`, inline: false },
                 { name: data.botinfo_embed_fields_created_at, value: ":green_circle: <t:1600042320:R>", inline: false },
                 { name: data.botinfo_embed_fields_created_by, value: ":green_circle: <@171356978310938624>", inline: false },
             )

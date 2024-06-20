@@ -32,7 +32,7 @@ import {
     EmbedBuilder,
     PermissionsBitField,
     TextChannel,
-} from 'discord.js';
+} from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
