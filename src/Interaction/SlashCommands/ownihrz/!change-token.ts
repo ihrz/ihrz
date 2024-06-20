@@ -70,8 +70,7 @@ export default {
             return;
         };
 
-        if ((interaction.user.id !== client.config.owner.ownerid1) &&
-            (interaction.user.id !== client.config.owner.ownerid2) &&
+        if (!client.owners.includes(interaction.user.id) ||
             (id_2.OwnerOne !== interaction.user.id)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;

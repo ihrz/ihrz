@@ -58,7 +58,7 @@ export const command: Command = {
 
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
-        if ((interaction.user.id !== client.config.owner.ownerid1) && (interaction.user.id !== client.config.owner.ownerid2)) {
+        if (!client.owners.includes(interaction.user.id)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };

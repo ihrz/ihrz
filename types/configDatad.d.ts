@@ -37,6 +37,7 @@ export interface ConfigData {
     owner: {
         ownerid1: string
         ownerid2: string;
+        owners? : string[];
     };
 
     api: {
