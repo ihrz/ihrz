@@ -48,6 +48,12 @@ async function isReachable(database: ConfigData['database']): Promise<boolean> {
     }
 };
 
+const overwriteLastLine = (msg: string) => {
+    process.stdout.clearLine(0);
+    process.stdout.cursorTo(0);
+    process.stdout.write(msg);
+}
+
 export const initializeDatabase = async (config: ConfigData) => {
     let dbPromise: Promise<QuickDB<any>>;
     let sqlitePath = `${process.cwd()}/src/files`;
@@ -159,7 +165,7 @@ export const initializeDatabase = async (config: ConfigData) => {
                         }
                     }
 
-                    logger.log(`${config.console.emojis.HOST} >> Synchronized memory database to MySQL`);
+                    overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> Synchronized memory database to MySQL`))
                 };
 
                 process.on('SIGINT', async () => {
