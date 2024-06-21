@@ -142,10 +142,9 @@ export const initializeDatabase = async (config: ConfigData) => {
                     port: config.database?.mySQL?.port,
                 });
 
-                const mysqlDb = new QuickDB({ driver: mysql });
-
                 await mysql.connect();
 
+                const mysqlDb = new QuickDB({ driver: mysql });
                 const memoryDB = new QuickDB({ driver: new MemoryDriver() });
 
                 for (const table of tables) {
