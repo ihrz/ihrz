@@ -60,9 +60,9 @@ export const command: Command = {
 
     name: 'vanity-generator',
 
-    description: 'Get your own vanity URL in discord.ws format!',
+    description: 'Get your own vanity URL in discord.wf format!',
     description_localizations: {
-        "fr": "Créer votre propre URL vanity sous le format discord.ws"
+        "fr": "Créer votre propre URL vanity sous le format discord.wf"
     },
 
     options: [
