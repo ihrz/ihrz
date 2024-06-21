@@ -21,6 +21,7 @@
 
 import { JSONDriver, MemoryDriver, MySQLDriver, QuickDB } from 'quick.db';
 import { MongoDriver } from 'quickmongo';
+import ansiEscapes from 'ansi-escapes';
 import mysql from 'mysql2/promise.js';
 import { setInterval } from 'timers';
 
@@ -28,7 +29,6 @@ import { ConfigData } from '../../types/configDatad.js';
 import * as proc from './modules/errorManager.js';
 import logger from './logger.js';
 import fs from 'fs';
-
 let dbInstance: QuickDB<any>;
 
 const tables = ['OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', 'json'];
@@ -48,11 +48,11 @@ async function isReachable(database: ConfigData['database']): Promise<boolean> {
     }
 };
 
-const overwriteLastLine = (msg: string) => {
-    process.stdout.clearLine(0);
-    process.stdout.cursorTo(0);
-    process.stdout.write(msg);
-}
+const overwriteLastLine = (message: string) => {
+    process.stdout.write(ansiEscapes.eraseLine);
+    process.stdout.write(ansiEscapes.cursorLeft);
+    process.stdout.write(message);
+};
 
 export const initializeDatabase = async (config: ConfigData) => {
     let dbPromise: Promise<QuickDB<any>>;
