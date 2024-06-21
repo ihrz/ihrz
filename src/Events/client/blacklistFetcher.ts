@@ -36,7 +36,7 @@ export const event: BotEvent = {
                 member.send({ content: "You've been banned, because you are blacklisted ! \nReason: \`" + data.reason + '\`' })
                     .catch(() => { })
                     .then(() => { });
-                member.ban({ reason: 'iHorizon Project Punishement - Blacklist' })
+                member.ban({ reason: `iHorizon Project Punishement - Blacklist | Reason: ${data.reason}` })
                     .catch(() => { })
                     .then(() => { });
             }
