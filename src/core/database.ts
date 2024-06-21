@@ -142,14 +142,15 @@ export const initializeDatabase = async (config: ConfigData) => {
                     port: config.database?.mySQL?.port,
                 });
 
+                const mysqlDb = new QuickDB({ driver: mysql });
+
                 await mysql.connect();
 
                 const memoryDB = new QuickDB({ driver: new MemoryDriver() });
 
                 for (const table of tables) {
-                    const mysqlTable = new QuickDB({ driver: mysql }).table(table);
                     const memoryTable = memoryDB.table(table);
-                    const allData = await mysqlTable.all();
+                    const allData = await mysqlDb.all();
                     for (const { id, value } of allData) {
                         await memoryTable.set(id, value);
                     }
@@ -157,7 +158,7 @@ export const initializeDatabase = async (config: ConfigData) => {
 
                 const syncToMySQL = async () => {
                     for (const table of tables) {
-                        const mysqlTable = new QuickDB({ driver: mysql }).table(table);
+                        const mysqlTable = mysqlDb.table(table);
                         const memoryTable = memoryDB.table(table);
                         const allData = await memoryTable.all();
                         for (const { id, value } of allData) {
