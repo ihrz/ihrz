@@ -149,7 +149,7 @@ export const initializeDatabase = async (config: ConfigData) => {
 
                 for (const table of tables) {
                     const memoryTable = memoryDB.table(table);
-                    const allData = await mysqlDb.all();
+                    const allData = await (mysqlDb.table(table)).all();
                     for (const { id, value } of allData) {
                         await memoryTable.set(id, value);
                     }
