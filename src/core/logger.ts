@@ -40,6 +40,9 @@ let logger: Logger = {
     legacy(message) {
         _(message);
     },
+    returnLog(message) {
+        return `[${getCurrentTime()} LOG]: `.green + message;
+    }
 };
 
 export default logger;

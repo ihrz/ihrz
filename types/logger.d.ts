@@ -24,4 +24,5 @@ export interface Logger {
     legacy: (message: string) => void;
     warn: (message: string) => void;
     err: (message: string) => void;
+    returnLog: (message: string) => string;
 }

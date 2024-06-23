@@ -130,6 +130,14 @@ export async function main(client: Client) {
     };
 
     client.login(process.env.BOT_TOKEN || client.config.discord.token).then(() => {
+        const title = "iHorizon - " + client.version.ClientVersion + " platform:" + process.platform;
+
+        if (process.platform === 'win32') {
+            process.title = title;
+        } else {
+            process.stdout.write('\x1b]2;' + title + '\x1b\x5c');
+        };
+
         commandsSync(client).then(() => {
             logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);
             logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta);

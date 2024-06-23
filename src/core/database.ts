@@ -19,17 +19,40 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ConfigData } from '../../types/configDatad.js';
 import { JSONDriver, MemoryDriver, MySQLDriver, QuickDB } from 'quick.db';
+import { MongoDriver } from 'quickmongo';
+import ansiEscapes from 'ansi-escapes';
+import mysql from 'mysql2/promise.js';
+import { setInterval } from 'timers';
+
+import { ConfigData } from '../../types/configDatad.js';
 import * as proc from './modules/errorManager.js';
 import logger from './logger.js';
 import fs from 'fs';
-import { setInterval } from 'timers';
-import { MongoDriver } from 'quickmongo';
-
 let dbInstance: QuickDB<any>;
 
 const tables = ['OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', 'json'];
+
+async function isReachable(database: ConfigData['database']): Promise<boolean> {
+    let connection;
+    try {
+        connection = await mysql.createConnection(database?.mySQL!);
+        await connection.end();
+        return true;
+    } catch (error) {
+        return false;
+    } finally {
+        if (connection && connection.end) {
+            await connection.end();
+        }
+    }
+};
+
+const overwriteLastLine = (message: string) => {
+    process.stdout.write(ansiEscapes.eraseLine);
+    process.stdout.write(ansiEscapes.cursorLeft);
+    process.stdout.write(message);
+};
 
 export const initializeDatabase = async (config: ConfigData) => {
     let dbPromise: Promise<QuickDB<any>>;
@@ -68,6 +91,13 @@ export const initializeDatabase = async (config: ConfigData) => {
             break;
         case 'MYSQL':
             dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
+                const connectionAvailable = await isReachable(config.database);
+
+                if (!connectionAvailable) {
+                    console.error(`${config.console.emojis.ERROR} >> Failed to connect to the MySQL database`);
+                    process.exit(1)
+                };
+
                 logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
 
                 const mysql = new MySQLDriver({
@@ -95,6 +125,13 @@ export const initializeDatabase = async (config: ConfigData) => {
             break;
         case 'CACHED_SQL':
             dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
+                const connectionAvailable = await isReachable(config.database);
+
+                if (!connectionAvailable) {
+                    console.error(`${config.console.emojis.ERROR} >> Failed to connect to the MySQL database`);
+                    process.kill(1)
+                };
+
                 logger.log(`${config.console.emojis.HOST} >> Initializing cached database setup (${config.database?.method}) !`.green);
 
                 const mysql = new MySQLDriver({
@@ -107,12 +144,12 @@ export const initializeDatabase = async (config: ConfigData) => {
 
                 await mysql.connect();
 
+                const mysqlDb = new QuickDB({ driver: mysql });
                 const memoryDB = new QuickDB({ driver: new MemoryDriver() });
 
                 for (const table of tables) {
-                    const mysqlTable = new QuickDB({ driver: mysql }).table(table);
                     const memoryTable = memoryDB.table(table);
-                    const allData = await mysqlTable.all();
+                    const allData = await (mysqlDb.table(table)).all();
                     for (const { id, value } of allData) {
                         await memoryTable.set(id, value);
                     }
@@ -120,18 +157,29 @@ export const initializeDatabase = async (config: ConfigData) => {
 
                 const syncToMySQL = async () => {
                     for (const table of tables) {
-                        const mysqlTable = new QuickDB({ driver: mysql }).table(table);
+                        const mysqlTable = mysqlDb.table(table);
                         const memoryTable = memoryDB.table(table);
                         const allData = await memoryTable.all();
                         for (const { id, value } of allData) {
                             await mysqlTable.set(id, value);
                         }
                     }
-                    logger.log(`${config.console.emojis.HOST} >> Synchronized memory database to MySQL`);
+
+                    overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> Synchronized memory database to MySQL`))
                 };
 
-                setInterval(syncToMySQL, 10 * 60 * 100);
+                process.on('SIGINT', async () => {
+                    await syncToMySQL();
+                    process.exit();
+                });
 
+                process.on('exit', async (code) => {
+                    if (code !== 0) {
+                        console.log('Process exiting with code:', code);
+                        await syncToMySQL()
+                    }
+                });
+                setInterval(syncToMySQL, 45000);
                 resolve(memoryDB);
             });
             break;

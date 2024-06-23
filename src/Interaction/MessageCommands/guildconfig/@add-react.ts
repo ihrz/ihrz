@@ -51,7 +51,7 @@ export const command: Command = {
     run: async (client: Client, interaction: Message, execTimestamp: number, args: string[]) => {
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
-        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
+        let permission = !interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
 
         let emoji = args[0];
 

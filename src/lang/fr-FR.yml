@@ -1421,13 +1421,14 @@ antispam_manage_choices_9_label: "Intervalle maximum entre les messages dupliqu�
 antispam_manage_choices_9_desc: "L'intervalle entre les messages dupliqués pour signaler l'utilisateur"
 antispam_manage_choices_10_label: "Nombre maximum de messages similaires"
 antispam_manage_choices_10_desc: "Nombre maximum de messages similaires avant sanction"
-antispam_manage_choices_11_label: "Intervalle entre les avertissements"
-antispam_manage_choices_11_desc: "L'intervalle entre les messages d'avertissement"
-antispam_manage_choices_12_label: "Seuil avant avertissement"
-antispam_manage_choices_12_desc: "Le seuil avant le message d'avertissement"
+antispam_manage_choices_12_label: "Seuil avant punition"
+antispam_manage_choices_12_desc: "Le seuil maximum avant punition"
 antispam_manage_select_menu_punish_mute_label: "Rendre muets les membres"
 antispam_manage_modal_title: "Modale AntiSpam"
 antispam_manage_button_label: "Sauvegarder la configuration"
+antispam_manage_preset_level1_name: "Mode Détente"
+antispam_manage_preset_level2_name: "Mode Garde"
+antispam_manage_preset_level3_name: "Mode Protection Extrême"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Tous les rôles ci-dessous peuvent contourner le module antispam"
