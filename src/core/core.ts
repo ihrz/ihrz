@@ -119,6 +119,14 @@ export async function main(client: Client) {
     };
 
     client.login(client.config.discord.token).then(() => {
+        const title = "iHorizon - " + client.version.ClientVersion + " platform:" + process.platform;
+
+        if (process.platform === 'win32') {
+            process.title = title;
+        } else {
+            process.stdout.write('\x1b]2;' + title + '\x1b\x5c');
+        };
+
         // @ts-ignore
         client.giveawaysManager = new GiveawayManager(client, {
             storage: `${process.cwd()}/src/files/giveaways/`,

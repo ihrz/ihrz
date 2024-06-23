@@ -1421,13 +1421,14 @@ antispam_manage_choices_9_label: "Максимальный интервал ме
 antispam_manage_choices_9_desc: "Интервал между повторяющимися сообщениями для пометки пользователя"
 antispam_manage_choices_10_label: "Максимум похожих сообщений"
 antispam_manage_choices_10_desc: "Максимальное количество похожих сообщений перед санкцией"
-antispam_manage_choices_11_label: "Интервал между предупреждениями"
-antispam_manage_choices_11_desc: "Интервал между предупреждающими сообщениями"
-antispam_manage_choices_12_label: "Порог перед предупреждением"
-antispam_manage_choices_12_desc: "Порог перед отправкой предупреждающего сообщения"
+antispam_manage_choices_12_label: "Порог перед наказанием"
+antispam_manage_choices_12_desc: "Максимальный порог перед наказанием"
 antispam_manage_select_menu_punish_mute_label: "Заглушить участников"
 antispam_manage_modal_title: "Модальное окно AntiSpam"
 antispam_manage_button_label: "Сохранить настройки"
+antispam_manage_preset_level1_name: "Режим Расслабления"
+antispam_manage_preset_level2_name: "Режим Охраны"
+antispam_manage_preset_level3_name: "Режим Экстремальной Защиты"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Все роли ниже могут обойти модуль антиспама"
