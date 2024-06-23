@@ -29,6 +29,7 @@ export namespace AntiSpam {
         channelID: Snowflake;
         content: string;
         sentTimestamp: number;
+        isSpam: boolean;
     }
 
     export interface AntiSpamCache {
@@ -55,7 +56,6 @@ export namespace AntiSpam {
         punishment_type: 'mute' | 'kick' | 'ban';
         punishTime: number;
         similarMessageThreshold: number;
-        intervalBetweenWarn: number;
         punishTimeMultiplier: boolean;
     }
 }

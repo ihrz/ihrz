@@ -27,6 +27,7 @@ import {
     Client,
     EmbedBuilder,
     Message,
+    PermissionsBitField
 } from 'pwss';
 
 import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
@@ -47,6 +48,14 @@ export const command: Command = {
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, execTimestamp: number, args: string[]) => {
+
+
+        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
+
+        if (!permission) {
+            return;
+        };
+
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let all_specific_message: DatabaseStructure.DbGuildObject["REACT_MSG"] = await client.db.get(`${interaction.guildId}.GUILD.REACT_MSG`) || {};
