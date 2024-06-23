@@ -38,6 +38,52 @@ import { LanguageData } from '../../../../types/languageData';
 import { AntiSpam } from '../../../../types/antispam';
 
 type AntiSpamOptionKey = keyof AntiSpam.AntiSpamOptions;
+type PresetKeys = "chill" | "guard" | "extreme";
+
+const AntiSpamPreset: { [key in PresetKeys]: AntiSpam.AntiSpamOptions } = {
+    chill: {
+        BYPASS_ROLES: [],
+        ignoreBots: true,
+        maxDuplicatesInterval: 1300,
+        maxInterval: 1900,
+        Enabled: true,
+        Threshold: 7,
+        maxDuplicates: 4,
+        removeMessages: true,
+        punishment_type: 'mute',
+        punishTime: 15_000,
+        similarMessageThreshold: 5,
+        punishTimeMultiplier: false,
+    },
+    guard: {
+        BYPASS_ROLES: [],
+        ignoreBots: true,
+        maxDuplicatesInterval: 2200,
+        maxInterval: 2700,
+        Enabled: true,
+        Threshold: 5,
+        maxDuplicates: 3,
+        removeMessages: true,
+        punishment_type: 'mute',
+        punishTime: 30_000,
+        similarMessageThreshold: 3,
+        punishTimeMultiplier: true,
+    },
+    extreme: {
+        BYPASS_ROLES: [],
+        ignoreBots: false,
+        maxDuplicatesInterval: 3000,
+        maxInterval: 3200,
+        Enabled: true,
+        Threshold: 3,
+        maxDuplicates: 2,
+        removeMessages: true,
+        punishment_type: 'mute',
+        punishTime: 60_000,
+        similarMessageThreshold: 2,
+        punishTimeMultiplier: true,
+    },
+}
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, lang: LanguageData) => {
@@ -208,6 +254,40 @@ export default {
             });
         });
 
+        function beautifyValue(key: string, value: any, lang: LanguageData): string {
+            switch (key) {
+                case 'Enabled':
+                case 'ignoreBots':
+                case 'removeMessages':
+                case 'punishTimeMultiplier':
+                    return value ? `\`🟢 ${lang.guildprofil_set_blockpub}\`` : `\`🔴 ${lang.guildprofil_not_set_blockpub}\``;
+                case 'punishment_type':
+                    return `\`${value}\`` ?? `\`🔥 ${lang.setjoinroles_var_none}\``;
+                case 'punishTime':
+                case 'maxDuplicatesInterval':
+                case 'maxInterval':
+                    return `\`${client.timeCalculator.to_beautiful_string(value.toString() + 'ms')}\`` ?? `\`⏲️ ${lang.setjoinroles_var_none}\``;
+                default:
+                    return `\`${value.toString()}\``;
+            }
+        }
+
+        function updateEmbedFields(embed: EmbedBuilder, baseData: AntiSpam.AntiSpamOptions) {
+            embed.setFields([
+                { name: lang.antispam_manage_choices_1_label, value: beautifyValue('Enabled', baseData.Enabled, lang), inline: true },
+                { name: lang.antispam_manage_choices_2_label, value: beautifyValue('ignoreBots', baseData.ignoreBots, lang), inline: true },
+                { name: lang.antispam_manage_choices_3_label, value: beautifyValue('punishment_type', baseData.punishment_type, lang), inline: true },
+                { name: lang.antispam_manage_choices_4_label, value: beautifyValue('punishTime', baseData.punishTime, lang), inline: true },
+                { name: lang.antispam_manage_choices_5_label, value: beautifyValue('punishTimeMultiplier', baseData.punishTimeMultiplier, lang), inline: true },
+                { name: lang.antispam_manage_choices_6_label, value: beautifyValue('removeMessages', baseData.removeMessages, lang), inline: true },
+                { name: lang.antispam_manage_choices_7_label, value: beautifyValue('maxInterval', baseData.maxInterval, lang), inline: true },
+                { name: lang.antispam_manage_choices_8_label, value: beautifyValue('maxDuplicates', baseData.maxDuplicates, lang), inline: true },
+                { name: lang.antispam_manage_choices_9_label, value: beautifyValue('maxDuplicatesInterval', baseData.maxDuplicatesInterval, lang), inline: true },
+                { name: lang.antispam_manage_choices_10_label, value: beautifyValue('similarMessageThreshold', baseData.similarMessageThreshold, lang), inline: true },
+                { name: lang.antispam_manage_choices_12_label, value: beautifyValue('Threshold', baseData.Threshold, lang), inline: true },
+            ]);
+        }
+
         const select = new StringSelectMenuBuilder()
             .setCustomId('antispam-select-config')
             .setPlaceholder(lang.help_select_menu)
@@ -218,11 +298,16 @@ export default {
             .setCustomId("antispam-manage-save-button")
             .setLabel(lang.antispam_manage_button_label);
 
+        const button2 = new ButtonBuilder()
+            .setStyle(ButtonStyle.Secondary)
+            .setCustomId("antispam-manage-preset-button")
+            .setLabel("Load Preset");
+
         const originalResponse = await interaction.editReply({
             embeds: [embed],
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
-                new ActionRowBuilder<ButtonBuilder>().addComponents(button)
+                new ActionRowBuilder<ButtonBuilder>().addComponents(button, button2)
             ]
         });
 
@@ -242,12 +327,65 @@ export default {
                 return;
             };
 
-            await client.db.set(`${interaction.guildId}.GUILD.ANTISPAM`, baseData);
+            if (i.customId === 'antispam-manage-save-button') {
+                await client.db.set(`${interaction.guildId}.GUILD.ANTISPAM`, baseData);
 
-            await i.deferUpdate();
+                await i.deferUpdate();
 
-            collector.stop();
-            buttonCollector.stop();
+                collector.stop();
+                buttonCollector.stop();
+            } else if (i.customId === 'antispam-manage-preset-button') {
+                await originalResponse.edit({
+                    content: interaction.user.toString(),
+                    embeds: [embed],
+                    components: [
+                        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(new StringSelectMenuBuilder()
+                            .setCustomId('antispam-select-preset')
+                            .setPlaceholder("Preset Configurations")
+                            .addOptions([
+                                { label: "Chill Mode", value: "chill" },
+                                { label: "Guard Mode", value: "guard" },
+                                { label: "Extreme Protection Mode", value: "extreme" }
+                            ])
+                        ),
+                    ]
+                });
+
+                const response = await i.channel?.awaitMessageComponent({
+                    componentType: ComponentType.StringSelect,
+                    filter: (m) => m.customId === 'antispam-select-preset',
+                    time: 120_000,
+                });
+
+                if (response) {
+                    await response.deferUpdate();
+
+                    const preset = response.values[0];
+
+                    switch (preset) {
+                        case 'chill':
+                            baseData = AntiSpamPreset.chill;
+                            break;
+                        case 'guard':
+                            baseData = AntiSpamPreset.guard;
+                            break;
+                        case 'extreme':
+                            baseData = AntiSpamPreset.extreme;
+                            break;
+                    }
+
+                    updateEmbedFields(embed, baseData);
+
+                    await originalResponse.edit({
+                        content: null,
+                        embeds: [embed],
+                        components: [
+                            new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(false)),
+                            new ActionRowBuilder<ButtonBuilder>().addComponents(button.setDisabled(false), button2.setDisabled(false))
+                        ]
+                    });
+                }
+            }
         });
 
         collector.on('collect', async (i) => {
@@ -324,7 +462,7 @@ export default {
                 await originalResponse.edit({
                     content: `${interaction.user.toString()}`,
                     components: [
-                        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(true)),
+                        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(false)),
                         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(new StringSelectMenuBuilder()
                             .setCustomId("antispam-manage-yes-or-no")
                             .setPlaceholder(choicesGet.description)
@@ -337,7 +475,7 @@ export default {
                                     .setValue("antispam-manage-no")
                             )
                         ),
-                        new ActionRowBuilder<ButtonBuilder>().addComponents(button),
+                        new ActionRowBuilder<ButtonBuilder>().addComponents(button, button2)
                     ]
                 })
 
@@ -363,7 +501,7 @@ export default {
                         embeds: [embed],
                         components: [
                             new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(false)),
-                            new ActionRowBuilder<ButtonBuilder>().addComponents(button),
+                            new ActionRowBuilder<ButtonBuilder>().addComponents(button, button2)
                         ]
                     });
 
@@ -379,7 +517,7 @@ export default {
                         embeds: [embed],
                         components: [
                             new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(false)),
-                            new ActionRowBuilder<ButtonBuilder>().addComponents(button),
+                            new ActionRowBuilder<ButtonBuilder>().addComponents(button, button2)
                         ]
                     });
 
@@ -392,7 +530,7 @@ export default {
                 await originalResponse.edit({
                     content: `${interaction.user.toString()}`,
                     components: [
-                        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(true)),
+                        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(false)),
                         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(new StringSelectMenuBuilder()
                             .setCustomId("antispam-manage-punish-type")
                             .setPlaceholder(choicesGet.description)
@@ -408,7 +546,7 @@ export default {
                                     .setValue("antispam-manage-mute")
                             )
                         ),
-                        new ActionRowBuilder<ButtonBuilder>().addComponents(button),
+                        new ActionRowBuilder<ButtonBuilder>().addComponents(button, button2)
                     ]
                 });
 
@@ -430,7 +568,7 @@ export default {
                     embeds: [embed],
                     components: [
                         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(false)),
-                        new ActionRowBuilder<ButtonBuilder>().addComponents(button),
+                        new ActionRowBuilder<ButtonBuilder>().addComponents(button, button2)
                     ]
                 });
 
@@ -452,7 +590,7 @@ export default {
             await interaction.editReply({
                 components: [
                     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(true)),
-                    new ActionRowBuilder<ButtonBuilder>().addComponents(button.setDisabled(true))
+                    new ActionRowBuilder<ButtonBuilder>().addComponents(button.setDisabled(true), button2.setDisabled(true))
                 ]
             });
         });
