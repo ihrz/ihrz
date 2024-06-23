@@ -49,17 +49,16 @@ export default {
 
         const baseData: AntiSpam.AntiSpamOptions = await client.db.get(`${interaction.guildId}.GUILD.ANTISPAM`) || {
             ignoreBots: true,
-            maxDuplicatesInterval: 4000,
-            maxInterval: 5000,
+            maxDuplicatesInterval: 1500,
+            maxInterval: 1900,
             Enabled: true,
-            Threshold: 5,
-            maxDuplicates: 6,
+            Threshold: 3,
+            maxDuplicates: 4,
             removeMessages: true,
             punishment_type: 'mute',
             punishTime: client.timeCalculator.to_ms('30s')!,
             punishTimeMultiplier: true,
-            similarMessageThreshold: 5,
-            intervalBetweenWarn: 10_000,
+            similarMessageThreshold: 3,
         }
 
         const embed = new EmbedBuilder()
@@ -163,15 +162,6 @@ export default {
 
                     componentType: 'modal',
                     wantedValueType: 'number'
-                },
-                {
-                    label: lang.antispam_manage_choices_11_label,
-                    description: lang.antispam_manage_choices_11_desc,
-                    value: 'intervalBetweenWarn',
-                    type: 'number',
-
-                    componentType: 'modal',
-                    wantedValueType: 'time'
                 },
                 {
                     label: lang.antispam_manage_choices_12_label,
@@ -279,7 +269,7 @@ export default {
                             customId: value,
                             style: TextInputStyle.Short,
                             required: true,
-                            label: choicesGet.label,
+                            label: choicesGet.label.substring(0, 44),
                             placeHolder: choicesGet.description,
                             minLength: 1
                         },
@@ -295,7 +285,7 @@ export default {
                     const formatedTime = client.timeCalculator.to_ms(resultModal);
 
                     if (!formatedTime) {
-                        await result.reply({ content: `${interaction.user.toString()} invalide time!`, ephemeral: true })
+                        await result.reply({ content: lang.too_new_account_invalid_time_on_enable, ephemeral: true })
                         return;
                     }
 
@@ -310,6 +300,15 @@ export default {
                 } else if (choicesGet.wantedValueType === 'number') {
                     const fieldIndex = choices.findIndex(x => x.value === choicesGet.value);
                     const isNumber = parseInt(resultModal);
+
+                    if (Number.isNaN(isNumber)) {
+                        await result.reply({
+                            content: lang.temporary_voice_limit_button_not_integer
+                                .replace("${interaction.client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
+                            ephemeral: true
+                        });
+                        return;
+                    };
 
                     if (embed.data.fields && fieldIndex !== -1) {
                         embed.data.fields[fieldIndex].value = `\`${resultModal}\``;
