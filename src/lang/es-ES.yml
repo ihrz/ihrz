@@ -1425,6 +1425,9 @@ antispam_manage_choices_12_desc: "El umbral máximo antes del castigo"
 antispam_manage_select_menu_punish_mute_label: "Silenciar Miembros"
 antispam_manage_modal_title: "Modal AntiSpam"
 antispam_manage_button_label: "Guardar configuración"
+antispam_manage_preset_level1_name: "Modo Relajado"
+antispam_manage_preset_level2_name: "Modo Guardián"
+antispam_manage_preset_level3_name: "Modo de Protección Extrema"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Todos los roles a continuación pueden omitir el módulo antispam"

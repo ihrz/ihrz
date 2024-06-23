@@ -343,9 +343,9 @@ export default {
                             .setCustomId('antispam-select-preset')
                             .setPlaceholder("Preset Configurations")
                             .addOptions([
-                                { label: "Chill Mode", value: "chill" },
-                                { label: "Guard Mode", value: "guard" },
-                                { label: "Extreme Protection Mode", value: "extreme" }
+                                { label: lang.antispam_manage_preset_level1_name, value: "chill" },
+                                { label: lang.antispam_manage_preset_level2_name, value: "guard" },
+                                { label: lang.antispam_manage_preset_level3_name, value: "extreme" }
                             ])
                         ),
                     ]

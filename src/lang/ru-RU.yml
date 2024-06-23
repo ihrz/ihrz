@@ -1426,6 +1426,9 @@ antispam_manage_choices_12_desc: "Максимальный порог перед
 antispam_manage_select_menu_punish_mute_label: "Заглушить участников"
 antispam_manage_modal_title: "Модальное окно AntiSpam"
 antispam_manage_button_label: "Сохранить настройки"
+antispam_manage_preset_level1_name: "Режим Расслабления"
+antispam_manage_preset_level2_name: "Режим Охраны"
+antispam_manage_preset_level3_name: "Режим Экстремальной Защиты"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Все роли ниже могут обойти модуль антиспама"

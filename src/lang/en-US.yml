@@ -1426,6 +1426,9 @@ antispam_manage_choices_12_desc: "The maximum threshold before punishment"
 antispam_manage_select_menu_punish_mute_label: "Mute Members"
 antispam_manage_modal_title: "AntiSpam Modal"
 antispam_manage_button_label: "Save config"
+antispam_manage_preset_level1_name: "Chill Mode"
+antispam_manage_preset_level2_name: "Guard Mode"
+antispam_manage_preset_level3_name: "Extreme Protection Mode"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "All of the roles bellow can bypass the antispam module"
