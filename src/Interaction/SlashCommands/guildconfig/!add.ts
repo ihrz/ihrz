@@ -61,7 +61,7 @@ export default {
             .setDescription(data.joinghostping_add_ok_embed_desc)
             .addFields({
                 name: data.joinghostping_add_ok_embed_fields_name,
-                value: all_channels ? all_channels.map(x => `<#${x}>`).join('\n') : `<#${channel.id}>`
+                value: all_channels ? Array.from(new Set(all_channels.map(x => `<#${x}>`))).join('\n') : `<#${channel.id}>`
             });
 
         try {
