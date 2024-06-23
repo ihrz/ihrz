@@ -179,7 +179,7 @@ export const initializeDatabase = async (config: ConfigData) => {
                         await syncToMySQL()
                     }
                 });
-                setInterval(syncToMySQL, 10 * 60 * 600);
+                setInterval(syncToMySQL, 45000);
                 resolve(memoryDB);
             });
             break;
