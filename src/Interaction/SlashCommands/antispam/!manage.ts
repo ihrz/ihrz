@@ -38,6 +38,52 @@ import { LanguageData } from '../../../../types/languageData';
 import { AntiSpam } from '../../../../types/antispam';
 
 type AntiSpamOptionKey = keyof AntiSpam.AntiSpamOptions;
+type PresetKeys = "chill" | "guard" | "extreme";
+
+const AntiSpamPreset: { [key in PresetKeys]: AntiSpam.AntiSpamOptions } = {
+    chill: {
+        BYPASS_ROLES: [],
+        ignoreBots: true,
+        maxDuplicatesInterval: 1300,
+        maxInterval: 1900,
+        Enabled: true,
+        Threshold: 7,
+        maxDuplicates: 4,
+        removeMessages: true,
+        punishment_type: 'mute',
+        punishTime: 15_000,
+        similarMessageThreshold: 5,
+        punishTimeMultiplier: false,
+    },
+    guard: {
+        BYPASS_ROLES: [],
+        ignoreBots: true,
+        maxDuplicatesInterval: 2200,
+        maxInterval: 2700,
+        Enabled: true,
+        Threshold: 5,
+        maxDuplicates: 3,
+        removeMessages: true,
+        punishment_type: 'mute',
+        punishTime: 30_000,
+        similarMessageThreshold: 3,
+        punishTimeMultiplier: true,
+    },
+    extreme: {
+        BYPASS_ROLES: [],
+        ignoreBots: false,
+        maxDuplicatesInterval: 3000,
+        maxInterval: 3200,
+        Enabled: true,
+        Threshold: 3,
+        maxDuplicates: 2,
+        removeMessages: true,
+        punishment_type: 'mute',
+        punishTime: 60_000,
+        similarMessageThreshold: 2,
+        punishTimeMultiplier: true,
+    },
+}
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, lang: LanguageData) => {
@@ -47,7 +93,7 @@ export default {
             return;
         };
 
-        const baseData: AntiSpam.AntiSpamOptions = await client.db.get(`${interaction.guildId}.GUILD.ANTISPAM`) || {
+        let baseData: AntiSpam.AntiSpamOptions = await client.db.get(`${interaction.guildId}.GUILD.ANTISPAM`) || {
             ignoreBots: true,
             maxDuplicatesInterval: 1500,
             maxInterval: 1900,
@@ -59,6 +105,41 @@ export default {
             punishTime: client.timeCalculator.to_ms('30s')!,
             punishTimeMultiplier: true,
             similarMessageThreshold: 3,
+        }
+
+
+        function beautifyValue(key: string, value: any, lang: LanguageData): string {
+            switch (key) {
+                case 'Enabled':
+                case 'ignoreBots':
+                case 'removeMessages':
+                case 'punishTimeMultiplier':
+                    return value ? `\`🟢 ${lang.guildprofil_set_blockpub}\`` : `\`🔴 ${lang.guildprofil_not_set_blockpub}\``;
+                case 'punishment_type':
+                    return value ?? `\`🔥 ${lang.setjoinroles_var_none}\``;
+                case 'punishTime':
+                case 'maxDuplicatesInterval':
+                case 'maxInterval':
+                    return `\`${client.timeCalculator.to_beautiful_string(value.toString() + 'ms')}\`` ?? `\`⏲️ ${lang.setjoinroles_var_none}\``;
+                default:
+                    return `\`${value.toString()}\``;
+            }
+        }
+
+        function updateEmbedFields(embed: EmbedBuilder, baseData: AntiSpam.AntiSpamOptions) {
+            embed.setFields([
+                { name: lang.antispam_manage_choices_1_label, value: beautifyValue('Enabled', baseData.Enabled, lang), inline: true },
+                { name: lang.antispam_manage_choices_2_label, value: beautifyValue('ignoreBots', baseData.ignoreBots, lang), inline: true },
+                { name: lang.antispam_manage_choices_3_label, value: beautifyValue('punishment_type', baseData.punishment_type, lang), inline: true },
+                { name: lang.antispam_manage_choices_4_label, value: beautifyValue('punishTime', baseData.punishTime, lang), inline: true },
+                { name: lang.antispam_manage_choices_5_label, value: beautifyValue('punishTimeMultiplier', baseData.punishTimeMultiplier, lang), inline: true },
+                { name: lang.antispam_manage_choices_6_label, value: beautifyValue('removeMessages', baseData.removeMessages, lang), inline: true },
+                { name: lang.antispam_manage_choices_7_label, value: beautifyValue('maxInterval', baseData.maxInterval, lang), inline: true },
+                { name: lang.antispam_manage_choices_8_label, value: beautifyValue('maxDuplicates', baseData.maxDuplicates, lang), inline: true },
+                { name: lang.antispam_manage_choices_9_label, value: beautifyValue('maxDuplicatesInterval', baseData.maxDuplicatesInterval, lang), inline: true },
+                { name: lang.antispam_manage_choices_10_label, value: beautifyValue('similarMessageThreshold', baseData.similarMessageThreshold, lang), inline: true },
+                { name: lang.antispam_manage_choices_12_label, value: beautifyValue('Threshold', baseData.Threshold, lang), inline: true },
+            ]);
         }
 
         const embed = new EmbedBuilder()
@@ -208,6 +289,15 @@ export default {
             });
         });
 
+        const preset_select = new StringSelectMenuBuilder()
+            .setCustomId('antispam-select-preset')
+            .setPlaceholder("Preset Configurations")
+            .addOptions([
+                { label: "Chill Mode", value: "chill" },
+                { label: "Guard Mode", value: "guard" },
+                { label: "Extreme Protection Mode", value: "extreme" }
+            ]);
+
         const select = new StringSelectMenuBuilder()
             .setCustomId('antispam-select-config')
             .setPlaceholder(lang.help_select_menu)
@@ -222,6 +312,7 @@ export default {
             embeds: [embed],
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
+                new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(preset_select),
                 new ActionRowBuilder<ButtonBuilder>().addComponents(button)
             ]
         });
@@ -256,167 +347,187 @@ export default {
                 return;
             };
 
-            let value = i.values[0];
-            let choicesGet = choices.find(x => x.value === value);
+            if (i.customId === "antispam-select-preset") {
+                const preset = i.values[0];
 
-            if (choicesGet?.componentType === 'modal') {
-                let result = await iHorizonModalResolve({
-                    customId: 'antispam-modal-config',
-                    title: lang.antispam_manage_modal_title,
-                    deferUpdate: false,
-                    fields: [
-                        {
-                            customId: value,
-                            style: TextInputStyle.Short,
-                            required: true,
-                            label: choicesGet.label.substring(0, 44),
-                            placeHolder: choicesGet.description,
-                            minLength: 1
-                        },
-                    ]
-                }, i);
-
-                if (!result) return;
-
-                let resultModal = result.fields.getTextInputValue(value);
-
-                if (choicesGet.wantedValueType === 'time') {
-                    const fieldIndex = choices.findIndex(x => x.value === choicesGet.value);
-                    const formatedTime = client.timeCalculator.to_ms(resultModal);
-
-                    if (!formatedTime) {
-                        await result.reply({ content: lang.too_new_account_invalid_time_on_enable, ephemeral: true })
-                        return;
-                    }
-
-                    await result.deferUpdate();
-
-                    if (embed.data.fields && fieldIndex !== -1) {
-                        embed.data.fields[fieldIndex].value = `\`${resultModal}\``;
-                    }
-                    await originalResponse.edit({ embeds: [embed] });
-
-                    (baseData[choicesGet.value as AntiSpamOptionKey] as number) = formatedTime;
-                } else if (choicesGet.wantedValueType === 'number') {
-                    const fieldIndex = choices.findIndex(x => x.value === choicesGet.value);
-                    const isNumber = parseInt(resultModal);
-
-                    if (Number.isNaN(isNumber)) {
-                        await result.reply({
-                            content: lang.temporary_voice_limit_button_not_integer
-                                .replace("${interaction.client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
-                            ephemeral: true
-                        });
-                        return;
-                    };
-
-                    if (embed.data.fields && fieldIndex !== -1) {
-                        embed.data.fields[fieldIndex].value = `\`${resultModal}\``;
-                    }
-                    await originalResponse.edit({ embeds: [embed] });
-                    await result.deferUpdate();
-
-                    (baseData[choicesGet.value as AntiSpamOptionKey] as number) = parseInt(resultModal);
+                switch (preset) {
+                    case 'chill':
+                        baseData = AntiSpamPreset.chill;
+                        break;
+                    case 'guard':
+                        baseData = AntiSpamPreset.guard;
+                        break;
+                    case 'extreme':
+                        baseData = AntiSpamPreset.extreme;
+                        break;
                 }
-            } else if (choicesGet?.componentType === ComponentType.StringSelect && choicesGet.type === 'boolean') {
-                let select = new StringSelectMenuBuilder()
-                    .setCustomId("antispam-manage-yes-or-no")
-                    .setPlaceholder(choicesGet.description)
-                    .addOptions(
-                        new StringSelectMenuOptionBuilder()
-                            .setLabel(lang.mybot_submit_utils_msg_yes)
-                            .setValue("antispam-manage-yes"),
-                        new StringSelectMenuOptionBuilder()
-                            .setLabel(lang.mybot_submit_utils_msg_no)
-                            .setValue("antispam-manage-no")
-                    );
 
-                await i.reply({
-                    content: `${interaction.user.toString()}`,
-                    components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)]
-                })
-
-                const response = await i.channel?.awaitMessageComponent({
-                    componentType: ComponentType.StringSelect,
-                    filter: (m) => m.customId === 'antispam-manage-yes-or-no',
-                    time: 120_000,
-                });
-
-                if (response) {
-                    response.deferUpdate();
-
-                    if (response.values[0] === 'antispam-manage-yes') {
-                        await response.deleteReply();
-
-                        const fieldIndex = choices.findIndex(x => x.value === choicesGet.value);
-
-                        if (embed.data.fields && fieldIndex !== -1) {
-                            embed.data.fields[fieldIndex].value = `\`🟢 ${lang.guildprofil_set_blockpub}\``;
-                        }
-                        await originalResponse.edit({ embeds: [embed] });
-
-                        ((baseData[choicesGet.value as AntiSpamOptionKey] as boolean) = true);
-                    } else if (response.values[0] === 'antispam-manage-no') {
-                        await response.deleteReply();
-
-                        const fieldIndex = choices.findIndex(x => x.value === choicesGet.value);
-
-                        if (embed.data.fields && fieldIndex !== -1) {
-                            embed.data.fields[fieldIndex].value = `\`🔴 ${lang.guildprofil_not_set_blockpub}\``;
-                        }
-                        await originalResponse.edit({ embeds: [embed] });
-
-                        ((baseData[choicesGet.value as AntiSpamOptionKey] as boolean) = false);
-                    };
-                }
-            } else if (choicesGet?.type === 'punish') {
-                let select = new StringSelectMenuBuilder()
-                    .setCustomId("antispam-manage-punish-type")
-                    .setPlaceholder(choicesGet.description)
-                    .addOptions(
-                        new StringSelectMenuOptionBuilder()
-                            .setLabel(lang.setjoinroles_var_perm_ban_members)
-                            .setValue("antispam-manage-ban"),
-                        new StringSelectMenuOptionBuilder()
-                            .setLabel(lang.setjoinroles_var_perm_kick_members)
-                            .setValue("antispam-manage-kick"),
-                        new StringSelectMenuOptionBuilder()
-                            .setLabel(lang.antispam_manage_select_menu_punish_mute_label)
-                            .setValue("antispam-manage-mute")
-                    );
-
-
-                let answer = await i.reply({
-                    content: `${interaction.user.toString()}`,
-                    components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)]
-                });
-
-                const response = await i.channel?.awaitMessageComponent({
-                    componentType: ComponentType.StringSelect,
-                    filter: (m) => m.customId === 'antispam-manage-punish-type',
-                    time: 120_000,
-                });
-
-                if (!response) return;
-
-                let collectedResponse = response.values[0];
-                const fieldIndex = choices.findIndex(x => x.value === choicesGet.value);
-
-                await answer.delete();
-
-                if (embed.data.fields && fieldIndex !== -1) {
-                    if (collectedResponse.endsWith('kick')) {
-                        embed.data.fields[fieldIndex].value = "`kick`";
-                    } else if (collectedResponse.endsWith('ban')) {
-                        embed.data.fields[fieldIndex].value = "`ban`";
-                    } else if (collectedResponse.endsWith('mute')) {
-                        embed.data.fields[fieldIndex].value = "`mute`";
-                    };
-                };
+                updateEmbedFields(embed, baseData);
+                await i.deferUpdate();
                 await originalResponse.edit({ embeds: [embed] });
-                (baseData[choicesGet.value as AntiSpamOptionKey] as string) = collectedResponse.split('-')[2]!;
             }
+            else if (i.customId === "antispam-select-config") {
+                let value = i.values[0];
+                let choicesGet = choices.find(x => x.value === value);
 
+                if (choicesGet?.componentType === 'modal') {
+                    let result = await iHorizonModalResolve({
+                        customId: 'antispam-modal-config',
+                        title: lang.antispam_manage_modal_title,
+                        deferUpdate: false,
+                        fields: [
+                            {
+                                customId: value,
+                                style: TextInputStyle.Short,
+                                required: true,
+                                label: choicesGet.label.substring(0, 44),
+                                placeHolder: choicesGet.description,
+                                minLength: 1
+                            },
+                        ]
+                    }, i);
+
+                    if (!result) return;
+
+                    let resultModal = result.fields.getTextInputValue(value);
+
+                    if (choicesGet.wantedValueType === 'time') {
+                        const fieldIndex = choices.findIndex(x => x.value === choicesGet.value);
+                        const formatedTime = client.timeCalculator.to_ms(resultModal);
+
+                        if (!formatedTime) {
+                            await result.reply({ content: lang.too_new_account_invalid_time_on_enable, ephemeral: true })
+                            return;
+                        }
+
+                        await result.deferUpdate();
+
+                        if (embed.data.fields && fieldIndex !== -1) {
+                            embed.data.fields[fieldIndex].value = `\`${resultModal}\``;
+                        }
+                        await originalResponse.edit({ embeds: [embed] });
+
+                        (baseData[choicesGet.value as AntiSpamOptionKey] as number) = formatedTime;
+                    } else if (choicesGet.wantedValueType === 'number') {
+                        const fieldIndex = choices.findIndex(x => x.value === choicesGet.value);
+                        const isNumber = parseInt(resultModal);
+
+                        if (Number.isNaN(isNumber)) {
+                            await result.reply({
+                                content: lang.temporary_voice_limit_button_not_integer
+                                    .replace("${interaction.client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
+                                ephemeral: true
+                            });
+                            return;
+                        };
+
+                        if (embed.data.fields && fieldIndex !== -1) {
+                            embed.data.fields[fieldIndex].value = `\`${resultModal}\``;
+                        }
+                        await originalResponse.edit({ embeds: [embed] });
+                        await result.deferUpdate();
+
+                        (baseData[choicesGet.value as AntiSpamOptionKey] as number) = parseInt(resultModal);
+                    }
+                } else if (choicesGet?.componentType === ComponentType.StringSelect && choicesGet.type === 'boolean') {
+                    let select = new StringSelectMenuBuilder()
+                        .setCustomId("antispam-manage-yes-or-no")
+                        .setPlaceholder(choicesGet.description)
+                        .addOptions(
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel(lang.mybot_submit_utils_msg_yes)
+                                .setValue("antispam-manage-yes"),
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel(lang.mybot_submit_utils_msg_no)
+                                .setValue("antispam-manage-no")
+                        );
+
+                    await i.reply({
+                        content: `${interaction.user.toString()}`,
+                        components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)]
+                    })
+
+                    const response = await i.channel?.awaitMessageComponent({
+                        componentType: ComponentType.StringSelect,
+                        filter: (m) => m.customId === 'antispam-manage-yes-or-no',
+                        time: 120_000,
+                    });
+
+                    if (response) {
+                        response.deferUpdate();
+
+                        if (response.values[0] === 'antispam-manage-yes') {
+                            await response.deleteReply();
+
+                            const fieldIndex = choices.findIndex(x => x.value === choicesGet.value);
+
+                            if (embed.data.fields && fieldIndex !== -1) {
+                                embed.data.fields[fieldIndex].value = `\`🟢 ${lang.guildprofil_set_blockpub}\``;
+                            }
+                            await originalResponse.edit({ embeds: [embed] });
+
+                            ((baseData[choicesGet.value as AntiSpamOptionKey] as boolean) = true);
+                        } else if (response.values[0] === 'antispam-manage-no') {
+                            await response.deleteReply();
+
+                            const fieldIndex = choices.findIndex(x => x.value === choicesGet.value);
+
+                            if (embed.data.fields && fieldIndex !== -1) {
+                                embed.data.fields[fieldIndex].value = `\`🔴 ${lang.guildprofil_not_set_blockpub}\``;
+                            }
+                            await originalResponse.edit({ embeds: [embed] });
+
+                            ((baseData[choicesGet.value as AntiSpamOptionKey] as boolean) = false);
+                        };
+                    }
+                } else if (choicesGet?.type === 'punish') {
+                    let select = new StringSelectMenuBuilder()
+                        .setCustomId("antispam-manage-punish-type")
+                        .setPlaceholder(choicesGet.description)
+                        .addOptions(
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel(lang.setjoinroles_var_perm_ban_members)
+                                .setValue("antispam-manage-ban"),
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel(lang.setjoinroles_var_perm_kick_members)
+                                .setValue("antispam-manage-kick"),
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel(lang.antispam_manage_select_menu_punish_mute_label)
+                                .setValue("antispam-manage-mute")
+                        );
+
+
+                    let answer = await i.reply({
+                        content: `${interaction.user.toString()}`,
+                        components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)]
+                    });
+
+                    const response = await i.channel?.awaitMessageComponent({
+                        componentType: ComponentType.StringSelect,
+                        filter: (m) => m.customId === 'antispam-manage-punish-type',
+                        time: 120_000,
+                    });
+
+                    if (!response) return;
+
+                    let collectedResponse = response.values[0];
+                    const fieldIndex = choices.findIndex(x => x.value === choicesGet.value);
+
+                    await answer.delete();
+
+                    if (embed.data.fields && fieldIndex !== -1) {
+                        if (collectedResponse.endsWith('kick')) {
+                            embed.data.fields[fieldIndex].value = "`kick`";
+                        } else if (collectedResponse.endsWith('ban')) {
+                            embed.data.fields[fieldIndex].value = "`ban`";
+                        } else if (collectedResponse.endsWith('mute')) {
+                            embed.data.fields[fieldIndex].value = "`mute`";
+                        };
+                    };
+                    await originalResponse.edit({ embeds: [embed] });
+                    (baseData[choicesGet.value as AntiSpamOptionKey] as string) = collectedResponse.split('-')[2]!;
+                }
+            }
         });
 
         collector.on('end', async () => {
