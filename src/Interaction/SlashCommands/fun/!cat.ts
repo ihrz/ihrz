@@ -30,7 +30,9 @@ import { axios } from '../../../core/functions/axios.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         axios.get('http://edgecats.net/random').then(async res => {
             let emb = new EmbedBuilder()
                 .setImage(res.data)

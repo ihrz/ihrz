@@ -46,6 +46,9 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!client.owners.includes(interaction.user.id)) {
@@ -63,12 +66,12 @@ export const command: Command = {
                 { name: "Bot Version", value: `${client.version.ClientVersion}`, inline: false },
                 { name: "NodeJS Version", value: `${process.version}`, inline: false },
             )
-            .setThumbnail(interaction.guild?.iconURL() as string)
+            .setThumbnail(interaction.guild.iconURL() as string)
             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
 
         await interaction.reply({
             embeds: [embed],
-            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

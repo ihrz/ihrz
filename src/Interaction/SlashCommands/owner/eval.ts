@@ -55,6 +55,8 @@ export const command: Command = {
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
@@ -68,7 +70,7 @@ export const command: Command = {
         try {
             let _ = `
             async function reply(x, y) {
-                let msg = await interaction.channel?.messages.fetch(x);
+                let msg = await interaction.channel.messages.fetch(x);
                 msg.reply(y);
             }
             ;

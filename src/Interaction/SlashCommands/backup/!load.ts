@@ -32,6 +32,9 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let backupID = interaction.options.getString('backup-id');
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
@@ -39,7 +42,7 @@ export default {
             return;
         };
 
-        if (!interaction.guild?.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.backup_i_dont_have_perm_on_load });
             return;
         };
@@ -56,13 +59,13 @@ export default {
             return;
         };
 
-        await interaction.channel?.send({
+        await interaction.channel.send({
             content: data.backup_waiting_on_load.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
         });
 
         backup.fetch(backupID).then(async () => {
             // @ts-ignore
-            backup.load(backupID, interaction.guild as Guild).then(() => {
+            backup.load(backupID, interaction.guild).then(() => {
                 backup.remove(backupID);
             }).catch((err) => {
                 interaction.channel?.send({ content: data.backup_error_on_load.replace("${backupID}", backupID) });

@@ -33,7 +33,10 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        let member = interaction.guild?.members.cache.get(interaction.options.getUser("member")?.id as string);
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
+        let member = interaction.guild.members.cache.get(interaction.options.getUser("member")?.id as string);
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.BanMembers);
 
         if (!permission) {
@@ -48,7 +51,7 @@ export default {
             return;
         };
 
-        if (!interaction.guild?.members.me?.permissions.has(PermissionsBitField.Flags.BanMembers)) {
+        if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.BanMembers)) {
             await interaction.editReply({
                 content: data.ban_dont_have_perm_myself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
@@ -62,7 +65,7 @@ export default {
             return;
         };
 
-        if ((interaction.member?.roles as GuildMemberRoleManager).highest.position <= member.roles.highest.position) {
+        if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= member.roles.highest.position) {
             await interaction.editReply({
                 content: data.ban_attempt_ban_higter_member.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
             });

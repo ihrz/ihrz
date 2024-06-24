@@ -35,6 +35,9 @@ const itemsPerPage = 15;
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData, execTimestamp: number) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let char = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
         let arr: { invites: number; regular: number; bonus: number; leaves: number; inviter: string; }[] = [];
 
@@ -104,8 +107,8 @@ export default {
                     .setDisabled(arr.length <= itemsPerPage)
             )],
             files: [
-                { attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL() || ''), name: 'icon.png' },
-                { attachment: await interaction.client.functions.image64(interaction.guild?.iconURL({ size: 512 }) || interaction.client.user?.displayAvatarURL()), name: 'guildIcon.png' }
+                { attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL() || ''), name: 'icon.png' },
+                { attachment: await interaction.client.functions.image64(interaction.guild.iconURL({ size: 512 }) || interaction.client.user?.displayAvatarURL()), name: 'guildIcon.png' }
             ]
         });
 

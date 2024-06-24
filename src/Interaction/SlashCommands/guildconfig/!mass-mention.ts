@@ -35,14 +35,16 @@ import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let turn = interaction.options.getString("action");
         let max_mention = interaction.options.getNumber('max-mention-allowed') || 3;
         let logs_channel = interaction.options.getChannel('logs-channel');
 
-        let automodRules = await interaction.guild?.autoModerationRules.fetch();
+        let automodRules = await interaction.guild.autoModerationRules.fetch();
 
-        let mentionSpamRule = automodRules?.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.MentionSpam);
+        let mentionSpamRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.MentionSpam);
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.blockpub_not_admin });
@@ -72,7 +74,7 @@ export default {
 
                 if (!mentionSpamRule) {
 
-                    await interaction.guild?.autoModerationRules.create({
+                    await interaction.guild.autoModerationRules.create({
                         name: 'Block mass-mention spam by iHorizon',
                         enabled: true,
                         eventType: 1,

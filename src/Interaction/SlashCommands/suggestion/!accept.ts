@@ -30,6 +30,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let id = interaction.options.getString("id");
         let message = interaction.options.getString("reason");
@@ -65,9 +67,9 @@ export default {
             return;
         };
 
-        let channel = interaction.guild?.channels.cache.get(baseData?.channel);
+        let channel = interaction.guild.channels.cache.get(baseData?.channel);
 
-        await (channel as BaseGuildTextChannel)?.messages?.fetch(fetchId?.msgId).then(async (msg) => {
+        await (channel as BaseGuildTextChannel).messages.fetch(fetchId?.msgId).then(async (msg) => {
 
             let embed = new EmbedBuilder(msg.embeds[0].data);
 

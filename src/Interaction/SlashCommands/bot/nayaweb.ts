@@ -33,11 +33,14 @@ export const command: Command = {
     description_localizations: {
         "fr": "Obtenir les informations nécessaires sur mon contributeur"
     },
-    
+
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         await interaction.reply({ content: data.nayaweb_message });

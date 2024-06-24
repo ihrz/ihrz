@@ -35,14 +35,17 @@ export const command: Command = {
     description_localizations: {
         "fr": "Obtenez le dernier message supprimé sur ce cannal"
     },
-    
+
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let data = await client.functions.getLanguageData(interaction.guildId);
 
-        var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel?.id}`);
+        var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel.id}`);
 
         if (!based) {
             await interaction.reply({ content: data.snipe_no_previous_message_deleted });

@@ -37,6 +37,8 @@ import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setleavemessage_not_admin });
@@ -121,7 +123,7 @@ export default {
                             .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
                             .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
                             .replaceAll('{guildName}', interaction.guild?.name!)
-                            .replaceAll('{inviterUsername}', interaction.client.user?.username)
+                            .replaceAll('{inviterUsername}', interaction.client.user.username)
                             .replaceAll('{inviterMention}', interaction.client.user.toString())
                             .replaceAll('{invitesCount}', '1337')
                             .replaceAll("\\n", '\n')

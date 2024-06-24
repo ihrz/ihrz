@@ -77,6 +77,9 @@ export const command: Command = {
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
@@ -145,7 +148,7 @@ export const command: Command = {
                 { id: "antispam", value: data.setlogschannel_var_antispam }
             ];
 
-            let category = await interaction.guild?.channels.create({
+            let category = await interaction.guild.channels.create({
                 name: "LOGS",
                 type: ChannelType.GuildCategory,
                 permissionOverwrites: [
@@ -162,7 +165,7 @@ export const command: Command = {
 
             if (category) {
                 for (let logType of allLogsPossible) {
-                    let channel = await interaction.guild?.channels.create({
+                    let channel = await interaction.guild.channels.create({
                         name: logType.value,
                         parent: category.id,
                         permissionOverwrites: category.permissionOverwrites.cache,
@@ -201,7 +204,7 @@ export const command: Command = {
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     );
 
-                let logChannel = interaction.guild?.channels.cache.find(ch => ch.name === 'ihorizon-logs') as BaseGuildTextChannel;
+                let logChannel = interaction.guild.channels.cache.find(ch => ch.name === 'ihorizon-logs') as BaseGuildTextChannel;
                 if (logChannel) {
                     logChannel.send({ embeds: [logEmbed] });
                 }
