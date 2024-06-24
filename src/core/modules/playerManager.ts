@@ -91,7 +91,7 @@ export default async (client: Client) => {
     }).on("destroy", (node) => {
         logger.err(`:: DESTROYED :: ${node.id}`);
     }).on("error", (node, error, payload) => {
-        logger.err(`:: ERROR :: ${node.id} ${error}`);
+        logger.err(`:: ERROR :: ${node.id} ${error.message}`);
     }).on("resumed", (node, payload, players) => {
         logger.log(`:: RESUMED :: ${node.id} ${players.length}`);
     });
