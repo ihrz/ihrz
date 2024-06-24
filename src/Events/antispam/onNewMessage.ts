@@ -322,39 +322,31 @@ export const event: BotEvent = {
         const lastMessage = cacheMessages.length > 1 ? cacheMessages[1] : null;
         const elapsedTime = lastMessage ? currentMessage.sentTimestamp - lastMessage.sentTimestamp : null;
 
-        console.log(`[AntiSPAM] Members flags -> ${cache.membersFlags.get(`${message.guildId}.${message.author.id}`)?.value}`);
-
         if (duplicateMessages.length >= options.maxDuplicates) {
-            console.log("[AntiSPAM] DuplicateMessage");
             cache.membersFlags.set(`${message.guildId}.${message.author.id}`, { value: memberTotalWarn + 1 });
             currentMessage.isSpam = true;
             cache.spamMessagesToClear.add(currentMessage);
         }
 
         if (elapsedTime && elapsedTime < options.maxInterval) {
-            console.log("[AntiSPAM] MaxInterval");
             cache.membersFlags.set(`${message.guildId}.${message.author.id}`, { value: memberTotalWarn + 1 });
             currentMessage.isSpam = true;
             cache.spamMessagesToClear.add(currentMessage);
         }
 
         if (similarMessages && similarMessages.length! >= options.similarMessageThreshold) {
-            console.log("[AntiSPAM] SimilarMessages");
             cache.membersFlags.set(`${message.guildId}.${message.author.id}`, { value: memberTotalWarn + 1 });
             currentMessage.isSpam = true;
             cache.spamMessagesToClear.add(currentMessage);
         }
 
         if (cache.membersFlags.get(`${message.guildId}.${message.author.id}`)?.value! >= options.Threshold) {
-            console.log("[AntiSPAM] Threshold before sanction")
             cache.membersToPunish = cache.membersToPunish.add(message.member!);
             currentMessage.isSpam = true;
             cache.spamMessagesToClear.add(currentMessage);
         };
 
         if (cache.membersToPunish.size >= 1 && cache.membersFlags.get(`${message.guildId}.${message.author.id}`)?.value! >= options.Threshold) {
-            console.log("[AntiSPAM] Sanction")
-
             await waitForFinish(lastMessage!);
 
             await PunishUsers(cache.membersToPunish, options)
