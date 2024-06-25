@@ -30,13 +30,15 @@ import wait from '../../../core/functions/wait.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.prevnames_not_admin });
             return;
         };
 
-        let banned_members = await interaction.guild?.bans.fetch()
+        let banned_members = await interaction.guild.bans.fetch()
 
         let unbanned_members: string[] = [];
         let cannot_unban = 0;

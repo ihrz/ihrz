@@ -22,7 +22,6 @@
 import {
     Client,
     EmbedBuilder,
-    PermissionsBitField,
     ApplicationCommandOptionType,
     ActionRowBuilder,
     ButtonBuilder,
@@ -60,6 +59,9 @@ export const command: Command = {
     category: 'utils',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let user = interaction.options.getUser("user") || interaction.user;
 
@@ -121,7 +123,7 @@ export const command: Command = {
         let messageEmbed = await interaction.reply({
             embeds: [await createEmbed()],
             components: [row],
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({

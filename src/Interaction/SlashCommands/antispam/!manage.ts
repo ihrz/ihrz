@@ -87,6 +87,8 @@ const AntiSpamPreset: { [key in PresetKeys]: AntiSpam.AntiSpamOptions } = {
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, lang: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: lang.addmoney_not_admin });
@@ -110,7 +112,7 @@ export default {
         const embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#6666ff")
             .setTitle(lang.antispam_manage_embed_title)
-            .setThumbnail(interaction.guild?.iconURL({ forceStatic: false })!)
+            .setThumbnail(interaction.guild.iconURL({ forceStatic: false })!)
             .setFooter({
                 text: interaction.client.user.username,
                 iconURL: interaction.client.user.displayAvatarURL({ forceStatic: false })

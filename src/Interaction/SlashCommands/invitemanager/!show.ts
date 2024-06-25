@@ -28,6 +28,9 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let member = interaction.options.getUser("member") || interaction.user;
         let baseData = await client.db.get(`${interaction.guildId}.USER.${member.id}.INVITES`);
 

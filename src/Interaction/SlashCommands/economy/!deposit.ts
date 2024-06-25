@@ -28,6 +28,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let balance = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`);
         let toDeposit = interaction.options.getNumber('how-much') as number;
@@ -65,7 +67,7 @@ export default {
 
         await interaction.reply({
             embeds: [embed],
-            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

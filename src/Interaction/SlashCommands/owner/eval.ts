@@ -21,8 +21,8 @@
 
 import {
     Client,
+    EmbedBuilder,
     ApplicationCommandOptionType,
-    User,
     ChatInputCommandInteraction,
     ApplicationCommandType
 } from 'pwss'
@@ -31,25 +31,25 @@ import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
-    name: 'unowner',
+    name: 'eval',
 
-    description: 'The member who wants to delete of the owner list (Only Owner of ihorizon)!',
+    description: 'Run Javascript program (only for developers)!',
     description_localizations: {
-        "fr": "Le membre que vous souhaitez supprimer de la liste des propriétaires (uniquement pour les dev)"
+        "fr": "Executer du code JavaScript (Seulement pour les dev du bot)"
     },
 
     options: [
         {
-            name: 'member',
-            type: ApplicationCommandOptionType.User,
+            name: 'code',
+            type: ApplicationCommandOptionType.String,
 
-            description: 'The member who wants to delete of the owner list',
+            description: 'javascript code',
             description_localizations: {
-                "fr": "Le membre que vous souhaitez supprimer de la liste des propriétaires"
+                "fr": "JS Code"
             },
 
             required: true
-        },
+        }
     ],
     thinking: false,
     category: 'owner',
@@ -59,23 +59,47 @@ export const command: Command = {
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
-        let tableOwner = client.db.table('OWNER');
 
-        if (await tableOwner.get(`${interaction.user.id}.owner`) !== true) {
-            await interaction.reply({ content: data.unowner_not_owner });
+        if (!client.owners.includes(interaction.user.id)) {
+            await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };
 
-        var member = interaction.options.getUser('member');
+        var code = interaction.options.getString("code")!;
 
-        if (client.owners.includes(member?.id!)) {
-            await interaction.reply({ content: data.unowner_cant_unowner_creator });
+        try {
+            let _ = `
+            async function reply(x, y) {
+                let msg = await interaction.channel.messages.fetch(x);
+                msg.reply(y);
+            }
+            ;
+            async function send(x) {
+                interaction.channel.send({content: x});
+            }
+            ;
+            async function ban(x) {
+                await interaction.guild.members.cache.get(x).ban()
+            }
+            ;
+            async function kick(x) {
+                await interaction.guild.members.cache.get(x).kick()
+            }
+            ;
+            `
+            eval(_ + code);
+
+            let embed = new EmbedBuilder()
+                .setColor("#468468")
+                .setTitle("This block was evalued with iHorizon.")
+                .setDescription(`\`\`\`JS\n${code || "None"}\n\`\`\``)
+                .setAuthor({ name: (interaction.user.globalName || interaction.user.username) as string, iconURL: interaction.user.displayAvatarURL() });
+
+            await interaction.reply({ embeds: [embed], ephemeral: true });
+            return;
+        } catch (err: any) {
+            await interaction.reply({ content: err.toString(), ephemeral: true });
             return;
         };
-
-        await tableOwner.delete(`${member?.id}`);
-
-        await interaction.reply({ content: data.unowner_command_work.replace(/\${member\.username}/g, member?.username!) });
-        return;
-    },
+    }
 };

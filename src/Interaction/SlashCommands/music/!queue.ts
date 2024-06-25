@@ -29,6 +29,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let player = client.player.getPlayer(interaction.guildId as string);
 
@@ -43,7 +45,7 @@ export default {
         };
 
         let tracks = player.queue.tracks
-            .map((track, idx) =>  `**${++idx})** [${track.info.title}](${track.info.uri})`)
+            .map((track, idx) => `**${++idx})** [${track.info.title}](${track.info.uri})`)
 
         if (tracks.length === 0) {
             await interaction.editReply({ content: data.queue_empty_queue });
@@ -62,7 +64,7 @@ export default {
                 .setFooter({
                     text: data.queue_embed_footer_text
                         .replace("{index}", index + 1 .toString())
-                        .replace("{track}", player.queue.tracks.length .toString())
+                        .replace("{track}", player.queue.tracks.length.toString())
                 });
 
             embeds.push(embed);

@@ -31,6 +31,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {
             await interaction.editReply({ content: data.end_not_admin });
@@ -42,8 +44,8 @@ export default {
 
         let embed = new EmbedBuilder()
             .setAuthor({
-                name: interaction.guild?.name as string,
-                iconURL: interaction.guild?.iconURL({ size: 512, forceStatic: false })!
+                name: interaction.guild.name as string,
+                iconURL: interaction.guild.iconURL({ size: 512, forceStatic: false })!
             })
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.gw`) || "#0099ff")
             .setTitle(data.gw_getdata_embed_title)

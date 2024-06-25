@@ -29,6 +29,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
@@ -71,7 +73,7 @@ export default {
 
         await interaction.reply({
             embeds: [embed],
-            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

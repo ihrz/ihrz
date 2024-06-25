@@ -29,17 +29,19 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#c4afed')
             .setTitle(data.banner_guild_embed)
-            .setImage(interaction.guild?.bannerURL({ extension: 'png', size: 4096 }) as string)
-            .setThumbnail(interaction.guild?.iconURL({ size: 4096 }) as string)
-            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
+            .setImage(interaction.guild?.bannerURL({ extension: 'png', size: 4096 }))
+            .setThumbnail(interaction.guild.iconURL({ size: 4096 }))
+            .setFooter({ text: client.user.username, iconURL: "attachment://icon.png" })
 
         await interaction.reply({
             embeds: [embed],
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

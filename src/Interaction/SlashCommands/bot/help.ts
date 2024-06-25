@@ -48,6 +48,9 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         const categories: CategoryData[] = [];
@@ -120,7 +123,7 @@ export const command: Command = {
         let og_embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#001eff')
             .setDescription(data.help_tip_embed
-                .replaceAll('${client.user?.username}', interaction.client.user?.username)
+                .replaceAll('${client.user?.username}', interaction.client.user.username)
                 .replaceAll('${client.iHorizon_Emojis.icon.Pin}', client.iHorizon_Emojis.icon.Pin)
                 .replaceAll('${categories.length}', categories.length.toString())
                 .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
@@ -142,7 +145,7 @@ export const command: Command = {
         let response = await interaction.reply({
             embeds: [og_embed],
             components: rows,
-            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
         });
 
         let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840_000 });

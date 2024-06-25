@@ -57,6 +57,9 @@ export const command: Command = {
     thinking: true,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let str = (interaction.options.getString('emojis') as string).split(' ');
         let cnt: number = 0;

@@ -40,6 +40,8 @@ import { DatabaseStructure } from '../../../core/database_structure';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setchannels_not_admin });
@@ -66,7 +68,7 @@ export default {
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#6e819a")
             .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
             .setTitle(data.setchannels_title_embed_panel)
-            .setThumbnail((interaction.guild?.iconURL() as string))
+            .setThumbnail((interaction.guild.iconURL() as string))
             .setTimestamp()
             .addFields(
                 { name: data.setchannels_embed_fields_value_join, value: current_join_channel, inline: true },
@@ -156,7 +158,7 @@ export default {
 
                             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                             if (logchannel) {
-                                (logchannel as BaseGuildTextChannel)?.send({ embeds: [logEmbed] })
+                                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
                             }
                         } catch (e: any) {
                             logger.err(e)

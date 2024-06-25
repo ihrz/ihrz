@@ -33,6 +33,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
             await interaction.editReply({
@@ -150,8 +152,8 @@ export default {
                 },
             )
             .setFooter({
-                text: client.user?.username!,
-                iconURL: client.user?.displayAvatarURL({ size: 1024 }) as string
+                text: client.user.username,
+                iconURL: client.user.displayAvatarURL({ size: 1024 })
             });
 
         let buttonRows = [

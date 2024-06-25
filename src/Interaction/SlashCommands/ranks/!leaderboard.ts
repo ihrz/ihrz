@@ -30,6 +30,8 @@ import { DatabaseStructure } from '../../../core/database_structure';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let char = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
         let array = [];
@@ -75,14 +77,14 @@ export default {
         let attachment = new AttachmentBuilder(buffer, { name: 'leaderboard.txt' })
 
         embed
-            .setThumbnail(interaction.guild?.iconURL() as string)
-            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
+            .setThumbnail(interaction.guild.iconURL())
+            .setFooter({ text: client.user.username, iconURL: "attachment://icon.png" })
             .setTitle(data.ranks_leaderboard_embed_title.replace('${interaction.guild?.name}', interaction.guild?.name!));
 
         await interaction.reply({
             embeds: [embed],
             content: undefined,
-            files: [attachment, { attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [attachment, { attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

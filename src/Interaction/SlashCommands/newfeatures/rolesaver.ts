@@ -108,6 +108,8 @@ export const command: Command = {
     category: 'newfeatures',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
@@ -134,7 +136,7 @@ export const command: Command = {
                 )
                 .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
 
-            await interaction.reply({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+            await interaction.reply({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }] });
             await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.enable`, true);
             await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.timeout`, timeout);
             await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.admin`, settings);
@@ -159,7 +161,7 @@ export const command: Command = {
 
             await interaction.reply({
                 embeds: [embed],
-                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
             });
             await client.db.delete(`${interaction.guildId}.GUILD_CONFIG.rolesaver`);
             return;

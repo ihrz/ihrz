@@ -30,6 +30,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let channel = interaction.options.getChannel('to');
         let fetch = await client.db.get(`${interaction.guildId}.PFPS.disable`);

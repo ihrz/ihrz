@@ -32,6 +32,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)
         var numberx = interaction.options.getNumber("number");

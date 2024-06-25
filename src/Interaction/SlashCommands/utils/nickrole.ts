@@ -89,6 +89,9 @@ export const command: Command = {
     category: 'utils',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let action_1 = interaction.options.getString("action");
@@ -107,7 +110,7 @@ export const command: Command = {
         if (action_1 === 'add') {
 
             try {
-                let members = await interaction.guild?.members.fetch();
+                let members = await interaction.guild.members.fetch();
                 let promises = [];
 
                 for (let [memberID, member] of members!) {
@@ -138,7 +141,7 @@ export const command: Command = {
                 .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
                 .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#007fff')
                 .setTimestamp()
-                .setThumbnail(interaction.guild?.iconURL() as string)
+                .setThumbnail(interaction.guild.iconURL())
                 .setDescription(data.nickrole_add_command_work
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${a}', a.toString())
@@ -150,7 +153,7 @@ export const command: Command = {
 
             await interaction.editReply({
                 embeds: [embed],
-                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
             });
             return;
 
@@ -187,7 +190,7 @@ export const command: Command = {
                 .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
                 .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#007fff')
                 .setTimestamp()
-                .setThumbnail(interaction.guild?.iconURL() as string)
+                .setThumbnail(interaction.guild.iconURL())
                 .setDescription(data.nickrole_sub_command_work
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${a}', a.toString())
@@ -199,7 +202,7 @@ export const command: Command = {
 
             await interaction.editReply({
                 embeds: [embed],
-                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
             });
             return;
         };

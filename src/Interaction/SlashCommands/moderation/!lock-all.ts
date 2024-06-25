@@ -35,7 +35,8 @@ import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator);
         if (!permission) {
@@ -45,7 +46,7 @@ export default {
             return;
         };
 
-        interaction.guild?.channels.cache.forEach((c) => {
+        interaction.guild.channels.cache.forEach((c) => {
             if (c.type === ChannelType.GuildText) {
                 c.permissionOverwrites.create(interaction.guildId as string, { SendMessages: false })
             };
@@ -66,7 +67,7 @@ export default {
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                 );
 
-            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
             if (logchannel) {
                 (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })

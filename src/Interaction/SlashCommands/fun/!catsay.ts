@@ -38,6 +38,8 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 export default {
   run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    // Guard's Typing
+    if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
     let text = interaction.options.getString('text');
     let link = `https://cataas.com/cat/cute/says/${text}`;
@@ -58,7 +60,7 @@ export default {
       files: [
         imgs,
         {
-          attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png'
+          attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png'
         }
       ]
     });
