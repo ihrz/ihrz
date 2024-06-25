@@ -33,6 +33,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.punishpub_not_admin });
@@ -53,13 +55,13 @@ export default {
         let usersPerPage = 10;
         let pages: { title: string; description: string; }[] = [];
 
-        for (let i = 0; i < history?.embed.length; i += usersPerPage) {
-            let pageUsers = history?.embed.slice(i, i + usersPerPage);
+        for (let i = 0; i < history.embed.length; i += usersPerPage) {
+            let pageUsers = history.embed.slice(i, i + usersPerPage);
             let pageContent = pageUsers.map((userId: string) => userId).join('\n');
 
             pages.push({
                 title: data.history_embed_title
-                    .replace('${interaction.guild?.name}', interaction.guild?.name!)
+                    .replace('${interaction.guild?.name}', interaction.guild.name)
                     .replace('${i / usersPerPage + 1}', (i / usersPerPage + 1).toString()),
                 description: pageContent,
             });

@@ -56,6 +56,9 @@ export const command: Command = {
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let tableOwner = client.db.table('OWNER');
         let tableBlacklist = client.db.table('BLACKLIST');
@@ -82,7 +85,7 @@ export const command: Command = {
             };
 
             await tableBlacklist.delete(`${member?.id}`);
-            await interaction.guild?.members.unban(bannedMember);
+            await interaction.guild.members.unban(bannedMember);
 
             await interaction.reply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member?.id!) });
             return;

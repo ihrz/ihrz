@@ -30,6 +30,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let action = interaction.options.getString("action");
 
@@ -52,9 +54,9 @@ export default {
                         .replace('${interaction.user}', interaction.user.toString())
                     )
 
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) {
-                    (logchannel as BaseGuildTextChannel)?.send({ embeds: [logEmbed] })
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
                 }
             } catch { };
 
@@ -74,9 +76,9 @@ export default {
                         .replace('${interaction.user}', interaction.user.toString())
                     )
 
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) {
-                    (logchannel as BaseGuildTextChannel)?.send({ embeds: [logEmbed] })
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
                 }
             } catch { };
 

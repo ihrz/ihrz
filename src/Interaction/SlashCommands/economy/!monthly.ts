@@ -29,6 +29,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let timeout: number = 2592000000;
         let amount: number = 5000;
@@ -42,7 +44,7 @@ export default {
             });
             return;
         };
-        
+
         if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - monthly));
 

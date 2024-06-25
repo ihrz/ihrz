@@ -32,6 +32,8 @@ import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let inputData = interaction.options.getString("giveaway-id");
 
@@ -70,9 +72,9 @@ export default {
                     .replace(/\${giveaway\.messageID}/g, inputData as string)
                 );
 
-            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) {
-                (logchannel as BaseGuildTextChannel)?.send({ embeds: [logEmbed] })
+                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
             };
 
         } catch (e: any) {

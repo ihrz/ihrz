@@ -32,6 +32,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {
             await interaction.editReply({ content: data.end_not_admin });
@@ -45,11 +47,11 @@ export default {
             .setColor("#2986cc")
             .setTimestamp()
             .setTitle(data.gw_getall_embed_title
-                .replace('${interaction.guild?.name}', interaction.guild?.name as string)
+                .replace('${interaction.guild?.name}', interaction.guild.name as string)
             )
             .setAuthor(
                 {
-                    name: (interaction.guild?.name as string),
+                    name: (interaction.guild.name as string),
                     iconURL: "attachment://icon.png"
                 }
             )
@@ -81,11 +83,11 @@ export default {
                 embeds: [embed],
                 files: [
                     {
-                        attachment: await client.functions.image64(interaction.guild?.iconURL({ size: 1024, forceStatic: false })),
+                        attachment: await client.functions.image64(interaction.guild.iconURL({ size: 1024, forceStatic: false })),
                         name: 'icon.png'
                     },
                     {
-                        attachment: await client.functions.image64(client.user?.displayAvatarURL({ size: 1024, forceStatic: false })),
+                        attachment: await client.functions.image64(client.user.displayAvatarURL({ size: 1024, forceStatic: false })),
                         name: 'icon_2.png'
                     }
                 ],

@@ -32,6 +32,9 @@ import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let action = interaction.options.getString('action') as string;
         let maximumDate = interaction.options.getString('maximum-date');
 
@@ -67,9 +70,9 @@ export default {
                         .replace('${beautifulTime}', beautifulTime.toString())
                     );
 
-                let logChannel = interaction.guild?.channels.cache.find((channel) => channel.name === 'ihorizon-logs');
+                let logChannel = interaction.guild.channels.cache.find((channel) => channel.name === 'ihorizon-logs');
                 if (logChannel) {
-                    (logChannel as BaseGuildTextChannel)?.send({ embeds: [logEmbed] });
+                    (logChannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
                 }
             } catch (e: any) {
                 logger.err(e);
@@ -97,9 +100,9 @@ export default {
                         .replace('${interaction.user}', interaction.user.toString())
                     );
 
-                let logChannel = interaction.guild?.channels.cache.find((channel) => channel.name === 'ihorizon-logs');
+                let logChannel = interaction.guild.channels.cache.find((channel) => channel.name === 'ihorizon-logs');
                 if (logChannel) {
-                    (logChannel as BaseGuildTextChannel)?.send({ embeds: [logEmbed] });
+                    (logChannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
                 }
             } catch (e: any) {
                 logger.err(e);

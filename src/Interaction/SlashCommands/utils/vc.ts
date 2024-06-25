@@ -44,10 +44,12 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: CommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
-        let voiceStates = interaction.guild?.voiceStates.cache;
-        let membersStates = interaction.guild?.members.cache;
+        let voiceStates = interaction.guild.voiceStates.cache;
+        let membersStates = interaction.guild.members.cache;
 
         if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.ViewAuditLog])) {
             await interaction.reply({ content: data.renew_not_administrator });
@@ -111,7 +113,7 @@ export const command: Command = {
             embeds: [embed],
             files: [
                 {
-                    attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL({ forceStatic: false })),
+                    attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL({ forceStatic: false })),
                     name: 'icon.png'
                 },
             ]

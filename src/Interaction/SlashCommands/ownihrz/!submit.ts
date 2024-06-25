@@ -34,6 +34,8 @@ const OWNIHRZ = new OwnIHRZ();
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let discord_bot_token = interaction.options.getString('discord_bot_token') as string;
         let bot_1 = (await OWNIHRZ.Get_Bot(discord_bot_token).catch(() => { }))?.data || 404;
@@ -82,7 +84,7 @@ export default {
             await interaction.reply({
                 embeds: [embed],
                 ephemeral: true,
-                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
             });
             return;
         };

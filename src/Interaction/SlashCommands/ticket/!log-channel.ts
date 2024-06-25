@@ -30,6 +30,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let blockQ = await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`);
         let channel = interaction.options.getChannel('channel') as GuildChannel;
@@ -58,7 +60,7 @@ export default {
 
         await interaction.editReply({
             embeds: [embed],
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

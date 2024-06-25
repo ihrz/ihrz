@@ -41,6 +41,8 @@ import { axios } from '../../../core/functions/axios.js';
 
 export default {
   run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    // Guard's Typing
+    if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
     let baseImg = (await axios.get('https://api.thecatapi.com/v1/images/search?mime_types=jpg,png')).data;
     let text = interaction.options.getString('text')?.slice(0, 30);
@@ -69,7 +71,7 @@ export default {
       if (imgs) {
         await interaction.editReply({
           embeds: [embed],
-          files: [imgs, { attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+          files: [imgs, { attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
         });
       };
 

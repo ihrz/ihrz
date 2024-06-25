@@ -33,8 +33,11 @@ const __dirname = path.dirname(__filename);
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         var user1 = interaction.options.getUser("user1") || interaction.user;
-        var user2 = interaction.options.getUser("user2") || interaction.guild?.members.cache.random()?.user as User;
+        var user2 = interaction.options.getUser("user2") || interaction.guild.members.cache.random()?.user as User;
 
         let profileImageSize = 512;
         let canvasWidth = profileImageSize * 3;
@@ -62,9 +65,9 @@ export default {
 
             var found = always100.find(element => {
                 if (
-                    element === `${user1?.id}x${user2?.id}`
+                    element === `${user1.id}x${user2.id}`
                     ||
-                    element === `${user2?.id}x${user1?.id}`
+                    element === `${user2.id}x${user1.id}`
                 ) {
                     return true;
                 }
@@ -84,7 +87,7 @@ export default {
                 .setImage(`attachment://love.png`)
                 .setDescription(data.love_embed_description
                     .replace('${user1.username}', user1.username)
-                    .replace('${user2.username}', user2?.username)
+                    .replace('${user2.username}', user2.username)
                     .replace('${randomNumber}', randomNumber.toString())
                 )
                 .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
@@ -94,7 +97,7 @@ export default {
                 embeds: [embed],
                 files: [
                     { attachment: buffer, name: 'love.png' },
-                    { attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' },
+                    { attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png' },
                 ]
             });
         } catch (error: any) {

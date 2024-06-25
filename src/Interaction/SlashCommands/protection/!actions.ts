@@ -28,14 +28,16 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (interaction.user.id !== interaction.guild?.ownerId) {
             await interaction.editReply({ content: data.authorization_actions_not_permited });
             return;
         };
 
-        let rule = interaction.options.getString('rule');
-        let allow = interaction.options.getString('allow');
+        let rule = interaction.options.getString('rule') as string;
+        let allow = interaction.options.getString('allow') as string;
 
         if (rule !== 'cls' && allow) {
             await client.db.set(`${interaction.guild.id}.PROTECTION.${rule}`, { mode: allow });
@@ -46,7 +48,7 @@ export default {
             await interaction.editReply({
                 content: data.authorization_actions_rule_set
                     .replace('${interaction.user}', interaction.user.toString())
-                    .replace('${rule.toUpperCase()}', rule?.toUpperCase() as unknown as string)
+                    .replace('${rule.toUpperCase()}', rule.toUpperCase() as unknown as string)
                     .replace('${allow}', allow)
             });
             return;

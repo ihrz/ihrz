@@ -32,8 +32,10 @@ import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if (!(interaction.member as GuildMember)?.voice.channel) {
+        if (!(interaction.member as GuildMember).voice.channel) {
             await interaction.editReply({
                 content: data.skip_not_in_voice_channel.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
             });
@@ -67,7 +69,7 @@ export default {
                         )
                 ]
             });
-            
+
             await interaction.deleteReply();
             await interaction.followUp({
                 content: data.skip_command_work

@@ -34,12 +34,15 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.backup_not_admin });
             return;
         };
 
-        if (!interaction.guild?.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.backup_i_dont_have_permission });
             return;
         };

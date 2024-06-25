@@ -25,7 +25,6 @@ import {
     ChannelType,
     ChatInputCommandInteraction,
     Client,
-    EmbedBuilder,
 } from 'pwss'
 
 import { Command } from '../../../../types/command';
