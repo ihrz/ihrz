@@ -21,7 +21,6 @@
 
 import {
     Client,
-    PermissionsBitField,
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     ApplicationCommandType

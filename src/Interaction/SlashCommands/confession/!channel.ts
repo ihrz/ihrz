@@ -34,6 +34,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let channel = interaction.options.getChannel("to") as TextChannel;
         let buttonTitle = interaction.options.getString('button-title')?.substring(0, 22) || '+';
@@ -43,16 +45,16 @@ export default {
             return;
         };
 
-        await client.db.set(`${interaction.guildId}.CONFESSION.channel`, channel?.id);
+        await client.db.set(`${interaction.guildId}.CONFESSION.channel`, channel.id);
 
         await interaction.reply({
             content: data.confession_channel_command_work
-                .replace('${channel?.toString()}', channel?.toString()!)
+                .replace('${channel?.toString()}', channel.toString()!)
         });
 
         let embed = new EmbedBuilder()
             .setColor('#ff05aa')
-            .setFooter({ text: interaction.guild?.name!, iconURL: 'attachment://guild_icon.png' })
+            .setFooter({ text: interaction.guild.name!, iconURL: 'attachment://guild_icon.png' })
             .setTimestamp()
             .setDescription(data.confession_channel_panel_embed_desc)
             ;
@@ -68,7 +70,7 @@ export default {
             embeds: [embed],
             files: [
                 {
-                    attachment: await interaction.client.functions.image64(interaction.guild?.iconURL() || client.user?.displayAvatarURL()),
+                    attachment: await interaction.client.functions.image64(interaction.guild.iconURL() || client.user.displayAvatarURL()),
                     name: 'guild_icon.png'
                 }
             ],
@@ -86,12 +88,12 @@ export default {
                 .setTitle(data.confession_channel_log_embed_title)
                 .setDescription(data.confession_channel_log_embed_desc
                     .replace('${interaction.user}', interaction.user.toString())
-                    .replace('${channel}', channel?.toString())
+                    .replace('${channel}', channel.toString())
                 )
 
-            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) {
-                (logchannel as BaseGuildTextChannel)?.send({ embeds: [logEmbed] })
+                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
             }
         } catch { };
 

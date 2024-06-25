@@ -90,6 +90,9 @@ export const command: Command = {
     category: 'membercount',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
@@ -108,11 +111,11 @@ export const command: Command = {
             .addFields({ name: data.setmembercount_helpembed_fields_name, value: data.setmembercount_helpembed_fields_value });
 
         if (type == "on") {
-            let botMembers = interaction.guild?.members.cache.filter((member: GuildMember) => member.user.bot);
-            let rolesCollection = interaction.guild?.roles.cache;
-            let channelsCount = interaction.guild?.channels.cache.size.toString()!;
-            let rolesCount = rolesCollection?.size!;
-            let boostsCount = interaction.guild?.premiumSubscriptionCount?.toString() || '0';
+            let botMembers = interaction.guild.members.cache.filter((member: GuildMember) => member.user.bot);
+            let rolesCollection = interaction.guild.roles.cache;
+            let channelsCount = interaction.guild.channels.cache.size.toString()!;
+            let rolesCount = rolesCollection.size!;
+            let boostsCount = interaction.guild.premiumSubscriptionCount?.toString() || '0';
 
             if (!messagei) {
                 await interaction.editReply({ embeds: [help_embed] });
@@ -120,11 +123,11 @@ export const command: Command = {
             };
 
             let joinmsgreplace = messagei
-                .replace("{membercount}", interaction.guild?.memberCount.toString()!)
+                .replace("{membercount}", interaction.guild.memberCount.toString()!)
                 .replace("{rolescount}", rolesCount.toString())
                 .replace("{channelcount}", channelsCount)
                 .replace("{boostcount}", boostsCount)
-                .replace("{botcount}", botMembers?.size.toString()!);
+                .replace("{botcount}", botMembers.size.toString()!);
 
             if (messagei.includes("member")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.member`,
@@ -178,7 +181,7 @@ export const command: Command = {
                     .setDescription(data.setmembercount_logs_embed_description_on_disable
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     )
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
             } catch (e: any) { logger.err(e) };
 

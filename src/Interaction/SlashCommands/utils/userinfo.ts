@@ -62,6 +62,8 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let badges: {
             [key: string]: {
@@ -186,7 +188,7 @@ export const command: Command = {
 
             var files: { name: string; attachment: string }[] = [
                 {
-                    attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL({ forceStatic: false })),
+                    attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL({ forceStatic: false })),
                     name: 'ihrz_logo.png'
                 },
                 {

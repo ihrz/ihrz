@@ -30,6 +30,9 @@ import crypto from 'crypto';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let victim = interaction.options.getUser("user") as User;
 
         var ip = [

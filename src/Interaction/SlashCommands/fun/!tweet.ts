@@ -40,6 +40,8 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let entry = interaction.options.getString('comment');
         let args: Array<string> = entry!.split(' ');
@@ -52,7 +54,7 @@ export default {
         };
 
         let username = user.username;
-        let displayname = user?.globalName;
+        let displayname = user.globalName;
 
         if (username.length > 15) {
             username = username.substring(0, 15);
@@ -81,7 +83,7 @@ export default {
             embed.setImage(`attachment://tweet-elektra.png`);
         });
 
-        await interaction.editReply({ embeds: [embed], files: [imgs!, { attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+        await interaction.editReply({ embeds: [embed], files: [imgs!, { attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }] });
         return;
     },
 };

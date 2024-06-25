@@ -34,13 +34,15 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let turn = interaction.options.getString("action");
         let logs_channel = interaction.options.getChannel('logs-channel');
 
-        let automodRules = await interaction.guild?.autoModerationRules.fetch();
+        let automodRules = await interaction.guild.autoModerationRules.fetch();
 
-        let spamRule = automodRules?.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Spam);
+        let spamRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Spam);
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.blockpub_not_admin });
@@ -65,7 +67,7 @@ export default {
             };
 
             if (!spamRule) {
-                await interaction.guild?.autoModerationRules.create({
+                await interaction.guild.autoModerationRules.create({
                     name: 'Block spam by iHorizon',
                     enabled: true,
                     eventType: 1,
@@ -93,7 +95,7 @@ export default {
             await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.spam`, "on");
             await interaction.editReply({
                 content: data.automod_block_spam_command_on
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
                     .replace('${logs_channel}', (logs_channel || 'None') as string)
             });
             return;
@@ -104,7 +106,7 @@ export default {
             await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.spam`, "off");
             await interaction.editReply({
                 content: data.automod_block_spam_command_off
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
             });
             return;
         };

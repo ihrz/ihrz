@@ -20,10 +20,6 @@
 */
 
 import {
-    ActionRowBuilder,
-    BaseGuildTextChannel,
-    ButtonBuilder,
-    ButtonStyle,
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
@@ -33,7 +29,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
             await interaction.editReply({
@@ -53,7 +50,7 @@ export default {
             )
             .setFooter({
                 text: 'iHorizon',
-                iconURL: client.user?.displayAvatarURL({ size: 1024 }) as string
+                iconURL: client.user.displayAvatarURL({ size: 1024 })
             });
 
         await interaction.editReply({

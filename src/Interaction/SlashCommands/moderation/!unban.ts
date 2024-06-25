@@ -32,6 +32,8 @@ import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.BanMembers)) {
             await interaction.editReply({
@@ -40,7 +42,7 @@ export default {
             return;
         };
 
-        if (!interaction.guild?.members.me?.permissions.has([PermissionsBitField.Flags.BanMembers])) {
+        if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.BanMembers])) {
             await interaction.editReply({
                 content: data.unban_bot_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             })

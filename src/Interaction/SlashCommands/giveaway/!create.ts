@@ -45,6 +45,8 @@ async function isImageUrl(url: string): Promise<boolean> {
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {
             await interaction.editReply({ content: data.start_not_perm });
@@ -56,7 +58,7 @@ export default {
         let giveawayNumberWinners = interaction.options.getNumber("winner")!;
         var imageUrl = interaction.options.getString('image') as string;
 
-        if (isNaN(giveawayNumberWinners as number) || (parseInt(giveawayNumberWinners?.toString()) <= 0)) {
+        if (isNaN(giveawayNumberWinners as number) || (parseInt(giveawayNumberWinners.toString()) <= 0)) {
             await interaction.editReply({ content: data.start_is_not_valid });
             return;
         };
@@ -87,12 +89,12 @@ export default {
                 .setTitle(data.reroll_logs_embed_title)
                 .setDescription(data.start_logs_embed_description
                     .replace('${interaction.user.id}', interaction.user.id)
-                    .replace(/\${giveawayChannel}/g, giveawayChannel?.toString()!)
+                    .replace(/\${giveawayChannel}/g, giveawayChannel.toString()!)
                 );
 
-            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) {
-                (logchannel as BaseGuildTextChannel)?.send({ embeds: [logEmbed] })
+                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
             };
         } catch (e: any) {
             logger.err(e)

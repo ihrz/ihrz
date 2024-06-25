@@ -39,6 +39,9 @@ import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 export default {
   run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
+    // Guard's Typing
+    if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
     let user = interaction.options.getUser('user') || interaction.user;
     let link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(user.displayAvatarURL({ extension: 'png', size: 1024 }))}`;
 
@@ -59,7 +62,7 @@ export default {
       files: [
         imgs,
         {
-          attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png'
+          attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png'
         }
       ]
     });

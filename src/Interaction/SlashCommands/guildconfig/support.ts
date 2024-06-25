@@ -89,6 +89,9 @@ export const command: Command = {
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
@@ -115,7 +118,7 @@ export const command: Command = {
 
             await interaction.reply({
                 content: data.support_command_work
-                    .replace("${interaction.guild.name}", interaction.guild?.name!)
+                    .replace("${interaction.guild.name}", interaction.guild.name)
                     .replace("${input}", input!)
                     .replace("${roles.id}", roles.id)
             });
@@ -128,7 +131,7 @@ export const command: Command = {
                         .replace("${interaction.user.id}", interaction.user.id)
                     )
 
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
         } else {
@@ -136,7 +139,7 @@ export const command: Command = {
 
             await interaction.reply({
                 content: data.support_command_work_on_disable
-                    .replace("${interaction.guild.name}", interaction.guild?.name!)
+                    .replace("${interaction.guild.name}", interaction.guild.name)
             })
 
             try {
@@ -147,7 +150,7 @@ export const command: Command = {
                         .replace("${interaction.user.id}", interaction.user.id)
                     )
 
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
             } catch (e: any) { logger.err(e) };
             return;

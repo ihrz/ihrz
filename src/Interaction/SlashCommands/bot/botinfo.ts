@@ -31,25 +31,27 @@ import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'botinfo',
-    
+
     description: 'Get information about the bot!',
     description_localizations: {
         "fr": "Obtenir les informations supplémentaire par rapport au bot."
     },
-    
+
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
-        
+
         let clientembed = new EmbedBuilder()
             .setColor("#f0d020")
             .setThumbnail("attachment://icon.png")
             .addFields(
-                { name: data.botinfo_embed_fields_myname, value: `:green_circle: ${client.user?.username}`, inline: false },
+                { name: data.botinfo_embed_fields_myname, value: `:green_circle: ${client.user.username}`, inline: false },
                 { name: data.botinfo_embed_fields_mychannels, value: `:green_circle: ${client.channels.cache.size}`, inline: false },
                 { name: data.botinfo_embed_fields_myservers, value: `:green_circle: ${client.guilds.cache.size}`, inline: false },
                 { name: data.botinfo_embed_fields_members, value: `:green_circle: ${usersize}`, inline: false },
@@ -61,7 +63,7 @@ export const command: Command = {
             .setFooter({ text: `iHorizon ${client.version.ClientVersion}`, iconURL: "attachment://icon.png" })
             .setTimestamp()
 
-        await interaction.reply({ embeds: [clientembed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
+        await interaction.reply({ embeds: [clientembed], files: [{ attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png' }] });
         return;
     },
 };

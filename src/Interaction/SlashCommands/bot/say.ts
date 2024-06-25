@@ -59,6 +59,9 @@ export const command: Command = {
     type: ApplicationCommandType.ChatInput,
     thinking: false,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
@@ -66,7 +69,7 @@ export const command: Command = {
             return;
         };
         await interaction.deferReply() && await interaction.deleteReply();
-        await interaction.channel?.send({
+        await interaction.channel.send({
             content: '> ' + `${interaction.options.getString('content')}${data.say_footer_msg.replace('${interaction.user}', interaction.user.toString())}`
         });
         return;

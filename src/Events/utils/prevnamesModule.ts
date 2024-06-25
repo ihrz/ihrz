@@ -30,7 +30,7 @@ export const event: BotEvent = {
         var newUser = await client.users.fetch(oldUser.id);
 
         let oldUsertag = oldUser.username;
-        let oldUserGlbl = oldUser.globalName;
+        let oldUserGlbl = oldUser.globalName || oldUser.displayName;
         let table = client.db.table("PREVNAMES");
 
         if (!oldUser) return;

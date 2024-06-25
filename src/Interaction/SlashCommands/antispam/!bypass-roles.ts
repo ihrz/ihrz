@@ -38,6 +38,8 @@ type AntiSpamOptionKey = keyof AntiSpam.AntiSpamOptions;
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, lang: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: lang.addmoney_not_admin });
@@ -50,7 +52,7 @@ export default {
             .setColor("#6666ff")
             .setTitle(lang.antispam_manage_embed_title)
             .setDescription(lang.antispan_bypassroles_embed_desc)
-            .setThumbnail(interaction.guild?.iconURL({ forceStatic: false })!)
+            .setThumbnail(interaction.guild.iconURL({ forceStatic: false })!)
             .addFields({
                 name: lang.setjoinroles_help_embed_fields_1_name,
                 value: Array.isArray(all_roles) && all_roles.length > 0

@@ -36,6 +36,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setjoindm_not_admin });
@@ -55,9 +57,9 @@ export default {
                     value: joinDm ? `\`\`\`${joinDm
                         .replaceAll("{memberUsername}", interaction.user.username)
                         .replaceAll("{memberMention}", interaction.user.toString())
-                        .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
+                        .replaceAll('{memberCount}', interaction.guild.memberCount.toString()!)
                         .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
-                        .replaceAll('{guildName}', interaction.guild?.name!)
+                        .replaceAll('{guildName}', interaction.guild.name!)
                         }\`\`\`\n` : data.setjoinmessage_help_embed_fields_custom_name_empy
                 }
             );

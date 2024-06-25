@@ -32,6 +32,8 @@ import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageChannels);
         if (!permission) {
@@ -40,7 +42,7 @@ export default {
             });
             return;
         };
-        
+
         let embed = new EmbedBuilder()
             .setColor("#5b3475")
             .setTimestamp()
@@ -55,7 +57,7 @@ export default {
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id!)
                 )
-            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
             if (logchannel) {
                 (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })

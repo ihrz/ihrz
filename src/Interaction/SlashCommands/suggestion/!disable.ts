@@ -29,6 +29,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let action = interaction.options.getString("action");
 
@@ -41,7 +43,7 @@ export default {
             await client.db.set(`${interaction.guildId}.SUGGEST.disable`, false);
             await interaction.reply({
                 content: data.setsuggest_disable_pw_on
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
             });
 
             return;
@@ -49,7 +51,7 @@ export default {
             await client.db.set(`${interaction.guildId}.SUGGEST.disable`, true);
             await interaction.reply({
                 content: data.setsuggest_disable_pw_off
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
             });
 
             return;

@@ -30,6 +30,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let Lockembed = new EmbedBuilder()
             .setColor("#5b3475")
@@ -57,9 +59,9 @@ export default {
                 .setTitle(data.lock_logs_embed_title)
                 .setDescription(data.lock_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                    .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id as string)
+                    .replace(/\${interaction\.channel\.id}/g, interaction.channel.id as string)
                 );
-            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
             if (logchannel) {
                 (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });

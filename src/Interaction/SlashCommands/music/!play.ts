@@ -34,8 +34,10 @@ import { SearchPlatform } from 'lavalink-client';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let voiceChannel = (interaction.member as GuildMember)?.voice.channel;
+        let voiceChannel = (interaction.member as GuildMember).voice.channel;
         let check = interaction.options.getString("title");
 
         if (!voiceChannel) {
@@ -77,7 +79,7 @@ export default {
 
         let channel = client.channels.cache.get(player.textChannelId as string);
 
-        (channel as BaseGuildTextChannel)?.send({
+        (channel as BaseGuildTextChannel).send({
             embeds: [
                 new EmbedBuilder()
                     .setColor(2829617)

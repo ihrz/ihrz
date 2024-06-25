@@ -34,6 +34,8 @@ import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let member = interaction.options.getMember("member") as GuildMember;
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.KickMembers);
@@ -45,35 +47,35 @@ export default {
             return;
         };
 
-        if (!interaction.guild?.members.me?.permissions.has(PermissionsBitField.Flags.KickMembers)) {
+        if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.KickMembers)) {
             await interaction.editReply({
                 content: data.kick_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
-        if (member.user?.id === interaction.user.id) {
+        if (member.user.id === interaction.user.id) {
             await interaction.editReply({
                 content: data.kick_attempt_kick_your_self.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
-        if ((interaction.member?.roles as GuildMemberRoleManager).highest.position < member?.roles.highest.position) {
+        if ((interaction.member.roles as GuildMemberRoleManager).highest.position < member.roles.highest.position) {
             await interaction.editReply({
                 content: data.kick_attempt_kick_higter_member.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
             });
             return;
         };
 
-        member?.send({
+        member.send({
             content: data.kick_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
                 .replace(/\${interaction\.member\.user\.username}/g, interaction.user.globalName || interaction.user.username)
         }).catch(() => { });
 
         try {
-            await member?.kick(`Kicked by ${interaction.user.globalName || interaction.user.username}`);
+            await member.kick(`Kicked by ${interaction.user.globalName || interaction.user.username}`);
             let logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
                 .setTitle(data.kick_logs_embed_title)

@@ -32,6 +32,8 @@ import { axios } from '../../../core/functions/axios.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let kiss = interaction.options.getUser("user") as User;
         let url = apiUrlParser.assetsFinder(client.assets, "kiss");

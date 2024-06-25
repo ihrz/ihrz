@@ -36,6 +36,8 @@ const OWNIHRZ = new OwnIHRZ();
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let cluster = parseInt(interaction.options.getString("cluster")!);
         let id = interaction.options.getString('id')!;
@@ -102,7 +104,7 @@ export default {
                 content: `${interaction.user.toString()}, <@${id_2.OwnerOne}>\n\`[Administrator Invite Link]\` **>>** https://discord.com/oauth2/authorize?client_id=${id_2.Bot.Id}&scope=bot&permissions=0\n\`[Normal Invite Link]\` **>>** https://discord.com/oauth2/authorize?client_id=${id_2.Bot.Id}&scope=bot&permissions=8`,
                 embeds: [embed],
                 ephemeral: false,
-                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
             });
 
             try {

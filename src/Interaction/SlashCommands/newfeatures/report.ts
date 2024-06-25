@@ -38,7 +38,7 @@ export const command: Command = {
     description_localizations: {
         "fr": "Signaler un bug, une erreur, une faute d'orthographe au développeur d'iHorizon"
     },
-    
+
     options: [
         {
             name: 'message-to-dev',
@@ -56,7 +56,9 @@ export const command: Command = {
     category: 'newfeatures',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         var sentences = interaction.options.getString("message-to-dev")
@@ -72,7 +74,7 @@ export const command: Command = {
             });
             return;
         } else {
-            if (interaction.guild?.ownerId != interaction.user.id) {
+            if (interaction.guild.ownerId != interaction.user.id) {
                 await interaction.editReply({ content: data.report_owner_need });
                 return;
             };

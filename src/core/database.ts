@@ -175,7 +175,6 @@ export const initializeDatabase = async (config: ConfigData) => {
 
                 process.on('exit', async (code) => {
                     if (code !== 0) {
-                        console.log('Process exiting with code:', code);
                         await syncToMySQL()
                     }
                 });

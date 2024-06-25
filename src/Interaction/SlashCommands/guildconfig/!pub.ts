@@ -35,12 +35,14 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let turn = interaction.options.getString("action");
         let logs_channel = interaction.options.getChannel('logs-channel');
 
-        let automodRules = await interaction.guild?.autoModerationRules.fetch();
-        let KeywordPresetRule = automodRules?.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
+        let automodRules = await interaction.guild.autoModerationRules.fetch();
+        let KeywordPresetRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.blockpub_not_admin });
@@ -67,7 +69,7 @@ export default {
                     });
                 };
 
-                await interaction.guild?.autoModerationRules.create({
+                await interaction.guild.autoModerationRules.create({
                     name: 'Block advertissement message by iHorizon',
                     enabled: true,
                     eventType: 1,

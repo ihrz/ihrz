@@ -32,6 +32,8 @@ import { DatabaseStructure } from '../../../core/database_structure';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setup_not_admin });
@@ -39,9 +41,9 @@ export default {
         };
 
         let channel = interaction.options.getChannel('channel') as GuildChannel;
-        let all_channels = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) as DatabaseStructure.GhostPingData['channels'];
+        let all_channels: DatabaseStructure.GhostPingData['channels'] = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) || [];
 
-        if (!all_channels?.includes(channel.id)) {
+        if (!all_channels.includes(channel.id)) {
             await interaction.reply({
                 content: data.joinghostping_remove_isnt_set
                     .replace('${channel}', channel.toString())
@@ -59,7 +61,7 @@ export default {
             .setDescription(data.joinghostping_remove_ok_embed_desc)
             .addFields({
                 name: data.joinghostping_add_ok_embed_fields_name,
-                value: all_channels ? all_channels.map(x => `<#${x}>`).join('\n') : `<#${channel.id}>`
+                value: all_channels ? Array.from(new Set(all_channels.map(x => `<#${x}>`))).join('\n') : `<#${channel.id}>`
             });
 
         try {
@@ -71,9 +73,9 @@ export default {
                     .replace('${channel}', channel.toString())
                 )
 
-            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) {
-                (logchannel as BaseGuildTextChannel)?.send({ embeds: [logEmbed] })
+                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
             }
         } catch { };
 

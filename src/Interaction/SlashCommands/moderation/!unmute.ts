@@ -33,6 +33,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let tomute = interaction.options.getMember("user") as GuildMember;
         let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages);
@@ -44,7 +46,7 @@ export default {
             return;
         };
 
-        if (!interaction.guild?.members.me?.permissions.has([PermissionsBitField.Flags.ManageRoles])) {
+        if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageRoles])) {
             await interaction.editReply({
                 content: data.unmute_i_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });

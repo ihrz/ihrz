@@ -38,11 +38,14 @@ export const command: Command = {
     description_localizations: {
         "fr": "Recréation d'un canal (autorisation de clonage et toutes les configurations)"
     },
-    
+
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
@@ -53,9 +56,9 @@ export const command: Command = {
         let channel = interaction.channel as BaseGuildTextChannel;
 
         try {
-            await channel?.delete();
+            await channel.delete();
 
-            let here = await channel?.clone({
+            let here = await channel.clone({
                 name: channel.name,
                 parent: channel.parent,
                 permissionOverwrites: channel.permissionOverwrites.cache!,

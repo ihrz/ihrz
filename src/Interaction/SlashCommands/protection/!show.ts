@@ -28,6 +28,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         var text = "";
 
@@ -51,7 +53,7 @@ export default {
             text += `<@${i}>\n`
         };
 
-        if (interaction.user.id !== interaction.guild?.ownerId && !text.includes(interaction.user.id)) {
+        if (interaction.user.id !== interaction.guild.ownerId && !text.includes(interaction.user.id)) {
             await interaction.reply({ content: data.allowlist_show_not_permited });
             return;
         };

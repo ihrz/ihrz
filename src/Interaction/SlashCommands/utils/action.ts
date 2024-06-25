@@ -28,7 +28,6 @@ import {
 
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import wait from '../../../core/functions/wait.js';
 
 export const command: Command = {
     name: 'action',

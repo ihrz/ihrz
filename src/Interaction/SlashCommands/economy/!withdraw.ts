@@ -30,6 +30,8 @@ import { DatabaseStructure } from '../../../core/database_structure';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let dataAccount = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY`) as DatabaseStructure.EconomyUserSchema;
         let toWithdraw = interaction.options.getNumber('how-much') as number;
@@ -67,7 +69,7 @@ export default {
 
         await interaction.reply({
             embeds: [embed],
-            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

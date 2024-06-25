@@ -33,16 +33,12 @@ export namespace AntiSpam {
     }
 
     export interface AntiSpamCache {
-        raidInfo: Map<string, { value: number | boolean }>;
-        messages: Set<CachedMessage>;
-
-        kickedUsers: Set<Snowflake>;
-        bannedUsers: Set<Snowflake>;
-
-        membersToPunish: Set<GuildMember>;
-        membersFlags: Map<string, { value: number }>;
-        spamMessagesToClear: Set<CachedMessage>;
-    }
+        raidInfo: Map<string, Map<string, { value: number | boolean }>>;
+        messages: Map<string, Set<CachedMessage>>;
+        membersToPunish: Map<string, Set<GuildMember>>;
+        membersFlags: Map<string, Map<string, { value: number }>>;
+        spamMessagesToClear: Map<string, Set<CachedMessage>>;
+    }    
 
     export interface AntiSpamOptions {
         BYPASS_ROLES?: string[];

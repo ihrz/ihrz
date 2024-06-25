@@ -29,6 +29,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let timeout = 3_600_000;
         let work = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.work`);

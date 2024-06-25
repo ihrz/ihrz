@@ -34,6 +34,8 @@ const OWNIHRZ = new OwnIHRZ();
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let action_to_do = interaction.options.getString('action');
         let id_to_bot = interaction.options.getString('id');

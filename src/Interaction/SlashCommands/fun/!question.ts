@@ -28,11 +28,14 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         let question = interaction.options.getString("question") as string;
 
         let text = question?.split(" ");
 
-        if (!text?.[2]) {
+        if (!text[2]) {
             await interaction.editReply({ content: data.question_not_full });
             return;
         }

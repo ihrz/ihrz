@@ -37,6 +37,8 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let pause = new ButtonBuilder()
             .setCustomId('pause')
@@ -147,7 +149,7 @@ export default {
                             case "stop":
                                 await i.deferUpdate();
                                 player.destroy();
-                                (channel as BaseGuildTextChannel)?.send({ content: data.nowplaying_stop_buttom.replace('${interaction.user}', interaction.user.toString()) });
+                                (channel as BaseGuildTextChannel).send({ content: data.nowplaying_stop_buttom.replace('${interaction.user}', interaction.user.toString()) });
                                 break;
                         }
 
@@ -164,7 +166,7 @@ export default {
                 await response.edit({ components: [] });
             });
         } catch {
-            await interaction.channel?.send(client.iHorizon_Emojis.icon.Timer);
+            await interaction.channel.send(client.iHorizon_Emojis.icon.Timer);
             return;
         };
     }
