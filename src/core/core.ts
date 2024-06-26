@@ -88,6 +88,14 @@ export async function main(client: Client) {
         },
     });
 
+    client.db = await initializeDatabase(client.config);
+    client.content = [];
+    client.category = [];
+    client.invites = new Collection();
+    client.timeCalculator = new iHorizonTimeCalculator();
+    client.lyricsSearcher = new LyricsManager();
+    client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
+
     process.on('SIGINT', async () => {
         client.destroy();
         await new OwnIHRZ().QuitProgram(client);
@@ -98,14 +106,6 @@ export async function main(client: Client) {
     playerManager(client);
     bash(client);
     emojis(client);
-
-    client.db = await initializeDatabase(client.config);
-    client.content = [];
-    client.category = [];
-    client.invites = new Collection();
-    client.timeCalculator = new iHorizonTimeCalculator();
-    client.lyricsSearcher = new LyricsManager();
-    client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 
     let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
     let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));

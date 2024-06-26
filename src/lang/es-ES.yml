@@ -181,6 +181,7 @@ leaderboard_text_inline: "`${i} ` <@${index.inviter}> • Invitaciones∶ **${in
 leaderboard_default_text: "__**Tabla de clasificación**__"
 leaderboard_rank_text: "🏅Actualmente estás clasificado en `${userRank + 1}`/`${arr.length}` con **${arr[userRank].invites}** invitaciones\n\n"
 leaderboard_rank_none: "🏅Actualmente no estás clasificado.\n\n"
+leaderboard_gen_time_msg: "El leaderboard de **${interaction.guild?.name}** generado en ${Date.now() - execTimestamp}ms.\n\n"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "¡Necesitas ser administrador para usar este comando!"
@@ -1130,6 +1131,11 @@ embed_choose_12: "¿Qué color deseas incluir en tu Embed? **www.color-hex.com**
 embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | ¡Color inválido! Por favor, verifica **www.color-hex.com**"
 embed_choose_13: "¡Se ha eliminado correctamente el color del Embed!"
 embed_send_embed_work: "<@${interaction.user.id}>, **Has enviado con éxito el Embed al canal <#${message.content}>!**"
+embed_copy_bad_guild_msg: "La guild donde está el mensaje no es la misma que ${interaction.guild?.name}"
+embed_copy_bad_channel_msg: "¡El canal donde está el mensaje es inalcanzable!"
+embed_copy_bad_message_msg: "¡El mensaje es inalcanzable!"
+embed_copy_bad_embed_message_msg: "¡El mensaje no tiene un embed!"
+embed_copy_bad_url_msg: "URL inválida, por favor intente nuevamente. El formato correcto es: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
 
 # /rolesaver
 rolesaver_embed_title: "Módulo RoleSaver"

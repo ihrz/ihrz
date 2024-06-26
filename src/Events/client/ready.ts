@@ -52,12 +52,18 @@ export const event: BotEvent = {
         };
 
         async function refreshDatabaseModel() {
-            let table = client.db.table('OWNER');
-
-            client.owners.forEach(async ownerId => {
-                await table.set(ownerId, { owner: true })
-            });
             await client.db.table(`TEMP`).deleteAll();
+            let table = client.db.table('OWNER');
+            let owners = [...client.owners, ...(await table.all()).map(x => x.id)];
+
+            owners.forEach(async ownerId => {
+                try {
+                    let _ = await client.users?.fetch(ownerId);
+                    await table.set(_.id, { owner: true })
+                } catch {
+                    await table.delete(ownerId)
+                }
+            });
         };
 
         async function quotesPresence() {
