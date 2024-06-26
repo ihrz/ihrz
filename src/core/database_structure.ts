@@ -51,15 +51,16 @@ export namespace DatabaseStructure {
     }
 
     export interface TicketData {
-        [userId: string]: {
-            [channelId: string]: {
-                channel: string;
-                author: string;
-                alive: boolean;
-            };
-        };
+        [userId: string]: TicketUserData;
     }
 
+    export interface TicketUserData {
+        [channelId: string]: {
+            channel: string;
+            author: string;
+            alive: boolean;
+        };
+    }
     export interface ProtectionData {
         [rule: string]: {
             mode: string;

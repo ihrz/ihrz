@@ -835,6 +835,11 @@ export interface LanguageData {
   embed_choose_12_error: string;
   embed_choose_13: string;
   embed_send_embed_work: string;
+  embed_copy_bad_guild_msg: string;
+  embed_copy_bad_channel_msg: string;
+  embed_copy_bad_message_msg: string;
+  embed_copy_bad_embed_message_msg: string;
+  embed_copy_bad_url_msg: string;
   rolesaver_embed_title: string;
   rolesaver_embed_desc: string;
   rolesaver_embed_fields_1_name: string;

@@ -31,7 +31,7 @@ export default async (client: Client) => {
 
     nodes.forEach(i => {
         i.retryAmount = 100
-        i.retryDelay = 5000
+        i.retryDelay = 50_000
     });
 
     client.player = new LavalinkManager({

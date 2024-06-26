@@ -40,8 +40,8 @@ export default async (client: Client) => {
     if (!client.config.core.bash) return;
 
     let rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
+        input: process.stdin as any,
+        output: process.stdout as any
     });
 
     let now2 = new Date();

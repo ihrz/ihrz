@@ -149,12 +149,12 @@ function generateMergedTypeString(json: any): string {
 
 function promptUser(): Promise<number> {
     const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
+        input: process.stdin as any,
+        output: process.stdout as any
     });
 
     return new Promise((resolve) => {
-        rl.question('Choose an option:\n1. Verify the integrity of files and do nothing more\n2. Verify the integrity of files and create TypeScript Interface files\n', (answer) => {
+        rl.question('Choose an option:\n1. [EXIT]\n2. Create TypeScript Interface files\n', (answer) => {
             rl.close();
             resolve(parseInt(answer, 10));
         });
