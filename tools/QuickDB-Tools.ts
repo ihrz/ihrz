@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -49,8 +49,8 @@ let tables_to_export = [
 ];
 
 logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
-logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray);
-logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".gray);
+logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
+logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
 logger.legacy(`Table(s) to export: ${tables_to_export.length}`.green);
 
 const time_before = Date.now();
