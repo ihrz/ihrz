@@ -48,21 +48,21 @@ async function isImageUrl(url: string): Promise<boolean> {
 };
 
 export const command: Command = {
-    name: 'setavatar',
+    name: 'setbanner',
 
-    description: 'Set the avatar of the bot !',
+    description: 'Set the banner of the bot !',
     description_localizations: {
-        "fr": "Définir l'avatar du bot !"
+        "fr": "Définir la bannière du bot !"
     },
 
     options: [
         {
-            name: 'pfp',
+            name: 'banner',
             type: ApplicationCommandOptionType.String,
 
-            description: 'The pfp for the bot',
+            description: 'The banner for the bot',
             description_localizations: {
-                "fr": "La pp du bot"
+                "fr": "La bannière pour le bot"
             },
 
             required: true,
@@ -74,14 +74,14 @@ export const command: Command = {
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         async function cooldDown() {
             let tn = Date.now();
-            var fetch = await client.db.get(`TEMP_COOLDOWN.${interaction.user.id}.SETAVATAR`);
+            var fetch = await client.db.get(`TEMP_COOLDOWN.${interaction.user.id}.SETBANNER`);
 
             if (fetch !== null && timeout - (tn - fetch) > 0) return true;
 
             return false;
         };
 
-        let action_2 = interaction.options.getString("pfp");
+        let action_2 = interaction.options.getString("banner");
         let table = client.db.table('OWNER');
 
         if (await table.get(`${interaction.user.id}.owner`)
@@ -93,7 +93,7 @@ export const command: Command = {
 
         if (await cooldDown()) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() -
-                await client.db.get(`TEMP_COOLDOWN.${interaction.user.id}.SETAVATAR`)
+                await client.db.get(`TEMP_COOLDOWN.${interaction.user.id}.SETBANNER`)
             ));
 
             await interaction.reply({ content: `Veuillez attendre ${time} avant de ré-éxecuter cette commandes!` });
@@ -103,10 +103,10 @@ export const command: Command = {
         isImageUrl(action_2 as string)
             .then(async (isValid) => {
                 if (isValid) {
-                    client.user?.setAvatar(action_2);
-                    await client.db.set(`TEMP_COOLDOWN.${interaction.user.id}.SETAVATAR`, Date.now());
+                    client.user?.setBanner(action_2);
+                    await client.db.set(`TEMP_COOLDOWN.${interaction.user.id}.SETBANNER`, Date.now());
 
-                    return interaction.reply({ content: `La photo de profil du bot as bien été changer avec succès.` });
+                    return interaction.reply({ content: `La bannière du bot as bien été changer avec succès.` });
                 } else {
                     return interaction.reply({ content: `L'URL saisie n'est pas une image. Veuillez changer d'URL.` });
                 }
