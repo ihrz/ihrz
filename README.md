@@ -1,8 +1,12 @@
 # Official iHorizon Repo
 
 iHorizon is a Discord bot written in [TypeScript](https://www.typescriptlang.org/) and using [pwss](https://npmjs.com/pwss) !
-IHorizon have a large variety of features, including moderation, invite management, guild configuration, fun commands, music playback, giveaways, backup and lot more!
+iHorizon have a large variety of features, including moderation, invite management, guild configuration, fun commands, music playback, giveaways, backup and lot more!
 
+[![npm version](https://badge.fury.io/js/ihrz.svg)](https://badge.fury.io/js/ihrz)
+![NPM Downloads](https://img.shields.io/npm/dm/ihrz)
+![GitHub Release](https://img.shields.io/github/v/release/ihrz/ihrz)
+![GitHub Repo stars](https://img.shields.io/github/stars/ihrz/ihrz)
 ## Languages
 
 * English
@@ -13,7 +17,7 @@ IHorizon have a large variety of features, including moderation, invite manageme
 * Japanese
 * Spanish
 * Russian
-* And soon more !
+* Portuguese
 
 ## Contributor's Wall
 
@@ -21,16 +25,16 @@ IHorizon have a large variety of features, including moderation, invite manageme
 - [NayaWeb](https://github.com/belugafr) (She/Her)
 - [Noémie](https://github.com/name-shitty-github-profile) (She/Her)
 - [Maxine](https://github.com/mxi1n) (She/Her)
-- [Wyene](https://github.com/WyeneCloud) (He/Him)
+- [Wyene](https://github.com/tryedandcatched) (He/Him)
 
 ## Origin
 
 The bot was primarily developed by Kisakay and was first released in **September 2020** using **discord.js** v12 and now use pwss, yeah !
-Now, It has a strong architecture with separated modules, each with their own owner directory.**
+Now, It has a strong architecture with separated modules, each with their own owner directory.
 
 ## Is it Free ?
 
-The iHorizon project is licensed under the  [`Creative Commons Attribution-NonCommercial-ShareAlike 2.0`](https://creativecommons.org/licenses/by-nc-sa/2.0/) license.
+The iHorizon project is licensed under the  [`CC BY-NC-SA 4.0`](https://creativecommons.org/licenses/by-nc-sa/4.0/) license.
 
 **Is allowed to :**
 
@@ -39,21 +43,21 @@ The iHorizon project is licensed under the  [`Creative Commons Attribution-NonCo
 
 **Is unallowed to :**
 
-- **Attribution** — You must give [appropriate credit](https://creativecommons.org/licenses/by-nc-sa/2.0/#), provide a link to the license, and [indicate if changes were made](https://creativecommons.org/licenses/by-nc-sa/2.0/#). You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
-- **NonCommercial** — You may not use the material for [commercial purposes](https://creativecommons.org/licenses/by-nc-sa/2.0/#).
-- **ShareAlike** — If you remix, transform, or build upon the material, you must distribute your contributions under the [same license](https://creativecommons.org/licenses/by-nc-sa/2.0/#) as the original.
-- **No additional restrictions** — You may not apply legal terms or [technological measures](https://creativecommons.org/licenses/by-nc-sa/2.0/#) that legally restrict others from doing anything the license permits.
+- **Attribution** — You must give [appropriate credit](https://creativecommons.org/licenses/by-nc-sa/4.0/), provide a link to the license, and [indicate if changes were made](https://creativecommons.org/licenses/by-nc-sa/4.0/). You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+- **NonCommercial** — You may not use the material for [commercial purposes](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+- **ShareAlike** — If you remix, transform, or build upon the material, you must distribute your contributions under the [same license](https://creativecommons.org/licenses/by-nc-sa/4.0/) as the original.
+- **No additional restrictions** — You may not apply legal terms or [technological measures](https://creativecommons.org/licenses/by-nc-sa/4.0/) that legally restrict others from doing anything the license permits.
 
 # How to selfhost ?
 
 _There are only some few software needed :_
 
-- [NodeJS](https://nodejs.org) (**18 or higher required**)
+- [NodeJS](https://nodejs.org) (**20 or higher required**)
 - [Npm](https://npmjs.com) (**With NodeJS**)
 
 ### How to configure the bot ?
 
-* Open [config.example.ts](https://github.com/ihrz/ihrz/blob/main/src/files/config.example.ts) in file Editor (Notepad, VSCode...), enter your informations, and rename to config.ts.
+* Open [config.example.ts](https://github.com/ihrz/ihrz/blob/dev/src/files/config.example.ts) in file Editor (Notepad, VSCode...), enter your informations, and rename to config.ts.
 
 After your configuration in the config.ts :
 
@@ -79,7 +83,7 @@ Your bot is faster than most popular bots and you can do what you want with it, 
 
 # About the bot
 IHorizon is trusted by more than **275 000** users!<br>
-Used by more than 450 servers!
+Used by more than 540 servers!
 <br>
 Certified by discord and had even more than 75 servers before starting the verification process!
 
