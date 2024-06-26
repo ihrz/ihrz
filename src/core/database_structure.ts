@@ -39,12 +39,14 @@ export namespace DatabaseStructure {
     }
 
     export interface DbBackupsObject {
-        [userId: string]: {
-            [backupId: string]: {
-                guildName: string;
-                categoryCount: number;
-                channelCount: number;
-            };
+        [userId: string]: DbBackupsUserObject;
+    }
+
+    export interface DbBackupsUserObject {
+        [backupId: string]: {
+            guildName: string;
+            categoryCount: number;
+            channelCount: number;
         };
     }
 

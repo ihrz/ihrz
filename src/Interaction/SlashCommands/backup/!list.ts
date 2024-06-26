@@ -23,8 +23,15 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ComponentType,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
+import { DatabaseStructure } from '../../../core/database_structure';
+
+const itemsPerPage = 5;
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
@@ -40,21 +47,88 @@ export default {
             return;
         };
 
-        let em = new EmbedBuilder().setDescription(data.backup_all_of_your_backup).setColor("#bf0bb9").setTimestamp();
-        let data2 = await client.db.get(`BACKUPS.${interaction.user.id}`);
-        let b: number = 1;
+        let data2 = await client.db.get(`BACKUPS.${interaction.user.id}`) as DatabaseStructure.DbBackupsUserObject;
+        let backups = [];
 
         for (let i in data2) {
-            let result = await client.db.get(`BACKUPS.${interaction.user.id}.${i}`);
+            let result = data2[i];
 
             let v = (data.backup_string_see_another_v
-                .replace('${result.categoryCount}', result.categoryCount)
-                .replace('${result.channelCount}', result.channelCount));
+                .replace('${result.categoryCount}', result.categoryCount.toString())
+                .replace('${result.channelCount}', result.channelCount.toString()));
 
-            if (result) em.addFields({ name: `${result.guildName} - (||${i}||)`, value: v }) && b++;
+            if (result) backups.push({ name: `${result.guildName} - (||${i}||)`, value: v });
         };
 
-        await interaction.editReply({ embeds: [em] });
+        const totalPages = Math.ceil(backups.length / itemsPerPage);
+        let currentPage = 0;
+
+        const generateEmbed = (page: number) => {
+            let embed = new EmbedBuilder()
+                .setDescription(data.backup_all_of_your_backup)
+                .setAuthor({ name: interaction.member?.user.username || interaction.user.displayName, iconURL: "attachment://user_icon.png" })
+                .setColor("#bf0bb9")
+                .setTimestamp();
+
+                let start = page * itemsPerPage;
+            let end = start + itemsPerPage;
+            let currentBackups = backups.slice(start, end);
+
+            currentBackups.forEach(backup => embed.addFields(backup));
+
+            embed.setFooter({
+                text: data.prevnames_embed_footer_text
+                    .replace("${currentPage + 1}", String(page + 1))
+                    .replace("${pages.length}", String(totalPages)),
+                iconURL: "attachment://bot_icon.png"
+            });
+            return embed;
+        };
+
+        const generateButtons = (page: number) => {
+            return new ActionRowBuilder<ButtonBuilder>()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('previous')
+                        .setLabel('<<')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setDisabled(page === 0),
+                    new ButtonBuilder()
+                        .setCustomId('next')
+                        .setLabel('>>')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setDisabled(page === totalPages - 1)
+                );
+        };
+
+        await interaction.editReply({
+            embeds: [generateEmbed(currentPage)],
+            components: [generateButtons(currentPage)],
+            files: [
+                { attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'bot_icon.png' },
+                { attachment: await interaction.client.functions.image64(interaction.user.displayAvatarURL()), name: 'user_icon.png' }
+            ]
+        });
+
+        const collector = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 60_000 });
+
+        collector.on('collect', async (i) => {
+            if (i.customId === 'previous') {
+                currentPage--;
+            } else if (i.customId === 'next') {
+                currentPage++;
+            }
+
+            await i.update({
+                embeds: [generateEmbed(currentPage)],
+                components: [generateButtons(currentPage)]
+            });
+        });
+
+        collector.on('end', () => {
+            interaction.editReply({ components: [] });
+        });
+
         return;
     },
 };
