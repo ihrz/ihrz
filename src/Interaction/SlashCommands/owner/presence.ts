@@ -70,6 +70,14 @@ export const command: Command = {
                     name: 'Watching',
                     value: 'watching'
                 },
+                {
+                    name: 'Custom',
+                    value: 'custom'
+                },
+                {
+                    name: 'Competing',
+                    value: 'competing'
+                },
             ]
         },
         {
@@ -161,6 +169,32 @@ export const command: Command = {
                 await client.db.set(`BOT.PRESENCE`,
                     {
                         type: ActivityType.Listening,
+                        name: action_2,
+                        url: 'https://twitch.tv/anaissaraiva'
+                    }
+                );
+                break;
+            case 'custom':
+                client.user?.setActivity(action_2, {
+                    type: ActivityType.Custom,
+                    url: "https://www.twitch.tv/anaissaraiva"
+                });
+                await client.db.set(`BOT.PRESENCE`,
+                    {
+                        type: ActivityType.Custom,
+                        name: action_2,
+                        url: 'https://twitch.tv/anaissaraiva'
+                    }
+                );
+                break;
+            case 'competing':
+                client.user?.setActivity(action_2, {
+                    type: ActivityType.Competing,
+                    url: "https://www.twitch.tv/anaissaraiva"
+                });
+                await client.db.set(`BOT.PRESENCE`,
+                    {
+                        type: ActivityType.Competing,
                         name: action_2,
                         url: 'https://twitch.tv/anaissaraiva'
                     }
