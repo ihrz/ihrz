@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -238,7 +238,7 @@ function xpStatsToString(xp: any, data: LanguageData): string {
 }
 
 function logsToString(logs: DatabaseStructure.DbGuildObject['SERVER_LOGS'], data: LanguageData): string {
-    return logs ? [logs.roles, logs.moderation, logs.voice, logs.message, logs.boosts].filter(Boolean).map(log => `<#${log}>`).join(',') : data.guildprofil_not_logs_set;
+    return logs ? [logs.roles, logs.moderation, logs.voice, logs.message, logs.boosts, logs.antispam].filter(Boolean).map(log => `<#${log}>`).join(',') : data.guildprofil_not_logs_set;
 }
 
 function blockBotToString(blockBot: any, data: LanguageData): string {
