@@ -1131,6 +1131,11 @@ embed_choose_12: "Quel est la couleur que voulez-vous inclure dans votre Embed? 
 embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | Couleur Invalide ! Svp, renseignez vous sur **www.color-hex.com**"
 embed_choose_13: "La couleur de l'Embed à correctement été Supprimer !"
 embed_send_embed_work: "<@${interaction.user.id}>, **Vous avez parfaitement envoyé l'Embed dans le salon <#${message.content}> !**"
+embed_copy_bad_guild_msg: "Le serveur où se trouve le message n'est pas la même que ${interaction.guild?.name}"
+embed_copy_bad_channel_msg: "Le canal où se trouve le message est inaccessible !"
+embed_copy_bad_message_msg: "Le message est inaccessible !"
+embed_copy_bad_embed_message_msg: "Le message ne contient pas d'embed !"
+embed_copy_bad_url_msg: "URL invalide, veuillez réessayer. Le format correct est : https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
 
 # /rolesaver
 rolesaver_embed_title: "Module RoleSaver"

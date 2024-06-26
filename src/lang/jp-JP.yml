@@ -1131,6 +1131,11 @@ embed_choose_12: "埋め込みに含める色は何ですか？ **www.color-hex.
 embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | 無効な色です！ www.color-hex.comで調べてください。"
 embed_choose_13: "埋め込みの色が正常に削除されました！"
 embed_send_embed_work: "<@${interaction.user.id}>さん、**埋め込みを正常に<#${message.content}>チャンネルに送信しました！**"
+embed_copy_bad_guild_msg: "メッセージがあるギルドは ${interaction.guild?.name} と同じではありません"
+embed_copy_bad_channel_msg: "メッセージがあるチャンネルにアクセスできません！"
+embed_copy_bad_message_msg: "メッセージにアクセスできません！"
+embed_copy_bad_embed_message_msg: "メッセージに埋め込みがありません！"
+embed_copy_bad_url_msg: "無効なURLです。再試行してください。正しい形式は次のとおりです: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
 
 # /rolesaver
 rolesaver_embed_title: "RoleSaverモジュール"

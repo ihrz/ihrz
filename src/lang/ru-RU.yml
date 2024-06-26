@@ -1131,6 +1131,11 @@ embed_choose_12: "Какой цвет вы хотите включить во в
 embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | Неверный цвет! Пожалуйста, проверьте **www.color-hex.com**"
 embed_choose_13: "Цвет встраивания успешно удален!"
 embed_send_embed_work: "<@${interaction.user.id}>, **Вы успешно отправили встраивание в канал <#${message.content}>!**"
+embed_copy_bad_guild_msg: "Гильдия, где находится сообщение, не совпадает с ${interaction.guild?.name}"
+embed_copy_bad_channel_msg: "Канал, где находится сообщение, недоступен!"
+embed_copy_bad_message_msg: "Сообщение недоступно!"
+embed_copy_bad_embed_message_msg: "Сообщение не содержит встроенных данных!"
+embed_copy_bad_url_msg: "Неверный URL, пожалуйста, попробуйте снова. Правильный формат: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
 
 # /rolesaver
 rolesaver_embed_title: "Модуль RoleSaver"
