@@ -41,6 +41,8 @@ import {
     ButtonInteraction,
     ChannelSelectMenuInteraction,
     Message,
+    GuildBasedChannel,
+    TextChannel,
 } from 'pwss';
 
 import { Command } from '../../../../types/command';
@@ -152,9 +154,51 @@ export const command: Command = {
         async function chooseAction(i: StringSelectMenuInteraction<CacheType>) {
             switch (i.values[0]) {
                 case '0':
-                    await handleCollector(i, 'embed_choose_0', (message) => {
-                        __tempEmbed.setDescription(message.content);
-                        response.edit({ embeds: [__tempEmbed] });
+                    await handleCollector(i, 'embed_choose_0', async (message) => {
+                        try {
+                            const parts = extractDiscordUrlParts(message.content || 'none');
+
+                            if (parts.userIdOrGuildId !== interaction.guildId) {
+                                i.followUp({ content: data.embed_copy_bad_guild_msg.replace("${interaction.guild?.name}", interaction.guild?.name!), ephemeral: true })
+                                return;
+                            }
+
+                            const channel: TextChannel | null = interaction.guild?.channels.cache.get(parts.channelId) as TextChannel;
+
+                            if (!channel) {
+                                i.followUp({ content: data.embed_copy_bad_channel_msg, ephemeral: true })
+                                return;
+                            };
+
+                            const targetMessage = await channel?.messages.fetch(parts.messageId);
+
+                            if (!targetMessage) {
+                                i.followUp({ content: data.embed_copy_bad_message_msg, ephemeral: true })
+                                return;
+                            };
+
+                            const targetMessageEmbedsSize = targetMessage.embeds.length;
+
+                            if (targetMessageEmbedsSize === 0) {
+                                i.followUp({ content: data.embed_copy_bad_embed_message_msg, ephemeral: true })
+                                return;
+                            };
+
+                            const newEmbed = targetMessage.embeds[0];
+
+                            __tempEmbed = EmbedBuilder.from(newEmbed);
+
+                            response.edit({ embeds: [__tempEmbed] });
+                        } catch (err) {
+                            i.followUp({
+                                content: data.embed_copy_bad_url_msg
+                                    .replace("${message.guildId}", message.guildId!)
+                                    .replace("${interaction.channelId}", interaction.channelId!)
+                                    .replace("${interaction.id}", interaction.id!),
+                                ephemeral: true
+                            });
+                            return;
+                        }
                     });
                     break;
                 case '1':
@@ -164,9 +208,9 @@ export const command: Command = {
                     });
                     break;
                 case '2':
-                    __tempEmbed.setTitle('** **');
+                    __tempEmbed.setTitle(null);
                     response.edit({ embeds: [__tempEmbed] });
-                    await i.reply({ content: data.embed_choose_2 });
+                    await i.reply({ content: data.embed_choose_2, ephemeral: true });
                     break;
                 case '3':
                     await handleCollector(i, 'embed_choose_3', (message) => {
@@ -175,9 +219,9 @@ export const command: Command = {
                     });
                     break;
                 case '4':
-                    __tempEmbed.setDescription('** **');
+                    __tempEmbed.setDescription("** **");
                     response.edit({ embeds: [__tempEmbed] });
-                    await i.reply({ content: data.embed_choose_4 });
+                    await i.reply({ content: data.embed_choose_4, ephemeral: true });
                     break;
                 case '5':
                     await handleCollector(i, 'embed_choose_5', (message) => {
@@ -186,9 +230,9 @@ export const command: Command = {
                     });
                     break;
                 case '6':
-                    __tempEmbed.setAuthor({ name: "      " });
+                    __tempEmbed.setAuthor(null);
                     response.edit({ embeds: [__tempEmbed] });
-                    await i.reply({ content: data.embed_choose_6 });
+                    await i.reply({ content: data.embed_choose_6, ephemeral: true });
                     break;
                 case '7':
                     await handleCollector(i, 'embed_choose_7', (message) => {
@@ -197,9 +241,9 @@ export const command: Command = {
                     });
                     break;
                 case '8':
-                    __tempEmbed.setFooter({ text: "** **" });
+                    __tempEmbed.setFooter(null);
                     response.edit({ embeds: [__tempEmbed] });
-                    await i.reply({ content: data.embed_choose_8 });
+                    await i.reply({ content: data.embed_choose_8, ephemeral: true });
                     break;
                 case '9':
                     await handleCollector(i, 'embed_choose_9', (message) => {
@@ -240,9 +284,9 @@ export const command: Command = {
                     });
                     break;
                 case '13':
-                    __tempEmbed.setColor("#000000");
+                    __tempEmbed.setColor(null);
                     response.edit({ embeds: [__tempEmbed] });
-                    await i.reply({ content: data.embed_choose_13 });
+                    await i.reply({ content: data.embed_choose_13, ephemeral: true });
                     break;
                 default:
                     break;
@@ -251,7 +295,7 @@ export const command: Command = {
 
         async function handleCollector(i: StringSelectMenuInteraction<CacheType>, replyContent: LanguageDataKeys, onCollect: (message: Message) => void) {
             const replyMessage = Array.isArray(data[replyContent]) ? (data[replyContent] as string[]).join(' ') : data[replyContent];
-            let reply = await i.reply({ content: replyMessage.toString() });
+            let reply = await i.reply({ content: replyMessage.toString(), ephemeral: true });
             let messageCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 120_000 });
             messageCollector?.on('collect', async (message) => {
                 onCollect(message);
@@ -360,6 +404,25 @@ export const command: Command = {
 
         function isValidColor(color: string): boolean {
             return /^#([0-9a-f]{3}){1,2}$/i.test(color);
+        }
+
+        function extractDiscordUrlParts(url: string): { userIdOrGuildId: string, channelId: string, messageId: string } {
+            const urlObj = new URL(url);
+            const pathSegments = urlObj.pathname.split('/').filter(segment => segment !== '');
+
+            if (pathSegments.length < 4 || pathSegments[0] !== 'channels') {
+                throw new Error('URL Discord non valide');
+            }
+
+            const userIdOrGuildId = pathSegments[1];
+            const channelId = pathSegments[2];
+            const messageId = pathSegments[3];
+
+            return {
+                userIdOrGuildId,
+                channelId,
+                messageId
+            };
         }
     },
 };
