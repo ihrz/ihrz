@@ -45,7 +45,7 @@ export const command: Command = {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         await interaction.reply({ content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading });
 
         let _net01: number | string = '';
@@ -74,12 +74,12 @@ export const command: Command = {
                 .replace('${client.iHorizon_Emojis.icon.iHorizon_Pointer}', client.iHorizon_Emojis.icon.iHorizon_Pointer)
                 .replace('${averagePing}', averagePing.toString())
             )
-            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" });
+            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" });
 
         await interaction.editReply({
             content: null,
             embeds: [embed],
-            files: [{ attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png' }],
+            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }],
         });
         return;
     },

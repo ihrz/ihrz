@@ -106,7 +106,7 @@ export const command: Command = {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let type = interaction.options.getString("language");
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
@@ -122,7 +122,7 @@ export const command: Command = {
         }
 
         await client.db.set(`${interaction.guildId}.GUILD.LANG`, { lang: type });
-        data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         try {
             let logEmbed = new EmbedBuilder()

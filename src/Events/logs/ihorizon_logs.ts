@@ -30,7 +30,7 @@ export const event: BotEvent = {
 
         if (channel.name !== "ihorizon-logs") return;
 
-        let data = await client.functions.getLanguageData(channel.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(channel.guild.id) as LanguageData;
 
         let setup_embed = new EmbedBuilder()
             .setColor(await client.db.get(`${channel.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#1e1d22")

@@ -152,7 +152,7 @@ export default {
                 },
             )
             .setFooter({
-                text: await client.functions.displayBotName(interaction.guild.id),
+                text: await client.func.displayBotName(interaction.guild.id),
                 iconURL: client.user.displayAvatarURL({ size: 1024 })
             });
 

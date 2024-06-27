@@ -60,7 +60,7 @@ export const command: Command = {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let str = (interaction.options.getString('emojis') as string).split(' ');
         let cnt: number = 0;
         let nemj: string = '';
@@ -107,7 +107,7 @@ export const command: Command = {
 
         await interaction.editReply({
             embeds: [embed],
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

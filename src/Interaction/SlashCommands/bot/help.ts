@@ -51,7 +51,7 @@ export const command: Command = {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         const categories: CategoryData[] = [];
 
@@ -139,18 +139,18 @@ export const command: Command = {
             .setTimestamp();
 
         let embed = new EmbedBuilder()
-            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setThumbnail("attachment://icon.png");
 
         let response = await interaction.reply({
             embeds: [og_embed],
             components: rows,
-            files: [{ attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
         });
 
         let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840_000 });
         let guildLang = await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`);
-        let bot_prefix = await client.functions.prefix.guildPrefix(client, interaction.guild?.id!);
+        let bot_prefix = await client.func.prefix.guildPrefix(client, interaction.guild?.id!);
 
         collector.on('collect', async (i: StringSelectMenuInteraction) => {
 
@@ -208,7 +208,7 @@ export const command: Command = {
                     newEmbed
                         .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
                         .setDescription(categories[i.values[0] as unknown as number].description)
-                        .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
+                        .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                         .setThumbnail("attachment://icon.png")
                         .setTimestamp();
                 }

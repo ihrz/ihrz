@@ -62,7 +62,7 @@ export default {
       files: [
         imgs,
         {
-          attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png'
+          attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png'
         }
       ]
     });

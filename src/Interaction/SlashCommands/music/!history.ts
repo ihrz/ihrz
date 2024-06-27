@@ -96,7 +96,7 @@ export default {
         let messageEmbed = await interaction.editReply({
             embeds: [createEmbed()],
             components: [(row as ActionRowBuilder<ButtonBuilder>)],
-            files: [attachment, { attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [attachment, { attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({

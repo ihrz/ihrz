@@ -92,7 +92,7 @@ export const command: Command = {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         let action_1 = interaction.options.getString("action");
         let part_of_nickname = interaction.options.getString("nickname")?.toLowerCase() as string;
@@ -153,7 +153,7 @@ export const command: Command = {
 
             await interaction.editReply({
                 embeds: [embed],
-                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
             });
             return;
 
@@ -202,7 +202,7 @@ export const command: Command = {
 
             await interaction.editReply({
                 embeds: [embed],
-                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
             });
             return;
         };

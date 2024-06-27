@@ -32,7 +32,7 @@ export default async (client: Client) => {
 
     client.selectmenu = new Collection<string, Function>();
     client.buttons = new Collection<string, Function>();
-    client.functions = {};
+    client.func = {};
 
     readdirSync(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'Buttons')).filter(file => file.endsWith(".js")).forEach(async file => {
         const buttons = await import(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'Buttons', file));
@@ -41,7 +41,7 @@ export default async (client: Client) => {
 
     readdirSync(path.join(__dirname, '..', '..', 'core', 'functions')).filter(file => file.endsWith(".js")).forEach(async file => {
         const functions = await import(path.join(__dirname, '..', '..', 'core', 'functions', file));
-        client.functions[file.split('.js')[0]] = functions.default || functions;
+        client.func[file.split('.js')[0]] = functions.default || functions;
     });
 
     readdirSync(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'SelectMenu')).filter(file => file.endsWith(".js")).forEach(async file => {

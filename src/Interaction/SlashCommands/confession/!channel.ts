@@ -70,7 +70,7 @@ export default {
             embeds: [embed],
             files: [
                 {
-                    attachment: await interaction.client.functions.image64(interaction.guild.iconURL() || client.user.displayAvatarURL()),
+                    attachment: await interaction.client.func.image64(interaction.guild.iconURL() || client.user.displayAvatarURL()),
                     name: 'guild_icon.png'
                 }
             ],

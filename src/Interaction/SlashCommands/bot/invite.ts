@@ -47,7 +47,7 @@ export const command: Command = {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         let button_add_me = new ButtonBuilder()
             .setStyle(ButtonStyle.Link)
@@ -59,7 +59,7 @@ export const command: Command = {
             .setTitle(data.invite_embed_title)
             .setDescription(data.invite_embed_description)
             .setURL('https://discord.com/api/oauth2/authorize?client_id=' + client.user.id + '&permissions=8&scope=bot')
-            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setThumbnail("attachment://icon.png");
 
         let components = new ActionRowBuilder<ButtonBuilder>().addComponents(button_add_me);
@@ -67,7 +67,7 @@ export const command: Command = {
         await interaction.reply({
             embeds: [invites],
             components: [components],
-            files: [{ attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

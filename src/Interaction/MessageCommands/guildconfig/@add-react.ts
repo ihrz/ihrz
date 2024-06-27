@@ -50,7 +50,7 @@ export const command: Command = {
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, execTimestamp: number, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
 
@@ -61,13 +61,13 @@ export const command: Command = {
         }
 
         if (!isSingleEmoji(emoji) && !isDiscordEmoji(emoji)) {
-            await interaction.reply({ content: `L'émoji \`${emoji || 'None'}\`de la réaction ne correspond pas à un émojis !` });
+            await interaction.reply({ content: `L'émoji \`${emoji || 'None'}\`de la réaction ne correspond pas à un émojis !`, allowedMentions: { repliedUser: false } });
             return;
         }
 
         let message = args[1];
 
-        await interaction.reply({ content: `<@${interaction.member?.id}>, maintenant quand un membre envoie \`${message.toLowerCase()}\`, le bot **réagis** avec ${emoji}` });
+        await interaction.reply({ content: `<@${interaction.member?.id}>, maintenant quand un membre envoie \`${message.toLowerCase()}\`, le bot **réagis** avec ${emoji}`, allowedMentions: { repliedUser: false } });
 
         await client.db.set(`${interaction.guildId}.GUILD.REACT_MSG.${message.toLowerCase()}`, emoji);
         return;

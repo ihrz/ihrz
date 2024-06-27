@@ -25,7 +25,7 @@ import { LanguageData } from '../../../../types/languageData';
 export default async function handleButtonInteraction(interaction: ButtonInteraction<CacheType>) {
     let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
     let table = interaction.client.db.table('TEMP');
-    let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let member = interaction.member as GuildMember;
     let targetedChannel = member.voice.channel;
     let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
@@ -99,7 +99,7 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
 
         await i.reply({
             embeds: [embed],
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }],
+            files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }],
             ephemeral: true
         });
     });

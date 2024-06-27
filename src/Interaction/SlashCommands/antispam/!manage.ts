@@ -114,7 +114,7 @@ export default {
             .setTitle(lang.antispam_manage_embed_title)
             .setThumbnail(interaction.guild.iconURL({ forceStatic: false })!)
             .setFooter({
-                text: await interaction.client.functions.displayBotName(interaction.guildId),
+                text: await interaction.client.func.displayBotName(interaction.guildId),
                 iconURL: interaction.client.user.displayAvatarURL({ forceStatic: false })
             });
 

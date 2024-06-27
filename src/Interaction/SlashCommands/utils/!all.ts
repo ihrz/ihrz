@@ -71,11 +71,11 @@ export default {
                             .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                             .replace('${cannot_unban}', cannot_unban.toString())
                     )
-                    .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+                    .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             ],
             files: [
                 {
-                    attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
+                    attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()),
                     name: 'icon.png'
                 }
             ]

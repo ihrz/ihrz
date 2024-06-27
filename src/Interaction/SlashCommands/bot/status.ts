@@ -49,7 +49,7 @@ export const command: Command = {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!client.owners.includes(interaction.user.id)) {
             await interaction.reply({ content: data.status_be_bot_dev });
@@ -67,11 +67,11 @@ export const command: Command = {
                 { name: "NodeJS Version", value: `${process.version}`, inline: false },
             )
             .setThumbnail(interaction.guild.iconURL() as string)
-            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
 
         await interaction.reply({
             embeds: [embed],
-            files: [{ attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

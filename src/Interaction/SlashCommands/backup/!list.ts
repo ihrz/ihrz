@@ -105,8 +105,8 @@ export default {
             embeds: [await generateEmbed(currentPage)],
             components: [generateButtons(currentPage)],
             files: [
-                { attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'bot_icon.png' },
-                { attachment: await interaction.client.functions.image64(interaction.user.displayAvatarURL()), name: 'user_icon.png' }
+                { attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'bot_icon.png' },
+                { attachment: await interaction.client.func.image64(interaction.user.displayAvatarURL()), name: 'user_icon.png' }
             ]
         });
 

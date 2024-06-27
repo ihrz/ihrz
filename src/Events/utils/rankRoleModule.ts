@@ -30,7 +30,7 @@ export const event: BotEvent = {
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        let data = await client.functions.getLanguageData(message.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(message.guild.id) as LanguageData;
 
         if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || message.author.bot
             || message.author.id === client.user?.id || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)
@@ -65,13 +65,13 @@ export const event: BotEvent = {
                     .replace("${message.author.id}", message.author.id)
                     .replace("${fetch.id}", fetch.id)
                 )
-                .setFooter({ text: await client.functions.displayBotName(message.guild.id), iconURL: "attachment://icon.png" })
+                .setFooter({ text: await client.func.displayBotName(message.guild.id), iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
             message.member?.roles.add(fetch).catch(() => { });
             message.channel.send({
                 embeds: [embed],
-                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
+                files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
                 enforceNonce: true,
                 nonce
             }).catch(() => { });

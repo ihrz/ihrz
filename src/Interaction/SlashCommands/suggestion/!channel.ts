@@ -54,7 +54,7 @@ export default {
         let setupEmbed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#000000')
             .setTitle(data.setsuggest_channel_embed_title)
-            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setDescription(data.setsuggest_channel_embed_desc);
 
         await client.db.set(`${interaction.guild.id}.SUGGEST.channel`, channel?.id);
@@ -66,7 +66,7 @@ export default {
 
         (channel as BaseGuildTextChannel).send({
             embeds: [setupEmbed],
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },
