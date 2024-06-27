@@ -39,6 +39,7 @@ import { Command } from '../../../../types/command';
 export const command: Command = {
 
     name: 'add-react',
+    aliases: ['react-add', 'addreact', 'reactadd'],
 
     description: 'Add reaction by iHorizon when user send message',
     description_localizations: {
