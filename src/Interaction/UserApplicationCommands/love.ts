@@ -93,7 +93,7 @@ export const command: AnotherCommand = {
                     .replace('${user2.username}', user2?.globalName!)
                     .replace('${randomNumber}', randomNumber.toString())
                 )
-                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
+                .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
             await interaction.reply({

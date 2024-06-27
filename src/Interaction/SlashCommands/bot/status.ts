@@ -66,8 +66,8 @@ export const command: Command = {
                 { name: "Bot Version", value: `${client.version.ClientVersion}`, inline: false },
                 { name: "NodeJS Version", value: `${process.version}`, inline: false },
             )
-            .setThumbnail(interaction.guild.iconURL())
-            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
+            .setThumbnail(interaction.guild.iconURL() as string)
+            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
 
         await interaction.reply({
             embeds: [embed],

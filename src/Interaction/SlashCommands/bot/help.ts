@@ -134,12 +134,12 @@ export const command: Command = {
                 .replaceAll('${client.iHorizon_Emojis.vc.Region}', client.iHorizon_Emojis.vc.Region)
                 .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
             )
-            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setThumbnail("attachment://icon.png")
             .setTimestamp();
 
         let embed = new EmbedBuilder()
-            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setThumbnail("attachment://icon.png");
 
         let response = await interaction.reply({
@@ -150,6 +150,7 @@ export const command: Command = {
 
         let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840_000 });
         let guildLang = await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`);
+        let bot_prefix = await client.functions.prefix.guildPrefix(client, interaction.guild?.id!);
 
         collector.on('collect', async (i: StringSelectMenuInteraction) => {
 
@@ -178,7 +179,8 @@ export const command: Command = {
             let currentGroup: { name: string, value: string, inline: boolean }[] = [];
 
             categories[i.values[0] as unknown as number].value.forEach(async (element, index) => {
-                let cmdPrefix = (element.messageCmd) ? `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**` : `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
+                let bot_prefix_placeholder = bot_prefix.type === 'mention' ? `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**` : `${client.iHorizon_Emojis.icon.Prefix_Command} **${bot_prefix.string}${element.cmd}**`
+                let cmdPrefix = (element.messageCmd) ? bot_prefix_placeholder : `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
                 let descValue = (guildLang === "fr-ME" || guildLang === "fr-FR") ? `\`${element.desc_localized["fr"]}\`` : `\`${element.desc}\``;
 
                 switch (guildLang) {
@@ -206,6 +208,7 @@ export const command: Command = {
                     newEmbed
                         .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
                         .setDescription(categories[i.values[0] as unknown as number].description)
+                        .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                         .setThumbnail("attachment://icon.png")
                         .setTimestamp();
                 }

@@ -22,48 +22,39 @@
 import {
     ChatInputCommandInteraction,
     Client,
-    EmbedBuilder,
     PermissionsBitField,
-    User
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
-import { axios } from '../../../core/functions/axios.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let user: User | undefined = interaction.options.getUser('user') || interaction.user;
-        let format = 'png';
+        let action = interaction.options.getString("action")!;
+        let prefix = interaction.options.getString('name');
 
-        let config = {
-            headers: {
-                Authorization: `Bot ${client.token}`
-            }
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+            await interaction.editReply({ content: data.setup_not_admin });
+            return;
         };
 
-        let user_1 = (await axios.get(`https://discord.com/api/v8/users/${user?.id}`, config))?.data;
-        let banner = user_1?.['banner'];
+        if (action === "mention") {
+            await client.db.delete(`${interaction.guildId}.BOT.prefix`);
+            await interaction.editReply({ content: data.guildconfig_setbot_prefix_prefix_now_mention })
+        } else if (action === "change") {
+            if (!prefix) return await interaction.editReply({ content: data.guildconfig_setbot_prefix_prefix_specify_prefix });
+            if (prefix.length >= 5) return await interaction.editReply({ content: data.guildconfig_setbot_prefix_prefix_too_long });
 
-        if (banner !== null && banner?.substring(0, 2) === 'a_') {
-            format = 'gif'
-        };
+            let formatedPrefix = prefix.split(" ")[0];
+            await client.db.set(`${interaction.guildId}.BOT.prefix`, formatedPrefix);
 
-        let embed = new EmbedBuilder()
-            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#c4afed')
-            .setTitle(data.banner_user_embed.replace('${user?.username}', user?.username))
-            .setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
-            .setThumbnail((user?.displayAvatarURL() as string))
-            .setFooter({
-                text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png"
+            await interaction.editReply({
+                content: data.guildconfig_setbot_prefix_prefix_is_good
+                    .replace("${formatedPrefix}", formatedPrefix)
             });
-
-        await interaction.reply({
-            embeds: [embed],
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
-        });
-        return;
+            return;
+        }
     },
 };

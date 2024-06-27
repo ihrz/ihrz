@@ -134,7 +134,7 @@ export const command: Command = {
                     { name: data.rolesaver_embed_fields_2_name, value: `\`${settings}\``, inline: false },
                     { name: data.rolesaver_embed_fields_3_name, value: `\`${timeout}\``, inline: false }
                 )
-                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
+                .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" });
 
             await interaction.reply({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }] });
             await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.enable`, true);
@@ -157,7 +157,7 @@ export const command: Command = {
                 .addFields(
                     { name: data.rolesaver_on_off_embed_fields_1_name, value: `\`${action}\``, inline: false },
                 )
-                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
+                .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" });
 
             await interaction.reply({
                 embeds: [embed],

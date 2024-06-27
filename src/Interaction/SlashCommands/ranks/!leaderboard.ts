@@ -78,8 +78,8 @@ export default {
 
         embed
             .setThumbnail(interaction.guild.iconURL())
-            .setFooter({ text: client.user.username, iconURL: "attachment://icon.png" })
-            .setTitle(data.ranks_leaderboard_embed_title.replace('${interaction.guild?.name}', interaction.guild?.name!));
+            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setTitle(data.ranks_leaderboard_embed_title.replace('${interaction.guild?.name}', interaction.guild.name));
 
         await interaction.reply({
             embeds: [embed],

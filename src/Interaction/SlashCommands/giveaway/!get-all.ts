@@ -57,7 +57,7 @@ export default {
             )
             .setFooter(
                 {
-                    text: client.user?.username!,
+                    text: await client.functions.displayBotName(interaction.guild.id),
                     iconURL: "attachment://icon_2.png",
                 }
             );

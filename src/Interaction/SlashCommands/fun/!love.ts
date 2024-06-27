@@ -90,7 +90,7 @@ export default {
                     .replace('${user2.username}', user2.username)
                     .replace('${randomNumber}', randomNumber.toString())
                 )
-                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
+                .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
             await interaction.editReply({

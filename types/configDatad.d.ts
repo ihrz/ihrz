@@ -32,6 +32,8 @@ export interface ConfigData {
     discord: {
         token: string;
         phonePresence: boolean;
+        messageCommandsMention?: boolean;
+        defaultMessageCommandsPrefix?: string;
     };
 
     lavalink: {
@@ -57,7 +59,7 @@ export interface ConfigData {
     owner: {
         ownerid1: string
         ownerid2: string;
-        owners? : string[];
+        owners?: string[];
     };
 
     api: {

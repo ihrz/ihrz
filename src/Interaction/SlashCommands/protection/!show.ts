@@ -62,7 +62,7 @@ export default {
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#000000")
             .setAuthor({ name: data.allowlist_show_embed_author })
             .setDescription(`${text}`)
-            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setTimestamp();
 
         await interaction.reply({

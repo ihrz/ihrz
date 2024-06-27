@@ -103,7 +103,7 @@ export const command: Command = {
             )
             .setFooter(
                 {
-                    text: interaction.client.user.username,
+                    text: await interaction.client.functions.displayBotName(interaction.guildId),
                     iconURL: "attachment://icon.png"
                 }
             )

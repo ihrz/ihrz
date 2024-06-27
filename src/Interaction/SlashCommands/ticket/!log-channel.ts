@@ -55,7 +55,7 @@ export default {
                 .replace('${interaction.user}', interaction.user.toString())
                 .replace('${channel}', channel.toString())
             )
-            .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setTimestamp();
 
         await interaction.editReply({

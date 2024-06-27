@@ -46,7 +46,7 @@ export const command: Command = {
                 "fr": "Configurer le canal de journaux sur le bot"
             },
 
-            type: 1
+            type: ApplicationCommandOptionType.Subcommand
         },
         {
             name: 'block',
@@ -56,7 +56,7 @@ export const command: Command = {
                 "fr": "Bloquer/Protéger certains comportements/comportements dans cette guilde"
             },
 
-            type: 2,
+            type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
                 {
                     name: 'bot',
@@ -66,7 +66,7 @@ export const command: Command = {
                         "fr": "Bloquer la possibilité d'ajouter de nouveaux robots sur ce serveur"
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                     options: [
                         {
                             name: 'action',
@@ -102,7 +102,7 @@ export const command: Command = {
                         "fr": "Bloquer les compte trop récent de rejoindre votre serveur"
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                     options: [
                         {
                             name: 'action',
@@ -148,7 +148,7 @@ export const command: Command = {
                 "fr": "Obtenez la configuration du serveur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: 'set',
@@ -158,7 +158,7 @@ export const command: Command = {
                 "fr": "Définir quelque chose/comportements dans ce serveur"
             },
 
-            type: 2,
+            type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
                 {
                     name: 'channel',
@@ -168,7 +168,7 @@ export const command: Command = {
                         "fr": "Définir le canal pour les messages de départ/arrivée d'utilisateurs sur le serveur."
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                 },
                 {
                     name: 'join-dm',
@@ -178,7 +178,7 @@ export const command: Command = {
                         "fr": "Définir un message de participation au DM lorsque l'utilisateur rejoint le serveur"
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                 },
                 {
                     name: 'join-message',
@@ -188,7 +188,7 @@ export const command: Command = {
                         "fr": "Définir un message d'adhésion lorsque l'utilisateur rejoint le serveur"
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                 },
                 {
                     name: 'join-role',
@@ -198,7 +198,7 @@ export const command: Command = {
                         "fr": "Définissez des rôles de participation lorsque l'utilisateur rejoint le serveur!"
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                 },
                 {
                     name: 'leave-message',
@@ -208,8 +208,90 @@ export const command: Command = {
                         "fr": "Définir un message de départ lorsque l'utilisateur quitte le serveur"
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                 }
+            ],
+        },
+        {
+            name: 'set-bot',
+
+            description: 'Set someting/behaviours in the bot!',
+            description_localizations: {
+                "fr": "Définir quelque chose/comportements dans le bot!"
+            },
+
+            type: ApplicationCommandOptionType.SubcommandGroup,
+            options: [
+                {
+                    name: 'footer-name',
+
+                    description: 'Set the footer name for all of the iHorizon embed !',
+                    description_localizations: {
+                        "fr": "Définir le nom du footer pour tout les embeds d'iHorizon"
+                    },
+
+                    options: [
+                        {
+                            name: "name",
+
+                            description: "The footer name",
+                            description_localizations: {
+                                "fr": "Le noms du footer"
+                            },
+
+                            type: ApplicationCommandOptionType.String,
+                            required: true
+                        }
+                    ],
+
+                    type: ApplicationCommandOptionType.Subcommand,
+                },
+                {
+                    name: 'prefix',
+
+                    description: 'Change the message commands\'s prefix in this guild!',
+                    description_localizations: {
+                        "fr": "Changer le préfixe des commande de message sur ce serveur"
+                    },
+
+                    options: [
+                        {
+                            name: "action",
+
+                            description: "What do you want to do?",
+                            description_localizations: {
+                                "fr": "Que voulez-vous faire ?"
+                            },
+
+                            choices: [
+                                {
+                                    name: `Default prefix`,
+                                    value: "mention"
+                                },
+                                {
+                                    name: "Change prefix",
+                                    value: "change"
+                                }
+                            ],
+
+                            type: ApplicationCommandOptionType.String,
+                            required: true
+                        },
+                        {
+                            name: "name",
+
+                            description: "The footer name",
+                            description_localizations: {
+                                "fr": "Le noms du footer"
+                            },
+
+                            type: ApplicationCommandOptionType.String,
+                            required: false
+                        }
+                    ],
+
+                    type: ApplicationCommandOptionType.Subcommand,
+                },
             ],
         },
     ],

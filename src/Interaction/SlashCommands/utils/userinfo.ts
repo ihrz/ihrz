@@ -153,7 +153,7 @@ export const command: Command = {
             };
 
             let embed = new EmbedBuilder()
-                .setFooter({ text: client.user?.username!, iconURL: "attachment://ihrz_logo.png" })
+                .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://ihrz_logo.png" })
                 .setThumbnail("attachment://user_icon.gif")
                 .setTimestamp()
                 .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#0014a8')

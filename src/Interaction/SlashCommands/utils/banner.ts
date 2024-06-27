@@ -48,7 +48,7 @@ export const command: Command = {
                 "fr": "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',
@@ -71,7 +71,7 @@ export const command: Command = {
                 "fr": "Récupérer la bannière du serveur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
     ],
     thinking: false,

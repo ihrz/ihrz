@@ -138,8 +138,8 @@ export default {
                                             iconURL: lyrics.artist.image,
                                         })
                                         .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
-                                        .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#cd703a")
-                                        .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
+                                        .setColor('#cd703a')
+                                        .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" });
                                     i.editReply({
                                         embeds: [embed],
                                         files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]

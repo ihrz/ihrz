@@ -47,7 +47,7 @@ export const command: Command = {
                 "fr": "Commencer un giveaway"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'winner',
@@ -106,7 +106,7 @@ export const command: Command = {
                 "fr": "Arrêter un giveaway"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'giveaway-id',
@@ -132,7 +132,7 @@ export const command: Command = {
                 "fr": "Relancez un ou plusieurs gagnants"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'giveaway-id',
@@ -158,7 +158,7 @@ export const command: Command = {
                 "fr": "Répertorier toutes les entrées dans le giveaway"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'giveaway-id',

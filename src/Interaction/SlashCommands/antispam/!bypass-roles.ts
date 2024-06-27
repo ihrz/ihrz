@@ -60,7 +60,7 @@ export default {
                     : lang.setjoinroles_var_none
             })
             .setFooter({
-                text: interaction.client.user.username,
+                text: await interaction.client.functions.displayBotName(interaction.guildId),
                 iconURL: interaction.client.user.displayAvatarURL({ forceStatic: false })
             });
 

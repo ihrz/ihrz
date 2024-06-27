@@ -19,14 +19,17 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
+import { DatabaseStructure } from "../database_structure.js";
+import { getDatabaseInstance } from "../database.js";
 
-import { DescriptionLocalizations } from "./command"
+let database = getDatabaseInstance();
 
-export interface BotContent {
-    cmd: string;
-    category: string;
-    aliases?: string[];
-    desc: string;
-    desc_localized: DescriptionLocalizations;
-    messageCmd: boolean;
-}
+export default async function displayBotName(guildId: string): Promise<string> {
+    let botName = await database.get(`${guildId}.BOT.botName`) as DatabaseStructure.DbGuildBotObject["botName"];
+
+    if (!botName) {
+        botName = 'iHorizon';
+    };
+
+    return botName;
+};

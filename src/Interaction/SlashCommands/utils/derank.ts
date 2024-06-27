@@ -100,7 +100,7 @@ export const command: Command = {
                         .replace('${bad}', bad.toString())
                         .replace('${member.id}', member.id)
                     )
-                    .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
+                    .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" });
 
                 interaction.editReply({
                     embeds: [embed],
