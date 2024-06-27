@@ -584,6 +584,13 @@ export interface LanguageData {
   too_new_account_command_work_on_enable: string;
   too_new_account_logEmbed_desc_on_disable: string;
   too_new_account_command_work_on_disable: string;
+  guildconfig_setbot_footername_footer_too_long_msg: string;
+  guildconfig_setbot_footername_footer_too_long_msg: string;
+  guildconfig_setbot_footername_is_good: string;
+  guildconfig_setbot_prefix_prefix_now_mention: string;
+  guildconfig_setbot_prefix_prefix_specify_prefix: string;
+  guildconfig_setbot_prefix_prefix_too_long: string;
+  guildconfig_setbot_prefix_prefix_is_good: string;
   setmembercount_not_admin: string;
   setmembercount_helpembed_title: string;
   setmembercount_helpembed_description: string;
