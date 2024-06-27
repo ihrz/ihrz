@@ -32,6 +32,8 @@ import {
     ColorResolvable,
 } from 'pwss'
 
+import { botPrefix } from '../../../Events/interaction/messageCommandHandler.js';
+
 import { LanguageData } from '../../../../types/languageData';
 import { CategoryData } from '../../../../types/category';
 import { Command } from '../../../../types/command';
@@ -151,6 +153,7 @@ export const command: Command = {
 
         let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840_000 });
         let guildLang = await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`);
+        let bot_prefix = await botPrefix(client, interaction.guild?.id!);
 
         collector.on('collect', async (i: StringSelectMenuInteraction) => {
 
@@ -179,7 +182,8 @@ export const command: Command = {
             let currentGroup: { name: string, value: string, inline: boolean }[] = [];
 
             categories[i.values[0] as unknown as number].value.forEach(async (element, index) => {
-                let cmdPrefix = (element.messageCmd) ? `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**` : `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
+                let bot_prefix_placeholder = bot_prefix.type === 'mention' ? `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**` : `${client.iHorizon_Emojis.icon.Prefix_Command} **${bot_prefix.string}${element.cmd}**`
+                let cmdPrefix = (element.messageCmd) ? bot_prefix_placeholder : `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
                 let descValue = (guildLang === "fr-ME" || guildLang === "fr-FR") ? `\`${element.desc_localized["fr"]}\`` : `\`${element.desc}\``;
 
                 switch (guildLang) {
