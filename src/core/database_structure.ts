@@ -271,7 +271,12 @@ export namespace DatabaseStructure {
         req: number;
     }
 
+    export interface DbGuildBotObject {
+        prefix?: string;
+        botName?: string;
+    }
     export interface DbGuildObject {
+        BOT?: DbGuildBotObject;
         LANG?: {
             lang: string;
         };
