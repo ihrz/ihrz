@@ -49,7 +49,7 @@ export const command: Command = {
 
         const data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
-        let user = client.func.argsHelper.getUserArgs(interaction, 0);
+        let user = client.func.arg.user(interaction, 0);
         let baseData = await client.db.get(`${interaction.guildId}.USER.${user.id}.XP_LEVELING`);
         var level = baseData?.level || 0;
         var currentxp = baseData?.xp || 0;
