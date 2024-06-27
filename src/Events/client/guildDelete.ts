@@ -64,12 +64,12 @@ export const event: BotEvent = {
 
                 await (client.users.cache.get(owner1))?.send({
                     embeds: [embed],
-                    files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+                    files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
                 });
 
                 await (client.users.cache.get(owner2))?.send({
                     embeds: [embed],
-                    files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+                    files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
                 });
             } catch (error: any) {
                 logger.err(error);

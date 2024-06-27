@@ -53,7 +53,7 @@ export default {
         await client.db.set(`${interaction.guildId}.GUILD.TICKET.category`, category.id);
 
         let embed = new EmbedBuilder()
-            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#00FFFF')
             .setDescription(data.setticketcategory_command_work
                 .replace('${category.name}', category.name)

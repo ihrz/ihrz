@@ -134,7 +134,7 @@ export const command: Command = {
                 .replaceAll('${client.iHorizon_Emojis.vc.Region}', client.iHorizon_Emojis.vc.Region)
                 .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
             )
-            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setThumbnail("attachment://icon.png")
             .setTimestamp();
 

@@ -111,7 +111,7 @@ export const command: Command = {
     thinking: true,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: any) => {
-        let data = await client.functions.getLanguageData(interaction.guild.id);
+        let data = await client.func.getLanguageData(interaction.guild.id);
 
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setjoindm_not_admin });

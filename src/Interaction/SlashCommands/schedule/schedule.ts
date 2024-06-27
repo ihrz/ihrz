@@ -200,7 +200,7 @@ export const command: Command = {
                         )
                         .setThumbnail(interaction.guild?.iconURL() as string)
                         .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#ff0a0a')
-                        .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
+                        .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                         .setTimestamp();
 
                     await table.delete(`${interaction.user.id}.${arg0}`);
@@ -288,7 +288,7 @@ export const command: Command = {
                     .setTitle(data.schedule_create_title_embed)
                     .setThumbnail(interaction.guild?.iconURL() as string)
                     .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#00549f')
-                    .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
+                    .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                     .setTimestamp();
 
                 await original_interaction.edit({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
