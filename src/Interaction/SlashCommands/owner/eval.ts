@@ -58,7 +58,7 @@ export const command: Command = {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!client.owners.includes(interaction.user.id)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });

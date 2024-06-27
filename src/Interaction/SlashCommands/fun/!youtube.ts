@@ -43,7 +43,7 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let entry = interaction.options.getString('comment');
         let args = entry!.split(' ');
 
@@ -75,7 +75,7 @@ export default {
             embed.setImage(`attachment://youtube-elektra.png`);
         });
 
-        await interaction.editReply({ embeds: [embed], files: [imgs!, { attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }] });
+        await interaction.editReply({ embeds: [embed], files: [imgs!, { attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }] });
         return;
     },
 };

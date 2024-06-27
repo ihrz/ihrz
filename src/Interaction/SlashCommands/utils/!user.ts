@@ -57,12 +57,12 @@ export default {
             .setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
             .setThumbnail((user?.displayAvatarURL() as string))
             .setFooter({
-                text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png"
+                text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png"
             });
 
         await interaction.reply({
             embeds: [embed],
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

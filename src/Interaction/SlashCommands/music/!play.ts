@@ -45,7 +45,7 @@ export default {
             return;
         };
 
-        if (!client.functions.isAllowedLinks(check)) {
+        if (!client.func.isAllowedLinks(check)) {
             return interaction.editReply({ content: data.p_not_allowed })
         };
 

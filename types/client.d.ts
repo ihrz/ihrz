@@ -42,7 +42,7 @@ import { ConfigData } from "./configDatad.js";
 
 declare module 'pwss' {
     export interface Client {
-        functions: clientFunction,
+        func: clientFunction,
         commands: Collection<string, Command>,
         category: Category[]
         message_commands: Collection<string, Command>,

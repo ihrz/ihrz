@@ -27,9 +27,9 @@ export const guildPrefix = async (client: Client, guildId: string): Promise<{ ty
         client.config.discord.messageCommandsMention
             ? `<@${client.user?.id}>`
             : client.config.discord.defaultMessageCommandsPrefix
-        : custom_prefix) as string;
+        : custom_prefix) || `<@${client.user?.id}>`
 
-    return { string: prefix_string, type: prefix_string.includes(client.user?.id!) ? 'mention' : 'prefix' }
+    return { string: prefix_string, type: prefix_string?.includes(client.user?.id!) ? 'mention' : 'prefix' }
 };
 
 export const defaultPrefix = (client: Client): { type: 'prefix' | 'mention'; string: string; } => {

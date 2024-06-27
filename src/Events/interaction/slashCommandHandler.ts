@@ -76,7 +76,7 @@ export const event: BotEvent = {
         };
 
         if (await cooldDown(client, interaction)) {
-            let data = await client.functions.getLanguageData(interaction.guild?.id) as LanguageData;
+            let data = await client.func.getLanguageData(interaction.guild?.id) as LanguageData;
 
             await interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
             return;

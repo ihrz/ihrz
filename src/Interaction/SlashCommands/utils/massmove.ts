@@ -77,7 +77,7 @@ export const command: Command = {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         const fromChannel = interaction.options.getChannel('from') as BaseGuildVoiceChannel | null;
         const allChannel = Array.from(interaction.guild.channels.cache.values()!).filter(x => x.type === (ChannelType.GuildVoice || ChannelType.GuildStageVoice)) || [];
@@ -114,7 +114,7 @@ export const command: Command = {
         }
 
         let embed = new EmbedBuilder()
-            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setColor('#007fff')
             .setTimestamp()
             .setThumbnail(interaction.guild.iconURL())
@@ -128,7 +128,7 @@ export const command: Command = {
 
         await interaction.editReply({
             embeds: [embed],
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
         });
     },
 };

@@ -71,7 +71,7 @@ export default {
       if (imgs) {
         await interaction.editReply({
           embeds: [embed],
-          files: [imgs, { attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
+          files: [imgs, { attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
         });
       };
 

@@ -51,7 +51,7 @@ export default async (client: Client) => {
     });
 
     client.player.on("trackStart", async (player, track) => {
-        let data = await client.functions.getLanguageData(player.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(player.guildId) as LanguageData;
 
         const channel = client.channels.cache.get(player.textChannelId!);
 
@@ -70,7 +70,7 @@ export default async (client: Client) => {
     });
 
     client.player.on("queueEnd", async player => {
-        let data = await client.functions.getLanguageData(player.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(player.guildId) as LanguageData;
 
         const channel = client.channels.cache.get(player.textChannelId!);
 

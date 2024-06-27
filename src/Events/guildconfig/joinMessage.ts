@@ -26,7 +26,7 @@ import { LanguageData } from '../../../types/languageData';
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
-        let data = await client.functions.getLanguageData(member.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(member.guild.id) as LanguageData;
 
         if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
 

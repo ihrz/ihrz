@@ -49,7 +49,7 @@ export const command: Command = {
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, execTimestamp: number, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
 
@@ -59,7 +59,7 @@ export const command: Command = {
             return;
         }
 
-        await interaction.reply({ content: `<@${interaction.member?.id}>, maintenant quand un membre envoie \`${message.toLowerCase()}\`, le bot **ne réagis plus**.` });
+        await interaction.reply({ content: `<@${interaction.member?.id}>, maintenant quand un membre envoie \`${message.toLowerCase()}\`, le bot **ne réagis plus**.`, allowedMentions: { repliedUser: false } });
 
         await client.db.delete(`${interaction.guildId}.GUILD.REACT_MSG.${message.toLowerCase()}`);
         return;

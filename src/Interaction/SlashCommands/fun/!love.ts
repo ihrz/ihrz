@@ -90,14 +90,14 @@ export default {
                     .replace('${user2.username}', user2.username)
                     .replace('${randomNumber}', randomNumber.toString())
                 )
-                .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+                .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
             await interaction.editReply({
                 embeds: [embed],
                 files: [
                     { attachment: buffer, name: 'love.png' },
-                    { attachment: await client.functions.image64(client.user.displayAvatarURL()), name: 'icon.png' },
+                    { attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' },
                 ]
             });
         } catch (error: any) {

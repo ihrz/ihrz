@@ -40,7 +40,7 @@ export const command: AnotherCommand = {
     thinking: true,
     run: async (client: Client, interaction: MessageContextMenuCommandInteraction) => {
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let voiceChannel = (interaction.member as GuildMember)?.voice.channel;
 
         let msg = interaction.options.getMessage("message") as Message;
@@ -57,7 +57,7 @@ export const command: AnotherCommand = {
             return;
         };
 
-        if (client.functions.isAllowedLinks(msg?.content)) {
+        if (client.func.isAllowedLinks(msg?.content)) {
             return interaction.editReply({ content: data.p_not_allowed })
         };
 

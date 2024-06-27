@@ -38,7 +38,7 @@ export const command: AnotherCommand = {
     type: ApplicationCommandType.User,
     thinking: false,
     run: async (client: Client, interaction: UserContextMenuCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         var user1 = interaction.user;
         var user2 = interaction.targetUser;
 
@@ -93,14 +93,14 @@ export const command: AnotherCommand = {
                     .replace('${user2.username}', user2?.globalName!)
                     .replace('${randomNumber}', randomNumber.toString())
                 )
-                .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
+                .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
             await interaction.reply({
                 embeds: [embed],
                 files: [
                     { attachment: buffer, name: 'love.png' },
-                    { attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }
+                    { attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }
                 ]
             });
         } catch (error: any) {

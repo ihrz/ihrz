@@ -142,7 +142,7 @@ export const command: Command = {
     category: 'invitemanager',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction, execTimestamp: number) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let command = interaction.options.getSubcommand();
 
         const commandModule = await import(`./!${command}.js`);
