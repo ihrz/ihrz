@@ -52,7 +52,7 @@ export const command: Command = {
     run: async (client: Client, interaction: Message, execTimestamp: number, args: string[]) => {
         let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
-        let permission = !interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
+        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
 
         let emoji = args[0];
 
@@ -61,7 +61,7 @@ export const command: Command = {
         }
 
         if (!isSingleEmoji(emoji) && !isDiscordEmoji(emoji)) {
-            await interaction.reply({ content: `L'émoji \`${emoji}\`de la réaction ne correspond pas à un émojis !` });
+            await interaction.reply({ content: `L'émoji \`${emoji || 'None'}\`de la réaction ne correspond pas à un émojis !` });
             return;
         }
 
