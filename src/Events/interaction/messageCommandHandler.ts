@@ -23,19 +23,8 @@ import { Command } from '../../../types/command';
 import { BotEvent } from '../../../types/event';
 import { Client, Message } from 'pwss';
 
-export const botPrefix = async (client: Client, guildId: string): Promise<{ type: 'prefix' | 'mention'; string: string; }> => {
-    let custom_prefix = await client.db.get(`${guildId}.BOT.prefix`);
-    let prefix_string = ((!custom_prefix) ?
-        client.config.discord.messageCommandsMention
-            ? `<@${client.user?.id}>`
-            : client.config.discord.defaultMessageCommandsPrefix
-        : custom_prefix) as string;
-
-    return { string: prefix_string, type: prefix_string.includes(client.user?.id!) ? 'mention' : 'prefix' }
-};
-
 export async function isMessageCommand(client: Client, message: Message): Promise<{ s: boolean, a?: string[], c?: Command }> {
-    var prefix = await botPrefix(client, message.guildId!);
+    var prefix = await client.functions.prefix.guildPrefix(client, message.guildId!);
 
     let args = message.content.slice(prefix.string.length).trim().split(/ +/g);
     let command = client.message_commands.get(args.shift()?.toLowerCase() as string);

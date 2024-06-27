@@ -32,8 +32,6 @@ import {
     ColorResolvable,
 } from 'pwss'
 
-import { botPrefix } from '../../../Events/interaction/messageCommandHandler.js';
-
 import { LanguageData } from '../../../../types/languageData';
 import { CategoryData } from '../../../../types/category';
 import { Command } from '../../../../types/command';
@@ -153,7 +151,7 @@ export const command: Command = {
 
         let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840_000 });
         let guildLang = await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`);
-        let bot_prefix = await botPrefix(client, interaction.guild?.id!);
+        let bot_prefix = await client.functions.prefix.guildPrefix(client, interaction.guild?.id!);
 
         collector.on('collect', async (i: StringSelectMenuInteraction) => {
 
