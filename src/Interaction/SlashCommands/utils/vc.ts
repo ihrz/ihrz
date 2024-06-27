@@ -103,7 +103,7 @@ export const command: Command = {
             )
             .setFooter(
                 {
-                    text: "iHorizon",
+                    text: await interaction.client.functions.displayBotName(interaction.guildId),
                     iconURL: "attachment://icon.png"
                 }
             )

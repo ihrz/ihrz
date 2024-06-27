@@ -139,7 +139,7 @@ export default {
                                         })
                                         .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
                                         .setColor('#cd703a')
-                                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+                                        .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" });
                                     i.editReply({
                                         embeds: [embed],
                                         files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]

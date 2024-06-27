@@ -32,7 +32,7 @@ import { LanguageData } from '../../../../types/languageData';
 
 const OWNIHRZ = new OwnIHRZ();
 
-async function buildEmbed(client: Client, data: any, lang: LanguageData) {
+async function buildEmbed(client: Client, data: any, lang: LanguageData, guildID: string) {
 
     let bot_1 = (await OWNIHRZ.Get_Bot(data.Auth).catch(() => { }))?.data || 404;
 
@@ -54,7 +54,7 @@ async function buildEmbed(client: Client, data: any, lang: LanguageData) {
                 .replace('${expire}', expire)
                 .replace('${utils_msg}', utils_msg)
         )
-        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+        .setFooter({ text: await client.functions.displayBotName(guildID), iconURL: "attachment://icon.png" })
         .setTimestamp();
 };
 
@@ -71,20 +71,20 @@ export default {
             new EmbedBuilder()
                 .setTitle(data.mybot_list_embed0_title)
                 .setColor('#000000')
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
                 .setTimestamp()
         ];
 
         for (let botId in data_2) {
             if (data_2[botId]) {
-                let embed = await buildEmbed(client, data_2[botId], data);
+                let embed = await buildEmbed(client, data_2[botId], data, interaction.guildId!);
                 lsEmbed.push(embed);
             }
         }
 
         if (allData) {
             for (let botId in allData[interaction.user.id]) {
-                let embed = await buildEmbed(client, allData[interaction.user.id][botId], data);
+                let embed = await buildEmbed(client, allData[interaction.user.id][botId], data, interaction.guildId!);
                 lsEmbed.push(embed);
             }
         }

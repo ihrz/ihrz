@@ -32,13 +32,13 @@ import {
     PermissionsBitField,
 } from 'pwss';
 
-import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
 export const command: Command = {
 
     name: 'remove-react',
+    aliases: ['react-remove', 'removereact', 'reactremove'],
 
     description: 'Remove reaction by iHorizon when user send message',
     description_localizations: {

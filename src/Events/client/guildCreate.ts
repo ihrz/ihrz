@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Collection, EmbedBuilder, PermissionsBitField, Guild, GuildTextBasedChannel, Client, BaseGuildTextChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'pwss';
+import { Collection, EmbedBuilder, PermissionsBitField, Guild, GuildTextBasedChannel, Client, BaseGuildTextChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle, TextChannel } from 'pwss';
 
 import logger from "../../core/logger.js";
 
@@ -28,7 +28,9 @@ import { BotEvent } from '../../../types/event.js';
 export const event: BotEvent = {
     name: "guildCreate",
     run: async (client: Client, guild: Guild) => {
-        let channel = guild.channels.cache.get((guild?.systemChannelId as string))
+        if (!guild) return;
+
+        let channel = guild.channels.cache.get(guild?.systemChannelId!)
             || guild.channels.cache.first();
 
         // async function antiPoubelle() {
@@ -114,8 +116,10 @@ export const event: BotEvent = {
                         .setURL('https://ihorizon.me'),
                 )
                 ;
+
             if (!channel) return;
-            (channel as GuildTextBasedChannel)?.send({
+
+            (channel as TextChannel).send({
                 embeds: [embed],
                 content: 'discord.gg/ihorizon\ndiscord.com/application-directory/945202900907470899',
                 files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
@@ -164,7 +168,9 @@ export const event: BotEvent = {
                 .setThumbnail(guild.iconURL())
                 .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
-            (client.channels.cache.get(client.config.core.guildLogsChannelID) as BaseGuildTextChannel).send({
+            let logsChannel: TextChannel | null = client.channels.cache.get(client.config.core.guildLogsChannelID) as TextChannel;
+
+            logsChannel?.send({
                 embeds: [embed],
                 files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
             }).catch(() => { });

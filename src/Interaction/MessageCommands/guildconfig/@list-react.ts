@@ -38,6 +38,7 @@ import { DatabaseStructure } from '../../../core/database_structure.js';
 export const command: Command = {
 
     name: 'list-react',
+    aliases: ['react-list', 'listreact', 'reactlist'],
 
     description: 'Show all specific messages saved to be react',
     description_localizations: {

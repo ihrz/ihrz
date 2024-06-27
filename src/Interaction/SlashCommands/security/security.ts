@@ -52,7 +52,7 @@ export const command: Command = {
                 "fr": "Canal où se déroule le processus de vérification pour les nouveaux membres"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'id',
@@ -78,7 +78,7 @@ export const command: Command = {
                 "fr": "Désactiver ou activer la fonctionnalité du module de sécurité"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'action',
@@ -114,7 +114,7 @@ export const command: Command = {
                 "fr": "Le rôle qui sera attribué aux nouveaux membre(s) lors du processus de vérification Captcha"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'role',

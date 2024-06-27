@@ -49,7 +49,7 @@ export const command: Command = {
                 "fr": "Créer une backup"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'save-message',
@@ -75,7 +75,7 @@ export const command: Command = {
                 "fr": "Listé toute vos backup(s)"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: "load",
@@ -88,7 +88,7 @@ export const command: Command = {
                 "fr": "Charger une de vos backup(s)"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'backup-id',
@@ -124,7 +124,7 @@ export const command: Command = {
                     required: true
                 }
             ],
-            type: 1
+            type: ApplicationCommandOptionType.Subcommand
         }
     ],
     category: 'backup',

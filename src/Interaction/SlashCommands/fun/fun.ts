@@ -52,7 +52,7 @@ export const command: Command = {
                 "fr": "Transformez une chaîne de caractères en DarkSasuke"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'nickname',
@@ -78,7 +78,7 @@ export const command: Command = {
                 "fr": "Obtenez une photo du chat"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: 'dog',
@@ -91,7 +91,7 @@ export const command: Command = {
                 "fr": "Obtenez une photo du chien"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: 'hack',
@@ -104,7 +104,7 @@ export const command: Command = {
                 "fr": "Pirater un discordiens"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: "user",
@@ -130,7 +130,7 @@ export const command: Command = {
                 "fr": "Faire un calin d'un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: "user",
@@ -156,7 +156,7 @@ export const command: Command = {
                 "fr": "Embrasser un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',
@@ -182,7 +182,7 @@ export const command: Command = {
                 "fr": "Montrez votre compatibilité amoureuse avec l'utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: "user1",
@@ -216,7 +216,7 @@ export const command: Command = {
                 "fr": "Transformer une chaîne en Morse"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'input',
@@ -242,7 +242,7 @@ export const command: Command = {
                 "fr": "Créer un sondage"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'message',
@@ -265,7 +265,7 @@ export const command: Command = {
                 "fr": "Poser une question au bot"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'question',
@@ -291,7 +291,7 @@ export const command: Command = {
                 "fr": "Gifler un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: "user",
@@ -314,7 +314,7 @@ export const command: Command = {
                 "fr": "Permis d'envoyer un commentaire YouTube personnalisé (réel)"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',
@@ -348,7 +348,7 @@ export const command: Command = {
                 "fr": "Permis d'envoyer un tweet personnalisé"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',
@@ -385,7 +385,7 @@ export const command: Command = {
                 "fr": "tous les humains ont des droits"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',
@@ -411,7 +411,7 @@ export const command: Command = {
                 "fr": "le chat à dit (insérer le texte ici)"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'text',

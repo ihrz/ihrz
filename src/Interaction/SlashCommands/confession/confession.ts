@@ -46,7 +46,7 @@ export const command: Command = {
                 "fr": "Définir le canal du module confession"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'to',
@@ -80,7 +80,7 @@ export const command: Command = {
                 "fr": "Activer ou désactiver le module"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'action',
@@ -113,7 +113,7 @@ export const command: Command = {
                 "fr": "Changer le cooldown entre les confession"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'time',

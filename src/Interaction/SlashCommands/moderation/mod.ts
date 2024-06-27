@@ -46,7 +46,7 @@ export const command: Command = {
                 "fr": "Récuperer l'avatar d'un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',
@@ -69,7 +69,7 @@ export const command: Command = {
                 "fr": "Bannir un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'member',
@@ -92,7 +92,7 @@ export const command: Command = {
                 "fr": "Effacer une quantité de message dans le cannal"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'number',
@@ -115,7 +115,7 @@ export const command: Command = {
                 "fr": "Expulser un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'member',
@@ -138,7 +138,7 @@ export const command: Command = {
                 "fr": "Supprimer la possibilité de parler de tous les utilisateurs de ce channel"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: 'lock-all',
@@ -148,7 +148,7 @@ export const command: Command = {
                 "fr": "Supprimer la possibilité de parler de tous les utilisateurs sur tous les channel"
             },
 
-            type: 1
+            type: ApplicationCommandOptionType.Subcommand
         },
         {
             name: 'tempmute',
@@ -158,7 +158,7 @@ export const command: Command = {
                 "fr": "Couper temporairement la possibilité d'envoyer des message pour un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',
@@ -192,7 +192,7 @@ export const command: Command = {
                 "fr": "Annuler le bannissement d'un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'userid',
@@ -226,7 +226,7 @@ export const command: Command = {
                 "fr": "Donner la possibilité de parler de tous les utilisateurs dans ce texte"
             },
 
-            type: 1
+            type: ApplicationCommandOptionType.Subcommand
         },
         {
             name: 'unmute',
@@ -236,7 +236,7 @@ export const command: Command = {
                 "fr": "Demute un utilisateur !"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',

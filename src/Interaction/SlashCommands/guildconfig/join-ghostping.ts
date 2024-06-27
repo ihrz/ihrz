@@ -47,7 +47,7 @@ export const command: Command = {
                 "fr": "Manipulation de salons pour le module Join GhostPing"
             },
 
-            type: 2,
+            type: ApplicationCommandOptionType.SubcommandGroup,
 
             options: [
                 {
@@ -58,7 +58,7 @@ export const command: Command = {
                         "fr": "Ajouter un salon"
                     },
         
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
 
                     options: [
                         {
@@ -83,7 +83,7 @@ export const command: Command = {
                         "fr": "Enlever un salon de la liste"
                     },
         
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
 
                     options: [
                         {

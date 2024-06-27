@@ -782,6 +782,16 @@ too_new_account_command_work_on_enable: "${interaction.user}, новые уча�
 too_new_account_logEmbed_desc_on_disable: "${interaction.user} отключил модуль!"
 too_new_account_command_work_on_disable: "${interaction.user}, модуль успешно отключен. Даты создания новых аккаунтов участников больше не будут проверяться."
 
+# /guildconfig set-bot footer-name
+guildconfig_setbot_footername_footer_too_long_msg: "Нижний колонтитул бота слишком длинный, его будет слишком некрасиво отображать."
+guildconfig_setbot_footername_is_good: "Успешно изменено, все встраивания iHorizon будут использовать `${footerName}` как нижний колонтитул!"
+
+# /guildconfig set-bot prefix
+guildconfig_setbot_prefix_prefix_now_mention: "Префикс бота для команд теперь упоминание! `@Ping-Me`"
+guildconfig_setbot_prefix_prefix_specify_prefix: "Вам нужно указать префикс бота."
+guildconfig_setbot_prefix_prefix_too_long: "Префикс бота слишком длинный, его будет слишком трудно использовать."
+guildconfig_setbot_prefix_prefix_is_good: "Префикс бота успешно изменен, теперь команды можно использовать с: `${formatedPrefix}`."
+
 
 # Commandes de décompte des membres
 # /setmembercount

@@ -47,7 +47,7 @@ export const event: BotEvent = {
                         .replace('${interaction.user}', member.user.toString())
                         .replace('${interaction.channel.name}', channel?.name!)
                     )
-                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                    .setFooter({ text: await client.functions.displayBotName(member.guild.id), iconURL: "attachment://icon.png" })
                     .setTimestamp();
 
                 TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });

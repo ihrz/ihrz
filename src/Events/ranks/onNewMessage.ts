@@ -40,7 +40,7 @@ export const event: BotEvent = {
 
         let data = await client.functions.getLanguageData(message.guild.id) as LanguageData;
 
-        if ((await isMessageCommand(client, message.content)).s) return;
+        if ((await isMessageCommand(client, message)).s) return;
 
         if (!message.guild || message.author.bot || message.channel.type !== ChannelType.GuildText) return;
 

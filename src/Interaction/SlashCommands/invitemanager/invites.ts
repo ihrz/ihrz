@@ -44,7 +44,7 @@ export const command: Command = {
                 "fr": "Ajouter des invitations à un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'member',
@@ -78,7 +78,7 @@ export const command: Command = {
                 "fr": "Afficher le classement des invitations du serveur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: "show",
@@ -88,7 +88,7 @@ export const command: Command = {
                 "fr": "Obtenez le montant des invitations d'un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'member',
@@ -111,7 +111,7 @@ export const command: Command = {
                 "fr": "Supprimer les invitations d'un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'member',

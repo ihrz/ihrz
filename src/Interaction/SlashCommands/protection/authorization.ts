@@ -46,7 +46,7 @@ export const command: Command = {
                 "fr": "Choisissez une action à refuser/autoriser pour l'utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'rule',
@@ -124,7 +124,7 @@ export const command: Command = {
                 "fr": "Choisissez la sanction à appliquer pour l'utilisateur signalé?"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'choose',
@@ -161,7 +161,7 @@ export const command: Command = {
                 "fr": "Afficher la configuration des autorisations/règles de protection pour la liste d'autorisation"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
     ],
     thinking: true,

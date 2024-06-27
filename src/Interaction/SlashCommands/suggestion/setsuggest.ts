@@ -46,7 +46,7 @@ export const command: Command = {
                 "fr": "Désactivez le module de suggestion (besoin de l'autorisation de l'administrateur)"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'action',
@@ -79,7 +79,7 @@ export const command: Command = {
                 "fr": "Définir un canal pour le module de suggestion (nécessite une autorisation d'administrateur)"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'channel',

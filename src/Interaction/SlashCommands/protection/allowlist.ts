@@ -46,7 +46,7 @@ export const command: Command = {
                 "fr": "Prendre des mesures concernant la liste blanche"
             },
 
-            type: 2,
+            type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
                 {
                     name: "add",
@@ -56,7 +56,7 @@ export const command: Command = {
                         "fr": "Ajouter un utilisateur à la liste blanche"
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                     options: [
                         {
                             name: 'member',
@@ -79,7 +79,7 @@ export const command: Command = {
                         "fr": "Supprimer un utilisateur de la liste blanche"
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                     options: [
                         {
                             name: 'member',
@@ -102,7 +102,7 @@ export const command: Command = {
                         "fr": "Lister les utilisateurs dans la liste autorisée"
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                 },
             ],
         },

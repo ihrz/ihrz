@@ -782,6 +782,16 @@ too_new_account_command_work_on_enable: "${interaction.user}、**${interaction.g
 too_new_account_logEmbed_desc_on_disable: "${interaction.user} がモジュールを無効にしました！"
 too_new_account_command_work_on_disable: "${interaction.user}、モジュールは正常に無効化されました。新しいメンバーのアカウント作成日はチェックされなくなります。"
 
+# /guildconfig set-bot footer-name
+guildconfig_setbot_footername_footer_too_long_msg: "ボットのフッターが長すぎます。表示するには醜すぎます。"
+guildconfig_setbot_footername_is_good: "正常に変更されました。すべてのiHorizon埋め込みは`${footerName}`をフッターとして使用します！"
+
+# /guildconfig set-bot prefix
+guildconfig_setbot_prefix_prefix_now_mention: "コマンドのボットプレフィックスは今メンションです！ `@Ping-Me`"
+guildconfig_setbot_prefix_prefix_specify_prefix: "ボットプレフィックスを指定する必要があります。"
+guildconfig_setbot_prefix_prefix_too_long: "ボットプレフィックスが長すぎます。使用するには難しすぎます。"
+guildconfig_setbot_prefix_prefix_is_good: "ボットプレフィックスが正常に変更されました。今すぐコマンドは`${formatedPrefix}`で使用可能です。"
+
 
 # Member Count commands
 # /setmembercount

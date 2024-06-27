@@ -79,7 +79,7 @@ export const command: Command = {
             .setColor("#2E2EFE")
             .setAuthor({ name: "Owners" })
             .setDescription(text)
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" });
 
         let member = interaction.options.getMember('member') as GuildMember;
 

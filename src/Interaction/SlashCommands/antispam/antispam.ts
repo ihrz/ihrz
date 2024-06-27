@@ -23,6 +23,7 @@ import {
     Client,
     ChatInputCommandInteraction,
     ApplicationCommandType,
+    ApplicationCommandOptionType,
 } from 'pwss';
 
 import { Command } from '../../../../types/command';
@@ -45,7 +46,7 @@ export const command: Command = {
                 "fr": "Gérer le module antispam"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: "bypass-roles",
@@ -55,7 +56,7 @@ export const command: Command = {
                 "fr": "Tous les rôles qui contournent l'anti spam"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
     ],
     category: 'antispam',

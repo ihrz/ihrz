@@ -49,7 +49,7 @@ export default {
                     .replace('${targetedRole?.id}', targetedRole?.id as string)
             )
             .setFooter({
-                text: 'iHorizon',
+                text: await client.functions.displayBotName(interaction.guild.id),
                 iconURL: client.user.displayAvatarURL({ size: 1024 })
             });
 

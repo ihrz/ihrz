@@ -46,7 +46,7 @@ export const command: Command = {
                 "fr": "Bloquer/Protéger certains comportements/comportements dans ce serveur"
             },
 
-            type: 2,
+            type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
                 {
                     name: 'pub',
@@ -56,7 +56,7 @@ export const command: Command = {
                         "fr": "Autoriser/Interdire à l'utilisateur d'envoyer une publicité dans ses messages"
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                     options: [
                         {
                             name: 'action',
@@ -100,7 +100,7 @@ export const command: Command = {
                         "fr": "Bloquer le message spam sur ce serveur"
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                     options: [
                         {
                             name: 'action',
@@ -144,7 +144,7 @@ export const command: Command = {
                         "fr": "Bloquez les spams mentionnés en masse dans ce message"
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                     options: [
                         {
                             name: 'action',

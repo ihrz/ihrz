@@ -200,7 +200,7 @@ export const command: Command = {
                         )
                         .setThumbnail(interaction.guild?.iconURL() as string)
                         .setColor('#ff0a0a')
-                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                        .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                         .setTimestamp();
 
                     await table.delete(`${interaction.user.id}.${arg0}`);
@@ -222,7 +222,7 @@ export const command: Command = {
                             name: interaction.user.globalName || interaction.user.username,
                             iconURL: interaction.user.displayAvatarURL({ extension: 'png', size: 512 })
                         })
-                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                        .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                         .setTitle(data.schedule_deleteall_title_embed)
                         .setDescription(data.schedule_deleteall_desc_embed)
 
@@ -248,7 +248,7 @@ export const command: Command = {
                 };
 
                 let embed = new EmbedBuilder()
-                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                    .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                     .setTitle(data.schedule_list_title_embed)
                     .setColor('#60BEE0')
                     .setAuthor({
@@ -288,7 +288,7 @@ export const command: Command = {
                     .setTitle(data.schedule_create_title_embed)
                     .setThumbnail(interaction.guild?.iconURL() as string)
                     .setColor('#00549f')
-                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                    .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                     .setTimestamp();
 
                 await original_interaction.edit({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
