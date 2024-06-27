@@ -56,7 +56,7 @@ export const command: Command = {
         let active: boolean;
 
         if (!permission) {
-            await interaction.reply({ content: data.setup_not_admin });
+            await interaction.reply({ content: data.setup_not_admin, allowedMentions: { repliedUser: false } });
             return;
         }
 
@@ -70,7 +70,7 @@ export const command: Command = {
             await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`, active)
         };
 
-        await interaction.reply({ content: `<@${interaction.member?.id}>, maintenant quand un membre envoie un message de bienvenue, le bot **${active ? 'réagis' : 'ne réagis pas'}**` });
+        await interaction.reply({ content: `<@${interaction.member?.id}>, maintenant quand un membre envoie un message de bienvenue, le bot **${active ? 'réagis' : 'ne réagis pas'}**`, allowedMentions: { repliedUser: false } });
         return;
     },
 };

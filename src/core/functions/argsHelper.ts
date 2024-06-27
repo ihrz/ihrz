@@ -27,3 +27,9 @@ export function getUserArgs(interaction: Message, argsNumber: number) {
         .filter(x => x.id !== interaction.client.user?.id!)
     [argsNumber] || interaction.author;
 }
+
+export function getChannel(interaction: Message, argsNumber: number) {
+    return interaction.mentions.channels
+        .map(x => x)
+    [argsNumber] || interaction.author;
+}
