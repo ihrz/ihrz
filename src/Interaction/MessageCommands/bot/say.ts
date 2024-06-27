@@ -20,46 +20,39 @@
 */
 
 import {
-    ApplicationCommandType,
-    ChatInputCommandInteraction,
+    Message,
     Client,
-    EmbedBuilder,
-    Message
+    PermissionsBitField,
 } from 'pwss'
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
-    name: 'snipe',
+    name: 'say',
 
-    description: 'Get the last message deleted in this channel!',
+    description: 'Sent a message throught the bot!',
     description_localizations: {
-        "fr": "Obtenez le dernier message supprimé sur ce cannal"
+        "fr": "Envoyer un message via le bot!"
     },
 
-    category: 'utils',
+    category: 'bot',
     thinking: false,
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, execTimestamp: number, args: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.author || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.func.getLanguageData(interaction.guildId);
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
-        var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel.id}`);
-
-        if (!based) {
-            await interaction.reply({ content: data.snipe_no_previous_message_deleted, allowedMentions: { repliedUser: false }, });
+        if (!interaction.member.permissions?.has(PermissionsBitField.Flags.Administrator)) {
+            await interaction.reply({ content: data.setserverlang_not_admin, allowedMentions: { repliedUser: false} });
             return;
         };
-
-        let embed = new EmbedBuilder()
-            .setColor("#474749")
-            .setAuthor({ name: based.snipeUserInfoTag, iconURL: based.snipeUserInfoPp })
-            .setDescription(`\`\`\`${based.snipe}\`\`\``)
-            .setTimestamp(based.snipeTimestamp);
-
-        await interaction.reply({ embeds: [embed], allowedMentions: { repliedUser: false } });
+        await interaction.reply({
+            content: '> ' + `${args.join(" ")}${data.say_footer_msg.replace('${interaction.user}', interaction.member.toString())}`,
+            allowedMentions: { repliedUser: false}
+        });
         return;
     },
 };

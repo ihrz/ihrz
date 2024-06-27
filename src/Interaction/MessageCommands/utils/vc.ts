@@ -53,7 +53,7 @@ export const command: Command = {
         let membersStates = interaction.guild.members.cache;
 
         if (!interaction.member.permissions?.has([PermissionsBitField.Flags.ViewAuditLog])) {
-            await interaction.channel.send({ content: data.renew_not_administrator });
+            await interaction.reply({ content: data.renew_not_administrator, allowedMentions: { repliedUser: false } });
             return;
         };
 
@@ -110,14 +110,15 @@ export const command: Command = {
             )
             ;
 
-        await interaction.channel.send({
+        await interaction.reply({
             embeds: [embed],
             files: [
                 {
                     attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL({ forceStatic: false })),
                     name: 'icon.png'
                 },
-            ]
+            ],
+            allowedMentions: { repliedUser: false }
         });
         return;
     },

@@ -122,7 +122,7 @@ export const command: Command = {
         };
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-        let member = client.func.argsHelper.getUserArgs(interaction, 1) as User;
+        let member = client.func.argsHelper.getUserArgs(interaction, 0) as User;
 
         async function sendMessage(user: User) {
 
@@ -190,7 +190,7 @@ export const command: Command = {
                 name: 'user_banner.gif'
             });
 
-            await interaction.channel.send({
+            await interaction.reply({
                 embeds: [embed],
                 files: files,
                 components: [
@@ -201,7 +201,8 @@ export const command: Command = {
                                 .setURL(`https://discordapp.com/users/${user.id}`)
                                 .setLabel(data.userinfo_button_label)
                         )
-                ]
+                ],
+                allowedMentions: { repliedUser: false }
             });
 
             return;

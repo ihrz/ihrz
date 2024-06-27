@@ -20,46 +20,47 @@
 */
 
 import {
-    ApplicationCommandType,
-    ChatInputCommandInteraction,
     Client,
-    EmbedBuilder,
-    Message
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    Message,
+    ApplicationCommandType,
 } from 'pwss'
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
-    name: 'snipe',
+    name: 'links',
 
-    description: 'Get the last message deleted in this channel!',
+    description: 'Show all links about iHorizon',
     description_localizations: {
-        "fr": "Obtenez le dernier message supprimé sur ce cannal"
+        "fr": "Afficher tous les liens en rapport avec iHorizon"
     },
 
-    category: 'utils',
+    category: 'bot',
     thinking: false,
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, execTimestamp: number, args: string[]) => {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.author || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.func.getLanguageData(interaction.guildId);
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
-        var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel.id}`);
+        let websitebutton = new ButtonBuilder()
+            .setLabel(data.links_website)
+            .setStyle(ButtonStyle.Link)
+            .setURL('https://ihrz.github.io');
 
-        if (!based) {
-            await interaction.reply({ content: data.snipe_no_previous_message_deleted, allowedMentions: { repliedUser: false }, });
-            return;
-        };
+        let githubbutton = new ButtonBuilder()
+            .setLabel(data.links_github)
+            .setStyle(ButtonStyle.Link)
+            .setURL('https://github.com/ihrz/ihrz')
 
-        let embed = new EmbedBuilder()
-            .setColor("#474749")
-            .setAuthor({ name: based.snipeUserInfoTag, iconURL: based.snipeUserInfoPp })
-            .setDescription(`\`\`\`${based.snipe}\`\`\``)
-            .setTimestamp(based.snipeTimestamp);
+        let row = new ActionRowBuilder<ButtonBuilder>().addComponents(websitebutton, githubbutton);
 
-        await interaction.reply({ embeds: [embed], allowedMentions: { repliedUser: false } });
+        await interaction.reply({ content: data.links_message, components: [row], allowedMentions: { repliedUser: false} });
         return;
     },
 };
