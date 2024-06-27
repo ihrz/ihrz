@@ -19,17 +19,27 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message } from "pwss";
+import { Message, Channel, User } from "pwss";
 
-export function getUserArgs(interaction: Message, argsNumber: number) {
+export function user(interaction: Message, argsNumber: number): User | null {
     return interaction.mentions.users
         .map(x => x)
         .filter(x => x.id !== interaction.client.user?.id!)
     [argsNumber] || interaction.author;
 }
 
-export function getChannel(interaction: Message, argsNumber: number) {
+export function channel(interaction: Message, argsNumber: number): Channel | null {
     return interaction.mentions.channels
         .map(x => x)
-    [argsNumber] || interaction.author;
+    [argsNumber] || null;
+}
+
+export function string(interaction: Message, argsNumber: number): string | null {
+    return interaction.content.split(" ")
+    [argsNumber] || null;
+}
+
+export function number(interaction: Message, argsNumber: number): number {
+    let _ = interaction.content.split(" ")[argsNumber];
+    return Number.isNaN(parseInt(_)) ? 0 : parseInt(_);
 }

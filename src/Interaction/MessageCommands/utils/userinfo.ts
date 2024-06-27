@@ -122,7 +122,7 @@ export const command: Command = {
         };
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-        let member = client.func.argsHelper.getUserArgs(interaction, 0) as User;
+        let member = client.func.arg.user(interaction, 0) as User;
 
         async function sendMessage(user: User) {
 
