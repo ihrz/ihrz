@@ -52,7 +52,7 @@ export const command: Command = {
                 "fr": "Changer l'état de la boucle sur le serveur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'mode',
@@ -85,7 +85,7 @@ export const command: Command = {
                 "fr": "Trouver les lyrics d'un titre"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'query',
@@ -111,7 +111,7 @@ export const command: Command = {
                 "fr": "Voir toute les musique joué dans un ordre chronologique sur le serveur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: 'nowplaying',
@@ -124,7 +124,7 @@ export const command: Command = {
                 "fr": "Obtenez la chanson en cours de lecture"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: 'pause',
@@ -134,7 +134,7 @@ export const command: Command = {
                 "fr": "Mettre en pause la musique actuelle"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: 'play',
@@ -144,7 +144,7 @@ export const command: Command = {
                 "fr": "Jouer une musique!"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'source',
@@ -187,7 +187,7 @@ export const command: Command = {
                 "fr": "Obtenir la file d'attente des musique sur le serveur!"
             },
 
-            type: 1
+            type: ApplicationCommandOptionType.Subcommand
         },
         {
             name: 'resume',
@@ -200,7 +200,7 @@ export const command: Command = {
                 "fr": "Reprendre la chanson en cours de lecture"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: 'shuffle',
@@ -213,7 +213,7 @@ export const command: Command = {
                 "fr": "Mélangez la file d'attente"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: 'skip',
@@ -223,7 +223,7 @@ export const command: Command = {
                 "fr": "Passer la chanson en cours de lecture"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: 'stop',
@@ -233,7 +233,7 @@ export const command: Command = {
                 "fr": "Couper la musique"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         }
     ],
     thinking: true,

@@ -49,7 +49,7 @@ export const command: Command = {
                 "fr": "Voir le profil iHorizon du membre"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',
@@ -75,7 +75,7 @@ export const command: Command = {
                 "fr": "Définissez votre âge sur le profil iHorizon"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'age',
@@ -101,7 +101,7 @@ export const command: Command = {
                 "fr": "Définissez votre description sur le profil iHorizon"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'descriptions',
@@ -127,7 +127,7 @@ export const command: Command = {
                 "fr": "Définissez votre sexe sur le profil iHorizon"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'gender',

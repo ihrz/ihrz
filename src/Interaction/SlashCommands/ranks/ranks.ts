@@ -49,7 +49,7 @@ export const command: Command = {
                 "fr": "Désactivez le message lorsque l'utilisateur gagne un nouveau message de niveau XP"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'action',
@@ -89,7 +89,7 @@ export const command: Command = {
                 "fr": "Obtenez le niveau XP de l'utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',
@@ -115,7 +115,7 @@ export const command: Command = {
                 "fr": "Définir le canal sur lequel l'utilisateur gagne un nouveau message de niveau XP"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'action',
@@ -162,7 +162,7 @@ export const command: Command = {
                 "fr": "Obtenez le classement XP du serveur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
     ],
     thinking: false,
