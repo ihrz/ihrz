@@ -53,7 +53,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                         lang.temporary_voice_delete_button_desc_embed
                     )
                     .setColor(2829617)
-                    .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await interaction.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
+                    .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await interaction.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'fr-FR'}.png`)
                     .setFooter(
                         {
                             text: await interaction.client.functions.displayBotName(interaction.guildId),

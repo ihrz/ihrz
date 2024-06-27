@@ -102,7 +102,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                                 value: `<@${interaction.user.id}>`
                             },
                         )
-                        .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
+                        .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'fr-FR'}.png`)
                         .setFooter(
                             {
                                 text: await interaction.client.functions.displayBotName(interaction.guildId),

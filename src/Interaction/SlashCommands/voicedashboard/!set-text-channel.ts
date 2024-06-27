@@ -48,7 +48,7 @@ export default {
 
         let embed = new EmbedBuilder()
             .setColor(2829617)
-            .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
+            .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'fr-FR'}.png`)
             .setDescription(
                 data.tempvoice_if_text_desc_embed
             )
