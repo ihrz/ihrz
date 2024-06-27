@@ -39,7 +39,7 @@ export const event: BotEvent = {
                 limit: 1,
             });
 
-            let lang = await client.functions.getLanguageData(channel.guildId) as LanguageData;
+            let lang = await client.func.getLanguageData(channel.guildId) as LanguageData;
 
             let firstEntry = fetchedLogs.entries.first();
 

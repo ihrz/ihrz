@@ -43,7 +43,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
 
     let allDataConfession = await interaction.client.db.get(`${interaction.guildId}.GUILD.CONFESSION`) as DatabaseStructure.ConfessionSchema;
     let confessionTime = await interaction.client.db.table('TEMP').get(`CONFESSION_COOLDOWN.${interaction.user.id}`);
-    let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
 
     let timeout = allDataConfession.cooldown!;
     let panel = allDataConfession.panel;
@@ -107,7 +107,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
         view = false;
 
         files.push({
-            attachment: await interaction.client.functions.image64(interaction.user.displayAvatarURL()),
+            attachment: await interaction.client.func.image64(interaction.user.displayAvatarURL()),
             name: 'userIcon.png'
         });
 

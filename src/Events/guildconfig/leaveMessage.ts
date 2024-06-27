@@ -34,7 +34,7 @@ export const event: BotEvent = {
          * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
          */
         const nonce = SnowflakeUtil.generate().toString();
-        let data = await client.functions.getLanguageData(member.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(member.guild.id) as LanguageData;
 
         try {
             let base = await client.db.get(`${member.guild.id}.USER.${member.user.id}.INVITES.BY`);

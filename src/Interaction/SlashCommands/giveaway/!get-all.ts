@@ -57,7 +57,7 @@ export default {
             )
             .setFooter(
                 {
-                    text: await client.functions.displayBotName(interaction.guild.id),
+                    text: await client.func.displayBotName(interaction.guild.id),
                     iconURL: "attachment://icon_2.png",
                 }
             );
@@ -83,11 +83,11 @@ export default {
                 embeds: [embed],
                 files: [
                     {
-                        attachment: await client.functions.image64(interaction.guild.iconURL({ size: 1024, forceStatic: false })),
+                        attachment: await client.func.image64(interaction.guild.iconURL({ size: 1024, forceStatic: false })),
                         name: 'icon.png'
                     },
                     {
-                        attachment: await client.functions.image64(client.user.displayAvatarURL({ size: 1024, forceStatic: false })),
+                        attachment: await client.func.image64(client.user.displayAvatarURL({ size: 1024, forceStatic: false })),
                         name: 'icon_2.png'
                     }
                 ],
