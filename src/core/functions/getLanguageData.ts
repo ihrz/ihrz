@@ -50,9 +50,9 @@ export default async function getLanguageData(arg: string): Promise<LanguageData
 
     if (!dat) {
         dat = yaml.load(fs.readFileSync(path.join(__dirname, '..', '..', '..', '..', 'src', 'lang', lang + '.yml'), 'utf8')
-            .replaceAll('iHorizon ', cached_client.user?.username!)
-            .replaceAll(' iHorizon', cached_client.user?.username!)
-            .replaceAll('iHorizon.', cached_client.user?.username!)
+            .replaceAll('iHorizon ', cached_client.user?.username! + " ")
+            .replaceAll(' iHorizon', " " + cached_client.user?.username!)
+            .replaceAll('iHorizon.', cached_client.user?.username! + ".")
         ) as LanguageData;
         LangsData[lang] = dat;
     };
