@@ -57,7 +57,7 @@ export const command: Command = {
 
         const data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
-        let argsid = client.func.argsHelper.getChannel(interaction, 0);
+        let argsid = client.func.arg.channel(interaction, 0);
 
         if (!interaction.member.permissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.setxpchannels_not_admin, allowedMentions: { repliedUser: false } });
