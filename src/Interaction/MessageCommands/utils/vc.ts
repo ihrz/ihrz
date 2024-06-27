@@ -48,7 +48,7 @@ export const command: Command = {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.author || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let voiceStates = interaction.guild.voiceStates.cache;
         let membersStates = interaction.guild.members.cache;
 
@@ -104,7 +104,7 @@ export const command: Command = {
             )
             .setFooter(
                 {
-                    text: await interaction.client.functions.displayBotName(interaction.guildId),
+                    text: await interaction.client.func.displayBotName(interaction.guildId),
                     iconURL: "attachment://icon.png"
                 }
             )
@@ -114,7 +114,7 @@ export const command: Command = {
             embeds: [embed],
             files: [
                 {
-                    attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL({ forceStatic: false })),
+                    attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL({ forceStatic: false })),
                     name: 'icon.png'
                 },
             ]

@@ -29,7 +29,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
 
     let targetedChannel = (interaction.member as GuildMember).voice.channel;
 
-    let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let member = interaction.member as GuildMember;
 
     let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
@@ -56,14 +56,14 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                     .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await interaction.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
                     .setFooter(
                         {
-                            text: await interaction.client.functions.displayBotName(interaction.guildId),
+                            text: await interaction.client.func.displayBotName(interaction.guildId),
                             iconURL: 'attachment://icon.png'
                         }
                     )
             ],
             files: [
                 {
-                    attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
+                    attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()),
                     name: 'icon.png'
                 }
             ],

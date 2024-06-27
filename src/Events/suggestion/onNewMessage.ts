@@ -37,7 +37,7 @@ export const event: BotEvent = {
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        let data = await client.functions.getLanguageData(message.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(message.guild.id) as LanguageData;
 
         let baseData = await client.db.get(`${message.guildId}.SUGGEST`);
 
@@ -58,7 +58,7 @@ export const event: BotEvent = {
             })
             .setDescription(suggestionContent.toString())
             .setThumbnail((message.guild?.iconURL() as string))
-            .setFooter({ text: await client.functions.displayBotName(message.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.func.displayBotName(message.guild.id), iconURL: "attachment://icon.png" })
             .setTimestamp();
 
         message.delete();
@@ -69,7 +69,7 @@ export const event: BotEvent = {
         let msg = await message.channel.send({
             content: message.author.toString(),
             embeds: [suggestionEmbed],
-            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
+            files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
             enforceNonce: true, nonce: nonce
         });
 

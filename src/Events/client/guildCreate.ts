@@ -71,7 +71,7 @@ export const event: BotEvent = {
             if (isBL) {
                 await (channelHr as GuildTextBasedChannel).send({
                     embeds: [tqtmonreuf],
-                    files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+                    files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
                 }).catch(() => { });
                 await guild.leave();
                 return false;
@@ -122,7 +122,7 @@ export const event: BotEvent = {
             (channel as TextChannel).send({
                 embeds: [embed],
                 content: 'discord.gg/ihorizon\ndiscord.com/application-directory/945202900907470899',
-                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
+                files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
                 components: [buttons]
             }).catch(() => { });
         }
@@ -172,7 +172,7 @@ export const event: BotEvent = {
 
             logsChannel?.send({
                 embeds: [embed],
-                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
             }).catch(() => { });
         };
 

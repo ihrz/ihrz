@@ -133,7 +133,7 @@ export const command: Command = {
                 .join('');
         };
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let member = interaction.options.getUser('user') || interaction.user;
 
         async function sendMessage(user: User) {
@@ -153,7 +153,7 @@ export const command: Command = {
             };
 
             let embed = new EmbedBuilder()
-                .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://ihrz_logo.png" })
+                .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://ihrz_logo.png" })
                 .setThumbnail("attachment://user_icon.gif")
                 .setTimestamp()
                 .setColor('#0014a8')
@@ -188,7 +188,7 @@ export const command: Command = {
 
             var files: { name: string; attachment: string }[] = [
                 {
-                    attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL({ forceStatic: false })),
+                    attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL({ forceStatic: false })),
                     name: 'ihrz_logo.png'
                 },
                 {
@@ -198,7 +198,7 @@ export const command: Command = {
             ];
 
             if (banner) files.push({
-                attachment: await interaction.client.functions.image64(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`),
+                attachment: await interaction.client.func.image64(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`),
                 name: 'user_banner.gif'
             });
 

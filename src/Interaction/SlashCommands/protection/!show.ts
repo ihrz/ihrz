@@ -62,12 +62,12 @@ export default {
             .setColor("#000000")
             .setAuthor({ name: data.allowlist_show_embed_author })
             .setDescription(`${text}`)
-            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setTimestamp();
 
         await interaction.reply({
             embeds: [embed],
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

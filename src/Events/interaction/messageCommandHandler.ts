@@ -24,7 +24,7 @@ import { BotEvent } from '../../../types/event';
 import { Client, Message } from 'pwss';
 
 export async function isMessageCommand(client: Client, message: Message): Promise<{ s: boolean, a?: string[], c?: Command }> {
-    var prefix = await client.functions.prefix.guildPrefix(client, message.guildId!);
+    var prefix = await client.func.prefix.guildPrefix(client, message.guildId!);
 
     let args = message.content.slice(prefix.string.length).trim().split(/ +/g);
     let command = client.message_commands.get(args.shift()?.toLowerCase() as string);

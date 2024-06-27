@@ -59,7 +59,7 @@ export const command: Command = {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         var sentences = interaction.options.getString("message-to-dev")
         let timeout = 18000000

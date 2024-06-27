@@ -57,7 +57,7 @@ export const command: Command = {
             return;
         };
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         let all_specific_message: DatabaseStructure.DbGuildObject["REACT_MSG"] = await client.db.get(`${interaction.guildId}.GUILD.REACT_MSG`) || {};
 
@@ -96,7 +96,7 @@ export const command: Command = {
         let messageEmbed = await interaction.reply({
             embeds: [createEmbed()],
             components: [(row as ActionRowBuilder<ButtonBuilder>)],
-            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({

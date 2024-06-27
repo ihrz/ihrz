@@ -44,7 +44,7 @@ export const command: Command = {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.author || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.func.getLanguageData(interaction.guildId);
 
         var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel.id}`);
 

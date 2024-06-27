@@ -31,7 +31,7 @@ export const event: BotEvent = {
         let fetch = await client.db.get(`${member.guild.id}.TICKET_ALL.${member.user.id}`);
 
         for (let channelId in fetch) {
-            let lang = await client.functions.getLanguageData(member.guild.id) as LanguageData;
+            let lang = await client.func.getLanguageData(member.guild.id) as LanguageData;
             let channel = member.guild.channels.cache.get(fetch[channelId].channel);
             await channel?.delete().catch(() => { });
 
@@ -47,10 +47,10 @@ export const event: BotEvent = {
                         .replace('${interaction.user}', member.user.toString())
                         .replace('${interaction.channel.name}', channel?.name!)
                     )
-                    .setFooter({ text: await client.functions.displayBotName(member.guild.id), iconURL: "attachment://icon.png" })
+                    .setFooter({ text: await client.func.displayBotName(member.guild.id), iconURL: "attachment://icon.png" })
                     .setTimestamp();
 
-                TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
+                TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
             } catch (e) { };
 
             await client.db.delete(`${member.guild.id}.TICKET_ALL.${member.user.id}`)
