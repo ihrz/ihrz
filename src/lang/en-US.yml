@@ -782,6 +782,16 @@ too_new_account_command_work_on_enable: "${interaction.user}, new members joinin
 too_new_account_logEmbed_desc_on_disable: "${interaction.user} has disabled the module!"
 too_new_account_command_work_on_disable: "${interaction.user}, the module has been successfully disabled. New member account creation dates will no longer be checked."
 
+# /guildconfig set-bot footer-name
+guildconfig_setbot_footername_footer_too_long_msg: "The bot footer is too long, it will be too ugly to display."
+guildconfig_setbot_footername_is_good: "Succefully changed, all iHorizon embed will use `${footerName}` as footer!"
+
+# /guildconfig set-bot prefix
+guildconfig_setbot_prefix_prefix_now_mention: "The bot prefix for Message's command is now mention! `@Ping-Me`"
+guildconfig_setbot_prefix_prefix_specify_prefix: "You need to specify the bot prefix."
+guildconfig_setbot_prefix_prefix_too_long: "The bot prefix is too long, it will be too difficult to use."
+guildconfig_setbot_prefix_prefix_is_good: "The bot prefix are succefully changed, now message's commands is usable with: `${formatedPrefix}`"
+
 
 # Member Count commands
 # /setmembercount

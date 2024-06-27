@@ -42,15 +42,16 @@ export interface DescriptionLocalizations {
 }
 
 export interface Command {
-    name: string,
-    description: string,
-    name_localizations?: NameLocalizations
-    description_localizations: DescriptionLocalizations,
-    permission?: bigint | 0,
-    category: string,
-    options?: Option[],
-    thinking: boolean,
-    channel_types?: number[],
-    type: ApplicationCommandType | 'PREFIX_IHORIZON_COMMAND',
-    async run(client: Client, interaction: CommandInteraction | Message, execTimestamp: number, options?: CommandInteractionOptionResolver | string[]): Promise<any>
+    name: string;
+    description: string;
+    name_localizations?: NameLocalizations;
+    description_localizations: DescriptionLocalizations;
+    permission?: bigint | 0;
+    category: string;
+    options?: Option[];
+    thinking: boolean;
+    channel_types?: number[];
+    type: ApplicationCommandType | 'PREFIX_IHORIZON_COMMAND';
+    aliases?: string[];
+    async run(client: Client, interaction: CommandInteraction | Message, execTimestamp: number, options?: CommandInteractionOptionResolver | string[]): Promise<any>;
 }

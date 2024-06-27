@@ -49,7 +49,7 @@ export const command: Command = {
                 "fr": "Répondre à la suggestion (nécessite l'autorisation de l'administrateur)"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'id',
@@ -86,7 +86,7 @@ export const command: Command = {
                 "fr": "Refuser une suggestion (Requière les permission Admin)"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'id',
@@ -127,7 +127,7 @@ export const command: Command = {
                 "fr": "Accepter une suggestion (Requiert permissions Admin)"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'id',
@@ -168,7 +168,7 @@ export const command: Command = {
                 "fr": "Supprimer une suggestion (Requiert permissions Admin)"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'id',

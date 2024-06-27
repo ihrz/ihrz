@@ -74,7 +74,7 @@ export const command: Command = {
                 .replace('${client.iHorizon_Emojis.icon.iHorizon_Pointer}', client.iHorizon_Emojis.icon.iHorizon_Pointer)
                 .replace('${averagePing}', averagePing.toString())
             )
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" });
 
         await interaction.editReply({
             content: null,

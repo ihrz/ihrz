@@ -62,7 +62,7 @@ export default {
             ? data.leaderboard_rank_text.replace('${userRank + 1}', String(userRank + 1)).replace('${arr.length}', arr.length.toString()).replace('${arr[userRank].invites}', String(arr[userRank].invites))
             : data.leaderboard_rank_none;
 
-        const generateEmbed = (start: number) => {
+        const generateEmbed = async (start: number) => {
             const current = arr.slice(start, start + itemsPerPage);
             let text: string = data.leaderboard_gen_time_msg.replace("${interaction.guild?.name}", interaction.guild?.name!).replace('${Date.now() - execTimestamp}', String(Date.now() - execTimestamp));
             let pageText = text;
@@ -87,13 +87,13 @@ export default {
                 .setTitle(data.leaderboard_default_text + " • " + interaction.guild?.name)
                 .setDescription(pageText)
                 .setTimestamp()
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                 .setThumbnail("attachment://guildIcon.png");
         };
 
         const canFitOnOnePage = arr.length <= itemsPerPage;
         const embedMessage = await interaction.editReply({
-            embeds: [generateEmbed(0)],
+            embeds: [await generateEmbed(0)],
             components: canFitOnOnePage ? [] : [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder()
                     .setCustomId('previous')
@@ -125,7 +125,7 @@ export default {
             }
 
             await i.update({
-                embeds: [generateEmbed(currentIndex)],
+                embeds: [await generateEmbed(currentIndex)],
                 components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                     new ButtonBuilder()
                         .setCustomId('previous')

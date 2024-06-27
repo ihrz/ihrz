@@ -54,7 +54,7 @@ export default {
         let setupEmbed = new EmbedBuilder()
             .setColor('#000000')
             .setTitle(data.setsuggest_channel_embed_title)
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setDescription(data.setsuggest_channel_embed_desc);
 
         await client.db.set(`${interaction.guild.id}.SUGGEST.channel`, channel?.id);

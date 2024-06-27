@@ -22,9 +22,9 @@
 import {
     ChatInputCommandInteraction,
     Client,
-    EmbedBuilder,
-    PermissionsBitField
+    PermissionsBitField,
 } from 'pwss';
+
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
@@ -32,17 +32,29 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let embed = new EmbedBuilder()
-            .setColor('#c4afed')
-            .setTitle(data.banner_guild_embed)
-            .setImage(interaction.guild.bannerURL({ extension: 'png', size: 4096 }))
-            .setThumbnail(interaction.guild.iconURL({ size: 4096 }) as string)
-            .setFooter({ text: await client.functions.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+        let action = interaction.options.getString("action")!;
+        let prefix = interaction.options.getString('name');
 
-        await interaction.reply({
-            embeds: [embed],
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
-        });
-        return;
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+            await interaction.editReply({ content: data.setup_not_admin });
+            return;
+        };
+
+        if (action === "mention") {
+            await client.db.delete(`${interaction.guildId}.BOT.prefix`);
+            await interaction.editReply({ content: data.guildconfig_setbot_prefix_prefix_now_mention })
+        } else if (action === "change") {
+            if (!prefix) return await interaction.editReply({ content: data.guildconfig_setbot_prefix_prefix_specify_prefix });
+            if (prefix.length >= 5) return await interaction.editReply({ content: data.guildconfig_setbot_prefix_prefix_too_long });
+
+            let formatedPrefix = prefix.split(" ")[0];
+            await client.db.set(`${interaction.guildId}.BOT.prefix`, formatedPrefix);
+
+            await interaction.editReply({
+                content: data.guildconfig_setbot_prefix_prefix_is_good
+                    .replace("${formatedPrefix}", formatedPrefix)
+            });
+            return;
+        }
     },
 };

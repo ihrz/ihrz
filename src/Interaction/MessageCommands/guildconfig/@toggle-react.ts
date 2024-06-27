@@ -38,6 +38,7 @@ import { Command } from '../../../../types/command';
 export const command: Command = {
 
     name: 'toggle-react',
+    aliases: ['react-toggle', 'togglereact', 'reacttoggle'],
 
     description: 'Enable / Disable the reaction when user greets someone',
     description_localizations: {
