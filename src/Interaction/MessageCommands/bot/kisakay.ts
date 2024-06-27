@@ -34,6 +34,8 @@ export const command: Command = {
         "fr": "Obtenir les informations nécessaires sur ma développeuse, Kisakay"
     },
 
+    aliases: ["anaïs", "anais"],
+
     category: 'bot',
     thinking: false,
     type: "PREFIX_IHORIZON_COMMAND",

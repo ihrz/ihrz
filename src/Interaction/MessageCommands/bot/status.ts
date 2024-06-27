@@ -42,6 +42,8 @@ export const command: Command = {
         "fr": "Obtenez le statut du bot ! (Uniquement pour le propriétaire du bot)"
     },
 
+    aliases: ["vps", "stats"],
+
     category: 'bot',
     thinking: false,
     type: "PREFIX_IHORIZON_COMMAND",
@@ -52,7 +54,7 @@ export const command: Command = {
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!client.owners.includes(interaction.member.id)) {
-            await interaction.reply({ content: data.status_be_bot_dev, allowedMentions: { repliedUser: false} });
+            await interaction.reply({ content: data.status_be_bot_dev, allowedMentions: { repliedUser: false } });
             return;
         };
 
@@ -72,7 +74,7 @@ export const command: Command = {
         await interaction.channel.send({
             embeds: [embed],
             files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }],
-            allowedMentions: { repliedUser: false}
+            allowedMentions: { repliedUser: false }
         });
         return;
     },

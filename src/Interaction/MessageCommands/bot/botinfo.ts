@@ -37,6 +37,8 @@ export const command: Command = {
         "fr": "Obtenir les informations supplémentaire par rapport au bot."
     },
 
+    aliases: ["bot", "info"],
+
     category: 'bot',
     thinking: false,
     type: "PREFIX_IHORIZON_COMMAND",

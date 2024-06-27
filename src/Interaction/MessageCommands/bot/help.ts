@@ -44,6 +44,8 @@ export const command: Command = {
         "fr": "Obtenir la liste de toute les commandes"
     },
 
+    aliases: ["aide", "menu"],
+
     category: 'bot',
     thinking: false,
     type: "PREFIX_IHORIZON_COMMAND",

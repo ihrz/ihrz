@@ -40,6 +40,8 @@ export const command: Command = {
         "fr": "Obtenir le lien d'invitations du bot iHorizon"
     },
 
+    aliases: ["getlink"],
+
     category: 'bot',
     thinking: false,
     type: "PREFIX_IHORIZON_COMMAND",

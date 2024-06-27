@@ -37,6 +37,8 @@ export const command: Command = {
         "fr": "Obtenir la latence du bot"
     },
 
+    aliases: ["speed", "latence", "rapidité"],
+
     category: 'bot',
     thinking: false,
     type: "PREFIX_IHORIZON_COMMAND",
