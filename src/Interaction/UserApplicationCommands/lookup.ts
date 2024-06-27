@@ -119,7 +119,7 @@ export const command: AnotherCommand = {
             };
 
             let embed = new EmbedBuilder()
-                .setFooter({ text: `iHorizon`, iconURL: "attachment://ihrz_logo.png" })
+                .setFooter({ text: await client.functions.displayBotName(interaction.guild?.id), iconURL: "attachment://ihrz_logo.png" })
                 .setThumbnail("attachment://user_icon.gif")
                 .setTimestamp()
                 .setColor('#0014a8')

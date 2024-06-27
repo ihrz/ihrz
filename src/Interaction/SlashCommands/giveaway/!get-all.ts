@@ -57,7 +57,7 @@ export default {
             )
             .setFooter(
                 {
-                    text: 'iHorizon',
+                    text: await client.functions.displayBotName(interaction.guild.id),
                     iconURL: "attachment://icon_2.png",
                 }
             );

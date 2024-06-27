@@ -98,7 +98,7 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
         .setTitle(`${user?.user.username || user?.user.globalName}'s **User** avatar`)
         .setImage(user.user.displayAvatarURL({ extension: 'png', forceStatic: false }))
         .setTimestamp()
-        .setFooter({ text: 'iHorizon' })
+        .setFooter({ text: await client.functions.displayBotName(channel.guildId) })
     );
 
     (channel as BaseGuildTextChannel).send({
