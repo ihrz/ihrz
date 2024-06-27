@@ -21,12 +21,15 @@
 
 import { DatabaseStructure } from "../database_structure.js";
 import db from "../functions/DatabaseModel.js";
+import { getClient } from "../core.js";
+
+const client = getClient();
 
 export default async function displayBotName(guildId: string): Promise<string> {
     let botName = await db.get(`${guildId}.BOT.botName`) as DatabaseStructure.DbGuildBotObject["botName"];
 
     if (!botName) {
-        botName = 'iHorizon';
+        botName = client.user?.username!;
     };
 
     return botName;
