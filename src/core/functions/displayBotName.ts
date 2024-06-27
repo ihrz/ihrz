@@ -20,12 +20,10 @@
 */
 
 import { DatabaseStructure } from "../database_structure.js";
-import { getDatabaseInstance } from "../database.js";
-
-let database = getDatabaseInstance();
+import db from "../functions/DatabaseModel.js";
 
 export default async function displayBotName(guildId: string): Promise<string> {
-    let botName = await database.get(`${guildId}.BOT.botName`) as DatabaseStructure.DbGuildBotObject["botName"];
+    let botName = await db.get(`${guildId}.BOT.botName`) as DatabaseStructure.DbGuildBotObject["botName"];
 
     if (!botName) {
         botName = 'iHorizon';
