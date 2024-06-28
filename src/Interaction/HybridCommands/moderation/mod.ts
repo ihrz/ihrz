@@ -47,6 +47,8 @@ export const command: Command = {
                 "fr": "Récuperer l'avatar d'un utilisateur"
             },
 
+            aliases: ["pfp", "pp"],
+
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
@@ -247,7 +249,7 @@ export const command: Command = {
                     description_localizations: {
                         "fr": "L'utilisateur que vous souhaitez unmuted"
                     },
-                    
+
                     required: true
                 }
             ],

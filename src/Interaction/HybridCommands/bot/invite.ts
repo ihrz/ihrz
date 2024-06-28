@@ -42,6 +42,8 @@ export const command: Command = {
         "fr": "Obtenir le lien d'invitations du bot iHorizon"
     },
 
+    aliases: ["inviteme", "oauth"],
+
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,

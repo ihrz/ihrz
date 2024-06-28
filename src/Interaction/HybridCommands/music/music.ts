@@ -146,6 +146,8 @@ export const command: Command = {
                 "fr": "Jouer une musique!"
             },
 
+            aliases: ["p"],
+
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {

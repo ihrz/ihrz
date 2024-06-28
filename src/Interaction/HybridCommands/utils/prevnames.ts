@@ -67,6 +67,8 @@ export const command: Command = {
         "fr": "Recherchez un utilisateur Discord et voyez ces noms d'utilisateur précédent"
     },
 
+    aliases: ["pvnames", "pvname"],
+
     options: [
         {
             name: 'user',

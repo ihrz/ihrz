@@ -40,6 +40,8 @@ export const command: Command = {
         "fr": "setserveurlang"
     },
 
+    aliases: ["setsrvlang", "lang", "setlang"],
+
     description: 'Set the server language!',
     description_localizations: {
         "fr": "Choisir la langue du bot discord !"

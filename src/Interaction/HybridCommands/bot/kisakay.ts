@@ -36,6 +36,8 @@ export const command: Command = {
         "fr": "Obtenir les informations nécessaires sur ma développeuse, Kisakay"
     },
 
+    aliases: ["anaïs", "anais", "kisa"],
+
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
