@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message, Channel, User } from "pwss";
+import { Message, Channel, User, Role } from "pwss";
 
 export function user(interaction: Message, argsNumber: number): User | null {
     return interaction.content.startsWith(`<@${interaction.client.user.id}`)
@@ -35,6 +35,12 @@ export function user(interaction: Message, argsNumber: number): User | null {
 
 export function channel(interaction: Message, argsNumber: number): Channel | null {
     return interaction.mentions.channels
+        .map(x => x)
+    [argsNumber] || null;
+}
+
+export function role(interaction: Message, argsNumber: number): Role | null {
+    return interaction.mentions.roles
         .map(x => x)
     [argsNumber] || null;
 }
