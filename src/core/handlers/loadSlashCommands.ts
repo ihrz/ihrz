@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Collection } from 'pwss';
+import { ApplicationCommandOptionType, Client, Collection } from 'pwss';
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
 
@@ -73,12 +73,12 @@ async function processOptions(options: Option[], category: string, parentName: s
     for (let option of options) {
         let fullName = parentName ? `${parentName} ${option.name}` : option.name;
 
-        if (option.type === 1) {
+        if (option.type === ApplicationCommandOptionType.Subcommand) {
 
             client.content.push(
                 {
                     cmd: fullName,
-                    messageCmd: false,
+                    messageCmd: 0,
                     category: category,
                     desc: option.description,
                     desc_localized: option.description_localizations
@@ -99,12 +99,12 @@ export default async function loadCommands(client: Client, path: string = p): Pr
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
 
-    client.commands = new Collection<string, Command>();
+    if (!client.commands) client.commands = new Collection<string, Command>();
+    if (!client.message_commands) client.message_commands = new Collection<string, Command>();
 
     var i = 0;
     for (let path of paths) {
         if (!path.endsWith('.js') && !path.endsWith('.json')) continue;
-        i++;
 
         let module;
         if (path.endsWith('.js')) {
@@ -115,6 +115,7 @@ export default async function loadCommands(client: Client, path: string = p): Pr
 
         if (module && module.command) {
             const { command } = module;
+            i++;
 
             if (command.options) {
                 await processOptions(command.options, command.category, command.name, client);
@@ -125,7 +126,7 @@ export default async function loadCommands(client: Client, path: string = p): Pr
                     cmd: command.name,
                     desc: command.description,
                     category: command.category,
-                    messageCmd: false,
+                    messageCmd: 0,
                     desc_localized: command.description_localizations
                 }
             )

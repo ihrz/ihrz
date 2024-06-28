@@ -22,10 +22,15 @@
 import { Message, Channel, User } from "pwss";
 
 export function user(interaction: Message, argsNumber: number): User | null {
-    return interaction.mentions.users
-        .map(x => x)
-        .filter(x => x.id !== interaction.client.user?.id!)
-    [argsNumber] || interaction.author;
+    return interaction.content.startsWith(`<@${interaction.client.user.id}`)
+        ?
+        interaction.mentions.users
+            .map(x => x)
+            .filter(x => x.id !== interaction.client.user?.id!)[argsNumber]
+        :
+        interaction.mentions.users
+            .map(x => x)[argsNumber]
+        || null
 }
 
 export function channel(interaction: Message, argsNumber: number): Channel | null {
@@ -34,8 +39,8 @@ export function channel(interaction: Message, argsNumber: number): Channel | nul
     [argsNumber] || null;
 }
 
-export function string(interaction: Message, argsNumber: number): string | null {
-    return interaction.content.split(" ")
+export function string(args: string[], argsNumber: number): string | null {
+    return args
     [argsNumber] || null;
 }
 
