@@ -30,7 +30,7 @@ import {
     EmbedBuilder
 } from 'pwss';
 
-import { DatabaseStructure } from '../../core/database_structure';
+import { DatabaseStructure } from '../../../types/database_structure';
 
 import { AntiSpam } from '../../../types/antispam';
 import { BotEvent } from '../../../types/event';

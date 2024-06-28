@@ -24,7 +24,7 @@ import { Client, PermissionsBitField, ChannelType, Message, GuildTextBasedChanne
 import { isMessageCommand } from '../interaction/messageCommandHandler.js';
 import { LanguageData } from '../../../types/languageData';
 import { BotEvent } from '../../../types/event';
-import { DatabaseStructure } from '../../core/database_structure.js';
+import { DatabaseStructure } from '../../../types/database_structure.js';
 
 export const event: BotEvent = {
     name: "messageCreate",

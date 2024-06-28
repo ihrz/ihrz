@@ -20,8 +20,8 @@
 */
 
 import { EmbedBuilder } from "@discordjs/builders";
-import { CaseList } from "./modules/ticketsManager.js";
-import { AntiSpam } from "../../types/antispam.js";
+import { CaseList } from "../src/core/modules/ticketsManager.js";
+import { AntiSpam } from "./antispam.js";
 
 export namespace DatabaseStructure {
 
@@ -313,6 +313,7 @@ export namespace DatabaseStructure {
         XP_LEVELING?: {
             disable?: 'disable' | boolean;
             xpchannels?: string;
+            bypassChannels?: string[]
         };
         REACTION_ROLES?: ReactionRolesData;
         RANK_ROLES?: {

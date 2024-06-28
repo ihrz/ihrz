@@ -30,7 +30,7 @@ import {
     Message
 } from 'pwss';
 
-import { DatabaseStructure } from '../../../core/database_structure';
+import { DatabaseStructure } from '../../../../types/database_structure';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 

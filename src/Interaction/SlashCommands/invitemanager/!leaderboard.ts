@@ -29,7 +29,7 @@ import {
     ComponentType,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
-import { DatabaseStructure } from '../../../core/database_structure';
+import { DatabaseStructure } from '../../../../types/database_structure';
 
 const itemsPerPage = 15;
 
