@@ -164,6 +164,16 @@ export const command: Command = {
 
             type: ApplicationCommandOptionType.Subcommand,
         },
+        {
+            name: "ignore-channels",
+
+            description: "Ignore this channels in the Ranks Module",
+            description_localizations: {
+                "fr": "Ignorer des salons afin que le module de Rangs ne l'ai prennent pas en compte"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand,
+        },
     ],
     thinking: false,
     category: 'ranks',

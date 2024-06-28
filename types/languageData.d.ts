@@ -20,6 +20,8 @@
 */
 
 export interface LanguageData {
+  ranks_ignorechannels_embed_desc: string;
+  ranks_ignorechannels_embed_title: string;
   add_disabled_command: string;
   add_command_work: string;
   add_command_error: string;
@@ -1052,6 +1054,7 @@ export interface LanguageData {
   antispam_manage_modal_title: string;
   antispam_manage_button_label: string;
   antispan_bypassroles_embed_desc: string;
+  antispam_ignorechannels_embed_desc: string;
   confession_module_modal_title: string;
   confession_module_modal_components1_label: string;
   confession_module_modal_components1_placeholder: string;
