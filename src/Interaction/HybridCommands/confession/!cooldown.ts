@@ -24,27 +24,62 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    InteractionEditReplyOptions,
+    Message,
+    MessageReplyOptions,
     PermissionsBitField
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
+        return await interaction.editReply(editOptions);
+    } else {
+        let replyOptions: MessageReplyOptions;
 
-        let action = interaction.options.getString("time") as string;
+        if (typeof options === 'string') {
+            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
+        } else {
+            replyOptions = {
+                ...options,
+                allowedMentions: { repliedUser: false },
+                content: options.content ?? undefined
+            } as MessageReplyOptions;
+        }
+
+        return await interaction.reply(replyOptions);
+    }
+}
+
+
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var action = interaction.options.getString("time") as string;
+        } else {
+            var action = (client.args.string(args!, 0) || "0s") as string
+        };
+
         let time = client.timeCalculator.to_ms(action);
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.reply({ content: data.security_disable_not_admin });
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, { content: data.security_disable_not_admin });
             return;
         };
 
         if (!time) {
-            await interaction.editReply({
+            await interactionSend(interaction, {
                 content: data.start_time_not_valid
-                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${interaction.user}', interaction.member.user.toString())
             });
             return;
         };
@@ -52,7 +87,7 @@ export default {
         await client.db.set(`${interaction.guildId}.GUILD.CONFESSION.cooldown`, time);
         await interaction.reply({
             content: data.confession_coolodwn_command_work
-                .replace('${interaction.user.toString()}', interaction.user.toString())
+                .replace('${interaction.user.toString()}', interaction.member.user.toString())
                 .replace('${client.timeCalculator.to_beautiful_string(time)}', client.timeCalculator.to_beautiful_string(time))
         });
 
@@ -61,7 +96,7 @@ export default {
                 .setColor("#bf0bb9")
                 .setTitle(data.confession_cooldown_log_embed_title)
                 .setDescription(data.confession_cooldown_log_embed_desc
-                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${interaction.user}', interaction.member.user.toString())
                     .replace('${client.timeCalculator.to_beautiful_string(time)}', client.timeCalculator.to_beautiful_string(time))
                 )
 

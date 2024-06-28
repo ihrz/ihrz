@@ -24,19 +24,52 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    InteractionEditReplyOptions,
+    Message,
+    MessageReplyOptions,
     PermissionsBitField
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
+        return await interaction.editReply(editOptions);
+    } else {
+        let replyOptions: MessageReplyOptions;
+
+        if (typeof options === 'string') {
+            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
+        } else {
+            replyOptions = {
+                ...options,
+                allowedMentions: { repliedUser: false },
+                content: options.content ?? undefined
+            } as MessageReplyOptions;
+        }
+
+        return await interaction.reply(replyOptions);
+    }
+}
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        let action = interaction.options.getString("action");
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var action = interaction.options.getString("action");
+        } else {
+            var action = client.args.string(args!, 0);
+        };
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.reply({ content: data.security_disable_not_admin });
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, { content: data.security_disable_not_admin });
             return;
         };
 
@@ -51,7 +84,7 @@ export default {
                     .setColor("#bf0bb9")
                     .setTitle(data.confession_log_embed_title_on_enable)
                     .setDescription(data.confession_log_embed_desc_on_enable
-                        .replace('${interaction.user}', interaction.user.toString())
+                        .replace('${interaction.user}', interaction.member.user.toString())
                     )
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
@@ -73,7 +106,7 @@ export default {
                     .setColor("#bf0bb9")
                     .setTitle(data.confession_log_embed_title_on_enable)
                     .setDescription(data.confession_log_embed_desc_on_disabled
-                        .replace('${interaction.user}', interaction.user.toString())
+                        .replace('${interaction.user}', interaction.member.user.toString())
                     )
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');

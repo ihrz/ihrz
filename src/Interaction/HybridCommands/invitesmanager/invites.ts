@@ -154,49 +154,10 @@ export const command: Command = {
             fetchedCommand = interaction.options.getSubcommand();
         } else {
             if (!options?.[0]) {
-                const getType = (type: number): string => {
-                    switch (type) {
-                        case 3:
-                            return "string"
-                        case 6:
-                            return "user"
-                        case 8:
-                            return "roles"
-                        case 10:
-                        case 4:
-                            return "number"
-                        case 7:
-                            return "channel"
-                        default:
-                            return "default"
-                    }
-                }
-                const embed = new EmbedBuilder()
-                    .setTitle(command.name.charAt(0).toUpperCase() + command.name.slice(1) + " Help Embed")
-                    .setColor("LightGrey");
-                var botPrefix = await client.func.prefix.guildPrefix(client, interaction.guildId!);
-                var cleanBotPrefix = botPrefix.string;
-
-                if (botPrefix.type === "mention") { cleanBotPrefix = "`@Ping-Me`" }
-                command.options?.map(x => {
-                    var pathString = '';
-                    var fullNameCommand = command.name + " " + x.name;
-
-                    x.options?.forEach((value) => {
-                        value.required ? pathString += "**`[" : pathString += "**`<"
-                        pathString += getType(value.type)
-                        value.required ? pathString += "]`**" + " " : pathString += ">`**" + " "
-                    })
-                    embed.addFields({
-                        name: cleanBotPrefix + fullNameCommand,
-                        value: `**Aliases:** ${x.aliases?.map(x => `\`${x}\``)
-                            .join(", ") || "None"}\n**Use:** ${cleanBotPrefix}${fullNameCommand} ${pathString}`
-                    })
-                })
-                interaction.reply({ embeds: [embed] })
+                let embed = await client.func.arg.createAwesomeEmbed(command, client, interaction);
+                await interaction.reply({ embeds: [embed] })
                 return;
             };
-
             let cmd = command.options?.find(x => options[0] === x.name || x.aliases?.includes(options[0]));
             if (!cmd) return;
 

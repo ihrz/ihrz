@@ -19,7 +19,8 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel } from "pwss";
+import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, Embed } from "pwss";
+import { Command } from "../../../types/command";
 
 export function user(interaction: Message, argsNumber: number): User | null {
     return interaction.content.startsWith(`<@${interaction.client.user.id}`)
@@ -74,4 +75,52 @@ export function longString(args: string[], argsNumber: number): string | null {
 export function number(args: string[], argsNumber: number): number {
     let _ = args[argsNumber];
     return Number.isNaN(parseInt(_)) ? 0 : parseInt(_);
+}
+
+export async function createAwesomeEmbed(command: Command, client: Client, interaction: Message): Promise<EmbedBuilder> {
+    const getType = (type: number): string => {
+        switch (type) {
+            case 3:
+                return "string"
+            case 6:
+                return "user"
+            case 8:
+                return "roles"
+            case 10:
+            case 4:
+                return "number"
+            case 7:
+                return "channel"
+            default:
+                return "default"
+        }
+    }
+
+    const embed = new EmbedBuilder()
+        .setTitle(command.name.charAt(0).toUpperCase() + command.name.slice(1) + " Help Embed")
+        .setColor("LightGrey");
+    const body = {};
+
+    var botPrefix = await client.func.prefix.guildPrefix(client, interaction.guildId!);
+    var cleanBotPrefix = botPrefix.string;
+
+    if (botPrefix.type === "mention") { cleanBotPrefix = "`@Ping-Me`" };
+
+    command.options?.map(x => {
+        var pathString = '';
+        var fullNameCommand = command.name + " " + x.name;
+
+        x.options?.forEach((value) => {
+            value.required ? pathString += "**`[" : pathString += "**`<"
+            pathString += getType(value.type)
+            value.required ? pathString += "]`**" + " " : pathString += ">`**" + " "
+        })
+        embed.addFields({
+            name: cleanBotPrefix + fullNameCommand,
+            value: `**Aliases:** ${x.aliases?.map(x => `\`${x}\``)
+                .join(", ") || "None"}\n**Use:** ${cleanBotPrefix}${fullNameCommand} ${pathString}`
+        })
+    })
+
+    return embed;
 }
