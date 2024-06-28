@@ -111,30 +111,42 @@ export default async function loadCommands(client: Client, path: string = p): Pr
     var i = 0;
     for (let path of paths) {
         if (!path.endsWith('.js') && !path.endsWith('.json')) continue;
-        i++;
 
-        let { command } = await import(path) as CommandModule; if (!command) continue;
-
-        if (command.options) {
-            await processOptions(command.options, command.category, command.name, client);
-        };
-
-        client.content.push(
-            {
-                cmd: command.name,
-                desc: command.description,
-                desc_localized: command.description_localizations,
-                category: command.category,
-                messageCmd: 2,
-            },
-        );
-
-        client.commands.set(command.name, command);
-        client.message_commands.set(command.name, command); if (!command?.aliases) continue;
-
-        for (let aliases of command.aliases) {
-            client.message_commands.set(aliases, command);
+        if (path.endsWith('.js')) {
+            var module = await import(path);
+        } else if (path.endsWith('init.json')) {
+            var module = await import(path, { with: { "type": "json" } })
         }
+
+        if (!module) continue;
+
+        if (module && module.command) {
+            const { command } = module;
+            i++;
+
+            if (command.options) {
+                await processOptions(command.options, command.category, command.name, client);
+            };
+
+            client.content.push(
+                {
+                    cmd: command.name,
+                    desc: command.description,
+                    desc_localized: command.description_localizations,
+                    category: command.category,
+                    messageCmd: 2,
+                },
+            );
+
+            client.commands.set(command.name, command);
+            client.message_commands.set(command.name, command); if (!command?.aliases) continue;
+
+            for (let aliases of command.aliases) {
+                client.message_commands.set(aliases, command);
+            }
+        } else if (module?.default?.categoryInitializer) {
+            client.category.push(module.default.categoryInitializer);
+        };
     };
 
     logger.log(`${client.config.console.emojis.OK} >> Loaded ${i} Hybrid commands.`);
