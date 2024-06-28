@@ -27,16 +27,29 @@ import {
     ButtonBuilder,
     ButtonStyle,
     ComponentType,
+    Message,
+    MessagePayload,
+    InteractionEditReplyOptions,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../../types/database_structure';
 
 const itemsPerPage = 15;
 
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        (options as MessagePayload).options = { allowedMentions: { repliedUser: false } };
+        return await interaction.reply(options as MessagePayload);
+    }
+};
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData, execTimestamp: number) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+
 
         let char = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
         let arr: { invites: number; regular: number; bonus: number; leaves: number; inviter: string; }[] = [];
@@ -56,7 +69,7 @@ export default {
         }
         arr.sort((a, b) => b.invites - a.invites);
 
-        const userId = interaction.user.id;
+        const userId = interaction.member.user.id;
         const userRank = arr.findIndex(user => user.inviter === userId);
         const userRankText = userRank !== -1
             ? data.leaderboard_rank_text.replace('${userRank + 1}', String(userRank + 1)).replace('${arr.length}', arr.length.toString()).replace('${arr[userRank].invites}', String(arr[userRank].invites))
@@ -64,7 +77,7 @@ export default {
 
         const generateEmbed = async (start: number) => {
             const current = arr.slice(start, start + itemsPerPage);
-            let text: string = data.leaderboard_gen_time_msg.replace("${interaction.guild?.name}", interaction.guild?.name!).replace('${Date.now() - execTimestamp}', String(Date.now() - execTimestamp));
+            let text: string = data.leaderboard_gen_time_msg.replace("${interaction.guild?.name}", interaction.guild?.name!).replace('${Date.now() - execTimestamp}', String(Date.now() - execTimestamp!));
             let pageText = text;
             let i = start + 1;
             current.forEach((index) => {
@@ -92,7 +105,7 @@ export default {
         };
 
         const canFitOnOnePage = arr.length <= itemsPerPage;
-        const embedMessage = await interaction.editReply({
+        const embedMessage = await interactionSend(interaction, {
             embeds: [await generateEmbed(0)],
             components: canFitOnOnePage ? [] : [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder()

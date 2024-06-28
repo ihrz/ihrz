@@ -27,6 +27,7 @@ import { Command } from "../../../types/command.js";
 import { EltType } from "../../../types/eltType.js";
 import { Option } from "../../../types/option.js";
 
+import * as argsHelper from '../functions/arg.js';
 import logger from "../logger.js";
 
 import { fileURLToPath } from 'url';
@@ -105,6 +106,7 @@ export default async function loadCommands(client: Client, path: string = p): Pr
 
     if (!client.commands) client.commands = new Collection<string, Command>();
     if (!client.message_commands) client.message_commands = new Collection<string, Command>();
+    if (!client.args) client.args = argsHelper;
 
     var i = 0;
     for (let path of paths) {

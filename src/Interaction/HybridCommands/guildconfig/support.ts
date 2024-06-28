@@ -112,8 +112,8 @@ export const command: Command = {
             var roles = interaction.options.getRole("roles");
             var input = interaction.options.getString("input");
         } else {
-            var action = (client.func.arg.string(args, 0)) as string | null;
-            var roles = (client.func.arg.role(interaction, 0)) as Role | APIRole | null;
+            var action = client.args.string(args!, 0)
+            var roles = client.args.role(interaction, 0);
             var input = args?.join(" ")[0] as string | null;
         };
 

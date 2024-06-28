@@ -39,7 +39,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var types = interaction.options.getString("action");
         } else {
-            var types = client.func.arg.string(args, 0) as string | null;
+            var types = client.args.string(args!, 0);
         };
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]

@@ -36,7 +36,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getUser("user") || interaction.user;
         } else {
-            var member = (client.func.arg.user(interaction, 0) || interaction.author) as User;
+            var member = client.args.user(interaction, 0) || interaction.author;
         };
 
         let tableProfil = client.db.table('USER_PROFIL');

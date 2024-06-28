@@ -34,7 +34,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var age = interaction.options.getNumber("age")!;
         } else {
-            var age = client.func.arg.number(args, 0) as number;
+            var age = client.args.number(args!, 0);
         };
 
         let tableProfil = client.db.table('USER_PROFIL');

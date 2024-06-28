@@ -24,23 +24,45 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    InteractionEditReplyOptions,
+    Message,
+    MessagePayload,
     PermissionsBitField,
     User,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        (options as MessagePayload).options = { allowedMentions: { repliedUser: false } };
+        return await interaction.reply(options as MessagePayload);
+    }
+};
 
-        let user = interaction.options.getUser("member") as User;
-        let amount = interaction.options.getNumber("amount") as number;
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var user = interaction.options.getUser("member")!;
+            var amount = interaction.options.getNumber("amount")!;
+        } else {
+            var user = client.args.user(interaction, 0) || interaction.author;
+            var amount = client.args.number(args!, 0);
+        };
 
         let a = new EmbedBuilder().setColor("#FF0000").setDescription(data.addinvites_not_admin_embed_description);
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ embeds: [a] });
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, { embeds: [a] });
             return;
         };
 
@@ -55,14 +77,14 @@ export default {
             .setFooter({ text: interaction.guild.name as string, iconURL: interaction.guild.iconURL() as string });
 
         await client.db.add(`${interaction.guildId}.USER.${user.id}.INVITES.bonus`, amount!);
-        await interaction.editReply({ embeds: [finalEmbed] });
+        await interactionSend(interaction, { embeds: [finalEmbed] });
 
         try {
             let logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
                 .setTitle(data.addinvites_logs_embed_title)
                 .setDescription(data.addinvites_logs_embed_description
-                    .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
                     .replace(/\${amount}/g, amount.toString())
                     .replace(/\${user\.id}/g, user.id)
                 );

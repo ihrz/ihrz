@@ -36,7 +36,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var user = interaction.options.getUser("user") || interaction.user;
         } else {
-            var user = (client.func.arg.user(interaction, 0) || interaction.author) as User;
+            var user = client.args.user(interaction, 0) || interaction.author;
         };
 
         let baseData = await client.db.get(`${interaction.guildId}.USER.${user.id}.XP_LEVELING`);

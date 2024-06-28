@@ -42,8 +42,8 @@ export default {
             var type = interaction.options.getString("action");
             var argsid = interaction.options.getChannel("channel") as Channel;
         } else {
-            var type = (client.func.arg.string(args, 0)) as string | null;
-            var argsid = (client.func.arg.channel(interaction, 0) || interaction.channel) as Channel;
+            var type = client.args.string(args!, 0);
+            var argsid = client.args.channel(interaction, 0) || interaction.channel;
         };
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]

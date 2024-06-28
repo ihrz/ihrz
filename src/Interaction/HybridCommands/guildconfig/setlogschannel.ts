@@ -43,6 +43,7 @@ async function interactionSend(interaction: ChatInputCommandInteraction | Messag
     if (interaction instanceof ChatInputCommandInteraction) {
         return await interaction.editReply(options);
     } else {
+        (options as MessagePayload).options = { allowedMentions: { repliedUser: false } };
         return await interaction.reply(options as MessagePayload);
     }
 };
@@ -108,8 +109,8 @@ export const command: Command = {
             var type = interaction.options.getString("type");
             var channel = interaction.options.getChannel("channel") as Channel | null;
         } else {
-            var type = client.func.arg.string(args, 0) as string | null;
-            var channel = (client.func.arg.channel(interaction, 0)) as Channel | null;
+            var type = client.args.string(args!, 0);
+            var channel = client.args.channel(interaction, 0)
         };
 
         const createLogsChannel = async (name: string, typeOfLogs: string) => {

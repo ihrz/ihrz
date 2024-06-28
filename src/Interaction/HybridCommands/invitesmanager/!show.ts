@@ -23,15 +23,33 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    InteractionEditReplyOptions,
+    Message,
+    MessagePayload,
+    User,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        (options as MessagePayload).options = { allowedMentions: { repliedUser: false } };
+        return await interaction.reply(options as MessagePayload);
+    }
+};
 
-        let member = interaction.options.getUser("member") || interaction.user;
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
+        // Guard's Typing
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var member = interaction.options.getUser("member") || interaction.user;
+        } else {
+            var member = client.args.user(interaction, 0) || interaction.member.user;
+        };
+
         let baseData = await client.db.get(`${interaction.guildId}.USER.${member.id}.INVITES`);
 
         let inv = baseData?.invites;
@@ -53,7 +71,7 @@ export default {
                     .replace(/\${inv\s*\|\|\s*0}/g, inv || 0)
             );
 
-        await interaction.editReply({ embeds: [embed] });
+        await interactionSend(interaction, { embeds: [embed] });
         return;
     },
 };

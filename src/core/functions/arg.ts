@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message, Channel, User, Role } from "pwss";
+import { Message, Channel, User, Role, GuildMember, APIRole } from "pwss";
 
 export function user(interaction: Message, argsNumber: number): User | null {
     return interaction.content.startsWith(`<@${interaction.client.user.id}`)
@@ -33,13 +33,23 @@ export function user(interaction: Message, argsNumber: number): User | null {
         || null
 }
 
+export function member(interaction: Message, argsNumber: number): GuildMember | undefined | null {
+    return interaction.content.startsWith(`<@${interaction.client.user.id}`)
+        ?
+        interaction.mentions.members?.map(x => x)
+            .filter(x => x.id !== interaction.client.user?.id!)[argsNumber]
+        :
+        interaction.mentions.members?.map(x => x)[argsNumber]
+        || null
+}
+
 export function channel(interaction: Message, argsNumber: number): Channel | null {
     return interaction.mentions.channels
         .map(x => x)
     [argsNumber] || null;
 }
 
-export function role(interaction: Message, argsNumber: number): Role | null {
+export function role(interaction: Message, argsNumber: number): Role | APIRole | null {
     return interaction.mentions.roles
         .map(x => x)
     [argsNumber] || null;
