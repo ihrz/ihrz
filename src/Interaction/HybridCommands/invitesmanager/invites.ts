@@ -180,6 +180,7 @@ export const command: Command = {
                 if (botPrefix.type === "mention") { cleanBotPrefix = "`@Ping-Me`" }
                 command.options?.map(x => {
                     var pathString = '';
+                    var fullNameCommand = command.name + " " + x.name;
 
                     x.options?.forEach((value) => {
                         value.required ? pathString += "**`[" : pathString += "**`<"
@@ -187,9 +188,9 @@ export const command: Command = {
                         value.required ? pathString += "]`**" + " " : pathString += ">`**" + " "
                     })
                     embed.addFields({
-                        name: cleanBotPrefix + x.name,
+                        name: cleanBotPrefix + fullNameCommand,
                         value: `**Aliases:** ${x.aliases?.map(x => `\`${x}\``)
-                            .join(", ") || "None"}\n**Use:** ${cleanBotPrefix}${x.name} ${pathString}`
+                            .join(", ") || "None"}\n**Use:** ${cleanBotPrefix}${fullNameCommand} ${pathString}`
                     })
                 })
                 interaction.reply({ embeds: [embed] })
