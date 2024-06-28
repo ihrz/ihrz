@@ -24,6 +24,7 @@ import {
     ChatInputCommandInteraction,
     ApplicationCommandType,
     ApplicationCommandOptionType,
+    Message,
 } from 'pwss';
 
 import { Command } from '../../../../types/command';
@@ -72,11 +73,23 @@ export const command: Command = {
     category: 'antispam',
     thinking: true,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, options?: string[]) => {
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-        let command = interaction.options.getSubcommand();
+        let fetchedCommand;
 
-        const commandModule = await import(`./!${command}.js`);
-        await commandModule.default.run(client, interaction, data);
+        if (interaction instanceof ChatInputCommandInteraction) {
+            fetchedCommand = interaction.options.getSubcommand();
+        } else {
+            if (!options?.[0]) return;
+
+            let cmd = command.options?.find(x => options[0] === x.name || x.aliases?.includes(options[0]));
+            if (!cmd) return;
+
+            fetchedCommand = cmd.name;
+            options.shift();
+        }
+
+        const commandModule = await import(`./!${fetchedCommand}.js`);
+        await commandModule.default.run(client, interaction, data, execTimestamp, options);
     },
 };

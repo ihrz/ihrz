@@ -29,18 +29,44 @@ import {
     Client,
     ComponentType,
     EmbedBuilder,
+    InteractionEditReplyOptions,
+    Message,
+    MessagePayload,
     PermissionsBitField,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 import { AntiSpam } from '../../../../types/antispam';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, lang: LanguageData) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        (options as MessagePayload).options = { allowedMentions: { repliedUser: false } };
+        return await interaction.reply(options as MessagePayload);
+    }
+};
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: lang.addmoney_not_admin });
+async function interactionEdit(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        (options as MessagePayload).options = { allowedMentions: { repliedUser: false } };
+        return await interaction.edit(options as MessagePayload);
+    }
+};
+
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, execTimestamp?: number, args?: string[]) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, { content: lang.addmoney_not_admin });
             return;
         };
 
@@ -79,7 +105,7 @@ export default {
             .setCustomId("antispam-manage-save-button")
             .setLabel(lang.antispam_manage_button_label);
 
-        const originalResponse = await interaction.editReply({
+        const originalResponse = await interactionSend(interaction, {
             embeds: [embed],
             components: [
                 new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(select),
@@ -100,7 +126,7 @@ export default {
         let allchannel: string[] = [];
 
         buttonCollector.on('collect', async i => {
-            if (i.user.id !== interaction.user.id) {
+            if (i.user.id !== interaction.member?.user.id) {
                 await i.reply({ content: lang.help_not_for_you, ephemeral: true });
                 return;
             };
@@ -114,7 +140,7 @@ export default {
         });
 
         collector.on('collect', async (i) => {
-            if (i.user.id !== interaction.user.id) {
+            if (i.user.id !== interaction.member?.user.id) {
                 await i.reply({ content: lang.help_not_for_you, ephemeral: true });
                 return;
             };
@@ -129,11 +155,11 @@ export default {
             })
 
             allchannel = i.values;
-            await interaction.editReply({ embeds: [embed] });
+            await interactionEdit(originalResponse, { embeds: [embed] });
         });
 
         collector.on('end', async () => {
-            await interaction.editReply({ components: [] });
+            await interactionEdit(originalResponse, { components: [] });
         })
     },
 };

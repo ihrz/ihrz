@@ -27,6 +27,9 @@ import {
     Client,
     ComponentType,
     EmbedBuilder,
+    InteractionEditReplyOptions,
+    Message,
+    MessagePayload,
     PermissionsBitField,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
@@ -85,13 +88,27 @@ const AntiSpamPreset: { [key in PresetKeys]: AntiSpam.AntiSpamOptions } = {
     },
 }
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, lang: LanguageData) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        (options as MessagePayload).options = { allowedMentions: { repliedUser: false } };
+        return await interaction.reply(options as MessagePayload);
+    }
+};
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: lang.addmoney_not_admin });
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, execTimestamp?: number, args?: string[]) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, { content: lang.addmoney_not_admin });
             return;
         };
 
@@ -305,7 +322,7 @@ export default {
             .setCustomId("antispam-manage-preset-button")
             .setLabel("Load Preset");
 
-        const originalResponse = await interaction.editReply({
+        const originalResponse = await interactionSend(interaction, {
             embeds: [embed],
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
@@ -324,7 +341,7 @@ export default {
         });
 
         buttonCollector.on('collect', async i => {
-            if (i.user.id !== interaction.user.id) {
+            if (i.user.id !== interaction.member?.user.id) {
                 await i.reply({ content: lang.help_not_for_you, ephemeral: true });
                 return;
             };
@@ -338,7 +355,7 @@ export default {
                 buttonCollector.stop();
             } else if (i.customId === 'antispam-manage-preset-button') {
                 await originalResponse.edit({
-                    content: interaction.user.toString(),
+                    content: interaction.member.toString(),
                     embeds: [embed],
                     components: [
                         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(new StringSelectMenuBuilder()
@@ -391,7 +408,7 @@ export default {
         });
 
         collector.on('collect', async (i) => {
-            if (i.user.id !== interaction.user.id) {
+            if (i.user.id !== interaction.member?.user.id) {
                 await i.reply({ content: lang.help_not_for_you, ephemeral: true });
                 return;
             };
@@ -462,7 +479,7 @@ export default {
                 await i.deferUpdate();
 
                 await originalResponse.edit({
-                    content: `${interaction.user.toString()}`,
+                    content: `${interaction.member.user.toString()}`,
                     components: [
                         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(false)),
                         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(new StringSelectMenuBuilder()
@@ -530,7 +547,7 @@ export default {
                 await i.deferUpdate();
 
                 await originalResponse.edit({
-                    content: `${interaction.user.toString()}`,
+                    content: `${interaction.member.user.toString()}`,
                     components: [
                         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(false)),
                         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(new StringSelectMenuBuilder()
@@ -589,7 +606,7 @@ export default {
         });
 
         collector.on('end', async () => {
-            await interaction.editReply({
+            await originalResponse.edit({
                 components: [
                     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(true)),
                     new ActionRowBuilder<ButtonBuilder>().addComponents(button.setDisabled(true), button2.setDisabled(true))
