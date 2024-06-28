@@ -66,7 +66,7 @@ export default {
             .setPlaceholder(lang.help_select_menu)
             .setMaxValues(20);
 
-        if (all_roles !== undefined && all_roles.length > 1) {
+        if (all_roles !== undefined && all_roles.length >= 1) {
             const roles: string[] = Array.isArray(all_roles) ? all_roles : [all_roles];
             select.setDefaultRoles(roles);
         };
