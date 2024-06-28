@@ -77,6 +77,8 @@ export const command: Command = {
                 "fr": "Définissez votre âge sur le profil iHorizon"
             },
 
+            aliases: ["age"],
+
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
@@ -103,6 +105,8 @@ export const command: Command = {
                 "fr": "Définissez votre description sur le profil iHorizon"
             },
 
+            aliases: ["desc", "description"],
+
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
@@ -128,6 +132,8 @@ export const command: Command = {
             description_localizations: {
                 "fr": "Définissez votre sexe sur le profil iHorizon"
             },
+
+            aliases: ["gender"],
 
             type: ApplicationCommandOptionType.Subcommand,
             options: [

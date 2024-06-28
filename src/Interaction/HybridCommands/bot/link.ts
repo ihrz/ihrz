@@ -41,6 +41,8 @@ export const command: Command = {
         "fr": "Afficher tous les liens en rapport avec iHorizon"
     },
 
+    aliases: ["bi", "bot", "link"],
+
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,

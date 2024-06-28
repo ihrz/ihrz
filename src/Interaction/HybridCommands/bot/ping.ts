@@ -40,6 +40,8 @@ export const command: Command = {
         "fr": "Obtenir la latence du bot"
     },
 
+    aliases: ["speed", "pong", "vitesse"],
+
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,

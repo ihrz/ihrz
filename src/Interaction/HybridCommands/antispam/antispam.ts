@@ -48,6 +48,9 @@ export const command: Command = {
                 "fr": "Gérer le module antispam"
             },
 
+            aliases: ["mng"],
+
+
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
@@ -58,6 +61,8 @@ export const command: Command = {
                 "fr": "Tous les rôles qui contournent l'anti spam"
             },
 
+            aliases: ["roles"],
+
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
@@ -67,6 +72,8 @@ export const command: Command = {
             description_localizations: {
                 "fr": "Ignorer des salons afin que l'AntiSpam ne l'ai prennent pas en compte"
             },
+
+            aliases: ["channels"],
 
             type: ApplicationCommandOptionType.Subcommand,
         },

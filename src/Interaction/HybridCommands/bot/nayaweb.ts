@@ -36,6 +36,8 @@ export const command: Command = {
         "fr": "Obtenir les informations nécessaires sur mon contributeur"
     },
 
+    aliases: ["naya"],
+
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,

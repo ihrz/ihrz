@@ -92,6 +92,8 @@ export const command: Command = {
                 "fr": "Obtenez le montant des invitations d'un utilisateur"
             },
 
+            aliases: ["me", "sh", "see"],
+
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
