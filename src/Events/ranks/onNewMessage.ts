@@ -48,7 +48,7 @@ export const event: BotEvent = {
         var xpData = await client.db.get(`${message.guild.id}.GUILD.XP_LEVELING`) as DatabaseStructure.DbGuildObject['XP_LEVELING'];
         var xpTurn = xpData?.disable;
 
-        if (xpTurn === 'disable') return;
+        if (xpTurn === 'disable' || xpData?.bypassChannels?.includes(message.channelId)) return;
 
         var level = baseData?.level || 1;
         var randomNumber = Math.floor(Math.random() * 3) + 35;

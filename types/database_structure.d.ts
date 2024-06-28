@@ -275,6 +275,13 @@ export namespace DatabaseStructure {
         prefix?: string;
         botName?: string;
     }
+
+    export interface DbGuildXpLeveling {
+        disable?: 'disable' | boolean;
+        xpchannels?: string;
+        bypassChannels?: string[]
+    }
+
     export interface DbGuildObject {
         BOT?: DbGuildBotObject;
         LANG?: {
@@ -310,11 +317,7 @@ export namespace DatabaseStructure {
             channel?: string;
             disable?: boolean;
         };
-        XP_LEVELING?: {
-            disable?: 'disable' | boolean;
-            xpchannels?: string;
-            bypassChannels?: string[]
-        };
+        XP_LEVELING?: DbGuildXpLeveling
         REACTION_ROLES?: ReactionRolesData;
         RANK_ROLES?: {
             roles: string;
