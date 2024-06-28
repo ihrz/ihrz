@@ -26,10 +26,22 @@ import {
     ApplicationCommandType,
     ChannelType,
     PermissionsBitField,
+    ChatInputCommandInteraction,
+    Message,
+    InteractionEditReplyOptions,
+    MessagePayload,
 } from 'pwss';
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
+
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
 
 export const command: Command = {
 
@@ -43,18 +55,22 @@ export const command: Command = {
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: CommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let voiceStates = interaction.guild.voiceStates.cache;
         let membersStates = interaction.guild.members.cache;
 
-        if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.ViewAuditLog])) {
-            await interaction.reply({ content: data.renew_not_administrator });
-            return;
-        };
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, { content: data.punishpub_not_admin });
+        }
 
         let textChannelSize = interaction.guild?.channels.cache.filter(c => c.type === ChannelType.GuildText).size;
         let voiceChannelSize = interaction.guild?.channels.cache.filter(c => c.type === ChannelType.GuildVoice).size;
