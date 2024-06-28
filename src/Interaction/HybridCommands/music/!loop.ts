@@ -22,30 +22,51 @@
 import {
     ChatInputCommandInteraction,
     Client,
+    CommandInteractionOptionResolver,
+    Guild,
     GuildMember,
+    InteractionEditReplyOptions,
+    Message,
+    MessagePayload,
 } from 'pwss';
 
-import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
+import logger from '../../../core/logger.js';
+
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interactionSend(interaction, options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         try {
             let voiceChannel = (interaction.member as GuildMember).voice.channel;
             let player = client.player.getPlayer(interaction.guildId as string);
 
+            if (interaction instanceof ChatInputCommandInteraction) {
+                var mode = interaction.options.getString('mode');
+            } else {
+                var mode = client.args.string(args!, 0);
+            };
+
             if (!player || !player.playing || !voiceChannel) {
-                await interaction.deleteReply();
-                await interaction.followUp({ content: data.stop_nothing_playing, ephemeral: true });
+                await interactionSend(interaction, { content: data.loop_no_queue });
                 return;
             };
 
-            player.stopPlaying();
+            await player.setRepeatMode(mode as "off" | "track" | "queue");
 
-            await interaction.editReply({ content: data.stop_command_work });
+            await interactionSend(interaction, {
+                content: data.loop_command_work
+                    .replace("{mode}", mode === 'track' ? `🔂` : `▶`)
+            });
             return;
         } catch (error: any) {
             logger.err(error);

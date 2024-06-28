@@ -27,24 +27,40 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    InteractionEditReplyOptions,
+    Message,
+    MessagePayload,
     PermissionsBitField,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interactionSend(interaction, options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.punishpub_not_admin });
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
+        // Guard's Typing
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, { content: data.setxpchannels_not_admin });
             return;
         };
 
         let history = await client.db.get(`${interaction.guildId}.MUSIC_HISTORY`);
 
         if (!history || !history.embed || history.embed.length == 0) {
-            await interaction.editReply({ content: data.history_no_entries });
+            await interactionSend(interaction, { content: data.history_no_entries });
             return;
         };
 
@@ -93,7 +109,7 @@ export default {
                 .setStyle(ButtonStyle.Secondary),
         );
 
-        let messageEmbed = await interaction.editReply({
+        let messageEmbed = await interactionSend(interaction, {
             embeds: [createEmbed()],
             components: [(row as ActionRowBuilder<ButtonBuilder>)],
             files: [attachment, { attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
@@ -102,7 +118,7 @@ export default {
         let collector = messageEmbed.createMessageComponentCollector({
             filter: async (i) => {
                 await i.deferUpdate();
-                return interaction.user.id === i.user.id;
+                return interaction.member?.user.id === i.user.id;
             }, time: 60000
         });
 

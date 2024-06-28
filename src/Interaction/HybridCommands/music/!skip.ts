@@ -26,17 +26,29 @@ import {
     EmbedBuilder,
     Guild,
     GuildMember,
+    InteractionEditReplyOptions,
+    Message,
+    MessagePayload,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
 
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
+
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (!(interaction.member as GuildMember).voice.channel) {
-            await interaction.editReply({
+            await interactionSend(interaction, {
                 content: data.skip_not_in_voice_channel.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
             });
             return;
@@ -49,7 +61,7 @@ export default {
             let channel = client.channels.cache.get(player.textChannelId as string);
 
             if (!player || !player.playing || !voiceChannel) {
-                await interaction.editReply({ content: data.skip_nothing_playing });
+                await interactionSend(interaction, { content: data.skip_nothing_playing });
                 return;
             };
 
@@ -70,11 +82,9 @@ export default {
                 ]
             });
 
-            await interaction.deleteReply();
-            await interaction.followUp({
+            await interactionSend(interaction, {
                 content: data.skip_command_work
                     .replace("{queue}", player.queue.current?.info.title as string),
-                ephemeral: true
             });
 
             return;

@@ -23,18 +23,36 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    InteractionEditReplyOptions,
+    Message,
+    MessagePayload,
 } from 'pwss';
 
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interactionSend(interaction, options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
+
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var title = interaction.options.getString("query")!;
+        } else {
+            var title = (args?.join(" ") || " ") as string
+        }
 
         try {
-            client.lyricsSearcher.search(interaction.options.getString("query")!)
+            client.lyricsSearcher.search(title)
                 .then(async response => {
                     let trimmedLyrics = response?.lyrics?.substring(0, 1997);
 
@@ -52,7 +70,7 @@ export default {
                         .setColor('#cd703a')
                         .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" });
 
-                    await interaction.editReply({
+                    await interactionSend(interaction, {
                         embeds: [embed],
                         files: [
                             {
@@ -64,8 +82,7 @@ export default {
                     return;
                 })
                 .catch(async err => {
-                    await interaction.deleteReply();
-                    await interaction.followUp({ content: data.lyrics_not_found, ephemeral: true });
+                    await interactionSend(interaction, { content: data.lyrics_not_found });
                     return;
                 });
 

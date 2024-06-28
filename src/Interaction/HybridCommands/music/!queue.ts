@@ -23,24 +23,36 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    InteractionEditReplyOptions,
+    Message,
+    MessagePayload,
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interactionSend(interaction, options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
+
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let player = client.player.getPlayer(interaction.guildId as string);
 
         if (!player) {
-            await interaction.editReply({ content: data.queue_iam_not_voicec });
+            await interactionSend(interaction, { content: data.queue_iam_not_voicec });
             return;
         };
 
         if (!player.queue.tracks) {
-            await interaction.editReply({ content: data.queue_no_queue });
+            await interactionSend(interaction, { content: data.queue_no_queue });
             return;
         };
 
@@ -48,7 +60,7 @@ export default {
             .map((track, idx) => `**${++idx})** [${track.info.title}](${track.info.uri})`)
 
         if (tracks.length === 0) {
-            await interaction.editReply({ content: data.queue_empty_queue });
+            await interactionSend(interaction, { content: data.queue_empty_queue });
             return;
         };
 
@@ -72,7 +84,7 @@ export default {
             index++;
         };
 
-        let message = await interaction.editReply({ embeds: [embeds[0]] });
+        let message = await interactionSend(interaction, { embeds: [embeds[0]] });
 
         if (embeds.length === 1) return;
 
@@ -80,7 +92,7 @@ export default {
         message.react('➡️');
 
         let collector = message.createReactionCollector({
-            filter: (reaction, user) => ['⬅️', '➡️'].includes(reaction.emoji.name as string) && user.id === interaction.user.id,
+            filter: (reaction, user) => ['⬅️', '➡️'].includes(reaction.emoji.name as string) && user.id === interaction.member?.user.id,
             time: 60000
         });
 

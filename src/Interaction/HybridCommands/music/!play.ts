@@ -25,6 +25,9 @@ import {
     Client,
     EmbedBuilder,
     GuildMember,
+    InteractionEditReplyOptions,
+    Message,
+    MessagePayload,
     time,
 } from 'pwss';
 
@@ -32,21 +35,37 @@ import { LanguageData } from '../../../../types/languageData';
 import maskLink from '../../../core/functions/maskLink.js';
 import { SearchPlatform } from 'lavalink-client';
 
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interactionSend(interaction, options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
+
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let voiceChannel = (interaction.member as GuildMember).voice.channel;
-        let check = interaction.options.getString("title");
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var check = interaction.options.getString("title")!;
+            var source = interaction.options.getString('source') as SearchPlatform;
+        } else {
+            var check = (args?.join(" ") || " ") as string;
+            var source = "ytsearch" as SearchPlatform;
+        }
 
         if (!voiceChannel) {
-            await interaction.editReply({ content: data.p_not_in_voice_channel });
+            await interactionSend(interaction, { content: data.p_not_in_voice_channel });
             return;
         };
 
         if (!client.func.isAllowedLinks(check)) {
-            return interaction.editReply({ content: data.p_not_allowed })
+            return interactionSend(interaction, { content: data.p_not_allowed })
         };
 
         let player = client.player.createPlayer({
@@ -55,7 +74,7 @@ export default {
             textChannelId: interaction.channelId,
         });
 
-        let res = await player.search({ query: check as string, source: interaction.options.getString('source') as SearchPlatform }, interaction.user)
+        let res = await player.search({ query: check as string, source: source }, interaction.member.user.id)
 
         if (res.tracks.length === 0) {
             let results = new EmbedBuilder()
@@ -63,7 +82,7 @@ export default {
                 .setColor('#ff0000')
                 .setTimestamp();
 
-            await interaction.editReply({ embeds: [results] });
+            await interactionSend(interaction, { embeds: [results] });
             return;
         };
 
@@ -113,7 +132,7 @@ export default {
             .setFooter({ text: data.p_duration + `${timeCalcultator()}` })
             .setThumbnail(yes.info.artworkUrl as string);
 
-        await interaction.editReply({
+        await interactionSend(interaction, {
             content: data.p_loading_message
                 .replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
                 .replace("{result}", res.loadType === "playlist" ? 'playlist' : 'track')
@@ -121,7 +140,7 @@ export default {
         });
 
         function deleteContent() {
-            interaction.editReply({ content: null });
+            interactionSend(interaction, { content: null });
         };
 
         await client.db.push(`${player.guildId}.MUSIC_HISTORY.buffer`,

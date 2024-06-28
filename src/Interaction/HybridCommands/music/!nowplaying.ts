@@ -31,14 +31,26 @@ import {
     GuildMember,
     BaseGuildTextChannel,
     User,
+    Message,
+    MessagePayload,
+    InteractionEditReplyOptions,
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interactionSend(interaction, options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
+
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let pause = new ButtonBuilder()
             .setCustomId('pause')
@@ -62,8 +74,7 @@ export default {
         let voiceChannel = (interaction.member as GuildMember).voice.channel;
 
         if (!player || !player.playing || !voiceChannel) {
-            await interaction.deleteReply();
-            await interaction.followUp({ content: data.nowplaying_no_queue, ephemeral: true });
+            await interactionSend(interaction, { content: data.nowplaying_no_queue });
             return;
         };
 
@@ -78,7 +89,7 @@ export default {
 
         if (player.queue.current?.info?.artworkUrl) embed.setThumbnail(player.queue.current?.info?.artworkUrl);
 
-        let response = await interaction.editReply({
+        let response = await interactionSend(interaction, {
             embeds: [embed],
             components: [btn],
         });
@@ -107,11 +118,11 @@ export default {
                                 if (paused) {
                                     player.resume();
                                     paused = false;
-                                    (channel as BaseGuildTextChannel)?.send({ content: data.nowplaying_resume_button.replace('${interaction.user}', interaction.user.toString()) });
+                                    (channel as BaseGuildTextChannel)?.send({ content: data.nowplaying_resume_button.replace('${interaction.user}', interaction.member?.user.toString()!) });
                                 } else {
                                     player.pause();
                                     paused = true;
-                                    (channel as BaseGuildTextChannel)?.send({ content: data.nowplaying_pause_button.replace('${interaction.user}', interaction.user.toString()) });
+                                    (channel as BaseGuildTextChannel)?.send({ content: data.nowplaying_pause_button.replace('${interaction.user}', interaction.member?.user.toString()!) });
                                 }
                                 break;
                             case "lyrics":
@@ -149,7 +160,7 @@ export default {
                             case "stop":
                                 await i.deferUpdate();
                                 player.destroy();
-                                (channel as BaseGuildTextChannel).send({ content: data.nowplaying_stop_buttom.replace('${interaction.user}', interaction.user.toString()) });
+                                (channel as BaseGuildTextChannel).send({ content: data.nowplaying_stop_buttom.replace('${interaction.user}', interaction.member?.user.toString()!) });
                                 break;
                         }
 

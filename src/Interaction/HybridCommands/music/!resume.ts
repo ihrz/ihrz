@@ -22,35 +22,41 @@
 import {
     ChatInputCommandInteraction,
     Client,
-    CommandInteractionOptionResolver,
-    Guild,
     GuildMember,
+    InteractionEditReplyOptions,
+    Message,
+    MessagePayload,
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
 
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
+
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         try {
             let voiceChannel = (interaction.member as GuildMember).voice.channel;
             let player = client.player.getPlayer(interaction.guildId as string);
-            let mode = interaction.options.getString('mode');
 
             if (!player || !player.playing || !voiceChannel) {
-                await interaction.editReply({ content: data.loop_no_queue });
+                await interactionSend(interaction, { content: data.resume_nothing_playing });
                 return;
             };
 
-            await player.setRepeatMode(mode as "off" | "track" | "queue");
+            player.resume();
 
-            await interaction.editReply({
-                content: data.loop_command_work
-                    .replace("{mode}", mode === 'track' ? `🔂` : `▶`)
-            });
+            await interactionSend(interaction, { content: data.resume_command_work });
             return;
         } catch (error: any) {
             logger.err(error);

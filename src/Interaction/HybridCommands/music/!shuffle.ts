@@ -23,30 +23,42 @@ import {
     ChatInputCommandInteraction,
     Client,
     GuildMember,
+    InteractionEditReplyOptions,
+    Message,
+    MessagePayload,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
+
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let voiceChannel = (interaction.member as GuildMember).voice.channel;
         let player = client.player.getPlayer(interaction.guildId as string);
 
         if (!player || !player.playing || !voiceChannel) {
-            await interaction.editReply({ content: data.shuffle_no_queue });
+            await interactionSend(interaction, { content: data.shuffle_no_queue });
             return;
         };
 
         if (player.queue.tracks.length < 2) {
-            await interaction.editReply({ content: data.shuffle_no_enought });
+            await interactionSend(interaction, { content: data.shuffle_no_enought });
             return;
         };
 
         await player.queue.shuffle();
 
-        await interaction.editReply({ content: data.shuffle_command_work });
+        await interactionSend(interaction, { content: data.shuffle_command_work });
         return;
     },
 };

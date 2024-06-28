@@ -23,28 +23,47 @@ import {
     ChatInputCommandInteraction,
     Client,
     GuildMember,
+    InteractionEditReplyOptions,
+    Message,
+    MessagePayload,
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
 
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interactionSend(interaction, options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
+
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+
+        if (!(interaction.member as GuildMember)?.voice.channel) {
+            await interactionSend(interaction, {
+                content: data.pause_no_queue.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
+            });
+            return;
+        };
 
         try {
             let voiceChannel = (interaction.member as GuildMember).voice.channel;
             let player = client.player.getPlayer(interaction.guildId as string);
 
             if (!player || !player.playing || !voiceChannel) {
-                await interaction.editReply({ content: data.resume_nothing_playing });
+                await interactionSend(interaction, { content: data.pause_nothing_playing });
                 return;
             };
 
-            player.resume();
+            player.pause();
 
-            await interaction.editReply({ content: data.resume_command_work });
+            await interactionSend(interaction, { content: player.paused ? data.pause_var_paused : data.pause_var_err });
             return;
         } catch (error: any) {
             logger.err(error);
