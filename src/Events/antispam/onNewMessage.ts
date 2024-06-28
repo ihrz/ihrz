@@ -259,7 +259,8 @@ export const event: BotEvent = {
             message.guild.ownerId === message.author.id ||
             message.member?.permissions.has(PermissionFlagsBits.Administrator) ||
             (options.ignoreBots && message.author.bot) ||
-            cancelAnalyze
+            cancelAnalyze ||
+            options.BYPASS_CHANNELS?.includes(message.channelId)
         ) {
             return false;
         }

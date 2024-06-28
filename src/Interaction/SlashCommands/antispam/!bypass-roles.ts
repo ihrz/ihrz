@@ -32,9 +32,6 @@ import {
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 import { AntiSpam } from '../../../../types/antispam';
-import { DatabaseStructure } from '../../../core/database_structure';
-
-type AntiSpamOptionKey = keyof AntiSpam.AntiSpamOptions;
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, lang: LanguageData) => {

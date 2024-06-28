@@ -58,6 +58,16 @@ export const command: Command = {
 
             type: ApplicationCommandOptionType.Subcommand,
         },
+        {
+            name: "ignore-channels",
+
+            description: "Ignore this channels in the AntiSpam Module",
+            description_localizations: {
+                "fr": "Ignorer des salons afin que l'AntiSpam ne l'ai prennent pas en compte"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand,
+        },
     ],
     category: 'antispam',
     thinking: true,
