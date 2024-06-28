@@ -23,15 +23,22 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
+    User,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let member = interaction.options.getUser('user') || interaction.user;
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var member = interaction.options.getUser("user") || interaction.user;
+        } else {
+            var member = (client.func.arg.user(interaction, 0) || interaction.author) as User;
+        };
+
         let tableProfil = client.db.table('USER_PROFIL');
 
         var description = await tableProfil.get(`${member.id}.desc`);

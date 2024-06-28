@@ -50,7 +50,7 @@ export function string(args: string[], argsNumber: number): string | null {
     [argsNumber] || null;
 }
 
-export function number(interaction: Message, argsNumber: number): number {
-    let _ = interaction.content.split(" ")[argsNumber];
+export function number(args: string[], argsNumber: number): number {
+    let _ = args[argsNumber];
     return Number.isNaN(parseInt(_)) ? 0 : parseInt(_);
 }

@@ -22,18 +22,25 @@
 import {
     ChatInputCommandInteraction,
     Client,
+    Message,
 } from 'pwss';
+
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        var desc = interaction.options.getString("descriptions");
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var gender = interaction.options.getString("gender")!;
+        } else {
+            var gender = args?.join(" ") || "None";
+        };
+
         let tableProfil = client.db.table('USER_PROFIL');
 
-        await tableProfil.set(`${interaction.user.id}.desc`, desc);
+        await tableProfil.set(`${interaction.member.user.id}.gender`, gender);
 
         await interaction.reply({ content: data.setprofildescriptions_command_work, ephemeral: true });
         return;
