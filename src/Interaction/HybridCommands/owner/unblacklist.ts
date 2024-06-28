@@ -25,7 +25,8 @@ import {
     ChatInputCommandInteraction,
     GuildMember,
     UserResolvable,
-    ApplicationCommandType
+    ApplicationCommandType,
+    Message
 } from 'pwss'
 
 import { Command } from '../../../../types/command';
@@ -55,20 +56,25 @@ export const command: Command = {
     thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let tableOwner = client.db.table('OWNER');
         let tableBlacklist = client.db.table('BLACKLIST');
 
-        if (!await tableOwner.get(`${interaction.user.id}.owner`)) {
+        if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
             await interaction.reply({ content: data.unblacklist_not_owner });
             return;
         };
 
-        let member = interaction.options.getUser('member');
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var member = interaction.options.getUser('user');
+        } else {
+            var member = client.args.user(interaction, 0);
+        };
+
         let fetched = await tableBlacklist.get(`${member?.id}`);
 
         if (!fetched) {

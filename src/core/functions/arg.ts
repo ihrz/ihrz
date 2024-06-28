@@ -24,11 +24,11 @@ import { Message, Channel, User, Role, GuildMember, APIRole } from "pwss";
 export function user(interaction: Message, argsNumber: number): User | null {
     return interaction.content.startsWith(`<@${interaction.client.user.id}`)
         ?
-        interaction.mentions.users
+        interaction.mentions.parsedUsers
             .map(x => x)
             .filter(x => x.id !== interaction.client.user?.id!)[argsNumber]
         :
-        interaction.mentions.users
+        interaction.mentions.parsedUsers
             .map(x => x)[argsNumber]
         || null
 }

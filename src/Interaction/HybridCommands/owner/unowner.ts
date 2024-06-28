@@ -24,7 +24,8 @@ import {
     ApplicationCommandOptionType,
     User,
     ChatInputCommandInteraction,
-    ApplicationCommandType
+    ApplicationCommandType,
+    Message
 } from 'pwss'
 
 import { Command } from '../../../../types/command';
@@ -54,19 +55,23 @@ export const command: Command = {
     thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let tableOwner = client.db.table('OWNER');
 
-        if (await tableOwner.get(`${interaction.user.id}.owner`) !== true) {
+        if (await tableOwner.get(`${interaction.member.user.id}.owner`) !== true) {
             await interaction.reply({ content: data.unowner_not_owner });
             return;
         };
 
-        var member = interaction.options.getUser('member');
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var member = interaction.options.getUser('member');
+        } else {
+            var member = client.args.user(interaction, 0);
+        };
 
         if (client.owners.includes(member?.id!)) {
             await interaction.reply({ content: data.unowner_cant_unowner_creator });

@@ -25,7 +25,8 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     GuildMember,
-    ApplicationCommandType
+    ApplicationCommandType,
+    Message
 } from 'pwss'
 
 import { Command } from '../../../../types/command';
@@ -55,13 +56,13 @@ export const command: Command = {
     thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let tableOwner = client.db.table('OWNER');
-        let isOwner = await tableOwner.get(interaction.user.id);
+        let isOwner = await tableOwner.get(interaction.member.user.id);
 
         var text = "";
         var char = await tableOwner.all();
@@ -81,7 +82,11 @@ export const command: Command = {
             .setDescription(text)
             .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" });
 
-        let member = interaction.options.getMember('member') as GuildMember;
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var member = interaction.options.getUser('user');
+        } else {
+            var member = client.args.user(interaction, 0);
+        };
 
         if (!member) {
             await interaction.reply({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }] });
@@ -95,8 +100,8 @@ export const command: Command = {
             return;
         };
 
-        await tableOwner.set(`${member.user.id}`, { owner: true });
-        await interaction.reply({ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.user.globalName!) });
+        await tableOwner.set(`${member.id}`, { owner: true });
+        await interaction.reply({ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.globalName || member.displayName) });
         return;
     },
 };

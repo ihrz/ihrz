@@ -28,13 +28,14 @@ import {
     ActionRowBuilder,
     ChatInputCommandInteraction,
     GuildMember,
-    ApplicationCommandType
+    ApplicationCommandType,
+    Message
 } from 'pwss'
 
 import { format } from '../../../core/functions/date-and-time.js';
 
-import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from '../../../../types/command.js';
 
 export const command: Command = {
     name: 'blacklist',
@@ -71,24 +72,30 @@ export const command: Command = {
     thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let tableOwner = client.db.table('OWNER');
         let tableBlacklist = client.db.table('BLACKLIST');
 
-        if (await tableOwner.get(`${interaction.user.id}.owner`) !== true) {
+        if (await tableOwner.get(`${interaction.member.user.id}.owner`) !== true) {
             await interaction.reply({ content: data.blacklist_not_owner });
             return;
         };
 
         var blacklistedUsers = await tableBlacklist.all();
 
-        let member = interaction.options.getMember('user') as GuildMember;
-        let user = interaction.options.getUser('user');
-        let reason = interaction.options.getString('reason');
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var member = interaction.options.getMember('user') as GuildMember | null;
+            var user = interaction.options.getUser('user');
+            var reason = interaction.options.getString('reason');
+        } else {
+            var member = client.args.member(interaction, 0) as GuildMember | null;
+            var user = client.args.user(interaction, 0);
+            var reason = client.args.longString(args!, 0);
+        };
 
         if (!member && !user) {
             if (!blacklistedUsers.length) {
@@ -150,7 +157,7 @@ export const command: Command = {
 
             let collector = messageEmbed.createMessageComponentCollector({
                 filter: async (i) => {
-                    await i.deferUpdate(); return interaction.user.id === i.user.id;
+                    await i.deferUpdate(); return interaction.member?.user.id === i.user.id;
                 },
                 time: 60000
             });
@@ -194,14 +201,14 @@ export const command: Command = {
             await tableBlacklist.set(`${member.user.id}`, {
                 blacklisted: true,
                 reason: reason,
-                owner: interaction.user.id,
+                owner: interaction.member.user.id,
                 createdAt: new Date().getTime()
             });
 
             member.ban({ reason: 'blacklisted !' }).then(async () => {
                 await interaction.reply({
                     content: data.blacklist_command_work
-                        .replace(/\${member\.user\.username}/g, member.user.globalName || member.user.username)
+                        .replace(/\${member\.user\.username}/g, String(member?.user.globalName || member?.user.username))
                 });
                 return;
             }).catch(async () => {
@@ -232,7 +239,7 @@ export const command: Command = {
             await tableBlacklist.set(`${user.id}`, {
                 blacklisted: true,
                 reason: reason,
-                owner: interaction.user.id,
+                owner: interaction.member.user.id,
                 createdAt: new Date().getTime()
             });
 

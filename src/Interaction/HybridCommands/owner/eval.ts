@@ -24,7 +24,9 @@ import {
     EmbedBuilder,
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
-    ApplicationCommandType
+    ApplicationCommandType,
+    Message,
+    GuildMember
 } from 'pwss'
 
 import { Command } from '../../../../types/command';
@@ -54,18 +56,22 @@ export const command: Command = {
     thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
-        if (!client.owners.includes(interaction.user.id)) {
+        if (!client.owners.includes(interaction.member.user.id)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };
 
-        var code = interaction.options.getString("code")!;
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var code = interaction.options.getString("code")!;
+        } else {
+            var code = args?.join(" ") || "";
+        };
 
         try {
             let _ = `
@@ -93,7 +99,7 @@ export const command: Command = {
                 .setColor("#468468")
                 .setTitle("This block was evalued with iHorizon.")
                 .setDescription(`\`\`\`JS\n${code || "None"}\n\`\`\``)
-                .setAuthor({ name: (interaction.user.globalName || interaction.user.username) as string, iconURL: interaction.user.displayAvatarURL() });
+                .setAuthor({ name: ((interaction.member as GuildMember).user.globalName || interaction.member.user.username) as string, iconURL: interaction.client.user.displayAvatarURL() });
 
             await interaction.reply({ embeds: [embed], ephemeral: true });
             return;
