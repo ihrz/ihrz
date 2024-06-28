@@ -24,56 +24,92 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
     GuildMemberRoleManager,
+    InteractionEditReplyOptions,
+    Message,
+    MessagePayload,
+    MessageReplyOptions,
     PermissionsBitField,
 } from 'pwss';
 
 import logger from '../../../core/logger.js';
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
+
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
+        return await interaction.editReply(editOptions);
+    } else {
+        let replyOptions: MessageReplyOptions;
+
+        if (typeof options === 'string') {
+            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
+        } else {
+            replyOptions = {
+                ...options,
+                allowedMentions: { repliedUser: false },
+                content: options.content ?? undefined
+            } as MessageReplyOptions;
+        }
+
+        return await interaction.reply(replyOptions);
+    }
+}
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let member = interaction.guild.members.cache.get(interaction.options.getUser("member")?.id as string);
-        let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.BanMembers);
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var member = interaction.options.getMember("member") as GuildMember | null
+        } else {
+            var member = client.args.member(interaction, 0) as GuildMember | null;
+        };
 
-        if (!permission) {
-            await interaction.editReply({
+        const permissionsArray = [PermissionsBitField.Flags.BanMembers]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, {
                 content: data.ban_not_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
         if (!member) {
-            await interaction.editReply({ content: data.ban_dont_found_member });
+            await interactionSend(interaction, {
+                content: data.ban_dont_found_member
+            });
             return;
         };
 
         if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.BanMembers)) {
-            await interaction.editReply({
+            await interactionSend(interaction, {
                 content: data.ban_dont_have_perm_myself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
-        if (member.user.id === interaction.user.id) {
-            await interaction.editReply({
+        if (member.user.id === interaction.member.user.id) {
+            await interactionSend(interaction, {
                 content: data.ban_try_to_ban_yourself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
         if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= member.roles.highest.position) {
-            await interaction.editReply({
+            await interactionSend(interaction, {
                 content: data.ban_attempt_ban_higter_member.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
             });
             return;
         };
 
         if (!member.bannable) {
-            await interaction.editReply({
+            await interactionSend(interaction, {
                 content: data.ban_cant_ban_member.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
@@ -82,17 +118,17 @@ export default {
         member.send({
             content: data.ban_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-                .replace(/\${interaction\.member\.user\.username}/g, interaction.user.globalName || interaction.user.username)
+                .replace(/\${interaction\.member\.user\.username}/g, member.user.globalName || interaction.member.user.username)
         })
             .catch(() => {
             })
             .then(() => {
-                member?.ban({ reason: 'banned by ' + interaction.user.globalName || interaction.user.username })
+                member?.ban({ reason: 'banned by ' + member.user.globalName || interaction.member?.user.username })
                     .then((member) => {
-                        interaction.editReply({
+                        interactionSend(interaction, {
                             content: data.ban_command_work
                                 .replace(/\${member\.user\.id}/g, member.user.id)
-                                .replace(/\${interaction\.member\.id}/g, interaction.user.id)
+                                .replace(/\${interaction\.member\.id}/g, interaction.member?.user.id!)
                         }).catch(() => { });
 
                         try {
@@ -101,7 +137,7 @@ export default {
                                 .setTitle(data.ban_logs_embed_title)
                                 .setDescription(data.ban_logs_embed_description
                                     .replace(/\${member\.user\.id}/g, member.user.id)
-                                    .replace(/\${interaction\.member\.id}/g, interaction.user.id)
+                                    .replace(/\${interaction\.member\.id}/g, interaction.member?.user.id!)
                                 )
                             let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 

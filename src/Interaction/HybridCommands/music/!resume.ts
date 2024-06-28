@@ -53,7 +53,6 @@ async function interactionSend(interaction: ChatInputCommandInteraction | Messag
     }
 }
 
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing

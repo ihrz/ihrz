@@ -20,6 +20,7 @@
 */
 
 import {
+    BaseGuildTextChannel,
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
@@ -27,10 +28,9 @@ import {
     Message,
     MessagePayload,
     MessageReplyOptions,
+    PermissionsBitField,
 } from 'pwss';
-
-import logger from '../../../core/logger.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from '../../../../types/languageData';
 
 async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
     if (interaction instanceof ChatInputCommandInteraction) {
@@ -53,55 +53,47 @@ async function interactionSend(interaction: ChatInputCommandInteraction | Messag
     }
 }
 
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        if (interaction instanceof ChatInputCommandInteraction) {
-            var title = interaction.options.getString("query")!;
-        } else {
-            var title = (args?.join(" ") || " ") as string
-        }
+        let Lockembed = new EmbedBuilder()
+            .setColor("#5b3475")
+            .setTimestamp()
+            .setDescription(data.lock_embed_message_description
+                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+            );
+
+        const permissionsArray = [PermissionsBitField.Flags.ManageChannels]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, { content: data.lock_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
+            return;
+        };
+
+        (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(interaction.guildId as string, { SendMessages: false }).then(async () => {
+            await interactionSend(interaction, { embeds: [Lockembed] });
+        }).catch(() => { })
 
         try {
-            client.lyricsSearcher.search(title)
-                .then(async response => {
-                    let trimmedLyrics = response?.lyrics?.substring(0, 1997);
+            let logEmbed = new EmbedBuilder()
+                .setColor("#bf0bb9")
+                .setTitle(data.lock_logs_embed_title)
+                .setDescription(data.lock_logs_embed_description
+                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+                    .replace(/\${interaction\.channel\.id}/g, interaction.channel.id as string)
+                );
+            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
-                    let embed = new EmbedBuilder()
-                        .setTitle(response?.title || data.lyrics_embed_title_unknown)
-                        .setURL(response?.url!)
-                        .setTimestamp()
-                        .setThumbnail(response?.thumbnail!)
-                        .setAuthor({
-                            name: response?.artist.name || data.lyrics_embed_author_name_unknown,
-                            iconURL: response?.artist.image,
-                            url: response?.artist.url
-                        })
-                        .setDescription(trimmedLyrics?.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics ?? 'null')
-                        .setColor('#cd703a')
-                        .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" });
-
-                    await interactionSend(interaction, {
-                        embeds: [embed],
-                        files: [
-                            {
-                                attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()),
-                                name: 'icon.png'
-                            }
-                        ]
-                    });
-                    return;
-                })
-                .catch(async err => {
-                    await interactionSend(interaction, { content: data.lyrics_not_found });
-                    return;
-                });
-
-        } catch (error: any) {
-            logger.err(error);
+            if (logchannel) {
+                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
+            };
+        } catch (e) {
+            return;
         };
     },
 };

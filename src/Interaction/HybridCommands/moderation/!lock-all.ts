@@ -28,21 +28,48 @@ import {
     GuildChannel,
     GuildTextBasedChannel,
     BaseGuildTextChannel,
+    Message,
+    MessagePayload,
+    InteractionEditReplyOptions,
+    MessageReplyOptions,
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
+        return await interaction.editReply(editOptions);
+    } else {
+        let replyOptions: MessageReplyOptions;
 
-        let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator);
-        if (!permission) {
-            await interaction.editReply({
-                content: data.lockall_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
-            });
+        if (typeof options === 'string') {
+            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
+        } else {
+            replyOptions = {
+                ...options,
+                allowedMentions: { repliedUser: false },
+                content: options.content ?? undefined
+            } as MessageReplyOptions;
+        }
+
+        return await interaction.reply(replyOptions);
+    }
+}
+
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
+        // Guard's Typing
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, { content: data.lockall_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
             return;
         };
 
@@ -56,7 +83,7 @@ export default {
             .setColor("#5b3475")
             .setTimestamp()
             .setDescription(data.lockall_embed_message_description
-                .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
             );
 
         try {
@@ -64,7 +91,7 @@ export default {
                 .setColor("#bf0bb9")
                 .setTitle(data.lockall_logs_embed_title)
                 .setDescription(data.lockall_logs_embed_description
-                    .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
                 );
 
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
@@ -76,7 +103,7 @@ export default {
             logger.err(e)
         };
 
-        await interaction.editReply({ embeds: [Lockembed] });
+        await interactionSend(interaction, { embeds: [Lockembed] });
         return;
     },
 };

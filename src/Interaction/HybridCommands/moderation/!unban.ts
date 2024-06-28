@@ -24,54 +24,87 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    InteractionEditReplyOptions,
+    Message,
+    MessagePayload,
+    MessageReplyOptions,
     PermissionsBitField,
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
+        return await interaction.editReply(editOptions);
+    } else {
+        let replyOptions: MessageReplyOptions;
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.BanMembers)) {
-            await interaction.editReply({
-                content: data.unban_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
-            });
+        if (typeof options === 'string') {
+            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
+        } else {
+            replyOptions = {
+                ...options,
+                allowedMentions: { repliedUser: false },
+                content: options.content ?? undefined
+            } as MessageReplyOptions;
+        }
+
+        return await interaction.reply(replyOptions);
+    }
+}
+
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
+        // Guard's Typing
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+
+        const permissionsArray = [PermissionsBitField.Flags.BanMembers]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, { content: data.unban_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
             return;
         };
 
         if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.BanMembers])) {
-            await interaction.editReply({
+            await interactionSend(interaction, {
                 content: data.unban_bot_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             })
             return;
         };
 
-        let userID = interaction.options.getString('userid');
-        let reason = interaction.options.getString('reason');
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var userID = interaction.options.getString('userid');
+            var reason = interaction.options.getString('reason');
+        } else {
+            var userID = client.args.string(args!, 0);
+            var reason = client.args.longString(args!, 1);
+        };
 
         if (!reason) reason = data.unban_reason;
 
         await interaction.guild.bans.fetch()
             .then(async (bans) => {
                 if (bans.size == 0) {
-                    await interaction.editReply({
+                    await interactionSend(interaction, {
                         content: data.unban_there_is_nobody_banned.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                     });
                     return;
                 }
                 let bannedID = bans.find(ban => ban.user.id == userID);
                 if (!bannedID) {
-                    await interaction.editReply({
+                    await interactionSend(interaction, {
                         content: data.unban_the_member_is_not_banned.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                     });
                     return;
                 };
 
                 await interaction.guild?.bans.remove(userID as string, reason as string).catch(() => { });
-                await interaction.editReply({
+                await interactionSend(interaction, {
                     content: data.unban_is_now_unbanned
                         .replace(/\${userID}/g, userID as string)
                 });
@@ -82,7 +115,7 @@ export default {
             let logEmbed = new EmbedBuilder().setColor("#bf0bb9").setTitle(data.unban_logs_embed_title)
                 .setDescription(data.unban_logs_embed_description
                     .replace(/\${userID}/g, userID as string)
-                    .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
                 )
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) {

@@ -25,49 +25,84 @@ import {
     PermissionsBitField,
     BaseGuildTextChannel,
     ChatInputCommandInteraction,
-    GuildMember
+    GuildMember,
+    Message,
+    MessagePayload,
+    InteractionEditReplyOptions,
+    MessageReplyOptions
 } from 'pwss';
 
 import logger from '../../../core/logger.js';
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
+
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
+        return await interaction.editReply(editOptions);
+    } else {
+        let replyOptions: MessageReplyOptions;
+
+        if (typeof options === 'string') {
+            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
+        } else {
+            replyOptions = {
+                ...options,
+                allowedMentions: { repliedUser: false },
+                content: options.content ?? undefined
+            } as MessageReplyOptions;
+        }
+
+        return await interaction.reply(replyOptions);
+    }
+}
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;;
 
-        let tomute = interaction.options.getMember("user") as GuildMember;
-        let permission = interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages);
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var tomute = interaction.options.getMember("user") as GuildMember | null;
+        } else {
+            var tomute = client.args.member(interaction, 0) as GuildMember | null;
+        };
 
-        if (!permission) {
-            await interaction.editReply({
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!tomute) return;
+
+        if (!permissions) {
+            await interactionSend(interaction, {
                 content: data.unmute_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
-            return;
+            return;;
         };
 
         if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageRoles])) {
-            await interaction.editReply({
+            await interactionSend(interaction, {
                 content: data.unmute_i_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
-            return;
+            return;;
         };
 
-        if (tomute.id === interaction.user.id) {
-            await interaction.editReply({
+        if (tomute?.id === interaction.member.user.id) {
+            await interactionSend(interaction, {
                 content: data.unmute_attempt_mute_your_self.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
-            return;
+            return;;
         };
 
-        if (!tomute.isCommunicationDisabled() === true) {
-            await interaction.editReply({ content: data.unmute_not_muted });
-            return;
+        if (!tomute?.isCommunicationDisabled() === true) {
+            await interactionSend(interaction, { content: data.unmute_not_muted });
+            return;;
         };
 
         tomute.disableCommunicationUntil(Date.now());
 
-        await interaction.editReply({
+        await interactionSend(interaction, {
             content: data.unmute_command_work
                 .replace("${tomute.id}", tomute.id)
         });
@@ -77,7 +112,7 @@ export default {
                 .setColor("#bf0bb9")
                 .setTitle(data.unmute_logs_embed_title)
                 .setDescription(data.unmute_logs_embed_description
-                    .replace("${interaction.user.id}", interaction.user.id)
+                    .replace("${interaction.user.id}", interaction.member.user.id)
                     .replace("${tomute.id}", tomute.id)
                 );
 
