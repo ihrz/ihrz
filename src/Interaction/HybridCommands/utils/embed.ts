@@ -43,11 +43,21 @@ import {
     Message,
     GuildBasedChannel,
     TextChannel,
+    MessagePayload,
+    InteractionEditReplyOptions,
 } from 'pwss';
 
 import { Command } from '../../../../types/command';
 import { generatePassword } from '../../../core/functions/random.js';
 import { LanguageData } from '../../../../types/languageData';
+
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
 
 export const command: Command = {
     name: 'embed',
@@ -69,17 +79,28 @@ export const command: Command = {
     thinking: false,
     category: 'utils',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
-        let arg = interaction.options.getString("id");
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var arg = interaction.options.getString("id");
+        } else {
+            var arg = args?.[0] as string | null;
+        };
+
         let potentialEmbed = await client.db.get(`EMBED.${arg}`);
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.reply({ content: data.punishpub_not_admin });
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, { content: data.punishpub_not_admin });
             return;
         };
 
@@ -138,7 +159,7 @@ export const command: Command = {
         });
 
         collector.on('collect', async (i) => {
-            if (i.user.id !== interaction.user.id) {
+            if (i.user.id !== interaction.member?.user.id!) {
                 await i.reply({ content: data.embed_interaction_not_for_you, ephemeral: true });
                 return;
             }
@@ -296,7 +317,7 @@ export const command: Command = {
         async function handleCollector(i: StringSelectMenuInteraction<CacheType>, replyContent: LanguageDataKeys, onCollect: (message: Message) => void) {
             const replyMessage = Array.isArray(data[replyContent]) ? (data[replyContent] as string[]).join(' ') : data[replyContent];
             let reply = await i.reply({ content: replyMessage.toString(), ephemeral: true });
-            let messageCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.user.id, max: 1, time: 120_000 });
+            let messageCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.member?.user.id!, max: 1, time: 120_000 });
             messageCollector?.on('collect', async (message) => {
                 onCollect(message);
                 await reply.delete();
@@ -316,12 +337,12 @@ export const command: Command = {
                 );
 
             await confirmation.update({
-                content: data.embed_send_message.replace('${interaction.user.id}', interaction.user.id),
+                content: data.embed_send_message.replace('${interaction.user.id}', interaction.member?.user.id!),
                 components: [channelSelectMenu]
             });
 
             let seCollector = interaction.channel?.createMessageComponentCollector({
-                filter: (m) => m.user.id === interaction.user.id && m.customId === 'embed-save-channel',
+                filter: (m) => m.user.id === interaction.member?.user.id! && m.customId === 'embed-save-channel',
                 max: 1,
                 time: 120_000,
                 componentType: ComponentType.ChannelSelect
@@ -335,7 +356,7 @@ export const command: Command = {
                     await (channel as BaseGuildTextChannel).send({ embeds: [__tempEmbed] });
                     seCollector.stop();
                     await response.edit({
-                        content: data.embed_send_embed_work.replace('${interaction.user.id}', interaction.user.id).replace('${message.content}', channel.id),
+                        content: data.embed_send_embed_work.replace('${interaction.user.id}', interaction.member?.user.id!).replace('${message.content}', channel.id),
                         embeds: [],
                         components: []
                     });
@@ -351,7 +372,7 @@ export const command: Command = {
             let password = generatePassword({ length: 16 });
 
             await client.db.set(`EMBED.${password}`, {
-                embedOwner: interaction.user.id,
+                embedOwner: interaction.member?.user.id!,
                 embedSource: __tempEmbed.toJSON()
             });
 
@@ -364,7 +385,7 @@ export const command: Command = {
         });
 
         buttonCollector.on('collect', async (confirmation) => {
-            if (confirmation.user.id !== interaction.user.id) {
+            if (confirmation.user.id !== interaction.member?.user.id!) {
                 await confirmation.reply({ content: data.embed_interaction_not_for_you, ephemeral: true });
                 return;
             }
@@ -374,7 +395,7 @@ export const command: Command = {
                     if (arg) await client.db.delete(`EMBED.${arg}`);
                     let embedId = await saveEmbed();
                     await confirmation.update({
-                        content: data.embed_save_message.replace('${interaction.user.id}', interaction.user.id).replace('${await saveEmbed()}', embedId),
+                        content: data.embed_save_message.replace('${interaction.user.id}', interaction.member?.user.id!).replace('${await saveEmbed()}', embedId),
                         components: [],
                         embeds: []
                     });
@@ -382,7 +403,7 @@ export const command: Command = {
                     break;
                 case "cancel":
                     await confirmation.update({
-                        content: data.embed_cancel_message.replace('${interaction.user.id}', interaction.user.id),
+                        content: data.embed_cancel_message.replace('${interaction.user.id}', interaction.member?.user.id!),
                         components: [],
                         embeds: []
                     });

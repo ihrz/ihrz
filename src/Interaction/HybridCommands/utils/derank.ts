@@ -26,11 +26,22 @@ import {
     PermissionsBitField,
     ChatInputCommandInteraction,
     ApplicationCommandType,
-    GuildMember
+    GuildMember,
+    Message,
+    MessagePayload,
+    InteractionEditReplyOptions
 } from 'pwss'
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
+
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
 
 export const command: Command = {
 
@@ -57,15 +68,25 @@ export const command: Command = {
     ],
     thinking: true,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-        let member = interaction.options.getMember("member") as GuildMember;
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.punishpub_not_admin });
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var member = interaction.options.getMember("member") as GuildMember;
+        } else {
+            var member = client.args.member(interaction, 0) || interaction.member;
+        };
+
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, { content: data.punishpub_not_admin });
             return;
         };
 
@@ -102,13 +123,13 @@ export const command: Command = {
                     )
                     .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" });
 
-                interaction.editReply({
+                interactionSend(interaction, {
                     embeds: [embed],
                     files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
                 });
             })
             .catch(err => {
-                interaction.editReply({ content: data.derank_msg_failed });
+                interactionSend(interaction, { content: data.derank_msg_failed });
             });
     },
 };

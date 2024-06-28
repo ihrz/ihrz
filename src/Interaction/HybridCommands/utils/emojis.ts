@@ -25,11 +25,22 @@ import {
     EmbedBuilder,
     PermissionsBitField,
     ChatInputCommandInteraction,
-    ApplicationCommandType
+    ApplicationCommandType,
+    Message,
+    MessagePayload,
+    InteractionEditReplyOptions
 } from 'pwss'
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
+
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
 
 export const command: Command = {
 
@@ -56,18 +67,29 @@ export const command: Command = {
     ],
     thinking: true,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-        let str = (interaction.options.getString('emojis') as string).split(' ');
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var str = (interaction.options.getString('emojis') as string).split(' ');
+        } else {
+            var str = (args || []) as string[];
+        };
+
         let cnt: number = 0;
         let nemj: string = '';
 
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.punishpub_not_admin });
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, { content: data.punishpub_not_admin });
             return;
         };
 
@@ -105,7 +127,7 @@ export const command: Command = {
                 .replace('${nemj}', nemj)
             )
 
-        await interaction.editReply({
+        await interactionSend(interaction, {
             embeds: [embed],
             files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
         });

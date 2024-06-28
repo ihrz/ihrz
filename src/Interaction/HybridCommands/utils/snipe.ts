@@ -24,6 +24,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
 } from 'pwss'
 
 import { Command } from '../../../../types/command';
@@ -39,9 +40,9 @@ export const command: Command = {
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId);
 

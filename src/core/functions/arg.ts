@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, APIRole } from "pwss";
+import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel } from "pwss";
 
 export function user(interaction: Message, argsNumber: number): User | null {
     return interaction.content.startsWith(`<@${interaction.client.user.id}`)
@@ -43,6 +43,13 @@ export function member(interaction: Message, argsNumber: number): GuildMember | 
         || null
 }
 
+export function voiceChannel(interaction: Message, argsNumber: number): BaseGuildVoiceChannel | null {
+    return interaction.mentions.channels
+        .map(x => x)
+        .filter(x => x.type === ChannelType.GuildVoice || ChannelType.GuildStageVoice)
+    [argsNumber] as BaseGuildVoiceChannel || null;
+}
+
 export function channel(interaction: Message, argsNumber: number): Channel | null {
     return interaction.mentions.channels
         .map(x => x)
@@ -61,8 +68,7 @@ export function string(args: string[], argsNumber: number): string | null {
 }
 
 export function longString(args: string[], argsNumber: number): string | null {
-    return args.join(" ")
-    [argsNumber] || null;
+    return args.slice(argsNumber).join(" ") || null;
 }
 
 export function number(args: string[], argsNumber: number): number {

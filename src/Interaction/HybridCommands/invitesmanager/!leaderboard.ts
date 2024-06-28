@@ -40,8 +40,7 @@ async function interactionSend(interaction: ChatInputCommandInteraction | Messag
     if (interaction instanceof ChatInputCommandInteraction) {
         return await interaction.editReply(options);
     } else {
-        (options as MessagePayload).options = { allowedMentions: { repliedUser: false } };
-        return await interaction.reply(options as MessagePayload);
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
     }
 };
 

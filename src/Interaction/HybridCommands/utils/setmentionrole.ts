@@ -26,11 +26,22 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     BaseGuildTextChannel,
-    ApplicationCommandType
+    ApplicationCommandType,
+    Message,
+    MessagePayload,
+    InteractionEditReplyOptions
 } from 'pwss'
 
 import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
+
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
 
 export const command: Command = {
     name: 'setmentionrole',
@@ -88,22 +99,30 @@ export const command: Command = {
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId);
 
-        let type = interaction.options.getString("action");
-        let argsid = interaction.options.getRole("roles");
-        let nickname = interaction.options.getString("part-of-nickname");
-
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.reply({
-                content: data.setrankroles_not_admin.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
-            });
-            return;
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var type = interaction.options.getString("action");
+            var argsid = interaction.options.getRole("roles");
+            var nickname = interaction.options.getString("part-of-nickname");
+        } else {
+            var type = client.args.string(args!, 0);
+            var argsid = client.args.role(interaction, 0);
+            var nickname = client.args.longString(args!, 2);
         };
+
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, { content: data.punishpub_not_admin });
+        }
 
         if (type === "on") {
             if (!argsid) {
@@ -118,7 +137,7 @@ export const command: Command = {
                     .setColor("#bf0bb9")
                     .setTitle(data.setrankroles_logs_embed_title_enable)
                     .setDescription(data.setrankroles_logs_embed_description_enable
-                        .replace(/\${interaction\.user.id}/g, interaction.user.id)
+                        .replace(/\${interaction\.user.id}/g, interaction.member.user.id)
                         .replace(/\${argsid}/g, argsid.id)
                     );
 
@@ -168,7 +187,7 @@ export const command: Command = {
                     .setColor("#bf0bb9")
                     .setTitle(data.setrankroles_logs_embed_title_disable)
                     .setDescription(data.setrankroles_logs_embed_description_disable
-                        .replace(/\${interaction\.user.id}/g, interaction.user.id)
+                        .replace(/\${interaction\.user.id}/g, interaction.member.user.id)
                     )
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
@@ -180,7 +199,7 @@ export const command: Command = {
 
                 await interaction.reply({
                     content: data.setrankroles_command_work_disable
-                        .replace(/\${interaction\.user.id}/g, interaction.user.id)
+                        .replace(/\${interaction\.user.id}/g, interaction.member.user.id)
                 });
                 return;
             } catch (e: any) {

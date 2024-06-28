@@ -28,11 +28,22 @@ import {
     ChannelType,
     ApplicationCommandType,
     BaseGuildVoiceChannel,
-    VoiceChannel
+    VoiceChannel,
+    Message,
+    MessagePayload,
+    InteractionEditReplyOptions
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
+
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
 
 export const command: Command = {
     name: 'massmove',
@@ -73,20 +84,33 @@ export const command: Command = {
     thinking: true,
     category: 'utils',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
+        const allChannel = Array.from(interaction.guild.channels.cache.values()!)
+            .filter(x => x.type === (ChannelType.GuildVoice || ChannelType.GuildStageVoice)) || [];
 
-        const fromChannel = interaction.options.getChannel('from') as BaseGuildVoiceChannel | null;
-        const allChannel = Array.from(interaction.guild.channels.cache.values()!).filter(x => x.type === (ChannelType.GuildVoice || ChannelType.GuildStageVoice)) || [];
-        const toChannel = interaction.options.getChannel('to')! as BaseGuildVoiceChannel;
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var fromChannel = interaction.options.getChannel('from') as BaseGuildVoiceChannel | null;
+            var toChannel = interaction.options.getChannel('to')! as BaseGuildVoiceChannel | null;
+        } else {
+            var fromChannel = client.args.voiceChannel(interaction, 0);
+            var toChannel = client.args.channel(interaction, 1) as BaseGuildVoiceChannel | null;
+        };
 
-        if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
-            await interaction.editReply({ content: "You don't have Move Members permission" });
+        if (toChannel === null) return;
+
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, { content: data.punishpub_not_admin });
             return;
-        }
+        };
 
         let movedCount = 0;
         let errorCount = 0;
@@ -119,14 +143,14 @@ export const command: Command = {
             .setTimestamp()
             .setThumbnail(interaction.guild.iconURL())
             .setDescription(data.massmove_results
-                .replace('${interaction.user}', interaction.user.toString())
+                .replace('${interaction.user}', interaction.member.user.toString())
                 .replace('${movedCount}', movedCount.toString())
                 .replace('${errorCount}', errorCount.toString())
                 .replace('${fromChannel}', fromChannel?.toString() || allChannel.map(x => x.toString()).join(","))
                 .replace('${toChannel}', toChannel.toString())
             );
 
-        await interaction.editReply({
+        await interactionSend(interaction, {
             embeds: [embed],
             files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
         });

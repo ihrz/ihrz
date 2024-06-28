@@ -26,18 +26,30 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     Role,
-    ApplicationCommandType
+    Guild,
+    ApplicationCommandType,
+    Message,
+    MessagePayload,
+    InteractionEditReplyOptions
 } from 'pwss'
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
 
-export const command: Command = {
-    name: 'nickrole',
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
 
-    description: 'Give a roles to all user who have specified char in their username!',
+export const command: Command = {
+    name: 'massiverole',
+
+    description: 'Add/Remove roles to everyone on the server',
     description_localizations: {
-        "fr": "Donnez un rôle à tous les utilisateurs qui ont un caractère spécifique dans leur nom d'utilisateur"
+        "fr": "Ajouter/Supprimer des rôles pour tout le monde sur le serveur"
     },
 
     options: [
@@ -45,82 +57,79 @@ export const command: Command = {
             name: 'action',
             type: ApplicationCommandOptionType.String,
 
-            description: 'The action you want to do',
+            description: 'What you want to do?',
             description_localizations: {
-                "fr": "L'action que vous souhaitez faire"
+                "fr": "Que veux-tu faire?"
             },
 
             required: true,
             choices: [
                 {
-                    name: 'Add',
-                    value: 'add'
+                    name: "Add",
+                    value: "add"
                 },
                 {
                     name: 'Remove',
-                    value: 'sub'
+                    value: "sub"
                 }
-            ]
-        },
-        {
-            name: 'nickname',
-            type: ApplicationCommandOptionType.String,
-
-            description: 'The part including in the nickname',
-            description_localizations: {
-                "fr": "La partie incluant dans le pseudo"
-            },
-
-            required: true,
+            ],
         },
         {
             name: 'role',
             type: ApplicationCommandOptionType.Role,
 
-            description: 'The role you want to give',
+            description: 'The specified role you want to add',
             description_localizations: {
-                "fr": "Le rôle que vous souhaitez donner"
+                "fr": "Le rôle spécifié que vous souhaitez ajouter"
             },
 
-            required: true,
-        },
+            required: true
+        }
     ],
-    thinking: true,
     category: 'utils',
+    thinking: true,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
-        let action_1 = interaction.options.getString("action");
-        let part_of_nickname = interaction.options.getString("nickname")?.toLowerCase() as string;
-        let role = interaction.options.getRole('role');
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var action = interaction.options.getString("action");
+            var role = interaction.options.getRole("role");
+        } else {
+            var action = client.args.string(args!, 0);
+            var role = client.args.role(interaction, 0);
+        };
 
         let a: number = 0;
         let s: number = 0;
         let e: number = 0;
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.prevnames_not_admin });
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await interactionSend(interaction, { content: data.punishpub_not_admin });
             return;
         };
 
-        if (action_1 === 'add') {
+        if ((interaction.guild as Guild).memberCount >= 1500) {
+            await interactionSend(interaction, { content: data.massiverole_too_much_member });
+            return;
+        };
+
+        if (action === 'add') {
 
             try {
                 let members = await interaction.guild.members.fetch();
                 let promises = [];
 
                 for (let [memberID, member] of members!) {
-                    if (
-                        (
-                            member.user.globalName?.toLowerCase().includes(part_of_nickname)
-                            || (member.nickname && member.nickname.toLowerCase().includes(part_of_nickname))
-                        )
-                        && !member.roles.cache.has(role?.id!)
-                    ) {
+                    if (!member.roles.cache.has(role?.id!)) {
                         let promise = member.roles.add(role as Role)
                             .then(() => {
                                 a++;
@@ -135,41 +144,34 @@ export const command: Command = {
                 };
 
                 await Promise.all(promises);
-            } catch (error) { }
+            } catch (error) { };
 
             let embed = new EmbedBuilder()
                 .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
                 .setColor('#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild.iconURL())
-                .setDescription(data.nickrole_add_command_work
-                    .replace('${interaction.user}', interaction.user.toString())
+                .setDescription(data.massiverole_add_command_work
+                    .replace('${interaction.user}', interaction.member.user.toString())
                     .replace('${a}', a.toString())
                     .replace('${s}', s.toString())
                     .replace('${e}', e.toString())
-                    .replace('${part_of_nickname}', part_of_nickname)
                     .replaceAll('${role}', role?.toString()!)
                 );
 
-            await interaction.editReply({
+            await interactionSend(interaction, {
                 embeds: [embed],
-                files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
             });
             return;
+        } else if (action === 'sub') {
 
-        } else if (action_1 === 'sub') {
             try {
-                let members = await interaction.guild?.members.fetch();
+                let members = await interaction.guild.members.fetch();
                 let promises = [];
 
                 for (let [memberID, member] of members!) {
-                    if (
-                        (
-                            member.user.globalName?.toLowerCase().includes(part_of_nickname)
-                            || (member.nickname && member.nickname.toLowerCase().includes(part_of_nickname))
-                        )
-                        && member.roles.cache.has(role?.id!)
-                    ) {
+                    if (member.roles.cache.has(role?.id!)) {
                         let promise = member.roles.remove(role as Role)
                             .then(() => {
                                 a++;
@@ -184,28 +186,28 @@ export const command: Command = {
                 };
 
                 await Promise.all(promises);
-            } catch (error) { }
+            } catch (error) { };
 
             let embed = new EmbedBuilder()
                 .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
                 .setColor('#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild.iconURL())
-                .setDescription(data.nickrole_sub_command_work
-                    .replace('${interaction.user}', interaction.user.toString())
+                .setDescription(data.massiverole_sub_command_work
+                    .replace('${interaction.user}', interaction.member.user.toString())
                     .replace('${a}', a.toString())
                     .replace('${s}', s.toString())
                     .replace('${e}', e.toString())
-                    .replace('${part_of_nickname}', part_of_nickname)
                     .replaceAll('${role}', role?.toString()!)
                 );
 
-            await interaction.editReply({
+            await interactionSend(interaction, {
                 embeds: [embed],
                 files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
             });
             return;
         };
+
         return;
     },
 };

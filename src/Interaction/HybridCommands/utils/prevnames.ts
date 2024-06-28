@@ -27,11 +27,22 @@ import {
     ButtonBuilder,
     ButtonStyle,
     ChatInputCommandInteraction,
-    ApplicationCommandType
+    ApplicationCommandType,
+    MessagePayload,
+    Message,
+    InteractionEditReplyOptions
 } from 'pwss'
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
+
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        return await interaction.editReply(options);
+    } else {
+        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
+    }
+};
 
 export const command: Command = {
 
@@ -58,12 +69,17 @@ export const command: Command = {
     thinking: false,
     category: 'utils',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-        let user = interaction.options.getUser("user") || interaction.user;
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var user = interaction.options.getUser("user") || interaction.user;
+        } else {
+            var user = client.args.user(interaction, 0) || interaction.member.user;
+        };
 
         // if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
         //     await interaction.reply({ content: data.prevnames_not_admin });
@@ -129,7 +145,7 @@ export const command: Command = {
         let collector = messageEmbed.createMessageComponentCollector({
             filter: async (i) => {
                 await i.deferUpdate();
-                return interaction.user.id === i.user.id;
+                return interaction.member?.user.id === i.user.id;
             }, time: 60000
         });
 
@@ -143,7 +159,7 @@ export const command: Command = {
 
             } else if (interaction_2.customId === 'trash-prevnames-embed') {
 
-                if (interaction.user.id === user.id) {
+                if (interaction.member?.user.id === user.id) {
                     let table = client.db.table("PREVNAMES");
 
                     await table.delete(`${user.id}`);
