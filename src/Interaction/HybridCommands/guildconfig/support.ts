@@ -27,6 +27,9 @@ import {
     ChatInputCommandInteraction,
     BaseGuildTextChannel,
     ApplicationCommandType,
+    Message,
+    Role,
+    APIRole,
 } from 'pwss';
 
 import { Command } from '../../../../types/command.js';
@@ -55,11 +58,11 @@ export const command: Command = {
             choices: [
                 {
                     name: "Power On",
-                    value: "true"
+                    value: "enable"
                 },
                 {
                     name: "Power Off",
-                    value: "false"
+                    value: "disable"
                 }
             ]
         },
@@ -88,26 +91,37 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
             await interaction.reply({ content: data.support_not_admin });
             return;
         };
 
-        let action = interaction.options.getString("action");
-        let input = interaction.options.getString("input");
-        let roles = interaction.options.getRole("roles");
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var action = interaction.options.getString("action");
+            var roles = interaction.options.getRole("roles");
+            var input = interaction.options.getString("input");
+        } else {
+            var action = (client.func.arg.string(args, 0)) as string | null;
+            var roles = (client.func.arg.role(interaction, 0)) as Role | APIRole | null;
+            var input = args?.join(" ")[0] as string | null;
+        };
 
         if (!roles) {
             await interaction.reply({ content: data.support_command_not_role });
             return;
         }
-        if (action == "true") {
+        if (action == "enable") {
             await client.db.set(`${interaction.guildId}.GUILD.SUPPORT`,
                 {
                     input: input,
@@ -128,7 +142,7 @@ export const command: Command = {
                     .setColor("#bf0bb9")
                     .setTitle(data.setjoinroles_logs_embed_title_on_enable)
                     .setDescription(data.setjoinroles_logs_embed_description_on_enable
-                        .replace("${interaction.user.id}", interaction.user.id)
+                        .replace("${interaction.user.id}", interaction.member.user.id)
                     )
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
@@ -147,7 +161,7 @@ export const command: Command = {
                     .setColor("#bf0bb9")
                     .setTitle(data.setjoinroles_logs_embed_title_on_enable)
                     .setDescription(data.setjoinroles_logs_embed_description_on_enable
-                        .replace("${interaction.user.id}", interaction.user.id)
+                        .replace("${interaction.user.id}", interaction.member.user.id)
                     )
 
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
