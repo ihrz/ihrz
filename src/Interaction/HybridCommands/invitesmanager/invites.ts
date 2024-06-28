@@ -39,6 +39,7 @@ export const command: Command = {
     options: [
         {
             name: "addinvites",
+            aliases: ["add", "a"],
 
             description: "Add invites to a user!",
             description_localizations: {
@@ -73,7 +74,8 @@ export const command: Command = {
         },
         {
             name: 'leaderboard',
-            
+            aliases: ["lb"],
+
             description: 'Show the guild invites\'s leaderboard!',
             description_localizations: {
                 "fr": "Afficher le classement des invitations du serveur"
@@ -106,6 +108,7 @@ export const command: Command = {
         },
         {
             name: 'removeinvites',
+            aliases: ["remove", "sub"],
 
             description: 'Remove invites from a user!',
             description_localizations: {
@@ -133,7 +136,7 @@ export const command: Command = {
                     description_localizations: {
                         "fr": "Nombre d'invitations que vous souhaitez soustraire"
                     },
-                    
+
                     required: true
                 }
             ],

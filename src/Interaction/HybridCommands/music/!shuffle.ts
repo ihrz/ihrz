@@ -26,17 +26,30 @@ import {
     InteractionEditReplyOptions,
     Message,
     MessagePayload,
+    MessageReplyOptions,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
+async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
     if (interaction instanceof ChatInputCommandInteraction) {
-        return await interaction.editReply(options);
+        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
+        return await interaction.editReply(editOptions);
     } else {
-        return await interaction.reply((options as MessagePayload).options = { allowedMentions: { repliedUser: false } });
-    }
-};
+        let replyOptions: MessageReplyOptions;
 
+        if (typeof options === 'string') {
+            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
+        } else {
+            replyOptions = {
+                ...options,
+                allowedMentions: { repliedUser: false },
+                content: options.content ?? undefined
+            } as MessageReplyOptions;
+        }
+
+        return await interaction.reply(replyOptions);
+    }
+}
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
