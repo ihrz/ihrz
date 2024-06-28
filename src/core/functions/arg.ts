@@ -19,13 +19,36 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message, Channel, User } from "pwss";
+import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, Embed } from "pwss";
+import { Command } from "../../../types/command";
 
 export function user(interaction: Message, argsNumber: number): User | null {
-    return interaction.mentions.users
+    return interaction.content.startsWith(`<@${interaction.client.user.id}`)
+        ?
+        interaction.mentions.parsedUsers
+            .map(x => x)
+            .filter(x => x.id !== interaction.client.user?.id!)[argsNumber]
+        :
+        interaction.mentions.parsedUsers
+            .map(x => x)[argsNumber]
+        || null
+}
+
+export function member(interaction: Message, argsNumber: number): GuildMember | undefined | null {
+    return interaction.content.startsWith(`<@${interaction.client.user.id}`)
+        ?
+        interaction.mentions.members?.map(x => x)
+            .filter(x => x.id !== interaction.client.user?.id!)[argsNumber]
+        :
+        interaction.mentions.members?.map(x => x)[argsNumber]
+        || null
+}
+
+export function voiceChannel(interaction: Message, argsNumber: number): BaseGuildVoiceChannel | null {
+    return interaction.mentions.channels
         .map(x => x)
-        .filter(x => x.id !== interaction.client.user?.id!)
-    [argsNumber] || interaction.author;
+        .filter(x => x.type === ChannelType.GuildVoice || ChannelType.GuildStageVoice)
+    [argsNumber] as BaseGuildVoiceChannel || null;
 }
 
 export function channel(interaction: Message, argsNumber: number): Channel | null {
@@ -34,12 +57,70 @@ export function channel(interaction: Message, argsNumber: number): Channel | nul
     [argsNumber] || null;
 }
 
-export function string(interaction: Message, argsNumber: number): string | null {
-    return interaction.content.split(" ")
+export function role(interaction: Message, argsNumber: number): Role | APIRole | null {
+    return interaction.mentions.roles
+        .map(x => x)
     [argsNumber] || null;
 }
 
-export function number(interaction: Message, argsNumber: number): number {
-    let _ = interaction.content.split(" ")[argsNumber];
+export function string(args: string[], argsNumber: number): string | null {
+    return args
+    [argsNumber] || null;
+}
+
+export function longString(args: string[], argsNumber: number): string | null {
+    return args.slice(argsNumber).join(" ") || null;
+}
+
+export function number(args: string[], argsNumber: number): number {
+    let _ = args[argsNumber];
     return Number.isNaN(parseInt(_)) ? 0 : parseInt(_);
+}
+
+export async function createAwesomeEmbed(command: Command, client: Client, interaction: Message): Promise<EmbedBuilder> {
+    const getType = (type: number): string => {
+        switch (type) {
+            case 3:
+                return "string"
+            case 6:
+                return "user"
+            case 8:
+                return "roles"
+            case 10:
+            case 4:
+                return "number"
+            case 7:
+                return "channel"
+            default:
+                return "default"
+        }
+    }
+
+    const embed = new EmbedBuilder()
+        .setTitle(command.name.charAt(0).toUpperCase() + command.name.slice(1) + " Help Embed")
+        .setColor("LightGrey");
+    const body = {};
+
+    var botPrefix = await client.func.prefix.guildPrefix(client, interaction.guildId!);
+    var cleanBotPrefix = botPrefix.string;
+
+    if (botPrefix.type === "mention") { cleanBotPrefix = "`@Ping-Me`" };
+
+    command.options?.map(x => {
+        var pathString = '';
+        var fullNameCommand = command.name + " " + x.name;
+
+        x.options?.forEach((value) => {
+            value.required ? pathString += "**`[" : pathString += "**`<"
+            pathString += getType(value.type)
+            value.required ? pathString += "]`**" + " " : pathString += ">`**" + " "
+        })
+        embed.addFields({
+            name: cleanBotPrefix + fullNameCommand,
+            value: `**Aliases:** ${x.aliases?.map(x => `\`${x}\``)
+                .join(", ") || "None"}\n**Use:** ${cleanBotPrefix}${fullNameCommand} ${pathString}`
+        })
+    })
+
+    return embed;
 }

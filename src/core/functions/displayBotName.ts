@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { DatabaseStructure } from "../database_structure.js";
+import { DatabaseStructure } from "../../../types/database_structure.js";
 import { getDatabaseInstance } from "../database.js";
 
 let database = getDatabaseInstance();
