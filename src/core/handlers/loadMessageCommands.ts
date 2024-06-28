@@ -77,7 +77,8 @@ async function loadCommands(client: Client, path: string = p): Promise<void> {
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
 
-    client.message_commands = new Collection<string, Command>();
+    if (!client.commands) client.commands = new Collection<string, Command>();
+    if (!client.message_commands) client.message_commands = new Collection<string, Command>();
 
     var i = 0;
     for (let path of paths) {
@@ -92,7 +93,7 @@ async function loadCommands(client: Client, path: string = p): Promise<void> {
                 desc: command.description,
                 desc_localized: command.description_localizations,
                 category: command.category,
-                messageCmd: true,
+                messageCmd: 1,
                 aliases: command.aliases
             }
         );

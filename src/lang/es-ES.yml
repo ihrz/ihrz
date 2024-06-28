@@ -131,6 +131,10 @@ ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Nivel**: `${a.level || '0'}`\n🔱 ➥ **XP Total**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Nivel: ${a.level || '0'}\n🔱 ➥ XP Total: ${a.xptotal}"
 
+# /ranks ignore-channels
+ranks_ignorechannels_embed_title: "Configuraciones del Módulo de Rangos"
+ranks_ignorechannels_embed_desc: "Cuando se envían nuevos mensajes en uno de estos canales, el Módulo de Rangos los ignora."
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -1447,6 +1451,9 @@ antispam_manage_preset_level3_name: "Modo de Protección Extrema"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Todos los roles a continuación pueden omitir el módulo antispam"
+
+# /antispam bypass-roles
+antispam_ignorechannels_embed_desc: "Todos los mensajes enviados en uno de los canales a continuación pueden omitir el módulo antispam."
 
 # -----------------------------/ \-----------------------------
 # Eventos del Módulo de Confesión

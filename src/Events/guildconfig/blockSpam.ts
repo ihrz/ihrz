@@ -21,7 +21,7 @@
 
 import { Client, PermissionsBitField, ChannelType, Message } from 'pwss';
 import { BotEvent } from '../../../types/event';
-import { DatabaseStructure } from '../../core/database_structure';
+import { DatabaseStructure } from '../../../types/database_structure';
 
 export const event: BotEvent = {
     name: "messageCreate",

@@ -24,7 +24,7 @@ import { Client, PermissionsBitField, ChannelType, Message, GuildTextBasedChanne
 import { isMessageCommand } from '../interaction/messageCommandHandler.js';
 import { LanguageData } from '../../../types/languageData';
 import { BotEvent } from '../../../types/event';
-import { DatabaseStructure } from '../../core/database_structure.js';
+import { DatabaseStructure } from '../../../types/database_structure.js';
 
 export const event: BotEvent = {
     name: "messageCreate",
@@ -48,7 +48,7 @@ export const event: BotEvent = {
         var xpData = await client.db.get(`${message.guild.id}.GUILD.XP_LEVELING`) as DatabaseStructure.DbGuildObject['XP_LEVELING'];
         var xpTurn = xpData?.disable;
 
-        if (xpTurn === 'disable') return;
+        if (xpTurn === 'disable' || xpData?.bypassChannels?.includes(message.channelId)) return;
 
         var level = baseData?.level || 1;
         var randomNumber = Math.floor(Math.random() * 3) + 35;

@@ -21,6 +21,7 @@
 
 import { LyricsManager } from "../src/core/functions/lyrics-fetcher.js";
 import { iHorizonTimeCalculator } from "../src/core/functions/ms.js";
+import * as argsHelper from '../src/core/functions/arg.js'
 
 import { GiveawayManager } from "discord-regiveaways";
 import { Collection, Snowflake } from 'pwss';
@@ -62,6 +63,7 @@ declare module 'pwss' {
         assets: Assets,
         config: ConfigData,
         isModuled?: boolean,
-        owners: string[]
+        owners: string[],
+        args: typeof argsHelper
     }
 };

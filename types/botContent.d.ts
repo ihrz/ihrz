@@ -28,5 +28,8 @@ export interface BotContent {
     aliases?: string[];
     desc: string;
     desc_localized: DescriptionLocalizations;
-    messageCmd: boolean;
+    messageCmd: 0 | 1 | 2;
+    // 0 > Slash Commands
+    // 1 > Message Commands
+    // 2 > Hybrid Commands
 }

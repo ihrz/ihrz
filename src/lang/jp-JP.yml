@@ -131,6 +131,10 @@ ranks_leaderboard_top_txt_raw: "トップ#${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **レベル**: `${a.level || '0'}`\n🔱 ➥ **総XP**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ レベル: ${a.level || '0'}\n🔱 ➥ 総XP: ${a.xptotal}"
 
+# /ranks ignore-channels
+ranks_ignorechannels_embed_title: "ランクモジュールの設定"
+ranks_ignorechannels_embed_desc: "これらのチャネルのいずれかに新しいメッセージが送信されると、ランクモジュールはそれを無視します。"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -1447,6 +1451,9 @@ antispam_manage_preset_level3_name: "エクストリーム保護モード"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "以下のすべてのロールはアンチスパムモジュールをバイパスできます"
+
+# /antispam bypass-roles
+antispam_ignorechannels_embed_desc: "以下のチャネルのいずれかに送信されたすべてのメッセージは、アンチスパムモジュールをバイパスできます。"
 
 # -----------------------------/ \-----------------------------
 # 告白モジュールイベント

@@ -38,10 +38,11 @@ export namespace AntiSpam {
         membersToPunish: Map<string, Set<GuildMember>>;
         membersFlags: Map<string, Map<string, { value: number }>>;
         spamMessagesToClear: Map<string, Set<CachedMessage>>;
-    }    
+    }
 
     export interface AntiSpamOptions {
         BYPASS_ROLES?: string[];
+        BYPASS_CHANNELS?: string[];
         ignoreBots: boolean;
         maxDuplicatesInterval: number;
         maxInterval: number;

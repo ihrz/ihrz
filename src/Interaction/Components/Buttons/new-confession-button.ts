@@ -21,7 +21,7 @@
 
 import { BaseGuildTextChannel, ButtonInteraction, CacheType, EmbedBuilder, TextInputStyle, SnowflakeUtil } from 'pwss';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
-import { DatabaseStructure } from '../../../core/database_structure.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { generatePassword } from '../../../core/functions/random.js'
 import { LanguageData } from '../../../../types/languageData';
 import maskLink from '../../../core/functions/maskLink.js';

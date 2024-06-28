@@ -33,5 +33,6 @@ export interface Option {
     required?: boolean,
     autocomplete?: boolean,
     channel_types?: number[],
-    choices?: Choice[]
+    choices?: Choice[],
+    aliases?: string[]
 }

@@ -33,7 +33,7 @@ import {
 import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { DatabaseStructure } from '../../../core/database_structure.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
 
 export const command: Command = {
 

@@ -57,7 +57,7 @@ export const command: AnotherCommand = {
             return;
         };
 
-        if (client.func.isAllowedLinks(msg?.content)) {
+        if (!client.func.isAllowedLinks(msg?.content)) {
             return interaction.editReply({ content: data.p_not_allowed })
         };
 
