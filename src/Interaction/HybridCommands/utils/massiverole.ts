@@ -37,27 +37,6 @@ import {
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
 
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-    }
-}
-
 export const command: Command = {
     name: 'massiverole',
 
@@ -65,6 +44,8 @@ export const command: Command = {
     description_localizations: {
         "fr": "Ajouter/Supprimer des rôles pour tout le monde sur le serveur"
     },
+
+    aliases: ["massrole", "massroles"],
 
     options: [
         {
@@ -113,6 +94,7 @@ export const command: Command = {
             var action = interaction.options.getString("action");
             var role = interaction.options.getRole("role");
         } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
             var action = client.args.string(args!, 0);
             var role = client.args.role(interaction, 0);
         };
@@ -127,12 +109,12 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await interactionSend(interaction, { content: data.punishpub_not_admin });
+            await client.args.interactionSend(interaction, { content: data.punishpub_not_admin });
             return;
         };
 
         if ((interaction.guild as Guild).memberCount >= 1500) {
-            await interactionSend(interaction, { content: data.massiverole_too_much_member });
+            await client.args.interactionSend(interaction, { content: data.massiverole_too_much_member });
             return;
         };
 
@@ -173,7 +155,7 @@ export const command: Command = {
                     .replaceAll('${role}', role?.toString()!)
                 );
 
-            await interactionSend(interaction, {
+            await client.args.interactionSend(interaction, {
                 embeds: [embed],
                 files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
             });
@@ -215,7 +197,7 @@ export const command: Command = {
                     .replaceAll('${role}', role?.toString()!)
                 );
 
-            await interactionSend(interaction, {
+            await client.args.interactionSend(interaction, {
                 embeds: [embed],
                 files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
             });

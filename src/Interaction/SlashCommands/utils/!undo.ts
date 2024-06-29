@@ -27,7 +27,6 @@ import {
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 import wait from '../../../core/functions/wait.js';
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing

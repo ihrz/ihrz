@@ -34,30 +34,10 @@ import {
     PermissionsBitField,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
-
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-    }
-}
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -67,14 +47,14 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await interactionSend(interaction, { content: data.setxpchannels_not_admin });
+            await client.args.interactionSend(interaction, { content: data.setxpchannels_not_admin });
             return;
         };
 
         let history = await client.db.get(`${interaction.guildId}.MUSIC_HISTORY`);
 
         if (!history || !history.embed || history.embed.length == 0) {
-            await interactionSend(interaction, { content: data.history_no_entries });
+            await client.args.interactionSend(interaction, { content: data.history_no_entries });
             return;
         };
 
@@ -123,7 +103,7 @@ export default {
                 .setStyle(ButtonStyle.Secondary),
         );
 
-        let messageEmbed = await interactionSend(interaction, {
+        let messageEmbed = await client.args.interactionSend(interaction, {
             embeds: [createEmbed()],
             components: [(row as ActionRowBuilder<ButtonBuilder>)],
             files: [attachment, { attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]

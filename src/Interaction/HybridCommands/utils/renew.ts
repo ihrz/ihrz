@@ -35,27 +35,6 @@ import {
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
 
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-    }
-}
-
 export const command: Command = {
     name: 'renew',
 
@@ -63,6 +42,8 @@ export const command: Command = {
     description_localizations: {
         "fr": "Recréation d'un canal (autorisation de clonage et toutes les configurations)"
     },
+
+    aliases: ["r", "rnw"],
 
     category: 'utils',
     thinking: false,
@@ -79,7 +60,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await interactionSend(interaction, { content: data.punishpub_not_admin });
+            await client.args.interactionSend(interaction, { content: data.punishpub_not_admin });
         }
 
         let channel = interaction.channel as BaseGuildTextChannel;
@@ -101,7 +82,7 @@ export const command: Command = {
             here.send({ content: data.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.member.user.toString()) });
             return;
         } catch (error) {
-            await interaction.reply({ content: data.renew_dont_have_permission });
+            await client.args.interactionSend(interaction,{ content: data.renew_dont_have_permission });
             return;
         }
     },

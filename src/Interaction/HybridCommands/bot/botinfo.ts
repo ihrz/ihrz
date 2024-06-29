@@ -64,7 +64,7 @@ export const command: Command = {
             .setFooter({ text: `iHorizon ${client.version.ClientVersion}`, iconURL: "attachment://icon.png" })
             .setTimestamp()
 
-        await interaction.reply({ embeds: [clientembed], files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }] });
+        await client.args.interactionSend(interaction, { embeds: [clientembed], files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }] });
         return;
     },
 };

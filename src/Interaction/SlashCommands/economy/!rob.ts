@@ -28,7 +28,6 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 
 let talkedRecentlyforr = new Set();
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing

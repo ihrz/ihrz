@@ -33,30 +33,10 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
-
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-    }
-}
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -66,12 +46,12 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await interactionSend(interaction, { content: data.unban_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
+            await client.args.interactionSend(interaction, { content: data.unban_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
             return;
         };
 
         if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.BanMembers])) {
-            await interactionSend(interaction, {
+            await client.args.interactionSend(interaction, {
                 content: data.unban_bot_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             })
             return;
@@ -81,6 +61,7 @@ export default {
             var userID = interaction.options.getString('userid');
             var reason = interaction.options.getString('reason');
         } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args || []); if (!_) return;
             var userID = client.args.string(args!, 0);
             var reason = client.args.longString(args!, 1);
         };
@@ -90,21 +71,21 @@ export default {
         await interaction.guild.bans.fetch()
             .then(async (bans) => {
                 if (bans.size == 0) {
-                    await interactionSend(interaction, {
+                    await client.args.interactionSend(interaction, {
                         content: data.unban_there_is_nobody_banned.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                     });
                     return;
                 }
                 let bannedID = bans.find(ban => ban.user.id == userID);
                 if (!bannedID) {
-                    await interactionSend(interaction, {
+                    await client.args.interactionSend(interaction, {
                         content: data.unban_the_member_is_not_banned.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                     });
                     return;
                 };
 
                 await interaction.guild?.bans.remove(userID as string, reason as string).catch(() => { });
-                await interactionSend(interaction, {
+                await client.args.interactionSend(interaction, {
                     content: data.unban_is_now_unbanned
                         .replace(/\${userID}/g, userID as string)
                 });

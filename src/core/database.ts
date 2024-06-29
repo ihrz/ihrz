@@ -29,6 +29,7 @@ import { ConfigData } from '../../types/configDatad.js';
 import * as proc from './modules/errorManager.js';
 import logger from './logger.js';
 import fs from 'fs';
+
 let dbInstance: QuickDB<any>;
 
 const tables = ['OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', 'json'];
@@ -54,7 +55,7 @@ const overwriteLastLine = (message: string) => {
     process.stdout.write(message);
 };
 
-export const initializeDatabase = async (config: ConfigData) => {
+export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<any>> => {
     let dbPromise: Promise<QuickDB<any>>;
     let sqlitePath = `${process.cwd()}/src/files`;
 

@@ -19,8 +19,9 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, Embed } from "pwss";
+import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, Embed, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions } from "pwss";
 import { Command } from "../../../types/command";
+import { Option } from "../../../types/option";
 
 export function user(interaction: Message, argsNumber: number): User | null {
     return interaction.content.startsWith(`<@${interaction.client.user.id}`)
@@ -77,50 +78,217 @@ export function number(args: string[], argsNumber: number): number {
     return Number.isNaN(parseInt(_)) ? 0 : parseInt(_);
 }
 
-export async function createAwesomeEmbed(command: Command, client: Client, interaction: Message): Promise<EmbedBuilder> {
-    const getType = (type: number): string => {
-        switch (type) {
-            case 3:
-                return "string"
-            case 6:
-                return "user"
-            case 8:
-                return "roles"
-            case 10:
-            case 4:
-                return "number"
-            case 7:
-                return "channel"
-            default:
-                return "default"
-        }
+const getArgumentOptionType = (type: number): string => {
+    switch (type) {
+        case 3:
+            return "string";
+        case 6:
+            return "user";
+        case 8:
+            return "roles";
+        case 10:
+        case 4:
+            return "number";
+        case 7:
+            return "channel";
+        default:
+            return "default";
     }
+};
 
+const getArgumentOptionTypeWithOptions = (o: Option): string => {
+    if (o.choices) {
+        return o.choices.map(x => x.value).join("/");
+    }
+    return getArgumentOptionType(o.type);
+};
+
+export async function createAwesomeEmbed(command: Command, client: Client, interaction: ChatInputCommandInteraction | Message): Promise<EmbedBuilder> {
     const embed = new EmbedBuilder()
         .setTitle(command.name.charAt(0).toUpperCase() + command.name.slice(1) + " Help Embed")
         .setColor("LightGrey");
-    const body = {};
 
     var botPrefix = await client.func.prefix.guildPrefix(client, interaction.guildId!);
     var cleanBotPrefix = botPrefix.string;
 
-    if (botPrefix.type === "mention") { cleanBotPrefix = "`@Ping-Me`" };
+    if (botPrefix.type === "mention") { cleanBotPrefix = "`@Ping-Me`"; }
 
     command.options?.map(x => {
         var pathString = '';
         var fullNameCommand = command.name + " " + x.name;
 
         x.options?.forEach((value) => {
-            value.required ? pathString += "**`[" : pathString += "**`<"
-            pathString += getType(value.type)
-            value.required ? pathString += "]`**" + " " : pathString += ">`**" + " "
-        })
+            pathString += value.required ? "**`[" : "**`<";
+            pathString += getArgumentOptionTypeWithOptions(value);
+            pathString += value.required ? "]`**" + " " : ">`**" + " ";
+        });
         embed.addFields({
             name: cleanBotPrefix + fullNameCommand,
-            value: `**Aliases:** ${x.aliases?.map(x => `\`${x}\``)
-                .join(", ") || "None"}\n**Use:** ${cleanBotPrefix}${fullNameCommand} ${pathString}`
-        })
-    })
+            value: `**Aliases:** ${x.aliases?.map(x => `\`${x}\``).join(", ") || "None"}\n**Use:** ${cleanBotPrefix}${fullNameCommand} ${pathString}`
+        });
+    });
 
     return embed;
+}
+
+interface ArgumentBrief {
+    name: string;
+    type: string;
+    required: boolean;
+    longString?: boolean;
+}
+
+export interface SubCommandArgumentValue {
+    name?: string;
+    command: Option | undefined;
+}
+
+const isSubCommandArgumentValue = (command: any): command is SubCommandArgumentValue => {
+    return command && (command as SubCommandArgumentValue).command !== undefined;
+};
+
+export async function checkCommandArgs(message: Message, command: SubCommandArgumentValue | Command, args: string[]): Promise<boolean> {
+    const botPrefix = await message.client.func.prefix.guildPrefix(message.client, message.guildId);
+    let cleanBotPrefix = botPrefix.string;
+
+    if (botPrefix.type === "mention") { cleanBotPrefix = "@Ping-Me "; }
+
+    let expectedArgs: ArgumentBrief[] = [];
+    if (isSubCommandArgumentValue(command)) {
+        command.command?.options?.forEach(option => {
+            expectedArgs.push({
+                name: option.name,
+                type: getArgumentOptionTypeWithOptions(option),
+                required: option.required || false,
+                longString: option.type === 3 && !option.choices
+            });
+        });
+    } else {
+        command.options?.forEach(option => {
+            expectedArgs.push({
+                name: option.name,
+                type: getArgumentOptionTypeWithOptions(option),
+                required: option.required || false,
+                longString: option.type === 3 && !option.choices
+            });
+        });
+    }
+
+    const minArgsCount = expectedArgs.filter(arg => arg.required).length;
+    const isLastArgLongString = expectedArgs.length > 0 && expectedArgs[expectedArgs.length - 1].longString;
+
+    if (args.length < minArgsCount || (args.length === 1 && args[0] === "")) {
+        await sendErrorMessage(message, cleanBotPrefix, command, expectedArgs);
+        return false;
+    }
+
+    if (isLastArgLongString) {
+        const lastArgIndex = expectedArgs.length - 1;
+        if (args.length > lastArgIndex) {
+            args[lastArgIndex] = args.slice(lastArgIndex).join(" ");
+            args.splice(lastArgIndex + 1);
+        }
+    }
+
+    for (let i = 0; i < expectedArgs.length; i++) {
+        if (i >= args.length && !expectedArgs[i].required) {
+            continue;
+        } else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type)) {
+            await sendErrorMessage(message, cleanBotPrefix, command, expectedArgs, i);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function isValidArgument(arg: string, type: string): boolean {
+    if (type.includes("/")) {
+        return type.split("/").includes(arg);
+    }
+
+    switch (type) {
+        case "string":
+            return typeof arg === 'string';
+        case "user":
+            return /^<@!?(\d+)>$/.test(arg);
+        case "roles":
+            return /^<@&(\d+)>$/.test(arg);
+        case "number":
+            return !isNaN(Number(arg));
+        case "channel":
+            return /^<#(\d+)>$/.test(arg);
+        default:
+            return false;
+    }
+}
+
+async function sendErrorMessage(message: Message, botPrefix: string, command: SubCommandArgumentValue | Command, expectedArgs: ArgumentBrief[], errorIndex?: number) {
+    let errorPosition = errorIndex !== undefined ? "^".padStart(errorIndex * 2 + 1, " ") : "";
+
+    const argumentDisplay = expectedArgs.map(arg => {
+        return arg.required ? `[${arg.type}]` : `<${arg.type}>`;
+    }).join(" ");
+
+    let fullNameCommand: string;
+    if (isSubCommandArgumentValue(command)) {
+        fullNameCommand = command.name + " " + command.command?.name;
+    } else {
+        fullNameCommand = command.name;
+    }
+
+    const embed = new EmbedBuilder()
+        .setTitle("❌ Error when typing arguments")
+        .setDescription(`
+\`\`\`
+${botPrefix}${fullNameCommand} ${argumentDisplay}
+${errorPosition}  Error when sending these arguments
+\`\`\`
+        `)
+        .setColor("Red");
+
+    await message.channel.send({ embeds: [embed] });
+}
+
+export async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionReplyOptions): Promise<Message> {
+    if (interaction instanceof ChatInputCommandInteraction) {
+        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
+        return interaction.deferred ? await interaction.editReply(editOptions) : await interaction.reply(editOptions as any);
+    } else {
+        let replyOptions: MessageReplyOptions;
+
+        if (typeof options === 'string') {
+            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
+        } else {
+            replyOptions = {
+                ...options,
+                allowedMentions: { repliedUser: false },
+                content: options.content ?? undefined
+            } as MessageReplyOptions;
+        }
+
+        return await interaction.reply(replyOptions);
+    }
+}
+
+export async function interactionEdit(interaction: ChatInputCommandInteraction | Message, options: string | MessageEditOptions | InteractionEditReplyOptions): Promise<Message> {
+    // Global
+    if (interaction instanceof ChatInputCommandInteraction) {
+        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
+        return await interaction.editReply(editOptions);
+    } else {
+        let replyOptions: MessageEditOptions;
+
+        if (typeof options === 'string') {
+            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
+        } else {
+            replyOptions = {
+                ...options,
+                allowedMentions: { repliedUser: false },
+                content: options.content ?? undefined
+            } as MessageEditOptions;
+        }
+
+        return await interaction.edit(replyOptions);
+    }
 }

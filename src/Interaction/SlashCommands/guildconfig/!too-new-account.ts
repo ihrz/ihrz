@@ -29,7 +29,6 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing

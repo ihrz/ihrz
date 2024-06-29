@@ -33,30 +33,10 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
-
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-    }
-}
+import { SubCommandArgumentValue } from '../../../core/functions/arg.js';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -67,17 +47,18 @@ export default {
             if (interaction instanceof ChatInputCommandInteraction) {
                 var mode = interaction.options.getString('mode');
             } else {
+                var _ = await client.args.checkCommandArgs(interaction, command, args || []); if (!_) return;
                 var mode = client.args.string(args!, 0);
             };
 
             if (!player || !player.playing || !voiceChannel) {
-                await interactionSend(interaction, { content: data.loop_no_queue });
+                await client.args.interactionSend(interaction, { content: data.loop_no_queue });
                 return;
             };
 
             await player.setRepeatMode(mode as "off" | "track" | "queue");
 
-            await interactionSend(interaction, {
+            await client.args.interactionSend(interaction, {
                 content: data.loop_command_work
                     .replace("{mode}", mode === 'track' ? `🔂` : `▶`)
             });

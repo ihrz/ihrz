@@ -32,30 +32,10 @@ import {
     User,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
-
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-    }
-}
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
@@ -63,8 +43,9 @@ export default {
             var user = interaction.options.getUser("member")!;
             var amount = interaction.options.getNumber("amount")!;
         } else {
-            var user = client.args.user(interaction, 0) || interaction.author;
-            var amount = client.args.number(args!, 0);
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var user = client.args.user(interaction, 0)!;
+            var amount = client.args.number(args!, 1);
         };
 
         let a = new EmbedBuilder().setColor("#FF0000").setDescription(data.addinvites_not_admin_embed_description);
@@ -75,7 +56,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await interactionSend(interaction, { embeds: [a] });
+            await client.args.interactionSend(interaction, { embeds: [a] });
             return;
         };
 
@@ -90,7 +71,7 @@ export default {
             .setFooter({ text: interaction.guild.name as string, iconURL: interaction.guild.iconURL() as string });
 
         await client.db.add(`${interaction.guildId}.USER.${user.id}.INVITES.bonus`, amount!);
-        await interactionSend(interaction, { embeds: [finalEmbed] });
+        await client.args.interactionSend(interaction, { embeds: [finalEmbed] });
 
         try {
             let logEmbed = new EmbedBuilder()

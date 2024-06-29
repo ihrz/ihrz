@@ -31,7 +31,6 @@ import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 import { LanguageData } from '../../../../types/languageData';
 
 const OWNIHRZ = new OwnIHRZ();
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing

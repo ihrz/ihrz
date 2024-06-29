@@ -37,6 +37,8 @@ export const command: Command = {
         "fr": "Obtenez le dernier message supprimé sur ce cannal"
     },
 
+    aliases: ["s", "snp"],
+
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
@@ -49,7 +51,7 @@ export const command: Command = {
         var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel.id}`);
 
         if (!based) {
-            await interaction.reply({ content: data.snipe_no_previous_message_deleted });
+            await client.args.interactionSend(interaction,{ content: data.snipe_no_previous_message_deleted });
             return;
         };
 
@@ -59,7 +61,7 @@ export const command: Command = {
             .setDescription(`\`\`\`${based.snipe}\`\`\``)
             .setTimestamp(based.snipeTimestamp);
 
-        await interaction.reply({ embeds: [embed] });
+        await client.args.interactionSend(interaction,{ embeds: [embed] });
         return;
     },
 };

@@ -35,7 +35,6 @@ import {
 } from 'pwss';
 import { DatabaseStructure } from '../../../../types/database_structure';
 import { LanguageData } from '../../../../types/languageData';
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
@@ -47,7 +46,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await interaction.reply({ content: lang.setxpchannels_not_admin });
+            await client.args.interactionSend(interaction,{ content: lang.setxpchannels_not_admin });
             return;
         };
 
@@ -86,7 +85,7 @@ export default {
             .setCustomId("ranks-manage-save-config")
             .setLabel(lang.antispam_manage_button_label);
 
-        const originalResponse = await interaction.reply({
+        const originalResponse = await client.args.interactionSend(interaction,{
             embeds: [embed],
             components: [
                 new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(select),

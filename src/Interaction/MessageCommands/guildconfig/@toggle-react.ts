@@ -33,9 +33,7 @@ import {
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
-
-export const command: Command = {
+import { Command } from '../../../../types/command';export const command: Command = {
 
     name: 'toggle-react',
     aliases: ['react-toggle', 'togglereact', 'reacttoggle'],

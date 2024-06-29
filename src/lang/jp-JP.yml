@@ -927,6 +927,7 @@ gw_getdata_embed_fields_winners: "優勝者"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (詳細は `/gw list-entries giveaway-id:${giveawayId}` をご利用ください)"
 gw_getdata_yes: "`はい`"
 gw_getdata_no: "`いいえ`"
+gw_doesnt_exit: "景品は到達できないか、存在しません。"
 
 
 # Moderation commands

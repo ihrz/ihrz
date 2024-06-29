@@ -36,28 +36,6 @@ import {
 import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
 
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-
-    }
-}
-
 export const command: Command = {
     name: 'setmentionrole',
 
@@ -65,6 +43,8 @@ export const command: Command = {
     description_localizations: {
         "fr": "Donner un rôle spécifique à l'utilisateur qui me ping"
     },
+
+    aliases: ["setrank", "setranks", "rankset"],
 
     options: [
         {
@@ -125,6 +105,7 @@ export const command: Command = {
             var argsid = interaction.options.getRole("roles");
             var nickname = interaction.options.getString("part-of-nickname");
         } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
             var type = client.args.string(args!, 0);
             var argsid = client.args.role(interaction, 0);
             var nickname = client.args.longString(args!, 2);
@@ -136,12 +117,12 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await interactionSend(interaction, { content: data.punishpub_not_admin });
+            await client.args.interactionSend(interaction, { content: data.punishpub_not_admin });
         }
 
         if (type === "on") {
             if (!argsid) {
-                await interaction.reply({
+                await client.args.interactionSend(interaction, {
                     content: data.setrankroles_not_roles_typed.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 });
                 return;
@@ -164,7 +145,7 @@ export const command: Command = {
                 let already = await client.db.get(`${interaction.guildId}.GUILD.RANK_ROLES.roles`);
 
                 if (already === argsid.id) {
-                    await interaction.reply({
+                    await client.args.interactionSend(interaction, {
                         content: data.setrankroles_already_this_in_db.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                     });
                     return;
@@ -186,12 +167,12 @@ export const command: Command = {
 
                 let e = new EmbedBuilder().setDescription(msg);
 
-                await interaction.reply({ embeds: [e] });
+                await client.args.interactionSend(interaction, { embeds: [e] });
                 return;
 
             } catch (e: any) {
                 logger.err(e);
-                await interaction.reply({
+                await client.args.interactionSend(interaction, {
                     content: data.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 });
                 return;
@@ -212,14 +193,14 @@ export const command: Command = {
             try {
                 await client.db.delete(`${interaction.guildId}.GUILD.RANK_ROLES`);
 
-                await interaction.reply({
+                await client.args.interactionSend(interaction, {
                     content: data.setrankroles_command_work_disable
                         .replace(/\${interaction\.user.id}/g, interaction.member.user.id)
                 });
                 return;
             } catch (e: any) {
                 logger.err(e)
-                await interaction.reply({
+                await client.args.interactionSend(interaction, {
                     content: data.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 });
                 return;

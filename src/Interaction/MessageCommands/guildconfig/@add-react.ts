@@ -34,9 +34,7 @@ import {
 
 import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
 import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
-
-export const command: Command = {
+import { Command } from '../../../../types/command';export const command: Command = {
 
     name: 'add-react',
     aliases: ['react-add', 'addreact', 'reactadd'],

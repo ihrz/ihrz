@@ -927,6 +927,7 @@ gw_getdata_embed_fields_winners: "Победитель(и)"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (используйте `/gw list-entries giveaway-id:${giveawayId}` для получения дополнительной информации)"
 gw_getdata_yes: "`Да`"
 gw_getdata_no: "`Нет`"
+gw_doesnt_exit: "Подарки недоступны или не существуют."
 
 
 # Команды модерации

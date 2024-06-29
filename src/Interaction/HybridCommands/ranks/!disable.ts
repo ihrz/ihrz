@@ -30,7 +30,6 @@ import {
 
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
@@ -48,7 +47,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await interaction.reply({ content: data.disablexp_not_admin });
+            await client.args.interactionSend(interaction,{ content: data.disablexp_not_admin });
             return;
         };
 
@@ -70,7 +69,7 @@ export default {
 
             await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.disable`, false);
 
-            await interaction.reply({ content: data.disablexp_command_work_disable });
+            await client.args.interactionSend(interaction,{ content: data.disablexp_command_work_disable });
             return;
         } else if (types == "disable") {
             try {
@@ -90,7 +89,7 @@ export default {
 
             await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.disable`, 'disable');
 
-            await interaction.reply({ content: data.disablexp_command_work_disable_entierly });
+            await client.args.interactionSend(interaction,{ content: data.disablexp_command_work_disable_entierly });
             return;
         } else if (types == "on") {
             try {
@@ -110,7 +109,7 @@ export default {
 
             await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.disable`, true);
 
-            await interaction.reply({ content: data.disablexp_command_work_enable });
+            await client.args.interactionSend(interaction,{ content: data.disablexp_command_work_enable });
             return;
         };
     },
