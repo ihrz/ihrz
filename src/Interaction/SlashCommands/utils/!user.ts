@@ -29,8 +29,6 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { axios } from '../../../core/functions/axios.js';
-import config from '../../../files/config.js';
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing

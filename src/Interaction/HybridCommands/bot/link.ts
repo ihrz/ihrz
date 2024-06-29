@@ -64,7 +64,7 @@ export const command: Command = {
 
         let row = new ActionRowBuilder<ButtonBuilder>().addComponents(websitebutton, githubbutton);
 
-        await interaction.reply({ content: data.links_message, components: [row] });
+        await client.args.interactionSend(interaction,{ content: data.links_message, components: [row] });
         return;
     },
 };

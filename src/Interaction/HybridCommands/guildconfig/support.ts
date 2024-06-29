@@ -44,6 +44,8 @@ export const command: Command = {
         "fr": "Donnez un rôle lorsque les membres de la guilde ont quelque chose sur votre serveur dans leur bio"
     },
 
+    aliases: ["soutien"],
+
     options: [
         {
             name: 'action',
@@ -67,6 +69,16 @@ export const command: Command = {
             ]
         },
         {
+            name: 'roles',
+            type: ApplicationCommandOptionType.Role,
+            description: 'The roles to give for our member',
+            description_localizations: {
+                "fr": "Les rôles à donner à vos membre"
+            },
+
+            required: false,
+        },
+        {
             name: 'input',
             type: ApplicationCommandOptionType.String,
 
@@ -77,16 +89,6 @@ export const command: Command = {
 
             required: false,
         },
-        {
-            name: 'roles',
-            type: ApplicationCommandOptionType.Role,
-            description: 'The roles to give for our member',
-            description_localizations: {
-                "fr": "Les rôles à donner à vos membre"
-            },
-
-            required: false,
-        }
     ],
     thinking: false,
     category: 'guildconfig',
@@ -103,7 +105,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await interaction.reply({ content: data.support_not_admin });
+            await client.args.interactionSend(interaction, { content: data.support_not_admin });
             return;
         };
 
@@ -112,16 +114,18 @@ export const command: Command = {
             var roles = interaction.options.getRole("roles");
             var input = interaction.options.getString("input");
         } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
             var action = client.args.string(args!, 0)
             var roles = client.args.role(interaction, 0);
-            var input = args?.join(" ")[0] as string | null;
+            var input = client.args.longString(args!, 2)
         };
 
-        if (!roles) {
-            await interaction.reply({ content: data.support_command_not_role });
-            return;
-        }
         if (action == "enable") {
+            if (!roles) {
+                await client.args.interactionSend(interaction, { content: data.support_command_not_role });
+                return;
+            }
+
             await client.db.set(`${interaction.guildId}.GUILD.SUPPORT`,
                 {
                     input: input,
@@ -130,7 +134,7 @@ export const command: Command = {
                 }
             );
 
-            await interaction.reply({
+            await client.args.interactionSend(interaction, {
                 content: data.support_command_work
                     .replace("${interaction.guild.name}", interaction.guild.name)
                     .replace("${input}", input!)
@@ -151,7 +155,7 @@ export const command: Command = {
         } else {
             await client.db.delete(`${interaction.guildId}.GUILD.SUPPORT`);
 
-            await interaction.reply({
+            await client.args.interactionSend(interaction, {
                 content: data.support_command_work_on_disable
                     .replace("${interaction.guild.name}", interaction.guild.name)
             })

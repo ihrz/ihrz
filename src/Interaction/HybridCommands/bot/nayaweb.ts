@@ -47,7 +47,7 @@ export const command: Command = {
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
-        await interaction.reply({ content: data.nayaweb_message });
+        await client.args.interactionSend(interaction,{ content: data.nayaweb_message });
         return;
     },
 };

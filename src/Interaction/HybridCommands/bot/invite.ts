@@ -68,7 +68,7 @@ export const command: Command = {
 
         let components = new ActionRowBuilder<ButtonBuilder>().addComponents(button_add_me);
 
-        await interaction.reply({
+        await client.args.interactionSend(interaction,{
             embeds: [invites],
             components: [components],
             files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]

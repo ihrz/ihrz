@@ -38,27 +38,6 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-    }
-}
-
 export const command: Command = {
     name: 'massmove',
 
@@ -110,8 +89,9 @@ export const command: Command = {
             var fromChannel = interaction.options.getChannel('from') as BaseGuildVoiceChannel | null;
             var toChannel = interaction.options.getChannel('to')! as BaseGuildVoiceChannel | null;
         } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
             var fromChannel = client.args.voiceChannel(interaction, 0);
-            var toChannel = client.args.channel(interaction, 1) as BaseGuildVoiceChannel | null;
+            var toChannel = client.args.voiceChannel(interaction, 1);
         };
 
         if (toChannel === null) return;
@@ -122,7 +102,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await interactionSend(interaction, { content: data.punishpub_not_admin });
+            await client.args.interactionSend(interaction, { content: data.punishpub_not_admin });
             return;
         };
 
@@ -164,7 +144,7 @@ export const command: Command = {
                 .replace('${toChannel}', toChannel.toString())
             );
 
-        await interactionSend(interaction, {
+        await client.args.interactionSend(interaction, {
             embeds: [embed],
             files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
         });

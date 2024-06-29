@@ -50,7 +50,7 @@ export const command: Command = {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-        const ogI = await interaction.reply({ content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading });
+        const ogI = await client.args.interactionSend(interaction,{ content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading });
 
         let _net01: number | string = '';
         let _net02: number | string = '';

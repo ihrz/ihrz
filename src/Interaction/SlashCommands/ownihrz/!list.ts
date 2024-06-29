@@ -57,7 +57,6 @@ async function buildEmbed(client: Client, data: any, lang: LanguageData, guildID
         .setFooter({ text: await client.func.displayBotName(guildID), iconURL: "attachment://icon.png" })
         .setTimestamp();
 };
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing

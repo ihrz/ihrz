@@ -909,7 +909,7 @@ reroll_giveaway_not_over: "Ce Giveaways n'est pas terminé ptn t con!"
 
 # /get-all
 gw_getall_embed_title: "Liste des Giveaway(s) pour ${interaction.guild?.name}"
-gw_getall_embed_fields: "${Chaîne} [Voir ici](${MessageURL}) \n**Expire dans** ${ExpireIn}"
+gw_getall_embed_fields: "${Channel}[Voir ici](${MessageURL}) \n**Expire dans** ${ExpireIn}"
 
 # /get-data
 gw_getdata_embed_title: "Informations sur le Giveaway !"
@@ -927,6 +927,7 @@ gw_getdata_embed_fields_winners: "Gagnant(s)"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (utilisez `/gw list-entries giveaway-id:${giveawayId}` pour plus d'informations)"
 gw_getdata_yes: "`Oui`"
 gw_getdata_no: "`Non`"
+gw_doesnt_exit: "Les cadeaux sont inaccessibles ou n'existent pas."
 
 
 # Moderation commands

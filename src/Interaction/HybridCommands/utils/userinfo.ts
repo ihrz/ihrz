@@ -31,36 +31,12 @@ import {
     ButtonStyle,
     ChatInputCommandInteraction,
     Message,
-    InteractionEditReplyOptions,
-    MessagePayload,
-    MessageReplyOptions
 } from 'pwss';
 
 import { axios } from '../../../core/functions/axios.js';
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData.js';
 import config from '../../../files/config.js';
-
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-    }
-}
 
 export const command: Command = {
 
@@ -70,6 +46,8 @@ export const command: Command = {
     description_localizations: {
         "fr": "Obtenir des informations sur un utilisateur"
     },
+
+    aliases: ["ui"],
 
     options: [
         {
@@ -164,6 +142,7 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getUser('user') || interaction.user;
         } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
             var member = client.args.user(interaction, 0) || interaction.author;
         };
 
@@ -233,7 +212,7 @@ export const command: Command = {
                 name: 'user_banner.gif'
             });
 
-            await interactionSend(interaction, {
+            await client.args.interactionEdit(originalInteraction, {
                 content: client.iHorizon_Emojis.icon.Yes_Logo,
                 embeds: [embed],
                 files: files,
@@ -251,7 +230,7 @@ export const command: Command = {
             return;
         };
 
-        await interaction.reply({
+        const originalInteraction = await client.args.interactionSend(interaction, {
             content: data.userinfo_wait_please.replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
         });
 

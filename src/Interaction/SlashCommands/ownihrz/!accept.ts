@@ -33,7 +33,6 @@ import { Custom_iHorizon } from '../../../../types/ownihrz';
 import logger from '../../../core/logger.js';
 
 const OWNIHRZ = new OwnIHRZ();
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing

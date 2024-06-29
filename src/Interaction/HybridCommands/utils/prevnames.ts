@@ -37,27 +37,6 @@ import {
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
 
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-    }
-}
-
 export const command: Command = {
 
     name: 'prevnames',
@@ -94,11 +73,12 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var user = interaction.options.getUser("user") || interaction.user;
         } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
             var user = client.args.user(interaction, 0) || interaction.member.user;
         };
 
         // if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-        //     await interaction.reply({ content: data.prevnames_not_admin });
+        //     await client.args.interactionSend(interaction,{ content: data.prevnames_not_admin });
         //     return;
         // };
 
@@ -106,7 +86,7 @@ export const command: Command = {
         var char: Array<string> = await table.get(`${user.id}`) || [];
 
         if (char.length == 0) {
-            await interaction.reply({ content: data.prevnames_undetected });
+            await client.args.interactionSend(interaction,{ content: data.prevnames_undetected });
             return;
         };
 
@@ -152,7 +132,7 @@ export const command: Command = {
                 .setStyle(ButtonStyle.Danger)
         );
 
-        let messageEmbed = await interaction.reply({
+        let messageEmbed = await client.args.interactionSend(interaction,{
             embeds: [createEmbed()],
             components: [row],
             files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]

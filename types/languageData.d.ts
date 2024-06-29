@@ -679,6 +679,7 @@ export interface LanguageData {
   gw_getdata_embed_fields_value_entriesAmount: string;
   gw_getdata_yes: string;
   gw_getdata_no: string;
+  gw_doesnt_exit: string;
   avatar_embed_description: string;
   avatar_embed_title: string;
   ban_not_permission: string;

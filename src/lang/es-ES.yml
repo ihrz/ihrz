@@ -909,7 +909,7 @@ reroll_giveaway_not_over: "¡Este sorteo no ha terminado!"
 
 # /get-all
 gw_getall_embed_title: "Lista de Sorteo(s) para ${interaction.guild?.name}"
-gw_getall_embed_fields: "${Canal} [Ver aquí](${MessageURL}) \n**Expira en** ${ExpireIn}"
+gw_getall_embed_fields: "${Channel} [Ver aquí](${MessageURL}) \n**Expira en** ${ExpireIn}"
 
 # /get-data
 gw_getdata_embed_title: "¡Información del Sorteo!"
@@ -927,6 +927,7 @@ gw_getdata_embed_fields_winners: "Ganador(es)"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (usa `/gw list-entries giveaway-id:${giveawayId}` para más información)"
 gw_getdata_yes: "`Sí`"
 gw_getdata_no: "`No`"
+gw_doesnt_exit: "Los sorteos no son alcanzables o no existen."
 
 
 # Moderation commands

@@ -41,38 +41,13 @@ import {
     ButtonInteraction,
     ChannelSelectMenuInteraction,
     Message,
-    GuildBasedChannel,
     TextChannel,
-    MessagePayload,
-    InteractionEditReplyOptions,
-    MessageReplyOptions,
 } from 'pwss';
 
 import { Command } from '../../../../types/command';
 import { generatePassword } from '../../../core/functions/random.js';
 import { LanguageData } from '../../../../types/languageData';
 
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-
-    }
-}
 export const command: Command = {
     name: 'embed',
     description: 'Create a beautiful embed!',
@@ -99,11 +74,11 @@ export const command: Command = {
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
-
         if (interaction instanceof ChatInputCommandInteraction) {
             var arg = interaction.options.getString("id");
         } else {
-            var arg = args?.[0] as string | null;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var arg = client.args.string(args!, 0);
         };
 
         let potentialEmbed = await client.db.get(`EMBED.${arg}`);
@@ -114,7 +89,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await interactionSend(interaction, { content: data.punishpub_not_admin });
+            await client.args.interactionSend(interaction, { content: data.punishpub_not_admin });
             return;
         };
 
@@ -158,7 +133,7 @@ export const command: Command = {
             .setLabel(data.embed_btn_cancel)
             .setStyle(ButtonStyle.Danger);
 
-        let response = await interaction.reply({
+        let response = await client.args.interactionSend(interaction,{
             content: data.embed_first_message,
             embeds: [__tempEmbed],
             components: [

@@ -28,9 +28,7 @@ import {
 } from 'pwss';
 
 import { Command } from '../../../../types/command';
-import { LanguageData } from '../../../../types/languageData';
-
-export const command: Command = {
+import { LanguageData } from '../../../../types/languageData';export const command: Command = {
     name: "join-ghostping",
 
     description: "Subcommand for guildconfig category!",

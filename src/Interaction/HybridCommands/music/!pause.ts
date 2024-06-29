@@ -31,36 +31,15 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
-
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-    }
-}
-
+import { SubCommandArgumentValue } from '../../../core/functions/arg.js';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (!(interaction.member as GuildMember)?.voice.channel) {
-            await interactionSend(interaction, {
+            await client.args.interactionSend(interaction, {
                 content: data.pause_no_queue.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
             });
             return;
@@ -71,13 +50,13 @@ export default {
             let player = client.player.getPlayer(interaction.guildId as string);
 
             if (!player || !player.playing || !voiceChannel) {
-                await interactionSend(interaction, { content: data.pause_nothing_playing });
+                await client.args.interactionSend(interaction, { content: data.pause_nothing_playing });
                 return;
             };
 
             player.pause();
 
-            await interactionSend(interaction, { content: player.paused ? data.pause_var_paused : data.pause_var_err });
+            await client.args.interactionSend(interaction, { content: player.paused ? data.pause_var_paused : data.pause_var_err });
             return;
         } catch (error: any) {
             logger.err(error);

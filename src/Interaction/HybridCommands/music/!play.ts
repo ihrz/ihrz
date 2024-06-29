@@ -35,31 +35,10 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import maskLink from '../../../core/functions/maskLink.js';
 import { SearchPlatform } from 'lavalink-client';
-
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-    }
-}
-
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -69,17 +48,18 @@ export default {
             var check = interaction.options.getString("title")!;
             var source = interaction.options.getString('source') as SearchPlatform;
         } else {
-            var check = (args?.join(" ") || " ") as string;
+            var _ = await client.args.checkCommandArgs(interaction, command, args || []); if (!_) return;
             var source = "ytsearch" as SearchPlatform;
+            var check = client.args.longString(args!, 1)!
         }
 
         if (!voiceChannel) {
-            await interactionSend(interaction, { content: data.p_not_in_voice_channel });
+            await client.args.interactionSend(interaction, { content: data.p_not_in_voice_channel });
             return;
         };
 
         if (!client.func.isAllowedLinks(check)) {
-            return interactionSend(interaction, { content: data.p_not_allowed })
+            return client.args.interactionSend(interaction, { content: data.p_not_allowed })
         };
 
         let player = client.player.createPlayer({
@@ -96,7 +76,7 @@ export default {
                 .setColor('#ff0000')
                 .setTimestamp();
 
-            await interactionSend(interaction, { embeds: [results] });
+            await client.args.interactionSend(interaction, { embeds: [results] });
             return;
         };
 
@@ -146,7 +126,7 @@ export default {
             .setFooter({ text: data.p_duration + `${timeCalcultator()}` })
             .setThumbnail(yes.info.artworkUrl as string);
 
-        await interactionSend(interaction, {
+        const i = await client.args.interactionSend(interaction, {
             content: data.p_loading_message
                 .replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
                 .replace("{result}", res.loadType === "playlist" ? 'playlist' : 'track')
@@ -154,7 +134,7 @@ export default {
         });
 
         function deleteContent() {
-            interactionSend(interaction, { content: null });
+            client.args.interactionEdit(i as Message, { content: undefined });
         };
 
         await client.db.push(`${player.guildId}.MUSIC_HISTORY.buffer`,

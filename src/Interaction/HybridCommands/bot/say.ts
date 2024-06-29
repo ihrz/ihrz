@@ -60,7 +60,7 @@ export const command: Command = {
     ],
     type: ApplicationCommandType.ChatInput,
     thinking: false,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, options?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -72,13 +72,14 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var toSay = interaction.options.getString('content');
+            var toSay = interaction.options.getString('content')!;
         } else {
-            var toSay = options?.join(" ") as string | null;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var toSay = args?.join(" ")!;
         };
 
         if (!permissions) {
-            await interaction.reply({ content: data.setserverlang_not_admin });
+            await client.args.interactionSend(interaction,{ content: data.setserverlang_not_admin });
             return;
         };
 

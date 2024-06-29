@@ -40,34 +40,16 @@ import { Command } from '../../../../types/command.js';
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-    }
-}
-
-
 export const command: Command = {
     name: 'setlogschannel',
+
     description: 'Set a logs channel for Audits Logs!',
     description_localizations: {
         "fr": "Définir des canaux de journaux pour les journaux d'audit"
     },
+
+    aliases: ["setlogs", "logs", "setlog"],
+
     options: [
         {
             name: 'type',
@@ -115,28 +97,29 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await interactionSend(interaction, { content: data.setlogschannel_not_admin });
+            await client.args.interactionSend(interaction, { content: data.setlogschannel_not_admin });
             return;
         };
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var type = interaction.options.getString("type");
+            var type = interaction.options.getString("type")!;
             var channel = interaction.options.getChannel("channel") as Channel | null;
         } else {
-            var type = client.args.string(args!, 0);
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var type = client.args.string(args!, 0)!;
             var channel = client.args.channel(interaction, 0)
         };
 
         const createLogsChannel = async (name: string, typeOfLogs: string) => {
             if (!channel) {
-                await interactionSend(interaction, { content: data.guildprofil_not_logs_set });
+                await client.args.interactionSend(interaction, { content: data.guildprofil_not_logs_set });
                 return;
             }
 
             try {
                 let already = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS.${type}`);
                 if (already === channel.id) {
-                    await interactionSend(interaction, { content: data.joinghostping_add_already_set.replace("${channel}", channel.toString()) });
+                    await client.args.interactionSend(interaction, { content: data.joinghostping_add_already_set.replace("${channel}", channel.toString()) });
                     return;
                 }
 
@@ -148,7 +131,7 @@ export const command: Command = {
                 });
                 await client.db.set(`${interaction.guildId}.GUILD.SERVER_LOGS.${type}`, channel.id);
 
-                await interactionSend(interaction, {
+                await client.args.interactionSend(interaction, {
                     content: data.setlogschannel_command_work
                         .replace("${argsid.id}", channel.id)
                         .replace("${typeOfLogs}", typeOfLogs)
@@ -169,7 +152,7 @@ export const command: Command = {
                 }
             } catch (e) {
                 logger.err(e as any);
-                await interactionSend(interaction, { content: data.setlogschannel_command_error });
+                await client.args.interactionSend(interaction, { content: data.setlogschannel_command_error });
             }
         };
 
@@ -224,7 +207,7 @@ export const command: Command = {
                     }
                 }
 
-                await interactionSend(interaction, {
+                await client.args.interactionSend(interaction, {
                     content: data.setlogschannel_utils_command_work
                         .replace("${argsid.id}", allCreatedChannels.map(x => `<#${x}>`).join(','))
                         .replace("${typeOfLogs}", allLogsPossible.map(x => x.value).join(', '))
@@ -249,18 +232,18 @@ export const command: Command = {
 
                 let checkData = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS`);
                 if (!checkData) {
-                    await interactionSend(interaction, { content: data.setlogschannel_already_deleted });
+                    await client.args.interactionSend(interaction, { content: data.setlogschannel_already_deleted });
                     return;
                 }
 
                 await client.db.delete(`${interaction.guildId}.GUILD.SERVER_LOGS`);
-                await interactionSend(interaction, {
+                await client.args.interactionSend(interaction, {
                     content: data.setlogschannel_command_work_on_delete
                         .replace("${interaction.guild.name}", interaction.guild?.name as string)
                 });
             } catch (e) {
                 logger.err(e as any);
-                await interactionSend(interaction, { content: data.setlogschannel_command_error });
+                await client.args.interactionSend(interaction, { content: data.setlogschannel_command_error });
             }
             return;
         }

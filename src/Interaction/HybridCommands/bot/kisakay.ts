@@ -47,7 +47,7 @@ export const command: Command = {
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
-        await interaction.reply({
+        await client.args.interactionSend(interaction,{
             content: data.kisakay_message.replace("${client.iHorizon_Emojis.icon.Sparkles}", client.iHorizon_Emojis.icon.Sparkles)
         });
         return;

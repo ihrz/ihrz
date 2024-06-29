@@ -927,6 +927,7 @@ gw_getdata_embed_fields_winners: "Winner(s)"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (use `/gw list-entries giveaway-id:${giveawayId}` for more info)"
 gw_getdata_yes: "`Yes`"
 gw_getdata_no: "`No`"
+gw_doesnt_exit: "Os brindes estão inacessíveis ou não existem."
 
 
 # Comandos de moderação
