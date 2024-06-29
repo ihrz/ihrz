@@ -27,12 +27,15 @@ import {
     ChatInputCommandInteraction,
     BaseGuildTextChannel,
     GuildMember,
-    ApplicationCommandType
+    ApplicationCommandType,
+    Message,
+    ChannelType,
+    BaseGuildVoiceChannel
 } from 'pwss'
 
-import { Command } from '../../../../types/command';
+import { Command } from '../../../../types/command.js';
 import logger from '../../../core/logger.js';
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {
     name: 'membercount',
@@ -72,6 +75,8 @@ export const command: Command = {
                 "fr": "Le cannal pour définir le module membercount"
             },
 
+            channel_types: [ChannelType.GuildVoice],
+
             type: ApplicationCommandOptionType.Channel,
             required: true,
         },
@@ -89,20 +94,32 @@ export const command: Command = {
     thinking: true,
     category: 'membercount',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.setmembercount_not_admin });
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await client.args.interactionSend(interaction, { content: data.setmembercount_not_admin });
             return;
         };
 
-        let type = interaction.options.getString("action");
-        let messagei = interaction.options.getString("name")?.toLowerCase()!;
-        let channel = interaction.options.getChannel("channel");
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var type = interaction.options.getString("action");
+            var messagei = interaction.options.getString("name")?.toLowerCase()!;
+            var channel = interaction.options.getChannel("channel") as BaseGuildVoiceChannel;
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var type = client.args.string(args!, 0);
+            var channel = client.args.voiceChannel(interaction, 0)!;
+            var messagei = client.args.string(args!, 2)?.toLowerCase()!;
+        }
 
         let help_embed = new EmbedBuilder()
             .setColor("#0014a8")
@@ -118,7 +135,7 @@ export const command: Command = {
             let boostsCount = interaction.guild.premiumSubscriptionCount?.toString() || '0';
 
             if (!messagei) {
-                await interaction.editReply({ embeds: [help_embed] });
+                await client.args.interactionSend(interaction, { embeds: [help_embed] });
                 return;
             };
 
@@ -156,7 +173,7 @@ export const command: Command = {
                     .setColor("#bf0bb9")
                     .setTitle(data.setmembercount_logs_embed_title_on_enable)
                     .setDescription(data.setmembercount_logs_embed_description_on_enable
-                        .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                        .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
                         .replace(/\${channel\.id}/g, channel?.id!)
                         .replace(/\${messagei}/g, messagei)
                     );
@@ -167,7 +184,7 @@ export const command: Command = {
             let fetched = interaction.guild?.channels.cache.get(channel?.id as string);
 
             (fetched as BaseGuildTextChannel).edit({ name: joinmsgreplace });
-            await interaction.editReply({
+            await client.args.interactionSend(interaction, {
                 content: data.setmembercount_command_work_on_enable.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
             });
             return;
@@ -179,21 +196,21 @@ export const command: Command = {
                     .setColor("#bf0bb9")
                     .setTitle(data.setmembercount_logs_embed_title_on_disable)
                     .setDescription(data.setmembercount_logs_embed_description_on_disable
-                        .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                        .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
                     )
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
             } catch (e: any) { logger.err(e) };
 
-            await interaction.editReply({
+            await client.args.interactionSend(interaction, {
                 content: data.setmembercount_command_work_on_disable.replace('${client.iHorizon_Emojis.icon.Yes_Logo}', client.iHorizon_Emojis.icon.Yes_Logo)
             });
             return;
         } else if (!type) {
-            await interaction.editReply({ embeds: [help_embed] });
+            await client.args.interactionSend(interaction, { embeds: [help_embed] });
             return;
         } else if (!messagei) {
-            await interaction.editReply({ embeds: [help_embed] });
+            await client.args.interactionSend(interaction, { embeds: [help_embed] });
             return;
         };
     },
