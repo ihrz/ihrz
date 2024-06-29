@@ -238,7 +238,7 @@ class GiveawayManager {
             });
             if (!guild) return;
 
-            let channel = await guild.channels.fetch(channelId);
+            let channel = await guild.channels.fetch(channelId).catch(() => { db.DeleteGiveaway(giveawayId) })
 
             let message = await (channel as GuildTextBasedChannel).messages.fetch(giveawayId).catch(async () => {
                 db.DeleteGiveaway(giveawayId)

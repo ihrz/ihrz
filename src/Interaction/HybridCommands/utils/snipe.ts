@@ -37,6 +37,8 @@ export const command: Command = {
         "fr": "Obtenez le dernier message supprimé sur ce cannal"
     },
 
+    aliases: ["s", "snp"],
+
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,

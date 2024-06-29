@@ -44,6 +44,8 @@ export const command: Command = {
         "fr": "Donner un rôle spécifique à l'utilisateur qui me ping"
     },
 
+    aliases: ["setrank", "setranks", "rankset"],
+
     options: [
         {
             name: 'action',

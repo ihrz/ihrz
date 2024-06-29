@@ -26,6 +26,7 @@ import {
     EmbedBuilder,
     GuildMember,
     GuildVerificationLevel,
+    Message,
 } from 'pwss'
 
 import { Command } from '../../../../types/command';
@@ -39,12 +40,14 @@ export const command: Command = {
         "fr": "Obtenir des informations sur le serveur"
     },
 
+    aliases: ["si", "gi", "serverinfo"],
+
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
@@ -82,7 +85,7 @@ export const command: Command = {
             .setThumbnail(interaction.guild.iconURL())
             .setImage(`https://cdn.discordapp.com/icons/${interaction.guildId}/${interaction.guild?.banner}.png`);
 
-        await interaction.reply({
+        await client.args.interactionSend(interaction, {
             embeds: [embeds],
             files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
         });

@@ -137,20 +137,20 @@ export const command: Command = {
             .setDescription(data.reactionroles_embed_message_description_added);
 
         if (type == "add") {
-            if (!role) { await interaction.reply({ embeds: [help_embed] }) };
-            if (!reaction) { return await interaction.reply({ content: data.reactionroles_missing_reaction_added }) };
+            if (!role) { await client.args.interactionSend(interaction, { embeds: [help_embed] }) };
+            if (!reaction) { return await client.args.interactionSend(interaction, { content: data.reactionroles_missing_reaction_added }) };
 
             try {
                 await interaction.channel.messages.fetch((messagei as string))?.then((message) => { message.react(reaction as string) });
             } catch {
-                await interaction.reply({ content: data.reactionroles_dont_message_found });
+                await client.args.interactionSend(interaction, { content: data.reactionroles_dont_message_found });
                 return;
             };
 
             let check = reaction.toString();
 
             if (check.includes("<") || check.includes(">") || check.includes(":")) {
-                await interaction.reply({
+                await client.args.interactionSend(interaction, {
                     content: data.reactionroles_invalid_emote_format_added.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 })
                 return;
@@ -176,7 +176,7 @@ export const command: Command = {
                 if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
 
-            await interaction.reply({
+            await client.args.interactionSend(interaction, {
                 content: data.reactionroles_command_work_added
                     .replace("${messagei}", messagei!)
                     .replace("${reaction}", reaction)
@@ -187,26 +187,26 @@ export const command: Command = {
         } else if (type == "remove") {
 
             if (!reaction) {
-                await interaction.reply({ content: data.reactionroles_missing_remove });
+                await client.args.interactionSend(interaction, { content: data.reactionroles_missing_remove });
                 return;
             };
 
             let message = await interaction.channel.messages.fetch(messagei as string).catch(async () => {
-                await interaction.reply({ content: data.reactionroles_cant_fetched_reaction_remove })
+                await client.args.interactionSend(interaction, { content: data.reactionroles_cant_fetched_reaction_remove })
                 return;
             });
 
             let fetched = await client.db.get(`${interaction.guildId}.GUILD.REACTION_ROLES.${messagei}.${reaction}`);
 
             if (!fetched) {
-                await interaction.reply({ content: data.reactionroles_missing_reaction_remove });
+                await client.args.interactionSend(interaction, { content: data.reactionroles_missing_reaction_remove });
                 return
             };
 
             let reactionVar = message?.reactions.cache.get(fetched.reactionNAME);
 
             if (!reactionVar) {
-                await interaction.reply({ content: data.reactionroles_cant_fetched_reaction_remove })
+                await client.args.interactionSend(interaction, { content: data.reactionroles_cant_fetched_reaction_remove })
                 return;
             };
             await reactionVar.users.remove(client.user.id).catch((err: string) => { logger.err(err) });
@@ -226,7 +226,7 @@ export const command: Command = {
                 if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
 
-            await interaction.reply({
+            await client.args.interactionSend(interaction, {
                 content: data.reactionroles_command_work_remove
                     .replace("${reaction}", reaction!)
                     .replace("${messagei}", messagei!)

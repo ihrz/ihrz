@@ -85,7 +85,7 @@ export const command: Command = {
                     .setValue('3'),
             );
 
-        let original_interaction = await interaction.reply({
+        let original_interaction = await client.args.interactionSend(interaction, {
             content: interaction.member.user.toString(),
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
@@ -111,7 +111,7 @@ export const command: Command = {
             });
 
         } catch (e) {
-            return await interaction.reply({ content: data.embed_timeout_getbtn });
+            return await client.args.interactionSend(interaction, { content: data.embed_timeout_getbtn });
         };
 
         async function chooseAction(i: StringSelectMenuInteraction) {

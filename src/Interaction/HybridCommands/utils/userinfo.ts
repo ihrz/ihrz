@@ -46,6 +46,8 @@ export const command: Command = {
         "fr": "Obtenir des informations sur un utilisateur"
     },
 
+    aliases: ["ui"],
+
     options: [
         {
             name: 'user',
@@ -209,7 +211,7 @@ export const command: Command = {
                 name: 'user_banner.gif'
             });
 
-            await client.args.interactionSend(interaction, {
+            await client.args.interactionEdit(originalInteraction, {
                 content: client.iHorizon_Emojis.icon.Yes_Logo,
                 embeds: [embed],
                 files: files,
@@ -227,7 +229,7 @@ export const command: Command = {
             return;
         };
 
-        await client.args.interactionSend(interaction,{
+        const originalInteraction = await client.args.interactionSend(interaction, {
             content: data.userinfo_wait_please.replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
         });
 

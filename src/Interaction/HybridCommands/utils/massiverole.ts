@@ -45,6 +45,8 @@ export const command: Command = {
         "fr": "Ajouter/Supprimer des rôles pour tout le monde sur le serveur"
     },
 
+    aliases: ["massrole", "massroles"],
+
     options: [
         {
             name: 'action',

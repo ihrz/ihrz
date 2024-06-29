@@ -41,11 +41,7 @@ import {
     ButtonInteraction,
     ChannelSelectMenuInteraction,
     Message,
-    GuildBasedChannel,
     TextChannel,
-    MessagePayload,
-    InteractionEditReplyOptions,
-    MessageReplyOptions,
 } from 'pwss';
 
 import { Command } from '../../../../types/command';

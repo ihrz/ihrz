@@ -43,6 +43,8 @@ export const command: Command = {
         "fr": "Recréation d'un canal (autorisation de clonage et toutes les configurations)"
     },
 
+    aliases: ["r", "rnw"],
+
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
