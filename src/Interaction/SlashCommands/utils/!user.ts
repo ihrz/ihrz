@@ -39,7 +39,7 @@ export default {
 
         let config_1 = {
             headers: {
-                Authorization: `Bot ${config.discord.token}`
+                Authorization: `Bot ${client.config.discord.token}`
             }
         };
 
