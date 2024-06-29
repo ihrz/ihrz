@@ -8,6 +8,7 @@ import {
     unlinkSync,
     writeFileSync
 } from 'node:fs';
+import logger from '../logger.js';
 
 class db {
     path: string;
@@ -101,9 +102,9 @@ class db {
 
         try {
             unlinkSync(filePath);
-            console.log(`Giveaway ${giveawayId} deleted successfully.`);
+            logger.log(`Giveaway ${giveawayId} deleted successfully.`);
         } catch (error) {
-            console.error(`Error deleting giveaway ${giveawayId}: ${error}`);
+            logger.err(`Error deleting giveaway ${giveawayId}: ${error}`);
         }
     }
 

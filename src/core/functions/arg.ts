@@ -148,8 +148,8 @@ const isSubCommandArgumentValue = (command: any): command is SubCommandArgumentV
 };
 
 export async function checkCommandArgs(message: Message, command: SubCommandArgumentValue | Command, args: string[]): Promise<boolean> {
-    var botPrefix = await message.client.func.prefix.guildPrefix(message.client, message.guildId);
-    var cleanBotPrefix = botPrefix.string;
+    const botPrefix = await message.client.func.prefix.guildPrefix(message.client, message.guildId);
+    let cleanBotPrefix = botPrefix.string;
 
     if (botPrefix.type === "mention") { cleanBotPrefix = "@Ping-Me "; }
 
@@ -174,22 +174,24 @@ export async function checkCommandArgs(message: Message, command: SubCommandArgu
         });
     }
 
-    let minArgsCount = expectedArgs.filter(arg => arg.required).length;
-    if (expectedArgs.length > 0 && expectedArgs[expectedArgs.length - 1].longString && !expectedArgs[expectedArgs.length - 1].required) {
-        minArgsCount--;
-    }
+    const minArgsCount = expectedArgs.filter(arg => arg.required).length;
+    const isLastArgLongString = expectedArgs.length > 0 && expectedArgs[expectedArgs.length - 1].longString;
 
-    if (args.length < minArgsCount) {
+    if (args.length < minArgsCount || (args.length === 1 && args[0] === "")) {
         await sendErrorMessage(message, cleanBotPrefix, command, expectedArgs);
         return false;
     }
 
+    if (isLastArgLongString) {
+        const lastArgIndex = expectedArgs.length - 1;
+        if (args.length > lastArgIndex) {
+            args[lastArgIndex] = args.slice(lastArgIndex).join(" ");
+            args.splice(lastArgIndex + 1);
+        }
+    }
+
     for (let i = 0; i < expectedArgs.length; i++) {
-        if (expectedArgs[i].longString && i === args.length - 1) {
-            args[i] = args.slice(i).join(" ");
-            args.splice(i + 1);
-            break;
-        } else if (i >= args.length && !expectedArgs[i].required) {
+        if (i >= args.length && !expectedArgs[i].required) {
             continue;
         } else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type)) {
             await sendErrorMessage(message, cleanBotPrefix, command, expectedArgs, i);
