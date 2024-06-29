@@ -909,7 +909,7 @@ reroll_giveaway_not_over: "Ce Giveaway n'est pas terminé !"
 
 # /get-all
 gw_getall_embed_title: "Liste des Giveaway(s) pour ${interaction.guild?.name}"
-gw_getall_embed_fields: "${Chaîne} [Voir ici](${MessageURL}) \n**Expire dans** ${ExpireIn}"
+gw_getall_embed_fields: "${Channel} [Voir ici](${MessageURL}) \n**Expire dans** ${ExpireIn}"
 
 # /get-data
 gw_getdata_embed_title: "Informations sur le Giveaway !"

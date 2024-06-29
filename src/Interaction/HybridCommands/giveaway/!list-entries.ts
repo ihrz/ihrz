@@ -23,24 +23,37 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
     PermissionsBitField,
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        let inputData = interaction.options.getString("giveaway-id") as string;
+        const permissionsArray = [PermissionsBitField.Flags.ManageMessages]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {
-            await interaction.editReply({ content: data.end_not_admin });
+        if (!permissions) {
+            await client.args.interactionSend(interaction, { content: data.end_not_admin });
             return;
         };
 
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var inputData = interaction.options.getString("giveaway-id") as string;
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var inputData = client.args.string(args!, 0) as string;
+        };
+
         if (!await client.giveawaysManager.isValid(inputData)) {
-            await interaction.editReply({
+            await client.args.interactionSend(interaction, {
                 content: data.end_not_find_giveaway
                     .replace(/\${gw}/g, inputData)
             });
@@ -48,7 +61,7 @@ export default {
         };
 
         if (await client.giveawaysManager.isEnded(inputData)) {
-            await interaction.editReply({ content: data.end_command_error });
+            await client.args.interactionSend(interaction, { content: data.end_command_error });
             return;
         };
 

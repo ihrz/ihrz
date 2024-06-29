@@ -24,10 +24,12 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     ApplicationCommandType,
+    Message,
 } from 'pwss';
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 
 export const command: Command = {
     name: "gw",
@@ -41,6 +43,8 @@ export const command: Command = {
             name_localizations: {
                 "fr": "créer"
             },
+
+            aliases: ["start", "create-here"],
 
             description: "Start a giveaway!",
             description_localizations: {
@@ -101,6 +105,8 @@ export const command: Command = {
                 "fr": "finnir"
             },
 
+            aliases: ["stop", "break"],
+
             description: "Stop a giveaway!",
             description_localizations: {
                 "fr": "Arrêter un giveaway"
@@ -132,6 +138,8 @@ export const command: Command = {
                 "fr": "Relancez un ou plusieurs gagnants"
             },
 
+            aliases: ["re"],
+
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
@@ -157,6 +165,8 @@ export const command: Command = {
             description_localizations: {
                 "fr": "Répertorier toutes les entrées dans le giveaway"
             },
+
+            aliases: ["list"],
 
             type: ApplicationCommandOptionType.Subcommand,
             options: [
@@ -184,6 +194,8 @@ export const command: Command = {
                 "fr": "Obtenir des informations à propos d'un giveaways! (Format JSON)"
             },
 
+            aliases: ["get"],
+
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
@@ -210,17 +222,35 @@ export const command: Command = {
                 "fr": "Obtenir des informations à propos de tout les giveaways d'un serveur! (Format JSON)"
             },
 
+            aliases: ["all"],
+
             type: ApplicationCommandOptionType.Subcommand,
         }
     ],
     thinking: true,
     category: 'giveaway',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, options?: string[]) => {
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-        let command = interaction.options.getSubcommand();
+        let fetchedCommand;
+        let sub: SubCommandArgumentValue | undefined;
 
-        const commandModule = await import(`./!${command}.js`);
-        await commandModule.default.run(client, interaction, data);
+        if (interaction instanceof ChatInputCommandInteraction) {
+            fetchedCommand = interaction.options.getSubcommand();
+        } else {
+            if (!options?.[0]) {
+                await client.args.interactionSend(interaction, { embeds: [await client.args.createAwesomeEmbed(command, client, interaction)] });
+                return;
+            }
+            const cmd = command.options?.find(x => options[0] === x.name || x.aliases?.includes(options[0]));
+            sub = { name: command.name, command: cmd };
+            if (!cmd) return;
+
+            fetchedCommand = cmd.name;
+            options.shift();
+        }
+
+        const commandModule = await import(`./!${fetchedCommand}.js`);
+        await commandModule.default.run(client, interaction, data, sub, execTimestamp, options);
     },
 };

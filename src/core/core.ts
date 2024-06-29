@@ -33,7 +33,7 @@ import { VanityInviteData } from '../../types/vanityUrlData';
 import { ConfigData } from '../../types/configDatad.js';
 
 import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'pwss';
-import { GiveawayManager } from 'discord-regiveaways';
+import { GiveawayManager } from './modules/giveawaysManager.js';
 import { readdirSync } from "node:fs";
 import backup from 'discord-rebackup';
 import { fileURLToPath } from 'url';

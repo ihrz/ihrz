@@ -24,18 +24,26 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
     PermissionsBitField,
     time
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {
-            await interaction.editReply({ content: data.end_not_admin });
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+
+        const permissionsArray = [PermissionsBitField.Flags.ManageMessages]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await client.args.interactionSend(interaction, { content: data.end_not_admin });
             return;
         };
 
@@ -77,12 +85,12 @@ export default {
             );
         });
 
-        await interaction.editReply(
+        await client.args.interactionSend(interaction,
             {
                 embeds: [embed],
                 files: [
                     {
-                        attachment: await client.func.image64(interaction.guild.iconURL({ size: 1024, forceStatic: false })),
+                        attachment: await interaction.client.func.image64(interaction.guild.iconURL() || client.user.displayAvatarURL()),
                         name: 'icon.png'
                     },
                     {

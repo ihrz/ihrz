@@ -909,7 +909,7 @@ reroll_giveaway_not_over: "Dieses Gewinnspiel ist noch nicht beendet!"
 
 # /get-all
 gw_getall_embed_title: "Liste der Giveaway(s) für ${interaction.guild?.name}"
-gw_getall_embed_fields: "${Kanal} [Hier ansehen](${MessageURL}) \n**Läuft ab in** ${ExpireIn}"
+gw_getall_embed_fields: "${Channel} [Hier ansehen](${MessageURL}) \n**Läuft ab in** ${ExpireIn}"
 
 # /get-data
 gw_getdata_embed_title: "Informationen zum Giveaway!"

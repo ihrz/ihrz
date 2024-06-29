@@ -909,7 +909,7 @@ reroll_giveaway_not_over: "Questo giveaway non è ancora terminato!"
 
 # /get-all
 gw_getall_embed_title: "Lista de Sorteo(s) para ${interaction.guild?.name}"
-gw_getall_embed_fields: "${Canal} [Ver aquí](${MessageURL}) \n**Caduca en** ${ExpireIn}"
+gw_getall_embed_fields: "${Channel} [Ver aquí](${MessageURL}) \n**Caduca en** ${ExpireIn}"
 
 # /get-data
 gw_getdata_embed_title: "¡Información del Sorteo!"

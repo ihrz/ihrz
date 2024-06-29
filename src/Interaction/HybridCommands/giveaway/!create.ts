@@ -21,9 +21,11 @@
 
 import {
     BaseGuildTextChannel,
+    Channel,
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
     PermissionsBitField,
     TextBasedChannel,
 } from 'pwss';
@@ -32,6 +34,7 @@ import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import logger from '../../../core/logger.js';
 
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg.js';
 
 async function isImageUrl(url: string): Promise<boolean> {
     try {
@@ -43,32 +46,46 @@ async function isImageUrl(url: string): Promise<boolean> {
     }
 };
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {
-            await interaction.editReply({ content: data.start_not_perm });
+        const permissionsArray = [PermissionsBitField.Flags.ManageMessages]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await client.args.interactionSend(interaction, { content: data.start_not_perm });
             return;
         };
 
-        let giveawayChannel = interaction.channel!;
-        var giveawayDuration = interaction.options.getString("time");
-        let giveawayNumberWinners = interaction.options.getNumber("winner")!;
-        var imageUrl = interaction.options.getString('image') as string;
+        var giveawayChannel = interaction.channel! as Channel;
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var giveawayDuration = interaction.options.getString("time");
+            var giveawayNumberWinners = interaction.options.getNumber("winner")!;
+            var imageUrl = interaction.options.getString('image') as string;
+            var giveawayPrize = interaction.options.getString("prize");
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var giveawayNumberWinners = client.args.number(args!, 0);
+            var giveawayDuration = client.args.string(args!, 1);
+            var imageUrl = ""
+            var giveawayPrize = client.args.longString(args!, 2);
+        };
 
         if (isNaN(giveawayNumberWinners as number) || (parseInt(giveawayNumberWinners.toString()) <= 0)) {
-            await interaction.editReply({ content: data.start_is_not_valid });
+            await client.args.interactionSend(interaction, { content: data.start_is_not_valid });
             return;
         };
 
-        let giveawayPrize = interaction.options.getString("prize");
         let giveawayDurationFormated = client.timeCalculator.to_ms(giveawayDuration!);
 
         if (!giveawayDurationFormated) {
-            await interaction.editReply({
+            await client.args.interactionSend(interaction, {
                 content: data.start_time_not_valid
-                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${interaction.user}', interaction.member.user.toString())
             });
             return;
         };
@@ -78,7 +95,7 @@ export default {
             duration: giveawayDurationFormated,
             prize: giveawayPrize as string,
             winnerCount: giveawayNumberWinners as number,
-            hostedBy: interaction.user.id,
+            hostedBy: interaction.member.user.id,
             embedImageURL: await isImageUrl(imageUrl) ? imageUrl : null
         });
 
@@ -87,7 +104,7 @@ export default {
                 .setColor("#bf0bb9")
                 .setTitle(data.reroll_logs_embed_title)
                 .setDescription(data.start_logs_embed_description
-                    .replace('${interaction.user.id}', interaction.user.id)
+                    .replace('${interaction.user.id}', interaction.member.user.id)
                     .replace(/\${giveawayChannel}/g, giveawayChannel.toString()!)
                 );
 
@@ -99,7 +116,7 @@ export default {
             logger.err(e)
         };
 
-        await interaction.editReply({
+        await client.args.interactionSend(interaction, {
             content: data.start_confirmation_command
                 .replace(/\${giveawayChannel}/g, giveawayChannel.toString())
         });

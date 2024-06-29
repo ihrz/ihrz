@@ -24,58 +24,68 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
     PermissionsBitField,
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        let inputData = interaction.options.getString("giveaway-id");
+        const permissionsArray = [PermissionsBitField.Flags.ManageGuild]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageMessages)) {
-            await interaction.editReply({ content: data.end_not_admin });
+        if (!permissions) {
+            await client.args.interactionSend(interaction, { content: data.reroll_not_perm });
             return;
         };
 
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var inputData = interaction.options.getString("giveaway-id");
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var inputData = client.args.string(args!, 0);
+        };
+
         if (!await client.giveawaysManager.isValid(inputData as string)) {
-            await interaction.editReply({
-                content: data.end_not_find_giveaway
-                    .replace(/\${gw}/g, inputData as string)
+            await client.args.interactionSend(interaction, {
+                content: data.reroll_dont_find_giveaway
+                    .replace("{args}", inputData as string)
             });
             return;
         };
 
-        if (await client.giveawaysManager.isEnded(inputData as string)) {
-            await interaction.editReply({ content: data.end_command_error });
+        if (!await client.giveawaysManager.isEnded(inputData as string)) {
+            await client.args.interactionSend(interaction, { content: data.reroll_giveaway_not_over });
             return;
         };
 
         // @ts-ignore
-        client.giveawaysManager.end(client, inputData as string)
+        await client.giveawaysManager.reroll(client, inputData as string);
 
-        await interaction.editReply({
-            content: data.end_confirmation_message
-                .replace(/\${timeEstimate}/g, "0")
-        });
+        await client.args.interactionSend(interaction, { content: data.reroll_command_work });
 
         try {
             let logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
-                .setTitle(data.end_logs_embed_title)
-                .setDescription(data.end_logs_embed_description
-                    .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                .setTitle(data.reroll_logs_embed_title)
+                .setDescription(data.reroll_logs_embed_description
+                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
                     .replace(/\${giveaway\.messageID}/g, inputData as string)
-                );
+                )
 
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
             if (logchannel) {
                 (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
             };
-
         } catch (e: any) {
             logger.err(e)
         };

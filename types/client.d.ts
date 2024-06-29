@@ -23,7 +23,7 @@ import { LyricsManager } from "../src/core/functions/lyrics-fetcher.js";
 import { iHorizonTimeCalculator } from "../src/core/functions/ms.js";
 import * as argsHelper from '../src/core/functions/arg.js'
 
-import { GiveawayManager } from "discord-regiveaways";
+import { GiveawayManager } from "../src/core/modules/giveawaysManager.js";
 import { Collection, Snowflake } from 'pwss';
 import { LavalinkManager } from "lavalink-client";
 import { QuickDB } from "quick.db";
