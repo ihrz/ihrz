@@ -53,70 +53,73 @@ export default {
             var giveawayId = client.args.string(args!, 0)!;
         };
 
-        let giveawayData = await client.giveawaysManager.getGiveawayData(giveawayId);
+        client.giveawaysManager.getGiveawayData(giveawayId)
+            .then(async giveawayData => {
+                let embed = new EmbedBuilder()
+                    .setAuthor({
+                        name: interaction.guild?.name as string,
+                        iconURL: interaction.guild?.iconURL({ size: 512, forceStatic: false })!
+                    })
+                    .setColor("#0099ff")
+                    .setTitle(data.gw_getdata_embed_title)
+                    .setFields(
+                        {
+                            name: data.gw_getdata_embed_fields_channel,
+                            value: `<#${giveawayData.channelId}>`,
+                            inline: true
+                        },
+                        {
+                            name: data.gw_getdata_embed_fields_amountWinner,
+                            value: data.gw_getdata_embed_fields_value_amountWinner
+                                .replace('${giveawayData.winnerCount}', giveawayData.winnerCount),
+                            inline: true
+                        },
+                        {
+                            name: data.gw_getdata_embed_fields_prize,
+                            value: data.gw_getdata_embed_fields_value_prize
+                                .replace('${giveawayData.prize}', giveawayData.prize),
+                            inline: true
+                        },
+                        {
+                            name: data.gw_getdata_embed_fields_hostedBy,
+                            value: `<@${giveawayData.hostedBy}>`,
+                            inline: true
+                        },
+                        {
+                            name: data.gw_getdata_embed_fields_isEnded,
+                            value: giveawayData.ended ? data.gw_getdata_yes : data.gw_getdata_no,
+                            inline: true
+                        },
+                        {
+                            name: data.gw_getdata_embed_fields_isValid,
+                            value: giveawayData.isValid ? data.gw_getdata_yes : data.gw_getdata_no,
+                            inline: true
+                        },
+                        {
+                            name: data.gw_getdata_embed_fields_time,
+                            value: time(new Date(giveawayData.expireIn), 'd'),
+                            inline: true
+                        },
+                        {
+                            name: data.gw_getdata_embed_fields_entriesAmount,
+                            value: data.gw_getdata_embed_fields_value_entriesAmount
+                                .replace('${(giveawayData.entries as string[]).length}', (giveawayData.entries as string[]).length.toString())
+                                .replace('${giveawayId}', giveawayId)
+                        },
+                    )
 
-        let embed = new EmbedBuilder()
-            .setAuthor({
-                name: interaction.guild.name as string,
-                iconURL: interaction.guild.iconURL({ size: 512, forceStatic: false })!
-            })
-            .setColor("#0099ff")
-            .setTitle(data.gw_getdata_embed_title)
-            .setFields(
-                {
-                    name: data.gw_getdata_embed_fields_channel,
-                    value: `<#${giveawayData.channelId}>`,
-                    inline: true
-                },
-                {
-                    name: data.gw_getdata_embed_fields_amountWinner,
-                    value: data.gw_getdata_embed_fields_value_amountWinner
-                        .replace('${giveawayData.winnerCount}', giveawayData.winnerCount),
-                    inline: true
-                },
-                {
-                    name: data.gw_getdata_embed_fields_prize,
-                    value: data.gw_getdata_embed_fields_value_prize
-                        .replace('${giveawayData.prize}', giveawayData.prize),
-                    inline: true
-                },
-                {
-                    name: data.gw_getdata_embed_fields_hostedBy,
-                    value: `<@${giveawayData.hostedBy}>`,
-                    inline: true
-                },
-                {
-                    name: data.gw_getdata_embed_fields_isEnded,
-                    value: giveawayData.ended ? data.gw_getdata_yes : data.gw_getdata_no,
-                    inline: true
-                },
-                {
-                    name: data.gw_getdata_embed_fields_isValid,
-                    value: giveawayData.isValid ? data.gw_getdata_yes : data.gw_getdata_no,
-                    inline: true
-                },
-                {
-                    name: data.gw_getdata_embed_fields_time,
-                    value: time(new Date(giveawayData.expireIn), 'd'),
-                    inline: true
-                },
-                {
-                    name: data.gw_getdata_embed_fields_entriesAmount,
-                    value: data.gw_getdata_embed_fields_value_entriesAmount
-                        .replace('${(giveawayData.entries as string[]).length}', (giveawayData.entries as string[]).length.toString())
-                        .replace('${giveawayId}', giveawayId)
-                },
-            )
-
-        if (giveawayData.ended) {
-            embed.addFields(
-                {
-                    name: data.gw_getdata_embed_fields_winners,
-                    value: `${giveawayData.winners.map((x: string) => `<@${x}>`)}`
+                if (giveawayData.ended) {
+                    embed.addFields(
+                        {
+                            name: data.gw_getdata_embed_fields_winners,
+                            value: `${giveawayData.winners.map((x: string) => `<@${x}>`)}`
+                        }
+                    )
                 }
-            )
-        }
-        await client.args.interactionSend(interaction, { embeds: [embed] });
+                await client.args.interactionSend(interaction, { embeds: [embed] });
+            }).catch(async () => {
+                await client.args.interactionSend(interaction, { content: data.gw_doesnt_exit });
+            })
         return;
     },
 };

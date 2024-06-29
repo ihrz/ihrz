@@ -927,6 +927,7 @@ gw_getdata_embed_fields_winners: "Vincitore(i)"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (usa `/gw list-entries giveaway-id:${giveawayId}` para más información)"
 gw_getdata_yes: "`Sí`"
 gw_getdata_no: "`No`"
+gw_doesnt_exit: "I regali non sono raggiungibili o non esistono."
 
 
 # Moderation commands

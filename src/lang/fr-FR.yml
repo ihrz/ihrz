@@ -927,6 +927,7 @@ gw_getdata_embed_fields_winners: "Gagnant(s)"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (utilisez `/gw list-entries giveaway-id:${giveawayId}` pour plus d'informations)"
 gw_getdata_yes: "`Oui`"
 gw_getdata_no: "`Non`"
+gw_doesnt_exit: "Les cadeaux sont inaccessibles ou n'existent pas."
 
 
 # Moderation commands
