@@ -23,36 +23,45 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
+    User,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 
-        let question = interaction.options.getString("question") as string;
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var question = interaction.options.getString("question") as string;
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var question = client.args.string(args!, 0) as string;
+        };
 
         let text = question?.split(" ");
 
         if (!text[2]) {
-            await interaction.editReply({ content: data.question_not_full });
+            await client.args.interactionSend(interaction, { content: lang.question_not_full });
             return;
         }
 
-        let reponses = data.question_s
+        let reponses = lang.question_s
 
         let embed = new EmbedBuilder()
-            .setTitle(data.question_embed_title
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username)
+            .setTitle(lang.question_embed_title
+                .replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username)
             )
             .setColor("#ddd98b")
             .addFields(
-                { name: data.question_fields_input_embed, value: question, inline: true },
-                { name: data.question_fields_output_embed, value: reponses[Math.floor((Math.random() * reponses.length))] }
+                { name: lang.question_fields_input_embed, value: question, inline: true },
+                { name: lang.question_fields_output_embed, value: reponses[Math.floor((Math.random() * reponses.length))] }
             )
             .setTimestamp();
 
-        await interaction.editReply({ embeds: [embed] });
+        await client.args.interactionSend(interaction, { embeds: [embed] });
         return;
     },
 };

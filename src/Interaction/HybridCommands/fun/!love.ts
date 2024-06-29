@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, ChatInputCommandInteraction, User } from 'pwss';
+import { Client, EmbedBuilder, ChatInputCommandInteraction, User, Message } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 import Jimp from 'jimp';
@@ -27,16 +27,24 @@ import logger from '../../../core/logger.js';
 
 import { fileURLToPath } from 'url';
 import path from 'path';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        var user1 = interaction.options.getUser("user1") || interaction.user;
-        var user2 = interaction.options.getUser("user2") || interaction.guild.members.cache.random()?.user as User;
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var user1 = interaction.options.getUser("user1") || interaction.user;
+            var user2 = interaction.options.getUser("user2") || interaction.guild.members.cache.random()?.user as User;
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var user1 = client.args.user(interaction, 0) || interaction.author;
+            var user2 = client.args.user(interaction, 1) || interaction.guild.members.cache.random()?.user as User;
+        }
 
         let profileImageSize = 512;
         let canvasWidth = profileImageSize * 3;
@@ -84,7 +92,7 @@ export default {
                 .setColor("#FFC0CB")
                 .setTitle("💕")
                 .setImage(`attachment://love.png`)
-                .setDescription(data.love_embed_description
+                .setDescription(lang.love_embed_description
                     .replace('${user1.username}', user1.username)
                     .replace('${user2.username}', user2.username)
                     .replace('${randomNumber}', randomNumber.toString())
@@ -92,7 +100,7 @@ export default {
                 .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
-            await interaction.editReply({
+            await client.args.interactionSend(interaction, {
                 embeds: [embed],
                 files: [
                     { attachment: buffer, name: 'love.png' },
@@ -101,7 +109,7 @@ export default {
             });
         } catch (error: any) {
             logger.err(error);
-            await interaction.editReply({ content: data.love_command_error });
+            await client.args.interactionSend(interaction, { content: lang.love_command_error });
         }
     },
 };

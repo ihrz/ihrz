@@ -23,16 +23,24 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
     User,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 import crypto from 'crypto';
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 
-        let victim = interaction.options.getUser("user") as User;
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var victim = interaction.options.getUser("user") as User;
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var victim = client.args.user(interaction, 0) || interaction.author;
+        }
 
         var ip = [
             '1', '100', '168', '254', '345', '128', '256', '255', '0', '144',
@@ -136,16 +144,16 @@ export default {
 
         let embed = new EmbedBuilder()
             .setColor("#800000")
-            .setDescription(data.hack_embed_description
+            .setDescription(lang.hack_embed_description
                 .replace(/\${victim\.id}/g, victim.id)
-                .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
             )
-            .addFields({ name: data.hack_embed_fields_ip, value: `\`${generatedIp}\`` },
-                { name: data.hack_embed_fields_email, value: `\`${generatedEmail}\`` },
-                { name: data.hack_embed_fields_password, value: `\`${generatedPassword}\`` })
+            .addFields({ name: lang.hack_embed_fields_ip, value: `\`${generatedIp}\`` },
+                { name: lang.hack_embed_fields_email, value: `\`${generatedEmail}\`` },
+                { name: lang.hack_embed_fields_password, value: `\`${generatedPassword}\`` })
             .setTimestamp()
 
-        await interaction.editReply({ embeds: [embed] });
+        await client.args.interactionSend(interaction, { embeds: [embed] });
         return;
     },
 };

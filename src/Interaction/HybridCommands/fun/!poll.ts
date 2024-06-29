@@ -23,32 +23,47 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
+    Message,
     PermissionsBitField,
+    User,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        let pollMessage = interaction.options.getString("message");
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.poll_not_admin });
+        if (!permissions) {
+            await client.args.interactionSend(interaction, { content: lang.poll_not_admin });
             return;
         };
 
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var pollMessage = interaction.options.getString("message");
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var pollMessage = client.args.string(args!, 0);
+        }
+
         let pollEmbed = new EmbedBuilder()
-            .setTitle(data.poll_embed_title
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username)
+            .setTitle(lang.poll_embed_title
+                .replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username)
             )
             .setColor("#ddd98b")
             .setDescription(pollMessage)
-            .addFields({ name: data.poll_embed_fields_reaction, value: data.poll_embed_fields_choice })
+            .addFields({ name: lang.poll_embed_fields_reaction, value: lang.poll_embed_fields_choice })
             .setImage("https://cdn.discordapp.com/attachments/610152915063013376/610947097969164310/loading-animation.gif")
             .setTimestamp()
 
-        let msg = await interaction.editReply({ embeds: [pollEmbed] });
+        let msg = await client.args.interactionSend(interaction, { embeds: [pollEmbed] });
 
         await msg.react(client.iHorizon_Emojis.icon.Yes_Logo);
         await msg.react(client.iHorizon_Emojis.icon.No_Logo);

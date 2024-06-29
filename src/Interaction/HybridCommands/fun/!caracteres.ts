@@ -22,12 +22,15 @@
 import {
     ChatInputCommandInteraction,
     Client,
+    Message,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         let w = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
             "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
@@ -36,7 +39,12 @@ export default {
             "𝔸", "𝔹", "ℂ", "𝔻", "𝔼", "𝔽", "𝔾", "ℍ", "𝕀", "𝕁", "𝕂", "𝕃", "𝕄", "ℕ", "𝕆", "ℙ", "ℚ", "ℝ", "𝕊", "𝕋", "𝕌", "𝕍", "𝕎", "𝕏", "𝕐", "ℤ",
             "𝟘", "𝟙", "𝟚", "𝟛", "𝟜", "𝟝", "𝟞", "𝟟", "𝟠", "𝟡"]
 
-        let nw = interaction.options.getString("nickname") || '';
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var nw = interaction.options.getString("nickname") || '';
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var nw = client.args.longString(args!, 0) || '';
+        }
 
         let n = [];
         for (let x = 0; x < nw.length; x++) {
@@ -47,7 +55,7 @@ export default {
             }
         };
 
-        await interaction.editReply({ content: n.join("") || data.serverinfo_verlvl_NONE });
+        await client.args.interactionSend(interaction, { content: n.join("") || lang.serverinfo_verlvl_NONE });
         return;
     },
 };

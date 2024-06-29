@@ -32,19 +32,29 @@ import {
   ChatInputCommandInteraction,
   Client,
   EmbedBuilder,
+  Message,
 } from 'pwss';
 
 import Jimp from 'jimp';
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { axios } from '../../../core/functions/axios.js';
+import { SubCommandArgumentValue } from '../../../core/functions/arg.js';
+
 export default {
-  run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+  run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
     // Guard's Typing
-    if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+    if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
     let baseImg = (await axios.get('https://api.thecatapi.com/v1/images/search?mime_types=jpg,png')).data;
-    let text = interaction.options.getString('text')?.slice(0, 30);
+
+    if (interaction instanceof ChatInputCommandInteraction) {
+      var text = interaction.options.getString('text')?.slice(0, 30);
+    } else {
+      var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+      var text = client.args.longString(args!, 0) as string | undefined;
+    }
+
     let font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 
     const newImg = await Jimp.read(baseImg[0].url);
@@ -68,14 +78,14 @@ export default {
       embed.setImage(`attachment://all-humans-have-right-elektra.png`);
 
       if (imgs) {
-        await interaction.editReply({
+        await client.args.interactionSend(interaction, {
           embeds: [embed],
           files: [imgs, { attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
         });
       };
 
     } catch {
-      await interaction.editReply({ content: data.fun_var_down_api });
+      await client.args.interactionSend(interaction, { content: lang.fun_var_down_api });
     }
 
     return;

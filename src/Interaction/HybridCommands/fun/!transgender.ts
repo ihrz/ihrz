@@ -32,16 +32,25 @@ import {
   ChatInputCommandInteraction,
   Client,
   EmbedBuilder,
+  Message,
 } from 'pwss'
 
 import { AxiosResponse, axios } from '../../../core/functions/axios.js';
+import { LanguageData } from '../../../../types/languageData.js';
+import { SubCommandArgumentValue } from '../../../core/functions/arg.js';
+
 export default {
-  run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-
+  run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
     // Guard's Typing
-    if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+    if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-    let user = interaction.options.getUser('user') || interaction.user;
+    if (interaction instanceof ChatInputCommandInteraction) {
+      var user = interaction.options.getUser('user') || interaction.user;
+    } else {
+      var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+      var user = client.args.user(interaction, 0) || interaction.author;
+    };
+
     let link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(user.displayAvatarURL({ extension: 'png', size: 1024 }))}`;
 
     let embed = new EmbedBuilder()
@@ -56,7 +65,7 @@ export default {
     imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'all-humans-have-right-elektra.png' });
     embed.setImage(`attachment://all-humans-have-right-elektra.png`);
 
-    await interaction.editReply({
+    await client.args.interactionSend(interaction, {
       embeds: [embed],
       files: [
         imgs,

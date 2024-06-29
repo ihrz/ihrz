@@ -23,28 +23,26 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
 } from 'pwss';
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from '../../../../types/languageData';
 import { axios } from '../../../core/functions/axios.js';
-import logger from '../../../core/logger.js';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        axios.get('https://dog.ceo/api/breeds/image/random')
-            .then(async res => {
-                let emb = new EmbedBuilder()
-                    .setImage(res.data.message).setTitle(data.dogs_embed_title).setTimestamp();
+        axios.get('http://edgecats.net/random').then(async res => {
+            let emb = new EmbedBuilder()
+                .setImage(res.data)
+                .setTitle(lang.cats_embed_title)
+                .setTimestamp();
 
-                await interaction.editReply({ embeds: [emb] });
-                return;
-            })
-            .catch(async err => {
-                logger.err(err);
-                await interaction.editReply({ content: data.dogs_embed_command_error });
-                return;
-            });
+            await client.args.interactionSend(interaction, { embeds: [emb] });
+            return;
+        });
     },
 };

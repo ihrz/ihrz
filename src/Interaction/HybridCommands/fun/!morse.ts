@@ -22,19 +22,28 @@
 import {
     ChatInputCommandInteraction,
     Client,
+    Message,
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         let i: number;
 
         let alpha = " ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
         let morse = "/,.-,-...,-.-.,-..,.,..-.,--.,....,..,.---,-.-,.-..,--,-.,---,.--.,--.-,.-.,...,-,..-,...-,.--,-..-,-.--,--..,.----,..---,...--,....-,.....,-....,--...,---..,----.,-----".split(",");
-        let text = interaction.options.getString("input")?.toUpperCase() as string;
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var text = interaction.options.getString("input")?.toUpperCase() as string;
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var text = client.args.longString(args!, 0) as string;
+        }
 
         while (text.includes("Ä") || text.includes("Ö") || text.includes("Ü")) {
             text = text.replace("Ä", "AE").replace("Ö", "OE").replace("Ü", "UE");
@@ -57,7 +66,7 @@ export default {
 
             text = textArray.join(" ");
         }
-        await interaction.editReply({ content: '```' + text + '```' });
+        await client.args.interactionSend(interaction, { content: '```' + text + '```' });
         return;
     },
 };

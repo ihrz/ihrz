@@ -23,33 +23,42 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
 } from 'pwss';
 
 import { axios, AxiosResponse } from '../../../core/functions/axios.js';
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData';
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+import { SubCommandArgumentValue } from '../../../core/functions/arg.js';
 
-        let slap = interaction.options.getUser("user");
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var slap = interaction.options.getUser("user");
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var slap = client.args.user(interaction, 0);
+        };
+
         let url = apiUrlParser.assetsFinder(client.assets, "slap");
 
         axios.get(url)
             .then(async () => {
                 let embed = new EmbedBuilder()
                     .setColor("#42ff08")
-                    .setDescription(data.slap_embed_description
+                    .setDescription(lang.slap_embed_description
                         .replace(/\${slap\.id}/g, slap?.id as string)
-                        .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                        .replace(/\${interaction\.user\.id}/g, interaction.member?.user.id!)
                     )
                     .setImage(url)
                     .setTimestamp()
-                await interaction.editReply({ embeds: [embed] });
+                await client.args.interactionSend(interaction, { embeds: [embed] });
                 return;
             }).catch(async (err) => {
-                await interaction.editReply({ content: data.fun_var_down_api });
+                await client.args.interactionSend(interaction, { content: lang.fun_var_down_api });
             });
     },
 };

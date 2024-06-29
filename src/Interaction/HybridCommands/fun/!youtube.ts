@@ -32,24 +32,33 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
     User,
 } from 'pwss'
 
 import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import { LanguageData } from '../../../../types/languageData.js';
+import { SubCommandArgumentValue } from '../../../core/functions/arg.js';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-        let entry = interaction.options.getString('comment');
-        let args = entry!.split(' ');
 
-        let user: User = interaction.options.getUser('user') || interaction.user;
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var user: User = interaction.options.getUser('user') || interaction.user;
+            var entry = interaction.options.getString('comment');
+            var messageArgs = entry!.split(' ');
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var user: User = client.args.user(interaction, 0) || interaction.author;
+            var entry = client.args.longString(args!, 1);
+            var messageArgs = entry!.split(' ');
+        };
 
-        if (args.length < 1) {
-            await interaction.editReply({ content: data.fun_var_good_sentence });
+        if (messageArgs.length < 1) {
+            await client.args.interactionSend(interaction, { content: data.fun_var_good_sentence });
             return;
         };
 
@@ -59,7 +68,7 @@ export default {
             username = username.substring(0, 15);
         };
 
-        let link = `https://some-random-api.com/canvas/misc/youtube-comment?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 })))}&username=${encodeURIComponent((username))}&comment=${encodeURIComponent(args.join(' '))}`;
+        let link = `https://some-random-api.com/canvas/misc/youtube-comment?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 })))}&username=${encodeURIComponent((username))}&comment=${encodeURIComponent(messageArgs.join(' '))}`;
 
         let embed = new EmbedBuilder()
             .setColor('#000000')
@@ -74,7 +83,7 @@ export default {
             embed.setImage(`attachment://youtube-elektra.png`);
         });
 
-        await interaction.editReply({ embeds: [embed], files: [imgs!, { attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }] });
+        await client.args.interactionSend(interaction, { embeds: [embed], files: [imgs!, { attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }] });
         return;
     },
 };
