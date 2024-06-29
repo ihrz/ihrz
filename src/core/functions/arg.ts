@@ -251,7 +251,7 @@ ${errorPosition}  Error when sending these arguments
 export async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionReplyOptions): Promise<Message> {
     if (interaction instanceof ChatInputCommandInteraction) {
         const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
+        return interaction.deferred ? await interaction.editReply(editOptions) : await interaction.reply(editOptions as any);
     } else {
         let replyOptions: MessageReplyOptions;
 
