@@ -105,7 +105,7 @@ export const command: Command = {
     thinking: false,
     category: 'bot',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, options?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -119,7 +119,8 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var type = interaction.options.getString("language");
         } else {
-            var type = options?.[0] as string | null;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var type = args?.[0] as string | null;
         };
 
         if (!permissions) {

@@ -39,7 +39,6 @@ import {
 import { format } from '../../../core/functions/date-and-time.js';
 
 import { Command } from '../../../../types/command';
-import logger from '../../../core/logger.js';
 import { generatePassword } from '../../../core/functions/random.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';

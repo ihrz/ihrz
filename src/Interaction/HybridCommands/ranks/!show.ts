@@ -27,7 +27,6 @@ import {
     User,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing

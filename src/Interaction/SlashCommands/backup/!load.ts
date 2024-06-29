@@ -29,7 +29,6 @@ import {
 import backup from 'discord-rebackup';
 import { BackupData } from 'discord-rebackup/lib/types';
 import { LanguageData } from '../../../../types/languageData';
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing

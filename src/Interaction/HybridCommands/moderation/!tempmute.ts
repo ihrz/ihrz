@@ -34,30 +34,10 @@ import {
 
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
-
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-    }
-}
+import { SubCommandArgumentValue } from '../../../core/functions/arg.js';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -67,7 +47,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await interactionSend(interaction, { content: data.tempmute_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
+            await client.args.interactionSend(interaction, { content: data.tempmute_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
             return;
         };
 
@@ -75,6 +55,7 @@ export default {
             var tomute = interaction.options.getMember("user") as GuildMember | null;
             var mutetime = interaction.options.getString("time");
         } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args || []); if (!_) return;
             var tomute = client.args.member(interaction, 0) as GuildMember | null;
             var mutetime = client.args.string(args!, 1) as string | null;
         };
@@ -85,27 +66,27 @@ export default {
         let mutetimeString = client.timeCalculator.to_beautiful_string(mutetime);
 
         if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageMessages])) {
-            await interactionSend(interaction, {
+            await client.args.interactionSend(interaction, {
                 content: data.tempmute_i_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
         if (tomute.id === interaction.member.user.id) {
-            await interactionSend(interaction, {
+            await client.args.interactionSend(interaction, {
                 content: data.tempmute_cannot_mute_yourself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         }
 
         if (tomute.isCommunicationDisabled() === true) {
-            await interactionSend(interaction, { content: data.tempmute_already_muted });
+            await client.args.interactionSend(interaction, { content: data.tempmute_already_muted });
             return;
         };
 
         await (tomute.timeout(mutetimeMS, data.tempmute_logs_embed_title)).catch(() => { });
 
-        await interactionSend(interaction, data.tempmute_command_work
+        await client.args.interactionSend(interaction, data.tempmute_command_work
             .replace("${tomute.id}", tomute.id)
             .replace("${ms(ms(mutetime))}", mutetimeString)
         );

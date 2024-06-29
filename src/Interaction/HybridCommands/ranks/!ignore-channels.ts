@@ -35,7 +35,6 @@ import {
 } from 'pwss';
 import { DatabaseStructure } from '../../../../types/database_structure';
 import { LanguageData } from '../../../../types/languageData';
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing

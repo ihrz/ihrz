@@ -29,30 +29,10 @@ import {
     MessageReplyOptions,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
-
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-    }
-}
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -60,18 +40,18 @@ export default {
         let player = client.player.getPlayer(interaction.guildId as string);
 
         if (!player || !player.playing || !voiceChannel) {
-            await interactionSend(interaction, { content: data.shuffle_no_queue });
+            await client.args.interactionSend(interaction, { content: data.shuffle_no_queue });
             return;
         };
 
         if (player.queue.tracks.length < 2) {
-            await interactionSend(interaction, { content: data.shuffle_no_enought });
+            await client.args.interactionSend(interaction, { content: data.shuffle_no_enought });
             return;
         };
 
         await player.queue.shuffle();
 
-        await interactionSend(interaction, { content: data.shuffle_command_work });
+        await client.args.interactionSend(interaction, { content: data.shuffle_command_work });
         return;
     },
 };

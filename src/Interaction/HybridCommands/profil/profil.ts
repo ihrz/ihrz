@@ -31,6 +31,7 @@ import {
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
 
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 export const command: Command = {
     name: "profil",
 
@@ -171,16 +172,17 @@ export const command: Command = {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, options?: string[]) => {
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let fetchedCommand;
+        let sub: SubCommandArgumentValue | undefined;
 
         if (interaction instanceof ChatInputCommandInteraction) {
             fetchedCommand = interaction.options.getSubcommand();
         } else {
             if (!options?.[0]) {
-                let embed = await client.func.arg.createAwesomeEmbed(command, client, interaction);
-                await interaction.reply({ embeds: [embed] })
+                await interaction.reply({ embeds: [await client.args.createAwesomeEmbed(command, client, interaction)] });
                 return;
-            };
-            let cmd = command.options?.find(x => options[0] === x.name || x.aliases?.includes(options[0]));
+            }
+            const cmd = command.options?.find(x => options[0] === x.name || x.aliases?.includes(options[0]));
+            sub = { name: command.name, command: cmd };
             if (!cmd) return;
 
             fetchedCommand = cmd.name;
@@ -188,6 +190,6 @@ export const command: Command = {
         }
 
         const commandModule = await import(`./!${fetchedCommand}.js`);
-        await commandModule.default.run(client, interaction, data, execTimestamp, options);
+        await commandModule.default.run(client, interaction, data, sub, execTimestamp, options);
     },
 };

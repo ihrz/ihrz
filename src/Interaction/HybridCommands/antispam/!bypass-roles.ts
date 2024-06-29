@@ -29,6 +29,7 @@ import {
     EmbedBuilder,
     InteractionEditReplyOptions,
     Message,
+    MessageEditOptions,
     MessagePayload,
     MessageReplyOptions,
     PermissionsBitField,
@@ -36,39 +37,10 @@ import {
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 import { AntiSpam } from '../../../../types/antispam';
-
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-    }
-}
-
-async function interactionEdit(interaction: ChatInputCommandInteraction | Message, options: string | MessagePayload | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        return await interaction.editReply(options);
-    } else {
-        (options as MessagePayload).options = { allowedMentions: { repliedUser: false } };
-        return await interaction.edit(options as MessagePayload);
-    }
-};
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
@@ -78,7 +50,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await interactionSend(interaction, { content: lang.addmoney_not_admin });
+            await client.args.interactionSend(interaction, { content: lang.addmoney_not_admin });
             return;
         };
 
@@ -116,7 +88,7 @@ export default {
             .setCustomId("antispam-manage-save-button")
             .setLabel(lang.antispam_manage_button_label);
 
-        const originalResponse = await interactionSend(interaction, {
+        const originalResponse = await client.args.interactionSend(interaction, {
             embeds: [embed],
             components: [
                 new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(select),
@@ -166,11 +138,11 @@ export default {
             })
 
             allroles = i.values;
-            await interactionEdit(originalResponse, { embeds: [embed] });
+            await client.args.interactionEdit(originalResponse, { embeds: [embed] });
         });
 
         collector.on('end', async () => {
-            await interactionEdit(originalResponse, { components: [] });
+            await client.args.interactionEdit(originalResponse, { components: [] });
         })
     },
 };

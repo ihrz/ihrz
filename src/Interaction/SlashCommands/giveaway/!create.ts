@@ -42,7 +42,6 @@ async function isImageUrl(url: string): Promise<boolean> {
         return false;
     }
 };
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing

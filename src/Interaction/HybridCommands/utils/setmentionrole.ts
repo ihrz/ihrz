@@ -36,28 +36,6 @@ import {
 import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
 
-async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageReplyOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageReplyOptions;
-        }
-
-        return await interaction.reply(replyOptions);
-
-    }
-}
-
 export const command: Command = {
     name: 'setmentionrole',
 
@@ -125,6 +103,7 @@ export const command: Command = {
             var argsid = interaction.options.getRole("roles");
             var nickname = interaction.options.getString("part-of-nickname");
         } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
             var type = client.args.string(args!, 0);
             var argsid = client.args.role(interaction, 0);
             var nickname = client.args.longString(args!, 2);
@@ -136,7 +115,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await interactionSend(interaction, { content: data.punishpub_not_admin });
+            await client.args.interactionSend(interaction, { content: data.punishpub_not_admin });
         }
 
         if (type === "on") {
