@@ -33,7 +33,6 @@ import { VanityInviteData } from '../../types/vanityUrlData';
 import { ConfigData } from '../../types/configDatad.js';
 
 import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'pwss';
-import { GiveawayManager } from './modules/giveawaysManager.js';
 import { readdirSync } from "node:fs";
 import backup from 'discord-rebackup';
 import { fileURLToPath } from 'url';
@@ -73,20 +72,6 @@ export async function main(client: Client) {
     if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
 
     errorManager.uncaughtExceptionHandler(client);
-
-    // @ts-ignore
-    client.giveawaysManager = new GiveawayManager(client, {
-        storage: `${process.cwd()}/src/files/giveaways/`,
-        config: {
-            botsCanWin: false,
-            embedColor: '#9a5af2',
-            embedColorEnd: '#2f3136',
-            reaction: '🎉',
-            botName: "iHorizon",
-            forceUpdateEvery: 3600,
-            endedGiveawaysLifetime: 345_600_000,
-        },
-    });
 
     client.db = await initializeDatabase(client.config);
     client.content = [];

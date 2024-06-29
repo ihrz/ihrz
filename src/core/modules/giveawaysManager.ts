@@ -16,6 +16,7 @@ import {
 } from 'pwss';
 
 import { GiveawayCreateOptions, GiveawayFetch } from '../../../types/giveaways';
+import getLanguageData from '../functions/getLanguageData.js';
 import db from './giveawaysDatabaseManager.js';
 
 interface GiveawaysManagerOptions {
@@ -131,6 +132,7 @@ class GiveawayManager {
     };
 
     private async removeEntries(interaction: ButtonInteraction<CacheType>) {
+        let lang = await getLanguageData(interaction.guildId!);
 
         await interaction.reply({
             content: `${interaction.user} are you sure to leave this giveaways ?`,
@@ -163,7 +165,7 @@ class GiveawayManager {
                     );
 
                 await interaction.message.edit({ embeds: [embedsToEdit] });
-                await interaction.editReply({ components: [], content: `<@${interaction.user.id}>, you have leave this giveaways !` })
+                await interaction.editReply({ components: [], content: lang.event_gw_removeentries_msg.replace("${interaction.user}", interaction.user.toString()) })
 
                 return;
             };
@@ -226,6 +228,8 @@ class GiveawayManager {
     };
 
     public async finish(client: Client, giveawayId: string, guildId: string, channelId: string) {
+        let lang = await getLanguageData(guildId);
+
         let fetch = db.GetGiveawayData(giveawayId)!;
 
         if (!fetch.ended || fetch.ended === 'End()') {
@@ -249,7 +253,7 @@ class GiveawayManager {
             let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : 'None';
 
             let Finnish = new ButtonBuilder()
-                .setLabel("Giveaway Finished")
+                .setLabel(lang.event_gw_finnish_button_title)
                 .setURL('https://media.tenor.com/uO4u0ib3oK0AAAAC/done-and-done-spongebob.gif')
                 .setStyle(ButtonStyle.Link);
 
@@ -268,11 +272,11 @@ class GiveawayManager {
 
             if (winners !== 'None') {
                 await message?.reply({
-                    content: `Congratulations ${winners}! You won the **${fetch.prize}**!`
+                    content: lang.event_gw_reroll_win_msg.replace("${winners}", winners.toString()).replace("${fetch[channelId][messageId].prize}", fetch.prize)
                 })
             } else {
                 await message?.reply({
-                    content: "No valid entrants, so a winner could not be determined!"
+                    content: lang.event_gw_finnish_cannot_msg
                 });
             };
 
@@ -318,10 +322,12 @@ class GiveawayManager {
     public reroll(client: Client, giveawayId: string): Promise<void> {
         return new Promise(async (resolve, reject) => {
             try {
-                let fetch = await db.GetGiveawayData(giveawayId)!;
+                let fetch = db.GetGiveawayData(giveawayId)!;
 
                 let guild = await client.guilds.fetch(fetch.guildId);
                 let channel = await guild.channels.fetch(fetch.channelId);
+
+                let lang = await getLanguageData(guild.id);
 
                 let message = await (channel as BaseGuildTextChannel).messages.fetch(giveawayId).catch(async () => {
                     await db.DeleteGiveaway(giveawayId);
@@ -350,11 +356,11 @@ class GiveawayManager {
 
                 if (winner && winner[0] !== 'None') {
                     await message?.reply({
-                        content: `Congratulations ${winners}! You won the **${fetch.prize}**!`
-                    });
+                        content: lang.event_gw_reroll_win_msg.replace("${winners}", winners.toString()).replace("${fetch[channelId][messageId].prize}", fetch.prize)
+                    })
                 } else {
                     await message?.reply({
-                        content: "No valid entrants, so a winner could not be determined!"
+                        content: lang.event_gw_finnish_cannot_msg
                     });
                 }
 
