@@ -103,7 +103,7 @@ const getArgumentOptionTypeWithOptions = (o: Option): string => {
     return getArgumentOptionType(o.type);
 };
 
-export async function createAwesomeEmbed(command: Command, client: Client, interaction: Message): Promise<EmbedBuilder> {
+export async function createAwesomeEmbed(command: Command, client: Client, interaction: ChatInputCommandInteraction | Message): Promise<EmbedBuilder> {
     const embed = new EmbedBuilder()
         .setTitle(command.name.charAt(0).toUpperCase() + command.name.slice(1) + " Help Embed")
         .setColor("LightGrey");
