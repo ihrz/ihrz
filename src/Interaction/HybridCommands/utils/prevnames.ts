@@ -78,7 +78,7 @@ export const command: Command = {
         };
 
         // if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-        //     await interaction.reply({ content: data.prevnames_not_admin });
+        //     await client.args.interactionSend(interaction,{ content: data.prevnames_not_admin });
         //     return;
         // };
 
@@ -86,7 +86,7 @@ export const command: Command = {
         var char: Array<string> = await table.get(`${user.id}`) || [];
 
         if (char.length == 0) {
-            await interaction.reply({ content: data.prevnames_undetected });
+            await client.args.interactionSend(interaction,{ content: data.prevnames_undetected });
             return;
         };
 
@@ -132,7 +132,7 @@ export const command: Command = {
                 .setStyle(ButtonStyle.Danger)
         );
 
-        let messageEmbed = await interaction.reply({
+        let messageEmbed = await client.args.interactionSend(interaction,{
             embeds: [createEmbed()],
             components: [row],
             files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]

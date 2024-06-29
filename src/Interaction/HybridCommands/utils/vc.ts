@@ -118,7 +118,7 @@ export const command: Command = {
             )
             ;
 
-        await interaction.reply({
+        await client.args.interactionSend(interaction,{
             embeds: [embed],
             files: [
                 {

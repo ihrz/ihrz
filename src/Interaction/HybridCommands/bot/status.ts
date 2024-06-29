@@ -53,7 +53,7 @@ export const command: Command = {
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!client.owners.includes(interaction.member.user.id)) {
-            await interaction.reply({ content: data.status_be_bot_dev });
+            await client.args.interactionSend(interaction,{ content: data.status_be_bot_dev });
             return;
         };
 
@@ -70,7 +70,7 @@ export const command: Command = {
             .setThumbnail(interaction.guild.iconURL() as string)
             .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
 
-        await interaction.reply({
+        await client.args.interactionSend(interaction,{
             embeds: [embed],
             files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
         });

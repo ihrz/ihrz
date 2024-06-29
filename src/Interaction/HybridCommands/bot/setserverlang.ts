@@ -124,7 +124,7 @@ export const command: Command = {
         };
 
         if (!permissions) {
-            await interaction.reply({ content: data.setserverlang_not_admin });
+            await client.args.interactionSend(interaction,{ content: data.setserverlang_not_admin });
             return;
         };
 
@@ -132,7 +132,7 @@ export const command: Command = {
         let already = await client.db.get(`${interaction.guildId}.GUILD.LANG`);
 
         if (already?.lang === type) {
-            await interaction.reply({ content: data.setserverlang_already });
+            await client.args.interactionSend(interaction,{ content: data.setserverlang_already });
             return;
         }
 
@@ -152,7 +152,7 @@ export const command: Command = {
             if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
         } catch (e: any) { logger.err(e) };
 
-        await interaction.reply({ content: data.setserverlang_command_work_enable.replace(/\${type}/g, type!) });
+        await client.args.interactionSend(interaction,{ content: data.setserverlang_command_work_enable.replace(/\${type}/g, type!) });
         return;
     },
 };

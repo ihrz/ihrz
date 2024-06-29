@@ -63,7 +63,7 @@ export const command: Command = {
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!client.owners.includes(interaction.member.user.id)) {
-            await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
+            await client.args.interactionSend(interaction,{ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };
 
@@ -102,10 +102,10 @@ export const command: Command = {
                 .setDescription(`\`\`\`JS\n${code || "None"}\n\`\`\``)
                 .setAuthor({ name: ((interaction.member as GuildMember).user.globalName || interaction.member.user.username) as string, iconURL: interaction.client.user.displayAvatarURL() });
 
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            await client.args.interactionSend(interaction,{ embeds: [embed], ephemeral: true });
             return;
         } catch (err: any) {
-            await interaction.reply({ content: err.toString(), ephemeral: true });
+            await client.args.interactionSend(interaction,{ content: err.toString(), ephemeral: true });
             return;
         };
     }

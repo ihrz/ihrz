@@ -137,7 +137,7 @@ export const command: Command = {
             .setLabel(data.embed_btn_cancel)
             .setStyle(ButtonStyle.Danger);
 
-        let response = await interaction.reply({
+        let response = await client.args.interactionSend(interaction,{
             content: data.embed_first_message,
             embeds: [__tempEmbed],
             components: [

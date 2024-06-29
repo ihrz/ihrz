@@ -42,7 +42,7 @@ export default {
 
         await tableProfil.set(`${interaction.member.user.id}.age`, age);
 
-        await interaction.reply({ content: data.setprofilage_command_work, ephemeral: true });
+        await client.args.interactionSend(interaction,{ content: data.setprofilage_command_work, ephemeral: true });
         return;
     },
 };

@@ -145,7 +145,7 @@ export const command: Command = {
             .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setThumbnail("attachment://icon.png");
 
-        let response = await interaction.reply({
+        let response = await client.args.interactionSend(interaction, {
             embeds: [og_embed],
             components: rows,
             files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]

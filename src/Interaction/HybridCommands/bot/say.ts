@@ -79,7 +79,7 @@ export const command: Command = {
         };
 
         if (!permissions) {
-            await interaction.reply({ content: data.setserverlang_not_admin });
+            await client.args.interactionSend(interaction,{ content: data.setserverlang_not_admin });
             return;
         };
 

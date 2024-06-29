@@ -65,7 +65,7 @@ export const command: Command = {
         let tableBlacklist = client.db.table('BLACKLIST');
 
         if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
-            await interaction.reply({ content: data.unblacklist_not_owner });
+            await client.args.interactionSend(interaction,{ content: data.unblacklist_not_owner });
             return;
         };
 
@@ -79,7 +79,7 @@ export const command: Command = {
         let fetched = await tableBlacklist.get(`${member?.id}`);
 
         if (!fetched) {
-            await interaction.reply({ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member?.id!) });
+            await client.args.interactionSend(interaction,{ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member?.id!) });
             return;
         };
 
@@ -87,18 +87,18 @@ export const command: Command = {
             let bannedMember = await client.users.fetch(member?.id as UserResolvable);
 
             if (!bannedMember) {
-                await interaction.reply({ content: data.unblacklist_user_is_not_exist });
+                await client.args.interactionSend(interaction,{ content: data.unblacklist_user_is_not_exist });
                 return;
             };
 
             await tableBlacklist.delete(`${member?.id}`);
             await interaction.guild.members.unban(bannedMember);
 
-            await interaction.reply({ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member?.id!) });
+            await client.args.interactionSend(interaction,{ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member?.id!) });
             return;
         } catch (e) {
             await tableBlacklist.delete(`${member?.id}`);
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: data.unblacklist_unblacklisted_but_can_unban_him.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;

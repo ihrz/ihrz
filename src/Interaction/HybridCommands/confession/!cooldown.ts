@@ -64,7 +64,7 @@ export default {
         };
 
         await client.db.set(`${interaction.guildId}.GUILD.CONFESSION.cooldown`, time);
-        await interaction.reply({
+        await client.args.interactionSend(interaction,{
             content: data.confession_coolodwn_command_work
                 .replace('${interaction.user.toString()}', interaction.member.user.toString())
                 .replace('${client.timeCalculator.to_beautiful_string(time)}', client.timeCalculator.to_beautiful_string(time))

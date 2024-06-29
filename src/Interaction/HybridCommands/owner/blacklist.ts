@@ -81,7 +81,7 @@ export const command: Command = {
         let tableBlacklist = client.db.table('BLACKLIST');
 
         if (await tableOwner.get(`${interaction.member.user.id}.owner`) !== true) {
-            await interaction.reply({ content: data.blacklist_not_owner });
+            await client.args.interactionSend(interaction,{ content: data.blacklist_not_owner });
             return;
         };
 
@@ -100,7 +100,7 @@ export const command: Command = {
 
         if (!member && !user) {
             if (!blacklistedUsers.length) {
-                await interaction.reply({
+                await client.args.interactionSend(interaction,{
                     content: data.blacklist_no_one_blacklist
                         .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
                     ephemeral: true
@@ -150,7 +150,7 @@ export const command: Command = {
                     .setStyle(ButtonStyle.Secondary),
             );
 
-            let messageEmbed = await interaction.reply({
+            let messageEmbed = await client.args.interactionSend(interaction,{
                 embeds: [createEmbed()],
                 components: [row],
                 files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
@@ -185,14 +185,14 @@ export const command: Command = {
 
         if (member) {
             if (member.user.id === client.user.id) {
-                await interaction.reply({ content: data.blacklist_bot_lol });
+                await client.args.interactionSend(interaction,{ content: data.blacklist_bot_lol });
                 return;
             };
 
             let fetched = await tableBlacklist.get(`${member.user.id}`);
 
             if (fetched) {
-                await interaction.reply({
+                await client.args.interactionSend(interaction,{
                     content: data.blacklist_already_blacklisted
                         .replace(/\${member\.user\.username}/g, member.user.globalName || member.user.username)
                 });
@@ -207,13 +207,13 @@ export const command: Command = {
             });
 
             member.ban({ reason: 'blacklisted !' }).then(async () => {
-                await interaction.reply({
+                await client.args.interactionSend(interaction,{
                     content: data.blacklist_command_work
                         .replace(/\${member\.user\.username}/g, String(member?.user.globalName || member?.user.username))
                 });
                 return;
             }).catch(async () => {
-                await interaction.reply({
+                await client.args.interactionSend(interaction,{
                     content: data.blacklist_blacklisted_but_can_ban_him
                         .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 });
@@ -223,14 +223,14 @@ export const command: Command = {
         } else if (user) {
 
             if (user.id === client.user.id) {
-                await interaction.reply({ content: data.blacklist_bot_lol });
+                await client.args.interactionSend(interaction,{ content: data.blacklist_bot_lol });
                 return;
             };
 
             let fetched = await tableBlacklist.get(`${user.id}`);
 
             if (fetched) {
-                await interaction.reply({
+                await client.args.interactionSend(interaction,{
                     content: data.blacklist_already_blacklisted
                         .replace(/\${member\.user\.username}/g, user.globalName || user.username)
                 });
@@ -244,7 +244,7 @@ export const command: Command = {
                 createdAt: new Date().getTime()
             });
 
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: data.blacklist_command_work
                     .replace(/\${member\.user\.username}/g, user.globalName || user.username)
             });

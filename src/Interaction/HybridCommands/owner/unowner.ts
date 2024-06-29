@@ -63,7 +63,7 @@ export const command: Command = {
         let tableOwner = client.db.table('OWNER');
 
         if (await tableOwner.get(`${interaction.member.user.id}.owner`) !== true) {
-            await interaction.reply({ content: data.unowner_not_owner });
+            await client.args.interactionSend(interaction,{ content: data.unowner_not_owner });
             return;
         };
 
@@ -75,13 +75,13 @@ export const command: Command = {
         };
 
         if (client.owners.includes(member?.id!)) {
-            await interaction.reply({ content: data.unowner_cant_unowner_creator });
+            await client.args.interactionSend(interaction,{ content: data.unowner_cant_unowner_creator });
             return;
         };
 
         await tableOwner.delete(`${member?.id}`);
 
-        await interaction.reply({ content: data.unowner_command_work.replace(/\${member\.username}/g, member?.username!) });
+        await client.args.interactionSend(interaction,{ content: data.unowner_command_work.replace(/\${member\.username}/g, member?.username!) });
         return;
     },
 };

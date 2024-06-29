@@ -83,7 +83,7 @@ export default {
             .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setTitle(data.ranks_leaderboard_embed_title.replace('${interaction.guild?.name}', interaction.guild.name));
 
-        await interaction.reply({
+        await client.args.interactionSend(interaction,{
             embeds: [embed],
             content: undefined,
             files: [attachment, { attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]

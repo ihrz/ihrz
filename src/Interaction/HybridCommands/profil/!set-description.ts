@@ -42,7 +42,7 @@ export default {
 
         await tableProfil.set(`${interaction.member.user.id}.desc`, desc);
 
-        await interaction.reply({ content: data.setprofildescriptions_command_work, ephemeral: true });
+        await client.args.interactionSend(interaction,{ content: data.setprofildescriptions_command_work, ephemeral: true });
         return;
     },
 };

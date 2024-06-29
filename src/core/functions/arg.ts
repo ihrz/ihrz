@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, Embed, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions } from "pwss";
+import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, Embed, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions } from "pwss";
 import { Command } from "../../../types/command";
 import { Option } from "../../../types/option";
 
@@ -245,7 +245,7 @@ ${errorPosition}  Error when sending these arguments
     await message.channel.send({ embeds: [embed] });
 }
 
-export async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message> {
+export async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionReplyOptions): Promise<Message> {
     if (interaction instanceof ChatInputCommandInteraction) {
         const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
         return await interaction.editReply(editOptions);

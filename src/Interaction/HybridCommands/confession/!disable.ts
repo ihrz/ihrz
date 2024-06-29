@@ -56,7 +56,7 @@ export default {
 
         if (action === 'on') {
             await client.db.set(`${interaction.guildId}.CONFESSION.disable`, false);
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: data.confession_disable_command_work_on
             });
 
@@ -78,7 +78,7 @@ export default {
         } else if (action === 'off') {
 
             await client.db.set(`${interaction.guildId}.CONFESSION.disable`, true);
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: data.confession_disable_command_work_off
             });
 

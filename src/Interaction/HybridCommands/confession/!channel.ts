@@ -62,7 +62,7 @@ export default {
 
         await client.db.set(`${interaction.guildId}.CONFESSION.channel`, channel.id);
 
-        await interaction.reply({
+        await client.args.interactionSend(interaction,{
             content: data.confession_channel_command_work
                 .replace('${channel?.toString()}', channel.toString()!)
         });

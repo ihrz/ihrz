@@ -227,7 +227,7 @@ export const command: Command = {
             return;
         };
 
-        await interaction.reply({
+        await client.args.interactionSend(interaction,{
             content: data.userinfo_wait_please.replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
         });
 

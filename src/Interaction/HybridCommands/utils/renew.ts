@@ -80,7 +80,7 @@ export const command: Command = {
             here.send({ content: data.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.member.user.toString()) });
             return;
         } catch (error) {
-            await interaction.reply({ content: data.renew_dont_have_permission });
+            await client.args.interactionSend(interaction,{ content: data.renew_dont_have_permission });
             return;
         }
     },

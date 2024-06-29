@@ -189,7 +189,7 @@ export const command: Command = {
         } else {
             if (!options?.[0]) {
                 let embed = await client.func.arg.createAwesomeEmbed(command, client, interaction);
-                await interaction.reply({ embeds: [embed] })
+                await client.args.interactionSend(interaction,{ embeds: [embed] })
                 return;
             };
             let cmd = command.options?.find(x => options[0] === x.name || x.aliases?.includes(options[0]));

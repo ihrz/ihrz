@@ -144,7 +144,7 @@ export const command: Command = {
             fetchedCommand = interaction.options.getSubcommand();
         } else {
             if (!options?.[0]) {
-                await interaction.reply({ embeds: [await client.args.createAwesomeEmbed(command, client, interaction)] });
+                await client.args.interactionSend(interaction,{ embeds: [await client.args.createAwesomeEmbed(command, client, interaction)] });
                 return;
             }
             const cmd = command.options?.find(x => options[0] === x.name || x.aliases?.includes(options[0]));
