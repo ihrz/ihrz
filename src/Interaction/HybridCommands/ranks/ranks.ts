@@ -91,6 +91,8 @@ export const command: Command = {
                 "fr": "Obtenez le niveau XP de l'utilisateur"
             },
 
+            aliases: ["see", "sh", "look"],
+
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
@@ -116,6 +118,8 @@ export const command: Command = {
             description_localizations: {
                 "fr": "Définir le canal sur lequel l'utilisateur gagne un nouveau message de niveau XP"
             },
+
+            aliases: ["channel", "chann"],
 
             type: ApplicationCommandOptionType.Subcommand,
             options: [
@@ -164,6 +168,8 @@ export const command: Command = {
                 "fr": "Obtenez le classement XP du serveur"
             },
 
+            aliases: ["lb"],
+
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
@@ -173,6 +179,8 @@ export const command: Command = {
             description_localizations: {
                 "fr": "Ignorer des salons afin que le module de Rangs ne l'ai prennent pas en compte"
             },
+
+            aliases: ["ignore"],
 
             type: ApplicationCommandOptionType.Subcommand,
         },
@@ -189,7 +197,7 @@ export const command: Command = {
         } else {
             if (!options?.[0]) {
                 let embed = await client.func.arg.createAwesomeEmbed(command, client, interaction);
-                await client.args.interactionSend(interaction,{ embeds: [embed] })
+                await client.args.interactionSend(interaction, { embeds: [embed] })
                 return;
             };
             let cmd = command.options?.find(x => options[0] === x.name || x.aliases?.includes(options[0]));
