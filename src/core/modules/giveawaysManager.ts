@@ -16,8 +16,6 @@ import {
 } from 'pwss';
 
 import { GiveawayCreateOptions, GiveawayFetch } from '../../../types/giveaways';
-
-import * as date from 'date-and-time';
 import db from './giveawaysDatabaseManager.js';
 
 interface GiveawaysManagerOptions {
@@ -70,8 +68,8 @@ class GiveawayManager {
                 let gw = new EmbedBuilder()
                     .setColor(this.options.config?.embedColor as ColorResolvable)
                     .setTitle(data.prize)
-                    .setDescription(`Ends: ${time((date.addMilliseconds(new Date(), data.duration, true)), 'R')} (${time((date.addMilliseconds(new Date(), data.duration, true)), 'D')})\nHosted by: <@${data.hostedBy}>\nEntries: **0**\nWinners: **${data.winnerCount}**`)
-                    .setTimestamp((date.addMilliseconds(new Date(), data.duration, true)))
+                    .setDescription(`Ends: ${time(new Date(Date.now() + data.duration), 'R')} (${time(new Date(Date.now() + data.duration), 'D')})\nHosted by: <@${data.hostedBy}>\nEntries: **0**\nWinners: **${data.winnerCount}**`)
+                    .setTimestamp(new Date(Date.now() + data.duration))
                     .setFooter({ text: this.options.config.botName })
                     .setImage(data.embedImageURL);
 
@@ -91,7 +89,7 @@ class GiveawayManager {
                         winnerCount: data.winnerCount,
                         prize: data.prize,
                         hostedBy: data.hostedBy,
-                        expireIn: date.addMilliseconds(new Date(), data.duration, true),
+                        expireIn: new Date(Date.now() + data.duration),
                         ended: false,
                         entries: [],
                         winners: [],
