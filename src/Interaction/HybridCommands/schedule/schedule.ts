@@ -33,12 +33,16 @@ import {
     ModalSubmitInteraction,
     CacheType,
     TextInputComponent,
-    ApplicationCommandType
+    ApplicationCommandType,
+    Message,
+    GuildMember,
+    User,
+    Guild
 } from 'pwss';
 
 import { format } from '../../../core/functions/date-and-time.js';
 
-import { Command } from '../../../../types/command';
+import { Command } from '../../../../types/command.js';
 import { generatePassword } from '../../../core/functions/random.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
@@ -52,9 +56,9 @@ export const command: Command = {
     category: 'schedule',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let table = client.db.table("SCHEDULE");
@@ -82,22 +86,24 @@ export const command: Command = {
             );
 
         let original_interaction = await interaction.reply({
-            content: interaction.user.toString(),
+            content: interaction.member.user.toString(),
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
             ],
         });
 
+        let user = interaction.member.user as User;
+
         try {
 
             let collector = original_interaction.createMessageComponentCollector({
-                filter: (member) => member.user.id === interaction.user.id,
+                filter: (member) => member.user.id === interaction.member?.user.id,
                 componentType: ComponentType.StringSelect,
                 time: 420_000
             });
 
             collector.on('collect', async i => {
-                if (i.member?.user.id !== interaction.user.id) {
+                if (i.member?.user.id !== interaction.member?.user.id) {
                     await i.reply({ content: data.embed_interaction_not_for_you, ephemeral: true })
                     return;
                 }
@@ -142,7 +148,7 @@ export const command: Command = {
                     let u = await i.reply({ content: data.schedule_delete_question, ephemeral: false });
 
                     let deleteCollector = interaction.channel?.createMessageCollector({
-                        filter: (m) => m.author.id === interaction.user.id,
+                        filter: (m) => m.author.id === interaction.member?.user.id,
                         max: 1,
                         time: 120_000
                     });
@@ -156,7 +162,7 @@ export const command: Command = {
                 case '2':
                     let u2 = await i.reply({ content: data.schedule_deleteall_question, ephemeral: false });
                     let deleteAllCollector = interaction.channel?.createMessageCollector({
-                        filter: (m) => m.author.id === interaction.user.id,
+                        filter: (m) => m.author.id === interaction.member?.user.id,
                         max: 1,
                         time: 120_000
                     });
@@ -180,7 +186,7 @@ export const command: Command = {
             };
 
             async function __1(arg0: string) {
-                let fetched = await table.get(`${interaction.user.id}`);
+                let fetched = await table.get(`${interaction.member?.user.id}`);
 
                 if (!fetched || !fetched[arg0]) {
                     await original_interaction.edit({
@@ -191,8 +197,8 @@ export const command: Command = {
                 } else {
                     let embed = new EmbedBuilder()
                         .setAuthor({
-                            name: interaction.user.globalName || interaction.user.username,
-                            iconURL: interaction.user.displayAvatarURL({ extension: 'png', size: 512 })
+                            name: user.globalName || user.username,
+                            iconURL: (interaction.member?.user as User).displayAvatarURL({ extension: 'png', size: 512 })
                         })
                         .setTitle(data.schedule_delete_title_embed
                             .replace('${arg0}', arg0)
@@ -202,7 +208,7 @@ export const command: Command = {
                         .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                         .setTimestamp();
 
-                    await table.delete(`${interaction.user.id}.${arg0}`);
+                    await table.delete(`${interaction.member?.user.id}.${arg0}`);
                     await original_interaction.edit({
                         content: data.schedule_delete_confirm, embeds: [embed],
                         files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
@@ -213,13 +219,13 @@ export const command: Command = {
 
             async function __2(arg0: boolean) {
                 if (arg0) {
-                    await table.delete(`${interaction.user.id}`);
+                    await table.delete(`${interaction.member?.user.id}`);
 
                     let embed = new EmbedBuilder()
                         .setColor('#ff0a0a')
                         .setAuthor({
-                            name: interaction.user.globalName || interaction.user.username,
-                            iconURL: interaction.user.displayAvatarURL({ extension: 'png', size: 512 })
+                            name: user.globalName || user.username,
+                            iconURL: user.displayAvatarURL({ extension: 'png', size: 512 })
                         })
                         .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                         .setTitle(data.schedule_deleteall_title_embed)
@@ -239,7 +245,7 @@ export const command: Command = {
             };
 
             async function __3() {
-                let fetched = await table.get(`${interaction.user.id}`);
+                let fetched = await table.get(`${interaction.member?.user.id}`);
 
                 if (!fetched) {
                     await original_interaction.edit({ content: data.schedule_list_not_schedule, embeds: [] });
@@ -251,8 +257,8 @@ export const command: Command = {
                     .setTitle(data.schedule_list_title_embed)
                     .setColor('#60BEE0')
                     .setAuthor({
-                        name: interaction.user.globalName || interaction.user.username,
-                        iconURL: interaction.user.displayAvatarURL({ extension: 'png', size: 512 })
+                        name: user.globalName || user.username,
+                        iconURL: user.displayAvatarURL({ extension: 'png', size: 512 })
                     });
 
                 for (let i in fetched) {
@@ -281,8 +287,8 @@ export const command: Command = {
                 let embed = new EmbedBuilder()
                     .setDescription(`\`\`\`${nameValue}\`\`\`\`\`\`${descValue}\`\`\``)
                     .setAuthor({
-                        name: interaction.user.globalName || interaction.user.username,
-                        iconURL: interaction.user.displayAvatarURL({ extension: 'png', size: 512 })
+                        name: user.globalName || user.username,
+                        iconURL: user.displayAvatarURL({ extension: 'png', size: 512 })
                     })
                     .setTitle(data.schedule_create_title_embed)
                     .setThumbnail(interaction.guild?.iconURL() as string)
@@ -294,7 +300,7 @@ export const command: Command = {
                 let u = await i.reply({ content: data.schedule_create_when_question });
 
                 let dateCollector = interaction.channel?.createMessageCollector({
-                    filter: (m) => m.author.id === interaction.user.id,
+                    filter: (m) => m.author.id === user.id,
                     max: 1,
                     time: 120_000
                 });
@@ -313,7 +319,7 @@ export const command: Command = {
                         original_interaction.edit({
                             embeds: [],
                             content: data.schedule_create_not_number_time
-                                .replace('${interaction.user}', interaction.user.toString()),
+                                .replace('${interaction.user}', user.toString()),
                         });
                         return;
                     };
@@ -327,11 +333,11 @@ export const command: Command = {
                             }).setTitle(data.schedule_create_embed_title_confirm.replace('${scheduleCode}', scheduleCode))
                         ],
                         content: data.schedule_create_confirm_msg
-                            .replace('${interaction.user}', interaction.user.toString())
+                            .replace('${interaction.user}', user.toString())
                             .replace('${scheduleCode}', scheduleCode)
                     });
 
-                    await table.set(`${interaction.user.id}.${scheduleCode}`,
+                    await table.set(`${user.id}.${scheduleCode}`,
                         {
                             title: collection.get('name')?.value,
                             description: collection.get('desc')?.value,

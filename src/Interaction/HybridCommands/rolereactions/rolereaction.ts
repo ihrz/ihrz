@@ -26,12 +26,13 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     BaseGuildTextChannel,
-    ApplicationCommandType
+    ApplicationCommandType,
+    Message
 } from 'pwss'
 
-import { Command } from '../../../../types/command';
+import { Command } from '../../../../types/command.js';
 import logger from '../../../core/logger.js';
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {
     name: 'rolereaction',
@@ -41,6 +42,7 @@ export const command: Command = {
         "fr": "Définir des rôles lorsque l'utilisateur réagit à un message avec des emoji spécifiques"
     },
 
+    aliases: ["rolereact"],
     options: [
         {
             name: "value",
@@ -100,21 +102,34 @@ export const command: Command = {
     category: 'rolereactions',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.reply({ content: data.reactionroles_dont_admin_added });
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await client.args.interactionSend(interaction, { content: data.reactionroles_dont_admin_added });
             return;
         };
 
-        let type = interaction.options.getString("value");
-        let messagei = interaction.options.getString("messageid");
-        let reaction = interaction.options.getString("reaction");
-        let role = interaction.options.getRole("role");
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var type = interaction.options.getString("value");
+            var messagei = interaction.options.getString("messageid");
+            var reaction = interaction.options.getString("reaction");
+            var role = interaction.options.getRole("role");
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var type = client.args.string(args!, 0);
+            var messagei = client.args.string(args!, 1);
+            var reaction = client.args.string(args!, 2);
+            var role = client.args.role(interaction, 0);
+        }
 
         let help_embed = new EmbedBuilder()
             .setColor("#0000FF")
@@ -152,7 +167,7 @@ export const command: Command = {
                     .setColor("#bf0bb9")
                     .setTitle(data.reactionroles_logs_embed_title_added)
                     .setDescription(data.reactionroles_logs_embed_description_added
-                        .replace("${interaction.user.id}", interaction.user.id)
+                        .replace("${interaction.user.id}", interaction.member.user.id)
                         .replace("${messagei}", messagei!)
                         .replace("${reaction}", reaction)
                         .replace("${role}", role?.toString()!)
@@ -170,9 +185,8 @@ export const command: Command = {
             });
             return;
         } else if (type == "remove") {
-            let reactionLet = interaction.options.getString("reaction");
 
-            if (!reactionLet) {
+            if (!reaction) {
                 await interaction.reply({ content: data.reactionroles_missing_remove });
                 return;
             };
@@ -204,7 +218,7 @@ export const command: Command = {
                     .setColor("#bf0bb9")
                     .setTitle(data.reactionroles_logs_embed_title_remove)
                     .setDescription(data.reactionroles_logs_embed_description_remove
-                        .replace("${interaction.user.id}", interaction.user.id)
+                        .replace("${interaction.user.id}", interaction.member.user.id)
                         .replace("${messagei}", messagei!)
                         .replace("${reaction}", reaction!)
                     );
