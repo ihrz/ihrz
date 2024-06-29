@@ -105,7 +105,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction,{ content: data.support_not_admin });
+            await client.args.interactionSend(interaction, { content: data.support_not_admin });
             return;
         };
 
@@ -120,11 +120,12 @@ export const command: Command = {
             var input = client.args.longString(args!, 2)
         };
 
-        if (!roles) {
-            await client.args.interactionSend(interaction,{ content: data.support_command_not_role });
-            return;
-        }
         if (action == "enable") {
+            if (!roles) {
+                await client.args.interactionSend(interaction, { content: data.support_command_not_role });
+                return;
+            }
+
             await client.db.set(`${interaction.guildId}.GUILD.SUPPORT`,
                 {
                     input: input,
@@ -133,7 +134,7 @@ export const command: Command = {
                 }
             );
 
-            await client.args.interactionSend(interaction,{
+            await client.args.interactionSend(interaction, {
                 content: data.support_command_work
                     .replace("${interaction.guild.name}", interaction.guild.name)
                     .replace("${input}", input!)
@@ -154,7 +155,7 @@ export const command: Command = {
         } else {
             await client.db.delete(`${interaction.guildId}.GUILD.SUPPORT`);
 
-            await client.args.interactionSend(interaction,{
+            await client.args.interactionSend(interaction, {
                 content: data.support_command_work_on_disable
                     .replace("${interaction.guild.name}", interaction.guild.name)
             })
