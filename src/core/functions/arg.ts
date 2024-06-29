@@ -174,7 +174,10 @@ export async function checkCommandArgs(message: Message, command: SubCommandArgu
         });
     }
 
-    let minArgsCount = expectedArgs.filter(arg => arg.required && !arg.longString).length;
+    let minArgsCount = expectedArgs.filter(arg => arg.required).length;
+    if (expectedArgs.length > 0 && expectedArgs[expectedArgs.length - 1].longString && !expectedArgs[expectedArgs.length - 1].required) {
+        minArgsCount--;
+    }
 
     if (args.length < minArgsCount) {
         await sendErrorMessage(message, cleanBotPrefix, command, expectedArgs);

@@ -24,6 +24,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
     PermissionsBitField,
 } from 'pwss';
 
@@ -31,29 +32,40 @@ import {
 import logger from '../../../core/logger.js';
 import backup from 'discord-rebackup';
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.backup_not_admin });
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await client.args.interactionSend(interaction, { content: data.backup_not_admin });
             return;
         };
 
         if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.backup_i_dont_have_permission });
+            await client.args.interactionSend(interaction, { content: data.backup_i_dont_have_permission });
             return;
         };
 
         let i: number = 0;
         let j: number = 0;
 
-        let svMsg = interaction.options.getBoolean('save-message');
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var svMsg = interaction.options.getString('save-message')!;
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var svMsg = client.args.string(args!, 0)!;
+        };
 
         // @ts-ignore
         backup.create(interaction.guild, {
-            maxMessagesPerChannel: svMsg ? 10 : 0,
+            maxMessagesPerChannel: svMsg === "yes" ? 10 : 0,
             jsonBeautify: true
         }).then(async (backupData) => {
 
@@ -66,11 +78,11 @@ export default {
 
             let elData = { guildName: backupData.name, categoryCount: i, channelCount: j };
 
-            await client.db.set(`BACKUPS.${interaction.user.id}.${backupData.id}`, elData);
+            await client.db.set(`BACKUPS.${interaction.member?.user.id}.${backupData.id}`, elData);
 
             interaction.channel?.send({ content: data.backup_command_work_on_creation });
 
-            await interaction.editReply({
+            await client.args.interactionSend(interaction, {
                 content: data.backup_command_work_info_on_creation
                     .replace("${backupData.id}", backupData.id)
             });
@@ -80,7 +92,7 @@ export default {
                     .setColor("#bf0bb9")
                     .setTitle(data.backup_logs_embed_title_on_creation)
                     .setDescription(data.backup_logs_embed_description_on_creation
-                        .replace('${interaction.user.id}', interaction.user.id)
+                        .replace('${interaction.user.id}', interaction.member?.user.id!)
                     );
 
                 let logchannel = interaction.guild?.channels.cache.find((channel: {

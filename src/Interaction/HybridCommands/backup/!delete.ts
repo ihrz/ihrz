@@ -26,28 +26,36 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 import backup from "discord-rebackup";
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        let backupID = interaction.options.getString('backup-id') as string;
 
-        if (backupID && !await client.db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {
-            await interaction.editReply({
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var backupID = interaction.options.getString('backup-id') as string;
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var backupID = client.args.string(args!, 0) as string;
+        };
+
+        if (backupID && !await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
+            await client.args.interactionSend(interaction, {
                 content: data.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
-        let data_2 = await client.db.get(`BACKUPS.${interaction.user.id}.${backupID}`);
+        let data_2 = await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`);
 
         if (!data_2) {
-            await interaction.editReply({ content: data.backup_backup_doesnt_exist });
+            await client.args.interactionSend(interaction, { content: data.backup_backup_doesnt_exist });
             return;
         };
 
@@ -77,12 +85,12 @@ export default {
             .setLabel(data.backup_cancel_button);
 
         var components = new ActionRowBuilder<ButtonBuilder>().addComponents(delete_button).addComponents(cancel_button);
-        let messageEmbed = await interaction.editReply({ embeds: [em], components: [components] });
+        let messageEmbed = await client.args.interactionSend(interaction, { embeds: [em], components: [components] });
 
         let collector = messageEmbed.createMessageComponentCollector({
             filter: async (i) => {
                 await i.deferUpdate();
-                return interaction.user.id === i.user.id;
+                return interaction.member?.user.id === i.user.id;
             }, time: 15000
         });
 
