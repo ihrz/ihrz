@@ -134,7 +134,7 @@ export default {
         });
 
         function deleteContent() {
-            client.args.interactionEdit(i, { content: undefined });
+            client.args.interactionEdit(i as Message, { content: undefined });
         };
 
         await client.db.push(`${player.guildId}.MUSIC_HISTORY.buffer`,

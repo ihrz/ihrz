@@ -77,7 +77,7 @@ export default {
             index++;
         };
 
-        let message = await client.args.interactionSend(interaction, { embeds: [embeds[0]] });
+        let message = await client.args.interactionSend(interaction, { embeds: [embeds[0]] }) as Message;
 
         if (embeds.length === 1) return;
 

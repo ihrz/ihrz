@@ -138,11 +138,11 @@ export default {
             })
 
             allroles = i.values;
-            await client.args.interactionEdit(originalResponse, { embeds: [embed] });
+            await client.args.interactionEdit(originalResponse as Message, { embeds: [embed] });
         });
 
         collector.on('end', async () => {
-            await client.args.interactionEdit(originalResponse, { components: [] });
+            await client.args.interactionEdit(originalResponse as Message, { components: [] });
         })
     },
 };
