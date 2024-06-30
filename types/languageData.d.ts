@@ -1180,4 +1180,9 @@ export interface LanguageData {
   antispam_more_kick_msg: string;
   antispam_log_embed_title: string;
   antispam_log_embed_desc: string;
+  hybridcommands_global_prefix_mention: string;
+  hybridcommands_global_prefix_cleaned_mention: string;
+  hybridcommands_args_error_embed_desc: string;
+  hybridcommands_embed_help_title: string;
+  hybridcommands_embed_help_fields_value: string;
 }

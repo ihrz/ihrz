@@ -38,7 +38,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var user: User | undefined = interaction.options.getUser('user') || interaction.user;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var user: User | undefined = client.args.user(interaction, 0) || interaction.author;
         };
 

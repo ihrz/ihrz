@@ -48,7 +48,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var inputData = interaction.options.getString("giveaway-id") as string;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var inputData = client.args.string(args!, 0) as string;
         };
 

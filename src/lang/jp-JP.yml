@@ -1648,4 +1648,13 @@ antispam_more_kick_msg: " 続行すると、サーバーからキックされま
 antispam_log_embed_title: "[AntiSpam] 新しい ${actionType}"
 antispam_log_embed_desc: "${client.user?.toString()} が **${actionType}** ${user.toString()} を行いました"
 
+# ハイブリッドコマンド
+# イベントメッセージ
+
+hybridcommands_global_prefix_mention: "`@Ping-Me`"
+hybridcommands_global_prefix_cleaned_mention: "@Ping-Me "
+hybridcommands_args_error_embed_desc: "```ts\nコマンド名: ${currentCommand.name}\nコマンド説明: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\n\"${wrongArgumentName}\" 引数の送信中にエラーが発生しました。\n```"
+hybridcommands_embed_help_title: "${commandName} ヘルプ埋め込み"
+hybridcommands_embed_help_fields_value: "**エイリアス:** ${aliases}\n**使用法:** ${use}"
+
 # -----------------------------\ /-----------------------------

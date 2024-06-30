@@ -41,7 +41,7 @@ export default {
             var user1 = interaction.options.getUser("user1") || interaction.user;
             var user2 = interaction.options.getUser("user2") || interaction.guild.members.cache.random()?.user as User;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var user1 = client.args.user(interaction, 0) || interaction.author;
             var user2 = client.args.user(interaction, 1) || interaction.guild.members.cache.random()?.user as User;
         }

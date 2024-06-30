@@ -22,6 +22,7 @@
 import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, Embed, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions } from "pwss";
 import { Command } from "../../../types/command";
 import { Option } from "../../../types/option";
+import { LanguageData } from "../../../types/languageData";
 
 export function user(interaction: Message, argsNumber: number): User | null {
     return interaction.content.startsWith(`<@${interaction.client.user.id}`)
@@ -103,15 +104,17 @@ const getArgumentOptionTypeWithOptions = (o: Option): string => {
     return getArgumentOptionType(o.type);
 };
 
-export async function createAwesomeEmbed(command: Command, client: Client, interaction: ChatInputCommandInteraction | Message): Promise<EmbedBuilder> {
+export async function createAwesomeEmbed(lang: LanguageData, command: Command, client: Client, interaction: ChatInputCommandInteraction | Message): Promise<EmbedBuilder> {
+    var commandName = command.name.charAt(0).toUpperCase() + command.name.slice(1);
+
     const embed = new EmbedBuilder()
-        .setTitle(command.name.charAt(0).toUpperCase() + command.name.slice(1) + " Help Embed")
+        .setTitle(lang.hybridcommands_embed_help_title.replace("${commandName}", commandName))
         .setColor("LightGrey");
 
     var botPrefix = await client.func.prefix.guildPrefix(client, interaction.guildId!);
     var cleanBotPrefix = botPrefix.string;
 
-    if (botPrefix.type === "mention") { cleanBotPrefix = "`@Ping-Me`"; }
+    if (botPrefix.type === "mention") { cleanBotPrefix = lang.hybridcommands_global_prefix_mention; }
 
     command.options?.map(x => {
         var pathString = '';
@@ -122,9 +125,14 @@ export async function createAwesomeEmbed(command: Command, client: Client, inter
             pathString += getArgumentOptionTypeWithOptions(value);
             pathString += value.required ? "]`**" + " " : ">`**" + " ";
         });
+        var aliases = x.aliases?.map(x => `\`${x}\``).join(", ") || lang.setjoinroles_var_none;
+        var use = `${cleanBotPrefix}${fullNameCommand} ${pathString}`;
+
         embed.addFields({
             name: cleanBotPrefix + fullNameCommand,
-            value: `**Aliases:** ${x.aliases?.map(x => `\`${x}\``).join(", ") || "None"}\n**Use:** ${cleanBotPrefix}${fullNameCommand} ${pathString}`
+            value: lang.hybridcommands_embed_help_fields_value
+                .replace("${aliases}", aliases)
+                .replace("${use}", use)
         });
     });
 
@@ -147,11 +155,11 @@ const isSubCommandArgumentValue = (command: any): command is SubCommandArgumentV
     return command && (command as SubCommandArgumentValue).command !== undefined;
 };
 
-export async function checkCommandArgs(message: Message, command: SubCommandArgumentValue | Command, args: string[]): Promise<boolean> {
+export async function checkCommandArgs(message: Message, command: SubCommandArgumentValue | Command, args: string[], lang: LanguageData): Promise<boolean> {
     const botPrefix = await message.client.func.prefix.guildPrefix(message.client, message.guildId);
     let cleanBotPrefix = botPrefix.string;
 
-    if (botPrefix.type === "mention") { cleanBotPrefix = "@Ping-Me "; }
+    if (botPrefix.type === "mention") { cleanBotPrefix = lang.hybridcommands_global_prefix_cleaned_mention; }
 
     let expectedArgs: ArgumentBrief[] = [];
     if (isSubCommandArgumentValue(command)) {
@@ -178,7 +186,7 @@ export async function checkCommandArgs(message: Message, command: SubCommandArgu
     const isLastArgLongString = expectedArgs.length > 0 && expectedArgs[expectedArgs.length - 1].longString;
 
     if (args.length < minArgsCount || (args.length === 1 && args[0] === "")) {
-        await sendErrorMessage(message, cleanBotPrefix, command, expectedArgs, 0);
+        await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, 0);
         return false;
     }
 
@@ -194,7 +202,7 @@ export async function checkCommandArgs(message: Message, command: SubCommandArgu
         if (i >= args.length && !expectedArgs[i].required) {
             continue;
         } else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type)) {
-            await sendErrorMessage(message, cleanBotPrefix, command, expectedArgs, i);
+            await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, i);
             return false;
         }
     }
@@ -223,48 +231,56 @@ function isValidArgument(arg: string, type: string): boolean {
     }
 }
 
-async function sendErrorMessage(message: Message, botPrefix: string, command: SubCommandArgumentValue | Command, expectedArgs: ArgumentBrief[], errorIndex: number) {
+async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix: string, command: SubCommandArgumentValue | Command, expectedArgs: ArgumentBrief[], errorIndex: number) {
     let argument: string[] = [];
-
-    expectedArgs.map(arg => {
-        return argument.push(arg.required ? `[${arg.type}]` : `<${arg.type}>`);
-    });
-    var errorPosition = "";
-    var optionHelper: string = "";
     let fullNameCommand: string;
+
+    expectedArgs.map(arg => argument.push(arg.required ? `[${arg.type}]` : `<${arg.type}>`));
+
+    var currentCommand: Command | Option;
+    var wrongArgumentName: string = "";
+    var errorPosition = "";
+
     if (isSubCommandArgumentValue(command)) {
+        currentCommand = command.command!;
         fullNameCommand = command.name + " " + command.command?.name;
     } else {
         fullNameCommand = command.name;
+        currentCommand = command
     }
 
     errorPosition += " ".padStart(botPrefix.length + fullNameCommand.length);
 
     argument.forEach((index, value) => {
         if (errorIndex === value) {
-            if (isSubCommandArgumentValue(command)) {
-                let _ = command.command?.options?.find(x => x.name === index.slice(1, -1));
-                optionHelper = _?.name! || index.slice(1, -1);
-            } else {
-                let _ = command?.options?.find(x => x.name === index.slice(1, -1));
-                optionHelper = _?.name! || index.slice(1, -1);
-            }
+            wrongArgumentName = index.slice(1, -1);
             errorPosition += " ^";
         } else {
             errorPosition += " ".padStart(index.length + 1)
         }
     });
 
+    let argsString = argument.join(" ");
     const embed = new EmbedBuilder()
-        .setDescription(`
-\`\`\`cs
-${botPrefix}${fullNameCommand} ${argument.join(" ")}
-${errorPosition}
-Error when sending "${optionHelper}" argument.
-\`\`\``)
-        .setColor("Red");
+        .setDescription(lang.hybridcommands_args_error_embed_desc
+            .replace("${currentCommand.name}", currentCommand.name)
+            .replace("${currentCommand.description}", currentCommand.description)
+            .replace("${botPrefix}", botPrefix)
+            .replace("${fullNameCommand}", fullNameCommand)
+            .replace("${argsString}", argsString)
+            .replace("${errorPosition}", errorPosition)
+            .replace("${wrongArgumentName}", wrongArgumentName)
+        )
+        .setColor("Red")
+        .setFooter({
+            text: await message.client.func.displayBotName(message.guildId),
+            iconURL: "attachment://ihrz_logo.png"
+        })
 
-    await message.channel.send({ embeds: [embed] });
+    await message.client.args.interactionSend(message, {
+        embeds: [embed],
+        files: [{ attachment: await message.client.func.image64(message.client.user.displayAvatarURL()), name: 'ihrz_logo.png' }]
+    });
 }
 
 export async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionReplyOptions): Promise<Message> {

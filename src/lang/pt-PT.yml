@@ -1648,4 +1648,13 @@ antispam_more_kick_msg: " Se você continuar, será expulso do servidor."
 antispam_log_embed_title: "[AntiSpam] Novo ${actionType}"
 antispam_log_embed_desc: "${client.user?.toString()} **${actionType}** ${user.toString()}"
 
+# Comandos Híbridos
+# Mensagem de Evento
+
+hybridcommands_global_prefix_mention: "`@Ping-Me`"
+hybridcommands_global_prefix_cleaned_mention: "@Ping-Me "
+hybridcommands_args_error_embed_desc: "```ts\nNome do Comando: ${currentCommand.name}\nDescrição do Comando: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErro ao enviar o argumento \"${wrongArgumentName}\".\n```"
+hybridcommands_embed_help_title: "Incorporar Ajuda de ${commandName}"
+hybridcommands_embed_help_fields_value: "**Apelidos:** ${aliases}\n**Uso:** ${use}"
+
 # -----------------------------\ /-----------------------------

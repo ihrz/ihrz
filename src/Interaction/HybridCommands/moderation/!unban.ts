@@ -61,7 +61,7 @@ export default {
             var userID = interaction.options.getString('userid');
             var reason = interaction.options.getString('reason');
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args || []); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var userID = client.args.string(args!, 0);
             var reason = client.args.longString(args!, 1);
         };

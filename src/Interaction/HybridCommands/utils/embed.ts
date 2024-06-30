@@ -77,7 +77,7 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var arg = interaction.options.getString("id");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var arg = client.args.string(args!, 0);
         };
 
