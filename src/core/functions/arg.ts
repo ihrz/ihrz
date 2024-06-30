@@ -178,7 +178,7 @@ export async function checkCommandArgs(message: Message, command: SubCommandArgu
     const isLastArgLongString = expectedArgs.length > 0 && expectedArgs[expectedArgs.length - 1].longString;
 
     if (args.length < minArgsCount || (args.length === 1 && args[0] === "")) {
-        await sendErrorMessage(message, cleanBotPrefix, command, expectedArgs);
+        await sendErrorMessage(message, cleanBotPrefix, command, expectedArgs, 0);
         return false;
     }
 
@@ -223,13 +223,14 @@ function isValidArgument(arg: string, type: string): boolean {
     }
 }
 
-async function sendErrorMessage(message: Message, botPrefix: string, command: SubCommandArgumentValue | Command, expectedArgs: ArgumentBrief[], errorIndex?: number) {
-    let errorPosition = errorIndex !== undefined ? "^".padStart(errorIndex * 2 + 1, " ") : "";
+async function sendErrorMessage(message: Message, botPrefix: string, command: SubCommandArgumentValue | Command, expectedArgs: ArgumentBrief[], errorIndex: number) {
+    let argument: string[] = [];
 
-    const argumentDisplay = expectedArgs.map(arg => {
-        return arg.required ? `[${arg.type}]` : `<${arg.type}>`;
-    }).join(" ");
-
+    expectedArgs.map(arg => {
+        return argument.push(arg.required ? `[${arg.type}]` : `<${arg.type}>`);
+    });
+    var errorPosition = "";
+    var optionHelper: string = "";
     let fullNameCommand: string;
     if (isSubCommandArgumentValue(command)) {
         fullNameCommand = command.name + " " + command.command?.name;
@@ -237,14 +238,30 @@ async function sendErrorMessage(message: Message, botPrefix: string, command: Su
         fullNameCommand = command.name;
     }
 
+    errorPosition += " ".padStart(botPrefix.length + fullNameCommand.length);
+
+    argument.forEach((index, value) => {
+        if (errorIndex === value) {
+            if (isSubCommandArgumentValue(command)) {
+                let _ = command.command?.options?.find(x => x.name === index.slice(1, -1));
+                optionHelper = _?.name! || index.slice(1, -1);
+            } else {
+                let _ = command?.options?.find(x => x.name === index.slice(1, -1));
+                optionHelper = _?.name! || index.slice(1, -1);
+            }
+            errorPosition += " ^";
+        } else {
+            errorPosition += " ".padStart(index.length + 1)
+        }
+    });
+
     const embed = new EmbedBuilder()
-        .setTitle("❌ Error when typing arguments")
         .setDescription(`
-\`\`\`
-${botPrefix}${fullNameCommand} ${argumentDisplay}
-${errorPosition}  Error when sending these arguments
-\`\`\`
-        `)
+\`\`\`cs
+${botPrefix}${fullNameCommand} ${argument.join(" ")}
+${errorPosition}
+Error when sending "${optionHelper}" argument.
+\`\`\``)
         .setColor("Red");
 
     await message.channel.send({ embeds: [embed] });
