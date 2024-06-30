@@ -36,7 +36,7 @@ export default {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: data.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -51,7 +51,7 @@ export default {
         };
 
         if (talkedRecentlyforr.has(interaction.member.user.id)) {
-            await interaction.reply({ content: data.rob_cooldown_error });
+            await client.args.interactionSend(interaction,{ content: data.rob_cooldown_error });
             return;
         };
 
@@ -59,12 +59,12 @@ export default {
         let author = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`);
 
         if (author < 250) {
-            await interaction.reply({ content: data.rob_dont_enought_error });
+            await client.args.interactionSend(interaction,{ content: data.rob_dont_enought_error });
             return;
         };
 
         if (targetuser < 250) {
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: data.rob_him_dont_enought_error
                     .replace(/\${user\.user\.username}/g, user.globalName as string)
             });
@@ -82,7 +82,7 @@ export default {
             .setColor("#a4cb80")
             .setTimestamp()
 
-        await interaction.reply({ embeds: [embed] });
+        await client.args.interactionSend(interaction,{ embeds: [embed] });
 
         await client.db.sub(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, random);
         await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, random);

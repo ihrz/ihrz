@@ -39,7 +39,7 @@ export default {
         let daily = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: lang.economy_disable_msg
                     .replace('${interaction.member.user.od}', interaction.member.user.id)
             });
@@ -50,7 +50,7 @@ export default {
         if (daily !== null && timeout - (Date.now() - daily) > 0) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - daily));
 
-            await interaction.reply({ content: lang.daily_cooldown_error.replace(/\${time}/g, time) });
+            await client.args.interactionSend(interaction,{ content: lang.daily_cooldown_error.replace(/\${time}/g, time) });
             return;
         } else {
             let embed = new EmbedBuilder()
@@ -59,7 +59,7 @@ export default {
                 .setDescription(lang.daily_embed_description)
                 .addFields({ name: lang.daily_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` })
 
-            await interaction.reply({ embeds: [embed] });
+            await client.args.interactionSend(interaction,{ embeds: [embed] });
             await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount);
             await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`, Date.now());
             return;

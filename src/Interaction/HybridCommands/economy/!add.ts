@@ -46,7 +46,7 @@ export default {
         };
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -62,7 +62,7 @@ export default {
             var user = client.args.user(interaction, 0) as User;
         };
 
-        await interaction.reply({
+        await client.args.interactionSend(interaction,{
             content: lang.addmoney_command_work
                 .replace("${user.user.id}", user.id)
                 .replace("${amount.value}", amount.toString())

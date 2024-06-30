@@ -38,7 +38,7 @@ export default {
         let work = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: data.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -48,7 +48,7 @@ export default {
         if (work !== null && timeout - (Date.now() - work) > 0) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - work));
 
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: data.work_cooldown_error
                     .replace('${interaction.user.id}', interaction.member.user.id)
                     .replace('${time}', time),
@@ -71,7 +71,7 @@ export default {
             )
             .setColor("#f1d488");
 
-        await interaction.reply({ embeds: [embed] });
+        await client.args.interactionSend(interaction,{ embeds: [embed] });
 
         await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount);
         await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`, Date.now());
