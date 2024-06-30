@@ -23,19 +23,25 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
     PermissionsBitField
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 import wait from '../../../core/functions/wait.js';
+import { Command } from '../../../../types/command';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: Command, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.prevnames_not_admin });
-            return;
-        };
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await client.args.interactionSend(interaction, { content: data.prevnames_not_admin });
+        }
 
         let banned_members = await interaction.guild.bans.fetch()
 
@@ -43,7 +49,7 @@ export default {
         let cannot_unban = 0;
 
         if (!banned_members) {
-            await interaction.editReply({ content: data.action_unban_all_no_banned_members });
+            await client.args.interactionSend(interaction, { content: data.action_unban_all_no_banned_members });
             return;
         }
 
@@ -59,7 +65,7 @@ export default {
 
         await client.db.set(`${interaction.guildId}.UTILS.unban_members`, unbanned_members);
 
-        await interaction.editReply({
+        await client.args.interactionSend(interaction, {
             embeds: [
                 new EmbedBuilder()
                     .setColor(2829617)

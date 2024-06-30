@@ -23,23 +23,26 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
+    User,
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         let timeout: number = 2592000000;
         let amount: number = 5000;
 
-        let monthly = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.monthly`);
+        let monthly = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
-                content: data.economy_disable_msg
-                    .replace('${interaction.user.id}', interaction.user.id)
+                content: lang.economy_disable_msg
+                    .replace('${interaction.user.id}', interaction.member.user.id)
             });
             return;
         };
@@ -47,17 +50,17 @@ export default {
         if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - monthly));
 
-            await interaction.reply({ content: data.monthly_cooldown_error.replace(/\${time}/g, time) });
+            await interaction.reply({ content: lang.monthly_cooldown_error.replace(/\${time}/g, time) });
             return;
         } else {
             let embed = new EmbedBuilder()
-                .setAuthor({ name: data.monthly_embed_title, iconURL: interaction.user.displayAvatarURL() })
+                .setAuthor({ name: lang.monthly_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
                 .setColor("#a4cb80")
-                .setDescription(data.monthly_embed_description)
-                .addFields({ name: data.monthly_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` });
+                .setDescription(lang.monthly_embed_description)
+                .addFields({ name: lang.monthly_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` });
             await interaction.reply({ embeds: [embed] });
-            await client.db.add(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, amount);
-            await client.db.set(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.monthly`, Date.now());
+            await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount);
+            await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`, Date.now());
             return;
         };
     },

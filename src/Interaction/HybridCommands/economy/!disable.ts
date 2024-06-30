@@ -24,29 +24,42 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
     PermissionsBitField,
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
-            await interaction.reply({ content: data.economy_disable_not_admin });
+        const permissionsArray = [PermissionsBitField.Flags.ManageMessages]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await client.args.interactionSend(interaction, { content: lang.economy_disable_not_admin });
             return;
         };
 
-        let state = interaction.options.getString("action") as string;
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var state = interaction.options.getString("action") as string;
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var state = client.args.longString(args!, 0) as string;
+        };
+
         let current_state = await client.db.get(`${interaction.guildId}.ECONOMY.disabled`);
 
         if (state === 'on') {
 
             if (!current_state) {
                 await interaction.reply({
-                    content: data.economy_disable_already_enable
-                        .replace('${interaction.user.id}', interaction.user.id)
+                    content: lang.economy_disable_already_enable
+                        .replace('${interaction.user.id}', interaction.member.user.id)
                 });
                 return;
             };
@@ -54,15 +67,15 @@ export default {
             await client.db.set(`${interaction.guildId}.ECONOMY.disabled`, false);
 
             await interaction.reply({
-                content: data.economy_disable_set_enable
-                    .replace('${interaction.user.id}', interaction.user.id)
+                content: lang.economy_disable_set_enable
+                    .replace('${interaction.user.id}', interaction.member.user.id)
             });
         } else if (state === 'off') {
 
             if (current_state) {
                 await interaction.reply({
-                    content: data.economy_disable_already_disable
-                        .replace('${interaction.user.id}', interaction.user.id)
+                    content: lang.economy_disable_already_disable
+                        .replace('${interaction.user.id}', interaction.member.user.id)
                 });
                 return;
             };
@@ -70,17 +83,17 @@ export default {
             await client.db.set(`${interaction.guildId}.ECONOMY.disabled`, true);
 
             await interaction.reply({
-                content: data.economy_disable_set_disable
-                    .replace('${interaction.user.id}', interaction.user.id)
+                content: lang.economy_disable_set_disable
+                    .replace('${interaction.user.id}', interaction.member.user.id)
             });
         };
 
         try {
             let logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
-                .setTitle(data.economy_disable_logs_embed_title)
-                .setDescription(data.economy_disable_logs_embed_desc
-                    .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                .setTitle(lang.economy_disable_logs_embed_title)
+                .setDescription(lang.economy_disable_logs_embed_desc
+                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
                     .replace('${state}', state)
                 );
 

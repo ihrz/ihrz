@@ -23,22 +23,25 @@ import {
     Client,
     EmbedBuilder,
     ChatInputCommandInteraction,
+    Message,
+    User,
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         let timeout = 86400000;
         let amount = 500;
-        let daily = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.daily`);
+        let daily = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
-                content: data.economy_disable_msg
-                    .replace('${interaction.user.id}', interaction.user.id)
+                content: lang.economy_disable_msg
+                    .replace('${interaction.member.user.od}', interaction.member.user.id)
             });
             return;
         };
@@ -47,18 +50,18 @@ export default {
         if (daily !== null && timeout - (Date.now() - daily) > 0) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - daily));
 
-            await interaction.reply({ content: data.daily_cooldown_error.replace(/\${time}/g, time) });
+            await interaction.reply({ content: lang.daily_cooldown_error.replace(/\${time}/g, time) });
             return;
         } else {
             let embed = new EmbedBuilder()
-                .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL() })
+                .setAuthor({ name: lang.daily_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
                 .setColor("#a4cb80")
-                .setDescription(data.daily_embed_description)
-                .addFields({ name: data.daily_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` })
+                .setDescription(lang.daily_embed_description)
+                .addFields({ name: lang.daily_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` })
 
             await interaction.reply({ embeds: [embed] });
-            await client.db.add(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, amount);
-            await client.db.set(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.daily`, Date.now());
+            await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount);
+            await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`, Date.now());
             return;
         };
     },

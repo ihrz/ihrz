@@ -23,18 +23,25 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-    PermissionsBitField,
+    Message,
     User
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 import { axios } from '../../../core/functions/axios.js';
+import { SubCommandArgumentValue, member } from '../../../core/functions/arg';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let user: User | undefined = interaction.options.getUser('user') || interaction.user;
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var user: User | undefined = interaction.options.getUser('user') || interaction.user;
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var user: User | undefined = client.args.user(interaction, 0) || interaction.author;
+        };
+
         let format = 'png';
 
         let config_1 = {

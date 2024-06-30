@@ -22,46 +22,54 @@
 import {
     Client,
     ChatInputCommandInteraction,
-    User
+    User,
+    Message
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        let user = interaction.options.getUser("member") as User;
-        let amount = interaction.options.getNumber("amount") as number;
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var amount = interaction.options.getNumber("amount") as number;
+            var user = interaction.options.getUser("member") as User;
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var amount = client.args.number(args!, 0) as number;
+            var user = client.args.user(interaction, 0) as User;
+        };
 
         let member = await client.db.get(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
-                content: data.economy_disable_msg
-                    .replace('${interaction.user.id}', interaction.user.id)
+                content: lang.economy_disable_msg
+                    .replace('${interaction.user.id}', interaction.member.user.id)
             });
             return;
         };
 
         if (amount.toString().includes('-')) {
-            await interaction.reply({ content: data.pay_negative_number_error });
+            await interaction.reply({ content: lang.pay_negative_number_error });
             return;
         };
 
         if (amount && member < amount) {
-            await interaction.reply({ content: data.pay_dont_have_enought_to_give });
+            await interaction.reply({ content: lang.pay_dont_have_enought_to_give });
             return;
         }
 
         await interaction.reply({
-            content: data.pay_command_work
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username)
+            content: lang.pay_command_work
+                .replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username)
                 .replace(/\${user\.user\.username}/g, user.globalName!)
                 .replace(/\${amount}/g, amount.toString())
         });
 
         await client.db.add(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, amount!);
-        await client.db.sub(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, amount!);
+        await client.db.sub(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount!);
         return;
     },
 };

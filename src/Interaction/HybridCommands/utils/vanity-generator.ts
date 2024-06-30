@@ -30,6 +30,7 @@ import {
     ChatInputCommandInteraction,
     BaseGuildTextChannel,
     TextChannel,
+    Message,
 } from 'pwss';
 
 import { Command } from '../../../../types/command';
@@ -60,6 +61,8 @@ export const command: Command = {
 
     name: 'vanity-generator',
 
+    aliases: ["vanity", "vanity-gen", "customvanity"],
+
     description: 'Get your own vanity URL in discord.wf format!',
     description_localizations: {
         "fr": "Créer votre propre URL vanity sous le format discord.wf"
@@ -82,18 +85,27 @@ export const command: Command = {
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
-        if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.ViewAuditLog])) {
-            await interaction.reply({ content: data.renew_not_administrator });
-            return;
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var VanityCode = interaction.options.getString('code') as string;
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var VanityCode = client.args.string(args!, 0) as string;
         };
 
-        let VanityCode = interaction.options.getString('code') as string;
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await client.args.interactionSend(interaction, { content: data.renew_not_administrator });
+        }
 
         let db = client.db.table('API');
 
