@@ -74,7 +74,7 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var targetCommand = interaction.options.getString('command-name');
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var targetCommand = client.args.string(args!, 0);
         };
 
@@ -289,7 +289,7 @@ export const command: Command = {
             }
 
             await client.args.interactionSend(interaction, {
-                embeds: [await client.args.createAwesomeEmbed(fetchCommand, client, interaction)]
+                embeds: [await client.args.createAwesomeEmbed(data, fetchCommand, client, interaction)]
             })
         }
     },

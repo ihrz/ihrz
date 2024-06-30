@@ -94,7 +94,7 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var VanityCode = interaction.options.getString('code') as string;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var VanityCode = client.args.string(args!, 0) as string;
         };
 

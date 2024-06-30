@@ -38,7 +38,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var victim = interaction.options.getUser("user") as User;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var victim = client.args.user(interaction, 0) || interaction.author;
         }
 

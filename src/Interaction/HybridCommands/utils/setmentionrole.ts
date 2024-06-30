@@ -105,7 +105,7 @@ export const command: Command = {
             var argsid = interaction.options.getRole("roles");
             var nickname = interaction.options.getString("part-of-nickname");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var type = client.args.string(args!, 0);
             var argsid = client.args.role(interaction, 0);
             var nickname = client.args.longString(args!, 2);

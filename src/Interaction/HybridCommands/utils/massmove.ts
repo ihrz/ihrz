@@ -89,7 +89,7 @@ export const command: Command = {
             var fromChannel = interaction.options.getChannel('from') as BaseGuildVoiceChannel | null;
             var toChannel = interaction.options.getChannel('to')! as BaseGuildVoiceChannel | null;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var fromChannel = client.args.voiceChannel(interaction, 0);
             var toChannel = client.args.voiceChannel(interaction, 1);
         };

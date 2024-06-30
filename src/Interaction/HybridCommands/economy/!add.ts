@@ -57,7 +57,7 @@ export default {
             var amount = interaction.options.getNumber("amount") as number;
             var user = interaction.options.getUser("member") as User;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var amount = client.args.number(args!, 0) as number;
             var user = client.args.user(interaction, 0) as User;
         };

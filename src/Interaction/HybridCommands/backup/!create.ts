@@ -59,7 +59,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var svMsg = interaction.options.getString('save-message')!;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var svMsg = client.args.string(args!, 0)!;
         };
 
