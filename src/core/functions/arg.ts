@@ -241,7 +241,6 @@ async function sendErrorMessage(message: Message, botPrefix: string, command: Su
     argument.forEach((index, value) => { errorIndex === value ? errorPosition += " ^" : errorPosition += " ".padStart(index.length + 1) });
 
     const embed = new EmbedBuilder()
-        .setTitle("❌ Error when typing arguments")
         .setDescription(`
 \`\`\`
 ${botPrefix}${fullNameCommand} ${argument.join(" ")}
