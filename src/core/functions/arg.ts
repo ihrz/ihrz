@@ -244,10 +244,10 @@ async function sendErrorMessage(message: Message, botPrefix: string, command: Su
         if (errorIndex === value) {
             if (isSubCommandArgumentValue(command)) {
                 let _ = command.command?.options?.find(x => x.name === index.slice(1, -1));
-                optionHelper = _?.name!;
+                optionHelper = _?.name! || index.slice(1, -1);
             } else {
                 let _ = command?.options?.find(x => x.name === index.slice(1, -1));
-                optionHelper = _?.name!;
+                optionHelper = _?.name! || index.slice(1, -1);
             }
             errorPosition += " ^";
         } else {
