@@ -19,18 +19,19 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ChatInputCommandInteraction, Client, EmbedBuilder } from 'pwss';
+import { ChatInputCommandInteraction, Client, EmbedBuilder, Message } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../../types/database_structure';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
-                content: data.economy_disable_msg
-                    .replace('${interaction.user.id}', interaction.user.id)
+                content: lang.economy_disable_msg
+                    .replace('${interaction.user.id}', interaction.member.user.id)
             });
             return;
         };
@@ -49,7 +50,7 @@ export default {
 
         let embed = new EmbedBuilder()
             .setColor('#e4b7ff')
-            .setTitle(data.economy_leaderboard_embed_title
+            .setTitle(lang.economy_leaderboard_embed_title
                 .replace('${interaction.guild.name}', interaction.guild.name as string)
             )
             .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
@@ -65,7 +66,7 @@ export default {
             if (userId !== 'undefined' && userData) {
                 embed.addFields({
                     name: `#${index + 1}`,
-                    value: data.economy_leaderboard_embed_fields_value
+                    value: lang.economy_leaderboard_embed_fields_value
                         .replaceAll('${client.iHorizon_Emojis.icon.Coin}', client.iHorizon_Emojis.icon.Coin)
                         .replace('${userId}', userId)
                         .replace('${userData.bank || 0}', String(userData.bank || 0))

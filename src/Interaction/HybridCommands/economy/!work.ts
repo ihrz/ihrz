@@ -23,21 +23,24 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
+    User,
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         let timeout = 3_600_000;
-        let work = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.work`);
+        let work = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
                 content: data.economy_disable_msg
-                    .replace('${interaction.user.id}', interaction.user.id)
+                    .replace('${interaction.user.id}', interaction.member.user.id)
             });
             return;
         };
@@ -47,7 +50,7 @@ export default {
 
             await interaction.reply({
                 content: data.work_cooldown_error
-                    .replace('${interaction.user.id}', interaction.user.id)
+                    .replace('${interaction.user.id}', interaction.member.user.id)
                     .replace('${time}', time),
                 ephemeral: true
             });
@@ -59,18 +62,18 @@ export default {
         let embed = new EmbedBuilder()
             .setAuthor({
                 name: data.work_embed_author
-                    .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username),
-                iconURL: interaction.user.displayAvatarURL()
+                    .replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username),
+                iconURL: (interaction.member.user as User).displayAvatarURL()
             })
             .setDescription(data.work_embed_description
-                .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username)
+                .replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username)
                 .replace(/\${amount}/g, amount.toString())
             )
             .setColor("#f1d488");
 
         await interaction.reply({ embeds: [embed] });
 
-        await client.db.add(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, amount);
-        await client.db.set(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.work`, Date.now());
+        await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount);
+        await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`, Date.now());
     },
 };
