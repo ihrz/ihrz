@@ -23,32 +23,40 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
     User,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 
 let talkedRecentlyforr = new Set();
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
                 content: data.economy_disable_msg
-                    .replace('${interaction.user.id}', interaction.user.id)
+                    .replace('${interaction.user.id}', interaction.member.user.id)
             });
             return;
         };
 
-        if (talkedRecentlyforr.has(interaction.user.id)) {
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var user = interaction.options.getUser("member") as User;
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var user = client.args.user(interaction, 0) as User;
+        };
+
+        if (talkedRecentlyforr.has(interaction.member.user.id)) {
             await interaction.reply({ content: data.rob_cooldown_error });
             return;
         };
 
-        let user = interaction.options.getUser("member") as User;
         let targetuser = await client.db.get(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`);
-        let author = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`);
+        let author = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`);
 
         if (author < 250) {
             await interaction.reply({ content: data.rob_dont_enought_error });
@@ -67,7 +75,7 @@ export default {
 
         let embed = new EmbedBuilder()
             .setDescription(data.rob_embed_description
-                .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
                 .replace(/\${user\.id}/g, user.id)
                 .replace(/\${random}/g, random.toString())
             )
@@ -77,11 +85,11 @@ export default {
         await interaction.reply({ embeds: [embed] });
 
         await client.db.sub(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, random);
-        await client.db.add(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, random);
+        await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, random);
 
-        talkedRecentlyforr.add(interaction.user.id);
+        talkedRecentlyforr.add(interaction.member.user.id);
         setTimeout(() => {
-            talkedRecentlyforr.delete(interaction.user.id);
+            talkedRecentlyforr.delete(interaction.member?.user.id);
         }, 3000000);
     },
 };

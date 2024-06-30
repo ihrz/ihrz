@@ -22,23 +22,26 @@
 import {
     Client,
     EmbedBuilder,
-    ChatInputCommandInteraction
+    ChatInputCommandInteraction,
+    Message,
+    User
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         let timeout = 604800000;
         let amount = 1000;
-        let weekly = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.weekly`);
+        let weekly = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.weekly`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
                 content: data.economy_disable_msg
-                    .replace('${interaction.user.id}', interaction.user.id)
+                    .replace('${interaction.user.id}', interaction.member.user.id)
             });
             return;
         };
@@ -52,14 +55,14 @@ export default {
             })
         } else {
             let embed = new EmbedBuilder()
-                .setAuthor({ name: data.weekly_embed_title, iconURL: interaction.user.displayAvatarURL() })
+                .setAuthor({ name: data.weekly_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
                 .setColor("#a4cb80")
                 .setDescription(data.weekly_embed_description)
                 .addFields({ name: data.weekly_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` })
 
 
-            await client.db.add(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, amount);
-            await client.db.set(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.weekly`, Date.now());
+            await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount);
+            await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.weekly`, Date.now());
 
             await interaction.reply({ embeds: [embed] });
             return;

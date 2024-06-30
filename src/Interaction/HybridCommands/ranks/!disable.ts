@@ -30,14 +30,16 @@ import {
 
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
+import { SubCommandArgumentValue } from '../../../core/functions/arg.js';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var types = interaction.options.getString("action");
         } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
             var types = client.args.string(args!, 0);
         };
 
@@ -47,7 +49,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction,{ content: data.disablexp_not_admin });
+            await client.args.interactionSend(interaction, { content: data.disablexp_not_admin });
             return;
         };
 
@@ -69,7 +71,7 @@ export default {
 
             await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.disable`, false);
 
-            await client.args.interactionSend(interaction,{ content: data.disablexp_command_work_disable });
+            await client.args.interactionSend(interaction, { content: data.disablexp_command_work_disable });
             return;
         } else if (types == "disable") {
             try {
@@ -89,7 +91,7 @@ export default {
 
             await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.disable`, 'disable');
 
-            await client.args.interactionSend(interaction,{ content: data.disablexp_command_work_disable_entierly });
+            await client.args.interactionSend(interaction, { content: data.disablexp_command_work_disable_entierly });
             return;
         } else if (types == "on") {
             try {
@@ -109,7 +111,7 @@ export default {
 
             await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.disable`, true);
 
-            await client.args.interactionSend(interaction,{ content: data.disablexp_command_work_enable });
+            await client.args.interactionSend(interaction, { content: data.disablexp_command_work_enable });
             return;
         };
     },

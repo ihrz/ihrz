@@ -22,23 +22,32 @@
 import {
     ChatInputCommandInteraction,
     Client,
-    EmbedBuilder
+    EmbedBuilder,
+    Message,
+    User
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../../types/database_structure';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        let dataAccount = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY`) as DatabaseStructure.EconomyUserSchema;
-        let toWithdraw = interaction.options.getNumber('how-much') as number;
+        let dataAccount = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY`) as DatabaseStructure.EconomyUserSchema;
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var toWithdraw = interaction.options.getNumber('how-much') as number;
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var toWithdraw = client.args.number(args!, 0) as number;
+        };
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
                 content: data.economy_disable_msg
-                    .replace('${interaction.user.id}', interaction.user.id)
+                    .replace('${interaction.user.id}', interaction.member.user.id)
             });
             return;
         };
@@ -50,19 +59,19 @@ export default {
             return;
         };
 
-        await client.db.sub(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.bank`, toWithdraw!);
-        await client.db.add(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, toWithdraw!);
+        await client.db.sub(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`, toWithdraw!);
+        await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, toWithdraw!);
 
         let embed = new EmbedBuilder()
-            .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL() })
+            .setAuthor({ name: data.daily_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
             .setColor("#a4cb80")
             .setTitle(data.withdraw_embed_title)
             .setDescription(data.withdraw_embed_desc
                 .replace('${client.iHorizon_Emojis.icon.Coin}', client.iHorizon_Emojis.icon.Coin)
-                .replace('${interaction.user}', interaction.user.toString())
+                .replace('${interaction.user}', interaction.member.user.toString())
                 .replace('${toWithdraw}', toWithdraw.toString())
             )
-            .addFields({ name: data.withdraw_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
+            .addFields({ name: data.withdraw_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
             .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setTimestamp();
 

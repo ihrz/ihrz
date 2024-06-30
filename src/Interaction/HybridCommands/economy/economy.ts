@@ -24,10 +24,12 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     ApplicationCommandType,
+    Message,
 } from 'pwss';
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 
 export const command: Command = {
     name: "economy",
@@ -42,83 +44,71 @@ export const command: Command = {
 
     options: [
         {
-            name: "manage",
+            name: 'add',
 
-            description: "Remove / Add money to a user!",
+            description: 'Add money to a user!',
             description_localizations: {
-                "fr": "Ajoutez / Supprimer de la monnaie des utilisateur"
+                "fr": "Ajoutez de l'argent à un utilisateur"
             },
 
-            type: ApplicationCommandOptionType.SubcommandGroup,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
-                    name: 'add',
+                    name: 'amount',
+                    type: ApplicationCommandOptionType.Number,
 
-                    description: 'Add money to a user!',
+                    description: 'The amount of money you want to add',
                     description_localizations: {
-                        "fr": "Ajoutez de l'argent à un utilisateur"
+                        "fr": "Le montant d'argent que vous souhaitez ajouter"
                     },
 
-                    type: ApplicationCommandOptionType.Subcommand,
-                    options: [
-                        {
-                            name: 'amount',
-                            type: ApplicationCommandOptionType.Number,
-
-                            description: 'The amount of money you want to add',
-                            description_localizations: {
-                                "fr": "Le montant d'argent que vous souhaitez ajouter"
-                            },
-
-                            required: true
-                        },
-                        {
-                            name: 'member',
-                            type: ApplicationCommandOptionType.User,
-
-                            description: 'The member who you want to add money',
-                            description_localizations: {
-                                "fr": "Le membre à qui vous souhaitez ajouter de l'argent"
-                            },
-
-                            required: true
-                        }
-                    ],
+                    required: true
                 },
                 {
-                    name: 'remove',
+                    name: 'member',
+                    type: ApplicationCommandOptionType.User,
 
-                    description: 'Remove money from a user!',
+                    description: 'The member who you want to add money',
                     description_localizations: {
-                        "fr": "Retirer de l'argent à un utilisateur"
+                        "fr": "Le membre à qui vous souhaitez ajouter de l'argent"
                     },
 
-                    type: ApplicationCommandOptionType.Subcommand,
-                    options: [
-                        {
-                            name: 'amount',
-                            type: ApplicationCommandOptionType.Number,
+                    required: true
+                }
+            ],
+        },
+        {
+            name: 'remove',
 
-                            description: 'amount of $ you want add',
-                            description_localizations: {
-                                "fr": "montant de $ que vous souhaitez ajouter"
-                            },
+            description: 'Remove money from a user!',
+            description_localizations: {
+                "fr": "Retirer de l'argent à un utilisateur"
+            },
 
-                            required: true
-                        },
-                        {
-                            name: 'member',
-                            type: ApplicationCommandOptionType.User,
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+                {
+                    name: 'amount',
+                    type: ApplicationCommandOptionType.Number,
 
-                            description: 'the member you want to add the money',
-                            description_localizations: {
-                                "fr": "le membre auquel vous souhaitez ajouter de l'argent"
-                            },
+                    description: 'amount of $ you want add',
+                    description_localizations: {
+                        "fr": "montant de $ que vous souhaitez ajouter"
+                    },
 
-                            required: true
-                        }
-                    ],
+                    required: true
                 },
+                {
+                    name: 'member',
+                    type: ApplicationCommandOptionType.User,
+
+                    description: 'the member you want to add the money',
+                    description_localizations: {
+                        "fr": "le membre auquel vous souhaitez ajouter de l'argent"
+                    },
+
+                    required: true
+                }
             ],
         },
         {
@@ -214,46 +204,34 @@ export const command: Command = {
             ],
         },
         {
-            name: 'reward',
+            name: 'daily',
 
-            description: 'Claim a reward!',
+            description: 'Claim a daily reward!',
             description_localizations: {
-                "fr": "Réclamez une récompense"
+                "fr": "Réclamez une récompense quotidienne"
             },
 
-            type: ApplicationCommandOptionType.SubcommandGroup,
-            options: [
-                {
-                    name: 'daily',
+            type: ApplicationCommandOptionType.Subcommand
+        },
+        {
+            name: 'monthly',
 
-                    description: 'Claim a daily reward!',
-                    description_localizations: {
-                        "fr": "Réclamez une récompense quotidienne"
-                    },
+            description: 'Claim a monthly reward!',
+            description_localizations: {
+                "fr": "Réclamez une récompense mensuelle"
+            },
 
-                    type: ApplicationCommandOptionType.Subcommand
-                },
-                {
-                    name: 'monthly',
+            type: ApplicationCommandOptionType.Subcommand
+        },
+        {
+            name: 'weekly',
 
-                    description: 'Claim a monthly reward!',
-                    description_localizations: {
-                        "fr": "Réclamez une récompense mensuelle"
-                    },
+            description: 'Claim a weekly reward!',
+            description_localizations: {
+                "fr": "Réclamez une récompense hebdomadaire"
+            },
 
-                    type: ApplicationCommandOptionType.Subcommand
-                },
-                {
-                    name: 'weekly',
-
-                    description: 'Claim a weekly reward!',
-                    description_localizations: {
-                        "fr": "Réclamez une récompense hebdomadaire"
-                    },
-
-                    type: ApplicationCommandOptionType.Subcommand
-                }
-            ],
+            type: ApplicationCommandOptionType.Subcommand
         },
         {
             name: 'pay',
@@ -349,11 +327,27 @@ export const command: Command = {
     thinking: false,
     category: 'economy',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, options?: string[]) => {
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-        let command = interaction.options.getSubcommand();
+        let fetchedCommand;
+        let sub: SubCommandArgumentValue | undefined;
 
-        const commandModule = await import(`./!${command}.js`);
-        await commandModule.default.run(client, interaction, data);
+        if (interaction instanceof ChatInputCommandInteraction) {
+            fetchedCommand = interaction.options.getSubcommand();
+        } else {
+            if (!options?.[0]) {
+                await client.args.interactionSend(interaction, { embeds: [await client.args.createAwesomeEmbed(command, client, interaction)] });
+                return;
+            }
+            const cmd = command.options?.find(x => options[0] === x.name || x.aliases?.includes(options[0]));
+            sub = { name: command.name, command: cmd };
+            if (!cmd) return;
+
+            fetchedCommand = cmd.name;
+            options.shift();
+        }
+
+        const commandModule = await import(`./!${fetchedCommand}.js`);
+        await commandModule.default.run(client, interaction, data, sub, execTimestamp, options);
     },
 };

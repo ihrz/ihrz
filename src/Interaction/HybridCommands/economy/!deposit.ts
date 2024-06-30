@@ -23,44 +23,53 @@ import {
     Client,
     EmbedBuilder,
     ChatInputCommandInteraction,
+    Message,
+    User,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        let balance = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`);
-        let toDeposit = interaction.options.getNumber('how-much') as number;
+        let balance = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`);
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var toDeposit = interaction.options.getNumber('how-much') as number;
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var toDeposit = client.args.number(args!, 0) as number;
+        };
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
-                content: data.economy_disable_msg
-                    .replace('${interaction.user.id}', interaction.user.id)
+                content: lang.economy_disable_msg
+                    .replace('${interaction.user.id}', interaction.member.user.id)
             });
             return;
         };
 
         if (toDeposit && toDeposit > balance) {
             await interaction.reply({
-                content: data.deposit_cannot_abuse.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                content: lang.deposit_cannot_abuse.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
-        await client.db.add(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.bank`, toDeposit!);
-        await client.db.sub(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, toDeposit!);
+        await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`, toDeposit!);
+        await client.db.sub(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, toDeposit!);
 
         let embed = new EmbedBuilder()
-            .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL() })
+            .setAuthor({ name: lang.daily_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
             .setColor("#a4cb80")
-            .setTitle(data.deposit_embed_title)
-            .setDescription(data.deposit_embed_desc
+            .setTitle(lang.deposit_embed_title)
+            .setDescription(lang.deposit_embed_desc
                 .replace('${client.iHorizon_Emojis.icon.Coin}', client.iHorizon_Emojis.icon.Coin)
-                .replace('${interaction.user}', interaction.user.toString())
+                .replace('${interaction.user}', interaction.member.user.toString())
                 .replace('${toDeposit}', toDeposit.toString())
             )
-            .addFields({ name: data.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
+            .addFields({ name: lang.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
             .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setTimestamp();
 
