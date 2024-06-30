@@ -230,6 +230,7 @@ async function sendErrorMessage(message: Message, botPrefix: string, command: Su
         return argument.push(arg.required ? `[${arg.type}]` : `<${arg.type}>`);
     });
     var errorPosition = "";
+    var optionHelper: string = "";
     let fullNameCommand: string;
     if (isSubCommandArgumentValue(command)) {
         fullNameCommand = command.name + " " + command.command?.name;
@@ -237,15 +238,29 @@ async function sendErrorMessage(message: Message, botPrefix: string, command: Su
         fullNameCommand = command.name;
     }
 
-    errorPosition += " ".padStart(botPrefix.length + fullNameCommand.length)
-    argument.forEach((index, value) => { errorIndex === value ? errorPosition += " ^" : errorPosition += " ".padStart(index.length + 1) });
+    errorPosition += " ".padStart(botPrefix.length + fullNameCommand.length);
+
+    argument.forEach((index, value) => {
+        if (errorIndex === value) {
+            if (isSubCommandArgumentValue(command)) {
+                let _ = command.command?.options?.find(x => x.name === index.slice(1, -1));
+                optionHelper = _?.name!;
+            } else {
+                let _ = command?.options?.find(x => x.name === index.slice(1, -1));
+                optionHelper = _?.name!;
+            }
+            errorPosition += " ^";
+        } else {
+            errorPosition += " ".padStart(index.length + 1)
+        }
+    });
 
     const embed = new EmbedBuilder()
         .setDescription(`
-\`\`\`
+\`\`\`cs
 ${botPrefix}${fullNameCommand} ${argument.join(" ")}
 ${errorPosition}
-Error when sending these arguments
+Error when sending "${optionHelper}" argument.
 \`\`\``)
         .setColor("Red");
 
