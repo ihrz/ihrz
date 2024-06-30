@@ -46,7 +46,7 @@ export default {
         };
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: data.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -86,7 +86,7 @@ export default {
             if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
         } catch (e) { return; };
 
-        await interaction.reply({ embeds: [embed] });
+        await client.args.interactionSend(interaction,{ embeds: [embed] });
         return;
     },
 };
