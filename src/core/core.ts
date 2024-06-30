@@ -126,20 +126,6 @@ export async function main(client: Client) {
             process.stdout.write('\x1b]2;' + title + '\x1b\x5c');
         };
 
-        // @ts-ignore
-        client.giveawaysManager = new GiveawayManager(client, {
-            storage: `${process.cwd()}/src/files/giveaways/`,
-            config: {
-                botsCanWin: false,
-                embedColor: '#9a5af2',
-                embedColorEnd: '#2f3136',
-                reaction: '🎉',
-                botName: client.user?.username,
-                forceUpdateEvery: 3600,
-                endedGiveawaysLifetime: 345_600_000,
-            },
-        });
-
         global_client = client;
         commandsSync(client).then(() => {
             logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);
