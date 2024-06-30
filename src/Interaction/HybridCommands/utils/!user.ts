@@ -38,7 +38,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var user: User | undefined = interaction.options.getUser('user') || interaction.user;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var user: User | undefined = client.args.user(interaction, 0) || interaction.author;
         };
 
@@ -66,7 +66,7 @@ export default {
                 text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png"
             });
 
-        await interaction.reply({
+        await client.args.interactionSend(interaction,{
             embeds: [embed],
             files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
         });

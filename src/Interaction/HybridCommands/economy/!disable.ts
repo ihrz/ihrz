@@ -48,7 +48,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var state = interaction.options.getString("action") as string;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var state = client.args.longString(args!, 0) as string;
         };
 
@@ -57,7 +57,7 @@ export default {
         if (state === 'on') {
 
             if (!current_state) {
-                await interaction.reply({
+                await client.args.interactionSend(interaction,{
                     content: lang.economy_disable_already_enable
                         .replace('${interaction.user.id}', interaction.member.user.id)
                 });
@@ -66,14 +66,14 @@ export default {
 
             await client.db.set(`${interaction.guildId}.ECONOMY.disabled`, false);
 
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: lang.economy_disable_set_enable
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
         } else if (state === 'off') {
 
             if (current_state) {
-                await interaction.reply({
+                await client.args.interactionSend(interaction,{
                     content: lang.economy_disable_already_disable
                         .replace('${interaction.user.id}', interaction.member.user.id)
                 });
@@ -82,7 +82,7 @@ export default {
 
             await client.db.set(`${interaction.guildId}.ECONOMY.disabled`, true);
 
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: lang.economy_disable_set_disable
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });

@@ -38,12 +38,12 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var toDeposit = interaction.options.getNumber('how-much') as number;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var toDeposit = client.args.number(args!, 0) as number;
         };
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -51,7 +51,7 @@ export default {
         };
 
         if (toDeposit && toDeposit > balance) {
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: lang.deposit_cannot_abuse.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
@@ -73,7 +73,7 @@ export default {
             .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setTimestamp();
 
-        await interaction.reply({
+        await client.args.interactionSend(interaction,{
             embeds: [embed],
             files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
         });

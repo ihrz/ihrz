@@ -42,7 +42,7 @@ export default {
             var type = interaction.options.getString("action");
             var argsid = interaction.options.getChannel("channel") as Channel;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var type = client.args.string(args!, 0);
             var argsid = client.args.channel(interaction, 0) || interaction.channel;
         };

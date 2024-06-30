@@ -40,7 +40,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var action = interaction.options.getString("action");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var action = client.args.string(args!, 0);
         };
 

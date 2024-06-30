@@ -49,7 +49,7 @@ export default {
             var entry = interaction.options.getString('comment');
             var messageArgs = entry!.split(' ');
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var user: User = client.args.user(interaction, 0) || interaction.author;
             var entry = client.args.longString(args!, 1);
             var messageArgs = entry!.split(' ');

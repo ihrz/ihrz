@@ -1648,4 +1648,13 @@ antispam_more_kick_msg: " Wenn du weitermachst, wirst du vom Server gekickt."
 antispam_log_embed_title: "[AntiSpam] Neue ${actionType}"
 antispam_log_embed_desc: "${client.user?.toString()} hat **${actionType}** ${user.toString()}"
 
+# Hybridbefehle
+# Ereignisnachricht
+
+hybridcommands_global_prefix_mention: "`@Ping-Mich`"
+hybridcommands_global_prefix_cleaned_mention: "@Ping-Mich "
+hybridcommands_args_error_embed_desc: "```ts\nBefehl Name: ${currentCommand.name}\nBefehl Beschreibung: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nFehler beim Senden des Arguments \"${wrongArgumentName}\".\n```"
+hybridcommands_embed_help_title: "${commandName} Hilfe Einbettung"
+hybridcommands_embed_help_fields_value: "**Aliase:** ${aliases}\n**Verwendung:** ${use}"
+
 # -----------------------------\ /-----------------------------

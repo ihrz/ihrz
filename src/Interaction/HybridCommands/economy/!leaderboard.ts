@@ -29,7 +29,7 @@ export default {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -77,7 +77,7 @@ export default {
             }
         });
 
-        await interaction.reply({
+        await client.args.interactionSend(interaction,{
             embeds: [embed],
             files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
         });

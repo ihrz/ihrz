@@ -48,7 +48,7 @@ export default {
             var check = interaction.options.getString("title")!;
             var source = interaction.options.getString('source') as SearchPlatform;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args || []); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var source = "ytsearch" as SearchPlatform;
             var check = client.args.longString(args!, 1)!
         }

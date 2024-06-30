@@ -39,7 +39,7 @@ export default {
             .setThumbnail(interaction.guild.iconURL({ size: 4096 }) as string)
             .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
 
-        await interaction.reply({
+        await client.args.interactionSend(interaction,{
             embeds: [embed],
             files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
         });

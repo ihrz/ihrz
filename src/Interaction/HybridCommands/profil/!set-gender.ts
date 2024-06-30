@@ -35,7 +35,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var gender = interaction.options.getString("gender")!;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var gender = args?.join(" ") || "None";
         };
 

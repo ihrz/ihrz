@@ -115,7 +115,7 @@ export const command: Command = {
             var messagei = interaction.options.getString("name")?.toLowerCase()!;
             var channel = interaction.options.getChannel("channel") as BaseGuildVoiceChannel;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var type = client.args.string(args!, 0);
             var channel = client.args.voiceChannel(interaction, 0)!;
             var messagei = client.args.string(args!, 2)?.toLowerCase()!;

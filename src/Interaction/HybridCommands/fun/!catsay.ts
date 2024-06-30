@@ -51,7 +51,7 @@ export default {
     if (interaction instanceof ChatInputCommandInteraction) {
       var text = interaction.options.getString('text')?.slice(0, 30);
     } else {
-      var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+      var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
       var text = client.args.longString(args!, 0) as string | undefined;
     }
 

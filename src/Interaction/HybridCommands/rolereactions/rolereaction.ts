@@ -124,7 +124,7 @@ export const command: Command = {
             var reaction = interaction.options.getString("reaction");
             var role = interaction.options.getRole("role");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var type = client.args.string(args!, 0);
             var messagei = client.args.string(args!, 1);
             var reaction = client.args.string(args!, 2);

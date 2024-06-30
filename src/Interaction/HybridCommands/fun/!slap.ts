@@ -39,7 +39,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var slap = interaction.options.getUser("user");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var slap = client.args.user(interaction, 0);
         };
 

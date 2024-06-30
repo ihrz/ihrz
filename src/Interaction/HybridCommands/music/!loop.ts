@@ -47,7 +47,7 @@ export default {
             if (interaction instanceof ChatInputCommandInteraction) {
                 var mode = interaction.options.getString('mode');
             } else {
-                var _ = await client.args.checkCommandArgs(interaction, command, args || []); if (!_) return;
+                var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
                 var mode = client.args.string(args!, 0);
             };
 

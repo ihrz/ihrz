@@ -1648,4 +1648,13 @@ antispam_more_kick_msg: " Если вы продолжите, вы будете 
 antispam_log_embed_title: "[AntiSpam] Новый ${actionType}"
 antispam_log_embed_desc: "${client.user?.toString()} **${actionType}** ${user.toString()}"
 
+# Гибридные Команды
+# Сообщение о Событии
+
+hybridcommands_global_prefix_mention: "`@Ping-Me`"
+hybridcommands_global_prefix_cleaned_mention: "@Ping-Me "
+hybridcommands_args_error_embed_desc: "```ts\nИмя Команды: ${currentCommand.name}\nОписание Команды: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nОшибка при отправке аргумента \"${wrongArgumentName}\".\n```"
+hybridcommands_embed_help_title: "${commandName} Встроенная Помощь"
+hybridcommands_embed_help_fields_value: "**Псевдонимы:** ${aliases}\n**Использование:** ${use}"
+
 # -----------------------------/ \-----------------------------

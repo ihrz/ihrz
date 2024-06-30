@@ -34,7 +34,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var desc = interaction.options.getString("description")!;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var desc = args?.join(" ") || "None";
         };
 

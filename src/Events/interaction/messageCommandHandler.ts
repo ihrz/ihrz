@@ -23,6 +23,18 @@ import { Command } from '../../../types/command';
 import { BotEvent } from '../../../types/event';
 import { Client, Message } from 'pwss';
 
+var timeout: number = 1000;
+
+async function cooldDown(client: Client, message: Message) {
+    let tn = Date.now();
+    let table = client.db.table("TEMP");
+    var fetch = await table.get(`COOLDOWN.${message.author.id}`);
+    if (fetch !== null && timeout - (tn - fetch) > 0) return true;
+
+    await table.set(`COOLDOWN.${message.author.id}`, tn);
+    return false;
+};
+
 export async function isMessageCommand(client: Client, message: Message): Promise<{ s: boolean, a?: string[], c?: Command }> {
     var prefix = await client.func.prefix.guildPrefix(client, message.guildId!);
 
@@ -41,6 +53,14 @@ export const event: BotEvent = {
     run: async (client: Client, message: Message) => {
 
         if (!message.guild || message.author.bot || !message.channel) return;
+
+        if (await cooldDown(client, message)) {
+            return;
+        };
+
+        if (await client.db.table('BLACKLIST').get(`${message.author.id}.blacklisted`)) {
+            return;
+        };
 
         let result = await isMessageCommand(client, message);
 

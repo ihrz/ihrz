@@ -42,7 +42,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var nw = interaction.options.getString("nickname") || '';
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var nw = client.args.longString(args!, 0) || '';
         }
 

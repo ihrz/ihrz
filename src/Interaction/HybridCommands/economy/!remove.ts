@@ -46,7 +46,7 @@ export default {
         };
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await interaction.reply({
+            await client.args.interactionSend(interaction,{
                 content: data.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -57,7 +57,7 @@ export default {
             var amount = interaction.options.getNumber("amount") as number;
             var user = interaction.options.getUser("member") as User;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var amount = client.args.number(args!, 0) as number;
             var user = client.args.user(interaction, 0) as User;
         };
@@ -86,7 +86,7 @@ export default {
             if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
         } catch (e) { return; };
 
-        await interaction.reply({ embeds: [embed] });
+        await client.args.interactionSend(interaction,{ embeds: [embed] });
         return;
     },
 };
