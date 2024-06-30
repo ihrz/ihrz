@@ -22,7 +22,7 @@
 import { Client, GuildMember, TextChannel } from 'pwss';
 
 import { BotEvent } from '../../../types/event';
-import { DatabaseStructure } from '../../core/database_structure';
+import { DatabaseStructure } from '../../../types/database_structure';
 import logger from '../../core/logger.js';
 
 export const event: BotEvent = {

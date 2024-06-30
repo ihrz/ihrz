@@ -131,6 +131,10 @@ ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Niveau**: `${a.level || '0'}`\n🔱 ➥ **XP Total**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Niveau: ${a.level || '0'}\n🔱 ➥ XP Total: ${a.xptotal}"
 
+# /ranks ignore-channels
+ranks_ignorechannels_embed_title: "Configurations du Module de Rangs"
+ranks_ignorechannels_embed_desc: "Lorsque de nouveaux messages sont envoyés dans l'un de ces canaux, le module de rangs les ignore."
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -905,7 +909,7 @@ reroll_giveaway_not_over: "Ce Giveaway n'est pas terminé !"
 
 # /get-all
 gw_getall_embed_title: "Liste des Giveaway(s) pour ${interaction.guild?.name}"
-gw_getall_embed_fields: "${Chaîne} [Voir ici](${MessageURL}) \n**Expire dans** ${ExpireIn}"
+gw_getall_embed_fields: "${Channel} [Voir ici](${MessageURL}) \n**Expire dans** ${ExpireIn}"
 
 # /get-data
 gw_getdata_embed_title: "Informations sur le Giveaway !"
@@ -923,6 +927,7 @@ gw_getdata_embed_fields_winners: "Gagnant(s)"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (utilisez `/gw list-entries giveaway-id:${giveawayId}` pour plus d'informations)"
 gw_getdata_yes: "`Oui`"
 gw_getdata_no: "`Non`"
+gw_doesnt_exit: "Les cadeaux sont inaccessibles ou n'existent pas."
 
 
 # Moderation commands
@@ -1448,6 +1453,9 @@ antispam_manage_preset_level3_name: "Mode Protection Extrême"
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Tous les rôles ci-dessous peuvent contourner le module antispam"
 
+# /antispam bypass-roles
+antispam_ignorechannels_embed_desc: "Tous les messages envoyés dans l'un des canaux ci-dessous peuvent contourner le module antispam."
+
 # -----------------------------/ \-----------------------------
 # Événements du Module de Confession
 confession_module_modal_title: "Envoyer une confession"
@@ -1639,5 +1647,14 @@ antispam_more_kick_msg: " Si vous continuez, vous serez expulsés du serveur."
 # Intégrer les journaux d'AntiSpam
 antispam_log_embed_title: "[AntiSpam] Nouveau ${actionType}"
 antispam_log_embed_desc: "${client.user?.toString()} a **${actionType}** ${user.toString()}"
+
+# Commandes Hybrides
+# Message d'Événement
+
+hybridcommands_global_prefix_mention: "`@Ping-Moi`"
+hybridcommands_global_prefix_cleaned_mention: "@Ping-Moi "
+hybridcommands_args_error_embed_desc: "```ts\nNom de la Commande: ${currentCommand.name}\nDescription de la Commande: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErreur lors de l'envoi de l'argument \"${wrongArgumentName}\".\n```"
+hybridcommands_embed_help_title: "${commandName} Aide en Intégration"
+hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Utilisation:** ${use}"
 
 # -----------------------------\ /-----------------------------

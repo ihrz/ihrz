@@ -131,6 +131,10 @@ ranks_leaderboard_top_txt_raw: "Топ #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Уровень**: `${a.level || '0'}`\n🔱 ➥ **Общий опыт**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Уровень: ${a.level || '0'}\n🔱 ➥ Общий опыт: ${a.xptotal}"
 
+# /ranks ignore-channels
+ranks_ignorechannels_embed_title: "Конфигурации модуля рангов"
+ranks_ignorechannels_embed_desc: "Когда новые сообщения отправляются в один из этих каналов, модуль рангов их игнорирует."
+
 
 # Команды владельца
 # /owner, /unowner, /blacklist, /unblacklist
@@ -923,6 +927,7 @@ gw_getdata_embed_fields_winners: "Победитель(и)"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (используйте `/gw list-entries giveaway-id:${giveawayId}` для получения дополнительной информации)"
 gw_getdata_yes: "`Да`"
 gw_getdata_no: "`Нет`"
+gw_doesnt_exit: "Подарки недоступны или не существуют."
 
 
 # Команды модерации
@@ -1448,6 +1453,9 @@ antispam_manage_preset_level3_name: "Режим Экстремальной За�
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Все роли ниже могут обойти модуль антиспама"
 
+# /antispam bypass-roles
+antispam_ignorechannels_embed_desc: "Все сообщения, отправленные в один из указанных ниже каналов, могут обходить модуль антиспама."
+
 # -----------------------------/ \-----------------------------
 # События Модуля Исповедей
 confession_module_modal_title: "Отправить исповедь"
@@ -1639,5 +1647,14 @@ antispam_more_kick_msg: " Если вы продолжите, вы будете 
 # Встроенные логи AntiSpam
 antispam_log_embed_title: "[AntiSpam] Новый ${actionType}"
 antispam_log_embed_desc: "${client.user?.toString()} **${actionType}** ${user.toString()}"
+
+# Гибридные Команды
+# Сообщение о Событии
+
+hybridcommands_global_prefix_mention: "`@Ping-Me`"
+hybridcommands_global_prefix_cleaned_mention: "@Ping-Me "
+hybridcommands_args_error_embed_desc: "```ts\nИмя Команды: ${currentCommand.name}\nОписание Команды: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nОшибка при отправке аргумента \"${wrongArgumentName}\".\n```"
+hybridcommands_embed_help_title: "${commandName} Встроенная Помощь"
+hybridcommands_embed_help_fields_value: "**Псевдонимы:** ${aliases}\n**Использование:** ${use}"
 
 # -----------------------------/ \-----------------------------

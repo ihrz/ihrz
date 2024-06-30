@@ -28,8 +28,7 @@ import {
     EmbedBuilder,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
-import { DatabaseStructure } from '../../../core/database_structure';
-
+import { DatabaseStructure } from '../../../../types/database_structure';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing

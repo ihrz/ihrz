@@ -131,6 +131,10 @@ ranks_leaderboard_top_txt_raw: "トップ#${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **レベル**: `${a.level || '0'}`\n🔱 ➥ **総XP**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ レベル: ${a.level || '0'}\n🔱 ➥ 総XP: ${a.xptotal}"
 
+# /ranks ignore-channels
+ranks_ignorechannels_embed_title: "ランクモジュールの設定"
+ranks_ignorechannels_embed_desc: "これらのチャネルのいずれかに新しいメッセージが送信されると、ランクモジュールはそれを無視します。"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -923,6 +927,7 @@ gw_getdata_embed_fields_winners: "優勝者"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (詳細は `/gw list-entries giveaway-id:${giveawayId}` をご利用ください)"
 gw_getdata_yes: "`はい`"
 gw_getdata_no: "`いいえ`"
+gw_doesnt_exit: "景品は到達できないか、存在しません。"
 
 
 # Moderation commands
@@ -1448,6 +1453,9 @@ antispam_manage_preset_level3_name: "エクストリーム保護モード"
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "以下のすべてのロールはアンチスパムモジュールをバイパスできます"
 
+# /antispam bypass-roles
+antispam_ignorechannels_embed_desc: "以下のチャネルのいずれかに送信されたすべてのメッセージは、アンチスパムモジュールをバイパスできます。"
+
 # -----------------------------/ \-----------------------------
 # 告白モジュールイベント
 confession_module_modal_title: "告白を送る"
@@ -1639,5 +1647,14 @@ antispam_more_kick_msg: " 続行すると、サーバーからキックされま
 # AntiSpamのログを埋め込む
 antispam_log_embed_title: "[AntiSpam] 新しい ${actionType}"
 antispam_log_embed_desc: "${client.user?.toString()} が **${actionType}** ${user.toString()} を行いました"
+
+# ハイブリッドコマンド
+# イベントメッセージ
+
+hybridcommands_global_prefix_mention: "`@Ping-Me`"
+hybridcommands_global_prefix_cleaned_mention: "@Ping-Me "
+hybridcommands_args_error_embed_desc: "```ts\nコマンド名: ${currentCommand.name}\nコマンド説明: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\n\"${wrongArgumentName}\" 引数の送信中にエラーが発生しました。\n```"
+hybridcommands_embed_help_title: "${commandName} ヘルプ埋め込み"
+hybridcommands_embed_help_fields_value: "**エイリアス:** ${aliases}\n**使用法:** ${use}"
 
 # -----------------------------\ /-----------------------------

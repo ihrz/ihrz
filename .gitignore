@@ -155,3 +155,4 @@ src/files/backups/*.json
 quickdb.json
 mysqlCacheManager.db.mts
 src/Events/pv/ai.ts
+__MessageCommands

@@ -131,6 +131,10 @@ ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Level**: `${a.level || '0'}`\n🔱 ➥ **XP Total**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Level: ${a.level || '0'}\n🔱 ➥ XP Total: ${a.xptotal}"
 
+# /ranks ignore-channels
+ranks_ignorechannels_embed_title: "Ranks Module Configurations"
+ranks_ignorechannels_embed_desc: "When new message are sent in one of this channels, Ranks Module ignore it."
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -923,6 +927,7 @@ gw_getdata_embed_fields_winners: "Winner(s)"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (use `/gw list-entries giveaway-id:${giveawayId}` for more info)"
 gw_getdata_yes: "`Yes`"
 gw_getdata_no: "`No`"
+gw_doesnt_exit: "The giveways is unreachable, or doesn't exist."
 
 
 # Moderation commands
@@ -1448,6 +1453,9 @@ antispam_manage_preset_level3_name: "Extreme Protection Mode"
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "All of the roles bellow can bypass the antispam module"
 
+# /antispam bypass-roles
+antispam_ignorechannels_embed_desc: "All message sent in one of this channels bellow can bypass the antispam module"
+
 # -----------------------------/ \-----------------------------
 # Confession Module Events
 confession_module_modal_title: "Send a confession"
@@ -1639,5 +1647,14 @@ antispam_more_kick_msg: " If you continue, you will be kicked from the server."
 # Embed Logs of AntiSpam
 antispam_log_embed_title: "[AntiSpam] New ${actionType}"
 antispam_log_embed_desc: "${client.user?.toString()} have **${actionType}** ${user.toString()}"
+
+# Hybrid Commands
+# Event Message
+
+hybridcommands_global_prefix_mention: "`@Ping-Me`"
+hybridcommands_global_prefix_cleaned_mention: "@Ping-Me "
+hybridcommands_args_error_embed_desc: "```ts\nCommand Name: ${currentCommand.name}\nCommand Description: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nError when sending \"${wrongArgumentName}\" argument.\n```"
+hybridcommands_embed_help_title: "${commandName} Help Embed"
+hybridcommands_embed_help_fields_value: "**Aliases:** ${aliases}\n**Use:** ${use}"
 
 # -----------------------------\ /-----------------------------

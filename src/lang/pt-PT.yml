@@ -131,6 +131,10 @@ ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Nível**: `${a.level || '0'}`\n🔱 ➥ **XP Total**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Nível: ${a.level || '0'}\n🔱 ➥ XP Total: ${a.xptotal}"
 
+# /ranks ignore-channels
+ranks_ignorechannels_embed_title: "Configurações do Módulo de Classificações"
+ranks_ignorechannels_embed_desc: "Quando novas mensagens são enviadas em um desses canais, o Módulo de Classificações as ignora."
+
 
 # Comandos do Proprietário
 # /owner, /unowner, /blacklist, /unblacklist
@@ -923,6 +927,7 @@ gw_getdata_embed_fields_winners: "Winner(s)"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (use `/gw list-entries giveaway-id:${giveawayId}` for more info)"
 gw_getdata_yes: "`Yes`"
 gw_getdata_no: "`No`"
+gw_doesnt_exit: "Os brindes estão inacessíveis ou não existem."
 
 
 # Comandos de moderação
@@ -1448,6 +1453,9 @@ antispam_manage_preset_level3_name: "Modo de Proteção Extrema"
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Todos os papéis abaixo podem ignorar o módulo antispam"
 
+# /antispam bypass-roles
+antispam_ignorechannels_embed_desc: "Todas as mensagens enviadas em um dos canais abaixo podem ignorar o módulo antispam."
+
 # -----------------------------/ \-----------------------------
 # Eventos do Módulo de Confissões
 confession_module_modal_title: "Enviar uma confissão"
@@ -1639,5 +1647,14 @@ antispam_more_kick_msg: " Se você continuar, será expulso do servidor."
 # Logs do Embed do AntiSpam
 antispam_log_embed_title: "[AntiSpam] Novo ${actionType}"
 antispam_log_embed_desc: "${client.user?.toString()} **${actionType}** ${user.toString()}"
+
+# Comandos Híbridos
+# Mensagem de Evento
+
+hybridcommands_global_prefix_mention: "`@Ping-Me`"
+hybridcommands_global_prefix_cleaned_mention: "@Ping-Me "
+hybridcommands_args_error_embed_desc: "```ts\nNome do Comando: ${currentCommand.name}\nDescrição do Comando: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErro ao enviar o argumento \"${wrongArgumentName}\".\n```"
+hybridcommands_embed_help_title: "Incorporar Ajuda de ${commandName}"
+hybridcommands_embed_help_fields_value: "**Apelidos:** ${aliases}\n**Uso:** ${use}"
 
 # -----------------------------\ /-----------------------------

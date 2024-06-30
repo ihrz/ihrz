@@ -131,6 +131,10 @@ ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Nivel**: `${a.level || '0'}`\n🔱 ➥ **XP Total**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Nivel: ${a.level || '0'}\n🔱 ➥ XP Total: ${a.xptotal}"
 
+# /ranks ignore-channels
+ranks_ignorechannels_embed_title: "Configuraciones del Módulo de Rangos"
+ranks_ignorechannels_embed_desc: "Cuando se envían nuevos mensajes en uno de estos canales, el Módulo de Rangos los ignora."
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -905,7 +909,7 @@ reroll_giveaway_not_over: "¡Este sorteo no ha terminado!"
 
 # /get-all
 gw_getall_embed_title: "Lista de Sorteo(s) para ${interaction.guild?.name}"
-gw_getall_embed_fields: "${Canal} [Ver aquí](${MessageURL}) \n**Expira en** ${ExpireIn}"
+gw_getall_embed_fields: "${Channel} [Ver aquí](${MessageURL}) \n**Expira en** ${ExpireIn}"
 
 # /get-data
 gw_getdata_embed_title: "¡Información del Sorteo!"
@@ -923,6 +927,7 @@ gw_getdata_embed_fields_winners: "Ganador(es)"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (usa `/gw list-entries giveaway-id:${giveawayId}` para más información)"
 gw_getdata_yes: "`Sí`"
 gw_getdata_no: "`No`"
+gw_doesnt_exit: "Los sorteos no son alcanzables o no existen."
 
 
 # Moderation commands
@@ -1448,6 +1453,9 @@ antispam_manage_preset_level3_name: "Modo de Protección Extrema"
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Todos los roles a continuación pueden omitir el módulo antispam"
 
+# /antispam bypass-roles
+antispam_ignorechannels_embed_desc: "Todos los mensajes enviados en uno de los canales a continuación pueden omitir el módulo antispam."
+
 # -----------------------------/ \-----------------------------
 # Eventos del Módulo de Confesión
 confession_module_modal_title: "Enviar una confesión"
@@ -1639,5 +1647,14 @@ antispam_more_kick_msg: " Si continúas, serás expulsado del servidor."
 # Incrustar registros de AntiSpam
 antispam_log_embed_title: "[AntiSpam] Nuevo ${actionType}"
 antispam_log_embed_desc: "${client.user?.toString()} ha **${actionType}** ${user.toString()}"
+
+# Comandos Híbridos
+# Mensaje de Evento
+
+hybridcommands_global_prefix_mention: "`@Ping-Me`"
+hybridcommands_global_prefix_cleaned_mention: "@Ping-Me "
+hybridcommands_args_error_embed_desc: "```ts\nNombre del Comando: ${currentCommand.name}\nDescripción del Comando: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nError al enviar el argumento \"${wrongArgumentName}\".\n```"
+hybridcommands_embed_help_title: "${commandName} Ayuda de Inserción"
+hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Uso:** ${use}"
 
 # -----------------------------\ /-----------------------------

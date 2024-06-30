@@ -131,6 +131,10 @@ ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Livello**: `${a.level || '0'}`\n🔱 ➥ **XP Totale**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Livello: ${a.level || '0'}\n🔱 ➥ XP Totale: ${a.xptotal}"
 
+# /ranks ignore-channels
+ranks_ignorechannels_embed_title: "Configurazioni del Modulo Classifiche"
+ranks_ignorechannels_embed_desc: "Quando vengono inviati nuovi messaggi in uno di questi canali, il Modulo Classifiche li ignora."
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -905,7 +909,7 @@ reroll_giveaway_not_over: "Questo giveaway non è ancora terminato!"
 
 # /get-all
 gw_getall_embed_title: "Lista de Sorteo(s) para ${interaction.guild?.name}"
-gw_getall_embed_fields: "${Canal} [Ver aquí](${MessageURL}) \n**Caduca en** ${ExpireIn}"
+gw_getall_embed_fields: "${Channel} [Ver aquí](${MessageURL}) \n**Caduca en** ${ExpireIn}"
 
 # /get-data
 gw_getdata_embed_title: "¡Información del Sorteo!"
@@ -923,6 +927,7 @@ gw_getdata_embed_fields_winners: "Vincitore(i)"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (usa `/gw list-entries giveaway-id:${giveawayId}` para más información)"
 gw_getdata_yes: "`Sí`"
 gw_getdata_no: "`No`"
+gw_doesnt_exit: "I regali non sono raggiungibili o non esistono."
 
 
 # Moderation commands
@@ -1448,6 +1453,9 @@ antispam_manage_preset_level3_name: "Modalità Protezione Estrema"
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Tutti i ruoli sottostanti possono bypassare il modulo antispam"
 
+# /antispam bypass-roles
+antispam_ignorechannels_embed_desc: "Tutti i messaggi inviati in uno dei canali sottostanti possono bypassare il modulo antispam."
+
 # -----------------------------/ \-----------------------------
 # Eventi del Modulo Confessioni
 confession_module_modal_title: "Invia una confessione"
@@ -1639,5 +1647,14 @@ antispam_more_kick_msg: " Se continui, verrai espulso dal server."
 # Embed dei log di AntiSpam
 antispam_log_embed_title: "[AntiSpam] Nuovo ${actionType}"
 antispam_log_embed_desc: "${client.user?.toString()} ha **${actionType}** ${user.toString()}"
+
+# Comandi Ibridi
+# Messaggio di Evento
+
+hybridcommands_global_prefix_mention: "`@Ping-Me`"
+hybridcommands_global_prefix_cleaned_mention: "@Ping-Me "
+hybridcommands_args_error_embed_desc: "```ts\nNome del Comando: ${currentCommand.name}\nDescrizione del Comando: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErrore nell'invio dell'argomento \"${wrongArgumentName}\".\n```"
+hybridcommands_embed_help_title: "Incorporamento di Aiuto di ${commandName}"
+hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Uso:** ${use}"
 
 # -----------------------------\ /-----------------------------

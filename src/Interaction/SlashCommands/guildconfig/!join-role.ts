@@ -38,9 +38,8 @@ import {
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
-import { DatabaseStructure } from '../../../core/database_structure.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
 import logger from '../../../core/logger.js';
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing

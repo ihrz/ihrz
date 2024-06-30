@@ -26,6 +26,7 @@ import logger from "../../core/logger.js";
 import { format } from '../../core/functions/date-and-time.js';
 
 import { BotEvent } from '../../../types/event.js';
+import { GiveawayManager } from '../../core/modules/giveawaysManager.js';
 
 export const event: BotEvent = {
     name: "ready",
@@ -115,7 +116,21 @@ export const event: BotEvent = {
                 }
             });
         };
-    
+
+        // @ts-ignore
+        client.giveawaysManager = new GiveawayManager(client, {
+            storage: `${process.cwd()}/src/files/giveaways/`,
+            config: {
+                botsCanWin: false,
+                embedColor: '#9a5af2',
+                embedColorEnd: '#2f3136',
+                reaction: '🎉',
+                botName: "iHorizon",
+                forceUpdateEvery: 3600,
+                endedGiveawaysLifetime: 345_600_000,
+            },
+        });
+
         await client.player.init({ id: client.user?.id as string, username: 'bot_' + client.user?.id });
         
         setInterval(quotesPresence, 80_000), setInterval(refreshSchedule, 15_000);

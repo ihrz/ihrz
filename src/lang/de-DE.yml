@@ -131,6 +131,10 @@ ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Level**: `${a.level || '0'}`\n🔱 ➥ **XP Gesamt**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Level: ${a.level || '0'}\n🔱 ➥ XP Gesamt: ${a.xptotal}"
 
+# /ranks ignore-channels
+ranks_ignorechannels_embed_title: "Ranks Modulkonfigurationen"
+ranks_ignorechannels_embed_desc: "Wenn neue Nachrichten in einem dieser Kanäle gesendet werden, ignoriert das Ranks Modul sie."
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -905,7 +909,7 @@ reroll_giveaway_not_over: "Dieses Gewinnspiel ist noch nicht beendet!"
 
 # /get-all
 gw_getall_embed_title: "Liste der Giveaway(s) für ${interaction.guild?.name}"
-gw_getall_embed_fields: "${Kanal} [Hier ansehen](${MessageURL}) \n**Läuft ab in** ${ExpireIn}"
+gw_getall_embed_fields: "${Channel} [Hier ansehen](${MessageURL}) \n**Läuft ab in** ${ExpireIn}"
 
 # /get-data
 gw_getdata_embed_title: "Informationen zum Giveaway!"
@@ -923,6 +927,7 @@ gw_getdata_embed_fields_winners: "Gewinner"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (Verwende `/gw list-entries giveaway-id:${giveawayId}` für weitere Informationen)"
 gw_getdata_yes: "`Ja`"
 gw_getdata_no: "`Nein`"
+gw_doesnt_exit: "Die Werbegeschenke sind nicht erreichbar oder existieren nicht."
 
 
 # Moderation commands
@@ -1448,6 +1453,9 @@ antispam_manage_preset_level3_name: "Extremer Schutzmodus"
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Alle unten stehenden Rollen können das Antispam-Modul umgehen"
 
+# /antispam bypass-roles
+antispam_ignorechannels_embed_desc: "Alle Nachrichten, die in einem der unten stehenden Kanäle gesendet werden, können das Antispam-Modul umgehen."
+
 # -----------------------------/ \-----------------------------
 # Bekenntnismodul Ereignisse
 confession_module_modal_title: "Ein Geständnis ablegen"
@@ -1639,5 +1647,14 @@ antispam_more_kick_msg: " Wenn du weitermachst, wirst du vom Server gekickt."
 # Einbettungsprotokolle von AntiSpam
 antispam_log_embed_title: "[AntiSpam] Neue ${actionType}"
 antispam_log_embed_desc: "${client.user?.toString()} hat **${actionType}** ${user.toString()}"
+
+# Hybridbefehle
+# Ereignisnachricht
+
+hybridcommands_global_prefix_mention: "`@Ping-Mich`"
+hybridcommands_global_prefix_cleaned_mention: "@Ping-Mich "
+hybridcommands_args_error_embed_desc: "```ts\nBefehl Name: ${currentCommand.name}\nBefehl Beschreibung: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nFehler beim Senden des Arguments \"${wrongArgumentName}\".\n```"
+hybridcommands_embed_help_title: "${commandName} Hilfe Einbettung"
+hybridcommands_embed_help_fields_value: "**Aliase:** ${aliases}\n**Verwendung:** ${use}"
 
 # -----------------------------\ /-----------------------------
