@@ -225,30 +225,27 @@ function isValidArgument(arg: string, type: string): boolean {
 
 async function sendErrorMessage(message: Message, botPrefix: string, command: SubCommandArgumentValue | Command, expectedArgs: ArgumentBrief[], errorIndex: number) {
     let argument: string[] = [];
-
-    expectedArgs.map(arg => {
-        return argument.push(arg.required ? `[${arg.type}]` : `<${arg.type}>`);
-    });
-    var errorPosition = "";
-    var optionHelper: string = "";
     let fullNameCommand: string;
+
+    expectedArgs.map(arg => argument.push(arg.required ? `[${arg.type}]` : `<${arg.type}>`));
+
+    var currentCommand: Command | Option;
+    var wrongArgumentName: string = "";
+    var errorPosition = "";
+
     if (isSubCommandArgumentValue(command)) {
+        currentCommand = command.command!;
         fullNameCommand = command.name + " " + command.command?.name;
     } else {
         fullNameCommand = command.name;
+        currentCommand = command
     }
 
     errorPosition += " ".padStart(botPrefix.length + fullNameCommand.length);
 
     argument.forEach((index, value) => {
         if (errorIndex === value) {
-            if (isSubCommandArgumentValue(command)) {
-                let _ = command.command?.options?.find(x => x.name === index.slice(1, -1));
-                optionHelper = _?.name! || index.slice(1, -1);
-            } else {
-                let _ = command?.options?.find(x => x.name === index.slice(1, -1));
-                optionHelper = _?.name! || index.slice(1, -1);
-            }
+            wrongArgumentName = index.slice(1, -1);
             errorPosition += " ^";
         } else {
             errorPosition += " ".padStart(index.length + 1)
@@ -257,14 +254,25 @@ async function sendErrorMessage(message: Message, botPrefix: string, command: Su
 
     const embed = new EmbedBuilder()
         .setDescription(`
+\`\`\`ts
+Command Name: ${currentCommand.name}
+Command Description: ${currentCommand.description}
+\`\`\`
 \`\`\`cs
 ${botPrefix}${fullNameCommand} ${argument.join(" ")}
 ${errorPosition}
-Error when sending "${optionHelper}" argument.
+Error when sending "${wrongArgumentName}" argument.
 \`\`\``)
-        .setColor("Red");
+        .setColor("Red")
+        .setFooter({
+            text: await message.client.func.displayBotName(message.guildId),
+            iconURL: "attachment://ihrz_logo.png"
+        })
 
-    await message.channel.send({ embeds: [embed] });
+    await message.client.args.interactionSend(message, {
+        embeds: [embed],
+        files: [{ attachment: await message.client.func.image64(message.client.user.displayAvatarURL()), name: 'ihrz_logo.png' }]
+    });
 }
 
 export async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionReplyOptions): Promise<Message> {
