@@ -25,7 +25,7 @@ const env = "dev"; // production, ownihrz, dev, main
 const version = pkg.version;
 const djs = pkg.dependencies['pwss'];
 
-const ClientVersion = `${env}@${version} djs@${djs}`;
+const ClientVersion = `${env}@${version} pwss@${djs}`;
 
 export {
     env, version, djs, ClientVersion

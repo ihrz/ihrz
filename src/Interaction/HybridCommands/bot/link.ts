@@ -41,7 +41,7 @@ export const command: Command = {
         "fr": "Afficher tous les liens en rapport avec iHorizon"
     },
 
-    aliases: ["bi", "bot", "link"],
+    aliases: ["bot", "link"],
 
     category: 'bot',
     thinking: false,
@@ -64,7 +64,7 @@ export const command: Command = {
 
         let row = new ActionRowBuilder<ButtonBuilder>().addComponents(websitebutton, githubbutton);
 
-        await client.args.interactionSend(interaction,{ content: data.links_message, components: [row] });
+        await client.args.interactionSend(interaction, { content: data.links_message, components: [row] });
         return;
     },
 };
