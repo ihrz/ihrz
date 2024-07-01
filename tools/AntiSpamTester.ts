@@ -60,7 +60,7 @@ function w(milliseconds: number): Promise<void> {
 };
 
 for (const token of ALL_TOKEN) {
-    // await i(ALL_TOKEN[token]);
+    // await i(token);
 
     let _ = new Client({
         intents: [
@@ -159,5 +159,5 @@ for (const token of ALL_TOKEN) {
 }
 
 process.on('SIGINT', async () => {
-    for (let x in ALL_CLIENT) { await ALL_CLIENT[x].destroy(); Ox('\n', ALL_CLIENT[x].user?.tag, 'log out') }
+    for (let x of ALL_CLIENT) { await x.destroy(); Ox('\n', x.user?.tag, 'log out') }
 })
