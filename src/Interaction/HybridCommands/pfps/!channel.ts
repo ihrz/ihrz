@@ -65,7 +65,7 @@ export default {
                 )
                 .setTimestamp();
 
-            await interaction.reply({
+            await client.args.interactionSend(interaction, {
                 content: data.pfps_channel_command_work
                     .replace('${interaction.user}', interaction.member.user.toString())
                     .replace('${channel}', channel.toString())
@@ -75,7 +75,7 @@ export default {
             return;
 
         } else {
-            await interaction.reply({
+            await client.args.interactionSend(interaction, {
                 content: data.pfps_channel_command_error
                     .replace('${interaction.user}', interaction.member.user.toString())
             });

@@ -52,7 +52,7 @@ export default {
 
         if (action === 'on') {
             await client.db.set(`${interaction.guildId}.PFPS.disable`, false);
-            await interaction.reply({
+            await client.args.interactionSend(interaction, {
                 content: data.pfps_disable_command_action_on
                     .replace('${interaction.user}', interaction.member.user.toString())
             });
@@ -60,7 +60,7 @@ export default {
             return;
         } else if (action === 'off') {
             await client.db.set(`${interaction.guildId}.PFPS.disable`, true);
-            await interaction.reply({
+            await client.args.interactionSend(interaction, {
                 content: data.pfps_disable_command_action_off
                     .replace('${interaction.user}', interaction.member.user.toString())
             });
