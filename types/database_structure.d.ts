@@ -238,8 +238,21 @@ export namespace DatabaseStructure {
             unban_members?: string[];
         };
         VOICE_INTERFACE?: VoiceData;
+        UTILS?: UtilsData;
     }
 
+    export interface UtilsData {
+        PERMS?: UtilsPermsData
+        USER_PERMS?: UtilsPermsUserData
+    }
+
+    export interface UtilsPermsData {
+        [key: string]: 1 | 2 | 3 | 4
+    }
+
+    export interface UtilsPermsUserData {
+        [key: string]: 1 | 2 | 3 | 4
+    }
     export interface DbGuildUserObject {
         [userId: string]: {
             INVITES?: InvitesUserData;

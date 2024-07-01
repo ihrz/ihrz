@@ -19,19 +19,20 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { fileURLToPath } from 'url';
-import path from 'path';
+import { ChatInputCommandInteraction, Message } from "pwss";
+import { LanguageData } from "../../../types/languageData";
+import { DatabaseStructure } from "../../../types/database_structure";
+import { Command } from "../../../types/command";
+import { Option } from "../../../types/option";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+export async function checkCommandPermission(interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: Command | Option): Promise<boolean> {
+    var usr = interaction instanceof ChatInputCommandInteraction ? interaction.user : interaction.author;
+    var db = interaction.client.db;
 
-const pkg = (await import(path.join(__dirname, '..', '..', 'package.json'), { with: { "type": "json" } })).default;
-const env = "npmjs"; // production, ownihrz, dev, main, npmjs
-const version = pkg.version;
-const djs = pkg.dependencies['pwss'];
+    let guildPerm = await db.get(`${interaction.guildId}.UTILS`) as DatabaseStructure.UtilsData;
+    let userInDatabase = guildPerm?.USER_PERMS?.[usr.id] || 0;
+    let cmdNeedPerm = guildPerm?.PERMS?.[command.name] || 0;
 
-const ClientVersion = `${env}@${version} pwss@${djs}`;
-
-export {
-    env, version, djs, ClientVersion
-};
+    if (userInDatabase >= cmdNeedPerm) return true;
+    return false;
+}

@@ -23,6 +23,7 @@ import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGu
 import { Command } from "../../../types/command";
 import { Option } from "../../../types/option";
 import { LanguageData } from "../../../types/languageData";
+import * as perm from './permissonsCalculator.js'
 
 export function user(interaction: Message, argsNumber: number): User | null {
     return interaction.content.startsWith(`<@${interaction.client.user.id}`)
@@ -325,3 +326,5 @@ export async function interactionEdit(interaction: ChatInputCommandInteraction |
         return await interaction.edit(replyOptions);
     }
 }
+
+export const permission = perm;

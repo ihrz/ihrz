@@ -163,7 +163,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
     let collector = interaction.channel?.createMessageComponentCollector({
         componentType: ComponentType.Button,
         filter: (i) => i.user.id === interaction.user.id,
-        time: 240_000
+        time: 2_240_000
     });
 
     let collector2wish = og_interaction.createMessageComponentCollector({
@@ -171,7 +171,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
         filter: async (i) => {
             await i.deferUpdate(); return interaction.user.id === i.user.id;
         },
-        time: 240_000
+        time: 2_240_000
     });
     collector2wish?.on('end', () => { });
 
