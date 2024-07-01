@@ -325,6 +325,7 @@ export default {
 
         const collector = originalResponse.createMessageComponentCollector({
             componentType: ComponentType.StringSelect,
+            filter: (i) => i.customId === "antispam-select-config",
             time: 240_000,
         });
 
@@ -347,6 +348,7 @@ export default {
                 collector.stop();
                 buttonCollector.stop();
             } else if (i.customId === 'antispam-manage-preset-button') {
+                await i.deferUpdate();
                 await originalResponse.edit({
                     content: interaction.member.toString(),
                     embeds: [embed],

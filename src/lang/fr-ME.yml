@@ -323,7 +323,7 @@ poll_embed_fields_choice: ":white_check_mark: **Oui**\n :x: **Non** "
 
 # /question
 question_not_full: "Entrez une question complète avec 3 mots ou plus!"
-question_s: ["Oui.","Non.","Je ne sais pas.","Je ne suis pas sûr(e) !","Tu es fou/folle!", "Non merci.", "Non.", "Oui.", "sah je men tape de ta question"]
+question_s: ["Oui.","Non.","Je ne sais pas.","Je ne suis pas sûr(e) !","Tu es fou/folle!", "Non merci jsuis pas gay.", "Non.", "Oui.", "sah je men tape de ta question"]
 question_fields_input_embed: ":question: **Question**"
 question_fields_output_embed: ":grey_exclamation: **Réponse:**"
 question_embed_title: "`Question: ${interaction.user.username}`"
@@ -406,7 +406,7 @@ withdraw_embed_desc: "${interaction.user}, vous avez retiré ${toWithdraw}${clie
 withdraw_embed_fields1_name: "Banque"
 
 # /deposit
-deposit_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | Vous ne pouvez pas déposer une somme supérieure à celle que vous avez dans votre portefeuille !"
+deposit_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | Vous ne pouvez pas déposer une somme supérieure à celle que vous avez dans votre portefeuille ! Vous essayex d'emtuber la banque ? T un bz!"
 deposit_embed_title: "Dépôt dans votre banque"
 deposit_embed_desc: "${interaction.user}, vous avez déposé ${toDeposit}${client.iHorizon_Emojis.icon.Coin} dans votre `banque`"
 deposit_embed_fields1_name: "Banque"
@@ -429,7 +429,7 @@ economy_disable_logs_embed_title: "Logs Économiques dla Hess"
 # /setprofilage, /setprofildescriptions, /profil
 
 # /setprofilage
-setprofilage_command_work: "**Ton âge de profil a été mis à jour avec succès.**"
+setprofilage_command_work: "**Ton âge de profil a été mis à jour avec succès. J'éspère te voir dans mes dm :smirk:**"
 
 # /setprofildescriptions
 setprofildescriptions_command_work: "**Ta description de profil a été mise à jour avec succès.**"
@@ -655,7 +655,7 @@ setjoindm_command_error_on_disable: "Erreur : autorisations manquantes ou le sal
 setjoindm_already_disable: "Le message de bienvenue en DM est déjà désactivé !"
 setjoindm_not_setup_ls: "Aucun message de bienvenue en DM n'a été configuré ici !"
 setjoindm_command_work_ls: "Le message de bienvenue en DM est : \n```${already_off}``` suivi dun dégage d'ici on t'aime pas"
-setjoindm_help_embed_title: "Aide pour définir le message de DM de bienvenue !"
+setjoindm_help_embed_title: "Aide pour définir le message de DM de bienvenue pour aceuilir les enculer sur ton serv!"
 setjoindm_help_embed_desc: "{memberUsername} => Le nom d'utilisateur du membre\n{memberMention} => Mentionner le membre\n{memberCount} => Nombre de membres dans la guilde\n{guildName} => Nom de la guilde\n{createdAt} => Date de création du compte en jj/mm/aaaa"
 setjoindm_buttom_set_name: "Définir le Message"
 setjoindm_buttom_delete_name: "Supprimer le Message DM"
@@ -1637,15 +1637,15 @@ protection_avoid_channel_delete: "**MODE PROTECTION ACTIVÉ**\n<@${channel.guild
 # Message d'événement
 
 # Message d'avertissement de base
-antispam_base_warn_message: "Attention ${mentionedMembers}, vous êtes en train de spammer et vous risquez d'être sanctionnés."
+antispam_base_warn_message: "Attention ${mentionedMembers}, vous êtes en train de spammer et je vais vous enculer le fion."
 
 # Messages d'avertissement supplémentaires en fonction du type de sanction
-antispam_more_ban_msg: " Si vous continuez, vous serez bannis du serveur."
-antispam_more_mute_msg: " Si vous continuez, vous serez mis en sourdine."
-antispam_more_kick_msg: " Si vous continuez, vous serez expulsés du serveur."
+antispam_more_ban_msg: " Si vous continuez, vous serez bannis du pays comme un arabe."
+antispam_more_mute_msg: " Si vous continuez, vous serez mis en sourdine, comme ma femme."
+antispam_more_kick_msg: " Si vous continuez, vous serez expulsés du serveur, comme les migrants à la frontière."
 
 # Intégrer les journaux d'AntiSpam
-antispam_log_embed_title: "[AntiSpam] Nouveau ${actionType}"
+antispam_log_embed_title: "[BloqueurDeBranleur] Nouveau ${actionType}"
 antispam_log_embed_desc: "${client.user?.toString()} a **${actionType}** ${user.toString()}"
 
 # Commandes Hybrides

@@ -23,36 +23,46 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
     PermissionsBitField
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let action = interaction.options.getString('action');
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.reply({
-                content: data.pfps_disable_not_admin
-            });
+        if (!permissions) {
+            await client.args.interactionSend(interaction, { content: data.pfps_disable_not_admin });
             return;
         };
 
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var action = interaction.options.getString('action');
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var action = client.args.string(args!, 0);
+        }
+
         if (action === 'on') {
             await client.db.set(`${interaction.guildId}.PFPS.disable`, false);
-            await interaction.reply({
+            await client.args.interactionSend(interaction, {
                 content: data.pfps_disable_command_action_on
-                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${interaction.user}', interaction.member.user.toString())
             });
 
             return;
         } else if (action === 'off') {
             await client.db.set(`${interaction.guildId}.PFPS.disable`, true);
-            await interaction.reply({
+            await client.args.interactionSend(interaction, {
                 content: data.pfps_disable_command_action_off
-                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${interaction.user}', interaction.member.user.toString())
             });
 
             return;
