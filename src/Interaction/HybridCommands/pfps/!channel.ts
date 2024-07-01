@@ -20,42 +20,54 @@
 */
 
 import {
+    BaseGuildTextChannel,
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Message,
     PermissionsBitField,
     TextChannel
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let channel = interaction.options.getChannel('to');
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var channel = interaction.options.getChannel('to') as BaseGuildTextChannel | null;
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var channel = client.args.channel(interaction, 0) as BaseGuildTextChannel | null;
+        }
+
         let fetch = await client.db.get(`${interaction.guildId}.PFPS.disable`);
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.reply({
-                content: data.pfps_channel_not_admin
-            });
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await client.args.interactionSend(interaction, { content: data.pfps_channel_not_admin });
             return;
         };
 
-        if (!fetch && (channel instanceof TextChannel)) {
+        if (!fetch && channel) {
             await client.db.set(`${interaction.guildId}.PFPS.channel`, channel.id);
 
             let embed = new EmbedBuilder()
                 .setColor('#333333')
                 .setTitle(data.pfps_channel_embed_title)
                 .setDescription(data.pfps_channel_embed_desc
-                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${interaction.user}', interaction.member.user.toString())
                 )
                 .setTimestamp();
 
             await interaction.reply({
                 content: data.pfps_channel_command_work
-                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${interaction.user}', interaction.member.user.toString())
                     .replace('${channel}', channel.toString())
             });
 
@@ -65,7 +77,7 @@ export default {
         } else {
             await interaction.reply({
                 content: data.pfps_channel_command_error
-                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${interaction.user}', interaction.member.user.toString())
             });
             return;
         };

@@ -24,10 +24,13 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     ApplicationCommandType,
+    Message,
+    ChannelType,
 } from 'pwss';
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 
 export const command: Command = {
     name: "pfps",
@@ -56,6 +59,8 @@ export const command: Command = {
                     description_localizations: {
                         "fr": "Le channel"
                     },
+
+                    channel_types: [ChannelType.GuildText],
 
                     required: true
                 }
@@ -98,11 +103,27 @@ export const command: Command = {
     thinking: false,
     category: 'pfps',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, options?: string[]) => {
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-        let command = interaction.options.getSubcommand();
+        let fetchedCommand;
+        let sub: SubCommandArgumentValue | undefined;
 
-        const commandModule = await import(`./!${command}.js`);
-        await commandModule.default.run(client, interaction, data);
+        if (interaction instanceof ChatInputCommandInteraction) {
+            fetchedCommand = interaction.options.getSubcommand();
+        } else {
+            if (!options?.[0]) {
+                await client.args.interactionSend(interaction, { embeds: [await client.args.createAwesomeEmbed(data, command, client, interaction)] });
+                return;
+            }
+            const cmd = command.options?.find(x => options[0] === x.name || x.aliases?.includes(options[0]));
+            sub = { name: command.name, command: cmd };
+            if (!cmd) return;
+
+            fetchedCommand = cmd.name;
+            options.shift();
+        }
+
+        const commandModule = await import(`./!${fetchedCommand}.js`);
+        await commandModule.default.run(client, interaction, data, sub, execTimestamp, options);
     },
 };
