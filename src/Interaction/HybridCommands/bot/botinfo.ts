@@ -38,6 +38,8 @@ export const command: Command = {
         "fr": "Obtenir les informations supplémentaire par rapport au bot."
     },
 
+    aliases: ["bi"],
+
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
@@ -52,16 +54,16 @@ export const command: Command = {
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#f0d020")
             .setThumbnail("attachment://icon.png")
             .addFields(
-                { name: data.botinfo_embed_fields_myname, value: `:green_circle: ${client.user.username}`, inline: false },
-                { name: data.botinfo_embed_fields_mychannels, value: `:green_circle: ${client.channels.cache.size}`, inline: false },
-                { name: data.botinfo_embed_fields_myservers, value: `:green_circle: ${client.guilds.cache.size}`, inline: false },
-                { name: data.botinfo_embed_fields_members, value: `:green_circle: ${usersize}`, inline: false },
-                { name: data.botinfo_embed_fields_libraires, value: `:green_circle: pwss@${client.version.djs}`, inline: false },
-                { name: data.botinfo_embed_fields_created_at, value: ":green_circle: <t:1600042320:R>", inline: false },
-                { name: data.botinfo_embed_fields_created_by, value: ":green_circle: <@171356978310938624>", inline: false },
+                { name: data.botinfo_embed_fields_myname, value: `\`\`\`${client.user.username}\`\`\``, inline: false },
+                { name: data.botinfo_embed_fields_mychannels, value: `\`\`\`py\n${client.channels.cache.size}\`\`\``, inline: false },
+                { name: data.botinfo_embed_fields_myservers, value: `\`\`\`py\n${client.guilds.cache.size}\`\`\``, inline: false },
+                { name: data.botinfo_embed_fields_members, value: `\`\`\`py\n${usersize}\`\`\``, inline: false },
+                { name: data.botinfo_embed_fields_libraires, value: `\`\`\`py\npwss@${client.version.djs}\`\`\``, inline: false },
+                { name: data.botinfo_embed_fields_created_at, value: "<t:1600042320:R>", inline: false },
+                { name: data.botinfo_embed_fields_created_by, value: "<@171356978310938624>", inline: false },
             )
             .setTimestamp()
-            .setFooter({ text: `OWNIHRZ ${client.version.ClientVersion}`, iconURL: "attachment://icon.png" })
+            .setFooter({ text: `${await interaction.client.func.displayBotName(interaction.guildId)} ${client.version.ClientVersion}`, iconURL: "attachment://icon.png" })
             .setTimestamp()
 
         await client.args.interactionSend(interaction, { embeds: [clientembed], files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }] });
