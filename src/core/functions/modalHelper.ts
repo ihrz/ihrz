@@ -83,7 +83,7 @@ export async function iHorizonModalResolve(modalOptions: ModalOptionsBuilder, in
 
     let response = await (interaction as MessageComponentInteraction).awaitModalSubmit({
         filter: (i) => i.customId === modalOptions.customId && i.user.id === interaction.user.id,
-        time: 240_000
+        time: 1_240_000
     });
 
     if (cache.includes(parseInt(response.id))) {
