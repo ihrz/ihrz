@@ -290,7 +290,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                 files: [
                     {
                         attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()),
-                        name: 'icon.png'
+                        name: 'footer_icon.png'
                     }
                 ],
                 embeds: [
@@ -555,10 +555,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                             .replace('{msg}', lang.event_ticket_embed_description.replace("${user.username}", interaction.user.username))
                             .replace('{category}', result.selection?.find(item => item.id === parseInt(interaction.values[0]))?.name!)
                     )
-                    .setFooter({
-                        text: await interaction.client.func.displayBotName(interaction.guild?.id),
-                        iconURL: "attachment://icon.png"
-                    })
+                    .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
             );
 
             if (result.reason && result.reason) {
@@ -566,10 +563,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                     new EmbedBuilder()
                         .setColor(2829617)
                         .setDescription(lang.event_ticket_reason_embed_desc.replace('${reason}', reason))
-                        .setFooter({
-                            text: await interaction.client.func.displayBotName(interaction.guild?.id),
-                            iconURL: "attachment://icon.png"
-                        })
+                        .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
                 );
             }
         } else {
@@ -579,10 +573,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                     .setDescription(lang.event_ticket_embed_description
                         .replace("${user.username}", interaction.user.username)
                     )
-                    .setFooter({
-                        text: await interaction.client.func.displayBotName(interaction.guild?.id),
-                        iconURL: "attachment://icon.png"
-                    })
+                    .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
             )
         };
 

@@ -137,7 +137,7 @@ export const event: BotEvent = {
                             .setDescription(desc)
                             .setThumbnail((member.displayAvatarURL()))
                             .setTimestamp()
-                            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+                            .setFooter({ text: 'iHorizon', iconURL: "attachment://footer_icon.png" });
 
                         member?.send({
                             content: member.toString(),

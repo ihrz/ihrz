@@ -274,10 +274,7 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
             .replace("${wrongArgumentName}", wrongArgumentName)
         )
         .setColor("Red")
-        .setFooter({
-            text: await message.client.func.displayBotName(message.guildId),
-            iconURL: "attachment://footer_icon.png"
-        })
+        .setFooter(await message.client.args.bot.footerBuilder(message))
 
     await message.client.args.interactionSend(message, {
         embeds: [embed],

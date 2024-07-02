@@ -47,10 +47,13 @@ export const event: BotEvent = {
                         .replace('${interaction.user}', member.user.toString())
                         .replace('${interaction.channel.name}', channel?.name!)
                     )
-                    .setFooter({ text: await client.func.displayBotName(member.guild.id), iconURL: "attachment://icon.png" })
+                    .setFooter({ text: await client.func.displayBotName(member.guild.id), iconURL: "attachment://footer_icon.png" })
                     .setTimestamp();
 
-                TicketLogsChannel.send({ embeds: [embed], files: [await client.args.bot.footerAttachmentBuilder(member)] });
+                TicketLogsChannel.send({
+                    embeds: [embed],
+                    files: [await client.args.bot.footerAttachmentBuilder(member)]
+                });
             } catch (e) { };
 
             await client.db.delete(`${member.guild.id}.TICKET_ALL.${member.user.id}`)

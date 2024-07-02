@@ -63,7 +63,7 @@ export const event: BotEvent = {
                 .setColor('#FF0000')
                 .setDescription(`Dear <@${guild.ownerId}>, I'm sorry, but you have been blacklisted by the bot.\nAs a result, I will be leaving your server. If you have any questions or concerns, please contact my developer.\n\nThank you for your understanding`)
                 .setTimestamp()
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter(await guild.client.args.bot.footerBuilder(guild))
 
             let table = client.db.table('BLACKLIST')
             let isBL = await table.get(`${guild.ownerId}.blacklisted`) || false;
@@ -91,7 +91,7 @@ export const event: BotEvent = {
 
             let embed = new EmbedBuilder()
                 .setColor(2829617)
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://footer_icon.png" })
                 .setDescription(
                     `## ${welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)]}\n` +
                     `Hi there! I'm excited to join your server and be a part of your community.\n` +
@@ -166,7 +166,7 @@ export const event: BotEvent = {
                     { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true }
                 )
                 .setThumbnail(guild.iconURL())
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+                .setFooter({ text: 'iHorizon', iconURL: "attachment://footer_icon.png" });
 
             let logsChannel: TextChannel | null = client.channels.cache.get(client.config.core.guildLogsChannelID) as TextChannel;
 

@@ -28,7 +28,7 @@ export default function (client: Client, args: string) {
         .setColor('#4dff00')
         .setTitle('@Broadcast message')
         .setDescription(`\`${args2.slice(0).join(" ")}\``)
-        .setFooter({ text: `Kisakay - iHorizon`, iconURL: "attachment://icon.png" });
+        .setFooter({ text: `Kisakay - iHorizon`, iconURL: "attachment://footer_icon.png" });
 
     client.guilds.cache.forEach(async (guild) => {
         let channel = guild.channels.cache.find((role: { name: string; }) => role.name === 'ihorizon-logs');
