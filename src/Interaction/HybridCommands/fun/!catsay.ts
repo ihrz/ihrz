@@ -69,7 +69,7 @@ export default {
       .setColor('#000000')
       .setImage('attachment://all-human-have-rights-elektra.png')
       .setTimestamp()
-      .setFooter({ text: 'iHorizon x ElektraBots', iconURL: "attachment://icon.png" });
+      .setFooter(await client.args.bot.footerBuilder(interaction));
 
     let imgs: AttachmentBuilder | undefined;
 
@@ -80,7 +80,7 @@ export default {
       if (imgs) {
         await client.args.interactionSend(interaction, {
           embeds: [embed],
-          files: [imgs, { attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
+          files: [imgs, { attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'footer_icon.png' }]
         });
       };
 

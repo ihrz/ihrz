@@ -119,7 +119,7 @@ export const command: AnotherCommand = {
             };
 
             let embed = new EmbedBuilder()
-                .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://ihrz_logo.png" })
+                .setFooter(await client.args.bot.footerBuilder(interaction))
                 .setThumbnail("attachment://user_icon.gif")
                 .setTimestamp()
                 .setColor('#0014a8')

@@ -19,10 +19,26 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
+import { ButtonInteraction, ChatInputCommandInteraction, Client, Message, UserContextMenuCommandInteraction } from "pwss";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { getDatabaseInstance } from "../database.js";
 
 let database = getDatabaseInstance();
+
+export async function footerBuilder(message: ChatInputCommandInteraction | Message | ButtonInteraction | UserContextMenuCommandInteraction) {
+    let name = await displayBotName(message.guildId!);
+    return { text: name, iconURL: "attachment://footer_icon.png" }
+}
+
+export async function displayBotPPP(client: Client, guildId: string): Promise<string> {
+    let botPFP = await database.get(`${guildId}.BOT.botPFP`) as DatabaseStructure.DbGuildBotObject["botPFP"];
+
+    if (!botPFP) {
+        botPFP = client.user?.displayAvatarURL({ size: 1024 })!;
+    };
+
+    return botPFP;
+};
 
 export default async function displayBotName(guildId: string): Promise<string> {
     let botName = await database.get(`${guildId}.BOT.botName`) as DatabaseStructure.DbGuildBotObject["botName"];

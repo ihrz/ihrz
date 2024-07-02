@@ -24,6 +24,7 @@ import { Command } from "../../../types/command";
 import { Option } from "../../../types/option";
 import { LanguageData } from "../../../types/languageData";
 import * as perm from './permissonsCalculator.js'
+import * as f from './displayBotName.js';
 
 export function user(interaction: Message, argsNumber: number): User | null {
     return interaction.content.startsWith(`<@${interaction.client.user.id}`)
@@ -328,3 +329,4 @@ export async function interactionEdit(interaction: ChatInputCommandInteraction |
 }
 
 export const permission = perm;
+export const bot = f;

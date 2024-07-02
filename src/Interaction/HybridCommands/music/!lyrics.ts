@@ -62,14 +62,14 @@ export default {
                         })
                         .setDescription(trimmedLyrics?.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics ?? 'null')
                         .setColor('#cd703a')
-                        .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" });
+                        .setFooter(await client.args.bot.footerBuilder(interaction));
 
                     await client.args.interactionSend(interaction, {
                         embeds: [embed],
                         files: [
                             {
                                 attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()),
-                                name: 'icon.png'
+                                name: 'footer_icon.png'
                             }
                         ]
                     });

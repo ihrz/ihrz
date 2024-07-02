@@ -76,7 +76,7 @@ import { DatabaseStructure } from '../../../../types/database_structure.js';expo
             return new EmbedBuilder()
                 .setColor("#000000")
                 .setDescription(pages[currentPage])
-                .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: "attachment://icon.png" })
+                .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: "attachment://footer_icon.png" })
                 .setTimestamp()
         };
 
@@ -94,7 +94,7 @@ import { DatabaseStructure } from '../../../../types/database_structure.js';expo
         let messageEmbed = await interaction.reply({
             embeds: [createEmbed()],
             components: [(row as ActionRowBuilder<ButtonBuilder>)],
-            files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'footer_icon.png' }]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({

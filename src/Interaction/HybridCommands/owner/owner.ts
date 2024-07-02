@@ -80,7 +80,7 @@ export const command: Command = {
             .setColor("#2E2EFE")
             .setAuthor({ name: "Owners" })
             .setDescription(text)
-            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" });
+            .setFooter(await client.args.bot.footerBuilder(interaction));
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getUser('user');
@@ -90,7 +90,7 @@ export const command: Command = {
         };
 
         if (!member) {
-            await client.args.interactionSend(interaction,{ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }] });
+            await client.args.interactionSend(interaction,{ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'footer_icon.png' }] });
             return;
         };
 

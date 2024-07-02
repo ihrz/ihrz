@@ -59,15 +59,10 @@ export default {
             .setAuthor(
                 {
                     name: (interaction.guild.name as string),
-                    iconURL: "attachment://icon.png"
+                    iconURL: "attachment://guild_icon.png"
                 }
             )
-            .setFooter(
-                {
-                    text: await client.func.displayBotName(interaction.guild.id),
-                    iconURL: "attachment://icon_2.png",
-                }
-            );
+            .setFooter(await client.args.bot.footerBuilder(interaction));
 
         filtered.forEach(index => {
             let Channel = `<#${index.giveawayData.channelId}>`;
@@ -91,11 +86,11 @@ export default {
                 files: [
                     {
                         attachment: await interaction.client.func.image64(interaction.guild.iconURL() || client.user.displayAvatarURL()),
-                        name: 'icon.png'
+                        name: 'guild_icon.png'
                     },
                     {
                         attachment: await client.func.image64(client.user.displayAvatarURL({ size: 1024, forceStatic: false })),
-                        name: 'icon_2.png'
+                        name: 'footer_icon.png'
                     }
                 ],
             }

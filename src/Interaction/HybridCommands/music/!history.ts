@@ -87,7 +87,7 @@ export default {
                     text: data.history_embed_footer_text
                         .replace('${currentPage + 1}', (currentPage + 1).toString())
                         .replace('${pages.length}', pages.length.toString()),
-                    iconURL: "attachment://icon.png"
+                    iconURL: "attachment://footer_icon.png"
                 })
                 .setTimestamp()
         };
@@ -106,7 +106,7 @@ export default {
         let messageEmbed = await client.args.interactionSend(interaction, {
             embeds: [createEmbed()],
             components: [(row as ActionRowBuilder<ButtonBuilder>)],
-            files: [attachment, { attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [attachment, { attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'footer_icon.png' }]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({

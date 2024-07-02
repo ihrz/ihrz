@@ -81,7 +81,7 @@ export default {
             .setColor('#000000')
             .setImage('attachment://tweet-elektra.png')
             .setTimestamp()
-            .setFooter({ text: 'iHorizon x ElektraBots', iconURL: "attachment://icon.png" });
+            .setFooter(await client.args.bot.footerBuilder(interaction));
 
         let imgs: AttachmentBuilder;
 
@@ -90,7 +90,7 @@ export default {
             embed.setImage(`attachment://tweet-elektra.png`);
         });
 
-        await client.args.interactionSend(interaction, { embeds: [embed], files: [imgs!, { attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }] });
+        await client.args.interactionSend(interaction, { embeds: [embed], files: [imgs!, { attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'footer_icon.png' }] });
         return;
     },
 };

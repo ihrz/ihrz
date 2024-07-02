@@ -115,11 +115,11 @@ export const command: Command = {
                         .replace('${bad}', bad.toString())
                         .replace('${member.id}', member.id)
                     )
-                    .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" });
+                    .setFooter(await client.args.bot.footerBuilder(interaction));
 
                 await client.args.interactionSend(interaction, {
                     embeds: [embed],
-                    files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
+                    files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'footer_icon.png' }]
                 });
             })
             .catch(err => {

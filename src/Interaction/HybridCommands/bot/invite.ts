@@ -63,15 +63,15 @@ export const command: Command = {
             .setTitle(data.invite_embed_title)
             .setDescription(data.invite_embed_description)
             .setURL('https://discord.com/api/oauth2/authorize?client_id=' + client.user.id + '&permissions=8&scope=bot')
-            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
-            .setThumbnail("attachment://icon.png");
+            .setFooter(await client.args.bot.footerBuilder(interaction))
+            .setThumbnail("attachment://footer_icon.png");
 
         let components = new ActionRowBuilder<ButtonBuilder>().addComponents(button_add_me);
 
         await client.args.interactionSend(interaction,{
             embeds: [invites],
             components: [components],
-            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'footer_icon.png' }]
         });
         return;
     },

@@ -92,7 +92,7 @@ export default {
                 .setTitle(data.leaderboard_default_text + " • " + interaction.guild?.name)
                 .setDescription(pageText)
                 .setTimestamp()
-                .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
+                .setFooter(await client.args.bot.footerBuilder(interaction))
                 .setThumbnail("attachment://guildIcon.png");
         };
 
@@ -112,7 +112,7 @@ export default {
                     .setDisabled(arr.length <= itemsPerPage)
             )],
             files: [
-                { attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL() || ''), name: 'icon.png' },
+                { attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL() || ''), name: 'footer_icon.png' },
                 { attachment: await interaction.client.func.image64(interaction.guild.iconURL({ size: 512 }) || interaction.client.user?.displayAvatarURL()), name: 'guildIcon.png' }
             ]
         });

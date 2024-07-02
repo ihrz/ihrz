@@ -158,19 +158,19 @@ export const command: Command = {
                     .replaceAll('${client.iHorizon_Emojis.vc.Region}', client.iHorizon_Emojis.vc.Region)
                     .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
                 )
-                .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+                .setFooter(await client.args.bot.footerBuilder(interaction))
                 .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
-                .setThumbnail("attachment://icon.png")
+                .setThumbnail("attachment://footer_icon.png")
                 .setTimestamp();
 
             let embed = new EmbedBuilder()
-                .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
-                .setThumbnail("attachment://icon.png");
+                .setFooter(await client.args.bot.footerBuilder(interaction))
+                .setThumbnail("attachment://footer_icon.png");
 
             let response = await client.args.interactionSend(interaction, {
                 embeds: [og_embed],
                 components: rows,
-                files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'footer_icon.png' }]
             });
 
             let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840_000 });
@@ -248,8 +248,8 @@ export const command: Command = {
                         newEmbed
                             .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
                             .setDescription(categories[i.values[0] as unknown as number].description)
-                            .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
-                            .setThumbnail("attachment://icon.png")
+                            .setFooter(await client.args.bot.footerBuilder(interaction))
+                            .setThumbnail("attachment://footer_icon.png")
                             .setTimestamp();
                     }
 

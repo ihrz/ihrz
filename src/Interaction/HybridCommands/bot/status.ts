@@ -68,11 +68,11 @@ export const command: Command = {
                 { name: "NodeJS Version", value: `${process.version}`, inline: false },
             )
             .setThumbnail(interaction.guild.iconURL() as string)
-            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter(await client.args.bot.footerBuilder(interaction))
 
         await client.args.interactionSend(interaction,{
             embeds: [embed],
-            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'footer_icon.png' }]
         });
         return;
     },

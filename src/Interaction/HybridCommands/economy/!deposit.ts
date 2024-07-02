@@ -70,12 +70,12 @@ export default {
                 .replace('${toDeposit}', toDeposit.toString())
             )
             .addFields({ name: lang.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
-            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter(await client.args.bot.footerBuilder(interaction))
             .setTimestamp();
 
         await client.args.interactionSend(interaction,{
             embeds: [embed],
-            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'footer_icon.png' }]
         });
         return;
     },

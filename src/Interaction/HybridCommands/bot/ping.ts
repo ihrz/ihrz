@@ -78,12 +78,12 @@ export const command: Command = {
                 .replace('${client.iHorizon_Emojis.icon.iHorizon_Pointer}', client.iHorizon_Emojis.icon.iHorizon_Pointer)
                 .replace('${averagePing}', averagePing.toString())
             )
-            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" });
+            .setFooter(await client.args.bot.footerBuilder(interaction));
 
         await ogI.edit({
             content: null,
             embeds: [embed],
-            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }],
+            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'footer_icon.png' }],
         });
         return;
     },
