@@ -287,12 +287,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
             let reason = await reasonTicket(response!);
             let panel_message = await og_interaction.channel.send({
                 content: undefined,
-                files: [
-                    {
-                        attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()),
-                        name: 'footer_icon.png'
-                    }
-                ],
+                files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)],
                 embeds: [
                     new EmbedBuilder()
                         .setColor(2829617)

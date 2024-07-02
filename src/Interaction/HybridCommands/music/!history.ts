@@ -106,7 +106,7 @@ export default {
         let messageEmbed = await client.args.interactionSend(interaction, {
             embeds: [createEmbed()],
             components: [(row as ActionRowBuilder<ButtonBuilder>)],
-            files: [attachment, { attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'footer_icon.png' }]
+            files: [attachment, await client.args.bot.footerAttachmentBuilder(interaction)]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({

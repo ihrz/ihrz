@@ -106,13 +106,9 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     if (view.toLowerCase().includes('no') || view.toLowerCase().includes(lang.mybot_submit_utils_msg_no)) {
         view = false;
 
-        files.push({
-            attachment: await interaction.client.func.image64(interaction.user.displayAvatarURL()),
-            name: 'userIcon.png'
-        });
+        files.push(await interaction.client.args.bot.footerAttachmentBuilder(interaction));
 
-        embed.setFooter({ text: interaction.user.username, iconURL: 'attachment://userIcon.png' });
-
+        embed.setFooter({ text: interaction.user.username, iconURL: 'attachment://footer_icon.png' });
     } else {
         view = true;
     }
