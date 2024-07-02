@@ -3,6 +3,7 @@
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
+ticket_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui a désactivé les commandes de ticket!"
 
 # /add
 add_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui a désactivé les commandes de ticket!"

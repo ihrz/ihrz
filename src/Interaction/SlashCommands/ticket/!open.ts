@@ -32,9 +32,7 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let blockQ = await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`);
-
-        if (blockQ) {
+        if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
             await interaction.editReply({ content: data.open_disabled_command });
             return;
         };

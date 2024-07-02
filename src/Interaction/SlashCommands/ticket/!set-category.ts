@@ -35,7 +35,7 @@ export default {
         let category = interaction.options.getChannel("category-name");
 
         if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
-            await interaction.editReply({ content: data.setticketcategory_disabled_command });
+            await interaction.editReply({ content: data.ticket_disabled_command });
             return;
         };
 

@@ -26,6 +26,7 @@ export interface LanguageData {
   add_command_work: string;
   add_command_error: string;
   close_disabled_command: string;
+  ticket_disabled_command: string;
   close_title_sourcebin: string;
   close_description_sourcebin: string;
   close_error_command: string;

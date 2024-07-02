@@ -34,20 +34,15 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let blockQ = await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`);
-
-        if (blockQ) {
-            await interaction.editReply({ content: data.transript_disabled_command });
+        if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
+            await interaction.editReply({ content: data.ticket_disabled_command });
             return;
         };
 
-        let channel = interaction.channel;
-
-        if ((channel as BaseGuildTextChannel).name.includes('ticket-')) {
-            await TicketTranscript(interaction as unknown as ButtonInteraction<CacheType>);
-        } else {
+        if (!(interaction.channel as BaseGuildTextChannel).name.includes('ticket-')) {
             await interaction.editReply({ content: data.transript_not_in_ticket });
             return;
-        };
-    },
+        } 
+        await TicketTranscript(interaction as unknown as ButtonInteraction<CacheType>);
+    }
 };

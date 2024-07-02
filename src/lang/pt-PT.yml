@@ -3,6 +3,7 @@
 
 # Comandos de ticket
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
+ticket_disabled_command: "Você não pode usar este comando porque um Administrador desativou os comandos de ticket!"
 
 # /add
 add_disabled_command: "Você não pode usar este comando porque um Administrador desativou os comandos de ticket!"

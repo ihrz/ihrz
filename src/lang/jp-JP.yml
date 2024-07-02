@@ -3,6 +3,7 @@
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
+ticket_disabled_command: "このコマンドは管理者によって無効化されています！"
 
 # /add
 add_disabled_command: "このコマンドは管理者によって無効化されています！"

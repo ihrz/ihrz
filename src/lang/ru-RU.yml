@@ -3,6 +3,7 @@
 
 # Команды для тикетов
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
+ticket_disabled_command: "Вы не можете использовать эту команду, потому что администратор отключил команды для тикетов!"
 
 # /add
 add_disabled_command: "Вы не можете использовать эту команду, потому что администратор отключил команды для тикетов!"
