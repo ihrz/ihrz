@@ -123,10 +123,7 @@ export default {
             .setColor("#6666ff")
             .setTitle(lang.antispam_manage_embed_title)
             .setThumbnail(interaction.guild.iconURL({ forceStatic: false })!)
-            .setFooter({
-                text: await interaction.client.func.displayBotName(interaction.guildId),
-                iconURL: interaction.client.user.displayAvatarURL({ forceStatic: false })
-            });
+            .setFooter(await client.args.bot.footerBuilder(interaction));
 
         const choices: {
             label: string;
@@ -320,7 +317,8 @@ export default {
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
                 new ActionRowBuilder<ButtonBuilder>().addComponents(button, button2)
-            ]
+            ],
+            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
         });
 
         const collector = originalResponse.createMessageComponentCollector({

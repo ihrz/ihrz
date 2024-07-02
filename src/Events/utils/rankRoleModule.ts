@@ -65,7 +65,7 @@ export const event: BotEvent = {
                     .replace("${message.author.id}", message.author.id)
                     .replace("${fetch.id}", fetch.id)
                 )
-                .setFooter({ text: await client.func.displayBotName(message.guild.id), iconURL: "attachment://footer_icon.png" })
+                .setFooter(await client.args.bot.footerBuilder(message))
                 .setTimestamp();
 
             message.member?.roles.add(fetch).catch(() => { });

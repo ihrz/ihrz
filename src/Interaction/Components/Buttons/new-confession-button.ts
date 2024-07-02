@@ -108,7 +108,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
 
         files.push(await interaction.client.args.bot.footerAttachmentBuilder(interaction));
 
-        embed.setFooter({ text: interaction.user.username, iconURL: 'attachment://footer_icon.png' });
+        embed.setFooter(await interaction.client.args.bot.footerBuilder(interaction));
     } else {
         view = true;
     }

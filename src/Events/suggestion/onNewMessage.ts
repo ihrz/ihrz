@@ -58,7 +58,7 @@ export const event: BotEvent = {
             })
             .setDescription(suggestionContent.toString())
             .setThumbnail((message.guild?.iconURL() as string))
-            .setFooter({ text: await client.func.displayBotName(message.guild.id), iconURL: "attachment://footer_icon.png" })
+            .setFooter(await client.args.bot.footerBuilder(message))
             .setTimestamp();
 
         message.delete();

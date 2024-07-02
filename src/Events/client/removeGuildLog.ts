@@ -50,7 +50,7 @@ export const event: BotEvent = {
                     { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true }
                 )
                 .setThumbnail(guild.iconURL())
-                .setFooter({ text: await client.func.displayBotName(guild.id), iconURL: "attachment://footer_icon.png" });
+                .setFooter(await client.args.bot.footerBuilder(guild));
 
             let channel = client.channels.cache.get(client.config.core.guildLogsChannelID);
 

@@ -47,7 +47,7 @@ export const event: BotEvent = {
                         .replace('${interaction.user}', member.user.toString())
                         .replace('${interaction.channel.name}', channel?.name!)
                     )
-                    .setFooter({ text: await client.func.displayBotName(member.guild.id), iconURL: "attachment://footer_icon.png" })
+                    .setFooter(await client.args.bot.footerBuilder(member))
                     .setTimestamp();
 
                 TicketLogsChannel.send({
