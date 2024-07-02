@@ -146,7 +146,7 @@ export default {
                                         .setFooter(await client.args.bot.footerBuilder(interaction));
                                     i.editReply({
                                         embeds: [embed],
-                                        files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'footer_icon.png' }]
+                                        files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
                                     });
                                 };
                                 break;

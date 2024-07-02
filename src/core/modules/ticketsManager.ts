@@ -69,7 +69,7 @@ async function CreateButtonPanel(interaction: ChatInputCommandInteraction<CacheT
         .setTitle(data.name)
         .setColor("#3b8f41")
         .setDescription(data.description || lang.sethereticket_description_embed)
-        .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
+        .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
 
     let confirm = new ButtonBuilder()
         .setCustomId('open-new-ticket')
@@ -80,7 +80,7 @@ async function CreateButtonPanel(interaction: ChatInputCommandInteraction<CacheT
     interaction.channel?.send({
         embeds: [panel],
         components: [new ActionRowBuilder<ButtonBuilder>().addComponents(confirm)],
-        files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
     }).then(async (message) => {
 
         await database.set(`${message.guildId}.GUILD.TICKET.${message.id}`,
@@ -107,10 +107,10 @@ async function CreateButtonPanel(interaction: ChatInputCommandInteraction<CacheT
                 .replace('${data.name}', data.name!)
                 .replace('${interaction}', interaction.channel?.toString()!)
             )
-            .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
+            .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
             .setTimestamp();
 
-        TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+        TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
         return;
     } catch (e) { return };
 };
@@ -131,7 +131,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
     let panel_for_create = new EmbedBuilder()
         .setColor(2829617)
         .setDescription(lang.sethereticket_panelforcreate_embed_desc)
-        .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" });
+        .setFooter(await interaction.client.args.bot.footerBuilder(interaction));
 
     let button = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(
@@ -157,7 +157,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
         embeds: [panel_for_create],
         components: [button],
         content: null,
-        files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
     });
 
     let collector = interaction.channel?.createMessageComponentCollector({
@@ -297,7 +297,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                     new EmbedBuilder()
                         .setColor(2829617)
                         .setDescription(`## ${title}\n${desc}`)
-                        .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
+                        .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
                 ],
                 components: [
                     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
@@ -332,10 +332,10 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                     .setColor("#008000")
                     .setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
                     .setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc.replace('${data.name}', data.name!).replace('${interaction}', `${interaction.channel}`))
-                    .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
+                    .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
                     .setTimestamp();
 
-                TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+                TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
                 return;
             } catch (e) { return };
         }
@@ -622,9 +622,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                     .addComponents(transcript_ticket_button)
                     .addComponents(delete_ticket_button)
             ],
-            files: [
-                { attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }
-            ]
+            files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
         }).catch((err: any) => {
             logger.err(err)
         });
@@ -641,10 +639,10 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${channel.id}', channel.id)
                 )
-                .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
+                .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
                 .setTimestamp();
 
-            TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+            TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
             return;
         } catch (e) { return };
     }).catch(() => { });
@@ -698,10 +696,10 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) 
                                     .replace('${interaction.user}', interaction.user.toString())
                                     .replace('${interaction.channel.id}', interaction.channel?.id!)
                                 )
-                                .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
+                                .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
                                 .setTimestamp();
 
-                            TicketLogsChannel.send({ embeds: [embed], files: [attachment, { attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+                            TicketLogsChannel.send({ embeds: [embed], files: [attachment, await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
                             return;
                         } catch (e) { return };
                     });
@@ -772,10 +770,10 @@ async function TicketRemoveMember(interaction: ChatInputCommandInteraction<Cache
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${interaction.channel.id}', interaction.channel?.id!)
                 )
-                .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
+                .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
                 .setTimestamp();
 
-            TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+            TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
             return;
         } catch (e) { return };
 
@@ -811,10 +809,10 @@ async function TicketAddMember(interaction: ChatInputCommandInteraction<CacheTyp
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${interaction.channel.id}', interaction.channel?.id!)
                 )
-                .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
+                .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
                 .setTimestamp();
 
-            TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+            TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
             return;
         } catch (e) { return };
 
@@ -861,10 +859,10 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<CacheType>)
                                 .replace('${interaction.user}', interaction.user.toString())
                                 .replace('${interaction.channel.id}', interaction.channel.id)
                             )
-                            .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
+                            .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
                             .setTimestamp();
 
-                        TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+                        TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
                         return;
                     } catch (e) { return };
 
@@ -905,10 +903,10 @@ async function TicketDelete(interaction: Interaction<CacheType>) {
                             .replace('${interaction.user}', interaction.user.toString())
                             .replace('${interaction.channel.name}', (interaction.channel as BaseGuildTextChannel)?.name)
                         )
-                        .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
+                        .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
                         .setTimestamp();
 
-                    TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+                    TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
                     return;
                 } catch (e) { return };
             }
@@ -991,10 +989,10 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<CacheTyp
                 .replace('${interaction.channel}', interaction.channel?.toString()!)
 
             )
-            .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
+            .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
             .setTimestamp();
 
-        TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+        TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
         return;
     } catch (e) { return };
 };

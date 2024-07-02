@@ -153,7 +153,7 @@ export const command: Command = {
             let messageEmbed = await client.args.interactionSend(interaction,{
                 embeds: [createEmbed()],
                 components: [row],
-                files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'footer_icon.png' }]
+                files: [await client.args.bot.footerAttachmentBuilder(interaction)]
             });
 
             let collector = messageEmbed.createMessageComponentCollector({

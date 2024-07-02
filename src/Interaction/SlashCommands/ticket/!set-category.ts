@@ -61,7 +61,7 @@ export default {
 
         await interaction.editReply({
             embeds: [embed],
-            files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'footer_icon.png' }]
+            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

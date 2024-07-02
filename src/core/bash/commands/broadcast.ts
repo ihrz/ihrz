@@ -36,7 +36,7 @@ export default function (client: Client, args: string) {
             (channel as BaseGuildTextChannel).send({
                 content: '@here',
                 embeds: [embed],
-                files: [{ attachment: await guild.client.func.image64(client.user?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 4096 })), name: 'icon.png' }]
+                files: [await client.args.bot.footerAttachmentBuilder(client)]
             })
         };
     });

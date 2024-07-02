@@ -71,7 +71,7 @@ export const command: Command = {
         await client.args.interactionSend(interaction,{
             embeds: [invites],
             components: [components],
-            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'footer_icon.png' }]
+            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

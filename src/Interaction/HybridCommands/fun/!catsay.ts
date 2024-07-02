@@ -80,7 +80,7 @@ export default {
       if (imgs) {
         await client.args.interactionSend(interaction, {
           embeds: [embed],
-          files: [imgs, { attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'footer_icon.png' }]
+          files: [imgs, await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
         });
       };
 

@@ -92,7 +92,7 @@ export default {
                 new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(select),
                 new ActionRowBuilder<ButtonBuilder>().addComponents(button)
             ],
-            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'footer_icon.png' }]
+            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
         });
 
         const collector = originalResponse.createMessageComponentCollector({

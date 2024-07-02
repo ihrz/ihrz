@@ -115,12 +115,7 @@ export const command: Command = {
 
         await client.args.interactionSend(interaction, {
             embeds: [embed],
-            files: [
-                {
-                    attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL({ forceStatic: false })),
-                    name: 'footer_icon.png'
-                },
-            ]
+            files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

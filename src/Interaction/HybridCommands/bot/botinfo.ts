@@ -66,7 +66,7 @@ export const command: Command = {
             .setFooter(await client.args.bot.footerBuilder(interaction))
             .setTimestamp()
 
-        await client.args.interactionSend(interaction, { embeds: [clientembed], files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'footer_icon.png' }] });
+        await client.args.interactionSend(interaction, { embeds: [clientembed], files: [await client.args.bot.footerAttachmentBuilder(interaction)] });
         return;
     },
 };

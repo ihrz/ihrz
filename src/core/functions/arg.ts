@@ -276,12 +276,12 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
         .setColor("Red")
         .setFooter({
             text: await message.client.func.displayBotName(message.guildId),
-            iconURL: "attachment://ihrz_logo.png"
+            iconURL: "attachment://footer_icon.png"
         })
 
     await message.client.args.interactionSend(message, {
         embeds: [embed],
-        files: [{ attachment: await message.client.func.image64(message.client.user.displayAvatarURL()), name: 'ihrz_logo.png' }]
+        files: [await message.client.args.bot.footerAttachmentBuilder(message)]
     });
 }
 

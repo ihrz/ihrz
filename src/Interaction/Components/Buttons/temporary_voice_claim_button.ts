@@ -96,12 +96,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                 .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await interaction.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
                 .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
             ],
-            files: [
-                {
-                    attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()),
-                    name: 'footer_icon.png'
-                }
-            ],
+files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)],
         });
     }
 };

@@ -87,11 +87,7 @@ export default {
                     {
                         attachment: await interaction.client.func.image64(interaction.guild.iconURL() || client.user.displayAvatarURL()),
                         name: 'guild_icon.png'
-                    },
-                    {
-                        attachment: await client.func.image64(client.user.displayAvatarURL({ size: 1024, forceStatic: false })),
-                        name: 'footer_icon.png'
-                    }
+                    }, await interaction.client.args.bot.footerAttachmentBuilder(interaction)
                 ],
             }
         );

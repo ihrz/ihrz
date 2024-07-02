@@ -136,7 +136,7 @@ export const command: Command = {
                 )
                 .setFooter(await client.args.bot.footerBuilder(interaction));
 
-            await interaction.reply({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'footer_icon.png' }] });
+            await interaction.reply({ embeds: [embed], files: [await client.args.bot.footerAttachmentBuilder(interaction)] });
             await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.enable`, true);
             await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.timeout`, timeout);
             await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.admin`, settings);
@@ -161,7 +161,7 @@ export const command: Command = {
 
             await interaction.reply({
                 embeds: [embed],
-                files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'footer_icon.png' }]
+                files: [await client.args.bot.footerAttachmentBuilder(interaction)]
             });
             await client.db.delete(`${interaction.guildId}.GUILD_CONFIG.rolesaver`);
             return;

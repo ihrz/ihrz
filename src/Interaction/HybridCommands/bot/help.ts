@@ -170,7 +170,7 @@ export const command: Command = {
             let response = await client.args.interactionSend(interaction, {
                 embeds: [og_embed],
                 components: rows,
-                files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'footer_icon.png' }]
+                files: [await client.args.bot.footerAttachmentBuilder(interaction)]
             });
 
             let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840_000 });

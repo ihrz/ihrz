@@ -105,7 +105,7 @@ export default {
             await interaction.reply({
                 embeds: [embed],
                 ephemeral: false,
-                files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'footer_icon.png' }]
+                files: [await client.args.bot.footerAttachmentBuilder(interaction)]
             });
 
             try {

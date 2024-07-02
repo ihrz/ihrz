@@ -69,7 +69,7 @@ export const event: BotEvent = {
         let msg = await message.channel.send({
             content: message.author.toString(),
             embeds: [suggestionEmbed],
-            files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
+            files: [await client.args.bot.footerAttachmentBuilder(message)],
             enforceNonce: true, nonce: nonce
         });
 

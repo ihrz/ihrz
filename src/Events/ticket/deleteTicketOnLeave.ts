@@ -50,7 +50,7 @@ export const event: BotEvent = {
                     .setFooter({ text: await client.func.displayBotName(member.guild.id), iconURL: "attachment://icon.png" })
                     .setTimestamp();
 
-                TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
+                TicketLogsChannel.send({ embeds: [embed], files: [await client.args.bot.footerAttachmentBuilder(member)] });
             } catch (e) { };
 
             await client.db.delete(`${member.guild.id}.TICKET_ALL.${member.user.id}`)

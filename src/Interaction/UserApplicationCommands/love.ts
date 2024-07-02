@@ -98,10 +98,7 @@ export const command: AnotherCommand = {
 
             await interaction.reply({
                 embeds: [embed],
-                files: [
-                    { attachment: buffer, name: 'love.png' },
-                    { attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'footer_icon.png' }
-                ]
+                files: [{ attachment: buffer, name: 'love.png' }, await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
             });
         } catch (error: any) {
             logger.err(error);

@@ -211,7 +211,7 @@ export const command: Command = {
                     await table.delete(`${interaction.member?.user.id}.${arg0}`);
                     await original_interaction.edit({
                         content: data.schedule_delete_confirm, embeds: [embed],
-                        files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'footer_icon.png' }]
+                        files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
                     });
                     return;
                 };
@@ -234,7 +234,7 @@ export const command: Command = {
                     await original_interaction.edit({
                         content: data.schedule_deleteall_confirm,
                         embeds: [embed],
-                        files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'footer_icon.png' }]
+                        files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
                     });
                 } else {
                     await original_interaction.edit({
@@ -275,7 +275,7 @@ export const command: Command = {
                 await original_interaction.edit({
                     content: data.schedule_list_content_message,
                     embeds: [embed],
-                    files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'footer_icon.png' }]
+                    files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
                 });
             };
 
@@ -296,7 +296,7 @@ export const command: Command = {
                     .setFooter(await client.args.bot.footerBuilder(interaction))
                     .setTimestamp();
 
-                await original_interaction.edit({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'footer_icon.png' }] });
+                await original_interaction.edit({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
                 let u = await i.reply({ content: data.schedule_create_when_question });
 
                 let dateCollector = interaction.channel?.createMessageCollector({

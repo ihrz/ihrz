@@ -112,7 +112,7 @@ export default {
                     .setDisabled(arr.length <= itemsPerPage)
             )],
             files: [
-                { attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL() || ''), name: 'footer_icon.png' },
+                await interaction.client.args.bot.footerAttachmentBuilder(interaction),
                 { attachment: await interaction.client.func.image64(interaction.guild.iconURL({ size: 512 }) || interaction.client.user?.displayAvatarURL()), name: 'guildIcon.png' }
             ]
         });

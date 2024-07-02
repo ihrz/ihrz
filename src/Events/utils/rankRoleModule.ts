@@ -71,7 +71,7 @@ export const event: BotEvent = {
             message.member?.roles.add(fetch).catch(() => { });
             message.channel.send({
                 embeds: [embed],
-                files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
+                files: [await client.args.bot.footerAttachmentBuilder(message)],
                 enforceNonce: true,
                 nonce
             }).catch(() => { });

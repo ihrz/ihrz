@@ -97,7 +97,7 @@ export default {
         let response = await interaction.editReply({
             embeds: [embed],
             components: [action_row],
-            files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'footer_icon.png' }]
+            files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
         });
 
         let collector = response.createMessageComponentCollector({

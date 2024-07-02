@@ -198,7 +198,7 @@ export const command: Command = {
             var files: { name: string; attachment: string }[] = [
                 {
                     attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL({ forceStatic: false })),
-                    name: 'ihrz_logo.png'
+                    name: 'footer_icon.png'
                 },
                 {
                     attachment: user.displayAvatarURL({ size: 512, forceStatic: false }),

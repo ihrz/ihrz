@@ -19,18 +19,40 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ButtonInteraction, ChatInputCommandInteraction, Client, Message, UserContextMenuCommandInteraction } from "pwss";
+import { ButtonInteraction, ChatInputCommandInteraction, Client, Guild, GuildMember, Interaction, Message, StringSelectMenuInteraction, UserContextMenuCommandInteraction } from "pwss";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { getDatabaseInstance } from "../database.js";
 
 let database = getDatabaseInstance();
 
-export async function footerBuilder(message: ChatInputCommandInteraction | Message | ButtonInteraction | UserContextMenuCommandInteraction) {
-    let name = await displayBotName(message.guildId!);
+export async function footerBuilder(message: ChatInputCommandInteraction | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild) {
+    let name = await displayBotName(message instanceof Guild ? message.id : message.guild?.id!);
     return { text: name, iconURL: "attachment://footer_icon.png" }
 }
 
-export async function displayBotPPP(client: Client, guildId: string): Promise<string> {
+export async function footerAttachmentBuilder(interaction: ChatInputCommandInteraction | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild | Client) {
+    return {
+        attachment: await displayBotPP(
+            interaction instanceof Client
+                ?
+                interaction
+                :
+                interaction.client,
+            interaction instanceof Guild
+                ?
+                interaction.id
+                :
+                interaction instanceof Client
+                    ?
+                    undefined
+                    :
+                    interaction.guild?.id!
+        ),
+        name: 'footer_icon.png'
+    }
+}
+
+export async function displayBotPP(client: Client, guildId?: string): Promise<string> {
     let botPFP = await database.get(`${guildId}.BOT.botPFP`) as DatabaseStructure.DbGuildBotObject["botPFP"];
 
     if (!botPFP) {

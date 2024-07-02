@@ -99,7 +99,7 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
 
         await i.reply({
             embeds: [embed],
-            files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'footer_icon.png' }],
+            files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)],
             ephemeral: true
         });
     });

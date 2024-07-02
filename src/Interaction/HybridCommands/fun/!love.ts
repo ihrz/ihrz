@@ -104,7 +104,7 @@ export default {
                 embeds: [embed],
                 files: [
                     { attachment: buffer, name: 'love.png' },
-                    { attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'footer_icon.png' },
+                    await interaction.client.args.bot.footerAttachmentBuilder(interaction),
                 ]
             });
         } catch (error: any) {

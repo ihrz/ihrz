@@ -90,7 +90,7 @@ export const command: Command = {
         };
 
         if (!member) {
-            await client.args.interactionSend(interaction,{ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'footer_icon.png' }] });
+            await client.args.interactionSend(interaction,{ embeds: [embed], files: [await client.args.bot.footerAttachmentBuilder(interaction)] });
             return;
         };
 
