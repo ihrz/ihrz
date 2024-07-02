@@ -97,13 +97,13 @@ export default {
                 .setDescription(data.mybot_manage_accept_embed_desc
                     .replace('${utils_msg}', utils_msg)
                 )
-                .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" });
+                .setFooter(await client.args.bot.footerBuilder(interaction));
 
             await interaction.reply({
                 content: `${interaction.user.toString()}, <@${id_2.OwnerOne}>\n\`[Administrator Invite Link]\` **>>** https://discord.com/oauth2/authorize?client_id=${id_2.Bot.Id}&scope=bot&permissions=0\n\`[Normal Invite Link]\` **>>** https://discord.com/oauth2/authorize?client_id=${id_2.Bot.Id}&scope=bot&permissions=8`,
                 embeds: [embed],
                 ephemeral: false,
-                files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
+                files: [await client.args.bot.footerAttachmentBuilder(interaction)]
             });
 
             try {

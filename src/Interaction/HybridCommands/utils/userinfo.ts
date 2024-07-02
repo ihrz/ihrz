@@ -163,7 +163,7 @@ export const command: Command = {
             };
 
             let embed = new EmbedBuilder()
-                .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://ihrz_logo.png" })
+                .setFooter(await client.args.bot.footerBuilder(interaction))
                 .setThumbnail("attachment://user_icon.gif")
                 .setTimestamp()
                 .setColor('#0014a8')
@@ -197,10 +197,7 @@ export const command: Command = {
                 .setImage("attachment://user_banner.gif");
 
             var files: { name: string; attachment: string }[] = [
-                {
-                    attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL({ forceStatic: false })),
-                    name: 'ihrz_logo.png'
-                },
+                await client.args.bot.footerAttachmentBuilder(interaction),
                 {
                     attachment: user.displayAvatarURL({ size: 512, forceStatic: false }),
                     name: 'user_icon.gif'

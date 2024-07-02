@@ -22,45 +22,25 @@
 import {
     ChatInputCommandInteraction,
     Client,
-    EmbedBuilder,
-    GuildChannel,
     PermissionsBitField,
 } from 'pwss';
+
 import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let blockQ = await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`);
-        let channel = interaction.options.getChannel('channel') as GuildChannel;
-
-        if (blockQ) {
-            await interaction.editReply({ content: data.open_disabled_command });
-            return;
-        };
+        let footerAvatar = interaction.options.getAttachment("avatar")!;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.disableticket_not_admin });
+            await interaction.editReply({ content: data.setup_not_admin });
             return;
         };
 
-        await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel?.id);
+        await client.db.set(`${interaction.guildId}.BOT.botPFP`, footerAvatar.url);
 
-        let embed = new EmbedBuilder()
-            .setColor("#008000")
-            .setTitle(data.ticket_logchannel_embed_title)
-            .setDescription(data.ticket_logchannel_embed_desc
-                .replace('${interaction.user}', interaction.user.toString())
-                .replace('${channel}', channel.toString())
-            )
-            .setFooter(await client.args.bot.footerBuilder(interaction))
-            .setTimestamp();
-
-        await interaction.editReply({
-            embeds: [embed],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
-        });
+        await interaction.editReply({ content: data.guildconfig_setbot_footeravatar_is_good });
         return;
     },
 };

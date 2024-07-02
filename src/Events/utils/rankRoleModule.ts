@@ -65,13 +65,13 @@ export const event: BotEvent = {
                     .replace("${message.author.id}", message.author.id)
                     .replace("${fetch.id}", fetch.id)
                 )
-                .setFooter({ text: await client.func.displayBotName(message.guild.id), iconURL: "attachment://icon.png" })
+                .setFooter(await client.args.bot.footerBuilder(message))
                 .setTimestamp();
 
             message.member?.roles.add(fetch).catch(() => { });
             message.channel.send({
                 embeds: [embed],
-                files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
+                files: [await client.args.bot.footerAttachmentBuilder(message)],
                 enforceNonce: true,
                 nonce
             }).catch(() => { });

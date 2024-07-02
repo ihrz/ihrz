@@ -74,7 +74,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
             targetedChannel?.setName(`${(newOwner as GuildMember).displayName || newOwner?.user?.username}'s Channel`);
 
             targetedChannel?.permissionOverwrites.delete(interaction.user.id);
-            
+
             targetedChannel?.permissionOverwrites.edit(newOwner?.user?.id as string, {
                 ViewChannel: true,
                 Connect: true,
@@ -103,19 +103,9 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                             },
                         )
                         .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
-                        .setFooter(
-                            {
-                                text: await interaction.client.func.displayBotName(interaction.guildId),
-                                iconURL: 'attachment://icon.png'
-                            }
-                        )
+                        .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
                 ],
-                files: [
-                    {
-                        attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()),
-                        name: 'icon.png'
-                    }
-                ],
+files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)],
                 ephemeral: true
             });
 

@@ -67,10 +67,7 @@ export default {
                     ? all_channels.map(x => `<#${x}>`).join(', ')
                     : lang.setjoinroles_var_none
             })
-            .setFooter({
-                text: await interaction.client.func.displayBotName(interaction.guildId),
-                iconURL: interaction.client.user.displayAvatarURL({ forceStatic: false })
-            });
+            .setFooter(await client.args.bot.footerBuilder(interaction));
 
         const select = new ChannelSelectMenuBuilder()
             .setCustomId('antispam-select-config')
@@ -94,7 +91,8 @@ export default {
             components: [
                 new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(select),
                 new ActionRowBuilder<ButtonBuilder>().addComponents(button)
-            ]
+            ],
+            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
         });
 
         const collector = originalResponse.createMessageComponentCollector({

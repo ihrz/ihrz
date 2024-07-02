@@ -69,7 +69,7 @@ export default {
 
         let embed = new EmbedBuilder()
             .setColor('#ff05aa')
-            .setFooter({ text: interaction.guild.name!, iconURL: 'attachment://guild_icon.png' })
+            .setFooter(await client.args.bot.footerBuilder(interaction))
             .setTimestamp()
             .setDescription(data.confession_channel_panel_embed_desc)
             ;

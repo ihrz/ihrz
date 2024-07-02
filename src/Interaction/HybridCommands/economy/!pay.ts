@@ -44,7 +44,7 @@ export default {
         let member = await client.db.get(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.args.interactionSend(interaction,{
+            await client.args.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -52,16 +52,16 @@ export default {
         };
 
         if (amount.toString().includes('-')) {
-            await client.args.interactionSend(interaction,{ content: lang.pay_negative_number_error });
+            await client.args.interactionSend(interaction, { content: lang.pay_negative_number_error });
             return;
         };
 
         if (amount && member < amount) {
-            await client.args.interactionSend(interaction,{ content: lang.pay_dont_have_enought_to_give });
+            await client.args.interactionSend(interaction, { content: lang.pay_dont_have_enought_to_give });
             return;
         }
 
-        await client.args.interactionSend(interaction,{
+        await client.args.interactionSend(interaction, {
             content: lang.pay_command_work
                 .replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username)
                 .replace(/\${user\.user\.username}/g, user.globalName!)

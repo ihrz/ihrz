@@ -110,22 +110,12 @@ export const command: Command = {
                     inline: true
                 },
             )
-            .setFooter(
-                {
-                    text: await interaction.client.func.displayBotName(interaction.guildId),
-                    iconURL: "attachment://icon.png"
-                }
-            )
+            .setFooter(await client.args.bot.footerBuilder(interaction))
             ;
 
-        await client.args.interactionSend(interaction,{
+        await client.args.interactionSend(interaction, {
             embeds: [embed],
-            files: [
-                {
-                    attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL({ forceStatic: false })),
-                    name: 'icon.png'
-                },
-            ]
+            files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

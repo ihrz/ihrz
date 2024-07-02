@@ -790,6 +790,9 @@ too_new_account_command_work_on_disable: "${interaction.user}, el módulo ha sid
 guildconfig_setbot_footername_footer_too_long_msg: "El pie de página del bot es demasiado largo, será demasiado feo para mostrar."
 guildconfig_setbot_footername_is_good: "Cambiado con éxito, ¡todos los embeds de iHorizon usarán `${footerName}` como pie de página!"
 
+# /guildconfig set-bot footer-pfp
+guildconfig_setbot_footeravatar_is_good: "Cambiado con éxito, todos los embeds de iHorizon usarán `image` como pie de página!"
+
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "¡El prefijo del bot para los comandos ahora es mención! `@Ping-Me`"
 guildconfig_setbot_prefix_prefix_specify_prefix: "Necesitas especificar el prefijo del bot."

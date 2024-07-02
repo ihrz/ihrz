@@ -67,7 +67,7 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
         usr = (user.id);
         user = guild.members.cache.filter(user => user.id !== usr).random()!;
     } else usr = (user.id);
-    
+
     let actRow: ActionRowBuilder<ButtonBuilder> = new ActionRowBuilder();
     let ebds = [];
 
@@ -98,11 +98,13 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
         .setTitle(`${user?.user.username || user?.user.globalName}'s **User** avatar`)
         .setImage(user.user.displayAvatarURL({ extension: 'png', forceStatic: false }))
         .setTimestamp()
-        .setFooter({ text: await client.func.displayBotName(channel.guildId) })
+        .setFooter(await client.args.bot.footerBuilder(channel.guild))
     );
 
     (channel as BaseGuildTextChannel).send({
-        embeds: ebds, components: [actRow]
+        embeds: ebds,
+        components: [actRow],
+        files: [await client.args.bot.footerAttachmentBuilder(channel.guild)]
     });
     return;
 }

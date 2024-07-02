@@ -112,7 +112,7 @@ export const command: Command = {
 
         let embed = new EmbedBuilder()
             .setColor('#bea9de')
-            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter(await client.args.bot.footerBuilder(interaction))
             .setTimestamp()
             .setDescription(data.emoji_embed_desc_work
                 .replace('${cnt}', cnt.toString())
@@ -122,7 +122,7 @@ export const command: Command = {
 
         await client.args.interactionSend(interaction, {
             embeds: [embed],
-            files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

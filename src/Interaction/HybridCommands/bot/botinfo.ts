@@ -52,7 +52,7 @@ export const command: Command = {
 
         let clientembed = new EmbedBuilder()
             .setColor("#f0d020")
-            .setThumbnail("attachment://icon.png")
+            .setThumbnail("attachment://footer_icon.png")
             .addFields(
                 { name: data.botinfo_embed_fields_myname, value: `\`\`\`${client.user.username}\`\`\``, inline: false },
                 { name: data.botinfo_embed_fields_mychannels, value: `\`\`\`py\n${client.channels.cache.size}\`\`\``, inline: false },
@@ -63,10 +63,10 @@ export const command: Command = {
                 { name: data.botinfo_embed_fields_created_by, value: "<@171356978310938624>", inline: false },
             )
             .setTimestamp()
-            .setFooter({ text: `${await interaction.client.func.displayBotName(interaction.guildId)} ${client.version.ClientVersion}`, iconURL: "attachment://icon.png" })
+            .setFooter(await client.args.bot.footerBuilder(interaction))
             .setTimestamp()
 
-        await client.args.interactionSend(interaction, { embeds: [clientembed], files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }] });
+        await client.args.interactionSend(interaction, { embeds: [clientembed], files: [await client.args.bot.footerAttachmentBuilder(interaction)] });
         return;
     },
 };

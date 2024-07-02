@@ -287,6 +287,7 @@ export namespace DatabaseStructure {
     export interface DbGuildBotObject {
         prefix?: string;
         botName?: string;
+        botPFP?: string;
     }
 
     export interface DbGuildXpLeveling {

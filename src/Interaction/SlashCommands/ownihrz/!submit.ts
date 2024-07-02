@@ -78,12 +78,12 @@ export default {
                         .replace('${code}', code)
                         .replace('${utils_msg}', utils_msg)
                 )
-                .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" });
+                .setFooter(await client.args.bot.footerBuilder(interaction));
 
             await interaction.reply({
                 embeds: [embed],
                 ephemeral: true,
-                files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
+                files: [await client.args.bot.footerAttachmentBuilder(interaction)]
             });
             return;
         };

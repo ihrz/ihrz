@@ -150,10 +150,7 @@ export default {
                     inline: true
                 },
             )
-            .setFooter({
-                text: await client.func.displayBotName(interaction.guild.id),
-                iconURL: client.user.displayAvatarURL({ size: 1024 })
-            });
+            .setFooter(await client.args.bot.footerBuilder(interaction));
 
         let buttonRows = [
             [

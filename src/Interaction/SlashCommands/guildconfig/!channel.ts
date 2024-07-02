@@ -65,7 +65,7 @@ export default {
 
         let embed = new EmbedBuilder()
             .setColor('#6e819a')
-            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter(await client.args.bot.footerBuilder(interaction))
             .setTitle(data.setchannels_title_embed_panel)
             .setThumbnail((interaction.guild.iconURL() as string))
             .setTimestamp()
@@ -97,7 +97,7 @@ export default {
         let response = await interaction.editReply({
             embeds: [embed],
             components: [action_row],
-            files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
         });
 
         let collector = response.createMessageComponentCollector({

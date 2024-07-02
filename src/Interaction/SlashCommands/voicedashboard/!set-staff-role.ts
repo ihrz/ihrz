@@ -47,10 +47,7 @@ export default {
                 data.tempvoice_staff_desc_embed
                     .replace('${targetedRole?.id}', targetedRole?.id as string)
             )
-            .setFooter({
-                text: await client.func.displayBotName(interaction.guild.id),
-                iconURL: client.user.displayAvatarURL({ size: 1024 })
-            });
+            .setFooter(await client.args.bot.footerBuilder(interaction));
 
         await interaction.editReply({
             embeds: [embed]

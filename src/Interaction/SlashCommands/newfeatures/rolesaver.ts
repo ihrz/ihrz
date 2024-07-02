@@ -134,9 +134,9 @@ export const command: Command = {
                     { name: data.rolesaver_embed_fields_2_name, value: `\`${settings}\``, inline: false },
                     { name: data.rolesaver_embed_fields_3_name, value: `\`${timeout}\``, inline: false }
                 )
-                .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" });
+                .setFooter(await client.args.bot.footerBuilder(interaction));
 
-            await interaction.reply({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }] });
+            await interaction.reply({ embeds: [embed], files: [await client.args.bot.footerAttachmentBuilder(interaction)] });
             await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.enable`, true);
             await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.timeout`, timeout);
             await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.admin`, settings);
@@ -157,11 +157,11 @@ export const command: Command = {
                 .addFields(
                     { name: data.rolesaver_on_off_embed_fields_1_name, value: `\`${action}\``, inline: false },
                 )
-                .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" });
+                .setFooter(await client.args.bot.footerBuilder(interaction));
 
             await interaction.reply({
                 embeds: [embed],
-                files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
+                files: [await client.args.bot.footerAttachmentBuilder(interaction)]
             });
             await client.db.delete(`${interaction.guildId}.GUILD_CONFIG.rolesaver`);
             return;

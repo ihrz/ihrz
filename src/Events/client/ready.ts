@@ -137,12 +137,12 @@ export const event: BotEvent = {
                             .setDescription(desc)
                             .setThumbnail((member.displayAvatarURL()))
                             .setTimestamp()
-                            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+                            .setFooter({ text: 'iHorizon', iconURL: "attachment://footer_icon.png" });
 
                         member?.send({
                             content: member.toString(),
                             embeds: [embed],
-                            files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+                            files: [await client.args.bot.footerAttachmentBuilder(client)]
                         }).catch(() => { });
 
                         await table.delete(`${array.id}.${ScheduleId}`);

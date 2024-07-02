@@ -87,7 +87,7 @@ export default {
                 text: data.prevnames_embed_footer_text
                     .replace("${currentPage + 1}", String(page + 1))
                     .replace("${pages.length}", String(totalPages)),
-                iconURL: "attachment://bot_icon.png"
+                iconURL: "attachment://footer_icon.png"
             });
             return embed;
         };
@@ -112,7 +112,7 @@ export default {
             embeds: [generateEmbed(currentPage)],
             components: [generateButtons(currentPage)],
             files: [
-                { attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'bot_icon.png' },
+                await interaction.client.args.bot.footerAttachmentBuilder(interaction),
                 { attachment: await interaction.client.func.image64((interaction.member as GuildMember).user.displayAvatarURL()), name: 'user_icon.png' }
             ]
         });

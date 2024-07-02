@@ -247,6 +247,30 @@ export const command: Command = {
                     type: ApplicationCommandOptionType.Subcommand,
                 },
                 {
+                    name: 'footer-pfp',
+
+                    description: 'Set the footer avatar for all of the iHorizon embed !',
+                    description_localizations: {
+                        "fr": "Définir la photo de profil du footer pour tout les embeds d'iHorizon"
+                    },
+
+                    options: [
+                        {
+                            name: "avatar",
+
+                            description: "The avatar",
+                            description_localizations: {
+                                "fr": "L'avatar du footer"
+                            },
+
+                            type: ApplicationCommandOptionType.Attachment,
+                            required: true
+                        }
+                    ],
+
+                    type: ApplicationCommandOptionType.Subcommand,
+                },
+                {
                     name: 'prefix',
 
                     description: 'Change the message commands\'s prefix in this guild!',
