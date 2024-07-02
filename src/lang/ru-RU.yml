@@ -790,6 +790,9 @@ too_new_account_command_work_on_disable: "${interaction.user}, модуль ус
 guildconfig_setbot_footername_footer_too_long_msg: "Нижний колонтитул бота слишком длинный, его будет слишком некрасиво отображать."
 guildconfig_setbot_footername_is_good: "Успешно изменено, все встраивания iHorizon будут использовать `${footerName}` как нижний колонтитул!"
 
+# /guildconfig set-bot footer-pfp
+guildconfig_setbot_footeravatar_is_good: "Успешно изменено, все вставки iHorizon будут использовать `image` в качестве нижнего колонтитула!"
+
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "Префикс бота для команд теперь упоминание! `@Ping-Me`"
 guildconfig_setbot_prefix_prefix_specify_prefix: "Вам нужно указать префикс бота."
