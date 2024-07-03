@@ -602,6 +602,7 @@ export interface LanguageData {
   guildconfig_setbot_prefix_prefix_too_long: string;
   guildconfig_setbot_prefix_prefix_is_good: string;
   guildconfig_config_save_user_msg: string;
+  guildconfig_config_save_check_dm: string;
   guildconfig_config_save_user_msg: string;
   guildconfig_config_restor_msg: string;
   guildconfig_config_restore_msg: string;
