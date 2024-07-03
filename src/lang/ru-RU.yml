@@ -808,6 +808,14 @@ guildconfig_setbot_prefix_prefix_specify_prefix: "Вам нужно указат
 guildconfig_setbot_prefix_prefix_too_long: "Префикс бота слишком длинный, его будет слишком трудно использовать."
 guildconfig_setbot_prefix_prefix_is_good: "Префикс бота успешно изменен, теперь команды можно использовать с: `${formatedPrefix}`."
 
+# /guildconfig config save
+guildconfig_config_save_check_dm: "Пожалуйста, проверьте свои личные сообщения. Если вы не получили сообщение, убедитесь, что принимаете личные сообщения."
+guildconfig_config_save_user_msg: "Это резервная копия настроек `${interaction.guild.name}`!"
+
+# /guildconfig config restore
+guildconfig_config_restore_err_msg: "Произошла ошибка при загрузке файла."
+guildconfig_config_restore_msg: "Данные были сохранены в моей базе данных."
+
 
 # Commandes de décompte des membres
 # /setmembercount

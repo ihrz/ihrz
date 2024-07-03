@@ -318,6 +318,56 @@ export const command: Command = {
                 },
             ],
         },
+        {
+            name: "config",
+
+            description: "Subcommand for iHorizon's guild config restore/save",
+            description_localizations: {
+                "fr": "Sous commande pour la réstauration/sauvegarde des configurations d'iHorizon"
+            },
+
+            type: ApplicationCommandOptionType.SubcommandGroup,
+
+            options: [
+
+                {
+                    name: "restore",
+
+                    description: "Restore an backup",
+                    description_localizations: {
+                        "fr": "charger une backup de la configuration"
+                    },
+
+                    type: ApplicationCommandOptionType.Subcommand,
+
+
+                    options: [
+                        {
+                            name: "backup-to-load",
+
+                            description: "The backup to load",
+                            description_localizations: {
+                                "fr": "La sauvegarde à restaurer"
+                            },
+
+                            type: ApplicationCommandOptionType.Attachment,
+
+                            required: true
+                        }
+                    ]
+                },
+                {
+                    name: "save",
+
+                    description: "Save a backup",
+                    description_localizations: {
+                        "fr": "Sauvegarder une backup de la configuration actuel du serveur"
+                    },
+
+                    type: ApplicationCommandOptionType.Subcommand,
+                }
+            ]
+        }
     ],
     thinking: true,
     category: 'guildconfig',
