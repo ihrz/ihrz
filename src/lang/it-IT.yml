@@ -808,6 +808,14 @@ guildconfig_setbot_prefix_prefix_specify_prefix: "È necessario specificare il p
 guildconfig_setbot_prefix_prefix_too_long: "Il prefisso del bot è troppo lungo, sarà troppo difficile da usare."
 guildconfig_setbot_prefix_prefix_is_good: "Il prefisso del bot è stato cambiato con successo, ora i comandi sono utilizzabili con: `${formatedPrefix}`."
 
+# /guildconfig config save
+guildconfig_config_save_check_dm: "Per favore, controlla i tuoi DM. Se non hai ricevuto il messaggio, verifica se accetti i DM."
+guildconfig_config_save_user_msg: "Questo è il backup delle configurazioni di `${interaction.guild.name}`!"
+
+# /guildconfig config restore
+guildconfig_config_restore_err_msg: "Si è verificato un errore durante il download del file."
+guildconfig_config_restore_msg: "I dati sono stati salvati nel mio database."
+
 
 # Member Count commands
 # /setmembercount
