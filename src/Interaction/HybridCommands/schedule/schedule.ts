@@ -205,13 +205,13 @@ export const command: Command = {
                         )
                         .setThumbnail(interaction.guild?.iconURL() as string)
                         .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#ff0a0a')
-                        .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
+                        .setFooter(await client.args.bot.footerBuilder(interaction))
                         .setTimestamp();
 
                     await table.delete(`${interaction.member?.user.id}.${arg0}`);
                     await original_interaction.edit({
                         content: data.schedule_delete_confirm, embeds: [embed],
-                        files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                        files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
                     });
                     return;
                 };
@@ -227,14 +227,14 @@ export const command: Command = {
                             name: user.globalName || user.username,
                             iconURL: user.displayAvatarURL({ extension: 'png', size: 512 })
                         })
-                        .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
+                        .setFooter(await client.args.bot.footerBuilder(interaction))
                         .setTitle(data.schedule_deleteall_title_embed)
                         .setDescription(data.schedule_deleteall_desc_embed)
 
                     await original_interaction.edit({
                         content: data.schedule_deleteall_confirm,
                         embeds: [embed],
-                        files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                        files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
                     });
                 } else {
                     await original_interaction.edit({
@@ -253,7 +253,7 @@ export const command: Command = {
                 };
 
                 let embed = new EmbedBuilder()
-                    .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
+                    .setFooter(await client.args.bot.footerBuilder(interaction))
                     .setTitle(data.schedule_list_title_embed)
                     .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#60BEE0')
                     .setAuthor({
@@ -275,7 +275,7 @@ export const command: Command = {
                 await original_interaction.edit({
                     content: data.schedule_list_content_message,
                     embeds: [embed],
-                    files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                    files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
                 });
             };
 
@@ -293,10 +293,10 @@ export const command: Command = {
                     .setTitle(data.schedule_create_title_embed)
                     .setThumbnail(interaction.guild?.iconURL() as string)
                     .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#00549f')
-                    .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
+                    .setFooter(await client.args.bot.footerBuilder(interaction))
                     .setTimestamp();
 
-                await original_interaction.edit({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+                await original_interaction.edit({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
                 let u = await i.reply({ content: data.schedule_create_when_question });
 
                 let dateCollector = interaction.channel?.createMessageCollector({

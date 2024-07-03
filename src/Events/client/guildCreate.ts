@@ -63,7 +63,7 @@ export const event: BotEvent = {
                 .setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.owner`) || "#FF0000")
                 .setDescription(`Dear <@${guild.ownerId}>, I'm sorry, but you have been blacklisted by the bot.\nAs a result, I will be leaving your server. If you have any questions or concerns, please contact my developer.\n\nThank you for your understanding`)
                 .setTimestamp()
-                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
+                .setFooter(await guild.client.args.bot.footerBuilder(guild))
 
             let table = client.db.table('BLACKLIST')
             let isBL = await table.get(`${guild.ownerId}.blacklisted`) || false;
@@ -71,7 +71,7 @@ export const event: BotEvent = {
             if (isBL) {
                 await (channelHr as GuildTextBasedChannel).send({
                     embeds: [tqtmonreuf],
-                    files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+                    files: [await client.args.bot.footerAttachmentBuilder(guild)]
                 }).catch(() => { });
                 await guild.leave();
                 return false;
@@ -122,7 +122,7 @@ export const event: BotEvent = {
             (channel as TextChannel).send({
                 embeds: [embed],
                 content: 'discord.gg/ihorizon\ndiscord.com/application-directory/945202900907470899',
-                files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
+                files: [await client.args.bot.footerAttachmentBuilder(guild)],
                 components: [buttons]
             }).catch(() => { });
         }
@@ -171,13 +171,13 @@ export const event: BotEvent = {
 
             await (client.users.cache.get(owner1))?.send({
                 embeds: [embed],
-                files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
-            });
+                files: [await client.args.bot.footerAttachmentBuilder(guild)]
+            }).catch(() => { });
 
             await (client.users.cache.get(owner2))?.send({
                 embeds: [embed],
-                files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
-            });
+                files: [await client.args.bot.footerAttachmentBuilder(guild)]
+            }).catch(() => { });
         };
 
         // let c = await antiPoubelle();

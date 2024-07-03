@@ -68,17 +68,24 @@ export default {
       .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#000000")
       .setImage('attachment://all-human-have-rights-elektra.png')
       .setTimestamp()
-      .setImage(`attachment://catsay.jpg`)
-      .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
+      .setFooter(await client.args.bot.footerBuilder(interaction));
 
     let imgs: AttachmentBuilder | undefined;
 
-    if (imgs) {
-      await client.args.interactionSend(interaction, {
-        embeds: [embed],
-        files: [imgs, { attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
-      });
-    };
+    try {
+      imgs = new AttachmentBuilder(await newImg.getBufferAsync(Jimp.MIME_GIF), { name: 'all-humans-have-right-elektra.png' });
+      embed.setImage(`attachment://all-humans-have-right-elektra.png`);
+
+      if (imgs) {
+        await client.args.interactionSend(interaction, {
+          embeds: [embed],
+          files: [imgs, await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
+        });
+      };
+
+    } catch {
+      await client.args.interactionSend(interaction, { content: lang.fun_var_down_api });
+    }
 
     return;
   },

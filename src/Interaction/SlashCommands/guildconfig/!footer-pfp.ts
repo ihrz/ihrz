@@ -20,49 +20,27 @@
 */
 
 import {
-    Client,
-    EmbedBuilder,
-    PermissionsBitField,
-    CategoryChannel,
     ChatInputCommandInteraction,
+    Client,
+    PermissionsBitField,
 } from 'pwss';
+
 import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let category = interaction.options.getChannel("category-name");
-
-        if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
-            await interaction.editReply({ content: data.ticket_disabled_command });
-            return;
-        };
+        let footerAvatar = interaction.options.getAttachment("avatar")!;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.setticketcategory_not_admin });
+            await interaction.editReply({ content: data.setup_not_admin });
             return;
         };
 
-        if (!(category instanceof CategoryChannel)) {
-            await interaction.editReply({ content: data.setticketcategory_not_a_category });
-            return;
-        };
+        await client.db.set(`${interaction.guildId}.BOT.botPFP`, footerAvatar.url);
 
-        await client.db.set(`${interaction.guildId}.GUILD.TICKET.category`, category.id);
-
-        let embed = new EmbedBuilder()
-            .setFooter(await client.args.bot.footerBuilder(interaction))
-            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#00FFFF')
-            .setDescription(data.setticketcategory_command_work
-                .replace('${category.name}', category.name)
-                .replace('${interaction.user.id}', interaction.user.id)
-            );
-
-        await interaction.editReply({
-            embeds: [embed],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
-        });
+        await interaction.editReply({ content: data.guildconfig_setbot_footeravatar_is_good });
         return;
     },
 };

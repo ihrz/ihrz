@@ -20,29 +20,31 @@
 */
 
 import {
-    ChatInputCommandInteraction,
-    Client,
-    EmbedBuilder,
+    Client, ChatInputCommandInteraction, ApplicationCommandType,
     Message,
-} from 'pwss';
-import { LanguageData } from '../../../../types/languageData';
-import { SubCommandArgumentValue } from '../../../core/functions/arg';
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    CommandInteractionOptionResolver,
+} from 'pwss'
+
+import { Command } from '../../../../types/command';
+
+export const command: Command = {
+    name: 'noaimie',
+
+    description: 'Get unnecessary information about my contributor',
+    description_localizations: {
+        "fr": "Obtenir des informations non nécessaires sur ma contributrice"
+    },
+
+    aliases: ["noemie", "noémie"],
+
+    category: 'bot',
+    thinking: false,
+    type: ApplicationCommandType.ChatInput,
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, options?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let embed = new EmbedBuilder()
-            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#c4afed')
-            .setTitle(data.banner_guild_embed)
-            .setImage(interaction.guild.bannerURL({ extension: 'png', size: 4096 }))
-            .setThumbnail(interaction.guild.iconURL({ size: 4096 }) as string)
-            .setFooter(await client.args.bot.footerBuilder(interaction))
-
-        await client.args.interactionSend(interaction, {
-            embeds: [embed],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
-        });
+        await client.args.interactionSend(interaction,{ content: "https://imgs.search.brave.com/1d_tcHbIHT78tsDIVByVQAxm3lfKc8rKh_sBO8fjXrA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zLnlp/bWcuY29tL255L2Fw/aS9yZXMvMS4yL2xX/eVBwbFBKUWN6UVAy/MDg0RlFpR2ctLS9Z/WEJ3YVdROWFHbG5h/R3hoYm1SbGNqdDNQ/VGsyTUR0b1BUVTJN/QS0tL2h0dHBzOi8v/bWVkaWEuemVuZnMu/Y29tL2VuL3BhcmFk/ZV8yNTAvOWMyMzI4/ZWIyZGI0MWU3MDZk/ODlmODQ2NGM0ODQ1/MGY" });
         return;
     },
 };

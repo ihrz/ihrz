@@ -1,6 +1,6 @@
 {
   "name": "ihrz",
-  "version": "2024.7.0",
+  "version": "2024.7.1",
   "description": "iHrz in ts!",
   "main": "./dist/index.js",
   "scripts": {
@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/ihrz/ihrz#readme",
   "dependencies": {
-    "better-sqlite3": "^11.1.1",
+    "better-sqlite3": "^11.1.2",
     "discord-html-transcripts": "^3.2.0",
     "discord-rebackup": "^3.5.0",
     "genius-lyrics": "^4.4.7",

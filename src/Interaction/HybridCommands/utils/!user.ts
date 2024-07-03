@@ -62,13 +62,11 @@ export default {
             .setTitle(data.banner_user_embed.replace('${user?.username}', user?.username))
             .setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
             .setThumbnail((user?.displayAvatarURL() as string))
-            .setFooter({
-                text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png"
-            });
+            .setFooter(await client.args.bot.footerBuilder(interaction));
 
         await client.args.interactionSend(interaction,{
             embeds: [embed],
-            files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
+            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

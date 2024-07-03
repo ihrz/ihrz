@@ -3,14 +3,15 @@
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
+ticket_disabled_command: "You can't use this command because an Administrator disabled the ticket command !"
 
 # /add
-add_disabled_command: "You can't use this commands because an Administrator disabled the ticket commands !"
+add_disabled_command: "You can't use this command because an Administrator disabled the ticket command !"
 add_command_work: "Successfully added ${member.tag} to your ticket!"
 add_command_error: "error occurred, please try again"
 
 # /close
-close_disabled_command: "You can't use this commands because an Administrator disabled the ticket commands !"
+close_disabled_command: "You can't use this command because an Administrator disabled the ticket command !"
 close_title_sourcebin: "Ticket transcripted by iHorizon"
 close_description_sourcebin: " "
 close_error_command: "Error occurred, please try again!"
@@ -20,28 +21,28 @@ close_command_error: "Error occurred, please try again!"
 close_not_in_ticket: "You cannot use this command outside of a ticket channel !"
 
 # /delete
-delete_disabled_command: "You can't use this commands because an Administrator disabled the ticket commands !"
+delete_disabled_command: "You can't use this command because an Administrator disabled the ticket command !"
 delete_not_in_ticket: "You cannot use this command outside of a ticket channel !"
 
 # /sethereticket
-sethereticket_disabled_command: "You can't use this commands because an Administrator disabled the ticket commands !"
-sethereticket_not_admin: ":x: | You must be an administrator of this server to do this commands!"
+sethereticket_disabled_command: "You can't use this command because an Administrator disabled the ticket command !"
+sethereticket_not_admin: ":x: | You must be an administrator of this server in order to do this command!"
 sethereticket_description_embed: "To create a new ticket, please react with 📩"
 sethereticket_command_work: "Ticket panel has been set successfully!"
 sethereticket_command_type_menu_placeholder: "What's Panel type do you want ?"
 sethereticket_command_type_menu_choice_1_label: "Create panel with button"
 sethereticket_command_type_menu_choice_2_label: "Create panel with selection"
-sethereticket_command_type_menu_question: "<@${interaction.user.id}>, what's pannel type do you want ?"
+sethereticket_command_type_menu_question: "<@${interaction.user.id}>, what panel type, do you want ?"
 sethereticket_panelforcreate_embed_desc: "## Creating an ticket's panel with Selection\n"
 sethereticket_panelforcreate_button_add_label: "Add New Case"
 sethereticket_panelforcreate_button_sub_label: "Remove Last Case"
 sethereticket_panelforcreate_button_save_label: "Send Embed"
-sethereticket_modal_1_title : "Add new case into the panel"
+sethereticket_modal_1_title : "Add a new case to the panel"
 sethereticket_modal_1_fields_1_placeholder: "The case's name for the selection"
 sethereticket_modal_1_fields_1_label: "Name"
 sethereticket_modal_1_fields_2_placeholder: "The case's emojis for the selection"
 sethereticket_modal_1_fields_2_label: "Emoji"
-sethereticket_modal_2_title: "Configurations about the panel"
+sethereticket_modal_2_title: "Configurations of the panel"
 sethereticket_modal_2_fields_1_placeholder: "The title of the embed"
 sethereticket_modal_2_fields_1_title: "Embed's Title"
 sethereticket_modal_2_fields_2_placeholder: "The description of the embed"
@@ -49,19 +50,19 @@ sethereticket_modal_2_fields_2_title: "Embed's Description"
 sethereticket_panel_select_embed_desc: "# Panel Name\n```${result.panelName}```\n{msg}\n\n## Category\n```{category}```\n"
 
 # /open
-open_disabled_command: "You can't use this commands because an Administrator disabled the ticket commands !"
+open_disabled_command: "You can't use this command because an Administrator disabled the ticket command !"
 open_command_work: "Successfully re-opened ${interaction.channel}"
 open_command_error: "Error occurred, please try again!"
 open_not_in_ticket: "You cannot use this command outside of a ticket channel!"
 
 # /remove
-remove_disabled_command: "You can't use this commands because an Administrator disabled the ticket commands !"
+remove_disabled_command: "You can't use this command because an Administrator disabled the ticket command !"
 remove_not_in_ticket: "You cannot use this command outside of a ticket channel !"
 remove_command_error: "Error occurred, please try again"
 remove_command_work: "Successfully removed ${member.tag} to your ticket!"
 
 # /transript
-transript_disabled_command: "You can't use this commands because an Administrator disabled the ticket commands !"
+transript_disabled_command: "You can't use this command because an Administrator disabled the ticket command !"
 transript_name_sourcebin: " "
 transript_title_sourcebin: "Ticket Chat transcript for ${channel.name}"
 transript_command_error: "Error occurred, please try again!"
@@ -192,6 +193,14 @@ removeinvites_not_admin_embed_description: "You need admin to use this!"
 removeinvites_confirmation_embed_description: "Remove ${amount} invites for ${user}"
 removeinvites_logs_embed_title: "Invite Manager Logs"
 removeinvites_logs_embed_description: "<@${interaction.user.id}> removed ${amount} invites to <@${user.id}> !"
+
+# /invites reset-all
+resetallinvites_warning_msg: "**Are you really sure to delete all data of the InviteManager?\nThis action are permanent and you can't roll-back.**\n**This action is destructive!!**"
+resetallinvites_yes_button: "Delete all"
+resetallinvites_no_button: "Undo action"
+resetallinvites_succes_on_delete: "Succefully deleted!"
+resetallinvites_logs_embed_title: "Invite Manager Logs (DANGER ACTION)"
+resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} have deleted all data of Invites Manager!"
 
 
 # Bot commands
@@ -789,6 +798,9 @@ too_new_account_command_work_on_disable: "${interaction.user}, the module has be
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "The bot footer is too long, it will be too ugly to display."
 guildconfig_setbot_footername_is_good: "Succefully changed, all iHorizon embed will use `${footerName}` as footer!"
+
+# /guildconfig set-bot footer-pfp
+guildconfig_setbot_footeravatar_is_good: "Successfully changed, all embeds from iHorizon will use `image` as the footer!"
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "The bot prefix for Message's command is now mention! `@Ping-Me`"

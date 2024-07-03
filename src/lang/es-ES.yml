@@ -3,6 +3,7 @@
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
+ticket_disabled_command: "¡No puedes usar este comando porque un administrador ha deshabilitado los comandos de tickets!"
 
 # /add
 add_disabled_command: "¡No puedes usar este comando porque un administrador ha deshabilitado los comandos de tickets!"
@@ -192,6 +193,14 @@ removeinvites_not_admin_embed_description: "¡Necesitas ser administrador para u
 removeinvites_confirmation_embed_description: "Se han eliminado ${amount} invitaciones a ${user}"
 removeinvites_logs_embed_title: "Registro del administrador de Invitaciones"
 removeinvites_logs_embed_description: "<@${interaction.user.id}> ha eliminado ${amount} invitaciones a <@${user.id}> !"
+
+# /invites reset-all
+resetallinvites_warning_msg: "**¿Estás realmente seguro de eliminar todos los datos del InviteManager?\nEsta acción es permanente y no se puede deshacer.**\n**¡Esta acción es destructiva!!**"
+resetallinvites_yes_button: "Eliminar todo"
+resetallinvites_no_button: "Deshacer acción"
+resetallinvites_succes_on_delete: "¡Eliminado con éxito!"
+resetallinvites_logs_embed_title: "Registros del Invite Manager (ACCIÓN PELIGROSA)"
+resetallinvites_logs_embed_desc: "¡${interaction.member.user.toString()} ha eliminado todos los datos del Invite Manager!"
 
 
 # Bot commands
@@ -789,6 +798,9 @@ too_new_account_command_work_on_disable: "${interaction.user}, el módulo ha sid
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "El pie de página del bot es demasiado largo, será demasiado feo para mostrar."
 guildconfig_setbot_footername_is_good: "Cambiado con éxito, ¡todos los embeds de iHorizon usarán `${footerName}` como pie de página!"
+
+# /guildconfig set-bot footer-pfp
+guildconfig_setbot_footeravatar_is_good: "Cambiado con éxito, todos los embeds de iHorizon usarán `image` como pie de página!"
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "¡El prefijo del bot para los comandos ahora es mención! `@Ping-Me`"

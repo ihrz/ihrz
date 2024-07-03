@@ -3,6 +3,7 @@
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
+ticket_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui a désactivé les commandes de ticket!"
 
 # /add
 add_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui a désactivé les commandes de ticket!"
@@ -192,6 +193,14 @@ removeinvites_not_admin_embed_description: "tu dois etre admin pour faire la com
 removeinvites_confirmation_embed_description: "Supprimer ${amount} invitations pour ${user} car on taime pas bouhh tes moche"
 removeinvites_logs_embed_title: "Logs du gestionnaire d'invitations"
 removeinvites_logs_embed_description: "<@${interaction.user.id}> a supprimé ${amount} invitations à <@${user.id}> !"
+
+# /invites reset-all
+resetallinvites_warning_msg: "**Êtes-vous vraiment sûr de vouloir supprimer toutes les données de l'InviteManager?\nCette action est permanente et vous ne pourrez pas revenir en arrière.**\n**Cette action est destructive!!**"
+resetallinvites_yes_button: "Tout supprimer"
+resetallinvites_no_button: "Annuler l'action"
+resetallinvites_succes_on_delete: "Supprimé avec succès!"
+resetallinvites_logs_embed_title: "Logs du Gestionnaire d'Invitations (ACTION DANGEREUSE)"
+resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} a supprimé toutes les données du Gestionnaire d'Invitations!"
 
 
 # Bot commands
@@ -789,6 +798,9 @@ too_new_account_command_work_on_disable: "${interaction.user}, le module a été
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "Le pied de page du bot est trop long, il sera trop laid à afficher."
 guildconfig_setbot_footername_is_good: "Changé avec succès, tous les embeds iHorizon utiliseront `${footerName}` comme pied de page!"
+
+# /guildconfig set-bot footer-pfp
+guildconfig_setbot_footeravatar_is_good: "Changé avec succès, tous les embeds d'iHorizon utiliseront `l'image` comme footer!"
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "Le préfixe du bot pour les commandes est maintenant mention! `@Ping-Me`"

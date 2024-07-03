@@ -62,14 +62,14 @@ export default {
 
         await client.db.set(`${interaction.guildId}.CONFESSION.channel`, channel.id);
 
-        await client.args.interactionSend(interaction,{
+        await client.args.interactionSend(interaction, {
             content: data.confession_channel_command_work
                 .replace('${channel?.toString()}', channel.toString()!)
         });
 
         let embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#ff05aa")
-            .setFooter({ text: interaction.guild?.name!, iconURL: 'attachment://guild_icon.png' })
+            .setFooter(await client.args.bot.footerBuilder(interaction))
             .setTimestamp()
             .setDescription(data.confession_channel_panel_embed_desc)
             ;

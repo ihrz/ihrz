@@ -134,7 +134,7 @@ export const command: Command = {
                         text: data.history_embed_footer_text
                             .replace('${currentPage + 1}', (currentPage + 1).toString())
                             .replace('${pages.length}', pages.length.toString()),
-                        iconURL: "attachment://icon.png"
+                        iconURL: "attachment://footer_icon.png"
                     })
                     .setTimestamp()
             };
@@ -153,7 +153,7 @@ export const command: Command = {
             let messageEmbed = await client.args.interactionSend(interaction,{
                 embeds: [await createEmbed()],
                 components: [row],
-                files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
+                files: [await client.args.bot.footerAttachmentBuilder(interaction)]
             });
 
             let collector = messageEmbed.createMessageComponentCollector({

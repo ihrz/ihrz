@@ -58,7 +58,7 @@ export const event: BotEvent = {
             })
             .setDescription(suggestionContent.toString())
             .setThumbnail((message.guild?.iconURL() as string))
-            .setFooter({ text: await client.func.displayBotName(message.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter(await client.args.bot.footerBuilder(message))
             .setTimestamp();
 
         message.delete();
@@ -69,7 +69,7 @@ export const event: BotEvent = {
         let msg = await message.channel.send({
             content: message.author.toString(),
             embeds: [suggestionEmbed],
-            files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
+            files: [await client.args.bot.footerAttachmentBuilder(message)],
             enforceNonce: true, nonce: nonce
         });
 

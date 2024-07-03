@@ -24,6 +24,7 @@ import { Command } from "../../../types/command";
 import { Option } from "../../../types/option";
 import { LanguageData } from "../../../types/languageData";
 import * as perm from './permissonsCalculator.js'
+import * as f from './displayBotName.js';
 
 export function user(interaction: Message, argsNumber: number): User | null {
     return interaction.content.startsWith(`<@${interaction.client.user.id}`)
@@ -273,14 +274,11 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
             .replace("${wrongArgumentName}", wrongArgumentName)
         )
         .setColor("Red")
-        .setFooter({
-            text: await message.client.func.displayBotName(message.guildId),
-            iconURL: "attachment://ihrz_logo.png"
-        })
+        .setFooter(await message.client.args.bot.footerBuilder(message))
 
     await message.client.args.interactionSend(message, {
         embeds: [embed],
-        files: [{ attachment: await message.client.func.image64(message.client.user.displayAvatarURL()), name: 'ihrz_logo.png' }]
+        files: [await message.client.args.bot.footerAttachmentBuilder(message)]
     });
 }
 
@@ -328,3 +326,4 @@ export async function interactionEdit(interaction: ChatInputCommandInteraction |
 }
 
 export const permission = perm;
+export const bot = f;

@@ -109,6 +109,18 @@ import { SubCommandArgumentValue } from '../../../core/functions/arg';export con
             ],
         },
         {
+            name: "reset-all",
+
+            description: "Delete all data of InviteManager in the guild",
+            description_localizations: {
+                "fr": "Supprimer toute les données du module d'InviteManager"
+            },
+
+            aliases: ["delete-all", "reset", "rs"],
+
+            type: ApplicationCommandOptionType.Subcommand,
+        },
+        {
             name: 'removeinvites',
             aliases: ["remove", "sub"],
 

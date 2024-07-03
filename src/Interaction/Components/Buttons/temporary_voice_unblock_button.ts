@@ -32,7 +32,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
 
     let targetedChannel = (interaction.member as GuildMember).voice.channel;
     let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
-    
+
     if (!result) return await interaction.deferUpdate();
     if (result.channelId !== interaction.channelId
         || getChannelOwner !== targetedChannel?.id) return await interaction.deferUpdate();
@@ -117,20 +117,10 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                                 value: removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || lang.temporary_voice_no_one
                             },
                         )
-                        .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'fr-FR'}.png`)
-                        .setFooter(
-                            {
-                                text: await interaction.client.func.displayBotName(interaction.guildId),
-                                iconURL: 'attachment://icon.png'
-                            }
-                        )
+                        .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
+                        .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
                 ],
-                files: [
-                    {
-                        attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()),
-                        name: 'icon.png'
-                    }
-                ],
+                files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)],
                 ephemeral: true
             });
 

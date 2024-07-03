@@ -34,7 +34,7 @@ export default {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.args.interactionSend(interaction,{
+            await client.args.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -52,10 +52,10 @@ export default {
 
         if (!bal) {
             await client.db.set(`${interaction.guildId}.USER.${member.id}.ECONOMY.money`, 1);
-            await client.args.interactionSend(interaction,{
+            await client.args.interactionSend(interaction, {
                 content: lang.balance_he_dont_have_wallet
                     .replace("${client.iHorizon_Emojis.icon.Wallet_Logo}", client.iHorizon_Emojis.icon.Wallet_Logo)
-                    .replace('${user}', interaction.member.user.toString())
+                    .replace('${user}', member.toString())
             });
             return;
         };
@@ -75,12 +75,12 @@ export default {
                 { name: lang.balance_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY.bank`) || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true },
                 { name: lang.balance_embed_fields2_name, value: `${await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY.money`) || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true }
             )
-            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter(await client.args.bot.footerBuilder(interaction))
             .setTimestamp()
 
-        await client.args.interactionSend(interaction,{
+        await client.args.interactionSend(interaction, {
             embeds: [embed],
-            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
+            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

@@ -67,10 +67,7 @@ export default {
                     ? all_roles.map(x => `<@&${x}>`).join(', ')
                     : lang.setjoinroles_var_none
             })
-            .setFooter({
-                text: await interaction.client.func.displayBotName(interaction.guildId),
-                iconURL: interaction.client.user.displayAvatarURL({ forceStatic: false })
-            });
+            .setFooter(await client.args.bot.footerBuilder(interaction));
 
         const select = new RoleSelectMenuBuilder()
             .setCustomId('antispam-select-config')

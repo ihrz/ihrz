@@ -3,6 +3,7 @@
 
 # Comandos de ticket
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
+ticket_disabled_command: "Você não pode usar este comando porque um Administrador desativou os comandos de ticket!"
 
 # /add
 add_disabled_command: "Você não pode usar este comando porque um Administrador desativou os comandos de ticket!"
@@ -192,6 +193,14 @@ removeinvites_not_admin_embed_description: "Você precisa ser administrador para
 removeinvites_confirmation_embed_description: "Removidos ${amount} convites de ${user}"
 removeinvites_logs_embed_title: "Logs do Gerenciador de Convites"
 removeinvites_logs_embed_description: "<@${interaction.user.id}> removeu ${amount} convites de <@${user.id}> !"
+
+# /invites reset-all
+resetallinvites_warning_msg: "**Tem certeza de que deseja excluir todos os dados do InviteManager?\nEsta ação é permanente e não pode ser desfeita.**\n**Esta ação é destrutiva!!**"
+resetallinvites_yes_button: "Excluir tudo"
+resetallinvites_no_button: "Desfazer ação"
+resetallinvites_succes_on_delete: "Excluído com sucesso!"
+resetallinvites_logs_embed_title: "Logs do Invite Manager (AÇÃO PERIGOSA)"
+resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} excluiu todos os dados do Invite Manager!"
 
 
 # Comandos do Bot
@@ -789,6 +798,9 @@ too_new_account_command_work_on_disable: "${interaction.user}, o módulo foi des
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "O rodapé do bot é muito longo, será muito feio para exibir."
 guildconfig_setbot_footername_is_good: "Alterado com sucesso, todos os embeds do iHorizon usarão `${footerName}` como rodapé!"
+
+# /guildconfig set-bot footer-pfp
+guildconfig_setbot_footeravatar_is_good: "Alterado com sucesso, todos os embeds do iHorizon usarão `image` como rodapé!"
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "O prefixo do bot para comandos agora é menção! `@Ping-Me`"

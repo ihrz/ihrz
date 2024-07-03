@@ -3,6 +3,7 @@
 
 # Команды для тикетов
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
+ticket_disabled_command: "Вы не можете использовать эту команду, потому что администратор отключил команды для тикетов!"
 
 # /add
 add_disabled_command: "Вы не можете использовать эту команду, потому что администратор отключил команды для тикетов!"
@@ -192,6 +193,14 @@ removeinvites_not_admin_embed_description: "Вам нужны права адм�
 removeinvites_confirmation_embed_description: "Удалено ${amount} приглашений для ${user}"
 removeinvites_logs_embed_title: "Логи менеджера приглашений"
 removeinvites_logs_embed_description: "<@${interaction.user.id}> Удалил ${amount} приглашений для <@${user.id}>!"
+
+# /invites reset-all
+resetallinvites_warning_msg: "**Вы действительно уверены, что хотите удалить все данные InviteManager?\nЭто действие необратимо и не может быть отменено.**\n**Это действие разрушительно!!**"
+resetallinvites_yes_button: "Удалить всё"
+resetallinvites_no_button: "Отменить действие"
+resetallinvites_succes_on_delete: "Успешно удалено!"
+resetallinvites_logs_embed_title: "Журналы Invite Manager (ОПАСНОЕ ДЕЙСТВИЕ)"
+resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} удалил все данные Invite Manager!"
 
 
 # Команды бота
@@ -789,6 +798,9 @@ too_new_account_command_work_on_disable: "${interaction.user}, модуль ус
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "Нижний колонтитул бота слишком длинный, его будет слишком некрасиво отображать."
 guildconfig_setbot_footername_is_good: "Успешно изменено, все встраивания iHorizon будут использовать `${footerName}` как нижний колонтитул!"
+
+# /guildconfig set-bot footer-pfp
+guildconfig_setbot_footeravatar_is_good: "Успешно изменено, все вставки iHorizon будут использовать `image` в качестве нижнего колонтитула!"
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "Префикс бота для команд теперь упоминание! `@Ping-Me`"

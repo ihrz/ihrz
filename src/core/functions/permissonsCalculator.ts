@@ -25,13 +25,14 @@ import { DatabaseStructure } from "../../../types/database_structure";
 import { Command } from "../../../types/command";
 import { Option } from "../../../types/option";
 
-export async function checkCommandPermission(interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: Command | Option): Promise<boolean> {
+export async function checkCommandPermission(interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: string | Command | Option): Promise<boolean> {
     var usr = interaction instanceof ChatInputCommandInteraction ? interaction.user : interaction.author;
     var db = interaction.client.db;
 
+    var cmd = typeof command === 'string' ? command : command.name;
     let guildPerm = await db.get(`${interaction.guildId}.UTILS`) as DatabaseStructure.UtilsData;
     let userInDatabase = guildPerm?.USER_PERMS?.[usr.id] || 0;
-    let cmdNeedPerm = guildPerm?.PERMS?.[command.name] || 0;
+    let cmdNeedPerm = guildPerm?.PERMS?.[cmd] || 0;
 
     if (userInDatabase >= cmdNeedPerm) return true;
     return false;

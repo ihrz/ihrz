@@ -26,6 +26,7 @@ export interface LanguageData {
   add_command_work: string;
   add_command_error: string;
   close_disabled_command: string;
+  ticket_disabled_command: string;
   close_title_sourcebin: string;
   close_description_sourcebin: string;
   close_error_command: string;
@@ -151,6 +152,12 @@ export interface LanguageData {
   removeinvites_confirmation_embed_description: string;
   removeinvites_logs_embed_title: string;
   removeinvites_logs_embed_description: string;
+  resetallinvites_warning_msg: string;
+  resetallinvites_yes_button: string;
+  resetallinvites_no_button: string;
+  resetallinvites_succes_on_delete: string;
+  resetallinvites_logs_embed_title: string;
+  resetallinvites_logs_embed_desc: string;
   links_message: string;
   links_website: string;
   links_github: string;
@@ -589,6 +596,7 @@ export interface LanguageData {
   guildconfig_setbot_footername_footer_too_long_msg: string;
   guildconfig_setbot_footername_footer_too_long_msg: string;
   guildconfig_setbot_footername_is_good: string;
+  guildconfig_setbot_footeravatar_is_good: string;
   guildconfig_setbot_prefix_prefix_now_mention: string;
   guildconfig_setbot_prefix_prefix_specify_prefix: string;
   guildconfig_setbot_prefix_prefix_too_long: string;

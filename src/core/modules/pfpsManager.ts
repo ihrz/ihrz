@@ -98,11 +98,13 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
         .setTitle(`${user?.user.username || user?.user.globalName}'s **User** avatar`)
         .setImage(user.user.displayAvatarURL({ extension: 'png', forceStatic: false }))
         .setTimestamp()
-        .setFooter({ text: await client.func.displayBotName(channel.guildId) })
+        .setFooter(await client.args.bot.footerBuilder(channel.guild))
     );
 
     (channel as BaseGuildTextChannel).send({
-        embeds: ebds, components: [actRow]
+        embeds: ebds,
+        components: [actRow],
+        files: [await client.args.bot.footerAttachmentBuilder(channel.guild)]
     });
     return;
 }

@@ -32,13 +32,13 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let blockQ = await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`);
-        let channel = interaction.options.getChannel('channel') as GuildChannel;
+        
 
-        if (blockQ) {
-            await interaction.editReply({ content: data.open_disabled_command });
+        if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
+            await interaction.editReply({ content: data.ticket_disabled_command });
             return;
         };
+        let channel = interaction.options.getChannel('channel') as GuildChannel;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.disableticket_not_admin });
@@ -54,12 +54,12 @@ export default {
                 .replace('${interaction.user}', interaction.user.toString())
                 .replace('${channel}', channel.toString())
             )
-            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter(await client.args.bot.footerBuilder(interaction))
             .setTimestamp();
 
         await interaction.editReply({
             embeds: [embed],
-            files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
+            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

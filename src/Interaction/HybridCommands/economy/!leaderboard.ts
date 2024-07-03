@@ -53,7 +53,7 @@ export default {
             .setTitle(lang.economy_leaderboard_embed_title
                 .replace('${interaction.guild.name}', interaction.guild.name as string)
             )
-            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setFooter(await client.args.bot.footerBuilder(interaction))
             .setTimestamp();
 
         usersArray = usersArray.slice(0, 10);
@@ -79,7 +79,7 @@ export default {
 
         await client.args.interactionSend(interaction, {
             embeds: [embed],
-            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
+            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

@@ -19,28 +19,8 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import {
-    BaseGuildTextChannel,
-    ChatInputCommandInteraction,
-    Client,
-} from 'pwss';
-
-import { TicketDelete } from '../../../core/modules/ticketsManager.js';
-import { LanguageData } from '../../../../types/languageData';
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
-
-        if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
-            await interaction.editReply({ content: data.ticket_disabled_command });
-            return;
-        };
-
-        if (!(interaction.channel as BaseGuildTextChannel).name.includes('ticket-')) {
-            await interaction.editReply({ content: data.delete_not_in_ticket });
-            return;
-        }
-        await TicketDelete(interaction);
-    },
-};
+export interface BashCommands {
+    command_name: string;
+    command_description: string;
+    run: any
+}

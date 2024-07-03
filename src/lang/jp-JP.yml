@@ -3,6 +3,7 @@
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
+ticket_disabled_command: "このコマンドは管理者によって無効化されています！"
 
 # /add
 add_disabled_command: "このコマンドは管理者によって無効化されています！"
@@ -192,6 +193,14 @@ removeinvites_not_admin_embed_description: "管理者である必要がありま
 removeinvites_confirmation_embed_description: "${user}から${amount}の招待状を削除しました"
 removeinvites_logs_embed_title: "招待状マネージャーログ"
 removeinvites_logs_embed_description: "<@${interaction.user.id}>さんが<@${user.id}>さんから${amount}の招待状を削除しました！"
+
+# /invites reset-all
+resetallinvites_warning_msg: "**InviteManagerのすべてのデータを削除してもよろしいですか？\nこの操作は永久的であり、元に戻すことはできません。**\n**この操作は破壊的です!!**"
+resetallinvites_yes_button: "すべて削除"
+resetallinvites_no_button: "アクションを元に戻す"
+resetallinvites_succes_on_delete: "正常に削除されました!"
+resetallinvites_logs_embed_title: "Invite Manager ログ (危険な操作)"
+resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} がInvite Managerのすべてのデータを削除しました！"
 
 
 # Bot commands
@@ -789,6 +798,9 @@ too_new_account_command_work_on_disable: "${interaction.user}、モジュール�
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "ボットのフッターが長すぎます。表示するには醜すぎます。"
 guildconfig_setbot_footername_is_good: "正常に変更されました。すべてのiHorizon埋め込みは`${footerName}`をフッターとして使用します！"
+
+# /guildconfig set-bot footer-pfp
+guildconfig_setbot_footeravatar_is_good: "正常に変更されました。iHorizonのすべての埋め込みはフッターとして`image`を使用します！"
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "コマンドのボットプレフィックスは今メンションです！ `@Ping-Me`"
