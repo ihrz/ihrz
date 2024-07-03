@@ -100,5 +100,5 @@ In the `LICENSE` files, the name `Anaïs Saraiva` is the name of the owner.
 
 ## Remarks
 
-Any sorts of hate trowards any contributor will not be tolerated.
+Any sorts of hate trowards any contributor will not be tolerated.<br>
 Regardless of the type and the level of hate.
