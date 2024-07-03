@@ -27,7 +27,7 @@ export const command: BashCommands = {
     command_name: "help",
     command_description: "Show this message",
     run: function (client: Client, args: string) {
-        let string = `These shell commands are defined internally.  Type 'help' to see this list.\n\n`;
+        let string = `iHorizon bash,\nThese shell commands are defined internally.    Type 'help' to see this list.\n\n`;
 
         let commands = client.bash.map(index => ({
             command_name: index.command_name,
@@ -37,7 +37,7 @@ export const command: BashCommands = {
         commands.sort((a, b) => a.command_name.localeCompare(b.command_name));
 
         commands.forEach(command => {
-            const padding = ' '.repeat(50 - command.command_name.length);
+            const padding = ' '.repeat(48 - command.command_name.length);
             string += `${command.command_name}${padding}${command.command_description}\r\n`;
         });
 
