@@ -40,6 +40,7 @@ import { Emojis } from "./emojis";
 import * as ClientVersion from "../src/version.js";
 import { Assets } from "./assets";
 import { ConfigData } from "./configDatad.js";
+import { BashCommands } from "./bashCommands.js";
 
 declare module 'pwss' {
     export interface Client {
@@ -64,6 +65,7 @@ declare module 'pwss' {
         config: ConfigData,
         isModuled?: boolean,
         owners: string[],
-        args: typeof argsHelper
+        args: typeof argsHelper,
+        bash: Collection<string, BashCommands>
     }
 };

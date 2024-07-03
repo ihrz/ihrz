@@ -43,6 +43,7 @@ const Color = {
     Hidden: "\x1b[8m",
     Strikethrough: "\x1b[9m",
     Gray: "\x1b[90m",
+    Bold: "\x1b[1m",
     Reset: "\x1b[0m"
 };
 
@@ -73,6 +74,7 @@ declare global {
         hidden: string;
         strikethrough: string;
         gray: string;
+        boldText: string;
     }
 }
 
@@ -110,3 +112,4 @@ addStringPrototypeGetter('inverse', Color.Reverse);
 addStringPrototypeGetter('hidden', Color.Hidden);
 addStringPrototypeGetter('strikethrough', Color.Strikethrough);
 addStringPrototypeGetter('gray', Color.Gray);
+addStringPrototypeGetter('boldText', Color.Bold);

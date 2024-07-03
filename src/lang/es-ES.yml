@@ -3,6 +3,7 @@
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
+ticket_disabled_command: "¡No puedes usar este comando porque un administrador ha deshabilitado los comandos de tickets!"
 
 # /add
 add_disabled_command: "¡No puedes usar este comando porque un administrador ha deshabilitado los comandos de tickets!"
@@ -192,6 +193,14 @@ removeinvites_not_admin_embed_description: "¡Necesitas ser administrador para u
 removeinvites_confirmation_embed_description: "Se han eliminado ${amount} invitaciones a ${user}"
 removeinvites_logs_embed_title: "Registro del administrador de Invitaciones"
 removeinvites_logs_embed_description: "<@${interaction.user.id}> ha eliminado ${amount} invitaciones a <@${user.id}> !"
+
+# /invites reset-all
+resetallinvites_warning_msg: "**¿Estás realmente seguro de eliminar todos los datos del InviteManager?\nEsta acción es permanente y no se puede deshacer.**\n**¡Esta acción es destructiva!!**"
+resetallinvites_yes_button: "Eliminar todo"
+resetallinvites_no_button: "Deshacer acción"
+resetallinvites_succes_on_delete: "¡Eliminado con éxito!"
+resetallinvites_logs_embed_title: "Registros del Invite Manager (ACCIÓN PELIGROSA)"
+resetallinvites_logs_embed_desc: "¡${interaction.member.user.toString()} ha eliminado todos los datos del Invite Manager!"
 
 
 # Bot commands

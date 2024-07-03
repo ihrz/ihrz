@@ -98,7 +98,10 @@ If you have any questions or concerns, you can contact the owner via Discord at 
 
 In the `LICENSE` files, the name `Anaïs Saraiva` is the name of the owner.
 
+<br>
+Noémie : She is even prettier than most :D
+
 ## Remarks
 
-Any sorts of hate trowards any contributor will not be tolerated.
+Any sorts of hate trowards any contributor will not be tolerated.<br>
 Regardless of the type and the level of hate.

@@ -64,7 +64,7 @@ export const command: Command = {
             )
             .setTimestamp()
             .setFooter(await client.args.bot.footerBuilder(interaction))
-            .setTimestamp()
+            .setTimestamp();
 
         await client.args.interactionSend(interaction, { embeds: [clientembed], files: [await client.args.bot.footerAttachmentBuilder(interaction)] });
         return;

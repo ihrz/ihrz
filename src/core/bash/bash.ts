@@ -86,21 +86,20 @@ export default async (client: Client) => {
     
     Last login: ${LoadFiles} from ${LoadFiles2}`);
 
-    rl.setPrompt('kisakay@ihorizon'.green + ":".white + `${process.cwd()}`.blue + "$ ".white);
+    rl.setPrompt('kisakay@ihorizon'.green.boldText + ":".white.boldText + `~${process.cwd()}`.blue.boldText + "$ ".white.boldText);
     rl.prompt();
     rl.on('line', async (line) => {
         let [commandName, ...args] = line.trim().split(' ');
-        let commandPath = path.join(__dirname, 'commands', commandName + '.js')
+        let command = client.bash.get(commandName)
 
-        if (fs.existsSync(commandPath)) {
-            let command = await import(commandPath);
-            command.default(client, args.join(' '));
+        if (command) {
+            command.run(client, args.join(' '));
 
             if (commandName) {
                 createFiles.write(`${line}\r\n`);
             }
         } else if (commandName) {
-            logger.legacy(`Command not found: ${commandName}`);
+            logger.legacy(`${commandName}: command not found`);
         }
 
         rl.prompt();

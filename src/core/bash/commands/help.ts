@@ -19,18 +19,28 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
+import { Client } from "pwss";
+import { BashCommands } from "../../../../types/bashCommands";
 import logger from "../../logger.js";
 
-export default function () {
-    logger.legacy(
-        `iHorizon bash,
-These shell commands are defined internally.  Type 'help' to see this list.
+export const command: BashCommands = {
+    command_name: "help",
+    command_description: "Show this message",
+    run: function (client: Client, args: string) {
+        let string = `iHorizon bash,\nThese shell commands are defined internally.    Type 'help' to see this list.\n\n`;
 
- help                                         Show this message
- broadcast                                    Send a message to all of iHorizon guild
- shutdown                                     Shutdown the bot
- history                                      Show the bash history
- leave                                        Leave a guild with them id
- r                                            Run an bash command`
-    );
+        let commands = client.bash.map(index => ({
+            command_name: index.command_name,
+            command_description: index.command_description
+        }));
+
+        commands.sort((a, b) => a.command_name.localeCompare(b.command_name));
+
+        commands.forEach(command => {
+            const padding = ' '.repeat(47 - command.command_name.length);
+            string += ` ${command.command_name}${padding}${command.command_description}\r\n`;
+        });
+
+        logger.legacy(string);
+    }
 };

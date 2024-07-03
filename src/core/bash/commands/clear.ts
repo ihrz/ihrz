@@ -19,24 +19,12 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client } from 'pwss';
-import { BashCommands } from '../../../../types/bashCommands.js';
-import wait from '../../functions/wait.js';
-import logger from '../../logger.js';
+import { BashCommands } from "../../../../types/bashCommands";
 
 export const command: BashCommands = {
-    command_name: "shutdown",
-    command_description: "Shutdown the bot",
-    run: async function (client: Client, args: string) {
-        logger.legacy(`* Closed session...`.gray.bgBlack);
-
-        await wait(1000);
-        logger.legacy(`\n* Unload all script...`.gray.bgBlack);
-
-        await wait(1000);
-        logger.legacy(`* All are successfully unloaded`.gray.bgBlack);
-
-        logger.legacy(`* Power off...`.red.bgBlack);
-        process.kill(0);
+    command_name: "clear",
+    command_description: "Clear the console",
+    run: function () {
+        console.clear()
     }
 };
