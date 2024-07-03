@@ -32,6 +32,7 @@ import {
   ChatInputCommandInteraction,
   Client,
   EmbedBuilder,
+  GuildMember,
   Message,
 } from 'pwss'
 
@@ -45,10 +46,10 @@ export default {
     if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
     if (interaction instanceof ChatInputCommandInteraction) {
-      var user = interaction.options.getUser('user') || interaction.user;
+      var user = interaction.options.getMember('user') as GuildMember || interaction.member;
     } else {
       var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-      var user = client.args.user(interaction, 0) || interaction.author;
+      var user = client.args.member(interaction, 0) || interaction.member;
     };
 
     let link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(user.displayAvatarURL({ extension: 'png', size: 1024 }))}`;

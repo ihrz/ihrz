@@ -23,6 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
     Message,
     User,
 } from 'pwss';
@@ -34,10 +35,10 @@ export default {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var member = interaction.options.getUser("user") || interaction.user;
+            var member = interaction.options.getMember("user") as GuildMember || interaction.member;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.args.user(interaction, 0) || interaction.author;
+            var member = client.args.member(interaction, 0) || interaction.member;
         };
 
         let tableProfil = client.db.table('USER_PROFIL');
@@ -59,12 +60,12 @@ export default {
 
         let profil = new EmbedBuilder()
             .setTitle(data.profil_embed_title
-                .replace(/\${member\.tag}/g, member.username)
+                .replace(/\${member\.tag}/g, member.user.username)
                 .replace('${client.iHorizon_Emojis.icon.Pin}', client.iHorizon_Emojis.icon.Pin)
             )
             .setDescription(`\`${description}\``)
             .addFields(
-                { name: data.profil_embed_fields_nickname, value: member.username, inline: false },
+                { name: data.profil_embed_fields_nickname, value: member.user.username, inline: false },
                 { name: data.profil_embed_fields_money, value: balance + data.profil_embed_fields_money_value, inline: false },
                 { name: data.profil_embed_fields_xplevels, value: level + data.profil_embed_fields_xplevels_value, inline: false },
                 { name: data.profil_embed_fields_age, value: age + data.profil_embed_fields_age_value, inline: false },
@@ -74,7 +75,7 @@ export default {
             .setTimestamp()
             .setFooter(await client.args.bot.footerBuilder(interaction))
 
-        await client.args.interactionSend(interaction,{
+        await client.args.interactionSend(interaction, {
             embeds: [profil],
             files: [await client.args.bot.footerAttachmentBuilder(interaction)]
         });

@@ -23,6 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
     Message,
     User,
 } from 'pwss';
@@ -34,10 +35,10 @@ export default {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var user = interaction.options.getUser("user") || interaction.user;
+            var user = interaction.options.getMember("user") as GuildMember || interaction.member;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var user = client.args.user(interaction, 0) || interaction.author;
+            var user = client.args.member(interaction, 0) || interaction.member;
         };
 
         let baseData = await client.db.get(`${interaction.guildId}.USER.${user.id}.XP_LEVELING`);
@@ -49,7 +50,7 @@ export default {
 
         let nivEmbed = new EmbedBuilder()
             .setTitle(data.level_embed_title
-                .replace('${user.username}', String(user.globalName || user.displayName))
+                .replace('${user.username}', String(user.user.globalName || user.displayName))
             )
             .setColor('#0014a8')
             .addFields(

@@ -24,6 +24,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
     Message,
     PermissionsBitField,
     User,
@@ -46,7 +47,7 @@ export default {
         };
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.args.interactionSend(interaction,{
+            await client.args.interactionSend(interaction, {
                 content: data.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -55,11 +56,11 @@ export default {
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var amount = interaction.options.getNumber("amount") as number;
-            var user = interaction.options.getUser("member") as User;
+            var user = interaction.options.getMember("member") as GuildMember;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var amount = client.args.number(args!, 0) as number;
-            var user = client.args.user(interaction, 0) as User;
+            var user = client.args.member(interaction, 0) as GuildMember;
         };
 
         await client.db.sub(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, amount!);
@@ -86,7 +87,7 @@ export default {
             if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
         } catch (e) { return; };
 
-        await client.args.interactionSend(interaction,{ embeds: [embed] });
+        await client.args.interactionSend(interaction, { embeds: [embed] });
         return;
     },
 };
