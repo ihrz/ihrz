@@ -37,8 +37,8 @@ export const command: BashCommands = {
         commands.sort((a, b) => a.command_name.localeCompare(b.command_name));
 
         commands.forEach(command => {
-            const padding = ' '.repeat(48 - command.command_name.length);
-            string += `${command.command_name}${padding}${command.command_description}\r\n`;
+            const padding = ' '.repeat(47 - command.command_name.length);
+            string += ` ${command.command_name}${padding}${command.command_description}\r\n`;
         });
 
         logger.legacy(string);
