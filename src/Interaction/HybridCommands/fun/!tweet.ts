@@ -32,6 +32,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
     Message,
     User,
 } from 'pwss'
@@ -45,12 +46,12 @@ export default {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var user: User = interaction.options.getUser('user') || interaction.user;
+            var user: GuildMember = interaction.options.getMember('user') as GuildMember || interaction.member;
             var entry = interaction.options.getString('comment');
             var messageArgs = entry!.split(' ');
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var user: User = client.args.user(interaction, 0) || interaction.author;
+            var user: GuildMember = client.args.member(interaction, 0) || interaction.member;
             var entry = client.args.longString(args!, 1);
             var messageArgs = entry!.split(' ');
         };
@@ -60,8 +61,8 @@ export default {
             return;
         };
 
-        let username = user.username;
-        let displayname = user.globalName;
+        let username = user.user.username;
+        let displayname = user.user.globalName;
 
         if (username.length > 15) {
             username = username.substring(0, 15);

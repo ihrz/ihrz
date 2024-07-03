@@ -23,6 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
     Message,
     User
 } from 'pwss';
@@ -42,10 +43,10 @@ export default {
         };
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var member: User = interaction.options.getUser('user') || interaction.user;
+            var member: GuildMember = interaction.options.getMember('user') as GuildMember || interaction.member;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var member: User = client.args.user(interaction, 0) || interaction.author;
+            var member: GuildMember = client.args.member(interaction, 0) || interaction.member;
         };
 
         var bal = await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY.money`);
@@ -64,7 +65,7 @@ export default {
 
         let embed = new EmbedBuilder()
             .setColor('#e3c6ff')
-            .setTitle(`\`${member.username}\`'s Wallet`)
+            .setTitle(`\`${member.user.username}\`'s Wallet`)
             .setThumbnail(member.displayAvatarURL())
             .setDescription(lang.balance_he_have_wallet
                 .replace(/\${bal}/g, totalWallet)

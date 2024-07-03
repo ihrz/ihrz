@@ -23,7 +23,8 @@ import {
     Client,
     ChatInputCommandInteraction,
     User,
-    Message
+    Message,
+    GuildMember
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 import { SubCommandArgumentValue } from '../../../core/functions/arg';
@@ -34,11 +35,11 @@ export default {
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var amount = interaction.options.getNumber("amount") as number;
-            var user = interaction.options.getUser("member") as User;
+            var user = interaction.options.getMember("member") as GuildMember;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var amount = client.args.number(args!, 0) as number;
-            var user = client.args.user(interaction, 0) as User;
+            var user = client.args.member(interaction, 0) as GuildMember;
         };
 
         let member = await client.db.get(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`);
@@ -64,7 +65,7 @@ export default {
         await client.args.interactionSend(interaction, {
             content: lang.pay_command_work
                 .replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username)
-                .replace(/\${user\.user\.username}/g, user.globalName!)
+                .replace(/\${user\.user\.username}/g, user.user.globalName!)
                 .replace(/\${amount}/g, amount.toString())
         });
 

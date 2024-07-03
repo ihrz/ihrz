@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, ChatInputCommandInteraction, User, Message } from 'pwss';
+import { Client, EmbedBuilder, ChatInputCommandInteraction, User, Message, GuildMember } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 import Jimp from 'jimp';
@@ -38,12 +38,12 @@ export default {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var user1 = interaction.options.getUser("user1") || interaction.user;
-            var user2 = interaction.options.getUser("user2") || interaction.guild.members.cache.random()?.user as User;
+            var user1 = interaction.options.getMember("user1") as GuildMember || interaction.member;
+            var user2 = interaction.options.getMember("user2") as GuildMember || interaction.guild.members.cache.random() as GuildMember;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var user1 = client.args.user(interaction, 0) || interaction.author;
-            var user2 = client.args.user(interaction, 1) || interaction.guild.members.cache.random()?.user as User;
+            var user1 = client.args.member(interaction, 0) || interaction.member;
+            var user2 = client.args.member(interaction, 1) || interaction.guild.members.cache.random() as GuildMember;
         }
 
         let profileImageSize = 512;
@@ -93,8 +93,8 @@ export default {
                 .setTitle("💕")
                 .setImage(`attachment://love.png`)
                 .setDescription(lang.love_embed_description
-                    .replace('${user1.username}', user1.username)
-                    .replace('${user2.username}', user2.username)
+                    .replace('${user1.username}', user1.user.username)
+                    .replace('${user2.username}', user2.user.username)
                     .replace('${randomNumber}', randomNumber.toString())
                 )
                 .setFooter(await client.args.bot.footerBuilder(interaction))

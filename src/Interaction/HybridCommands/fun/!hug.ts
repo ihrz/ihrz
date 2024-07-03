@@ -23,8 +23,8 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
     Message,
-    User,
 } from 'pwss';
 
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
@@ -38,10 +38,10 @@ export default {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var hug = interaction.options.getUser("user") as User;
+            var hug = interaction.options.getMember("user") as GuildMember;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var hug = client.args.user(interaction, 0) || interaction.author;
+            var hug = client.args.member(interaction, 0) || interaction.member;
         }
 
         let url = apiUrlParser.assetsFinder(client.assets, "hug");

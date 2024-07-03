@@ -23,6 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
     InteractionEditReplyOptions,
     Message,
     MessagePayload,
@@ -38,10 +39,10 @@ export default {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var member = interaction.options.getUser("member") || interaction.user;
+            var member = interaction.options.getMember("member") as GuildMember || interaction.member;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.args.user(interaction, 0) || interaction.member.user;
+            var member = client.args.member(interaction, 0) || interaction.member;
         };
 
         let baseData = await client.db.get(`${interaction.guildId}.USER.${member.id}.INVITES`);
