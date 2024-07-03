@@ -194,6 +194,14 @@ removeinvites_confirmation_embed_description: "${amount} Einladungen für ${user
 removeinvites_logs_embed_title: "Einladungsmanager-Protokoll"
 removeinvites_logs_embed_description: "<@${interaction.user.id}> hat ${amount} Einladungen von <@${user.id}> entfernt!"
 
+# /invites reset-all
+resetallinvites_warning_msg: "**Sind Sie wirklich sicher, dass Sie alle Daten des InviteManagers löschen möchten?\nDiese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden.**\n**Diese Aktion ist destruktiv!!**"
+resetallinvites_yes_button: "Alles löschen"
+resetallinvites_no_button: "Aktion rückgängig machen"
+resetallinvites_succes_on_delete: "Erfolgreich gelöscht!"
+resetallinvites_logs_embed_title: "Invite Manager Logs (GEFAHR AKTION)"
+resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} hat alle Daten des Invite Managers gelöscht!"
+
 
 # Bot commands
 # /botinfo, /invite, /kisakay, /ping, /status

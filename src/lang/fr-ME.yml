@@ -194,6 +194,14 @@ removeinvites_confirmation_embed_description: "Supprimer ${amount} invitations p
 removeinvites_logs_embed_title: "Logs du gestionnaire d'invitations"
 removeinvites_logs_embed_description: "<@${interaction.user.id}> a supprimé ${amount} invitations à <@${user.id}> !"
 
+# /invites reset-all
+resetallinvites_warning_msg: "**Êtes-vous vraiment sûr de vouloir supprimer toutes les données de l'InviteManager?\nCette action est permanente et vous ne pourrez pas revenir en arrière.**\n**Cette action est destructive!!**"
+resetallinvites_yes_button: "Tout supprimer"
+resetallinvites_no_button: "Annuler l'action"
+resetallinvites_succes_on_delete: "Supprimé avec succès!"
+resetallinvites_logs_embed_title: "Logs du Gestionnaire d'Invitations (ACTION DANGEREUSE)"
+resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} a supprimé toutes les données du Gestionnaire d'Invitations!"
+
 
 # Bot commands
 # /botinfo, /invite, /kisakay, /ping, /status

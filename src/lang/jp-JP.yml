@@ -194,6 +194,14 @@ removeinvites_confirmation_embed_description: "${user}から${amount}の招待�
 removeinvites_logs_embed_title: "招待状マネージャーログ"
 removeinvites_logs_embed_description: "<@${interaction.user.id}>さんが<@${user.id}>さんから${amount}の招待状を削除しました！"
 
+# /invites reset-all
+resetallinvites_warning_msg: "**InviteManagerのすべてのデータを削除してもよろしいですか？\nこの操作は永久的であり、元に戻すことはできません。**\n**この操作は破壊的です!!**"
+resetallinvites_yes_button: "すべて削除"
+resetallinvites_no_button: "アクションを元に戻す"
+resetallinvites_succes_on_delete: "正常に削除されました!"
+resetallinvites_logs_embed_title: "Invite Manager ログ (危険な操作)"
+resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} がInvite Managerのすべてのデータを削除しました！"
+
 
 # Bot commands
 # /botinfo, /invite, /kisakay, /ping, /status

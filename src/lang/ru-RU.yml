@@ -194,6 +194,14 @@ removeinvites_confirmation_embed_description: "Удалено ${amount} приг
 removeinvites_logs_embed_title: "Логи менеджера приглашений"
 removeinvites_logs_embed_description: "<@${interaction.user.id}> Удалил ${amount} приглашений для <@${user.id}>!"
 
+# /invites reset-all
+resetallinvites_warning_msg: "**Вы действительно уверены, что хотите удалить все данные InviteManager?\nЭто действие необратимо и не может быть отменено.**\n**Это действие разрушительно!!**"
+resetallinvites_yes_button: "Удалить всё"
+resetallinvites_no_button: "Отменить действие"
+resetallinvites_succes_on_delete: "Успешно удалено!"
+resetallinvites_logs_embed_title: "Журналы Invite Manager (ОПАСНОЕ ДЕЙСТВИЕ)"
+resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} удалил все данные Invite Manager!"
+
 
 # Команды бота
 # /botinfo, /invite, /kisakay, /ping, /status

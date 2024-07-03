@@ -194,6 +194,14 @@ removeinvites_confirmation_embed_description: "Removidos ${amount} convites de $
 removeinvites_logs_embed_title: "Logs do Gerenciador de Convites"
 removeinvites_logs_embed_description: "<@${interaction.user.id}> removeu ${amount} convites de <@${user.id}> !"
 
+# /invites reset-all
+resetallinvites_warning_msg: "**Tem certeza de que deseja excluir todos os dados do InviteManager?\nEsta ação é permanente e não pode ser desfeita.**\n**Esta ação é destrutiva!!**"
+resetallinvites_yes_button: "Excluir tudo"
+resetallinvites_no_button: "Desfazer ação"
+resetallinvites_succes_on_delete: "Excluído com sucesso!"
+resetallinvites_logs_embed_title: "Logs do Invite Manager (AÇÃO PERIGOSA)"
+resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} excluiu todos os dados do Invite Manager!"
+
 
 # Comandos do Bot
 # /botinfo, /invite, /kisakay, /ping, /status

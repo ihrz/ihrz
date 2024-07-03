@@ -152,6 +152,12 @@ export interface LanguageData {
   removeinvites_confirmation_embed_description: string;
   removeinvites_logs_embed_title: string;
   removeinvites_logs_embed_description: string;
+  resetallinvites_warning_msg: string;
+  resetallinvites_yes_button: string;
+  resetallinvites_no_button: string;
+  resetallinvites_succes_on_delete: string;
+  resetallinvites_logs_embed_title: string;
+  resetallinvites_logs_embed_desc: string;
   links_message: string;
   links_website: string;
   links_github: string;
