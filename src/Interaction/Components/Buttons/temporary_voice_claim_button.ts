@@ -93,7 +93,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                         value: `<@${previousOwner?.id}>`
                     },
                 )
-                .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await interaction.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
+                .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await interaction.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'fr-FR'}.png`)
                 .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
             ],
             files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)],
