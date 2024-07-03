@@ -41,7 +41,7 @@ export default {
         let buffer = Buffer.from(JSON.stringify(dbGuild), 'utf-8');
         let attachment = new AttachmentBuilder(buffer, { name: interaction.guildId + '.json' })
 
-        await interaction.editReply({ content: "" });
+        await interaction.editReply({ content: data.guildconfig_config_save_check_dm });
 
         await interaction.user.send({
             content: data.guildconfig_config_save_user_msg
