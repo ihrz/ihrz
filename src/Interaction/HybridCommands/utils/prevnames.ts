@@ -86,7 +86,7 @@ export const command: Command = {
         var char: Array<string> = await table.get(`${user.id}`) || [];
 
         if (char.length == 0) {
-            await client.args.interactionSend(interaction,{ content: data.prevnames_undetected });
+            await client.args.interactionSend(interaction, { content: data.prevnames_undetected });
             return;
         };
 
@@ -132,7 +132,7 @@ export const command: Command = {
                 .setStyle(ButtonStyle.Danger)
         );
 
-        let messageEmbed = await client.args.interactionSend(interaction,{
+        let messageEmbed = await client.args.interactionSend(interaction, {
             embeds: [createEmbed()],
             components: [row],
             files: [await client.args.bot.footerAttachmentBuilder(interaction)]
@@ -174,13 +174,8 @@ export const command: Command = {
             messageEmbed.edit({ embeds: [createEmbed()] });
         });
 
-        collector.on('end', () => {
-            row.components.forEach((component) => {
-                if (component instanceof ButtonBuilder) {
-                    component.setDisabled(true);
-                }
-            });
-            messageEmbed.edit({ components: [(row as ActionRowBuilder<ButtonBuilder>)] });
+        collector.on('end', async () => {
+            await messageEmbed.edit({ components: [] });
         });
 
         return;
