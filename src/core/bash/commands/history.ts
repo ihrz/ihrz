@@ -30,18 +30,24 @@ const __dirname = path.dirname(__filename);
 
 let filePath = `${process.cwd()}/src/files/.bash_history`
 
-export default function () {
-  fs.readFile(filePath, 'utf-8', (err, data) => {
-    if (err) throw err;
-    
-    let lines = data.trim().split('\n');
-    let maxNumberLength = lines.length.toString().length;
-    
-    let formattedHistory = lines.map((line, index) => {
-      let number = (index + 1).toString().padStart(maxNumberLength, ' ');
-      return `${number}  ${line.trim()}`;
-    }).join('\n');
-    
-    logger.legacy("\n" + formattedHistory + "\n[Press Enter]");
-  });
+import { BashCommands } from "../../../../types/bashCommands";
+
+export const command: BashCommands = {
+  command_name: "history",
+  command_description: "Show the bash history",
+  run: function () {
+    fs.readFile(filePath, 'utf-8', (err, data) => {
+      if (err) throw err;
+
+      let lines = data.trim().split('\n');
+      let maxNumberLength = lines.length.toString().length;
+
+      let formattedHistory = lines.map((line, index) => {
+        let number = (index + 1).toString().padStart(maxNumberLength, ' ');
+        return `${number}  ${line.trim()}`;
+      }).join('\n');
+
+      logger.legacy("\n" + formattedHistory + "\n[Press Enter]");
+    });
+  }
 };

@@ -19,10 +19,15 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client } from 'pwss';
+
+import { BashCommands } from "../../../../types/bashCommands";
 import { execSync } from 'child_process';
+import { Client } from 'pwss';
 
-export default async function (client: Client, args: string) {
-
-    execSync(args, { stdio: [0, 1, 2], cwd: process.cwd() });
+export const command: BashCommands = {
+    command_name: "r",
+    command_description: "Run an bash command",
+    run: function (client: Client, args: string) {
+        execSync(args, { stdio: [0, 1, 2], cwd: process.cwd() });
+    }
 };

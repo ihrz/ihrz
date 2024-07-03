@@ -21,25 +21,30 @@
 
 import { BaseGuildTextChannel, Client, EmbedBuilder } from 'pwss';
 import logger from "../../logger.js";
+import { BashCommands } from '../../../../types/bashCommands.js';
 
-export default function (client: Client, args: string) {
-    let args2 = args.split(" ");
-    let embed = new EmbedBuilder()
-        .setColor('#4dff00')
-        .setTitle('@Broadcast message')
-        .setDescription(`\`${args2.slice(0).join(" ")}\``)
-        .setFooter({ text: `Kisakay - iHorizon`, iconURL: "attachment://footer_icon.png" });
+export const command: BashCommands = {
+    command_name: "broadcast",
+    command_description: "Send a message to all of iHorizon guild",
+    run: function (client: Client, args: string) {
+        let args2 = args.split(" ");
+        let embed = new EmbedBuilder()
+            .setColor('#4dff00')
+            .setTitle('@Broadcast message')
+            .setDescription(`\`${args2.slice(0).join(" ")}\``)
+            .setFooter({ text: `Kisakay - iHorizon`, iconURL: "attachment://footer_icon.png" });
 
-    client.guilds.cache.forEach(async (guild) => {
-        let channel = guild.channels.cache.find((role: { name: string; }) => role.name === 'ihorizon-logs');
-        if (channel) {
-            (channel as BaseGuildTextChannel).send({
-                content: '@here',
-                embeds: [embed],
-                files: [await client.args.bot.footerAttachmentBuilder(client)]
-            })
-        };
-    });
+        client.guilds.cache.forEach(async (guild) => {
+            let channel = guild.channels.cache.find((role: { name: string; }) => role.name === 'ihorizon-logs');
+            if (channel) {
+                (channel as BaseGuildTextChannel).send({
+                    content: '@here',
+                    embeds: [embed],
+                    files: [await client.args.bot.footerAttachmentBuilder(client)]
+                })
+            };
+        });
 
-    logger.legacy(`* All are successfully sended`.gray.bgBlack);
-};
+        logger.legacy(`* All are successfully sended`.gray.bgBlack);
+    }
+}
