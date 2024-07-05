@@ -1588,6 +1588,11 @@ event_gw_finnish_msg: "Parabéns ${winners}! Você ganhou o **${fetch.prize}**!"
 event_gw_finnish_cannot_msg: "Nenhum participante válido, então um vencedor não pôde ser determinado!"
 event_gw_finnish_button_title: "Sorteio Finalizado"
 event_gw_removeentries_msg: "${interaction.user}, você saiu deste sorteio!"
+event_gw_leave_button_placeholder: "Sair do Sorteio"
+event_gw_confirm_leave_msg: "${interaction.user}, tem certeza de que deseja sair deste sorteio?"
+event_gw_embed_desc: "Termina: ${end_string} (${end_string2})\nOrganizado por: <@${data.hostedBy}>\nEntradas: **0**\nVencedores: **${winners_amount}**"
+event_gw_entries_words: "Entradas"
+event_gw_ended_word: "Terminado: ${ended} (${time2})\nOrganizado por: <@${hostedBy}>\nEntradas **${entries}**\nVencedores: ${winners}"
 
 # Evento de Logs de Boost
 event_boostlog_add: "<@${newMember.user.id}> **acabou de dar boost** no servidor! (**${newMember.guild.premiumSubscriptionCount}** boosts no total)"
