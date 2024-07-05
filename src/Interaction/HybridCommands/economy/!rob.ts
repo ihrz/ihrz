@@ -23,6 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
     Message,
     User,
 } from 'pwss';
@@ -44,10 +45,10 @@ export default {
         };
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var user = interaction.options.getUser("member") as User;
+            var user = interaction.options.getMember("member") as GuildMember;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var user = client.args.user(interaction, 0) as User;
+            var user = client.args.member(interaction, 0) as GuildMember;
         };
 
         if (talkedRecentlyforr.has(interaction.member.user.id)) {
@@ -66,7 +67,7 @@ export default {
         if (targetuser < 250) {
             await client.args.interactionSend(interaction,{
                 content: data.rob_him_dont_enought_error
-                    .replace(/\${user\.user\.username}/g, user.globalName as string)
+                    .replace(/\${user\.user\.username}/g, user.user.globalName as string)
             });
             return;
         };

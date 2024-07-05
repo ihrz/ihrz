@@ -808,6 +808,14 @@ guildconfig_setbot_prefix_prefix_specify_prefix: "Вам нужно указат
 guildconfig_setbot_prefix_prefix_too_long: "Префикс бота слишком длинный, его будет слишком трудно использовать."
 guildconfig_setbot_prefix_prefix_is_good: "Префикс бота успешно изменен, теперь команды можно использовать с: `${formatedPrefix}`."
 
+# /guildconfig config save
+guildconfig_config_save_check_dm: "Пожалуйста, проверьте свои личные сообщения. Если вы не получили сообщение, убедитесь, что принимаете личные сообщения."
+guildconfig_config_save_user_msg: "Это резервная копия настроек `${interaction.guild.name}`!"
+
+# /guildconfig config restore
+guildconfig_config_restore_err_msg: "Произошла ошибка при загрузке файла."
+guildconfig_config_restore_msg: "Данные были сохранены в моей базе данных."
+
 
 # Commandes de décompte des membres
 # /setmembercount
@@ -1580,6 +1588,11 @@ event_gw_finnish_msg: "Поздравляем ${winners}! Вы выиграли 
 event_gw_finnish_cannot_msg: "Нет действительных участников, поэтому победитель не может быть определен!"
 event_gw_finnish_button_title: "Розыгрыш завершен"
 event_gw_removeentries_msg: "${interaction.user}, вы покинули этот конкурс!"
+event_gw_leave_button_placeholder: "Покинуть розыгрыш"
+event_gw_confirm_leave_msg: "${interaction.user}, вы уверены, что хотите покинуть этот розыгрыш?"
+event_gw_embed_desc: "Заканчивается: ${end_string} (${end_string2})\nОрганизатор: <@${data.hostedBy}>\nЗаписи: **0**\nПобедители: **${winners_amount}**"
+event_gw_entries_words: "Записи"
+event_gw_ended_word: "Завершено: ${ended} (${time2})\nОрганизатор: <@${hostedBy}>\nЗаписи **${entries}**\nПобедители: ${winners}"
 
 # Событие логов улучшения
 event_boostlog_add: "<@${newMember.user.id}> **только что улучшил(а)** сервер! (**${newMember.guild.premiumSubscriptionCount}** всего улучшений)"

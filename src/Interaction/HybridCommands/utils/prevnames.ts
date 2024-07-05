@@ -86,7 +86,7 @@ export const command: Command = {
         var char: Array<string> = await table.get(`${user.id}`) || [];
 
         if (char.length == 0) {
-            await client.args.interactionSend(interaction,{ content: data.prevnames_undetected });
+            await client.args.interactionSend(interaction, { content: data.prevnames_undetected });
             return;
         };
 
@@ -174,13 +174,8 @@ export const command: Command = {
             messageEmbed.edit({ embeds: [await createEmbed()] });
         });
 
-        collector.on('end', () => {
-            row.components.forEach((component) => {
-                if (component instanceof ButtonBuilder) {
-                    component.setDisabled(true);
-                }
-            });
-            messageEmbed.edit({ components: [(row as ActionRowBuilder<ButtonBuilder>)] });
+        collector.on('end', async () => {
+            await messageEmbed.edit({ components: [] });
         });
 
         return;

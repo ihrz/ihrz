@@ -808,6 +808,14 @@ guildconfig_setbot_prefix_prefix_specify_prefix: "È necessario specificare il p
 guildconfig_setbot_prefix_prefix_too_long: "Il prefisso del bot è troppo lungo, sarà troppo difficile da usare."
 guildconfig_setbot_prefix_prefix_is_good: "Il prefisso del bot è stato cambiato con successo, ora i comandi sono utilizzabili con: `${formatedPrefix}`."
 
+# /guildconfig config save
+guildconfig_config_save_check_dm: "Per favore, controlla i tuoi DM. Se non hai ricevuto il messaggio, verifica se accetti i DM."
+guildconfig_config_save_user_msg: "Questo è il backup delle configurazioni di `${interaction.guild.name}`!"
+
+# /guildconfig config restore
+guildconfig_config_restore_err_msg: "Si è verificato un errore durante il download del file."
+guildconfig_config_restore_msg: "I dati sono stati salvati nel mio database."
+
 
 # Member Count commands
 # /setmembercount
@@ -1580,6 +1588,11 @@ event_gw_finnish_msg: "Congratulazioni ${winners}! Hai vinto **${fetch.prize}**!
 event_gw_finnish_cannot_msg: "Nessun partecipante valido, quindi il vincitore non può essere determinato!"
 event_gw_finnish_button_title: "Giveaway Concluso"
 event_gw_removeentries_msg: "${interaction.user}, hai lasciato questo giveaway!"
+event_gw_leave_button_placeholder: "Lascia Giveaway"
+event_gw_confirm_leave_msg: "${interaction.user}, sei sicuro di voler lasciare questo giveaway?"
+event_gw_embed_desc: "Termina: ${end_string} (${end_string2})\nOspitato da: <@${data.hostedBy}>\nPartecipazioni: **0**\nVincitori: **${winners_amount}**"
+event_gw_entries_words: "Partecipazioni"
+event_gw_ended_word: "Terminato: ${ended} (${time2})\nOspitato da: <@${hostedBy}>\nPartecipazioni **${entries}**\nVincitori: ${winners}"
 
 # Evento di Log degli Boost
 event_boostlog_add: "<@${newMember.user.id}> **ha appena boostato** il server! (Totale boosts: **${newMember.guild.premiumSubscriptionCount}**)"

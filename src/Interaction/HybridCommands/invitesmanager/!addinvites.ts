@@ -24,6 +24,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
     InteractionEditReplyOptions,
     Message,
     MessagePayload,
@@ -40,11 +41,11 @@ export default {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var user = interaction.options.getUser("member")!;
+            var user = interaction.options.getMember("member") as GuildMember;
             var amount = interaction.options.getNumber("amount")!;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var user = client.args.user(interaction, 0)!;
+            var user = client.args.member(interaction, 0)!;
             var amount = client.args.number(args!, 1);
         };
 

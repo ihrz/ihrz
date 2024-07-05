@@ -23,6 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
     Message,
 } from 'pwss';
 
@@ -37,10 +38,10 @@ export default {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var slap = interaction.options.getUser("user");
+            var slap = interaction.options.getMember("user") as GuildMember;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var slap = client.args.user(interaction, 0);
+            var slap = client.args.member(interaction, 0)!;
         };
 
         let url = apiUrlParser.assetsFinder(client.assets, "slap");

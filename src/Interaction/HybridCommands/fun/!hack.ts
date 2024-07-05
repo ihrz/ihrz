@@ -23,6 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
     Message,
     User,
 } from 'pwss';
@@ -36,10 +37,10 @@ export default {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var victim = interaction.options.getUser("user") as User;
+            var victim = interaction.options.getMember("user") as GuildMember;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var victim = client.args.user(interaction, 0) || interaction.author;
+            var victim = client.args.member(interaction, 0) || interaction.member;
         }
 
         var ip = [
