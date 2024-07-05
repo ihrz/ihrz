@@ -1148,6 +1148,11 @@ export interface LanguageData {
   event_gw_finnish_cannot_msg: string;
   event_gw_finnish_button_title: string;
   event_gw_removeentries_msg: string;
+  event_gw_leave_button_placeholder: string;
+  event_gw_confirm_leave_msg: string;
+  event_gw_embed_desc: string;
+  event_gw_entries_words: string;
+  event_gw_ended_word: string;
   event_boostlog_add: string;
   event_boostlog_sub: string;
   economy_disable_msg: string;
