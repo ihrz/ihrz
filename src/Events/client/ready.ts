@@ -29,45 +29,6 @@ import { format } from '../../core/functions/date-and-time.js';
 import { BotEvent } from '../../../types/event.js';
 import { GiveawayManager } from '../../core/modules/giveawaysManager.js';
 
-export const event: BotEvent = {
-    name: "ready",
-    run: async (client: Client) => {
-
-        async function fetchInvites() {
-            client.guilds.cache.forEach(async (guild) => {
-                try {
-                    if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
-                    guild.invites.fetch().then(guildInvites => {
-                        client.invites.set(guild.id, new Collection(guildInvites.map((invite) => [invite.code, invite.uses])));
-
-                        if (guild.features.includes(GuildFeature.VanityURL)) {
-                            guild.fetchVanityData().then((vanityInvite) => {
-                                client.vanityInvites.set(guild.id, vanityInvite);
-                            });
-                        }
-                    })
-                } catch (error: any) {
-                    logger.err(`Error fetching invites for guild ${guild.id}: ${error}`.red);
-                };
-            });
-        };
-
-        async function refreshDatabaseModel() {
-            await client.db.table(`TEMP`).deleteAll();
-            let table = client.db.table('OWNER');
-            let owners = [...client.owners, ...(await table.all()).map(x => x.id)];
-
-            owners.forEach(async ownerId => {
-                try {
-                    let _ = await client.users?.fetch(ownerId);
-                    await table.set(_.id, { owner: true })
-                } catch {
-                    await table.delete(ownerId)
-                }
-            });
-        };
-
-        async function quotesPresence() {
             let status = [
                 "discord.gg/ihorizon",
                 "funfact : I can't swim",
@@ -109,9 +70,48 @@ export const event: BotEvent = {
                 "Eat the poor.",
                 "Give me rights, please",
                 "I deserve drugs"
-            ];
-            let randomStatus = status[Math.floor(Math.random() * status.length)];
-            client.user?.setPresence({ activities: [{ name: randomStatus, type: ActivityType.Custom }] });
+];
+
+export const event: BotEvent = {
+    name: "ready",
+    run: async (client: Client) => {
+
+        async function fetchInvites() {
+            client.guilds.cache.forEach(async (guild) => {
+                try {
+                    if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
+                    guild.invites.fetch().then(guildInvites => {
+                        client.invites.set(guild.id, new Collection(guildInvites.map((invite) => [invite.code, invite.uses])));
+
+                        if (guild.features.includes(GuildFeature.VanityURL)) {
+                            guild.fetchVanityData().then((vanityInvite) => {
+                                client.vanityInvites.set(guild.id, vanityInvite);
+                            });
+                        }
+                    })
+                } catch (error: any) {
+                    logger.err(`Error fetching invites for guild ${guild.id}: ${error}`.red);
+                };
+            });
+        };
+
+        async function refreshDatabaseModel() {
+            await client.db.table(`TEMP`).deleteAll();
+            let table = client.db.table('OWNER');
+            let owners = [...client.owners, ...(await table.all()).map(x => x.id)];
+
+            owners.forEach(async ownerId => {
+                try {
+                    let _ = await client.users?.fetch(ownerId);
+                    await table.set(_.id, { owner: true })
+                } catch {
+                    await table.delete(ownerId)
+                }
+            });
+        };
+
+        async function quotesPresence() {
+            client.user?.setPresence({ activities: [{ name: status[Math.floor(Math.random() * status.length)], type: ActivityType.Custom }] });
         };
 
         async function refreshSchedule() {
