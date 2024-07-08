@@ -131,7 +131,7 @@ export default {
                     { flag: PermissionsBitField.Flags.KickMembers, name: data.setjoinroles_var_perm_kick_members },
                     { flag: PermissionsBitField.Flags.ManageWebhooks, name: data.setjoinroles_var_perm_manage_webhooks },
                     { flag: PermissionsBitField.Flags.ManageChannels, name: data.setjoinroles_var_perm_manage_channels },
-                    { flag: PermissionsBitField.Flags.CreateGuildExpressions, name: data.setjoinroles_var_perm_manage_expression },
+                    { flag: PermissionsBitField.Flags.ManageGuildExpressions, name: data.setjoinroles_var_perm_manage_expression },
                     { flag: PermissionsBitField.Flags.ViewCreatorMonetizationAnalytics, name: data.setjoinroles_var_perm_view_monetization_analytics },
                 ];
 
