@@ -58,18 +58,28 @@ class GiveawayManager {
         }, this.options.config?.forceUpdateEvery);
     }
 
-    public create(channel: TextBasedChannel, data: GiveawayCreateOptions): Promise<Message> {
+    public create(channel: BaseGuildTextChannel, data: GiveawayCreateOptions): Promise<Message> {
         return new Promise(async (resolve, reject) => {
             try {
+                let lang = await getLanguageData(channel.guildId)
                 let confirm = new ButtonBuilder()
                     .setCustomId('confirm-entry-giveaway')
                     .setEmoji(this.options.config.reaction)
                     .setStyle(ButtonStyle.Primary);
 
+                var end_string = time(new Date(Date.now() + data.duration), 'R');
+                var end_string2 = time(new Date(Date.now() + data.duration), 'D');
+                var winners_amount = data.winnerCount;
+
                 let gw = new EmbedBuilder()
                     .setColor(this.options.config?.embedColor as ColorResolvable)
                     .setTitle(data.prize)
-                    .setDescription(`Ends: ${time(new Date(Date.now() + data.duration), 'R')} (${time(new Date(Date.now() + data.duration), 'D')})\nHosted by: <@${data.hostedBy}>\nEntries: **0**\nWinners: **${data.winnerCount}**`)
+                    .setDescription(lang.event_gw_embed_desc
+                        .replace("${end_string}", end_string)
+                        .replace("${end_string2}", end_string2)
+                        .replace("${winners_amount}", String(winners_amount))
+                        .replace("${data.hostedBy}", String(data.hostedBy))
+                    )
                     .setTimestamp(new Date(Date.now() + data.duration))
                     .setFooter({ text: this.options.config.botName })
                     .setImage(data.embedImageURL);
@@ -109,6 +119,7 @@ class GiveawayManager {
     public async addEntries(interaction: ButtonInteraction<CacheType>) {
 
         let members = db.GetGiveawayData(interaction.message.id)!.entries;
+        let lang = await getLanguageData(interaction.guildId!);
 
         if (members?.includes(interaction.user.id)) {
             await this.removeEntries(interaction);
@@ -116,11 +127,12 @@ class GiveawayManager {
         } else {
 
             await interaction.deferUpdate();
-            let regex = /Entries: \*\*\d+\*\*/;
+            let regexPattern = `${lang.event_gw_entries_words}: \\*\\*\\d+\\*\\*`;
+            let regex = new RegExp(regexPattern);
 
             let embedsToEdit = EmbedBuilder.from(interaction.message.embeds[0])
                 .setDescription(interaction.message.embeds[0]?.description!
-                    .replace(regex, `Entries: **${members.length + 1}**`)
+                    .replace(regex, `${lang.event_gw_entries_words}: **${members.length + 1}**`)
                 );
 
             await interaction.message.edit({ embeds: [embedsToEdit] });
@@ -135,14 +147,14 @@ class GiveawayManager {
         let lang = await getLanguageData(interaction.guildId!);
 
         await interaction.reply({
-            content: `${interaction.user} are you sure to leave this giveaways ?`,
+            content: lang.event_gw_confirm_leave_msg.replace("${interaction.user}", interaction.user.toString()),
             components: [
                 new ActionRowBuilder<ButtonBuilder>()
                     .addComponents(
                         new ButtonBuilder()
                             .setCustomId("giveaway-leave")
                             .setStyle(ButtonStyle.Danger)
-                            .setLabel("Leave Giveaway")
+                            .setLabel(lang.event_gw_leave_button_placeholder)
                     )
             ],
             ephemeral: true
@@ -157,11 +169,12 @@ class GiveawayManager {
             if (i.customId === 'giveaway-leave') {
 
                 let now_members = db.RemoveEntries(interaction.message.id, interaction.user.id);
-                let regex = /Entries: \*\*\d+\*\*/;
+                let regexPattern = `${lang.event_gw_entries_words}: \\*\\*\\d+\\*\\*`;
+                let regex = new RegExp(regexPattern);
 
                 let embedsToEdit = EmbedBuilder.from(interaction.message.embeds[0])
                     .setDescription(interaction.message.embeds[0]?.description!
-                        .replace(regex, `Entries: **${now_members.length}**`)
+                        .replace(regex, `${lang.event_gw_entries_words}: **${now_members.length}**`)
                     );
 
                 await interaction.message.edit({ embeds: [embedsToEdit] });
@@ -341,12 +354,22 @@ class GiveawayManager {
                 );
 
                 let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : [];
+                let ended = time(new Date(fetch.expireIn), 'R');
+                let time2 = time(new Date(fetch.expireIn), 'D');
+                let hostedBy = fetch.hostedBy;
+                let entries = fetch.entries.length.toString();
 
                 let embeds = new EmbedBuilder()
                     .setColor(this.options.config.embedColorEnd as ColorResolvable)
                     .setTitle(fetch.prize)
                     .setImage(fetch.embedImageURL)
-                    .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.entries.length}**\nWinners: ${winners}`)
+                    .setDescription(lang.event_gw_ended_word
+                        .replace("${winners}", winners.toString())
+                        .replace("${ended}", ended)
+                        .replace("${time2}", time2)
+                        .replace("${hostedBy}", hostedBy)
+                        .replace("${entries}", entries)
+                    )
                     .setTimestamp()
                     .setFooter({ text: this.options.config.botName });
 
@@ -374,15 +397,16 @@ class GiveawayManager {
 
     public async listEntries(interaction: ChatInputCommandInteraction | Message, giveawayId: string) {
         let fetch = db.GetGiveawayData(giveawayId)!;
+        let lang = await getLanguageData(fetch.guildId);
 
         if (interaction.guildId === fetch.guildId) {
             var char: string[] = fetch.entries;
 
             if (char.length == 0) {
                 if (interaction instanceof ChatInputCommandInteraction) {
-                    await interaction.editReply({ content: "There is no entry into this competition." });
+                    await interaction.editReply({ content: lang.history_no_entries });
                 } else {
-                    await interaction.edit({ content: "There is no entry into this competition." });
+                    await interaction.edit({ content: lang.history_no_entries });
                 }
                 return;
             };

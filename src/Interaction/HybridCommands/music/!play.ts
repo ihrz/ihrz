@@ -134,7 +134,7 @@ export default {
         });
 
         function deleteContent() {
-            client.args.interactionEdit(i as Message, { content: undefined });
+            i.edit({ content: null });
         };
 
         await client.db.push(`${player.guildId}.MUSIC_HISTORY.buffer`,
@@ -143,7 +143,7 @@ export default {
             `${time(new Date(), 'R')}: ${player.queue.current?.requester} - ${player.queue.current?.info.title} | ${player.queue.current?.info.uri} by ${player.queue.current?.requester}`
         );
 
-        setTimeout(deleteContent, 4000);
+        setTimeout(deleteContent, 3000);
         return;
     },
 };

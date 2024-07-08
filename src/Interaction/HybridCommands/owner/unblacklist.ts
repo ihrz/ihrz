@@ -42,7 +42,7 @@ export const command: Command = {
 
     options: [
         {
-            name: 'member',
+            name: 'user',
             type: ApplicationCommandOptionType.User,
 
             description: 'The user you want to unblacklist (Only Owner of ihorizon)',
@@ -79,7 +79,7 @@ export const command: Command = {
         let fetched = await tableBlacklist.get(`${member?.id}`);
 
         if (!fetched) {
-            await client.args.interactionSend(interaction,{ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member?.id!) });
+            await client.args.interactionSend(interaction,{ content: data.unblacklist_not_blacklisted.replace("${member.id}", member?.id!) });
             return;
         };
 

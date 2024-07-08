@@ -31,6 +31,7 @@ import {
     MessagePayload,
     MessageReplyOptions,
     PermissionsBitField,
+    User,
 } from 'pwss';
 
 import logger from '../../../core/logger.js';
@@ -104,7 +105,7 @@ export default {
             .catch(() => {
             })
             .then(() => {
-                member?.ban({ reason: 'banned by ' + member.user.globalName || interaction.member?.user.username })
+                member?.ban({ reason: 'banned by ' + (interaction.member?.user as User).globalName || interaction.member?.user.username })
                     .then((member) => {
                         client.args.interactionSend(interaction, {
                             content: data.ban_command_work

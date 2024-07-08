@@ -34,7 +34,7 @@ export const event: BotEvent = {
         await client.db.set(`${message.guild.id}.GUILD.SNIPE.${message.channel.id}`,
             {
                 snipe: `${hidden(message.content)}`,
-                snipeUserInfoTag: `${message.author.username} (${message.author.id} )`,
+                snipeUserInfoTag: `${message.author.username} (${message.author.id})`,
                 snipeUserInfoPp: `${message.author.displayAvatarURL()}`,
                 snipeTimestamp: Date.now()
             }
