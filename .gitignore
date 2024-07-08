@@ -1,11 +1,12 @@
 # Logs
 *.log
+*.gz
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-# Diagnostic reports (https://nodejs.org/api/report.html)
+# Diagnosis reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Runtime data
@@ -117,11 +118,8 @@ src/files/giveaways.json
 *.rar
 *.tar.gz
 
-# Not upload txt file
+# txt files
 *.txt
-
-# Not upload logs
-*.log
 
 # Not upload testing files
 /test.js
@@ -138,19 +136,14 @@ yarn.lock
 bun.lockb
 src/core/handlers/loadFunctions.ts
 
-# Logs
-*.gz
-
 # lavalink
 lavalink
 lavalink/application.yml
 
-# Giveaways File
-
+# Giveaways files
 src/files/giveaways/*.json
 
 # Backups
-
 src/files/backups/*.json
 quickdb.json
 mysqlCacheManager.db.mts
