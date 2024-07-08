@@ -52,7 +52,8 @@ export const event: BotEvent = {
             (Msgchannel as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
             return;
 
-        } else if (
+        }
+        if (
             oldMember.premiumSince
             && !newMember.premiumSince
         ) {
