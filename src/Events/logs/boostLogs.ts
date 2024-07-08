@@ -31,7 +31,7 @@ export const event: BotEvent = {
         let data = await client.func.getLanguageData(newMember.guild.id) as LanguageData;
 
         if (!newMember.guild.roles.premiumSubscriberRole) return;
-        let Msgchannel = newMember.guild.channels.cache.get(await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.boosts`));
+        let Msgchannel = newMember.guild.channels.cache.get(await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.boosts`) as string);
 
         if (!Msgchannel) return;
 
