@@ -31,10 +31,9 @@ export const event: BotEvent = {
         let data = await client.func.getLanguageData(newMember.guild.id) as LanguageData;
 
         if (!newMember.guild.roles.premiumSubscriberRole) return;
-        let someinfo = await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.boosts`);
-        let Msgchannel = newMember.guild.channels.cache.get(someinfo);
+        let Msgchannel = newMember.guild.channels.cache.get(await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.boosts`));
 
-        if (!someinfo || !Msgchannel) return;
+        if (!Msgchannel) return;
 
         let embed = new EmbedBuilder()
             .setColor(await client.db.get(`${newMember.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#a27cec")
@@ -53,7 +52,8 @@ export const event: BotEvent = {
             (Msgchannel as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
             return;
 
-        } else if (
+        }
+        if (
             oldMember.premiumSince
             && !newMember.premiumSince
         ) {

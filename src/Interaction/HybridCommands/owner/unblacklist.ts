@@ -78,7 +78,7 @@ export const command: Command = {
         let fetched = await tableBlacklist.get(`${member?.id}`);
 
         if (!fetched) {
-            await client.args.interactionSend(interaction,{ content: data.unblacklist_not_blacklisted.replace(/\${member\.id}/g, member?.id!) });
+            await client.args.interactionSend(interaction,{ content: data.unblacklist_not_blacklisted.replace("${member.id}", member?.id!) });
             return;
         };
 

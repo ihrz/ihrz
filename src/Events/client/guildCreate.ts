@@ -153,6 +153,7 @@ export const event: BotEvent = {
                     return 'None';
                 }
             }
+let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
             let embed = new EmbedBuilder()
                 .setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#00FF00")
@@ -164,7 +165,8 @@ export const event: BotEvent = {
                     { name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
                     { name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
                     { name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
-                    { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true }
+                    { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true },
+                    { name:"🥛 new members total", value: `${usersize} members`
                 )
                 .setThumbnail(guild.iconURL())
                 .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
