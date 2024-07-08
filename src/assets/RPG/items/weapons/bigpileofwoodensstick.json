@@ -1,0 +1,25 @@
+{
+    "money": {
+        "resell": [100, 400]
+    },
+    "Attack": {
+        "damage-range": [150, 400],
+        "block": [-40, 500]
+    },
+    "Stats": {
+        "durability": 150,
+        "weight": 775,
+        "craftable": [{"pileofwoodensticks": 25, "rope": 5}],
+        "stackable": 15
+    },
+    "image": "src/assets/RPG/items/weapons/bigpileofwoodenssticks.jpeg",
+
+    "en": {
+        "name": "Big pile of sticks",
+        "description": "Waw, you really wanted to make that stick super useful. Well waw you got a weapon that you can sell for the big bucks."
+    },
+    "fr": {
+        "name": "Grosse pile de baton de bois",
+        "description": "Waw, tu voulais vraiment faire utile de ce baton. Bien waw, tu as maintenant une arme que tu peux vendre pour super cher."
+    }
+}

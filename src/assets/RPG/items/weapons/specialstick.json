@@ -1,0 +1,25 @@
+{
+    "money": {
+        "resell": [10000, 400000]
+    },
+    "Attack": {
+        "damage-range": [1, 3],
+        "block": [-5, 0]
+    },
+    "Stats": {
+        "durability": 5,
+        "weight": 2,
+        "craftable": [{"bigpileofwoodenssticks": 150, "bigrope": 50, "NPC": "The magic man"}],
+        "stackable": 2000
+    },
+    "image": "https://cdn.discordapp.com/attachments/1209654817350221874/1259781777002729565/document.png?ex=668ceeb5&is=668b9d35&hm=ff2c7f1eb014728b7f6dee766a14b15c4b0f0cfda38b13369dac0185820c6ff9&",
+
+    "en": {
+        "name": "Special stick",
+        "description": "Waw, now labeled special, you made it special, congrats."
+    },
+    "fr": {
+        "name": "Baton spécial",
+        "description": "Waw, bravo, ce baton est maintenant spécial."
+    }
+}

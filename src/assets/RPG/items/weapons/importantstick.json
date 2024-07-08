@@ -1,0 +1,25 @@
+{
+    "money": {
+        "resell": [1200000, 40000000]
+    },
+    "Attack": {
+        "damage-range": [1, 3],
+        "block": [1, 25000000]
+    },
+    "Stats": {
+        "durability": 5,
+        "weight": 2,
+        "craftable": [{"specialstick": 12000, "bigrope": 5000, "NPC": "The stick woman"}],
+        "stackable": 2000
+    },
+    "image": "https://cdn.discordapp.com/attachments/1209654817350221874/1259784982310817812/image.png?ex=668cf1b1&is=668ba031&hm=59a5c519208fb7ea27b3669b179cfe348a88bfdb18787bc450b5eccbdc3044ea&",
+
+    "en": {
+        "name": "Important stick",
+        "description": "Waw, no longer special"
+    },
+    "fr": {
+        "name": "Baton spécial",
+        "description": "Waw, bravo, ce baton n'est maintenant plus spécial."
+    }
+}

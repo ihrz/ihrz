@@ -1,6 +1,5 @@
 {
     "money": {
-        "price-range": [30, 120],
         "resell": [10, 40]
     },
     "Attack": {
@@ -10,6 +9,7 @@
     "Stats": {
         "durability": 50,
         "weight": 30,
+        "stackable": 20,
         "craftable": [{"woodenstick": 25, "rope": 1}]
     },
     "image": "src/assets/RPG/items/weapons/pileofwoodensticks.jpg",

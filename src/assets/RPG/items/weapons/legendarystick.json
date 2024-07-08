@@ -1,0 +1,26 @@
+{
+    "money": {
+        "resell": [1200000, 40000000]
+    },
+    "Attack": {
+        "damage-range": [1, 3],
+        "block": [1, 25000000]
+    },
+    "Stats": {
+        "durability": 5,
+        "weight": 2,
+        "craftable": [{"importantstick": 15000, "bigrope": 50, "NPC": "The stick society"}],
+        "stackable": 2000,
+        "achivement": {"A sticky situation": "Creating the legendary stick (equivalent to 16 875 000 000 000)"}
+    },
+    "image": "https://cdn.discordapp.com/attachments/1209654817350221874/1259785963190882324/3e6b80d7-b3ac-4c6b-94cf-07d82943a404.png?ex=668cf29b&is=668ba11b&hm=90aec5b635dc1ac83e06f05187a1cf0c2b482313861494e195ddaed99f791325&",
+
+    "en": {
+        "name": "Legendary stick",
+        "description": "WAW, NO WAY YOU REALLY MADE IT SPECIAL, I hope you still touched grass during the making."
+    },
+    "fr": {
+        "name": "Baton légendaire",
+        "description": "Waw, bravo, ce baton est maintenant super duper spécial. As-tu touché du gazon durant la création?"
+    }
+}
