@@ -808,6 +808,14 @@ guildconfig_setbot_prefix_prefix_specify_prefix: "ボットプレフィックス
 guildconfig_setbot_prefix_prefix_too_long: "ボットプレフィックスが長すぎます。使用するには難しすぎます。"
 guildconfig_setbot_prefix_prefix_is_good: "ボットプレフィックスが正常に変更されました。今すぐコマンドは`${formatedPrefix}`で使用可能です。"
 
+# /guildconfig config save
+guildconfig_config_save_check_dm: "DMを確認してください。メッセージが届いていない場合は、DMを受け入れる設定になっているか確認してください。"
+guildconfig_config_save_user_msg: "`${interaction.guild.name}` の設定のバックアップです！"
+
+# /guildconfig config restore
+guildconfig_config_restore_err_msg: "ファイルのダウンロード中にエラーが発生しました。"
+guildconfig_config_restore_msg: "データがデータベースに保存されました。"
+
 
 # Member Count commands
 # /setmembercount
@@ -1580,6 +1588,11 @@ event_gw_finnish_msg: "おめでとうございます、${winners}さん！ **${
 event_gw_finnish_cannot_msg: "有効な応募者がいないため、受賞者を決定できませんでした！"
 event_gw_finnish_button_title: "ギブアウェイ終了"
 event_gw_removeentries_msg: "${interaction.user}さん、このギブアウェイから退出しました！"
+event_gw_leave_button_placeholder: "ギブアウェイを退出"
+event_gw_confirm_leave_msg: "${interaction.user}、このギブアウェイを退出してもよろしいですか？"
+event_gw_embed_desc: "終了: ${end_string} (${end_string2})\n主催者: <@${data.hostedBy}>\n参加数: **0**\n当選者: **${winners_amount}**"
+event_gw_entries_words: "参加数"
+event_gw_ended_word: "終了: ${ended} (${time2})\n主催者: <@${hostedBy}>\n参加数 **${entries}**\n当選者: ${winners}"
 
 # ブーストログイベント
 event_boostlog_add: "<@${newMember.user.id}> **がサーバーをブーストしました**！（合計**${newMember.guild.premiumSubscriptionCount}**ブースト）"
