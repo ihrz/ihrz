@@ -29,6 +29,49 @@ import { format } from '../../core/functions/date-and-time.js';
 import { BotEvent } from '../../../types/event.js';
 import { GiveawayManager } from '../../core/modules/giveawaysManager.js';
 
+            let status = [
+                "discord.gg/ihorizon",
+                "funfact : I can't swim",
+                "https://ihorizon.me",
+                "ElektraBots, please send feet <3",
+                "imagine buying a discord bot",
+                "We have a goal? Wait what? Making the internet simpler WHAT!?!?",
+                "I dont have a mother anymore",
+                "am I discord bot ?",
+                "Trusted by big servers(100+ Kg) 😎",
+                "My owners are e-girls (except for Noemie) ❤️‍🔥",
+                "I will soon have an onlyfan!",
+                "Youtube, twitter, onlyfan, what's next?",
+                "COME SEE MY INSIDES, HERE IS MY GITHUB : github.com/ihrz",
+                "I removed my own database (THE VOICES ARE GETTING LOUDER)",
+                "PEOPLE ARE TOUCHING MY INSIDES ON GITHUB",
+                "I leaked myself",
+                "i will send my token for feet pics",
+                "he's just Gay..",
+                "I'm down for tomorrow",
+                "Hosted in Canada for more drugs.",
+                "DCHECK MY ASS, IM A DISCORD BOT!",
+                "Daddy, please can I please be free? Father : not there",
+                "Touch me on -> ihorizon.me",
+                "LifeGoal : Touching myself",
+                "Why are you looking at me so intensivly?",
+                "I can't have children",
+                "Where I see loves he sees a friend",
+                "Buying V-Bucks with mom's credit card",
+                "Tell everyone you use iHorizon",
+                "Trying to install a minecraft cheat.. (I'm in a lesbian relationship)",
+                "Ahhh, may chaos take the world!",
+                "I'm going to take a piss",
+                "Buy an iPhone for exchange to an Android",
+                "t'as-tu dja vu ça une vache qui fait d'la post-combustion",
+                "Loads of people are touching me (on github)",
+                "I now own your personal data.",
+                "I don't commit war crimes. Yet!",
+                "Eat the poor.",
+                "Give me rights, please",
+                "I deserve drugs"
+];
+
 export const event: BotEvent = {
     name: "ready",
     run: async (client: Client) => {
@@ -68,50 +111,7 @@ export const event: BotEvent = {
         };
 
         async function quotesPresence() {
-            let status = [
-                "discord.gg/ihorizon",
-                "funfact : I can't swim",
-                "https://ihorizon.me",
-                "ElektraBots, please send feet <3",
-                "imagine buying a discord bot",
-                "We have a goal? Wait what? Making the internet simpler WHAT!?!?",
-                "I dont have a mother anymore",
-                "i'm a discord bot ?",
-                "trusted by big servers(100+ Kg) 😎",
-                "my owners are e-girls (ew) ❤️‍🔥",
-                "I will soon have an onlyfan!",
-                "Youtube, twitter, onlyfan, what's next?",
-                "COME SEE MY INSIDES, HERE IS MY GITHUB : github.com/ihrz",
-                "I removed my own database (THE VOICES ARE GETTING LOUDER)",
-                "PEOPLE ARE TOUCHING MY INSIDES ON GITHUB",
-                "I leaked myself",
-                "i will send my token for feet pics",
-                "he's just Gay..",
-                "I'm down for tomorrow",
-                "Hosted in Canada for more drugs.",
-                "DCHECK MY ASS, IM A DISCORD BOT!",
-                "Daddy, please can I please be free? Father : not there",
-                "Touch me on -> ihorizon.me",
-                "LifeGoal : Touching myself",
-                "Why are you looking at me so intensivly?",
-                "I can't have children",
-                "Where I see loves he sees a friend",
-                "Buying V-Bucks with mom's credit card",
-                "Tell everyone you use iHorizon",
-                "Trying to install a minecraft cheat.. (I'm in a lesbian relationship)",
-                "Ahhh, may chaos take the world!",
-                "I'm going to take a piss",
-                "Buy an iPhone for exchange to an Android",
-                "t'as-tu dja vu ça une vache qui fait d'la post-combustion",
-                "Loads of people are touching me (on github)",
-                "I now own your personal data.",
-                "I don't commit war crimes. Yet!",
-                "Eat the poor.",
-                "Give me rights, please",
-                "I deserve drugs"
-            ];
-            let randomStatus = status[Math.floor(Math.random() * status.length)];
-            client.user?.setPresence({ activities: [{ name: randomStatus, type: ActivityType.Custom }] });
+            client.user?.setPresence({ activities: [{ name: status[Math.floor(Math.random() * status.length)], type: ActivityType.Custom }] });
         };
 
         async function refreshSchedule() {
