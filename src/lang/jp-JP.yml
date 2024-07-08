@@ -1682,4 +1682,10 @@ hybridcommands_args_error_embed_desc: "```ts\nコマンド名: ${currentCommand.
 hybridcommands_embed_help_title: "${commandName} ヘルプ埋め込み"
 hybridcommands_embed_help_fields_value: "**エイリアス:** ${aliases}\n**使用法:** ${use}"
 
+# RPG
+# help
+help_rpg_dsc: "私たちの新しいRPGでは、あなたがやりたいことを何でもできます！ 多くのクエスト、ボス、イベントなどが満載です！ （いくつかのチュートリアルも用意していますが、それでもあなたの冒険です！）"
+help_rpg_fields: "選択してください！"
+
+
 # -----------------------------\ /-----------------------------

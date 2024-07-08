@@ -1682,4 +1682,11 @@ hybridcommands_args_error_embed_desc: "```ts\nCommand Name: ${currentCommand.nam
 hybridcommands_embed_help_title: "${commandName} Help Embed"
 hybridcommands_embed_help_fields_value: "**Aliases:** ${aliases}\n**Use:** ${use}"
 
+# RPG
+# help
+help_rpg_dsc: "Our brand new RPG, in that RPG you can do whatever you want to do! We have loads of quests, bosses, events and more! (We still have some tutorials to guide you a bit but it's still YOUR adventure!)"
+help_rpg_fields: "Make a selection!"
+
+
+
 # -----------------------------\ /-----------------------------

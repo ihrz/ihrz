@@ -1682,4 +1682,10 @@ hybridcommands_args_error_embed_desc: "```ts\nNom de la Commande: ${currentComma
 hybridcommands_embed_help_title: "${commandName} Aide en Intégration"
 hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Utilisation:** ${use}"
 
+# RPG
+# help
+help_rpg_dsc: "Notre tout nouveau RPG, dans ce RPG, vous pouvez faire ce que vous voulez! Nous avons plein de quêtes, de boss, d'événements et plus encore! (Nous avons encore quelques didacticiels pour vous guider un peu, mais c'est toujours VOTRE aventure!)"
+help_rpg_fields: "Faites un choix!"
+
+
 # -----------------------------\ /-----------------------------

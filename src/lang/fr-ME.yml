@@ -1682,4 +1682,10 @@ hybridcommands_args_error_embed_desc: "```ts\nNom de la Commande: ${currentComma
 hybridcommands_embed_help_title: "${commandName} Aide en Intégration"
 hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Utilisation:** ${use}"
 
+# RPG
+# help
+help_rpg_dsc: "Le nouveau RPG, ce machin truc il est trop dar wsh, tu branle c'que tu veux, azy on t'aide un peu avec des tutos mais azy c'est presque rien"
+help_rpg_fields: "Fait ton choix wsh!"
+
+
 # -----------------------------\ /-----------------------------

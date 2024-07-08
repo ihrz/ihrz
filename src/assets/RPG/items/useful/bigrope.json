@@ -1,0 +1,25 @@
+{
+    "money": {
+        "price-range": [100, 450],
+        "resell": [50, 250]
+    },
+    "Attack": {
+        "damage-range": [-200, 200],
+        "block": [0, 0]
+    },
+    "Stats": {
+        "durability": 30,
+        "weight": 50,
+        "stackable": 10
+    },
+    "image": "https://cdn.discordapp.com/attachments/1209654817350221874/1259779869617688648/image.png?ex=668cecee&is=668b9b6e&hm=b6b642b725ba4763b09bec8d901de7088b68bfb2356d2b5b505e189e8ad42b66&",
+
+    "en": {
+        "name": "A big rope",
+        "description": "A big rope."
+    },
+    "fr": {
+        "name": "Une grosse corde",
+        "description": "Une grosse corde."
+    }
+}

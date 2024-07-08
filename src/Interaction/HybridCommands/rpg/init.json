@@ -1,0 +1,11 @@
+{
+    "categoryInitializer": {
+        "categoryName": "RPG",
+        "categoryColor": "#FFFF00",
+        "options": {
+            "description": "help_rpg_dsc",
+            "emoji": "⚔️",
+            "placeholder": "help_rpg_fields"
+        }
+    }
+}
