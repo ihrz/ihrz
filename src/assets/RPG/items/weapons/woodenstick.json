@@ -1,0 +1,25 @@
+{
+    "money": {
+        "price-range": [1, 5],
+        "resell": [0, 3]
+    },
+    "Attack": {
+        "damage-range": [1, 3],
+        "block": [-5, 0]
+    },
+    "Stats": {
+        "durability": 5,
+        "weight": 1,
+        "stackable": true
+    },
+    "image": "https://imgs.search.brave.com/WkejO1vnpl5ekcyH0NpMBHYCQvjx4FAHbzJC4D5QsPU/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzAwLzkxLzExLzE4/LzM2MF9GXzkxMTEx/ODg5XzQ2NUxRSE5i/VXNwQTVLanBLYmR4/ODA5UEl5Q2ZXUkxS/LmpwZw",
+
+    "en": {
+        "name": "Wooden Stick",
+        "description": "Just a wooden stick, what do you expect?\nNo there's really nothing more like seriously"
+    },
+    "fr": {
+        "name": "Baton de bois",
+        "description": "C'est un baton de bois, quesque tu pense?\nNon mais c'est serieusement rien important"
+    }
+}

@@ -1,0 +1,25 @@
+{
+    "money": {
+        "price-range": [30, 120],
+        "resell": [10, 40]
+    },
+    "Attack": {
+        "damage-range": [15, 40],
+        "block": [-10, 50]
+    },
+    "Stats": {
+        "durability": 50,
+        "weight": 30,
+        "craftable": [{"woodenstick": 25, "rope": 1}]
+    },
+    "image": "src/assets/RPG/items/weapons/pileofwoodensticks.jpg",
+
+    "en": {
+        "name": "Pile of sticks",
+        "description": "Waw, you really wanted to make that stick useful. Well waw you got a weapon that you can sell for 10 bucks."
+    },
+    "fr": {
+        "name": "Pile de baton de bois",
+        "description": "Waw, tu voulais vraiment faire utile de ce baton. Bien waw, tu as maintenant une arme que tu peux vendre pour 10n balles."
+    }
+}
