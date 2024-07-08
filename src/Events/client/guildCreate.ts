@@ -166,7 +166,7 @@ let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
                     { name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
                     { name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
                     { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true },
-                    { name:"🥛 new members total", value: `${usersize} members`
+                    { name:"🥛 new members total", value: `${usersize} members` }
                 )
                 .setThumbnail(guild.iconURL())
                 .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
