@@ -124,6 +124,7 @@ async function sendWarningMessage(
 }
 
 async function clearSpamMessages(guildId: string, messages: Set<AntiSpam.CachedMessage>, client: Client): Promise<void> {
+    console.log("avant del", messages.size)
     try {
         const CHUNK_SIZE = 50;
         const messagesByChannel: Collection<Snowflake, Collection<string, Snowflake>> = new Collection();
@@ -151,6 +152,8 @@ async function clearSpamMessages(guildId: string, messages: Set<AntiSpam.CachedM
                                 cache.spamMessagesToClear.get(guildId)?.delete(message);
                             });
                         });
+
+                        console.log("après del", messages.size)
                     } catch {
                     }
                 }
@@ -263,9 +266,10 @@ export const event: BotEvent = {
             cache.membersFlags.set(message.guild.id, new Map());
         }
 
-        const previousMessages = Array.from(cache.messages.get(message.guild.id)!);
+        const guildCacheMessages = cache.messages.get(message.guild.id)!;
+        const previousMessages = Array.from(guildCacheMessages);
 
-        cache.messages.get(message.guild.id)!.add(currentMessage);
+        guildCacheMessages.add(currentMessage);
 
         if (!cache.raidInfo.get(message.guild.id)!.get(`${message.author.id}.amount`)?.value) {
             cache.raidInfo.get(message.guild.id)!.set(`${message.author.id}.amount`, { value: 0 })
@@ -289,11 +293,15 @@ export const event: BotEvent = {
         if (cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value! >= options.Threshold) {
             cache.membersToPunish.get(message.guild.id)!.add(message.member!);
             currentMessage.isSpam = true;
+
+            var allMessage = previousMessages.filter(usr => usr.authorID === message.author.id)
+
+            allMessage.forEach(msg => cache.spamMessagesToClear.get(message.guildId!)?.add(msg))
+
             cache.spamMessagesToClear.get(message.guild.id)!.add(currentMessage);
         };
 
         if (cache.membersToPunish.get(message.guild.id)!.size >= 1 && cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value! >= options.Threshold) {
-            previousMessages.filter(x=>x.authorID=== message.author.id).filter(msg => cache.spamMessagesToClear.get(message.guildId!)?.add(msg))
             let membersToPunish = cache.membersToPunish.get(message.guild.id);
             let guildRaidInfo = cache.raidInfo.get(message.guild.id);
 
