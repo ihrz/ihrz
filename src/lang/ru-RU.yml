@@ -136,6 +136,27 @@ ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Уровень: $
 ranks_ignorechannels_embed_title: "Конфигурации модуля рангов"
 ranks_ignorechannels_embed_desc: "Когда новые сообщения отправляются в один из этих каналов, модуль рангов их игнорирует."
 
+# /ranks set-message
+ranksSetMessage_not_admin: ":x: | Вы должны быть администратором этого сервера, чтобы запросить эту команду!"
+ranksSetMessage_help_embed_title: "/ranks set-message Помощь!"
+ranksSetMessage_help_embed_description: "/ranks set-message"
+ranksSetMessage_help_embed_fields_name: "Как использовать?"
+ranksSetMessage_logs_embed_title_on_enable: "Журналы RanksSetMessage"
+ranksSetMessage_logs_embed_description_on_enable: "<@${interaction.user.id}> установил сообщение о рангах!"
+ranksSetMessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo} | Сообщение о рангах успешно установлено."
+ranksSetMessage_logs_embed_title_on_disable: "Журналы RanksSetMessage"
+ranksSetMessage_logs_embed_description_on_disable: "<@${interaction.user.id}> удалил сообщение о рангах!"
+ranksSetMessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Пользовательское сообщение о рангах успешно удалено."
+ranksSetMessage_command_work_ls: "Сообщение о рангах:"
+ranksSetMessage_help_embed_fields_custom_name: "Пользовательское сообщение"
+ranksSetMessage_help_embed_fields_custom_name_empy: "Не установлено!"
+ranksSetMessage_help_embed_fields_default_name_empy: "Сообщение по умолчанию"
+ranksSetMessage_help_embed_desc: "{memberUsername} => Имя пользователя участника\n{memberMention} => Упомянуть участника\n{memberCount} => Количество участников в гильдии\n{guildName} => Название гильдии\n{createdAt} => Создание аккаунта в дд/мм/гггг\n{xpLevel} => Уровень XP пользователя"
+ranksSetMessage_button_set_name: "Установить сообщение"
+ranksSetMessage_buttom_del_name: "Сообщение по умолчанию"
+ranksSetMessage_awaiting_response: "Напишите новое пользовательское сообщение о рангах."
+ranksSetMessage_embed_fields_xpmessage: "Сообщение о рангах"
+
 
 # Команды владельца
 # /owner, /unowner, /blacklist, /unblacklist

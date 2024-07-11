@@ -136,6 +136,27 @@ ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Level: ${a.level 
 ranks_ignorechannels_embed_title: "Ranks Modulkonfigurationen"
 ranks_ignorechannels_embed_desc: "Wenn neue Nachrichten in einem dieser Kanäle gesendet werden, ignoriert das Ranks Modul sie."
 
+# /ranks set-message
+ranksSetMessage_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl anzufordern!"
+ranksSetMessage_help_embed_title: "/ranks set-message Hilfe !"
+ranksSetMessage_help_embed_description: "/ranks set-message"
+ranksSetMessage_help_embed_fields_name: "Wie zu verwenden?"
+ranksSetMessage_logs_embed_title_on_enable: "RanksSetMessage Logs"
+ranksSetMessage_logs_embed_description_on_enable: "<@${interaction.user.id}> hat die Ränge-Nachricht gesetzt!"
+ranksSetMessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo} | Ränge-Nachricht erfolgreich gesetzt."
+ranksSetMessage_logs_embed_title_on_disable: "RanksSetMessage Logs"
+ranksSetMessage_logs_embed_description_on_disable: "<@${interaction.user.id}> hat die Ränge-Nachricht gelöscht!"
+ranksSetMessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Benutzerdefinierte Ränge-Nachricht erfolgreich gelöscht."
+ranksSetMessage_command_work_ls: "Die Ränge-Nachricht ist:"
+ranksSetMessage_help_embed_fields_custom_name: "Benutzerdefinierte Nachricht"
+ranksSetMessage_help_embed_fields_custom_name_empy: "Nicht gesetzt!"
+ranksSetMessage_help_embed_fields_default_name_empy: "Standardnachricht"
+ranksSetMessage_help_embed_desc: "{memberUsername} => Der Benutzername des Mitglieds\n{memberMention} => Das Mitglied erwähnen\n{memberCount} => Mitgliederzahl der Gilde\n{guildName} => Der Name der Gilde\n{createdAt} => Kontoerstellung am tt/mm/jjjj\n{xpLevel} => Das XP-Level des Benutzers"
+ranksSetMessage_button_set_name: "Nachricht setzen"
+ranksSetMessage_buttom_del_name: "Standardnachricht"
+ranksSetMessage_awaiting_response: "Schreiben Sie die neue benutzerdefinierte Ränge-Nachricht."
+ranksSetMessage_embed_fields_xpmessage: "Ränge-Nachricht"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist

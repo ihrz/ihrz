@@ -136,6 +136,27 @@ ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Level: ${a.level 
 ranks_ignorechannels_embed_title: "Ranks Module Configurations"
 ranks_ignorechannels_embed_desc: "When new message are sent in one of this channels, Ranks Module ignore it."
 
+# /ranks set-message
+ranksSetMessage_not_admin: ":x: | You must be an administrator of this server to request this commands!"
+ranksSetMessage_help_embed_title: "/ranks set-message Help !" 
+ranksSetMessage_help_embed_description: "/ranks set-message"
+ranksSetMessage_help_embed_fields_name: "how to use ?"
+ranksSetMessage_logs_embed_title_on_enable: "RanksSetMessage Logs"
+ranksSetMessage_logs_embed_description_on_enable: "<@${interaction.user.id}> set the ranks message !"
+ranksSetMessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo}  | Successfully set ranks message."
+ranksSetMessage_logs_embed_title_on_disable: "RanksSetMessage Logs"
+ranksSetMessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deleted the ranks message !"
+ranksSetMessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Successfully deleted custom ranks message."
+ranksSetMessage_command_work_ls: "The ranks message is:"
+ranksSetMessage_help_embed_fields_custom_name: "Custom Message"
+ranksSetMessage_help_embed_fields_custom_name_empy: "No Set!"
+ranksSetMessage_help_embed_fields_default_name_empy: "Default Message"
+ranksSetMessage_help_embed_desc: "{memberUsername} => The member username\n{memberMention} => Mention the member\n{memberCount} => Guild's member count\n{guildName} => The guild's name\n{createdAt} => Account creation in dd/mm/yyyy\n{xpLevel} => The XP Level of the user"
+ranksSetMessage_button_set_name: "Set message"
+ranksSetMessage_buttom_del_name: "Default Message"
+ranksSetMessage_awaiting_response: "Wrote the new custom ranks Message."
+ranksSetMessage_embed_fields_xpmessage: "Ranks Message"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -1506,7 +1527,7 @@ event_goodbye_inviter: "{memberUsername} (account create at {createdAt}) leave t
 event_goodbye_default: "{memberUsername} (account create at {createdAt}) leave the guild. We are now {memberCount} in {guildName}"
 
 # XP Level Events
-event_xp_level_earn: "**GG**, <@${message.author.id}> you are +1, for xp level (Level : **${newLevel}**)"
+event_xp_level_earn: "**GG**, {memberMention} you are +1, for xp level (Level : **{xpLevel}**)"
 
 # Ticket Module Events:
 event_ticket_embed_description: "Hi ${user.username}, welcome to your ticket! Please be patient, we will be with you shortly. If you would like to close this ticket please run `/ticket close`"

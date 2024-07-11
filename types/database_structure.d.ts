@@ -291,6 +291,7 @@ export namespace DatabaseStructure {
     }
 
     export interface DbGuildXpLeveling {
+        message: string;
         disable?: 'disable' | boolean;
         xpchannels?: string;
         bypassChannels?: string[]
