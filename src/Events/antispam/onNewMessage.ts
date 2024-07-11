@@ -246,12 +246,14 @@ export const event: BotEvent = {
         if (!options) return;
 
         let cancelAnalyze = false;
+        // Check if the member have roles to bypass antispam
         for (let role in options.BYPASS_ROLES) {
             if (message.member?.roles.cache.has(options.BYPASS_ROLES[parseInt(role)])) {
                 cancelAnalyze = true;
             }
         };
 
+        // Basic checks (if is in guild, if the antispam are configured etc)
         if (
             !message.guild ||
             message.author.id === message.client.user.id ||
@@ -267,6 +269,7 @@ export const event: BotEvent = {
 
         let lang = await client.func.getLanguageData(message.guild.id) as LanguageData;
 
+        // Create object with the last message
         let currentMessage: AntiSpam.CachedMessage = {
             messageID: message.id,
             guildID: message.guild.id,
@@ -277,6 +280,7 @@ export const event: BotEvent = {
             isSpam: false
         };
 
+        // Create all basic map,set if doesn't exis
         if (!cache.messages.has(message.guild.id)) {
             cache.messages.set(message.guild.id, new Set());
         }
@@ -361,17 +365,17 @@ export const event: BotEvent = {
 
         if (cache.membersToPunish.get(message.guild.id)!.size >= 1 && cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value! >= options.Threshold) {
             await waitForFinish(lastMessage!);
+            const membersToPunish = cache.membersToPunish.get(message.guild.id);
+            cache.membersToPunish.get(message.guild.id)!.clear();
 
-            await PunishUsers(message.guild.id, cache.membersToPunish.get(message.guild.id)!, options)
-            await sendWarningMessage(lang, cache.membersToPunish.get(message.guild.id)!, message.channel as BaseGuildTextChannel, options)
+            await PunishUsers(message.guild.id, membersToPunish!, options)
+            await sendWarningMessage(lang, membersToPunish!, message.channel as BaseGuildTextChannel, options)
 
             if (options.removeMessages && cache.spamMessagesToClear.get(message.guild.id)!.size > 0) {
                 await clearSpamMessages(message.guild.id, cache.spamMessagesToClear.get(message.guild.id)!, client);
             }
 
-            await logsAction(lang, client, message.guild.id, cache.membersToPunish.get(message.guild.id)!, "sanction", options.punishment_type);
-
-            cache.membersToPunish.get(message.guild.id)!.clear();
+            await logsAction(lang, client, message.guild.id, membersToPunish!, "sanction", options.punishment_type);
         }
     },
 };
