@@ -136,6 +136,27 @@ ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ レベル: ${a.le
 ranks_ignorechannels_embed_title: "ランクモジュールの設定"
 ranks_ignorechannels_embed_desc: "これらのチャネルのいずれかに新しいメッセージが送信されると、ランクモジュールはそれを無視します。"
 
+# /ranks set-message
+ranksSetMessage_not_admin: ":x: | このコマンドを要求するには、このサーバーの管理者である必要があります！"
+ranksSetMessage_help_embed_title: "/ranks set-message ヘルプ!"
+ranksSetMessage_help_embed_description: "/ranks set-message"
+ranksSetMessage_help_embed_fields_name: "使い方?"
+ranksSetMessage_logs_embed_title_on_enable: "RanksSetMessage ログ"
+ranksSetMessage_logs_embed_description_on_enable: "<@${interaction.user.id}> がランクメッセージを設定しました！"
+ranksSetMessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo} | ランクメッセージが正常に設定されました。"
+ranksSetMessage_logs_embed_title_on_disable: "RanksSetMessage ログ"
+ranksSetMessage_logs_embed_description_on_disable: "<@${interaction.user.id}> がランクメッセージを削除しました！"
+ranksSetMessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | カスタムランクメッセージが正常に削除されました。"
+ranksSetMessage_command_work_ls: "ランクメッセージは:"
+ranksSetMessage_help_embed_fields_custom_name: "カスタムメッセージ"
+ranksSetMessage_help_embed_fields_custom_name_empy: "未設定！"
+ranksSetMessage_help_embed_fields_default_name_empy: "デフォルトメッセージ"
+ranksSetMessage_help_embed_desc: "{memberUsername} => メンバーのユーザー名\n{memberMention} => メンバーをメンション\n{memberCount} => ギルドのメンバー数\n{guildName} => ギルドの名前\n{createdAt} => アカウント作成日 dd/mm/yyyy\n{xpLevel} => ユーザーのXPレベル"
+ranksSetMessage_button_set_name: "メッセージを設定"
+ranksSetMessage_buttom_del_name: "デフォルトメッセージ"
+ranksSetMessage_awaiting_response: "新しいカスタムランクメッセージを書いてください。"
+ranksSetMessage_embed_fields_xpmessage: "ランクメッセージ"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist

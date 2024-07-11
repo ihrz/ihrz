@@ -61,7 +61,21 @@ export default {
             return;
         };
 
-        await client.db.add(`${interaction.guildId}.USER.${user.id}.INVITES.invites`, amount!);
+        let check = await client.db.get(`${interaction?.guild?.id}.USER.${user.id}.INVITES`);
+
+        if (check) {
+            await client.db.add(`${interaction.guildId}.USER.${user.id}.INVITES.invites`, amount!);
+            await client.db.add(`${interaction.guildId}.USER.${user.id}.INVITES.bonus`, amount!);
+        } else {
+
+            await client.db.set(`${interaction?.guild?.id}.USER.${user.id}.INVITES`,
+                {
+                    regular: 0, bonus: 0, leaves: 0, invites: 0
+                }
+            );
+            await client.db.add(`${interaction.guildId}.USER.${user.id}.INVITES.invites`, amount!);
+            await client.db.add(`${interaction.guildId}.USER.${user.id}.INVITES.bonus`, amount!);
+        };
 
         let finalEmbed = new EmbedBuilder()
             .setDescription(data.addinvites_confirmation_embed_description
@@ -71,7 +85,6 @@ export default {
             .setColor(`#92A8D1`)
             .setFooter({ text: interaction.guild.name as string, iconURL: interaction.guild.iconURL() as string });
 
-        await client.db.add(`${interaction.guildId}.USER.${user.id}.INVITES.bonus`, amount!);
         await client.args.interactionSend(interaction, { embeds: [finalEmbed] });
 
         try {

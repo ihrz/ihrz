@@ -70,11 +70,20 @@ export const event: BotEvent = {
             let xpChan = xpData?.xpchannels!;
             let MsgChannel = message.guild.channels.cache.get(xpChan) as GuildTextBasedChannel | null;
 
+            let msg = (xpData?.message || data.event_xp_level_earn)
+                .replace("{xpLevel}", newLevel)
+                .replaceAll("{memberUsername}", message.author.username)
+                .replaceAll("{memberMention}", message.author.toString())
+                .replaceAll('{memberCount}', message.guild?.memberCount?.toString()!)
+                .replaceAll('{createdAt}', message.author.createdAt.toDateString())
+                .replaceAll('{guildName}', message.guild?.name!)
+                .replaceAll("\\n", '\n');
+            ;
             if (!xpChan) {
                 message.channel.send({
-                    content: data.event_xp_level_earn
-                        .replace("${message.author.id}", message.author.id)
-                        .replace("${newLevel}", newLevel), enforceNonce: true, nonce: nonce
+                    content: msg,
+                    enforceNonce: true,
+                    nonce: nonce
                 })
                 return;
             }
@@ -82,9 +91,9 @@ export const event: BotEvent = {
             if (!MsgChannel) return;
 
             MsgChannel.send({
-                content: data.event_xp_level_earn
-                    .replace("${message.author.id}", message.author.id)
-                    .replace("${newLevel}", newLevel), enforceNonce: true, nonce: nonce
+                content: msg,
+                enforceNonce: true,
+                nonce: nonce
             });
             return;
         }

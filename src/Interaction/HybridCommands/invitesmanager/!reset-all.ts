@@ -89,6 +89,23 @@ export default {
                 await client.db.set(`${interaction.guildId}.USER`, baseData);
                 await response.edit({ content: data.resetallinvites_succes_on_delete });
 
+                try {
+                    let logEmbed = new EmbedBuilder()
+                        .setColor("#bf0bb9")
+                        .setTitle(data.resetallinvites_logs_embed_title)
+                        .setDescription(data.resetallinvites_logs_embed_desc
+                            .replace("${interaction.member.user.toString()}", interaction.member.user.toString())
+                        );
+
+                    let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
+                    if (logchannel) {
+                        (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
+                    };
+                } catch {
+                    return;
+                };
+
                 collector.stop();
             } else {
                 await response.edit({ content: data.setjoinroles_action_canceled, components: [] });
@@ -98,23 +115,6 @@ export default {
 
         collector.on("end", async () => {
             await response.edit({ components: [] });
-        })
-
-        try {
-            let logEmbed = new EmbedBuilder()
-                .setColor("#bf0bb9")
-                .setTitle(data.resetallinvites_logs_embed_title)
-                .setDescription(data.resetallinvites_logs_embed_desc
-                    .replace("${interaction.member.user.toString()}", interaction.member.user.toString())
-                );
-
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-            if (logchannel) {
-                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-            };
-        } catch {
-            return;
-        };
+        });
     },
 };

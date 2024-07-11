@@ -44,43 +44,15 @@ export const cache: AntiSpam.AntiSpamCache = {
     membersFlags: new Map<string, Map<string, { value: number; }>>()
 };
 
+let timeout: NodeJS.Timeout | null = null;
 
 async function waitForFinish(lastMessage?: AntiSpam.CachedMessage): Promise<void> {
     return new Promise((resolve) => {
-        const interval = setInterval(() => {
-            const lastMessageTime = (lastMessage?.sentTimestamp) || Date.now();
-            if ((Date.now() - lastMessageTime) > 5000) {
-                clearInterval(interval);
-                resolve();
-            }
-        }, 500);
+        if (timeout) clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            resolve();
+        }, 5000);
     });
-}
-
-function levenshtein(a: string, b: string): number {
-    const distanceMatrix: number[][] = [];
-
-    for (let i = 0; i <= b.length; i++) {
-        distanceMatrix[i] = [];
-        distanceMatrix[i][0] = i;
-    }
-
-    for (let j = 0; j <= a.length; j++) {
-        distanceMatrix[0][j] = j;
-    }
-
-    for (let i = 1; i <= b.length; i++) {
-        for (let j = 1; j <= a.length; j++) {
-            const indicator = a[j - 1] === b[i - 1] ? 0 : 1;
-            distanceMatrix[i][j] = Math.min(
-                distanceMatrix[i - 1][j] + 1,
-                distanceMatrix[i][j - 1] + 1,
-                distanceMatrix[i - 1][j - 1] + indicator
-            );
-        }
-    }
-
-    return distanceMatrix[b.length][a.length];
 }
 
 async function logsAction(lang: LanguageData, client: Client, guildId: string, users: Set<GuildMember>, actionType: 'sanction' | 'warn', sanctionType?: 'mute' | 'kick' | 'ban') {
@@ -152,6 +124,7 @@ async function sendWarningMessage(
 }
 
 async function clearSpamMessages(guildId: string, messages: Set<AntiSpam.CachedMessage>, client: Client): Promise<void> {
+    console.log("avant del", messages.size)
     try {
         const CHUNK_SIZE = 50;
         const messagesByChannel: Collection<Snowflake, Collection<string, Snowflake>> = new Collection();
@@ -179,6 +152,8 @@ async function clearSpamMessages(guildId: string, messages: Set<AntiSpam.CachedM
                                 cache.spamMessagesToClear.get(guildId)?.delete(message);
                             });
                         });
+
+                        console.log("après del", messages.size)
                     } catch {
                     }
                 }
@@ -197,14 +172,10 @@ async function PunishUsers(
     const membersCleaned = [...new Set(members)];
 
     const punishPromises = membersCleaned.map(async (member) => {
-
         let amountOfWarn = cache.raidInfo.get(guildId)?.get(`${member.id}.amount`)?.value as number;
         cache.raidInfo.get(guildId)?.set(`${member.id}.amount`, { value: amountOfWarn + 1 });
 
         let time = options.punishTime;
-        if (options.punishTimeMultiplier) {
-            time = options.punishTime * (cache.raidInfo.get(guildId)?.get(`${member.id}.amount`)?.value as number || 1);
-        }
 
         switch (options.punishment_type) {
             case 'mute':
@@ -246,12 +217,14 @@ export const event: BotEvent = {
         if (!options) return;
 
         let cancelAnalyze = false;
+        // Check if the member have roles to bypass antispam
         for (let role in options.BYPASS_ROLES) {
             if (message.member?.roles.cache.has(options.BYPASS_ROLES[parseInt(role)])) {
                 cancelAnalyze = true;
             }
         };
 
+        // Basic checks (if is in guild, if the antispam are configured etc)
         if (
             !message.guild ||
             message.author.id === message.client.user.id ||
@@ -293,30 +266,10 @@ export const event: BotEvent = {
             cache.membersFlags.set(message.guild.id, new Map());
         }
 
-        cache.messages.get(message.guild.id)!.add(currentMessage);
+        const guildCacheMessages = cache.messages.get(message.guild.id)!;
+        const previousMessages = Array.from(guildCacheMessages);
 
-        const cacheMessages = Array.from(cache.messages.get(message.guild.id)!).filter(
-            (m) => m.guildID === message.guild?.id
-        );
-
-        const duplicateMessages = cacheMessages.filter(
-            (m) =>
-                m.content === message.content &&
-                m.sentTimestamp > currentMessage.sentTimestamp - options.maxDuplicatesInterval
-        );
-
-        const spamOtherDuplicates: AntiSpam.CachedMessage[] = [];
-
-        if (duplicateMessages.length > 0) {
-            let rowBroken = false;
-            cacheMessages
-                .sort((a, b) => b.sentTimestamp - a.sentTimestamp)
-                .forEach((element) => {
-                    if (rowBroken) return;
-                    if (element.content !== duplicateMessages[0].content) rowBroken = true;
-                    else spamOtherDuplicates.push(element);
-                });
-        }
+        guildCacheMessages.add(currentMessage);
 
         if (!cache.raidInfo.get(message.guild.id)!.get(`${message.author.id}.amount`)?.value) {
             cache.raidInfo.get(message.guild.id)!.set(`${message.author.id}.amount`, { value: 0 })
@@ -328,26 +281,10 @@ export const event: BotEvent = {
 
         let memberTotalWarn = cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value!;
 
-        const similarMessages = cacheMessages.length >= 2 ? cacheMessages.filter(
-            (m) => levenshtein(m.content.toLowerCase(), currentMessage.content.toLowerCase()) <= 2
-        ) : null
-
-        const lastMessage = cacheMessages.length > 1 ? cacheMessages[1] : null;
+        const lastMessage = previousMessages.filter(x => x.authorID === message.author.id).slice(-1)[0]
         const elapsedTime = lastMessage ? currentMessage.sentTimestamp - lastMessage.sentTimestamp : null;
 
-        if (duplicateMessages.length >= options.maxDuplicates) {
-            cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, { value: memberTotalWarn + 1 });
-            currentMessage.isSpam = true;
-            cache.spamMessagesToClear.get(message.guild.id)!.add(currentMessage);
-        }
-
         if (elapsedTime && elapsedTime < options.maxInterval) {
-            cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, { value: memberTotalWarn + 1 });
-            currentMessage.isSpam = true;
-            cache.spamMessagesToClear.get(message.guild.id)!.add(currentMessage);
-        }
-
-        if (similarMessages && similarMessages.length! >= options.similarMessageThreshold) {
             cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, { value: memberTotalWarn + 1 });
             currentMessage.isSpam = true;
             cache.spamMessagesToClear.get(message.guild.id)!.add(currentMessage);
@@ -356,22 +293,42 @@ export const event: BotEvent = {
         if (cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value! >= options.Threshold) {
             cache.membersToPunish.get(message.guild.id)!.add(message.member!);
             currentMessage.isSpam = true;
+
+            var allMessage = previousMessages.filter(usr => usr.authorID === message.author.id)
+
+            allMessage.forEach(msg => cache.spamMessagesToClear.get(message.guildId!)?.add(msg))
+
             cache.spamMessagesToClear.get(message.guild.id)!.add(currentMessage);
         };
 
         if (cache.membersToPunish.get(message.guild.id)!.size >= 1 && cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value! >= options.Threshold) {
-            await waitForFinish(lastMessage!);
+            let membersToPunish = cache.membersToPunish.get(message.guild.id);
+            let guildRaidInfo = cache.raidInfo.get(message.guild.id);
 
-            await PunishUsers(message.guild.id, cache.membersToPunish.get(message.guild.id)!, options)
-            await sendWarningMessage(lang, cache.membersToPunish.get(message.guild.id)!, message.channel as BaseGuildTextChannel, options)
-
-            if (options.removeMessages && cache.spamMessagesToClear.get(message.guild.id)!.size > 0) {
-                await clearSpamMessages(message.guild.id, cache.spamMessagesToClear.get(message.guild.id)!, client);
+            if (!guildRaidInfo?.has(`${message.author.id}.amount`)) {
+                guildRaidInfo?.set(`${message.author.id}.amount`, { value: 0 });
             }
 
-            await logsAction(lang, client, message.guild.id, cache.membersToPunish.get(message.guild.id)!, "sanction", options.punishment_type);
+            if (!guildRaidInfo?.has(`${message.author.id}.timeout`)) {
+                guildRaidInfo?.set(`${message.author.id}.timeout`, { value: 0 });
+            }
 
-            cache.membersToPunish.get(message.guild.id)!.clear();
+            const timeout = guildRaidInfo?.get(`${message.author.id}.timeout`)?.value as number;
+
+            const currentTime = Date.now();
+            if (timeout < currentTime) {
+                guildRaidInfo?.set(`${message.author.id}.timeout`, { value: currentTime + 5000 });
+            }
+
+            if (timeout < currentTime) {
+                await waitForFinish();
+                await PunishUsers(message.guild.id, membersToPunish!, options);
+                await clearSpamMessages(message.guild.id, cache.spamMessagesToClear.get(message.guild.id)!, client);
+                await sendWarningMessage(lang, membersToPunish!, message.channel as BaseGuildTextChannel, options);
+                await logsAction(lang, client, message.guild.id, membersToPunish!, "sanction", options.punishment_type);
+                membersToPunish?.clear();
+                cache.spamMessagesToClear.get(message.guild.id)?.clear();
+            }
         }
     },
 };
