@@ -305,11 +305,12 @@ export const event: BotEvent = {
             cache.membersToPunish.get(message.guild.id)!.clear();
 
             await PunishUsers(message.guild.id, membersToPunish!, options)
-            await sendWarningMessage(lang, membersToPunish!, message.channel as BaseGuildTextChannel, options)
 
             if (options.removeMessages && cache.spamMessagesToClear.get(message.guild.id)!.size > 0) {
                 await clearSpamMessages(message.guild.id, cache.spamMessagesToClear.get(message.guild.id)!, client);
             }
+
+            await sendWarningMessage(lang, membersToPunish!, message.channel as BaseGuildTextChannel, options)
 
             await logsAction(lang, client, message.guild.id, membersToPunish!, "sanction", options.punishment_type);
         }

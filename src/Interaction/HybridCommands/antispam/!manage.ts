@@ -151,14 +151,6 @@ export default {
                     wantedValueType: 'time'
                 },
                 {
-                    label: lang.antispam_manage_choices_5_label,
-                    description: lang.antispam_manage_choices_5_desc,
-                    value: 'punishTimeMultiplier',
-                    type: 'boolean',
-
-                    componentType: ComponentType.StringSelect,
-                },
-                {
                     label: lang.antispam_manage_choices_6_label,
                     description: lang.antispam_manage_choices_6_desc,
                     value: 'removeMessages',
@@ -174,33 +166,6 @@ export default {
 
                     componentType: 'modal',
                     wantedValueType: 'time'
-                },
-                {
-                    label: lang.antispam_manage_choices_8_label,
-                    description: lang.antispam_manage_choices_8_desc,
-                    value: 'maxDuplicates',
-                    type: 'number',
-
-                    componentType: 'modal',
-                    wantedValueType: 'number'
-                },
-                {
-                    label: lang.antispam_manage_choices_9_label,
-                    description: lang.antispam_manage_choices_9_desc,
-                    value: 'maxDuplicatesInterval',
-                    type: 'number',
-
-                    componentType: 'modal',
-                    wantedValueType: 'time'
-                },
-                {
-                    label: lang.antispam_manage_choices_10_label,
-                    description: lang.antispam_manage_choices_10_desc,
-                    value: 'similarMessageThreshold',
-                    type: 'number',
-
-                    componentType: 'modal',
-                    wantedValueType: 'number'
                 },
                 {
                     label: lang.antispam_manage_choices_12_label,
