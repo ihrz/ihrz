@@ -36,7 +36,6 @@ export namespace AntiSpam {
         raidInfo: Map<string, Map<string, { value: number | boolean }>>;
         messages: Map<string, Set<CachedMessage>>;
         membersToPunish: Map<string, Set<GuildMember>>;
-        membersFlags: Map<string, Map<string, { value: number }>>;
         spamMessagesToClear: Map<string, Set<CachedMessage>>;
     }
 
