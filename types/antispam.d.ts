@@ -44,15 +44,11 @@ export namespace AntiSpam {
         BYPASS_ROLES?: string[];
         BYPASS_CHANNELS?: string[];
         ignoreBots: boolean;
-        maxDuplicatesInterval: number;
         maxInterval: number;
         Enabled: boolean;
         Threshold: number;
-        maxDuplicates: number;
         removeMessages: boolean;
         punishment_type: 'mute' | 'kick' | 'ban';
         punishTime: number;
-        similarMessageThreshold: number;
-        punishTimeMultiplier: boolean;
     }
 }

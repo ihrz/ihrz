@@ -49,44 +49,32 @@ const AntiSpamPreset: { [key in PresetKeys]: AntiSpam.AntiSpamOptions } = {
     chill: {
         BYPASS_ROLES: [],
         ignoreBots: true,
-        maxDuplicatesInterval: 1300,
         maxInterval: 1900,
         Enabled: true,
         Threshold: 7,
-        maxDuplicates: 4,
         removeMessages: true,
         punishment_type: 'mute',
         punishTime: 15_000,
-        similarMessageThreshold: 5,
-        punishTimeMultiplier: false,
     },
     guard: {
         BYPASS_ROLES: [],
         ignoreBots: true,
-        maxDuplicatesInterval: 2200,
         maxInterval: 2700,
         Enabled: true,
         Threshold: 5,
-        maxDuplicates: 3,
         removeMessages: true,
         punishment_type: 'mute',
         punishTime: 30_000,
-        similarMessageThreshold: 3,
-        punishTimeMultiplier: true,
     },
     extreme: {
         BYPASS_ROLES: [],
         ignoreBots: false,
-        maxDuplicatesInterval: 3000,
         maxInterval: 3200,
         Enabled: true,
         Threshold: 3,
-        maxDuplicates: 2,
         removeMessages: true,
         punishment_type: 'mute',
         punishTime: 60_000,
-        similarMessageThreshold: 2,
-        punishTimeMultiplier: true,
     },
 }
 
@@ -107,16 +95,12 @@ export default {
 
         let baseData: AntiSpam.AntiSpamOptions = await client.db.get(`${interaction.guildId}.GUILD.ANTISPAM`) || {
             ignoreBots: true,
-            maxDuplicatesInterval: 1500,
             maxInterval: 1900,
             Enabled: true,
             Threshold: 3,
-            maxDuplicates: 4,
             removeMessages: true,
             punishment_type: 'mute',
             punishTime: client.timeCalculator.to_ms('30s')!,
-            punishTimeMultiplier: true,
-            similarMessageThreshold: 3,
         }
 
         const embed = new EmbedBuilder()
@@ -287,12 +271,8 @@ export default {
                 { name: lang.antispam_manage_choices_2_label, value: beautifyValue('ignoreBots', baseData.ignoreBots, lang), inline: true },
                 { name: lang.antispam_manage_choices_3_label, value: beautifyValue('punishment_type', baseData.punishment_type, lang), inline: true },
                 { name: lang.antispam_manage_choices_4_label, value: beautifyValue('punishTime', baseData.punishTime, lang), inline: true },
-                { name: lang.antispam_manage_choices_5_label, value: beautifyValue('punishTimeMultiplier', baseData.punishTimeMultiplier, lang), inline: true },
                 { name: lang.antispam_manage_choices_6_label, value: beautifyValue('removeMessages', baseData.removeMessages, lang), inline: true },
                 { name: lang.antispam_manage_choices_7_label, value: beautifyValue('maxInterval', baseData.maxInterval, lang), inline: true },
-                { name: lang.antispam_manage_choices_8_label, value: beautifyValue('maxDuplicates', baseData.maxDuplicates, lang), inline: true },
-                { name: lang.antispam_manage_choices_9_label, value: beautifyValue('maxDuplicatesInterval', baseData.maxDuplicatesInterval, lang), inline: true },
-                { name: lang.antispam_manage_choices_10_label, value: beautifyValue('similarMessageThreshold', baseData.similarMessageThreshold, lang), inline: true },
                 { name: lang.antispam_manage_choices_12_label, value: beautifyValue('Threshold', baseData.Threshold, lang), inline: true },
             ]);
         }

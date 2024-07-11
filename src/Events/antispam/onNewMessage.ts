@@ -57,32 +57,6 @@ async function waitForFinish(lastMessage?: AntiSpam.CachedMessage): Promise<void
     });
 }
 
-function levenshtein(a: string, b: string): number {
-    const distanceMatrix: number[][] = [];
-
-    for (let i = 0; i <= b.length; i++) {
-        distanceMatrix[i] = [];
-        distanceMatrix[i][0] = i;
-    }
-
-    for (let j = 0; j <= a.length; j++) {
-        distanceMatrix[0][j] = j;
-    }
-
-    for (let i = 1; i <= b.length; i++) {
-        for (let j = 1; j <= a.length; j++) {
-            const indicator = a[j - 1] === b[i - 1] ? 0 : 1;
-            distanceMatrix[i][j] = Math.min(
-                distanceMatrix[i - 1][j] + 1,
-                distanceMatrix[i][j - 1] + 1,
-                distanceMatrix[i - 1][j - 1] + indicator
-            );
-        }
-    }
-
-    return distanceMatrix[b.length][a.length];
-}
-
 async function logsAction(lang: LanguageData, client: Client, guildId: string, users: Set<GuildMember>, actionType: 'sanction' | 'warn', sanctionType?: 'mute' | 'kick' | 'ban') {
     if (users.size === 0) return;
 
@@ -202,9 +176,6 @@ async function PunishUsers(
         cache.raidInfo.get(guildId)?.set(`${member.id}.amount`, { value: amountOfWarn + 1 });
 
         let time = options.punishTime;
-        if (options.punishTimeMultiplier) {
-            time = options.punishTime * (cache.raidInfo.get(guildId)?.get(`${member.id}.amount`)?.value as number || 1);
-        }
 
         switch (options.punishment_type) {
             case 'mute':
@@ -303,25 +274,6 @@ export const event: BotEvent = {
             (m) => m.guildID === message.guild?.id
         );
 
-        const duplicateMessages = cacheMessages.filter(
-            (m) =>
-                m.content === message.content &&
-                m.sentTimestamp > currentMessage.sentTimestamp - options.maxDuplicatesInterval
-        );
-
-        const spamOtherDuplicates: AntiSpam.CachedMessage[] = [];
-
-        if (duplicateMessages.length > 0) {
-            let rowBroken = false;
-            cacheMessages
-                .sort((a, b) => b.sentTimestamp - a.sentTimestamp)
-                .forEach((element) => {
-                    if (rowBroken) return;
-                    if (element.content !== duplicateMessages[0].content) rowBroken = true;
-                    else spamOtherDuplicates.push(element);
-                });
-        }
-
         if (!cache.raidInfo.get(message.guild.id)!.get(`${message.author.id}.amount`)?.value) {
             cache.raidInfo.get(message.guild.id)!.set(`${message.author.id}.amount`, { value: 0 })
         }
@@ -332,26 +284,10 @@ export const event: BotEvent = {
 
         let memberTotalWarn = cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value!;
 
-        const similarMessages = cacheMessages.length >= 2 ? cacheMessages.filter(
-            (m) => levenshtein(m.content.toLowerCase(), currentMessage.content.toLowerCase()) <= 2
-        ) : null
-
         const lastMessage = cacheMessages.length > 1 ? cacheMessages[1] : null;
         const elapsedTime = lastMessage ? currentMessage.sentTimestamp - lastMessage.sentTimestamp : null;
 
-        if (duplicateMessages.length >= options.maxDuplicates) {
-            cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, { value: memberTotalWarn + 1 });
-            currentMessage.isSpam = true;
-            cache.spamMessagesToClear.get(message.guild.id)!.add(currentMessage);
-        }
-
         if (elapsedTime && elapsedTime < options.maxInterval) {
-            cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, { value: memberTotalWarn + 1 });
-            currentMessage.isSpam = true;
-            cache.spamMessagesToClear.get(message.guild.id)!.add(currentMessage);
-        }
-
-        if (similarMessages && similarMessages.length! >= options.similarMessageThreshold) {
             cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, { value: memberTotalWarn + 1 });
             currentMessage.isSpam = true;
             cache.spamMessagesToClear.get(message.guild.id)!.add(currentMessage);
