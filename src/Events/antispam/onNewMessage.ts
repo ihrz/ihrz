@@ -300,19 +300,22 @@ export const event: BotEvent = {
         };
 
         if (cache.membersToPunish.get(message.guild.id)!.size >= 1 && cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value! >= options.Threshold) {
+            console.log("waiting")
             await waitForFinish(lastMessage!);
             const membersToPunish = cache.membersToPunish.get(message.guild.id);
-            cache.membersToPunish.get(message.guild.id)!.clear();
 
+            console.log("before punish", membersToPunish?.size)
             await PunishUsers(message.guild.id, membersToPunish!, options)
 
             if (options.removeMessages && cache.spamMessagesToClear.get(message.guild.id)!.size > 0) {
+                console.log("before clear", cache.spamMessagesToClear.get(message.guild.id)!.size)
                 await clearSpamMessages(message.guild.id, cache.spamMessagesToClear.get(message.guild.id)!, client);
             }
 
             await sendWarningMessage(lang, membersToPunish!, message.channel as BaseGuildTextChannel, options)
 
             await logsAction(lang, client, message.guild.id, membersToPunish!, "sanction", options.punishment_type);
+            cache.membersToPunish.get(message.guild.id)!.clear();
         }
     },
 };

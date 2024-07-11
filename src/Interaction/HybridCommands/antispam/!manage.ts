@@ -68,7 +68,7 @@ const AntiSpamPreset: { [key in PresetKeys]: AntiSpam.AntiSpamOptions } = {
     },
     extreme: {
         BYPASS_ROLES: [],
-        ignoreBots: false,
+        ignoreBots: true,
         maxInterval: 3200,
         Enabled: true,
         Threshold: 3,
@@ -94,7 +94,7 @@ export default {
         };
 
         let baseData: AntiSpam.AntiSpamOptions = await client.db.get(`${interaction.guildId}.GUILD.ANTISPAM`) || {
-            ignoreBots: true,
+            ignoreBots: false,
             maxInterval: 1900,
             Enabled: true,
             Threshold: 3,
@@ -284,6 +284,7 @@ export default {
             };
 
             if (i.customId === 'antispam-manage-save-button') {
+                console.log(baseData)
                 await client.db.set(`${interaction.guildId}.GUILD.ANTISPAM`, baseData);
 
                 await i.deferUpdate();
