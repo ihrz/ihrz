@@ -41,6 +41,7 @@ export const cache: AntiSpam.AntiSpamCache = {
     messages: new Map<string, Set<AntiSpam.CachedMessage>>(),
     spamMessagesToClear: new Map<string, Set<AntiSpam.CachedMessage>>(),
     membersToPunish: new Map<string, Set<GuildMember>>(),
+    membersFlags: new Map<string, Map<string, { value: number; }>>()
 };
 
 let timeout: NodeJS.Timeout | null = null;
@@ -199,6 +200,7 @@ async function PunishUsers(
                 }
                 break;
         }
+        cache.membersFlags.get(guildId)?.delete(`${member.id}`);
     });
 
     await Promise.all(punishPromises);
@@ -235,7 +237,6 @@ export const event: BotEvent = {
 
         let lang = await client.func.getLanguageData(message.guild.id) as LanguageData;
 
-        // Create object with the last message
         let currentMessage: AntiSpam.CachedMessage = {
             messageID: message.id,
             guildID: message.guild.id,
@@ -246,48 +247,53 @@ export const event: BotEvent = {
             isSpam: false
         };
 
-        // Create all basic map,set if doesn't exist
         if (!cache.messages.has(message.guild.id)) {
             cache.messages.set(message.guild.id, new Set());
         }
-
         if (!cache.spamMessagesToClear.has(message.guild.id)) {
             cache.spamMessagesToClear.set(message.guild.id, new Set());
         }
-
-        if (!cache.raidInfo.has(message.guild.id)) {
-            cache.raidInfo.set(message.guild.id, new Map());
-        }
-
         if (!cache.membersToPunish.has(message.guild.id)) {
             cache.membersToPunish.set(message.guild.id, new Set());
         }
-
-        let guildSpamMessagesToClear = cache.spamMessagesToClear.get(message.guild.id);
-        let guildMessages = cache.messages.get(message.guild.id);
-
-        // Push the message in the messages cache
-        guildMessages?.add(currentMessage);
-
-        let messageBypass = guildMessages ? Array.from(guildMessages)?.filter(x => x.authorID === currentMessage.authorID) : [];
-
-        // Check if the message was sent in less than X ms
-        if (
-            messageBypass &&
-            messageBypass.length > 0 &&
-            (currentMessage.sentTimestamp - messageBypass[messageBypass.length - 1].sentTimestamp) < options.maxInterval) {
-            currentMessage.isSpam = true;
+        if (!cache.raidInfo.has(message.guild.id)) {
+            cache.raidInfo.set(message.guild.id, new Map());
+        }
+        if (!cache.membersFlags.has(message.guild.id)) {
+            cache.membersFlags.set(message.guild.id, new Map());
         }
 
-        // Delete from the cache the old messages
-        guildMessages?.forEach(msg => {
-            if (msg.sentTimestamp < (Date.now() - options.maxInterval)) {
-                guildMessages.delete(msg);
-            }
-        });
+        const previousMessages = Array.from(cache.messages.get(message.guild.id)!);
 
-        // In the case of the spam were detected
-        if (currentMessage.isSpam) {
+        cache.messages.get(message.guild.id)!.add(currentMessage);
+
+        if (!cache.raidInfo.get(message.guild.id)!.get(`${message.author.id}.amount`)?.value) {
+            cache.raidInfo.get(message.guild.id)!.set(`${message.author.id}.amount`, { value: 0 })
+        }
+
+        if (!cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value) {
+            cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, { value: 0 })
+        }
+
+        let memberTotalWarn = cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value!;
+
+        const lastMessage = previousMessages.filter(x => x.authorID === message.author.id).slice(-1)[0]
+        const elapsedTime = lastMessage ? currentMessage.sentTimestamp - lastMessage.sentTimestamp : null;
+
+        if (elapsedTime && elapsedTime < options.maxInterval) {
+            cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, { value: memberTotalWarn + 1 });
+            currentMessage.isSpam = true;
+            cache.spamMessagesToClear.get(message.guild.id)!.add(currentMessage);
+        }
+
+        if (cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value! >= options.Threshold) {
+            cache.membersToPunish.get(message.guild.id)!.add(message.member!);
+            currentMessage.isSpam = true;
+            cache.spamMessagesToClear.get(message.guild.id)!.add(currentMessage);
+        };
+
+        if (cache.membersToPunish.get(message.guild.id)!.size >= 1 && cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value! >= options.Threshold) {
+            previousMessages.filter(x=>x.authorID=== message.author.id).filter(msg => cache.spamMessagesToClear.get(message.guildId!)?.add(msg))
             let membersToPunish = cache.membersToPunish.get(message.guild.id);
             let guildRaidInfo = cache.raidInfo.get(message.guild.id);
 
@@ -306,20 +312,15 @@ export const event: BotEvent = {
                 guildRaidInfo?.set(`${message.author.id}.timeout`, { value: currentTime + 5000 });
             }
 
-            guildSpamMessagesToClear?.add(currentMessage);
-            membersToPunish?.add(message.member!);
-
             if (timeout < currentTime) {
-                console.log("message à del: ", guildSpamMessagesToClear?.size)
                 await waitForFinish();
                 await PunishUsers(message.guild.id, membersToPunish!, options);
-                await clearSpamMessages(message.guild.id, guildSpamMessagesToClear!, client);
-                console.log("message del: ", guildSpamMessagesToClear?.size)
+                await clearSpamMessages(message.guild.id, cache.spamMessagesToClear.get(message.guild.id)!, client);
                 await sendWarningMessage(lang, membersToPunish!, message.channel as BaseGuildTextChannel, options);
                 await logsAction(lang, client, message.guild.id, membersToPunish!, "sanction", options.punishment_type);
                 membersToPunish?.clear();
-                guildSpamMessagesToClear?.clear();
+                cache.spamMessagesToClear.get(message.guild.id)?.clear();
             }
         }
-    }
+    },
 };
