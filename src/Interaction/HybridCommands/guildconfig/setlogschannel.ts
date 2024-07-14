@@ -91,6 +91,17 @@ export const command: Command = {
 
         let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
+        let allCreatedChannels: string[] = [];
+        let allLogsPossible = [
+            { id: "voice", value: data.setlogschannel_var_voice },
+            { id: "moderation", value: data.setlogschannel_var_mods },
+            { id: "message", value: data.setlogschannel_var_msg },
+            { id: "boosts", value: data.setlogschannel_var_boost },
+            { id: "roles", value: data.setlogschannel_var_roles },
+            { id: "ticket-log-channel", value: data.setlogschannel_var_tickets },
+            { id: "antispam", value: data.setlogschannel_var_antispam }
+        ];
+
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
         const permissions = interaction instanceof ChatInputCommandInteraction ?
             interaction.memberPermissions?.has(permissionsArray)
@@ -157,62 +168,68 @@ export const command: Command = {
         };
 
         if (type === "auto") {
-            let allCreatedChannels: string[] = [];
-            let allLogsPossible = [
-                { id: "voice", value: data.setlogschannel_var_voice },
-                { id: "moderation", value: data.setlogschannel_var_mods },
-                { id: "message", value: data.setlogschannel_var_msg },
-                { id: "boosts", value: data.setlogschannel_var_boost },
-                { id: "roles", value: data.setlogschannel_var_roles },
-                { id: "ticket-log-channel", value: data.setlogschannel_var_tickets },
-                { id: "antispam", value: data.setlogschannel_var_antispam }
-            ];
 
-            let category = await interaction.guild.channels.create({
-                name: "LOGS",
-                type: ChannelType.GuildCategory,
-                permissionOverwrites: [
-                    {
-                        id: interaction.guild.roles.everyone.id,
-                        deny: [
-                            PermissionFlagsBits.ViewChannel,
-                            PermissionFlagsBits.SendMessages,
-                            PermissionFlagsBits.ReadMessageHistory
-                        ]
-                    }
-                ]
-            });
-
-            if (category) {
+            if (channel) {
                 for (let logType of allLogsPossible) {
-                    let channel = await interaction.guild.channels.create({
-                        name: logType.value,
-                        parent: category.id,
-                        permissionOverwrites: category.permissionOverwrites.cache,
-                        type: ChannelType.GuildText
-                    });
-                    if (channel) {
-                        allCreatedChannels.push(channel.id);
-                        (client.channels.cache.get(channel.id) as BaseGuildTextChannel).send({
-                            content: data.setlogschannel_confirmation_message
-                                .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
-                                .replace("${interaction.user.id}", interaction.member.user.id!)
-                                .replace("${typeOfLogs}", logType.value)
+                    if (logType.id === 'ticket-log-channel') {
+                        await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel.id);
+                    } else {
+                        await client.db.set(`${interaction.guildId}.GUILD.SERVER_LOGS.${logType.id}`, channel.id);
+                    }
+                }
+                allCreatedChannels.push(channel.id);
+                (client.channels.cache.get(channel.id) as BaseGuildTextChannel).send({
+                    content: data.setlogschannel_confirmation_message
+                        .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+                        .replace("${interaction.user.id}", interaction.member.user.id!)
+                        .replace("${typeOfLogs}", allLogsPossible.map(x => x.value).join(","))
+                });
+            } else {
+                let category = await interaction.guild.channels.create({
+                    name: "LOGS",
+                    type: ChannelType.GuildCategory,
+                    permissionOverwrites: [
+                        {
+                            id: interaction.guild.roles.everyone.id,
+                            deny: [
+                                PermissionFlagsBits.ViewChannel,
+                                PermissionFlagsBits.SendMessages,
+                                PermissionFlagsBits.ReadMessageHistory
+                            ]
+                        }
+                    ]
+                });
+
+                if (category) {
+                    for (let logType of allLogsPossible) {
+                        let channel = await interaction.guild.channels.create({
+                            name: logType.value,
+                            parent: category.id,
+                            permissionOverwrites: category.permissionOverwrites.cache,
+                            type: ChannelType.GuildText
                         });
-                        if (logType.id === 'ticket-log-channel') {
-                            await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel.id);
-                        } else {
-                            await client.db.set(`${interaction.guildId}.GUILD.SERVER_LOGS.${logType.id}`, channel.id);
+                        if (channel) {
+                            allCreatedChannels.push(channel.id);
+                            (client.channels.cache.get(channel.id) as BaseGuildTextChannel).send({
+                                content: data.setlogschannel_confirmation_message
+                                    .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+                                    .replace("${interaction.user.id}", interaction.member.user.id!)
+                                    .replace("${typeOfLogs}", logType.value)
+                            });
+                            if (logType.id === 'ticket-log-channel') {
+                                await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel.id);
+                            } else {
+                                await client.db.set(`${interaction.guildId}.GUILD.SERVER_LOGS.${logType.id}`, channel.id);
+                            }
                         }
                     }
                 }
-
-                await client.args.interactionSend(interaction, {
-                    content: data.setlogschannel_utils_command_work
-                        .replace("${argsid.id}", allCreatedChannels.map(x => `<#${x}>`).join(','))
-                        .replace("${typeOfLogs}", allLogsPossible.map(x => x.value).join(', '))
-                });
             }
+            await client.args.interactionSend(interaction, {
+                content: data.setlogschannel_utils_command_work
+                    .replace("${argsid.id}", allCreatedChannels.map(x => `<#${x}>`).join(','))
+                    .replace("${typeOfLogs}", allLogsPossible.map(x => x.value).join(', '))
+            });
             return;
         }
 

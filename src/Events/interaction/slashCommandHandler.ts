@@ -100,7 +100,7 @@ export const event: BotEvent = {
 
             await command.run(client, interaction, Date.now(), []);
         } catch (e: any) {
-            logger.err(e);
+            console.error(e);
         };
     },
 };

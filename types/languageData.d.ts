@@ -20,6 +20,7 @@
 */
 
 export interface LanguageData {
+  ranksSetMessage_embed_fields_xpmessage: string;
   ranks_ignorechannels_embed_desc: string;
   ranks_ignorechannels_embed_title: string;
   add_disabled_command: string;
@@ -118,6 +119,24 @@ export interface LanguageData {
   ranks_leaderboard_top_txt_raw: string;
   ranks_leaderboard_txt_text: string;
   ranks_leaderboard_txt_raw: string;
+  ranksSetMessage_not_admin: string;
+  ranksSetMessage_help_embed_title: string;
+  ranksSetMessage_help_embed_description: string;
+  ranksSetMessage_help_embed_fields_name: string;
+  ranksSetMessage_logs_embed_title_on_enable: string;
+  ranksSetMessage_logs_embed_description_on_enable: string;
+  ranksSetMessage_command_work_on_enable: string;
+  ranksSetMessage_logs_embed_title_on_disable: string;
+  ranksSetMessage_logs_embed_description_on_disable: string;
+  ranksSetMessage_command_work_on_disable: string;
+  ranksSetMessage_command_work_ls: string;
+  ranksSetMessage_help_embed_fields_custom_name: string;
+  ranksSetMessage_help_embed_fields_custom_name_empy: string;
+  ranksSetMessage_help_embed_fields_default_name_empy: string;
+  ranksSetMessage_help_embed_desc: string;
+  ranksSetMessage_button_set_name: string;
+  ranksSetMessage_buttom_del_name: string;
+  ranksSetMessage_awaiting_response: string;
   owner_not_owner: string;
   owner_already_owner: string;
   owner_is_now_owner: string;
