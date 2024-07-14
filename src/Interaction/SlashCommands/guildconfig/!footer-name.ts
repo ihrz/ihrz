@@ -31,21 +31,32 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let footerName = interaction.options.getString('name')!;
+        let action = interaction.options.getString("action");
+        let footerName = interaction.options.getString('name');
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setup_not_admin });
             return;
         };
 
-        if (footerName.length >= 32) return await interaction.editReply({ content: data.guildconfig_setbot_footername_footer_too_long_msg });
+        if (action === "reset") {
+            await client.db.delete(`${interaction.guildId}.BOT.botName`);
 
-        await client.db.set(`${interaction.guildId}.BOT.botName`, footerName);
+            await interaction.editReply({ content: data.guildconfig_setbot_footername_is_reset });
+            return;
+        } else if (footerName) {
+            if (footerName.length >= 32) return await interaction.editReply({ content: data.guildconfig_setbot_footername_footer_too_long_msg });
 
-        await interaction.editReply({
-            content: data.guildconfig_setbot_footername_is_good
-                .replace("${footerName}", footerName)
-        });
-        return;
+            await client.db.set(`${interaction.guildId}.BOT.botName`, footerName);
+
+            await interaction.editReply({
+                content: data.guildconfig_setbot_footername_is_good
+                    .replace("${footerName}", footerName)
+            });
+            return;
+        } else {
+            await interaction.editReply({ content: data.guildconfig_setbot_footername_not_found });
+            return;
+        }
     },
 };
