@@ -284,9 +284,7 @@ export default {
             };
 
             if (i.customId === 'antispam-manage-save-button') {
-                console.log(baseData)
                 await client.db.set(`${interaction.guildId}.GUILD.ANTISPAM`, baseData);
-
                 await i.deferUpdate();
 
                 collector.stop();

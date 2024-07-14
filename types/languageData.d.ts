@@ -615,7 +615,11 @@ export interface LanguageData {
   guildconfig_setbot_footername_footer_too_long_msg: string;
   guildconfig_setbot_footername_footer_too_long_msg: string;
   guildconfig_setbot_footername_is_good: string;
+  guildconfig_setbot_footername_is_reset: string;
+  guildconfig_setbot_footername_not_found: string;
   guildconfig_setbot_footeravatar_is_good: string;
+  guildconfig_setbot_footeravatar_incorect: string;
+  guildconfig_setbot_footeravatar_is_reset: string;
   guildconfig_setbot_prefix_prefix_now_mention: string;
   guildconfig_setbot_prefix_prefix_specify_prefix: string;
   guildconfig_setbot_prefix_prefix_too_long: string;

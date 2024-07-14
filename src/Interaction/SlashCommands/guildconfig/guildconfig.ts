@@ -232,6 +232,28 @@ export const command: Command = {
 
                     options: [
                         {
+                            name: "action",
+
+                            description: "What do you want to do ?",
+                            description_localizations: {
+                                "fr": "Que voulez-vous faire ?"
+                            },
+
+                            choices: [
+                                {
+                                    name: "Bot Name",
+                                    value: "reset"
+                                },
+                                {
+                                    name: "Set one",
+                                    value: "set"
+                                }
+                            ],
+
+                            type: ApplicationCommandOptionType.String,
+                            required: true
+                        },
+                        {
                             name: "name",
 
                             description: "The footer name",
@@ -240,7 +262,7 @@ export const command: Command = {
                             },
 
                             type: ApplicationCommandOptionType.String,
-                            required: true
+                            required: false
                         }
                     ],
 
@@ -256,6 +278,28 @@ export const command: Command = {
 
                     options: [
                         {
+                            name: "action",
+
+                            description: "What do you want to do ?",
+                            description_localizations: {
+                                "fr": "Que voulez-vous faire ?"
+                            },
+
+                            choices: [
+                                {
+                                    name: "Bot Avatar",
+                                    value: "reset"
+                                },
+                                {
+                                    name: "Set one",
+                                    value: "set"
+                                }
+                            ],
+
+                            type: ApplicationCommandOptionType.String,
+                            required: true
+                        },
+                        {
                             name: "avatar",
 
                             description: "The avatar",
@@ -264,7 +308,7 @@ export const command: Command = {
                             },
 
                             type: ApplicationCommandOptionType.Attachment,
-                            required: true
+                            required: false
                         }
                     ],
 
