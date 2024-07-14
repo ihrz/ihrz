@@ -45,9 +45,15 @@ export default {
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getMember("member") as GuildMember | null
+            var reason = interaction.options.getString("reason")
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var member = client.args.member(interaction, 0) as GuildMember | null;
+            var reason = client.args.longString(args!, 1);
+        };
+
+        if (!reason) {
+            reason = data.guildprofil_not_set_punishPub
         };
 
         const permissionsArray = [PermissionsBitField.Flags.BanMembers]
@@ -105,7 +111,7 @@ export default {
             .catch(() => {
             })
             .then(() => {
-                member?.ban({ reason: 'banned by ' + (interaction.member?.user as User).globalName || interaction.member?.user.username })
+                member?.ban({ reason: `Banned by: ${(interaction.member?.user as User).globalName || interaction.member?.user.username} | Reason: ${reason}` })
                     .then(async (member) => {
                         client.args.interactionSend(interaction, {
                             content: data.ban_command_work

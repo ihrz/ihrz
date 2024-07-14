@@ -85,6 +85,17 @@ export const command: Command = {
                     },
 
                     required: true
+                },
+                {
+                    name: 'reason',
+                    type: ApplicationCommandOptionType.String,
+
+                    description: 'the reason of the bannisement',
+                    description_localizations: {
+                        "fr": "la raison du ban"
+                    },
+
+                    required: false
                 }
             ],
         },
@@ -131,6 +142,17 @@ export const command: Command = {
                     },
 
                     required: true
+                },
+                {
+                    name: 'reason',
+                    type: ApplicationCommandOptionType.String,
+
+                    description: 'the reason of the kick',
+                    description_localizations: {
+                        "fr": "la raison du kick"
+                    },
+
+                    required: false
                 }
             ],
         },

@@ -57,9 +57,15 @@ export default {
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getMember("member") as GuildMember | null;
+            var reason = interaction.options.getString("reason")
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var member = client.args.member(interaction, 0) as GuildMember | null;
+            var reason = client.args.longString(args!, 1);
+        };
+
+        if (!reason) {
+            reason = data.guildprofil_not_set_punishPub
         };
 
         if (!member) return;
@@ -92,7 +98,7 @@ export default {
         }).catch(() => { });
 
         try {
-            await member.kick(`Kicked by ${member.user.globalName || interaction.member.user.username}`);
+            await member.kick(`Kicked by: ${member.user.globalName || interaction.member.user.username} | Reason: ${reason}`);
             let logEmbed = new EmbedBuilder()
                 .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                 .setTitle(data.kick_logs_embed_title)
