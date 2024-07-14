@@ -822,6 +822,7 @@ guildconfig_setbot_footername_is_good: "正常に変更されました。すべ�
 
 # /guildconfig set-bot footer-pfp
 guildconfig_setbot_footeravatar_is_good: "正常に変更されました。iHorizonのすべての埋め込みはフッターとして`image`を使用します！"
+guildconfig_setbot_footeravatar_incorect: "ファイルが画像ではありません。画像を使ってもう一度お試しください。"
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "コマンドのボットプレフィックスは今メンションです！ `@Ping-Me`"

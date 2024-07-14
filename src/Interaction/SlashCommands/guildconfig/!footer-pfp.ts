@@ -38,9 +38,14 @@ export default {
             return;
         };
 
-        await client.db.set(`${interaction.guildId}.BOT.botPFP`, footerAvatar.url);
+        if (footerAvatar.contentType?.startsWith("image")) {
+            await client.db.set(`${interaction.guildId}.BOT.botPFP`, footerAvatar.url);
 
-        await interaction.editReply({ content: data.guildconfig_setbot_footeravatar_is_good });
-        return;
+            await interaction.editReply({ content: data.guildconfig_setbot_footeravatar_is_good });
+            return;
+        } else {
+            await interaction.editReply({ content: data.guildconfig_setbot_footeravatar_incorect });
+            return;
+        }
     },
 };

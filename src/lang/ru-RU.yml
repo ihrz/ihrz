@@ -822,6 +822,7 @@ guildconfig_setbot_footername_is_good: "Успешно изменено, все 
 
 # /guildconfig set-bot footer-pfp
 guildconfig_setbot_footeravatar_is_good: "Успешно изменено, все вставки iHorizon будут использовать `image` в качестве нижнего колонтитула!"
+guildconfig_setbot_footeravatar_incorect: "Файл не соответствует изображению. Пожалуйста, попробуйте снова с изображением."
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "Префикс бота для команд теперь упоминание! `@Ping-Me`"

@@ -822,6 +822,7 @@ guildconfig_setbot_footername_is_good: "Erfolgreich geändert, alle iHorizon-Ein
 
 # /guildconfig set-bot footer-pfp
 guildconfig_setbot_footeravatar_is_good: "Erfolgreich geändert, alle Einbettungen von iHorizon verwenden `image` als Fußzeile!"
+guildconfig_setbot_footeravatar_incorect: "Die Datei entspricht keinem Bild. Bitte versuchen Sie es erneut mit einem Bild."
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "Das Bot-Präfix für Befehle ist jetzt Erwähnung! `@Ping-Me`"
