@@ -124,7 +124,6 @@ async function sendWarningMessage(
 }
 
 async function clearSpamMessages(guildId: string, messages: Set<AntiSpam.CachedMessage>, client: Client): Promise<void> {
-    console.log("avant del", messages.size)
     try {
         const CHUNK_SIZE = 50;
         const messagesByChannel: Collection<Snowflake, Collection<string, Snowflake>> = new Collection();
@@ -152,8 +151,6 @@ async function clearSpamMessages(guildId: string, messages: Set<AntiSpam.CachedM
                                 cache.spamMessagesToClear.get(guildId)?.delete(message);
                             });
                         });
-
-                        console.log("après del", messages.size)
                     } catch {
                     }
                 }
