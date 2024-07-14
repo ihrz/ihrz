@@ -819,10 +819,13 @@ too_new_account_command_work_on_disable: "${interaction.user}, the module has be
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "The bot footer is too long, it will be too ugly to display."
 guildconfig_setbot_footername_is_good: "Succefully changed, all iHorizon embed will use `${footerName}` as footer!"
+guildconfig_setbot_footername_is_reset: "The footer name have been deleted. Now all iHorizon embed will use the `name of the bot`."
+guildconfig_setbot_footername_not_found: "The footer name is not found. Please try again!"
 
 # /guildconfig set-bot footer-pfp
 guildconfig_setbot_footeravatar_is_good: "Successfully changed, all embeds from iHorizon will use `image` as the footer!"
 guildconfig_setbot_footeravatar_incorect: "The file does not correspond to an image. Please try again with an image."
+guildconfig_setbot_footeravatar_is_reset: "The footer avatar have been deleted. Now all iHorizon embed will use the `avatar of the bot`."
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "The bot prefix for Message's command is now mention! `@Ping-Me`"

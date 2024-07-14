@@ -819,10 +819,13 @@ too_new_account_command_work_on_disable: "${interaction.user}, o módulo foi des
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "O rodapé do bot é muito longo, será muito feio para exibir."
 guildconfig_setbot_footername_is_good: "Alterado com sucesso, todos os embeds do iHorizon usarão `${footerName}` como rodapé!"
+guildconfig_setbot_footername_is_reset: "O nome do rodapé foi excluído. Agora todas as incorporações do iHorizon usarão o `nome do bot`."
+guildconfig_setbot_footername_not_found: "O nome do rodapé não foi encontrado. Por favor, tente novamente!"
 
 # /guildconfig set-bot footer-pfp
 guildconfig_setbot_footeravatar_is_good: "Alterado com sucesso, todos os embeds do iHorizon usarão `image` como rodapé!"
 guildconfig_setbot_footeravatar_incorect: "O arquivo não corresponde a uma imagem. Por favor, tente novamente com uma imagem."
+guildconfig_setbot_footeravatar_is_reset: "O avatar do rodapé foi excluído. Agora todas as incorporações do iHorizon usarão o `avatar do bot`."
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "O prefixo do bot para comandos agora é menção! `@Ping-Me`"

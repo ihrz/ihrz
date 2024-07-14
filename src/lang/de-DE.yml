@@ -819,10 +819,13 @@ too_new_account_command_work_on_disable: "${interaction.user}, das Modul wurde e
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "Der Bot-Fußzeile ist zu lang, es wird zu hässlich, um angezeigt zu werden."
 guildconfig_setbot_footername_is_good: "Erfolgreich geändert, alle iHorizon-Einbettungen werden `${footerName}` als Fußzeile verwenden!"
+guildconfig_setbot_footername_is_reset: "Der Fußzeilentext wurde gelöscht. Jetzt verwenden alle iHorizon-Einbettungen den `Namen des Bots`."
+guildconfig_setbot_footername_not_found: "Der Fußzeilentext wurde nicht gefunden. Bitte versuchen Sie es erneut!"
 
 # /guildconfig set-bot footer-pfp
 guildconfig_setbot_footeravatar_is_good: "Erfolgreich geändert, alle Einbettungen von iHorizon verwenden `image` als Fußzeile!"
 guildconfig_setbot_footeravatar_incorect: "Die Datei entspricht keinem Bild. Bitte versuchen Sie es erneut mit einem Bild."
+guildconfig_setbot_footeravatar_is_reset: "Das Fußzeilenbild wurde gelöscht. Jetzt verwenden alle iHorizon-Einbettungen den `Avatar des Bots`."
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "Das Bot-Präfix für Befehle ist jetzt Erwähnung! `@Ping-Me`"

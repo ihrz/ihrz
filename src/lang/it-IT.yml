@@ -819,10 +819,13 @@ too_new_account_command_work_on_disable: "${interaction.user}, il modulo è stat
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "Il piè di pagina del bot è troppo lungo, sarà troppo brutto da visualizzare."
 guildconfig_setbot_footername_is_good: "Modificato con successo, tutti gli embed di iHorizon useranno `${footerName}` come piè di pagina!"
+guildconfig_setbot_footername_is_reset: "Il nome del piè di pagina è stato eliminato. Ora tutti gli embed di iHorizon utilizzeranno il `nome del bot`."
+guildconfig_setbot_footername_not_found: "Il nome del piè di pagina non è stato trovato. Per favore, riprova!"
 
 # /guildconfig set-bot footer-pfp
 guildconfig_setbot_footeravatar_is_good: "Modificato con successo, tutti gli embed di iHorizon useranno `image` come piè di pagina!"
 guildconfig_setbot_footeravatar_incorect: "Il file non corrisponde a un'immagine. Per favore, riprova con un'immagine."
+guildconfig_setbot_footeravatar_is_reset: "L'avatar del piè di pagina è stato eliminato. Ora tutti gli embed di iHorizon utilizzeranno l'`avatar del bot`."
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "Il prefisso del bot per i comandi ora è menzione! `@Ping-Me`"
