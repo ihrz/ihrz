@@ -36,23 +36,19 @@ export namespace AntiSpam {
         raidInfo: Map<string, Map<string, { value: number | boolean }>>;
         messages: Map<string, Set<CachedMessage>>;
         membersToPunish: Map<string, Set<GuildMember>>;
-        membersFlags: Map<string, Map<string, { value: number }>>;
         spamMessagesToClear: Map<string, Set<CachedMessage>>;
+        membersFlags: Map<string, Map<string, { value: number }>>;
     }
 
     export interface AntiSpamOptions {
         BYPASS_ROLES?: string[];
         BYPASS_CHANNELS?: string[];
         ignoreBots: boolean;
-        maxDuplicatesInterval: number;
         maxInterval: number;
         Enabled: boolean;
         Threshold: number;
-        maxDuplicates: number;
         removeMessages: boolean;
         punishment_type: 'mute' | 'kick' | 'ban';
         punishTime: number;
-        similarMessageThreshold: number;
-        punishTimeMultiplier: boolean;
     }
 }

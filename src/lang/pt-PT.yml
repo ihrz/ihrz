@@ -136,6 +136,27 @@ ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Nível: ${a.level
 ranks_ignorechannels_embed_title: "Configurações do Módulo de Classificações"
 ranks_ignorechannels_embed_desc: "Quando novas mensagens são enviadas em um desses canais, o Módulo de Classificações as ignora."
 
+# /ranks set-message
+ranksSetMessage_not_admin: ":x: | Você deve ser um administrador deste servidor para solicitar este comando!"
+ranksSetMessage_help_embed_title: "/ranks set-message Ajuda!"
+ranksSetMessage_help_embed_description: "/ranks set-message"
+ranksSetMessage_help_embed_fields_name: "Como usar?"
+ranksSetMessage_logs_embed_title_on_enable: "Logs de RanksSetMessage"
+ranksSetMessage_logs_embed_description_on_enable: "<@${interaction.user.id}> definiu a mensagem de ranks!"
+ranksSetMessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo} | Mensagem de ranks definida com sucesso."
+ranksSetMessage_logs_embed_title_on_disable: "Logs de RanksSetMessage"
+ranksSetMessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deletou a mensagem de ranks!"
+ranksSetMessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Mensagem de ranks personalizada deletada com sucesso."
+ranksSetMessage_command_work_ls: "A mensagem de ranks é:"
+ranksSetMessage_help_embed_fields_custom_name: "Mensagem personalizada"
+ranksSetMessage_help_embed_fields_custom_name_empy: "Não definida!"
+ranksSetMessage_help_embed_fields_default_name_empy: "Mensagem padrão"
+ranksSetMessage_help_embed_desc: "{memberUsername} => O nome de usuário do membro\n{memberMention} => Mencionar o membro\n{memberCount} => Contagem de membros da guilda\n{guildName} => O nome da guilda\n{createdAt} => Criação da conta em dd/mm/yyyy\n{xpLevel} => O nível de XP do usuário"
+ranksSetMessage_button_set_name: "Definir mensagem"
+ranksSetMessage_buttom_del_name: "Mensagem padrão"
+ranksSetMessage_awaiting_response: "Escreva a nova mensagem de ranks personalizada."
+ranksSetMessage_embed_fields_xpmessage: "Mensagem de ranks"
+
 
 # Comandos do Proprietário
 # /owner, /unowner, /blacklist, /unblacklist

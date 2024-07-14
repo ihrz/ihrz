@@ -34,6 +34,7 @@ export const event: BotEvent = {
             PermissionsBitField.Flags.ViewAuditLog,
             PermissionsBitField.Flags.ManageGuild
         ])) return;
+
         let fetchedLogs = await ban.guild.fetchAuditLogs({
             type: AuditLogEvent.MemberBanAdd,
             limit: 1,

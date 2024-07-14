@@ -185,6 +185,18 @@ export const command: Command = {
 
             type: ApplicationCommandOptionType.Subcommand,
         },
+        {
+            name: "set-message",
+
+            description: "Set a custom message when user earn level",
+            description_localizations: {
+                "fr": "Définir un message personalisé quand un membre gagne un niveaus"
+            },
+
+            aliases: ["msg"],
+
+            type: ApplicationCommandOptionType.Subcommand,
+        },
     ],
     thinking: false,
     category: 'ranks',

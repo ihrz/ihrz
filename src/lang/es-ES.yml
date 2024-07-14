@@ -136,6 +136,27 @@ ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Nivel: ${a.level 
 ranks_ignorechannels_embed_title: "Configuraciones del Módulo de Rangos"
 ranks_ignorechannels_embed_desc: "Cuando se envían nuevos mensajes en uno de estos canales, el Módulo de Rangos los ignora."
 
+# /ranks set-message
+ranksSetMessage_not_admin: ":x: | ¡Debes ser administrador de este servidor para solicitar este comando!"
+ranksSetMessage_help_embed_title: "/ranks set-message ¡Ayuda!"
+ranksSetMessage_help_embed_description: "/ranks set-message"
+ranksSetMessage_help_embed_fields_name: "¿Cómo usar?"
+ranksSetMessage_logs_embed_title_on_enable: "Registros de RanksSetMessage"
+ranksSetMessage_logs_embed_description_on_enable: "<@${interaction.user.id}> configuró el mensaje de rangos!"
+ranksSetMessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo} | Mensaje de rangos configurado con éxito."
+ranksSetMessage_logs_embed_title_on_disable: "Registros de RanksSetMessage"
+ranksSetMessage_logs_embed_description_on_disable: "<@${interaction.user.id}> eliminó el mensaje de rangos!"
+ranksSetMessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Mensaje de rangos personalizado eliminado con éxito."
+ranksSetMessage_command_work_ls: "El mensaje de rangos es:"
+ranksSetMessage_help_embed_fields_custom_name: "Mensaje personalizado"
+ranksSetMessage_help_embed_fields_custom_name_empy: "¡No establecido!"
+ranksSetMessage_help_embed_fields_default_name_empy: "Mensaje predeterminado"
+ranksSetMessage_help_embed_desc: "{memberUsername} => El nombre de usuario del miembro\n{memberMention} => Mencionar al miembro\n{memberCount} => Cantidad de miembros de la guild\n{guildName} => El nombre de la guild\n{createdAt} => Creación de cuenta en dd/mm/yyyy\n{xpLevel} => El nivel de XP del usuario"
+ranksSetMessage_button_set_name: "Establecer mensaje"
+ranksSetMessage_buttom_del_name: "Mensaje predeterminado"
+ranksSetMessage_awaiting_response: "Escriba el nuevo mensaje de rangos personalizado."
+ranksSetMessage_embed_fields_xpmessage: "Mensaje de rangos"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist

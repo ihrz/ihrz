@@ -25,6 +25,8 @@ import {
     EmbedBuilder,
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
+import { rules } from './authorization.js';
+
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing
@@ -38,7 +40,26 @@ export default {
         let rule = interaction.options.getString('rule') as string;
         let allow = interaction.options.getString('allow') as string;
 
-        if (rule !== 'cls' && allow) {
+        if (rule === "all" && allow) {
+            let allRules = Object.entries(rules).map(([key, value]) => (value.value));
+            allRules.shift(); // Remove cls
+            allRules.shift(); // Remove all
+
+            for (let rule of allRules) {
+                await client.db.set(`${interaction.guild.id}.PROTECTION.${rule}`, { mode: allow });
+            }
+
+            if (allow === 'member') allow = data.authorization_actions_everyone;
+            if (allow === 'allowlist') allow = data.authorization_actions_allowlist;
+
+            await interaction.editReply({
+                content: data.authorization_actions_rule_set
+                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${rule.toUpperCase()}', allRules.join(","))
+                    .replace('${allow}', allow)
+            });
+            return;
+        } else if (rule !== 'cls' && allow) {
             await client.db.set(`${interaction.guild.id}.PROTECTION.${rule}`, { mode: allow });
 
             if (allow === 'member') allow = data.authorization_actions_everyone;
@@ -61,5 +82,7 @@ export default {
             });
             return;
         };
+
+        return interaction.editReply({ content: data.close_error_command });
     },
 };
