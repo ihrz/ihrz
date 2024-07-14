@@ -31,16 +31,27 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let footerAvatar = interaction.options.getAttachment("avatar")!;
+        let action = interaction.options.getString("action");
+        let footerAvatar = interaction.options.getAttachment("avatar");
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setup_not_admin });
             return;
         };
 
-        await client.db.set(`${interaction.guildId}.BOT.botPFP`, footerAvatar.url);
+        if (action === "reset") {
+            await client.db.delete(`${interaction.guildId}.BOT.botPFP`);
+            await interaction.editReply({ content: data.guildconfig_setbot_footeravatar_is_reset });
+            return;
+        } else if (footerAvatar && footerAvatar.contentType?.startsWith("image")) {
 
-        await interaction.editReply({ content: data.guildconfig_setbot_footeravatar_is_good });
-        return;
+            await client.db.set(`${interaction.guildId}.BOT.botPFP`, footerAvatar.url);
+
+            await interaction.editReply({ content: data.guildconfig_setbot_footeravatar_is_good });
+            return;
+        } else {
+            await interaction.editReply({ content: data.guildconfig_setbot_footeravatar_incorect });
+            return;
+        }
     },
 };

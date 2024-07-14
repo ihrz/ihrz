@@ -1462,7 +1462,7 @@ event_goodbye_inviter: "{memberUsername} (аккаунт створено {creat
 event_goodbye_default: "{memberUsername} (аккаунт створено {createdAt}) покинув сервер. Тепер нас {memberCount} у {guildName}"
 
 # События уровня XP
-event_xp_level_earn: "**Новий рівень**, <@${message.author.id}>, ви отримали новий рівень, ваш поточний рівень: **${newLevel}**"
+event_xp_level_earn: "**Новий рівень**, {memberMention}, ви отримали новий рівень, ваш поточний рівень: **{xpLevel}**"
 
 # События модуля билетов:
 event_ticket_embed_description: "Привіт, ${user.username}, ласкаво просимо до вашого тікета"

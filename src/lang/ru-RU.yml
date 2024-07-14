@@ -819,9 +819,13 @@ too_new_account_command_work_on_disable: "${interaction.user}, модуль ус
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "Нижний колонтитул бота слишком длинный, его будет слишком некрасиво отображать."
 guildconfig_setbot_footername_is_good: "Успешно изменено, все встраивания iHorizon будут использовать `${footerName}` как нижний колонтитул!"
+guildconfig_setbot_footername_is_reset: "Название нижнего колонтитула было удалено. Теперь все встраивания iHorizon будут использовать `имя бота`."
+guildconfig_setbot_footername_not_found: "Название нижнего колонтитула не найдено. Пожалуйста, попробуйте снова!"
 
 # /guildconfig set-bot footer-pfp
 guildconfig_setbot_footeravatar_is_good: "Успешно изменено, все вставки iHorizon будут использовать `image` в качестве нижнего колонтитула!"
+guildconfig_setbot_footeravatar_incorect: "Файл не соответствует изображению. Пожалуйста, попробуйте снова с изображением."
+guildconfig_setbot_footeravatar_is_reset: "Аватар нижнего колонтитула был удален. Теперь все встраивания iHorizon будут использовать `аватар бота`."
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "Префикс бота для команд теперь упоминание! `@Ping-Me`"
@@ -1527,7 +1531,7 @@ event_goodbye_inviter: "{memberUsername} (аккаунт создан {createdAt
 event_goodbye_default: "{memberUsername} (аккаунт создан {createdAt}) покинул сервер. Теперь нас {memberCount} в {guildName}"
 
 # События уровня XP
-event_xp_level_earn: "**GG**, <@${message.author.id}>, вы получили +1 уровень, ваш текущий уровень: **${newLevel}**"
+event_xp_level_earn: "**GG**, {memberMention}, вы получили +1 уровень, ваш текущий уровень: **{xpLevel}**"
 
 # События модуля билетов:
 event_ticket_embed_description: "Привет, ${user.username}, добро пожаловать в ваш бил"

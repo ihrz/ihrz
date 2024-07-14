@@ -819,9 +819,13 @@ too_new_account_command_work_on_disable: "${interaction.user}, das Modul wurde e
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "Der Bot-Fußzeile ist zu lang, es wird zu hässlich, um angezeigt zu werden."
 guildconfig_setbot_footername_is_good: "Erfolgreich geändert, alle iHorizon-Einbettungen werden `${footerName}` als Fußzeile verwenden!"
+guildconfig_setbot_footername_is_reset: "Der Fußzeilentext wurde gelöscht. Jetzt verwenden alle iHorizon-Einbettungen den `Namen des Bots`."
+guildconfig_setbot_footername_not_found: "Der Fußzeilentext wurde nicht gefunden. Bitte versuchen Sie es erneut!"
 
 # /guildconfig set-bot footer-pfp
 guildconfig_setbot_footeravatar_is_good: "Erfolgreich geändert, alle Einbettungen von iHorizon verwenden `image` als Fußzeile!"
+guildconfig_setbot_footeravatar_incorect: "Die Datei entspricht keinem Bild. Bitte versuchen Sie es erneut mit einem Bild."
+guildconfig_setbot_footeravatar_is_reset: "Das Fußzeilenbild wurde gelöscht. Jetzt verwenden alle iHorizon-Einbettungen den `Avatar des Bots`."
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "Das Bot-Präfix für Befehle ist jetzt Erwähnung! `@Ping-Me`"
@@ -1527,7 +1531,7 @@ event_goodbye_inviter: "{memberUsername} (Konto erstellt am {createdAt}) hat den
 event_goodbye_default: "{memberUsername} (Konto erstellt am {createdAt}) hat den Server verlassen. Wir sind jetzt {memberCount} in {guildName}"
 
 # XP Level Events
-event_xp_level_earn: "**GG**, <@${message.author.id}> du hast +1 für dein XP-Level erhalten (Level: **${newLevel}**)"
+event_xp_level_earn: "**GG**, {memberMention} du hast +1 für dein XP-Level erhalten (Level: **{xpLevel}**)"
 
 # Ticket Module Events:
 event_ticket_embed_description: "Hallo ${user.username}, willkommen in deinem Ticket! Bitte hab etwas Geduld, wir werden bald bei dir sein. Wenn du das Ticket schließen möchtest, gib bitte `/ticket close` ein."

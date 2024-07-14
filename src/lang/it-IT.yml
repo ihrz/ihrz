@@ -819,9 +819,13 @@ too_new_account_command_work_on_disable: "${interaction.user}, il modulo è stat
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "Il piè di pagina del bot è troppo lungo, sarà troppo brutto da visualizzare."
 guildconfig_setbot_footername_is_good: "Modificato con successo, tutti gli embed di iHorizon useranno `${footerName}` come piè di pagina!"
+guildconfig_setbot_footername_is_reset: "Il nome del piè di pagina è stato eliminato. Ora tutti gli embed di iHorizon utilizzeranno il `nome del bot`."
+guildconfig_setbot_footername_not_found: "Il nome del piè di pagina non è stato trovato. Per favore, riprova!"
 
 # /guildconfig set-bot footer-pfp
 guildconfig_setbot_footeravatar_is_good: "Modificato con successo, tutti gli embed di iHorizon useranno `image` come piè di pagina!"
+guildconfig_setbot_footeravatar_incorect: "Il file non corrisponde a un'immagine. Per favore, riprova con un'immagine."
+guildconfig_setbot_footeravatar_is_reset: "L'avatar del piè di pagina è stato eliminato. Ora tutti gli embed di iHorizon utilizzeranno l'`avatar del bot`."
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "Il prefisso del bot per i comandi ora è menzione! `@Ping-Me`"
@@ -1527,7 +1531,7 @@ event_goodbye_inviter: "{memberUsername} (account creato il {createdAt}) lascia 
 event_goodbye_default: "{memberUsername} (account creato il {createdAt}) lascia la gilda. Siamo ora {memberCount} in {guildName}"
 
 # XP Level Events
-event_xp_level_earn: "**GG**, <@${message.author.id}> sei salito di livello (Livello: **${newLevel}**)"
+event_xp_level_earn: "**GG**, {memberMention} sei salito di livello (Livello: **{xpLevel}**)"
 
 # Ticket Module Events:
 event_ticket_embed_description: "Ciao ${user.username}, benvenuto al tuo ticket! Sii paziente, saremo con te al più presto. Se vuoi chiudere questo ticket, esegui `/ticket close`."
