@@ -29,6 +29,54 @@ import {
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
 
+
+export const rules = [
+    {
+        placeholder: "Delete All Settings",
+        value: "cls"
+    },
+    {
+        placeholder: "Select All Rules",
+        value: "all"
+    },
+    {
+        placeholder: "Create Webhook",
+        value: "webhook"
+    },
+    {
+        placeholder: "Create Channel",
+        value: "createchannel",
+    },
+    {
+        placeholder: "Delete Channel",
+        value: "deletechannel",
+    },
+    {
+        placeholder: "Create Role",
+        value: "createrole",
+    },
+    {
+        placeholder: "Delete Role",
+        value: "deleterole",
+    },
+    {
+        placeholder: "Update Role",
+        value: "updaterole",
+    },
+    {
+        placeholder: "Ban Members",
+        value: "banmembers",
+    },
+    {
+        placeholder: "Kick Members",
+        value: "kickmember",
+    },
+    {
+        placeholder: "Unban Members",
+        value: "unbanmembers",
+    },
+] as const
+
 export const command: Command = {
     name: "authorization",
 
@@ -58,48 +106,10 @@ export const command: Command = {
                     },
 
                     required: true,
-                    choices: [
-                        {
-                            name: "Delete All Settings",
-                            value: "cls"
-                        },
-                        {
-                            name: "Create Webhook",
-                            value: "webhook"
-                        },
-                        {
-                            name: "Create Channel",
-                            value: "createchannel",
-                        },
-                        {
-                            name: "Delete Channel",
-                            value: "deletechannel",
-                        },
-                        {
-                            name: "Create Role",
-                            value: "createrole",
-                        },
-                        {
-                            name: "Delete Role",
-                            value: "deleterole",
-                        },
-                        {
-                            name: "Update Role",
-                            value: "updaterole",
-                        },
-                        {
-                            name: "Ban Members",
-                            value: "banmembers",
-                        },
-                        {
-                            name: "Kick Members",
-                            value: "kickmember",
-                        },
-                        {
-                            name: "Unban Members",
-                            value: "unbanmembers",
-                        }
-                    ]
+                    choices: Object.entries(rules).map(([key, value]) => ({
+                        name: value.placeholder,
+                        value: value.value,
+                    })),
                 },
                 {
                     name: 'allow',
