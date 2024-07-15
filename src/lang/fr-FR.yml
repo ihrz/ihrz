@@ -589,6 +589,13 @@ vc_embed_short_desc: "## États des Vocaux\n`${voiceStates?.size}` membre(s) son
 massmove_results: "${interaction.user}, iHorizon a déplacé des membres entre les canaux vocaux.\n\n**${movedCount}** membre(s) ont été déplacé(s) avec succès de ${fromChannel} à ${toChannel}.\n**${errorCount}** membre(s) n'ont pas pu être déplacé(s) (voir les logs du serveur pour plus de détails)."
 massmove_too_much_member: "Trop de membres, je ne peux pas le faire en raison d'une éventuelle limitation de débit !"
 
+# /all-admins
+all_admins_nobody_admins: "Il n'y a aucun administrateur dans ce serveur !"
+all_admins_embed_title: "Liste de tous les administrateurs | Page ${i / usersPerPage + 1}"
+all_admins_unrank_button_label: "Déclasser tous"
+all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}, iHorizon a exécuté la déclassification de tous pour le module AllAdmins.\n\n**${good}** Utilisateur(s) __déclassés__ avec succès\niHorizon a __échoué__ à déclasser **${bad}** Utilisateur(s)."
+all_admins_unrank_not_owner: "Seul le propriétaire du serveur peut déclasser tous les administrateurs du serveur"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

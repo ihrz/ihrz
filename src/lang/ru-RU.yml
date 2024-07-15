@@ -589,6 +589,13 @@ vc_embed_short_desc: "## Голосовые Состояния\n`${voiceStates?.
 massmove_results: "${interaction.user}, iHorizon переместил участников между голосовыми каналами.\n\n**${movedCount}** участник(ов) были успешно перемещены из ${fromChannel} в ${toChannel}.\n**${errorCount}** участник(ов) не удалось переместить (подробнее см. в журналах сервера)."
 massmove_too_much_member: "Слишком много участников, не могу сделать это из-за возможного ограничения скорости!"
 
+# /all-admins
+all_admins_nobody_admins: "В этом сервере нет администраторов!"
+all_admins_embed_title: "Список всех администраторов | Страница ${i / usersPerPage + 1}"
+all_admins_unrank_button_label: "Разжаловать всех"
+all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}, iHorizon выполнил разжалование всех для модуля AllAdmins.\n\n**${good}** Пользователь(и) __успешно__ разжалованы\niHorizon __не смог__ разжаловать **${bad}** Пользователь(и)."
+all_admins_unrank_not_owner: "Только владелец сервера может разжаловать всех администраторов сервера"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

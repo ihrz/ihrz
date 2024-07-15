@@ -589,6 +589,13 @@ vc_embed_short_desc: "## Voice States\n`${voiceStates?.size}` member(s) is in vo
 massmove_results: "${interaction.user}, iHorizon has moved members between voice channels.\n\n**${movedCount}** member(s) were successfully moved from ${fromChannel} to ${toChannel}.\n**${errorCount}** member(s) could not be moved (see the server logs for details)."
 massmove_too_much_member: "Too many members, can't do it due to possible rate limiting!"
 
+# /all-admins
+all_admins_nobody_admins: "There is no administrator in this guild!"
+all_admins_embed_title: "List of all administrator users | Page ${i / usersPerPage + 1}"
+all_admins_unrank_button_label: "Unrank all"
+all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}, iHorizon has executed the unrank-all for the AllAdmins module.\n\n**${good}** User(s) __unranked__ successfully\niHorizon __failed__ to unrank **${bad}** User(s)."
+all_admins_unrank_not_owner: "Only the owner of the guild can unrank all administrator of the server"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

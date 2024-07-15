@@ -589,6 +589,13 @@ vc_embed_short_desc: "## Sprachkanäle\n`${voiceStates?.size}` Mitglied(er) sind
 massmove_results: "${interaction.user}, iHorizon hat Mitglieder zwischen Sprachkanälen verschoben.\n\n**${movedCount}** Mitglied(er) wurden erfolgreich von ${fromChannel} nach ${toChannel} verschoben.\n**${errorCount}** Mitglied(er) konnten nicht verschoben werden (siehe Serverprotokolle für Details)."
 massmove_too_much_member: "Zu viele Mitglieder, kann es aufgrund möglicher Ratenbegrenzung nicht tun!"
 
+# /all-admins
+all_admins_nobody_admins: "Es gibt keinen Administrator in diesem Server!"
+all_admins_embed_title: "Liste aller Administratoren | Seite ${i / usersPerPage + 1}"
+all_admins_unrank_button_label: "Alle entlassen"
+all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}, iHorizon hat das Entlassen aller für das AllAdmins Modul ausgeführt.\n\n**${good}** Benutzer wurden __erfolgreich__ entlassen\niHorizon konnte **${bad}** Benutzer __nicht__ entlassen."
+all_admins_unrank_not_owner: "Nur der Besitzer des Servers kann alle Administratoren des Servers entlassen"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
