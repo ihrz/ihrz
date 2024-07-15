@@ -684,7 +684,7 @@ setjoindm_not_admin: ":x: | You must be an administrator of this server to reque
 setjoindm_logs_embed_title_on_enable: "Set JoinDm Logs"
 setjoindm_logs_embed_description_on_enable: "<@${interaction.user.id}> set the join dm message !"
 setjoindm_not_specified_args_on_enable: "You must specify a valid message for you join dm."
-setjoindm_confirmation_message_on_enable: "You have successfully set the join dm to :```${dm_msg}``` And enable it "
+setjoindm_confirmation_message_on_enable: "You have successfully set the join dm to :```${dm_msg}``` And enabled it "
 setjoindm_command_error_on_enable: "Error: missing permissions or channel doesn't exist"
 setjoindm_logs_embed_title_on_disable: "Set JoinDm Logs"
 setjoindm_logs_embed_description_on_disable: "<@${interaction.user.id}> disable the join dm message !"

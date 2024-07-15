@@ -44,7 +44,7 @@ export default {
         };
 
         let joinDm = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`) as string | undefined;
-        joinDm = joinDm?.substring(0, 2000);
+        joinDm = joinDm?.substring(0, 1010);
 
         let help_embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
@@ -100,7 +100,7 @@ export default {
                 });
 
                 questionReply?.on('collect', async collected => {
-                    let response = collected.content.substring(0, 2000);
+                    let response = collected.content.substring(0, 1010);
 
                     try {
                         let logEmbed = new EmbedBuilder()
