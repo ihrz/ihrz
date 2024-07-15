@@ -92,7 +92,7 @@ Used by more than 540 servers!
 Certified by Discord and had even more than 75 servers before starting the verification process!
 
 To join the Official Discord Support Server, please visit our website at [Official Server Link](http://discord.ihorizon.me/) or click on this link: [Other Link](https://discord.gg/ZpBPGNsAsu).
-To invite the official Discord bot, please click on this link: [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot).
+To invite the official Discord bot to your server, please click on this link: [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot).
 
 If you have any questions or concerns, you can contact the owner via Discord at 2h0.
 
