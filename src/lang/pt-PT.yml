@@ -583,6 +583,7 @@ vc_embed_fields_1_name: "・Contagem de Membros"
 vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} membros```"
 vc_embed_fields_2_name: "・Contagem de Canais"
 vc_embed_fields_2_value: "```py\n${textChannelSize} canal(is) de texto\n${voiceChannelSize} canal(is) de voz```"
+vc_embed_short_desc: "## Estados de Voz\n`${voiceStates?.size}` membro(s) está no canal de voz:\n${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${total_members_vc_video}\n## Estados dos Membros\n`${total_members_size}` membro(s) estão na guilda:\n${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${total_members_states_idle}"
 
 # /massmove
 massmove_results: "${interaction.user}, iHorizon moveu membros entre canais de voz.\n\n**${movedCount}** membro(s) foram movidos com sucesso de ${fromChannel} para ${toChannel}.\n**${errorCount}** membro(s) não puderam ser movidos (consulte os logs do servidor para mais detalhes)."

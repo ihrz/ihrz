@@ -31,6 +31,7 @@ import {
     InteractionEditReplyOptions,
     MessagePayload,
     MessageReplyOptions,
+    ApplicationCommandOptionType,
 } from 'pwss';
 
 import { Command } from '../../../../types/command';
@@ -44,6 +45,31 @@ export const command: Command = {
     description_localizations: {
         "fr": "Obtenez les états des vocaux du serveur"
     },
+
+    options: [
+        {
+            name: "show-mode",
+
+            description: "Show mode (large, brief)",
+            description_localizations: {
+                "fr": "Mode d'affichage (complet, court)"
+            },
+
+            choices: [
+                {
+                    name: "Large",
+                    value: "large"
+                },
+                {
+                    name: "Short",
+                    value: "short"
+                }
+            ],
+
+            type: ApplicationCommandOptionType.String,
+            required: false
+        }
+    ],
 
     category: 'utils',
     thinking: false,
@@ -68,54 +94,112 @@ export const command: Command = {
         let textChannelSize = interaction.guild?.channels.cache.filter(c => c.type === ChannelType.GuildText).size;
         let voiceChannelSize = interaction.guild?.channels.cache.filter(c => c.type === ChannelType.GuildVoice).size;
 
-        let embed = new EmbedBuilder()
-            .setColor(2829617)
-            .setDescription(
-                data.vc_embed_desc
-                    .replaceAll('${voiceStates?.size}', voiceStates?.size.toString()!)
-                    .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Streaming}', client.iHorizon_Emojis.icon.iHorizon_Streaming)
-                    .replaceAll('${voiceStates?.filter(vc => vc.streaming).size}', voiceStates?.filter(vc => vc.streaming).size.toString()!)
-                    .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Deaf}', client.iHorizon_Emojis.icon.iHorizon_Deaf)
-                    .replaceAll('${voiceStates?.filter(vc => vc.selfDeaf).size}', voiceStates?.filter(vc => vc.selfDeaf).size.toString()!)
-                    .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Mute}', client.iHorizon_Emojis.icon.iHorizon_Mute)
-                    .replaceAll('${voiceStates?.filter(vc => vc.selfMute).size}', voiceStates?.filter(vc => vc.selfMute).size.toString()!)
-                    .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Camera}', client.iHorizon_Emojis.icon.iHorizon_Camera)
-                    .replaceAll('${voiceStates?.filter(vc => vc.selfVideo).size}', voiceStates?.filter(vc => vc.selfVideo).size.toString()!)
-                    .replaceAll('${membersStates?.size}', membersStates?.size.toString()!)
-                    .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_DND}', client.iHorizon_Emojis.icon.iHorizon_DND)
-                    .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "dnd").size}', membersStates?.filter(mbr => mbr.presence?.status === "dnd").size.toString()!)
-                    .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Online}', client.iHorizon_Emojis.icon.iHorizon_Online)
-                    .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "online").size}', membersStates?.filter(mbr => mbr.presence?.status === "online").size.toString()!)
-                    .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Idle}', client.iHorizon_Emojis.icon.iHorizon_Idle)
-                    .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "idle").size}', membersStates?.filter(mbr => mbr.presence?.status === "idle").size.toString()!)
-                    .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Invisible}', client.iHorizon_Emojis.icon.iHorizon_Invisible)
-                    .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "invisible").size}', membersStates?.filter(mbr => mbr.presence?.status === "invisible").size.toString()!)
-                    .replaceAll('${interaction.guild?.premiumSubscriptionCount}', interaction.guild?.premiumSubscriptionCount?.toString()!)
-                    .replaceAll('${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => <@${usr.id}>)}', interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`).toString()!)
-                    .replaceAll('${interaction.guild?.premiumSubscriptionCount}', interaction.guild?.premiumSubscriptionCount?.toString()!)
-                    .replaceAll('${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}', interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`).toString()!)
-            )
-            .addFields(
-                {
-                    name: data.vc_embed_fields_1_name,
-                    value: data.vc_embed_fields_1_value
-                        .replace('${interaction.guild?.memberCount}', interaction.guild?.memberCount.toString()!),
-                    inline: true
-                },
-                {
-                    name: data.vc_embed_fields_2_name,
-                    value: data.vc_embed_fields_2_value
-                        .replace('${textChannelSize}', textChannelSize?.toString()!)
-                        .replace('${voiceChannelSize}', voiceChannelSize?.toString()!),
-                    inline: true
-                },
-            )
-            .setFooter(await client.args.bot.footerBuilder(interaction))
-            ;
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var mode = interaction.options.getString("show-mode");
+        } else {
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var mode = client.args.string(args!, 0);
+        };
+
+        if (!mode) {
+            mode = "short"
+        }
+
+        let embed = new EmbedBuilder();
+        let files = [];
+
+        files.push(await interaction.client.args.bot.footerAttachmentBuilder(interaction))
+
+        let total_members_size = membersStates?.size.toString()!;
+        let total_members_states_dnd = membersStates?.filter(mbr => mbr.presence?.status === "dnd").size.toString()!;
+        let total_members_states_online = membersStates?.filter(mbr => mbr.presence?.status === "online").size.toString()!;
+        let total_members_states_idle = membersStates?.filter(mbr => mbr.presence?.status === "idle").size.toString()!;
+        let total_members_states_invisible = membersStates?.filter(mbr => mbr.presence?.status === "invisible").size.toString()!;
+
+        let total_guild_boost_count = interaction.guild?.premiumSubscriptionCount?.toString()!;
+        let total_guild_boosters = interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`).toString()!;
+
+        let total_members_vc_streaming = voiceStates?.filter(vc => vc.streaming).size.toString()!;
+        let total_members_vc_deaf = voiceStates?.filter(vc => vc.selfDeaf).size.toString()!;
+        let total_members_vc_mute = voiceStates?.filter(vc => vc.selfMute).size.toString()!;
+        let total_members_vc_video = voiceStates?.filter(vc => vc.selfVideo).size.toString()!;
+
+        if (mode === "large") {
+            embed
+                .setColor(2829617)
+                .setDescription(
+                    data.vc_embed_desc
+                        .replaceAll('${voiceStates?.size}', voiceStates?.size.toString()!)
+                        .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Streaming}', client.iHorizon_Emojis.icon.iHorizon_Streaming)
+                        .replaceAll('${voiceStates?.filter(vc => vc.streaming).size}', total_members_vc_streaming)
+                        .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Deaf}', client.iHorizon_Emojis.icon.iHorizon_Deaf)
+                        .replaceAll('${voiceStates?.filter(vc => vc.selfDeaf).size}', total_members_vc_deaf)
+                        .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Mute}', client.iHorizon_Emojis.icon.iHorizon_Mute)
+                        .replaceAll('${voiceStates?.filter(vc => vc.selfMute).size}', total_members_vc_mute)
+                        .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Camera}', client.iHorizon_Emojis.icon.iHorizon_Camera)
+                        .replaceAll('${voiceStates?.filter(vc => vc.selfVideo).size}', total_members_vc_video)
+                        .replaceAll('${membersStates?.size}', total_members_size)
+                        .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_DND}', client.iHorizon_Emojis.icon.iHorizon_DND)
+                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "dnd").size}', total_members_states_dnd)
+                        .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Online}', client.iHorizon_Emojis.icon.iHorizon_Online)
+                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "online").size}', total_members_states_online)
+                        .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Idle}', client.iHorizon_Emojis.icon.iHorizon_Idle)
+                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "idle").size}', total_members_states_idle)
+                        .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Invisible}', client.iHorizon_Emojis.icon.iHorizon_Invisible)
+                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "invisible").size}', total_members_states_invisible)
+                        .replaceAll('${interaction.guild?.premiumSubscriptionCount}', total_guild_boost_count)
+                        .replaceAll('${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}', total_guild_boosters)
+                )
+                .addFields(
+                    {
+                        name: data.vc_embed_fields_1_name,
+                        value: data.vc_embed_fields_1_value
+                            .replace('${interaction.guild?.memberCount}', interaction.guild?.memberCount.toString()!),
+                        inline: true
+                    },
+                    {
+                        name: data.vc_embed_fields_2_name,
+                        value: data.vc_embed_fields_2_value
+                            .replace('${textChannelSize}', textChannelSize?.toString()!)
+                            .replace('${voiceChannelSize}', voiceChannelSize?.toString()!),
+                        inline: true
+                    },
+                )
+                .setFooter(await client.args.bot.footerBuilder(interaction))
+                ;
+        } else {
+            embed
+                .setDescription(
+                    data.vc_embed_short_desc
+                        .replaceAll("${voiceStates?.size}", voiceStates.size.toString())
+                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Streaming}", client.iHorizon_Emojis.icon.iHorizon_Streaming)
+                        .replaceAll("${total_members_vc_streaming}", total_members_vc_streaming)
+                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Deaf}", client.iHorizon_Emojis.icon.iHorizon_Deaf)
+                        .replaceAll("${total_members_vc_deaf}", total_members_vc_deaf)
+                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Mute}", client.iHorizon_Emojis.icon.iHorizon_Mute)
+                        .replaceAll("${total_members_vc_mute}", total_members_vc_mute)
+                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Camera}", client.iHorizon_Emojis.icon.iHorizon_Camera)
+                        .replaceAll("${total_members_vc_video}", total_members_vc_video)
+                        .replaceAll("${total_members_size}", total_members_size)
+                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_DND}", client.iHorizon_Emojis.icon.iHorizon_DND)
+                        .replaceAll("${total_members_states_dnd}", total_members_states_dnd)
+                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Online}", client.iHorizon_Emojis.icon.iHorizon_Online)
+                        .replaceAll("${total_members_states_online}", total_members_states_online)
+                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Idle}", client.iHorizon_Emojis.icon.iHorizon_Idle)
+                        .replaceAll("${total_members_states_idle}", total_members_states_idle)
+                )
+                .setThumbnail("attachment://guild_icon.png")
+                .setFooter(await client.args.bot.footerBuilder(interaction))
+
+            files.push({
+                name: "guild_icon.png",
+                attachment: await client.func.image64(interaction.guild.iconURL() || client.user.displayAvatarURL())
+            })
+        }
 
         await client.args.interactionSend(interaction, {
             embeds: [embed],
-            files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
+            files: files
         });
         return;
     },

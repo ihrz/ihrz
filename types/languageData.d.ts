@@ -416,6 +416,7 @@ export interface LanguageData {
   vc_embed_fields_1_value: string;
   vc_embed_fields_2_name: string;
   vc_embed_fields_2_value: string;
+  vc_embed_short_desc: string;
   massmove_results: string;
   massmove_too_much_member: string;
   blockpub_not_admin: string;
