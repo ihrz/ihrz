@@ -183,9 +183,7 @@ export const command: Command = {
             });
         };
 
-
         let guilds = client.guilds.cache.map(guild => guild.id);
-        let i = 0;
 
         if (member) {
             if (member.user.id === client.user.id) {
@@ -215,23 +213,30 @@ export const command: Command = {
                     content: data.blacklist_command_work
                         .replace(/\${member\.user\.username}/g, String(member?.user.globalName || member?.user.username))
                 });
-                return;
             }).catch(async () => {
                 await client.args.interactionSend(interaction, {
                     content: data.blacklist_blacklisted_but_can_ban_him
                         .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 });
-                return;
             });
 
-            for (let guildId of guilds) {
+            let banPromises = guilds.map(async guildId => {
                 let guild = client.guilds.cache.find(guild => guild.id === guildId);
+                if (guild) {
+                    try {
+                        await guild.members.ban(member?.user.id!, { reason: reason || 'blacklisted!' });
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                }
+                return false;
+            });
 
-                await (guild?.members.cache.get(String(user?.id! || member?.id)))?.ban({ reason: reason || 'blacklisted!' }).then(() => i++).catch(() => { })
-            };
+            let results = await Promise.all(banPromises);
+            let successCount = results.filter(result => result).length;
 
-            await interaction.channel.send({ content: `${member.user.username} is banned on **${i}** server(s) (\`${i}/${guilds.length}\`)` });
-            return;
+            await interaction.channel.send({ content: `${member.user.username} is banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
         } else if (user) {
 
             if (user.id === client.user.id) {
@@ -261,14 +266,23 @@ export const command: Command = {
                     .replace(/\${member\.user\.username}/g, user.globalName || user.username)
             });
 
-            for (let guildId of guilds) {
+            let banPromises = guilds.map(async guildId => {
                 let guild = client.guilds.cache.find(guild => guild.id === guildId);
+                if (guild) {
+                    try {
+                        await guild.members.ban(user?.id!, { reason: reason || 'blacklisted!' });
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                }
+                return false;
+            });
 
-                await (guild?.members.cache.get(String(user.id)))?.ban({ reason: reason || 'blacklisted!' }).then(() => i++).catch(() => { })
-            };
+            let results = await Promise.all(banPromises);
+            let successCount = results.filter(result => result).length;
 
-            await interaction.channel.send({ content: `${user.username} is banned on **${i}** server(s) (\`${i}/${guilds.length}\`)` });
-            return;
+            await interaction.channel.send({ content: `${user.username} is banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
         }
     },
 };
