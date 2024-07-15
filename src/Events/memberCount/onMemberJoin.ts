@@ -32,6 +32,8 @@ export const event: BotEvent = {
             const guild = member.guild;
             const botMembersCount = guild.members.cache.filter((m) => m.user.bot).size;
             const rolesCount = guild.roles.cache.size;
+            const boostsCount = member.guild.premiumSubscriptionCount || 0;
+
             const baseData = await client.db.get(`${guild.id}.GUILD.MCOUNT`) as DatabaseStructure.MemberCountSchema;
 
             if (!baseData) return;
@@ -40,7 +42,7 @@ export const event: BotEvent = {
                 { key: 'bot', count: botMembersCount },
                 { key: 'member', count: guild.memberCount },
                 { key: 'roles', count: rolesCount },
-                { key: 'boost', count: rolesCount },
+                { key: 'boost', count: boostsCount },
                 { key: 'channel', count: rolesCount }
             ];
 
