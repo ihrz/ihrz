@@ -48,6 +48,10 @@ export const rules = [
         value: "createchannel",
     },
     {
+        placeholder: "Update Channel",
+        value: "updatechannel"
+    },
+    {
         placeholder: "Delete Channel",
         value: "deletechannel",
     },
