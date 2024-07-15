@@ -189,7 +189,7 @@ export const command: Command = {
         for (let guildId of guilds) {
             let guild = client.guilds.cache.find(guild => guild.id === guildId);
 
-            await (guild?.members.cache.get(String(user?.id! || member?.id)))?.ban({ reason: reason || 'blacklisted!' });
+            await (guild?.members.cache.get(String(user?.id! || member?.id)))?.ban({ reason: reason || 'blacklisted!' }).catch(() => { })
         };
 
         if (member) {
