@@ -72,6 +72,10 @@ export const rules = [
         value: "updaterole",
     },
     {
+        placeholder: "Add/Remove Member Role(s)",
+        value: "updatemember"
+    },
+    {
         placeholder: "Ban Members",
         value: "banmembers",
     },
