@@ -81,7 +81,7 @@ export const command: Command = {
         let tableBlacklist = client.db.table('BLACKLIST');
 
         if (await tableOwner.get(`${interaction.member.user.id}.owner`) !== true) {
-            await client.args.interactionSend(interaction,{ content: data.blacklist_not_owner });
+            await client.args.interactionSend(interaction, { content: data.blacklist_not_owner });
             return;
         };
 
@@ -100,7 +100,7 @@ export const command: Command = {
 
         if (!member && !user) {
             if (!blacklistedUsers.length) {
-                await client.args.interactionSend(interaction,{
+                await client.args.interactionSend(interaction, {
                     content: data.blacklist_no_one_blacklist
                         .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
                     ephemeral: true
@@ -150,7 +150,7 @@ export const command: Command = {
                     .setStyle(ButtonStyle.Secondary),
             );
 
-            let messageEmbed = await client.args.interactionSend(interaction,{
+            let messageEmbed = await client.args.interactionSend(interaction, {
                 embeds: [await createEmbed()],
                 components: [row],
                 files: [await client.args.bot.footerAttachmentBuilder(interaction)]
@@ -183,16 +183,18 @@ export const command: Command = {
             });
         };
 
+        let guilds = client.guilds.cache.map(guild => guild.id);
+
         if (member) {
             if (member.user.id === client.user.id) {
-                await client.args.interactionSend(interaction,{ content: data.blacklist_bot_lol });
+                await client.args.interactionSend(interaction, { content: data.blacklist_bot_lol });
                 return;
             };
 
             let fetched = await tableBlacklist.get(`${member.user.id}`);
 
             if (fetched) {
-                await client.args.interactionSend(interaction,{
+                await client.args.interactionSend(interaction, {
                     content: data.blacklist_already_blacklisted
                         .replace(/\${member\.user\.username}/g, member.user.globalName || member.user.username)
                 });
@@ -206,31 +208,46 @@ export const command: Command = {
                 createdAt: new Date().getTime()
             });
 
-            member.ban({ reason: 'blacklisted !' }).then(async () => {
-                await client.args.interactionSend(interaction,{
+            await member.ban({ reason: 'blacklisted !' }).then(async () => {
+                await client.args.interactionSend(interaction, {
                     content: data.blacklist_command_work
                         .replace(/\${member\.user\.username}/g, String(member?.user.globalName || member?.user.username))
                 });
-                return;
             }).catch(async () => {
-                await client.args.interactionSend(interaction,{
+                await client.args.interactionSend(interaction, {
                     content: data.blacklist_blacklisted_but_can_ban_him
                         .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 });
-                return;
             });
 
+            let banPromises = guilds.map(async guildId => {
+                let guild = client.guilds.cache.find(guild => guild.id === guildId);
+                if (guild) {
+                    try {
+                        await guild.members.ban(member?.user.id!, { reason: reason || 'blacklisted!' });
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                }
+                return false;
+            });
+
+            let results = await Promise.all(banPromises);
+            let successCount = results.filter(result => result).length;
+
+            await interaction.channel.send({ content: `${member.user.username} is banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
         } else if (user) {
 
             if (user.id === client.user.id) {
-                await client.args.interactionSend(interaction,{ content: data.blacklist_bot_lol });
+                await client.args.interactionSend(interaction, { content: data.blacklist_bot_lol });
                 return;
             };
 
             let fetched = await tableBlacklist.get(`${user.id}`);
 
             if (fetched) {
-                await client.args.interactionSend(interaction,{
+                await client.args.interactionSend(interaction, {
                     content: data.blacklist_already_blacklisted
                         .replace(/\${member\.user\.username}/g, user.globalName || user.username)
                 });
@@ -244,20 +261,28 @@ export const command: Command = {
                 createdAt: new Date().getTime()
             });
 
-            await client.args.interactionSend(interaction,{
+            await client.args.interactionSend(interaction, {
                 content: data.blacklist_command_work
                     .replace(/\${member\.user\.username}/g, user.globalName || user.username)
             });
 
-            let guilds = client.guilds.cache.map(guild => guild.id);
-
-            for (let guildId of guilds) {
+            let banPromises = guilds.map(async guildId => {
                 let guild = client.guilds.cache.find(guild => guild.id === guildId);
+                if (guild) {
+                    try {
+                        await guild.members.ban(user?.id!, { reason: reason || 'blacklisted!' });
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                }
+                return false;
+            });
 
-                guild?.members.cache.get(user.id)?.ban({ reason: reason || 'blacklisted!' });
-            };
+            let results = await Promise.all(banPromises);
+            let successCount = results.filter(result => result).length;
 
-            return;
+            await interaction.channel.send({ content: `${user.username} is banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
         }
     },
 };
