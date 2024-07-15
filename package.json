@@ -29,7 +29,7 @@
     "genius-lyrics": "^4.4.7",
     "jimp": "^0.22.12",
     "js-yaml": "^4.1.0",
-    "lavalink-client": "^2.2.0",
+    "lavalink-client": "^2.2.1",
     "mysql2": "3.10.0",
     "ping": "^0.4.4",
     "pwss": "^1.0.21",
@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.14.9",
+    "@types/node": "^20.14.10",
     "@types/ping": "^0.4.4",
     "tslib": "^2.6.3",
     "typescript": "5.4.5"
