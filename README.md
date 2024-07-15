@@ -1,7 +1,7 @@
 # Official iHorizon Repo
 
 iHorizon is a Discord bot written in [TypeScript](https://www.typescriptlang.org/) and uses [pwss](https://npmjs.com/pwss)!
-iHorizon has a large variety of features, including moderation, invite management, guild configuration, fun commands, music playback, giveaways, backup and a lot more!
+iHorizon has a large variety of features, including moderation, invite management, guild configuration, fun commands, music playback, giveaways, backups and a lot more!
 
 [![npm version](https://badge.fury.io/js/ihrz.svg)](https://badge.fury.io/js/ihrz)
 ![NPM Downloads](https://img.shields.io/npm/dm/ihrz)
@@ -58,7 +58,7 @@ _There are only some few software needed :_
 
 ### How to configure the bot ?
 
-* Open [config.example.ts](https://github.com/ihrz/ihrz/blob/dev/src/files/config.example.ts) in file Editor (Notepad, VSCode...), enter your informations, and rename to config.ts.
+* Open [config.example.ts](https://github.com/ihrz/ihrz/blob/dev/src/files/config.example.ts) in a file Editor (Notepad, VSCode...), enter your informations, and rename to config.ts.
 
 After your configuration in the config.ts :
 
@@ -81,8 +81,8 @@ npm build && npm start
 # Is a host too expensive?
 
 Well iHorizon is happy to offer really cheap hosting of an iHorizon instance (ownihrz), it's actually way cheaper than most hosts and offers an intense quality!<br>
-Only 2.00 euros per month! (0.50 euro for the activation)<br>
-Your bot is faster than most popular bots and you can do what you want with it, even making a public bot out of it that can make you money! :)
+Only 2.00 euros per month! (0.50 euros for the activation)<br>
+Your bot will be faster than most popular bots and you can do what you want with it, even making a public bot out of it that can make you money! :)
 
 # About the bot
 
@@ -91,12 +91,12 @@ Used by more than 540 servers!
 <br>
 Certified by Discord and had even more than 75 servers before starting the verification process!
 
-To join the Official Discord Support Server, please visit our website at [Official Server Link](http://discord.ihorizon.me/) or click on this link: [Other Link](https://discord.gg/ZpBPGNsAsu).
+To join the official iHorizon Discord support server, please visit our website at [Official Server Link](http://discord.ihorizon.me/) or click on this link: [Other Link](https://discord.gg/ZpBPGNsAsu).
 To invite the official Discord bot to your server, please click on this link: [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot).
 
 If you have any questions or concerns, you can contact the owner via Discord at 2h0.
 
-# About the owner
+# About the Owner
 
 **Kisakay** has not changed their identity, but has simply embraced who they truly are as a person. She now goes by she/her pronouns.
 
