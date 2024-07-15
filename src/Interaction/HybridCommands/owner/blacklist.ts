@@ -185,12 +185,7 @@ export const command: Command = {
 
 
         let guilds = client.guilds.cache.map(guild => guild.id);
-
-        for (let guildId of guilds) {
-            let guild = client.guilds.cache.find(guild => guild.id === guildId);
-
-            await (guild?.members.cache.get(String(user?.id! || member?.id)))?.ban({ reason: reason || 'blacklisted!' }).catch(() => { })
-        };
+        let i = 0;
 
         if (member) {
             if (member.user.id === client.user.id) {
@@ -215,7 +210,7 @@ export const command: Command = {
                 createdAt: new Date().getTime()
             });
 
-            member.ban({ reason: 'blacklisted !' }).then(async () => {
+            await member.ban({ reason: 'blacklisted !' }).then(async () => {
                 await client.args.interactionSend(interaction, {
                     content: data.blacklist_command_work
                         .replace(/\${member\.user\.username}/g, String(member?.user.globalName || member?.user.username))
@@ -229,6 +224,14 @@ export const command: Command = {
                 return;
             });
 
+            for (let guildId of guilds) {
+                let guild = client.guilds.cache.find(guild => guild.id === guildId);
+
+                await (guild?.members.cache.get(String(user?.id! || member?.id)))?.ban({ reason: reason || 'blacklisted!' }).then(() => i++).catch(() => { })
+            };
+
+            await interaction.channel.send({ content: `${member.user.username} is banned on **${i}** server(s) (\`${i}/${guilds.length}\`)` });
+            return;
         } else if (user) {
 
             if (user.id === client.user.id) {
@@ -258,6 +261,13 @@ export const command: Command = {
                     .replace(/\${member\.user\.username}/g, user.globalName || user.username)
             });
 
+            for (let guildId of guilds) {
+                let guild = client.guilds.cache.find(guild => guild.id === guildId);
+
+                await (guild?.members.cache.get(String(user.id)))?.ban({ reason: reason || 'blacklisted!' }).then(() => i++).catch(() => { })
+            };
+
+            await interaction.channel.send({ content: `${user.username} is banned on **${i}** server(s) (\`${i}/${guilds.length}\`)` });
             return;
         }
     },
