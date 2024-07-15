@@ -187,7 +187,8 @@ export const command: Command = {
                     }
 
                 } else {
-                    await interaction_2.reply({ content: data.all_admins_unrank_not_owner })
+                    await interaction_2.reply({ content: data.all_admins_unrank_not_owner });
+                    collector.stop();
                 }
             };
 
