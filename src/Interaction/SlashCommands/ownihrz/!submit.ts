@@ -52,6 +52,7 @@ export default {
                     OwnerOne: interaction.user.id,
                     OwnerTwo: interaction.options.getUser('owner_two')?.id || interaction.user.id,
                     ExpireIn: Date.now() + client.timeCalculator.to_ms('30d')!,
+                    Prefix: interaction.options.getString("prefix") || null,
                     Bot: {
                         Id: bot_1.bot.id,
                         Name: bot_1.bot.username,

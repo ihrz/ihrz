@@ -61,6 +61,17 @@ export const command: Command = {
                     required: true
                 },
                 {
+                    name: 'prefix',
+                    type: ApplicationCommandOptionType.String,
+
+                    description: 'The prefix of the bot',
+                    description_localizations: {
+                        "fr": "Le préfixe du bot (Optionnel)"
+                    },
+
+                    required: false
+                },
+                {
                     name: 'owner_two',
                     type: ApplicationCommandOptionType.User,
 
