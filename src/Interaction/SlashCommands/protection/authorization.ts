@@ -44,6 +44,10 @@ export const rules = [
         value: "webhook"
     },
     {
+        placeholder: "Edit Guild",
+        value: "updateguild"
+    },
+    {
         placeholder: "Create Channel",
         value: "createchannel",
     },

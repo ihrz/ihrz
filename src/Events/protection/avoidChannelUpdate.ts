@@ -44,9 +44,9 @@ export const event: BotEvent = {
             if (!baseData) {
                 const editOptions: GuildChannelEditOptions = {
                     name: oldChannel.name,
-                    position: oldChannel.position,
                     permissionOverwrites: [...oldChannel.permissionOverwrites.cache.values()],
-                    parent: oldChannel.parentId,
+                    parent: oldChannel.parent,
+                    position: oldChannel.position
                 };
 
                 if (oldChannel.type === ChannelType.GuildText) {
