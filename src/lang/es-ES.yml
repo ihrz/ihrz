@@ -583,10 +583,18 @@ vc_embed_fields_1_name: "・Conteo de Miembros"
 vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} miembros```"
 vc_embed_fields_2_name: "・Conteo de Canales"
 vc_embed_fields_2_value: "```py\n${textChannelSize} canal(es) de texto\n${voiceChannelSize} canal(es) de voz```"
+vc_embed_short_desc: "## Estados de Voz\n`${voiceStates?.size}` miembro(s) están en el canal de voz:\n${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${total_members_vc_video}\n## Estados de Miembros\n`${total_members_size}` miembro(s) están en el gremio:\n${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${total_members_states_idle}"
 
 # /massmove
 massmove_results: "${interaction.user}, iHorizon ha movido miembros entre canales de voz.\n\n**${movedCount}** miembro(s) fueron movidos exitosamente de ${fromChannel} a ${toChannel}.\n**${errorCount}** miembro(s) no pudieron ser movidos (ver los registros del servidor para más detalles)."
 massmove_too_much_member: "¡Demasiados miembros, no puedo hacerlo debido a un posible límite de velocidad!"
+
+# /all-admins
+all_admins_nobody_admins: "¡No hay administradores en este servidor!"
+all_admins_embed_title: "Lista de todos los administradores | Página ${i / usersPerPage + 1}"
+all_admins_unrank_button_label: "Desclasificar a todos"
+all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}, iHorizon ha ejecutado la desclasificación de todos para el módulo AllAdmins.\n\n**${good}** Usuario(s) __desclasificados__ con éxito\niHorizon __falló__ al desclasificar **${bad}** Usuario(s)."
+all_admins_unrank_not_owner: "Solo el dueño del servidor puede desclasificar a todos los administradores del servidor"
 
 
 # Guild Config commands

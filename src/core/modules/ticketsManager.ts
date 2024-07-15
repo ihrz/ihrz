@@ -495,6 +495,26 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
             channel.lockPermissions();
         };
 
+        await channel.permissionOverwrites.edit(interaction.guild?.roles.everyone as Role,
+            {
+                ViewChannel: false,
+                SendMessages: false,
+                ReadMessageHistory: false
+            }
+        );
+
+        await channel.permissionOverwrites.edit(interaction.user.id,
+            {
+                ViewChannel: true,
+                SendMessages: true,
+                ReadMessageHistory: true,
+                AttachFiles: true,
+                UseApplicationCommands: true,
+                SendVoiceMessages: true,
+                EmbedLinks: true
+            }
+        );
+
         if (interaction instanceof ButtonInteraction) {
             await interaction.editReply({
                 content: lang.event_ticket_whenCreated_msg
@@ -517,25 +537,6 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                 });
             }
         }
-
-        await channel.permissionOverwrites.edit(interaction.guild?.roles.everyone as Role,
-            {
-                ViewChannel: false,
-                SendMessages: false,
-                ReadMessageHistory: false
-            }
-        );
-
-        await channel.permissionOverwrites.edit(interaction.user.id,
-            {
-                ViewChannel: true,
-                SendMessages: true,
-                ReadMessageHistory: true,
-                AttachFiles: true,
-                UseApplicationCommands: true,
-                SendVoiceMessages: true
-            }
-        );
 
         let embeds: EmbedBuilder[] = []
 
