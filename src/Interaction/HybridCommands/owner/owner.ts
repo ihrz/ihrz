@@ -71,7 +71,7 @@ export const command: Command = {
             text += `<@${entry.id}>\n`;
         }
 
-        if (!isOwner.owner) {
+        if (!isOwner?.owner) {
             await client.args.interactionSend(interaction,{ content: data.owner_not_owner });
             return;
         };
@@ -83,7 +83,7 @@ export const command: Command = {
             .setFooter(await client.args.bot.footerBuilder(interaction));
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var member = interaction.options.getUser('user');
+            var member = interaction.options.getUser('member');
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var member = client.args.user(interaction, 0);
