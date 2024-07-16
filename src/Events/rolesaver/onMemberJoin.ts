@@ -29,8 +29,9 @@ export const event: BotEvent = {
 
         if (await client.db.get(`${member.guild.id}.GUILD_CONFIG.rolesaver.enable`)) {
 
-            let array: Role[] | null = await client.db.get(`${member.guild.id}.ROLE_SAVER.${member.user.id}`)
-            if (!array || array.length >= 0) return;
+            let array: string[] | null = await client.db.get(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
+
+            if (!array || array.length === 0) return;
 
             await member.roles.set(array);
 
