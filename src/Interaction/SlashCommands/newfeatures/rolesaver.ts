@@ -123,7 +123,6 @@ export const command: Command = {
         };
 
         if (action === 'on') {
-            let state = await client.db.get(`${interaction.guildId}.GUILD_CONFIG.rolesaver.enable`);
 
             let embed = new EmbedBuilder()
                 .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#3725a4")
@@ -137,9 +136,13 @@ export const command: Command = {
                 .setFooter(await client.args.bot.footerBuilder(interaction));
 
             await interaction.reply({ embeds: [embed], files: [await client.args.bot.footerAttachmentBuilder(interaction)] });
-            await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.enable`, true);
-            await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.timeout`, timeout);
-            await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.admin`, settings);
+            await client.db.set(`${interaction.guildId}.GUILD_CONFIG`, {
+                rolesaver: {
+                    enable: true,
+                    timeout: timeout,
+                    admin: settings
+                }
+            });
 
             return;
         } else if (action === 'off') {
