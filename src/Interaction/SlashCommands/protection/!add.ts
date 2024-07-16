@@ -34,13 +34,13 @@ export default {
         let baseData = await client.db.get(`${interaction.guildId}.ALLOWLIST`);
         let member = interaction.options.getMember('member') as GuildMember;
 
-        if (interaction.user.id !== interaction.guild.ownerId && baseData.list[interaction.user.id]?.allowed !== true) {
-            await interaction.reply({ content: data.allowlist_add_not_permited });
+        if (interaction.user.id !== interaction.guild.ownerId) {
+            await interaction.reply({ content: data.allowlist_add_not_owner });
             return;
         };
 
-        if (interaction.user.id !== interaction.guild.ownerId) {
-            await interaction.reply({ content: data.allowlist_add_not_owner });
+        if (interaction.user.id !== interaction.guild.ownerId && baseData.list[interaction.user.id]?.allowed !== true) {
+            await interaction.reply({ content: data.allowlist_add_not_permited });
             return;
         };
 
