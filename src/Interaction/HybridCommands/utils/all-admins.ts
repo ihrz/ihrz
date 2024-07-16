@@ -127,12 +127,15 @@ export const command: Command = {
         });
 
         let collector = messageEmbed.createMessageComponentCollector({
-            filter: (i) => {
-                return interaction.member?.user.id === i.user.id;
-            }, time: 60_000
+            time: 60_000
         });
 
         collector.on('collect', async (interaction_2) => {
+            if (interaction_2.user.id !== interaction.member?.user.id) {
+                await interaction_2.reply({ content: data.help_not_for_you, ephemeral: true });
+                return;
+            };
+
             if (interaction_2.customId === 'previousPage') {
 
                 await interaction_2.deferUpdate();
