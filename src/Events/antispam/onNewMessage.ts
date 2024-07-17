@@ -125,39 +125,39 @@ async function sendWarningMessage(
 
 async function clearSpamMessages(guildId: string, messages: Set<AntiSpam.CachedMessage>, client: Client): Promise<void> {
     try {
-        const CHUNK_SIZE = 50;
+        const CHUNK_SIZE = 99;
         const messagesByChannel: Collection<Snowflake, Collection<string, Snowflake>> = new Collection();
 
-        const messageChunks = [];
-        const messagesArray = Array.from(messages).filter(m => m.isSpam);
-        for (let i = 0; i < messagesArray.length; i += CHUNK_SIZE) {
-            messageChunks.push(messagesArray.slice(i, i + CHUNK_SIZE));
-        }
-
-        await Promise.all(messageChunks.map(async (chunk) => {
-            for (const cachedMessage of chunk) {
+        messages.forEach(cachedMessage => {
+            if (cachedMessage.isSpam) {
                 const channelMessages = messagesByChannel.get(cachedMessage.channelID) || new Collection<string, Snowflake>();
                 channelMessages.set(cachedMessage.messageID, cachedMessage.messageID);
                 messagesByChannel.set(cachedMessage.channelID, channelMessages);
             }
+        });
 
-            return Promise.all(Array.from(messagesByChannel).map(async ([channelId, messageIds]) => {
-                const channel = client.channels.cache.get(channelId) as BaseGuildTextChannel | undefined;
-                if (channel && messageIds.size > 0) {
+        await Promise.all(messagesByChannel.map(async (messageIds, channelId) => {
+            const channel = client.channels.cache.get(channelId) as BaseGuildTextChannel | undefined;
+            if (channel && messageIds.size > 0) {
+                const messageIdsArray = Array.from(messageIds.values());
+                for (let i = 0; i < messageIdsArray.length; i += CHUNK_SIZE) {
+                    const chunk = messageIdsArray.slice(i, i + CHUNK_SIZE);
                     try {
-                        await channel.bulkDelete(Array.from(messageIds.values()), true).then(() => {
+                        await channel.bulkDelete(chunk, true);
+                        chunk.forEach(messageId => {
                             messages.forEach(message => {
-                                cache.messages.get(guildId)?.delete(message);
-                                cache.spamMessagesToClear.get(guildId)?.delete(message);
+                                if (message.messageID === messageId) {
+                                    cache.messages.get(guildId)?.delete(message);
+                                    cache.spamMessagesToClear.get(guildId)?.delete(message);
+                                }
                             });
                         });
-                    } catch {
+                    } catch (error) {
                     }
                 }
-            }));
+            }
         }));
-
-    } catch {
+    } catch (error) {
     }
 }
 
@@ -320,7 +320,7 @@ export const event: BotEvent = {
             if (timeout < currentTime) {
                 await waitForFinish();
                 await PunishUsers(message.guild.id, membersToPunish!, options);
-                await clearSpamMessages(message.guild.id, cache.spamMessagesToClear.get(message.guild.id)!, client);
+                await clearSpamMessages(message.guild.id, cache.messages.get(message.guild.id)!, client);
                 await sendWarningMessage(lang, membersToPunish!, message.channel as BaseGuildTextChannel, options);
                 await logsAction(lang, client, message.guild.id, membersToPunish!, "sanction", options.punishment_type);
                 membersToPunish?.clear();
