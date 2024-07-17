@@ -239,6 +239,7 @@ export const event: BotEvent = {
             isSpam: false
         };
 
+        // Init all cache if doesn't exist
         if (!cache.messages.has(message.guild.id)) {
             cache.messages.set(message.guild.id, new Set());
         }
@@ -252,15 +253,17 @@ export const event: BotEvent = {
             cache.membersFlags.set(message.guild.id, new Map());
         }
 
+        // Load cache message
         const guildCacheMessages = cache.messages.get(message.guild.id)!;
         const previousMessages = Array.from(guildCacheMessages);
 
+        // Add current message in cache
         guildCacheMessages.add(currentMessage);
 
+        // Init User cache
         if (!cache.raidInfo.get(message.guild.id)!.get(`${message.author.id}.amount`)?.value) {
             cache.raidInfo.get(message.guild.id)!.set(`${message.author.id}.amount`, { value: 0 })
         }
-
         if (!cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value) {
             cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, { value: 0 })
         }
@@ -270,16 +273,17 @@ export const event: BotEvent = {
         const lastMessage = previousMessages.filter(x => x.authorID === message.author.id).slice(-1)[0];
         const elapsedTime = lastMessage ? currentMessage.sentTimestamp - lastMessage.sentTimestamp : options.maxInterval + 1;
 
+        // Basic checks
         if (elapsedTime && elapsedTime < options.maxInterval) {
             cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, { value: memberTotalWarn + 1 });
             currentMessage.isSpam = true;
         }
-
         if (cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value! >= options.Threshold) {
             cache.membersToPunish.get(message.guild.id)!.add(message.member!);
             currentMessage.isSpam = true;
         };
 
+        // if the member break the threshold
         if (cache.membersToPunish.get(message.guild.id)!.size >= 1 && cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value! >= options.Threshold) {
             let membersToPunish = cache.membersToPunish.get(message.guild.id);
             let guildRaidInfo = cache.raidInfo.get(message.guild.id);
