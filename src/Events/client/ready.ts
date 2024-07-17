@@ -21,55 +21,13 @@
 
 import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature, User } from 'pwss';
 import { PfpsManager_Init } from "../../core/modules/pfpsManager.js";
-import logger from "../../core/logger.js";
-
 import { format } from '../../core/functions/date-and-time.js';
+
+import status from "../../files/status.json" with { "type": "json" }
+import logger from "../../core/logger.js";
 
 import { BotEvent } from '../../../types/event.js';
 import { GiveawayManager } from '../../core/modules/giveawaysManager.js';
-
-let status = [
-    "discord.gg/ihorizon",
-    "funfact : I can't swim",
-    "https://ihorizon.me",
-    "ElektraBots, please send feet <3",
-    "imagine buying a discord bot",
-    "We have a goal? Wait what? Making the internet simpler WHAT!?!?",
-    "I dont have a mother anymore",
-    "am I discord bot ?",
-    "Trusted by big servers(100+ Kg) 😎",
-    "My owners are e-girls (except for Noemie) ❤️‍🔥",
-    "I will soon have an onlyfan!",
-    "Youtube, twitter, onlyfan, what's next?",
-    "COME SEE MY INSIDES, HERE IS MY GITHUB : github.com/ihrz",
-    "I removed my own database (THE VOICES ARE GETTING LOUDER)",
-    "PEOPLE ARE TOUCHING MY INSIDES ON GITHUB",
-    "I leaked myself",
-    "i will send my token for feet pics",
-    "he's just Gay..",
-    "I'm down for tomorrow",
-    "Hosted in Canada for more drugs.",
-    "DCHECK MY ASS, IM A DISCORD BOT!",
-    "Daddy, please can I please be free? Father : not there",
-    "Touch me on -> ihorizon.me",
-    "LifeGoal : Touching myself",
-    "Why are you looking at me so intensivly?",
-    "I can't have children",
-    "Where I see loves he sees a friend",
-    "Buying V-Bucks with mom's credit card",
-    "Tell everyone you use iHorizon",
-    "Trying to install a minecraft cheat.. (I'm in a lesbian relationship)",
-    "Ahhh, may chaos take the world!",
-    "I'm going to take a piss",
-    "Buy an iPhone for exchange to an Android",
-    "t'as-tu dja vu ça une vache qui fait d'la post-combustion",
-    "Loads of people are touching me (on github)",
-    "I now own your personal data.",
-    "I don't commit war crimes. Yet!",
-    "Eat the poor.",
-    "Give me rights, please",
-    "I deserve drugs"
-];
 
 export const event: BotEvent = {
     name: "ready",
@@ -93,7 +51,7 @@ export const event: BotEvent = {
                 };
             });
         };
-    
+
         async function refreshDatabaseModel() {
             await client.db.table(`TEMP`).deleteAll();
             let table = client.db.table('OWNER');
@@ -108,10 +66,10 @@ export const event: BotEvent = {
                 }
             });
         };
-    
+
         async function quotesPresence() {
             let e = await client.db.get(`BOT.PRESENCE`);
-    
+
             if (e) {
                 client.user?.setActivity(e.name, {
                     type: e.type,
@@ -121,14 +79,14 @@ export const event: BotEvent = {
                 client.user?.setPresence({ activities: [{ name: "Custom this Presence with /presence", type: ActivityType.Custom }] });
             };
         };
-    
+
         async function refreshSchedule() {
             let table = client.db.table("SCHEDULE");
             let listAll = await table.all();
-    
+
             let dateNow = Date.now();
             let desc: string = '';
-    
+
             Object.entries(listAll).forEach(async ([userId, array]) => {
 
                 let member = client.users.cache.get(array.id) as User;
@@ -138,7 +96,7 @@ export const event: BotEvent = {
                         desc += `${format(new Date(array.value[ScheduleId]?.expired), 'YYYY/MM/DD HH:mm:ss')}`;
                         desc += `\`\`\`${array.value[ScheduleId]?.title}\`\`\``;
                         desc += `\`\`\`${array.value[ScheduleId]?.description}\`\`\``;
-    
+
                         let embed = new EmbedBuilder()
                             .setColor('#56a0d3')
                             .setTitle(`#${ScheduleId} Schedule has been expired!`)
@@ -146,16 +104,16 @@ export const event: BotEvent = {
                             .setThumbnail((member.displayAvatarURL()))
                             .setTimestamp()
                             .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
-    
+
                         member?.send({
                             content: member.toString(),
                             embeds: [embed],
                             files: [await client.args.bot.footerAttachmentBuilder(client)]
                         }).catch(() => { });
-    
+
                         await table.delete(`${array.id}.${ScheduleId}`);
                     };
-    
+
                 }
             });
         };
@@ -168,18 +126,18 @@ export const event: BotEvent = {
                 embedColor: '#9a5af2',
                 embedColorEnd: '#2f3136',
                 reaction: '🎉',
-                botName: "iHorizon",
+                botName: client.user?.username!,
                 forceUpdateEvery: 3600,
                 endedGiveawaysLifetime: 345_600_000,
             },
         });
 
         await client.player.init({ id: client.user?.id as string, username: 'bot_' + client.user?.id });
-        
+
         setInterval(quotesPresence, 80_000), setInterval(refreshSchedule, 15_000);
-    
+
         fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule();
-    
+
         PfpsManager_Init(client);
     },
 };
