@@ -271,7 +271,7 @@ export const event: BotEvent = {
         let memberTotalWarn = cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value!;
 
         const lastMessage = previousMessages.filter(x => x.authorID === message.author.id).slice(-1)[0];
-        const elapsedTime = lastMessage ? currentMessage.sentTimestamp - lastMessage.sentTimestamp : options.maxInterval + 1;
+        const elapsedTime = lastMessage ? currentMessage.sentTimestamp - lastMessage.sentTimestamp : options.maxInterval - 10;
 
         // Basic checks
         if (elapsedTime && elapsedTime < options.maxInterval) {
@@ -285,6 +285,8 @@ export const event: BotEvent = {
 
         // if the member break the threshold
         if (cache.membersToPunish.get(message.guild.id)!.size >= 1 && cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value! >= options.Threshold) {
+            currentMessage.isSpam = true;
+
             let membersToPunish = cache.membersToPunish.get(message.guild.id);
             let guildRaidInfo = cache.raidInfo.get(message.guild.id);
 
