@@ -36,7 +36,7 @@ export const event: BotEvent = {
         async function fetchInvites() {
             client.guilds.cache.forEach(async (guild) => {
                 try {
-                    if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
+                    if (!guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageGuild, PermissionsBitField.Flags.ViewAuditLog])) return;
                     guild.invites.fetch().then(guildInvites => {
                         client.invites.set(guild.id, new Collection(guildInvites.map((invite) => [invite.code, invite.uses])));
 
