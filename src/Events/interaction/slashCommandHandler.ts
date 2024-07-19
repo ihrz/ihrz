@@ -100,6 +100,7 @@ export const event: BotEvent = {
 
             await command.run(client, interaction, Date.now(), []);
         } catch (e: any) {
+            await client.args.interactionSend(interaction, { content: `\`\`\`js\n${e}\`\`\`` })
             console.error(e);
         };
     },
