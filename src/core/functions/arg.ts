@@ -121,6 +121,7 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
     command.options?.map(x => {
         var pathString = '';
         var fullNameCommand = command.name + " " + x.name;
+        var shortCommandName = x.name;
 
         x.options?.forEach((value) => {
             pathString += value.required ? "**`[" : "**`<";
@@ -131,7 +132,7 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
         var use = `${cleanBotPrefix}${fullNameCommand} ${pathString}`;
 
         embed.addFields({
-            name: cleanBotPrefix + fullNameCommand,
+            name: `${cleanBotPrefix}${fullNameCommand} / ${cleanBotPrefix}${shortCommandName}`,
             value: lang.hybridcommands_embed_help_fields_value
                 .replace("${aliases}", aliases)
                 .replace("${use}", use)
