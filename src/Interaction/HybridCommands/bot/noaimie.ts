@@ -26,6 +26,7 @@ import {
 } from 'pwss'
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'noaimie',
@@ -40,11 +41,10 @@ export const command: Command = {
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, options?: string[]) => {
-        // Guard's Typing
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        await client.args.interactionSend(interaction,{ content: "https://imgs.search.brave.com/1d_tcHbIHT78tsDIVByVQAxm3lfKc8rKh_sBO8fjXrA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zLnlp/bWcuY29tL255L2Fw/aS9yZXMvMS4yL2xX/eVBwbFBKUWN6UVAy/MDg0RlFpR2ctLS9Z/WEJ3YVdROWFHbG5h/R3hoYm1SbGNqdDNQ/VGsyTUR0b1BUVTJN/QS0tL2h0dHBzOi8v/bWVkaWEuemVuZnMu/Y29tL2VuL3BhcmFk/ZV8yNTAvOWMyMzI4/ZWIyZGI0MWU3MDZk/ODlmODQ2NGM0ODQ1/MGY" });
+        await client.args.interactionSend(interaction, { content: "https://imgs.search.brave.com/1d_tcHbIHT78tsDIVByVQAxm3lfKc8rKh_sBO8fjXrA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zLnlp/bWcuY29tL255L2Fw/aS9yZXMvMS4yL2xX/eVBwbFBKUWN6UVAy/MDg0RlFpR2ctLS9Z/WEJ3YVdROWFHbG5h/R3hoYm1SbGNqdDNQ/VGsyTUR0b1BUVTJN/QS0tL2h0dHBzOi8v/bWVkaWEuemVuZnMu/Y29tL2VuL3BhcmFk/ZV8yNTAvOWMyMzI4/ZWIyZGI0MWU3MDZk/ODlmODQ2NGM0ODQ1/MGY" });
         return;
     },
 };

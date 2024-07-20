@@ -68,7 +68,7 @@ export default {
             textChannelId: interaction.channelId,
         });
 
-        let res = await player.search({ query: check as string, source: source }, interaction.member.user.id)
+        let res = await player.search({ query: check as string, source: source }, interaction.member.user.toString())
 
         if (res.tracks.length === 0) {
             let results = new EmbedBuilder()

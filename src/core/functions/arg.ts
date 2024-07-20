@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, Embed, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions } from "pwss";
+import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, Embed, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType } from "pwss";
 import { Command } from "../../../types/command";
 import { Option } from "../../../types/option";
 import { LanguageData } from "../../../types/languageData";
@@ -121,6 +121,7 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
     command.options?.map(x => {
         var pathString = '';
         var fullNameCommand = command.name + " " + x.name;
+        var shortCommandName = x.name;
 
         x.options?.forEach((value) => {
             pathString += value.required ? "**`[" : "**`<";
@@ -131,7 +132,7 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
         var use = `${cleanBotPrefix}${fullNameCommand} ${pathString}`;
 
         embed.addFields({
-            name: cleanBotPrefix + fullNameCommand,
+            name: `${cleanBotPrefix}${fullNameCommand} / ${cleanBotPrefix}${shortCommandName}`,
             value: lang.hybridcommands_embed_help_fields_value
                 .replace("${aliases}", aliases)
                 .replace("${use}", use)
@@ -161,11 +162,14 @@ export async function checkCommandArgs(message: Message, command: SubCommandArgu
     const botPrefix = await message.client.func.prefix.guildPrefix(message.client, message.guildId);
     let cleanBotPrefix = botPrefix.string;
 
-    if (botPrefix.type === "mention") { cleanBotPrefix = lang.hybridcommands_global_prefix_cleaned_mention; }
+    if (botPrefix.type === "mention") {
+        cleanBotPrefix = lang.hybridcommands_global_prefix_cleaned_mention;
+    }
 
     let expectedArgs: ArgumentBrief[] = [];
-    if (isSubCommandArgumentValue(command)) {
-        command.command?.options?.forEach(option => {
+
+    if (isSubCommandArgumentValue(command) && command.command) {
+        command.command.options?.forEach(option => {
             expectedArgs.push({
                 name: option.name,
                 type: getArgumentOptionTypeWithOptions(option),
@@ -173,7 +177,8 @@ export async function checkCommandArgs(message: Message, command: SubCommandArgu
                 longString: option.type === 3 && !option.choices
             });
         });
-    } else {
+    }
+    else if ('options' in command) {
         command.options?.forEach(option => {
             expectedArgs.push({
                 name: option.name,
@@ -187,7 +192,7 @@ export async function checkCommandArgs(message: Message, command: SubCommandArgu
     const minArgsCount = expectedArgs.filter(arg => arg.required).length;
     const isLastArgLongString = expectedArgs.length > 0 && expectedArgs[expectedArgs.length - 1].longString;
 
-    if (args.length < minArgsCount || (args.length === 1 && args[0] === "")) {
+    if (!Array.isArray(args) || args.length < minArgsCount || (args.length === 1 && args[0] === "")) {
         await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, 0);
         return false;
     }
@@ -237,36 +242,36 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
     let argument: string[] = [];
     let fullNameCommand: string;
 
-    expectedArgs.map(arg => argument.push(arg.required ? `[${arg.type}]` : `<${arg.type}>`));
+    expectedArgs.forEach(arg => argument.push(arg.required ? `[${arg.type}]` : `<${arg.type}>`));
 
-    var currentCommand: Command | Option;
-    var wrongArgumentName: string = "";
-    var errorPosition = "";
+    let currentCommand: Command | Option;
+    let wrongArgumentName: string = "";
+    let errorPosition = "";
 
-    if (isSubCommandArgumentValue(command)) {
-        currentCommand = command.command!;
-        fullNameCommand = command.name + " " + command.command?.name;
+    if (isSubCommandArgumentValue(command) && command.command) {
+        currentCommand = command.command;
+        fullNameCommand = `${command.name} ${command.command.name}`;
     } else {
-        fullNameCommand = command.name;
-        currentCommand = command
+        fullNameCommand = command.name!;
+        currentCommand = command as any;
     }
 
     errorPosition += " ".padStart(botPrefix.length + fullNameCommand.length);
 
-    argument.forEach((index, value) => {
-        if (errorIndex === value) {
-            wrongArgumentName = index.slice(1, -1);
+    argument.forEach((arg, index) => {
+        if (errorIndex === index) {
+            wrongArgumentName = arg.slice(1, -1);
             errorPosition += " ^";
         } else {
-            errorPosition += " ".padStart(index.length + 1)
+            errorPosition += " ".padStart(arg.length + 1);
         }
     });
 
     let argsString = argument.join(" ");
     const embed = new EmbedBuilder()
         .setDescription(lang.hybridcommands_args_error_embed_desc
-            .replace("${currentCommand.name}", currentCommand.name)
-            .replace("${currentCommand.description}", currentCommand.description)
+            .replace("${currentCommand.name}", currentCommand.name ?? "")
+            .replace("${currentCommand.description}", currentCommand.description ?? "")
             .replace("${botPrefix}", botPrefix)
             .replace("${fullNameCommand}", fullNameCommand)
             .replace("${argsString}", argsString)
@@ -274,7 +279,7 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
             .replace("${wrongArgumentName}", wrongArgumentName)
         )
         .setColor("Red")
-        .setFooter(await message.client.args.bot.footerBuilder(message))
+        .setFooter(await message.client.args.bot.footerBuilder(message));
 
     await message.client.args.interactionSend(message, {
         embeds: [embed],
@@ -323,6 +328,11 @@ export async function interactionEdit(interaction: ChatInputCommandInteraction |
 
         return await interaction.edit(replyOptions);
     }
+}
+
+export function hasSubCommand(options: Option[] | undefined): boolean {
+    if (!options) return false;
+    return options.some(option => option.type === ApplicationCommandOptionType.Subcommand);
 }
 
 export const permission = perm;

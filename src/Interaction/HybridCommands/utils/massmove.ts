@@ -77,11 +77,10 @@ export const command: Command = {
     thinking: true,
     category: 'utils',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         const allChannel = Array.from(interaction.guild.channels.cache.values()!)
             .filter(x => x.type === (ChannelType.GuildVoice || ChannelType.GuildStageVoice)) || [];
 
@@ -89,7 +88,7 @@ export const command: Command = {
             var fromChannel = interaction.options.getChannel('from') as BaseGuildVoiceChannel | null;
             var toChannel = interaction.options.getChannel('to')! as BaseGuildVoiceChannel | null;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var fromChannel = client.args.voiceChannel(interaction, 0);
             var toChannel = client.args.voiceChannel(interaction, 1);
         };
@@ -102,7 +101,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.punishpub_not_admin });
+            await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
         };
 
@@ -136,7 +135,7 @@ export const command: Command = {
             .setColor('#007fff')
             .setTimestamp()
             .setThumbnail(interaction.guild.iconURL())
-            .setDescription(data.massmove_results
+            .setDescription(lang.massmove_results
                 .replace('${interaction.user}', interaction.member.user.toString())
                 .replace('${movedCount}', movedCount.toString())
                 .replace('${errorCount}', errorCount.toString())

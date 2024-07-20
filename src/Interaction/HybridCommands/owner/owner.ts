@@ -56,7 +56,7 @@ export const command: Command = {
     thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -72,7 +72,7 @@ export const command: Command = {
         }
 
         if (!isOwner?.owner) {
-            await client.args.interactionSend(interaction,{ content: data.owner_not_owner });
+            await client.args.interactionSend(interaction,{ content: lang.owner_not_owner });
             return;
         };
 
@@ -97,12 +97,12 @@ export const command: Command = {
         let checkAx = await tableOwner.get(`${member.id}.owner`);
 
         if (checkAx) {
-            await client.args.interactionSend(interaction,{ content: data.owner_already_owner });
+            await client.args.interactionSend(interaction,{ content: lang.owner_already_owner });
             return;
         };
 
         await tableOwner.set(`${member.id}`, { owner: true });
-        await client.args.interactionSend(interaction,{ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.globalName || member.displayName) });
+        await client.args.interactionSend(interaction,{ content: lang.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.globalName || member.displayName) });
         return;
     },
 };

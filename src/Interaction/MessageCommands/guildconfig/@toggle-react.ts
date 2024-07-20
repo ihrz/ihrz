@@ -33,7 +33,7 @@ import {
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';export const command: Command = {
+import { Command } from '../../../../types/command'; export const command: Command = {
 
     name: 'toggle-react',
     aliases: ['react-toggle', 'togglereact', 'reacttoggle'],
@@ -46,15 +46,14 @@ import { Command } from '../../../../types/command';export const command: Comman
     thinking: false,
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, interaction: Message) => {
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
+    run: async (client: Client, interaction: Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {
 
         let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
 
         let active: boolean;
 
         if (!permission) {
-            await interaction.reply({ content: data.setup_not_admin, allowedMentions: { repliedUser: false } });
+            await interaction.reply({ content: lang.setup_not_admin, allowedMentions: { repliedUser: false } });
             return;
         }
 

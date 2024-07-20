@@ -102,14 +102,12 @@ export const command: Command = {
     thinking: false,
     category: 'newfeatures',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.reply({ content: data.punishpub_not_admin });
+            await interaction.reply({ content: lang.punishpub_not_admin });
             return;
         };
 
@@ -119,15 +117,15 @@ export const command: Command = {
 
         if (amount && action == "true") {
             if (amount > 50) {
-                await interaction.reply({ content: data.punishpub_too_hight_enable })
+                await interaction.reply({ content: lang.punishpub_too_hight_enable })
                 return;
             };
             if (amount < 0) {
-                await interaction.reply({ content: data.punishpub_negative_number_enable });
+                await interaction.reply({ content: lang.punishpub_negative_number_enable });
                 return;
             };
             if (amount == 0) {
-                await interaction.reply({ content: data.punishpub_zero_number_enable });
+                await interaction.reply({ content: lang.punishpub_zero_number_enable });
                 return;
             };
 
@@ -142,8 +140,8 @@ export const command: Command = {
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
-                    .setTitle(data.punishpub_logs_embed_title)
-                    .setDescription(data.punishpub_logs_embed_description
+                    .setTitle(lang.punishpub_logs_embed_title)
+                    .setDescription(lang.punishpub_logs_embed_description
                         .replace("${interaction.user.id}", interaction.user.id)
                         .replace("${amount}", amount.toString())
                         .replace("${punishement}", punishment?.toString()!)
@@ -153,7 +151,7 @@ export const command: Command = {
             } catch (e) { };
 
             await interaction.reply({
-                content: data.punishpub_confirmation_message_enable
+                content: lang.punishpub_confirmation_message_enable
                     .replace("${interaction.user.id}", interaction.user.id)
                     .replace("${amount}", amount.toString())
                     .replace("${punishement}", punishment!)
@@ -161,13 +159,13 @@ export const command: Command = {
             return;
         } else {
             await client.db.delete(`${interaction.guildId}.GUILD.PUNISH.PUNISH_PUB`);
-            await interaction.reply({ content: data.punishpub_confirmation_disable })
+            await interaction.reply({ content: lang.punishpub_confirmation_disable })
 
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
-                    .setTitle(data.punishpub_logs_embed_title_disable)
-                    .setDescription(data.punishpub_logs_embed_description_disable
+                    .setTitle(lang.punishpub_logs_embed_title_disable)
+                    .setDescription(lang.punishpub_logs_embed_description_disable
                         .replace("${interaction.user.id}", interaction.user.id)
                     )
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');

@@ -74,11 +74,10 @@ export const command: Command = {
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let voiceStates = interaction.guild.voiceStates.cache;
         let membersStates = interaction.guild.members.cache;
 
@@ -88,7 +87,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.punishpub_not_admin });
+            await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
         }
 
         let textChannelSize = interaction.guild?.channels.cache.filter(c => c.type === ChannelType.GuildText).size;
@@ -97,7 +96,7 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var mode = interaction.options.getString("show-mode");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var mode = client.args.string(args!, 0);
         };
 
@@ -128,7 +127,7 @@ export const command: Command = {
             embed
                 .setColor(2829617)
                 .setDescription(
-                    data.vc_embed_desc
+                    lang.vc_embed_desc
                         .replaceAll('${voiceStates?.size}', voiceStates?.size.toString()!)
                         .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Streaming}', client.iHorizon_Emojis.icon.iHorizon_Streaming)
                         .replaceAll('${voiceStates?.filter(vc => vc.streaming).size}', total_members_vc_streaming)
@@ -152,14 +151,14 @@ export const command: Command = {
                 )
                 .addFields(
                     {
-                        name: data.vc_embed_fields_1_name,
-                        value: data.vc_embed_fields_1_value
+                        name: lang.vc_embed_fields_1_name,
+                        value: lang.vc_embed_fields_1_value
                             .replace('${interaction.guild?.memberCount}', interaction.guild?.memberCount.toString()!),
                         inline: true
                     },
                     {
-                        name: data.vc_embed_fields_2_name,
-                        value: data.vc_embed_fields_2_value
+                        name: lang.vc_embed_fields_2_name,
+                        value: lang.vc_embed_fields_2_value
                             .replace('${textChannelSize}', textChannelSize?.toString()!)
                             .replace('${voiceChannelSize}', voiceChannelSize?.toString()!),
                         inline: true
@@ -170,7 +169,7 @@ export const command: Command = {
         } else {
             embed
                 .setDescription(
-                    data.vc_embed_short_desc
+                    lang.vc_embed_short_desc
                         .replaceAll("${voiceStates?.size}", voiceStates.size.toString())
                         .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Streaming}", client.iHorizon_Emojis.icon.iHorizon_Streaming)
                         .replaceAll("${total_members_vc_streaming}", total_members_vc_streaming)

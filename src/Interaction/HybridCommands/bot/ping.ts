@@ -45,11 +45,9 @@ export const command: Command = {
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, options?: string[]) => {
-        // Guard's Typing
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         const ogI = await client.args.interactionSend(interaction,{ content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading });
 
         let _net01: number | string = '';
@@ -57,16 +55,16 @@ export const command: Command = {
         let _net03: number | string = '';
         let _net04: number | string = '';
 
-        await ping.promise.probe("google.com").then(result => { _net01 = Number(result.time) }).catch(() => { _net01 = data.ping_down_msg });
-        await ping.promise.probe("cloudflare.com").then(result => { _net02 = Number(result.time) }).catch(() => { _net02 = data.ping_down_msg });
-        await ping.promise.probe("discord.com").then(result => { _net03 = Number(result.time) }).catch(() => { _net03 = data.ping_down_msg });
-        await ping.promise.probe("ihorizon.me").then(result => { _net04 = Number(result.time) }).catch(() => { _net04 = data.ping_down_msg });
+        await ping.promise.probe("google.com").then(result => { _net01 = Number(result.time) }).catch(() => { _net01 = lang.ping_down_msg });
+        await ping.promise.probe("cloudflare.com").then(result => { _net02 = Number(result.time) }).catch(() => { _net02 = lang.ping_down_msg });
+        await ping.promise.probe("discord.com").then(result => { _net03 = Number(result.time) }).catch(() => { _net03 = lang.ping_down_msg });
+        await ping.promise.probe("ihorizon.me").then(result => { _net04 = Number(result.time) }).catch(() => { _net04 = lang.ping_down_msg });
 
         let averagePing = (parseInt(_net01) + parseInt(_net02) + parseInt(_net03) + parseInt(_net04)) / 4;
 
         let embed = new EmbedBuilder()
             .setColor(2829617)
-            .setDescription(data.ping_embed_desc
+            .setDescription(lang.ping_embed_desc
                 .replaceAll('${interaction.client.user.username}', interaction.client.user.username)
                 .replaceAll('${_net03}', _net03)
                 .replaceAll('${_net02}', _net02)

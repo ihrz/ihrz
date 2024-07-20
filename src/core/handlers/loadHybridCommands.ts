@@ -126,6 +126,21 @@ export default async function loadCommands(client: Client, path: string = p): Pr
 
             if (command.options) {
                 await processOptions(command.options, command.category, command.name, client);
+
+                if (argsHelper.hasSubCommand(command.options)) {
+                    const lastSlashIndex = path.lastIndexOf('/');
+                    const directoryPath = path.substring(0, lastSlashIndex);
+                    for (let option of command.options) {
+                        if (option.name) {
+                            // for (let alias of option.aliases) {
+                            // client.message_commands.set(alias, command);
+                            const commandModule = await import(`${directoryPath}/!${option.name}.js`);
+                            option.run = commandModule.default.run
+                            client.message_commands.set(option.name, option)
+                            // }
+                        }
+                    }
+                }
             };
 
             client.content.push(

@@ -275,11 +275,10 @@ export const command: Command = {
     thinking: false,
     category: 'ownihrz',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
+    run: async (client: Client, interaction: ChatInputCommandInteraction, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         let command = interaction.options.getSubcommand();
 
         const commandModule = await import(`./!${command}.js`);
-        await commandModule.default.run(client, interaction, data);
+        await commandModule.default.run(client, interaction, lang);
     },
 };
