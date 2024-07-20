@@ -73,8 +73,8 @@ import { SubCommandArgumentValue } from '../../../core/functions/arg';export con
             ],
         },
         {
-            name: 'leaderboard',
-            aliases: ["lb"],
+            name: 'invites-leaderboard',
+            aliases: ["lb-invites", "invlb", "inviteslb"],
 
             description: 'Show the guild invites\'s leaderboard!',
             description_localizations: {
@@ -84,7 +84,7 @@ import { SubCommandArgumentValue } from '../../../core/functions/arg';export con
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: "show",
+            name: "show-invites",
 
             description: "Get the invites amount of a user!",
             description_localizations: {

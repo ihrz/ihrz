@@ -39,7 +39,7 @@ export const command: Command = {
     },
     options: [
         {
-            name: "create",
+            name: "gw-create",
             name_localizations: {
                 "fr": "créer"
             },
@@ -100,7 +100,7 @@ export const command: Command = {
             ]
         },
         {
-            name: "end",
+            name: "gw-end",
             name_localizations: {
                 "fr": "finnir"
             },

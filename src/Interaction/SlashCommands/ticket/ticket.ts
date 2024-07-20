@@ -82,7 +82,7 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: "disable",
+            name: "ticket-disable",
 
             description: "Disable ticket commands on a guild!",
             description_localizations: {

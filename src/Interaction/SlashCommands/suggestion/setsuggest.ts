@@ -39,7 +39,7 @@ export const command: Command = {
 
     options: [
         {
-            name: "disable",
+            name: "suggest-disable",
 
             description: "Disable the suggestion module (need admin permission)!",
             description_localizations: {
@@ -72,7 +72,7 @@ export const command: Command = {
             ],
         },
         {
-            name: "channel",
+            name: "suggest-channel",
 
             description: "Set a channel for the Suggestion Module (need admin permission)!",
             description_localizations: {

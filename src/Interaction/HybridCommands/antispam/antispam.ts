@@ -41,7 +41,7 @@ export const command: Command = {
 
     options: [
         {
-            name: "manage",
+            name: "antispam-manage",
 
             description: "Manage the antispam module",
             description_localizations: {
@@ -54,7 +54,7 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: "bypass-roles",
+            name: "antispam-bypass-roles",
 
             description: "All of the roles wich bypass the antispam",
             description_localizations: {
@@ -66,7 +66,7 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: "ignore-channels",
+            name: "antispam-ignore-channels",
 
             description: "Ignore this channels in the AntiSpam Module",
             description_localizations: {

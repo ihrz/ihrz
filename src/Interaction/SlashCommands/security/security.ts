@@ -42,7 +42,7 @@ export const command: Command = {
 
     options: [
         {
-            name: "channel",
+            name: "security-channel",
             name_localizations: {
                 "fr": "définir-cannal"
             },
@@ -68,7 +68,7 @@ export const command: Command = {
             ],
         },
         {
-            name: "disable",
+            name: "security-disable",
             name_localizations: {
                 "fr": "statut"
             },

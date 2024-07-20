@@ -41,10 +41,12 @@ export const command: Command = {
 
     options: [
         {
-            name: "create",
+            name: "backup-create",
             name_localizations: {
                 "fr": "créer"
             },
+
+            aliases: ["bcreate"],
 
             description: "Create a backup!",
             description_localizations: {
@@ -77,7 +79,7 @@ export const command: Command = {
             ],
         },
         {
-            name: "list",
+            name: "backup-list",
             name_localizations: {
                 "fr": "listé"
             },
@@ -90,7 +92,7 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: "load",
+            name: "backup-load",
             name_localizations: {
                 "fr": "chargé"
             },
@@ -116,7 +118,7 @@ export const command: Command = {
             ],
         },
         {
-            name: "delete",
+            name: "backup-delete",
 
             description: "Delete your backup from the list",
             description_localizations: {

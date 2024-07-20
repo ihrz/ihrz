@@ -42,7 +42,7 @@ export const command: Command = {
 
     options: [
         {
-            name: "disable",
+            name: "ranks-disable",
             name_localizations: {
                 "fr": "statut"
             },
@@ -82,7 +82,7 @@ export const command: Command = {
             ],
         },
         {
-            name: "show",
+            name: "show-ranks",
             name_localizations: {
                 "fr": "afficher"
             },
@@ -159,7 +159,7 @@ export const command: Command = {
             ],
         },
         {
-            name: "leaderboard",
+            name: "ranks-leaderboard",
             name_localizations: {
                 "fr": "classement"
             },
@@ -169,12 +169,12 @@ export const command: Command = {
                 "fr": "Obtenez le classement XP du serveur"
             },
 
-            aliases: ["lb"],
+            aliases: ["rankslb"],
 
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: "ignore-channels",
+            name: "ranks-ignore-channels",
 
             description: "Ignore this channels in the Ranks Module",
             description_localizations: {

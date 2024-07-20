@@ -95,7 +95,7 @@ export const command: Command = {
                     ],
                 },
                 {
-                    name: "show",
+                    name: "show-list",
 
                     description: "List the users in the allowlist!",
                     description_localizations: {

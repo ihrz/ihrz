@@ -43,7 +43,7 @@ export const command: Command = {
     category: 'utils',
     options: [
         {
-            name: "user",
+            name: "banner-user",
 
             description: "Get the banner of a specified user!",
             description_localizations: {
@@ -66,7 +66,7 @@ export const command: Command = {
             ],
         },
         {
-            name: "server",
+            name: "banner-server",
 
             description: "Get the banner of the server!",
             description_localizations: {

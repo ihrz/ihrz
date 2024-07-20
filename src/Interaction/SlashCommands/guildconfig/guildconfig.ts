@@ -141,7 +141,7 @@ export const command: Command = {
             ],
         },
         {
-            name: 'show',
+            name: 'config-show',
 
             description: 'Get the guild configuration!',
             description_localizations: {
