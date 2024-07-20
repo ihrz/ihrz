@@ -61,16 +61,14 @@ export const command: Command = {
     ],
     thinking: true,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getMember("member") as GuildMember;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var member = client.args.member(interaction, 0) || interaction.member;
         };
 
@@ -80,7 +78,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.punishpub_not_admin });
+            await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
         };
 
@@ -110,7 +108,7 @@ export const command: Command = {
                 let embed = new EmbedBuilder()
                     .setColor(2829617)
                     .setTimestamp()
-                    .setDescription(data.derank_msg_desc_embed
+                    .setDescription(lang.derank_msg_desc_embed
                         .replace('${good}', good.toString())
                         .replace('${bad}', bad.toString())
                         .replace('${member.id}', member.id)
@@ -123,7 +121,7 @@ export const command: Command = {
                 });
             })
             .catch(err => {
-                client.args.interactionSend(interaction, { content: data.derank_msg_failed });
+                client.args.interactionSend(interaction, { content: lang.derank_msg_failed });
             });
     },
 };

@@ -93,18 +93,16 @@ export const command: Command = {
     thinking: true,
     category: 'utils',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var action_1 = interaction.options.getString("action");
             var part_of_nickname = interaction.options.getString("nickname")?.toLowerCase();
             var role = interaction.options.getRole('role');
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var action_1 = client.args.string(args!, 0);
             var part_of_nickname = client.args.string(args!, 1)?.toLowerCase();
             var role = client.args.role(interaction, 0);
@@ -121,7 +119,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.punishpub_not_admin });
+            await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
         }
 
         if (action_1 === 'add') {
@@ -159,7 +157,7 @@ export const command: Command = {
                 .setColor('#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild.iconURL())
-                .setDescription(data.nickrole_add_command_work
+                .setDescription(lang.nickrole_add_command_work
                     .replace('${interaction.user}', interaction.member.user.toString())
                     .replace('${a}', a.toString())
                     .replace('${s}', s.toString())
@@ -208,7 +206,7 @@ export const command: Command = {
                 .setColor('#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild.iconURL())
-                .setDescription(data.nickrole_sub_command_work
+                .setDescription(lang.nickrole_sub_command_work
                     .replace('${interaction.user}', interaction.member.user.toString())
                     .replace('${a}', a.toString())
                     .replace('${s}', s.toString())

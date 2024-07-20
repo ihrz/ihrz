@@ -46,16 +46,12 @@ import { DatabaseStructure } from '../../../../types/database_structure.js'; exp
     thinking: false,
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, interaction: Message, execTimestamp: number, args: string[]) => {
-
-
+    run: async (client: Client, interaction: Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {
         let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
 
         if (!permission) {
             return;
         };
-
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         let all_specific_message: DatabaseStructure.DbGuildObject["REACT_MSG"] = await client.db.get(`${interaction.guildId}.GUILD.REACT_MSG`) || {};
 

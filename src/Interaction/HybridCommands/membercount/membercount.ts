@@ -94,11 +94,9 @@ export const command: Command = {
     thinking: true,
     category: 'membercount',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
         const permissions = interaction instanceof ChatInputCommandInteraction ?
@@ -106,7 +104,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.setmembercount_not_admin });
+            await client.args.interactionSend(interaction, { content: lang.setmembercount_not_admin });
             return;
         };
 
@@ -115,7 +113,7 @@ export const command: Command = {
             var messagei = interaction.options.getString("name")?.toLowerCase()!;
             var channel = interaction.options.getChannel("channel") as BaseGuildVoiceChannel;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var type = client.args.string(args!, 0);
             var channel = client.args.voiceChannel(interaction, 0)!;
             var messagei = client.args.string(args!, 2)?.toLowerCase()!;
@@ -123,9 +121,9 @@ export const command: Command = {
 
         let help_embed = new EmbedBuilder()
             .setColor("#0014a8")
-            .setTitle(data.setmembercount_helpembed_title)
-            .setDescription(data.setmembercount_helpembed_description)
-            .addFields({ name: data.setmembercount_helpembed_fields_name, value: data.setmembercount_helpembed_fields_value });
+            .setTitle(lang.setmembercount_helpembed_title)
+            .setDescription(lang.setmembercount_helpembed_description)
+            .addFields({ name: lang.setmembercount_helpembed_fields_name, value: lang.setmembercount_helpembed_fields_value });
 
         if (type == "on") {
             let botMembers = interaction.guild.members.cache.filter((member: GuildMember) => member.user.bot);
@@ -171,8 +169,8 @@ export const command: Command = {
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
-                    .setTitle(data.setmembercount_logs_embed_title_on_enable)
-                    .setDescription(data.setmembercount_logs_embed_description_on_enable
+                    .setTitle(lang.setmembercount_logs_embed_title_on_enable)
+                    .setDescription(lang.setmembercount_logs_embed_description_on_enable
                         .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
                         .replace(/\${channel\.id}/g, channel?.id!)
                         .replace(/\${messagei}/g, messagei)
@@ -185,7 +183,7 @@ export const command: Command = {
 
             (fetched as BaseGuildTextChannel).edit({ name: joinmsgreplace });
             await client.args.interactionSend(interaction, {
-                content: data.setmembercount_command_work_on_enable.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+                content: lang.setmembercount_command_work_on_enable.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
             });
             return;
 
@@ -194,8 +192,8 @@ export const command: Command = {
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
-                    .setTitle(data.setmembercount_logs_embed_title_on_disable)
-                    .setDescription(data.setmembercount_logs_embed_description_on_disable
+                    .setTitle(lang.setmembercount_logs_embed_title_on_disable)
+                    .setDescription(lang.setmembercount_logs_embed_description_on_disable
                         .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
                     )
                 let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
@@ -203,7 +201,7 @@ export const command: Command = {
             } catch (e: any) { logger.err(e) };
 
             await client.args.interactionSend(interaction, {
-                content: data.setmembercount_command_work_on_disable.replace('${client.iHorizon_Emojis.icon.Yes_Logo}', client.iHorizon_Emojis.icon.Yes_Logo)
+                content: lang.setmembercount_command_work_on_disable.replace('${client.iHorizon_Emojis.icon.Yes_Logo}', client.iHorizon_Emojis.icon.Yes_Logo)
             });
             return;
         } else if (!type) {

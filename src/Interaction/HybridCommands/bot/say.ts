@@ -60,11 +60,8 @@ export const command: Command = {
     ],
     type: ApplicationCommandType.ChatInput,
     thinking: false,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, args?: string[]) => {
-        // Guard's Typing
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
         const permissions = interaction instanceof ChatInputCommandInteraction ?
@@ -74,18 +71,18 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var toSay = interaction.options.getString('content')!;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var toSay = args?.join(" ")!;
         };
 
         if (!permissions) {
-            await client.args.interactionSend(interaction,{ content: data.setserverlang_not_admin });
+            await client.args.interactionSend(interaction,{ content: lang.setserverlang_not_admin });
             return;
         };
 
         if (interaction instanceof ChatInputCommandInteraction) await interaction.deferReply() && await interaction.deleteReply();
         await interaction.channel.send({
-            content: '> ' + `${toSay}${data.say_footer_msg.replace('${interaction.user}', interaction.member.user.toString())}`
+            content: '> ' + `${toSay}${lang.say_footer_msg.replace('${interaction.user}', interaction.member.user.toString())}`
         });
         return;
     },

@@ -22,6 +22,7 @@
 import { Command } from '../../../types/command';
 import { BotEvent } from '../../../types/event';
 import { Client, Message } from 'pwss';
+import { LanguageData } from '../../../types/languageData';
 
 var timeout: number = 1000;
 
@@ -65,7 +66,8 @@ export const event: BotEvent = {
         let result = await isMessageCommand(client, message);
 
         if (result.s) {
-            result.c?.run(client, message, Date.now(), result.a);
+            let lang = await client.func.getLanguageData(message.guildId) as LanguageData;
+            result.c?.run(client, message, lang, result.c, Date.now(), result.a);
             return true;
         } else {
             return false;
