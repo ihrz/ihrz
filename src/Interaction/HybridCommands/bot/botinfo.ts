@@ -29,6 +29,7 @@ import {
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 
 export const command: Command = {
     name: 'botinfo',
@@ -43,24 +44,23 @@ export const command: Command = {
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, options?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
         let clientembed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#f0d020")
             .setThumbnail("attachment://footer_icon.png")
             .addFields(
-                { name: data.botinfo_embed_fields_myname, value: `\`\`\`${client.user.username}\`\`\``, inline: false },
-                { name: data.botinfo_embed_fields_mychannels, value: `\`\`\`py\n${client.channels.cache.size}\`\`\``, inline: false },
-                { name: data.botinfo_embed_fields_myservers, value: `\`\`\`py\n${client.guilds.cache.size}\`\`\``, inline: false },
-                { name: data.botinfo_embed_fields_members, value: `\`\`\`py\n${usersize}\`\`\``, inline: false },
-                { name: data.botinfo_embed_fields_libraires, value: `\`\`\`py\npwss@${client.version.djs}\`\`\``, inline: false },
-                { name: data.botinfo_embed_fields_created_at, value: "<t:1600042320:R>", inline: false },
-                { name: data.botinfo_embed_fields_created_by, value: "<@171356978310938624>", inline: false },
+                { name: lang.botinfo_embed_fields_myname, value: `\`\`\`${client.user.username}\`\`\``, inline: false },
+                { name: lang.botinfo_embed_fields_mychannels, value: `\`\`\`py\n${client.channels.cache.size}\`\`\``, inline: false },
+                { name: lang.botinfo_embed_fields_myservers, value: `\`\`\`py\n${client.guilds.cache.size}\`\`\``, inline: false },
+                { name: lang.botinfo_embed_fields_members, value: `\`\`\`py\n${usersize}\`\`\``, inline: false },
+                { name: lang.botinfo_embed_fields_libraires, value: `\`\`\`py\npwss@${client.version.djs}\`\`\``, inline: false },
+                { name: lang.botinfo_embed_fields_created_at, value: "<t:1600042320:R>", inline: false },
+                { name: lang.botinfo_embed_fields_created_by, value: "<@171356978310938624>", inline: false },
             )
             .setTimestamp()
             .setFooter(await client.args.bot.footerBuilder(interaction))

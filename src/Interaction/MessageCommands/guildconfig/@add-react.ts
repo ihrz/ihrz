@@ -47,12 +47,10 @@ import { Command } from '../../../../types/command';export const command: Comman
     thinking: false,
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, interaction: Message, execTimestamp: number, args: string[]) => {
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-
+    run: async (client: Client, interaction: Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
 
-        let emoji = args[0];
+        let emoji = args![0];
 
         if (!permission) {
             return;
@@ -63,7 +61,7 @@ import { Command } from '../../../../types/command';export const command: Comman
             return;
         }
 
-        let message = args[1];
+        let message = args![1];
 
         await interaction.reply({ content: `<@${interaction.member?.id}>, maintenant quand un membre envoie \`${message.toLowerCase()}\`, le bot **réagis** avec ${emoji}`, allowedMentions: { repliedUser: false } });
 

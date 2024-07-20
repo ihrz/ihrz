@@ -68,16 +68,14 @@ export const command: Command = {
     thinking: false,
     category: 'utils',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var arg = interaction.options.getString("id");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var arg = client.args.string(args!, 0);
         };
 
@@ -89,7 +87,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.punishpub_not_admin });
+            await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
         };
 
@@ -100,41 +98,41 @@ export const command: Command = {
 
         let select = new StringSelectMenuBuilder()
             .setCustomId('embed-select-menu')
-            .setPlaceholder(data.embed_placeholder_string_select_menu_builder)
+            .setPlaceholder(lang.embed_placeholder_string_select_menu_builder)
             .addOptions(
-                new StringSelectMenuOptionBuilder().setLabel(data.embed_placeholder_option_copy_embed).setEmoji("📥").setValue('0'),
-                new StringSelectMenuOptionBuilder().setLabel(data.embed_placeholder_option_edit_title).setEmoji("🖊").setValue('1'),
-                new StringSelectMenuOptionBuilder().setLabel(data.embed_placeholder_option_delete_title).setEmoji("💥").setValue('2'),
-                new StringSelectMenuOptionBuilder().setLabel(data.embed_placeholder_option_edit_description).setEmoji("💬").setValue('3'),
-                new StringSelectMenuOptionBuilder().setLabel(data.embed_placeholder_option_delete_description).setEmoji("📝").setValue('4'),
-                new StringSelectMenuOptionBuilder().setLabel(data.embed_placeholder_option_edit_author).setEmoji("🕵️").setValue('5'),
-                new StringSelectMenuOptionBuilder().setLabel(data.embed_placeholder_option_delete_author).setEmoji("✂").setValue('6'),
-                new StringSelectMenuOptionBuilder().setLabel(data.embed_placeholder_option_edit_footer).setEmoji("🔻").setValue('7'),
-                new StringSelectMenuOptionBuilder().setLabel(data.embed_placeholder_option_delete_footer).setEmoji("🔺").setValue('8'),
-                new StringSelectMenuOptionBuilder().setLabel(data.embed_placeholder_option_edit_thumbnail).setEmoji("🔳").setValue('9'),
-                new StringSelectMenuOptionBuilder().setLabel(data.embed_placeholder_option_edit_image).setEmoji("🖼️").setValue('10'),
-                new StringSelectMenuOptionBuilder().setLabel(data.embed_placeholder_option_edit_titleurl).setEmoji("🌐").setValue('11'),
-                new StringSelectMenuOptionBuilder().setLabel(data.embed_placeholder_option_edit_color).setEmoji("🎨").setValue('12'),
-                new StringSelectMenuOptionBuilder().setLabel(data.embed_placeholder_option_delete_color).setEmoji("🔵").setValue('13')
+                new StringSelectMenuOptionBuilder().setLabel(lang.embed_placeholder_option_copy_embed).setEmoji("📥").setValue('0'),
+                new StringSelectMenuOptionBuilder().setLabel(lang.embed_placeholder_option_edit_title).setEmoji("🖊").setValue('1'),
+                new StringSelectMenuOptionBuilder().setLabel(lang.embed_placeholder_option_delete_title).setEmoji("💥").setValue('2'),
+                new StringSelectMenuOptionBuilder().setLabel(lang.embed_placeholder_option_edit_description).setEmoji("💬").setValue('3'),
+                new StringSelectMenuOptionBuilder().setLabel(lang.embed_placeholder_option_delete_description).setEmoji("📝").setValue('4'),
+                new StringSelectMenuOptionBuilder().setLabel(lang.embed_placeholder_option_edit_author).setEmoji("🕵️").setValue('5'),
+                new StringSelectMenuOptionBuilder().setLabel(lang.embed_placeholder_option_delete_author).setEmoji("✂").setValue('6'),
+                new StringSelectMenuOptionBuilder().setLabel(lang.embed_placeholder_option_edit_footer).setEmoji("🔻").setValue('7'),
+                new StringSelectMenuOptionBuilder().setLabel(lang.embed_placeholder_option_delete_footer).setEmoji("🔺").setValue('8'),
+                new StringSelectMenuOptionBuilder().setLabel(lang.embed_placeholder_option_edit_thumbnail).setEmoji("🔳").setValue('9'),
+                new StringSelectMenuOptionBuilder().setLabel(lang.embed_placeholder_option_edit_image).setEmoji("🖼️").setValue('10'),
+                new StringSelectMenuOptionBuilder().setLabel(lang.embed_placeholder_option_edit_titleurl).setEmoji("🌐").setValue('11'),
+                new StringSelectMenuOptionBuilder().setLabel(lang.embed_placeholder_option_edit_color).setEmoji("🎨").setValue('12'),
+                new StringSelectMenuOptionBuilder().setLabel(lang.embed_placeholder_option_delete_color).setEmoji("🔵").setValue('13')
             );
 
         let save = new ButtonBuilder()
             .setCustomId('save')
-            .setLabel(data.embed_btn_save)
+            .setLabel(lang.embed_btn_save)
             .setStyle(ButtonStyle.Success);
 
         let send = new ButtonBuilder()
             .setCustomId('send')
-            .setLabel(data.embed_btn_send)
+            .setLabel(lang.embed_btn_send)
             .setStyle(ButtonStyle.Primary);
 
         let cancel = new ButtonBuilder()
             .setCustomId('cancel')
-            .setLabel(data.embed_btn_cancel)
+            .setLabel(lang.embed_btn_cancel)
             .setStyle(ButtonStyle.Danger);
 
         let response = await client.args.interactionSend(interaction,{
-            content: data.embed_first_message,
+            content: lang.embed_first_message,
             embeds: [__tempEmbed],
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
@@ -149,7 +147,7 @@ export const command: Command = {
 
         collector.on('collect', async (i) => {
             if (i.user.id !== interaction.member?.user.id!) {
-                await i.reply({ content: data.embed_interaction_not_for_you, ephemeral: true });
+                await i.reply({ content: lang.embed_interaction_not_for_you, ephemeral: true });
                 return;
             }
             await chooseAction(i);
@@ -169,28 +167,28 @@ export const command: Command = {
                             const parts = extractDiscordUrlParts(message.content || 'none');
 
                             if (parts.userIdOrGuildId !== interaction.guildId) {
-                                i.followUp({ content: data.embed_copy_bad_guild_msg.replace("${interaction.guild?.name}", interaction.guild?.name!), ephemeral: true })
+                                i.followUp({ content: lang.embed_copy_bad_guild_msg.replace("${interaction.guild?.name}", interaction.guild?.name!), ephemeral: true })
                                 return;
                             }
 
                             const channel: TextChannel | null = interaction.guild?.channels.cache.get(parts.channelId) as TextChannel;
 
                             if (!channel) {
-                                i.followUp({ content: data.embed_copy_bad_channel_msg, ephemeral: true })
+                                i.followUp({ content: lang.embed_copy_bad_channel_msg, ephemeral: true })
                                 return;
                             };
 
                             const targetMessage = await channel?.messages.fetch(parts.messageId);
 
                             if (!targetMessage) {
-                                i.followUp({ content: data.embed_copy_bad_message_msg, ephemeral: true })
+                                i.followUp({ content: lang.embed_copy_bad_message_msg, ephemeral: true })
                                 return;
                             };
 
                             const targetMessageEmbedsSize = targetMessage.embeds.length;
 
                             if (targetMessageEmbedsSize === 0) {
-                                i.followUp({ content: data.embed_copy_bad_embed_message_msg, ephemeral: true })
+                                i.followUp({ content: lang.embed_copy_bad_embed_message_msg, ephemeral: true })
                                 return;
                             };
 
@@ -201,7 +199,7 @@ export const command: Command = {
                             response.edit({ embeds: [__tempEmbed] });
                         } catch (err) {
                             i.followUp({
-                                content: data.embed_copy_bad_url_msg
+                                content: lang.embed_copy_bad_url_msg
                                     .replace("${message.guildId}", message.guildId!)
                                     .replace("${interaction.channelId}", interaction.channelId!)
                                     .replace("${interaction.id}", interaction.id!),
@@ -220,7 +218,7 @@ export const command: Command = {
                 case '2':
                     __tempEmbed.setTitle(null);
                     response.edit({ embeds: [__tempEmbed] });
-                    await i.reply({ content: data.embed_choose_2, ephemeral: true });
+                    await i.reply({ content: lang.embed_choose_2, ephemeral: true });
                     break;
                 case '3':
                     await handleCollector(i, 'embed_choose_3', (message) => {
@@ -231,7 +229,7 @@ export const command: Command = {
                 case '4':
                     __tempEmbed.setDescription("** **");
                     response.edit({ embeds: [__tempEmbed] });
-                    await i.reply({ content: data.embed_choose_4, ephemeral: true });
+                    await i.reply({ content: lang.embed_choose_4, ephemeral: true });
                     break;
                 case '5':
                     await handleCollector(i, 'embed_choose_5', (message) => {
@@ -242,7 +240,7 @@ export const command: Command = {
                 case '6':
                     __tempEmbed.setAuthor(null);
                     response.edit({ embeds: [__tempEmbed] });
-                    await i.reply({ content: data.embed_choose_6, ephemeral: true });
+                    await i.reply({ content: lang.embed_choose_6, ephemeral: true });
                     break;
                 case '7':
                     await handleCollector(i, 'embed_choose_7', (message) => {
@@ -253,7 +251,7 @@ export const command: Command = {
                 case '8':
                     __tempEmbed.setFooter(null);
                     response.edit({ embeds: [__tempEmbed] });
-                    await i.reply({ content: data.embed_choose_8, ephemeral: true });
+                    await i.reply({ content: lang.embed_choose_8, ephemeral: true });
                     break;
                 case '9':
                     await handleCollector(i, 'embed_choose_9', (message) => {
@@ -289,14 +287,14 @@ export const command: Command = {
                             __tempEmbed.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || (message.content as ColorResolvable));
                             response.edit({ embeds: [__tempEmbed] });
                         } else {
-                            await interaction.channel?.send({ content: data.embed_choose_12_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
+                            await interaction.channel?.send({ content: lang.embed_choose_12_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
                         }
                     });
                     break;
                 case '13':
                     __tempEmbed.setColor(null);
                     response.edit({ embeds: [__tempEmbed] });
-                    await i.reply({ content: data.embed_choose_13, ephemeral: true });
+                    await i.reply({ content: lang.embed_choose_13, ephemeral: true });
                     break;
                 default:
                     break;
@@ -304,7 +302,7 @@ export const command: Command = {
         }
 
         async function handleCollector(i: StringSelectMenuInteraction<CacheType>, replyContent: LanguageDataKeys, onCollect: (message: Message) => void) {
-            const replyMessage = Array.isArray(data[replyContent]) ? (data[replyContent] as string[]).join(' ') : data[replyContent];
+            const replyMessage = Array.isArray(lang[replyContent]) ? (lang[replyContent] as string[]).join(' ') : lang[replyContent];
             let reply = await i.reply({ content: replyMessage.toString(), ephemeral: true });
             let messageCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.member?.user.id!, max: 1, time: 120_000 });
             messageCollector?.on('collect', async (message) => {
@@ -326,7 +324,7 @@ export const command: Command = {
                 );
 
             await confirmation.update({
-                content: data.embed_send_message.replace('${interaction.user.id}', interaction.member?.user.id!),
+                content: lang.embed_send_message.replace('${interaction.user.id}', interaction.member?.user.id!),
                 components: [channelSelectMenu]
             });
 
@@ -345,7 +343,7 @@ export const command: Command = {
                     await (channel as BaseGuildTextChannel).send({ embeds: [__tempEmbed] });
                     seCollector.stop();
                     await response.edit({
-                        content: data.embed_send_embed_work.replace('${interaction.user.id}', interaction.member?.user.id!).replace('${message.content}', channel.id),
+                        content: lang.embed_send_embed_work.replace('${interaction.user.id}', interaction.member?.user.id!).replace('${message.content}', channel.id),
                         embeds: [],
                         components: []
                     });
@@ -375,7 +373,7 @@ export const command: Command = {
 
         buttonCollector.on('collect', async (confirmation) => {
             if (confirmation.user.id !== interaction.member?.user.id!) {
-                await confirmation.reply({ content: data.embed_interaction_not_for_you, ephemeral: true });
+                await confirmation.reply({ content: lang.embed_interaction_not_for_you, ephemeral: true });
                 return;
             }
 
@@ -384,7 +382,7 @@ export const command: Command = {
                     if (arg) await client.db.delete(`EMBED.${arg}`);
                     let embedId = await saveEmbed();
                     await confirmation.update({
-                        content: data.embed_save_message.replace('${interaction.user.id}', interaction.member?.user.id!).replace('${await saveEmbed()}', embedId),
+                        content: lang.embed_save_message.replace('${interaction.user.id}', interaction.member?.user.id!).replace('${await saveEmbed()}', embedId),
                         components: [],
                         embeds: []
                     });
@@ -392,7 +390,7 @@ export const command: Command = {
                     break;
                 case "cancel":
                     await confirmation.update({
-                        content: data.embed_cancel_message.replace('${interaction.user.id}', interaction.member?.user.id!),
+                        content: lang.embed_cancel_message.replace('${interaction.user.id}', interaction.member?.user.id!),
                         components: [],
                         embeds: []
                     });

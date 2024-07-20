@@ -68,7 +68,7 @@ export default {
                 .setDescription(chunk.join('\n') || data.queue_embed_description_empty)
                 .setFooter({
                     text: data.queue_embed_footer_text
-                        .replace("{index}", index + 1 .toString())
+                        .replace("{index}", (index + 1).toString())
                         .replace("{track}", player.queue.tracks.length.toString())
                 });
 

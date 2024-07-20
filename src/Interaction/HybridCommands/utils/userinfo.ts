@@ -64,7 +64,7 @@ export const command: Command = {
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -136,12 +136,10 @@ export const command: Command = {
                 .join('');
         };
 
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getUser('user') || interaction.user;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var member = client.args.user(interaction, 0) || interaction.author;
         };
 
@@ -168,28 +166,28 @@ export const command: Command = {
                 .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#0014a8')
                 .setFields(
                     {
-                        name: data.userinfo_embed_fields_1_name,
-                        value: getBadges(member.flags?.bitfield!) || data.userinfo_var_notfound,
+                        name: lang.userinfo_embed_fields_1_name,
+                        value: getBadges(member.flags?.bitfield!) || lang.userinfo_var_notfound,
                         inline: true,
                     },
                     {
-                        name: data.userinfo_embed_fields_2_name,
+                        name: lang.userinfo_embed_fields_2_name,
                         value: user.username,
                         inline: true,
                     },
                     {
-                        name: data.userinfo_embed_fields_3_name,
-                        value: user.displayName || data.userinfo_var_notfound,
+                        name: lang.userinfo_embed_fields_3_name,
+                        value: user.displayName || lang.userinfo_var_notfound,
                         inline: true,
                     },
                     {
-                        name: data.userinfo_embed_fields_4_name,
-                        value: time(user.createdAt, "D") || data.userinfo_var_notfound,
+                        name: lang.userinfo_embed_fields_4_name,
+                        value: time(user.createdAt, "D") || lang.userinfo_var_notfound,
                         inline: true,
                     },
                     {
-                        name: data.userinfo_embed_fields_5_name,
-                        value: GetNitro(user_1.premium_type) || data.userinfo_var_notfound,
+                        name: lang.userinfo_embed_fields_5_name,
+                        value: GetNitro(user_1.premium_type) || lang.userinfo_var_notfound,
                         inline: true,
                     }
                 )
@@ -218,7 +216,7 @@ export const command: Command = {
                             new ButtonBuilder()
                                 .setStyle(ButtonStyle.Link)
                                 .setURL(`https://discordapp.com/users/${user.id}`)
-                                .setLabel(data.userinfo_button_label)
+                                .setLabel(lang.userinfo_button_label)
                         )
                 ]
             });
@@ -227,7 +225,7 @@ export const command: Command = {
         };
 
         const originalInteraction = await client.args.interactionSend(interaction, {
-            content: data.userinfo_wait_please.replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
+            content: lang.userinfo_wait_please.replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
         });
 
         function GetNitro(input: number): string {

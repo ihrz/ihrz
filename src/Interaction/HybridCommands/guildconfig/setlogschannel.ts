@@ -85,21 +85,18 @@ export const command: Command = {
     thinking: true,
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
-        // Guard's Typing
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         let allCreatedChannels: string[] = [];
         let allLogsPossible = [
-            { id: "voice", value: data.setlogschannel_var_voice },
-            { id: "moderation", value: data.setlogschannel_var_mods },
-            { id: "message", value: data.setlogschannel_var_msg },
-            { id: "boosts", value: data.setlogschannel_var_boost },
-            { id: "roles", value: data.setlogschannel_var_roles },
-            { id: "ticket-log-channel", value: data.setlogschannel_var_tickets },
-            { id: "antispam", value: data.setlogschannel_var_antispam }
+            { id: "voice", value: lang.setlogschannel_var_voice },
+            { id: "moderation", value: lang.setlogschannel_var_mods },
+            { id: "message", value: lang.setlogschannel_var_msg },
+            { id: "boosts", value: lang.setlogschannel_var_boost },
+            { id: "roles", value: lang.setlogschannel_var_roles },
+            { id: "ticket-log-channel", value: lang.setlogschannel_var_tickets },
+            { id: "antispam", value: lang.setlogschannel_var_antispam }
         ];
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
@@ -108,7 +105,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.setlogschannel_not_admin });
+            await client.args.interactionSend(interaction, { content: lang.setlogschannel_not_admin });
             return;
         };
 
@@ -116,26 +113,26 @@ export const command: Command = {
             var type = interaction.options.getString("type")!;
             var channel = interaction.options.getChannel("channel") as Channel | null;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var type = client.args.string(args!, 0)!;
             var channel = client.args.channel(interaction, 0)
         };
 
         const createLogsChannel = async (name: string, typeOfLogs: string) => {
             if (!channel) {
-                await client.args.interactionSend(interaction, { content: data.guildprofil_not_logs_set });
+                await client.args.interactionSend(interaction, { content: lang.guildprofil_not_logs_set });
                 return;
             }
 
             try {
                 let already = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS.${type}`);
                 if (already === channel.id) {
-                    await client.args.interactionSend(interaction, { content: data.joinghostping_add_already_set.replace("${channel}", channel.toString()) });
+                    await client.args.interactionSend(interaction, { content: lang.joinghostping_add_already_set.replace("${channel}", channel.toString()) });
                     return;
                 }
 
                 (client.channels.cache.get(channel.id) as BaseGuildTextChannel).send({
-                    content: data.setlogschannel_confirmation_message
+                    content: lang.setlogschannel_confirmation_message
                         .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
                         .replace("${interaction.user.id}", interaction.member?.user.id!)
                         .replace("${typeOfLogs}", typeOfLogs)
@@ -143,15 +140,15 @@ export const command: Command = {
                 await client.db.set(`${interaction.guildId}.GUILD.SERVER_LOGS.${type}`, channel.id);
 
                 await client.args.interactionSend(interaction, {
-                    content: data.setlogschannel_command_work
+                    content: lang.setlogschannel_command_work
                         .replace("${argsid.id}", channel.id)
                         .replace("${typeOfLogs}", typeOfLogs)
                 });
 
                 const logEmbed = new EmbedBuilder()
                     .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                    .setTitle(data.setlogschannel_logs_embed_title)
-                    .setDescription(data.setlogschannel_logs_embed_description_on_enable
+                    .setTitle(lang.setlogschannel_logs_embed_title)
+                    .setDescription(lang.setlogschannel_logs_embed_description_on_enable
                         .replace(/\${interaction\.user\.id}/g, interaction.member?.user.id!)
                         .replace("${argsid.id}", channel.id)
                         .replace("${typeOfLogs}", typeOfLogs)
@@ -163,7 +160,7 @@ export const command: Command = {
                 }
             } catch (e) {
                 logger.err(e as any);
-                await client.args.interactionSend(interaction, { content: data.setlogschannel_command_error });
+                await client.args.interactionSend(interaction, { content: lang.setlogschannel_command_error });
             }
         };
 
@@ -179,7 +176,7 @@ export const command: Command = {
                 }
                 allCreatedChannels.push(channel.id);
                 (client.channels.cache.get(channel.id) as BaseGuildTextChannel).send({
-                    content: data.setlogschannel_confirmation_message
+                    content: lang.setlogschannel_confirmation_message
                         .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
                         .replace("${interaction.user.id}", interaction.member.user.id!)
                         .replace("${typeOfLogs}", allLogsPossible.map(x => x.value).join(","))
@@ -211,7 +208,7 @@ export const command: Command = {
                         if (channel) {
                             allCreatedChannels.push(channel.id);
                             (client.channels.cache.get(channel.id) as BaseGuildTextChannel).send({
-                                content: data.setlogschannel_confirmation_message
+                                content: lang.setlogschannel_confirmation_message
                                     .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
                                     .replace("${interaction.user.id}", interaction.member.user.id!)
                                     .replace("${typeOfLogs}", logType.value)
@@ -226,7 +223,7 @@ export const command: Command = {
                 }
             }
             await client.args.interactionSend(interaction, {
-                content: data.setlogschannel_utils_command_work
+                content: lang.setlogschannel_utils_command_work
                     .replace("${argsid.id}", allCreatedChannels.map(x => `<#${x}>`).join(','))
                     .replace("${typeOfLogs}", allLogsPossible.map(x => x.value).join(', '))
             });
@@ -237,8 +234,8 @@ export const command: Command = {
             try {
                 const logEmbed = new EmbedBuilder()
                     .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                    .setTitle(data.setlogschannel_logs_embed_title)
-                    .setDescription(data.setlogschannel_logs_embed_description_on_off
+                    .setTitle(lang.setlogschannel_logs_embed_title)
+                    .setDescription(lang.setlogschannel_logs_embed_description_on_off
                         .replace(/\${interaction\.user\.id}/g, interaction.member.user.id!)
                     );
 
@@ -249,30 +246,30 @@ export const command: Command = {
 
                 let checkData = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS`);
                 if (!checkData) {
-                    await client.args.interactionSend(interaction, { content: data.setlogschannel_already_deleted });
+                    await client.args.interactionSend(interaction, { content: lang.setlogschannel_already_deleted });
                     return;
                 }
 
                 await client.db.delete(`${interaction.guildId}.GUILD.SERVER_LOGS`);
                 await client.args.interactionSend(interaction, {
-                    content: data.setlogschannel_command_work_on_delete
+                    content: lang.setlogschannel_command_work_on_delete
                         .replace("${interaction.guild.name}", interaction.guild?.name as string)
                 });
             } catch (e) {
                 logger.err(e as any);
-                await client.args.interactionSend(interaction, { content: data.setlogschannel_command_error });
+                await client.args.interactionSend(interaction, { content: lang.setlogschannel_command_error });
             }
             return;
         }
 
         const typeOfLogsMap: { [key: string]: string } = {
-            "roles": data.setlogschannel_var_roles,
-            "moderation": data.setlogschannel_var_mods,
-            "voice": data.setlogschannel_var_voice,
-            "message": data.setlogschannel_var_msg,
-            "boost": data.setlogschannel_var_boost,
-            "ticket": data.setlogschannel_var_tickets,
-            "antispam": data.setlogschannel_var_antispam,
+            "roles": lang.setlogschannel_var_roles,
+            "moderation": lang.setlogschannel_var_mods,
+            "voice": lang.setlogschannel_var_voice,
+            "message": lang.setlogschannel_var_msg,
+            "boost": lang.setlogschannel_var_boost,
+            "ticket": lang.setlogschannel_var_tickets,
+            "antispam": lang.setlogschannel_var_antispam,
         };
 
         if (type && type in typeOfLogsMap) {

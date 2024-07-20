@@ -63,18 +63,16 @@ export const command: Command = {
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        var data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         const categories: CategoryData[] = [];
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var targetCommand = interaction.options.getString('command-name');
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var targetCommand = client.args.string(args!, 0);
         };
 
@@ -83,10 +81,10 @@ export const command: Command = {
                 const color = cat.categoryColor;
 
                 const descriptionKey = cat.options.description;
-                const description = data[descriptionKey as keyof LanguageData].toString();
+                const description = lang[descriptionKey as keyof LanguageData].toString();
 
                 const placeholderKey = cat.options.placeholder;
-                const placeholder = data[placeholderKey as keyof LanguageData];
+                const placeholder = lang[placeholderKey as keyof LanguageData];
 
                 const commands = client.content.filter(c => c.category === cat.categoryName);
 
@@ -110,12 +108,12 @@ export const command: Command = {
             for (let i = 0; i < 2; i++) {
                 const selectMenu = new StringSelectMenuBuilder()
                     .setCustomId(`help-menu-${i + 1}`)
-                    .setPlaceholder(data.help_select_menu);
+                    .setPlaceholder(lang.help_select_menu);
 
                 selectMenu.addOptions(
                     new StringSelectMenuOptionBuilder()
-                        .setLabel(data.help_back_to_menu)
-                        .setDescription(data.help_back_to_menu_desc)
+                        .setLabel(lang.help_back_to_menu)
+                        .setDescription(lang.help_back_to_menu_desc)
                         .setValue("back")
                         .setEmoji("⬅️")
                 );
@@ -126,7 +124,7 @@ export const command: Command = {
                         new StringSelectMenuOptionBuilder()
                             .setLabel(category.name)
                             .setDescription(
-                                data.help_select_menu_fields_desc.replace(
+                                lang.help_select_menu_fields_desc.replace(
                                     "${categories[index].value.length}",
                                     category.value.length.toString()
                                 )
@@ -146,7 +144,7 @@ export const command: Command = {
 
             let og_embed = new EmbedBuilder()
                 .setColor('#001eff')
-                .setDescription(data.help_tip_embed
+                .setDescription(lang.help_tip_embed
                     .replaceAll('${client.user?.username}', interaction.client.user.username)
                     .replaceAll('${client.iHorizon_Emojis.icon.Pin}', client.iHorizon_Emojis.icon.Pin)
                     .replaceAll('${categories.length}', categories.length.toString())
@@ -180,7 +178,7 @@ export const command: Command = {
             collector.on('collect', async (i: StringSelectMenuInteraction) => {
 
                 if (i.user.id !== interaction.member?.user.id) {
-                    await i.reply({ content: data.help_not_for_you, ephemeral: true });
+                    await i.reply({ content: lang.help_not_for_you, ephemeral: true });
                     return;
                 };
 
@@ -289,7 +287,7 @@ export const command: Command = {
             }
 
             await client.args.interactionSend(interaction, {
-                embeds: [await client.args.createAwesomeEmbed(data, fetchCommand, client, interaction)]
+                embeds: [await client.args.createAwesomeEmbed(lang, fetchCommand, client, interaction)]
             })
         }
     },

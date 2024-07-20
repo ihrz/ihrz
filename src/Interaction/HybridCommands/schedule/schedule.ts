@@ -56,31 +56,30 @@ export const command: Command = {
     category: 'schedule',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let table = client.db.table("SCHEDULE");
 
         let select = new StringSelectMenuBuilder()
             .setCustomId('starter')
-            .setPlaceholder(data.schedule_menu_placeholder)
+            .setPlaceholder(lang.schedule_menu_placeholder)
             .addOptions(
                 new StringSelectMenuOptionBuilder()
-                    .setLabel(data.schedule_menu_choice_0)
+                    .setLabel(lang.schedule_menu_choice_0)
                     .setEmoji("📝")
                     .setValue('0'),
                 new StringSelectMenuOptionBuilder()
-                    .setLabel(data.schedule_menu_choice_1)
+                    .setLabel(lang.schedule_menu_choice_1)
                     .setEmoji("🗑️")
                     .setValue('1'),
                 new StringSelectMenuOptionBuilder()
-                    .setLabel(data.schedule_menu_choice_2)
+                    .setLabel(lang.schedule_menu_choice_2)
                     .setEmoji("⚠️")
                     .setValue('2'),
                 new StringSelectMenuOptionBuilder()
-                    .setLabel(data.schedule_menu_choice_3)
+                    .setLabel(lang.schedule_menu_choice_3)
                     .setEmoji("📜")
                     .setValue('3'),
             );
@@ -104,14 +103,14 @@ export const command: Command = {
 
             collector.on('collect', async i => {
                 if (i.member?.user.id !== interaction.member?.user.id) {
-                    await i.reply({ content: data.embed_interaction_not_for_you, ephemeral: true })
+                    await i.reply({ content: lang.embed_interaction_not_for_you, ephemeral: true })
                     return;
                 }
                 await chooseAction(i);
             });
 
         } catch (e) {
-            return await client.args.interactionSend(interaction, { content: data.embed_timeout_getbtn });
+            return await client.args.interactionSend(interaction, { content: lang.embed_timeout_getbtn });
         };
 
         async function chooseAction(i: StringSelectMenuInteraction) {
@@ -119,12 +118,12 @@ export const command: Command = {
                 case '0':
                     let modal = await iHorizonModalResolve({
                         customId: 'modal',
-                        title: data.schedule_modal_title,
+                        title: lang.schedule_modal_title,
                         deferUpdate: false,
                         fields: [
                             {
                                 customId: 'name',
-                                label: data.schedule_modal_fields_1_label,
+                                label: lang.schedule_modal_fields_1_label,
                                 style: TextInputStyle.Short,
                                 required: true,
                                 maxLength: 30,
@@ -132,7 +131,7 @@ export const command: Command = {
                             },
                             {
                                 customId: 'desc',
-                                label: data.schedule_modal_fields_2_label,
+                                label: lang.schedule_modal_fields_2_label,
                                 style: TextInputStyle.Paragraph,
                                 required: true,
                                 maxLength: 400,
@@ -145,7 +144,7 @@ export const command: Command = {
                     executeAfterModal(modal);
                     break;
                 case '1':
-                    let u = await i.reply({ content: data.schedule_delete_question, ephemeral: false });
+                    let u = await i.reply({ content: lang.schedule_delete_question, ephemeral: false });
 
                     let deleteCollector = interaction.channel?.createMessageCollector({
                         filter: (m) => m.author.id === interaction.member?.user.id,
@@ -160,7 +159,7 @@ export const command: Command = {
                     });
                     break;
                 case '2':
-                    let u2 = await i.reply({ content: data.schedule_deleteall_question, ephemeral: false });
+                    let u2 = await i.reply({ content: lang.schedule_deleteall_question, ephemeral: false });
                     let deleteAllCollector = interaction.channel?.createMessageCollector({
                         filter: (m) => m.author.id === interaction.member?.user.id,
                         max: 1,
@@ -190,7 +189,7 @@ export const command: Command = {
 
                 if (!fetched || !fetched[arg0]) {
                     await original_interaction.edit({
-                        content: data.schedule_delete_not_found
+                        content: lang.schedule_delete_not_found
                             .replace('${arg0}', arg0), embeds: []
                     });
                     return;
@@ -200,7 +199,7 @@ export const command: Command = {
                             name: user.globalName || user.username,
                             iconURL: (interaction.member?.user as User).displayAvatarURL({ extension: 'png', size: 512 })
                         })
-                        .setTitle(data.schedule_delete_title_embed
+                        .setTitle(lang.schedule_delete_title_embed
                             .replace('${arg0}', arg0)
                         )
                         .setThumbnail(interaction.guild?.iconURL() as string)
@@ -210,7 +209,7 @@ export const command: Command = {
 
                     await table.delete(`${interaction.member?.user.id}.${arg0}`);
                     await original_interaction.edit({
-                        content: data.schedule_delete_confirm, embeds: [embed],
+                        content: lang.schedule_delete_confirm, embeds: [embed],
                         files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
                     });
                     return;
@@ -228,17 +227,17 @@ export const command: Command = {
                             iconURL: user.displayAvatarURL({ extension: 'png', size: 512 })
                         })
                         .setFooter(await client.args.bot.footerBuilder(interaction))
-                        .setTitle(data.schedule_deleteall_title_embed)
-                        .setDescription(data.schedule_deleteall_desc_embed)
+                        .setTitle(lang.schedule_deleteall_title_embed)
+                        .setDescription(lang.schedule_deleteall_desc_embed)
 
                     await original_interaction.edit({
-                        content: data.schedule_deleteall_confirm,
+                        content: lang.schedule_deleteall_confirm,
                         embeds: [embed],
                         files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
                     });
                 } else {
                     await original_interaction.edit({
-                        content: data.schedule_deleteall_cancel,
+                        content: lang.schedule_deleteall_cancel,
                     });
                     return;
                 }
@@ -248,13 +247,13 @@ export const command: Command = {
                 let fetched = await table.get(`${interaction.member?.user.id}`);
 
                 if (!fetched) {
-                    await original_interaction.edit({ content: data.schedule_list_not_schedule, embeds: [] });
+                    await original_interaction.edit({ content: lang.schedule_list_not_schedule, embeds: [] });
                     return;
                 };
 
                 let embed = new EmbedBuilder()
                     .setFooter(await client.args.bot.footerBuilder(interaction))
-                    .setTitle(data.schedule_list_title_embed)
+                    .setTitle(lang.schedule_list_title_embed)
                     .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#60BEE0')
                     .setAuthor({
                         name: user.globalName || user.username,
@@ -263,7 +262,7 @@ export const command: Command = {
 
                 for (let i in fetched) {
                     embed.addFields({
-                        name: `#${i}`, value: data.schedule_list_fields_embed
+                        name: `#${i}`, value: lang.schedule_list_fields_embed
                             .replace("${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}",
                                 format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')
                             )
@@ -273,7 +272,7 @@ export const command: Command = {
                 };
 
                 await original_interaction.edit({
-                    content: data.schedule_list_content_message,
+                    content: lang.schedule_list_content_message,
                     embeds: [embed],
                     files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
                 });
@@ -290,14 +289,14 @@ export const command: Command = {
                         name: user.globalName || user.username,
                         iconURL: user.displayAvatarURL({ extension: 'png', size: 512 })
                     })
-                    .setTitle(data.schedule_create_title_embed)
+                    .setTitle(lang.schedule_create_title_embed)
                     .setThumbnail(interaction.guild?.iconURL() as string)
                     .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#00549f')
                     .setFooter(await client.args.bot.footerBuilder(interaction))
                     .setTimestamp();
 
                 await original_interaction.edit({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
-                let u = await i.reply({ content: data.schedule_create_when_question });
+                let u = await i.reply({ content: lang.schedule_create_when_question });
 
                 let dateCollector = interaction.channel?.createMessageCollector({
                     filter: (m) => m.author.id === user.id,
@@ -318,7 +317,7 @@ export const command: Command = {
                     if (Number.isNaN(date0)) {
                         original_interaction.edit({
                             embeds: [],
-                            content: data.schedule_create_not_number_time
+                            content: lang.schedule_create_not_number_time
                                 .replace('${interaction.user}', user.toString()),
                         });
                         return;
@@ -327,12 +326,12 @@ export const command: Command = {
                     original_interaction.edit({
                         embeds: [
                             embed.addFields({
-                                name: data.schedule_create_embed_fields_name_confirm,
+                                name: lang.schedule_create_embed_fields_name_confirm,
                                 value: format(Date.now() + date0, 'YYYY/MM/DD HH:mm:ss'),
                                 inline: true
-                            }).setTitle(data.schedule_create_embed_title_confirm.replace('${scheduleCode}', scheduleCode))
+                            }).setTitle(lang.schedule_create_embed_title_confirm.replace('${scheduleCode}', scheduleCode))
                         ],
-                        content: data.schedule_create_confirm_msg
+                        content: lang.schedule_create_confirm_msg
                             .replace('${interaction.user}', user.toString())
                             .replace('${scheduleCode}', scheduleCode)
                     });

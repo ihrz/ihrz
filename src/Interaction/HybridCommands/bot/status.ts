@@ -46,14 +46,11 @@ export const command: Command = {
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, options?: string[]) => {
-        // Guard's Typing
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-
         if (!client.owners.includes(interaction.member.user.id)) {
-            await client.args.interactionSend(interaction,{ content: data.status_be_bot_dev });
+            await client.args.interactionSend(interaction, { content: lang.status_be_bot_dev });
             return;
         };
 
@@ -70,7 +67,7 @@ export const command: Command = {
             .setThumbnail(interaction.guild.iconURL() as string)
             .setFooter(await client.args.bot.footerBuilder(interaction))
 
-        await client.args.interactionSend(interaction,{
+        await client.args.interactionSend(interaction, {
             embeds: [embed],
             files: [await client.args.bot.footerAttachmentBuilder(interaction)]
         });

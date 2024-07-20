@@ -42,7 +42,7 @@ export const command: Command = {
 
     options: [
         {
-            name: "disable",
+            name: "ranks-disable",
             name_localizations: {
                 "fr": "statut"
             },
@@ -82,7 +82,7 @@ export const command: Command = {
             ],
         },
         {
-            name: "show",
+            name: "show-ranks",
             name_localizations: {
                 "fr": "afficher"
             },
@@ -159,7 +159,7 @@ export const command: Command = {
             ],
         },
         {
-            name: "leaderboard",
+            name: "ranks-leaderboard",
             name_localizations: {
                 "fr": "classement"
             },
@@ -169,12 +169,12 @@ export const command: Command = {
                 "fr": "Obtenez le classement XP du serveur"
             },
 
-            aliases: ["lb"],
+            aliases: ["rankslb"],
 
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: "ignore-channels",
+            name: "ranks-ignore-channels",
 
             description: "Ignore this channels in the Ranks Module",
             description_localizations: {
@@ -201,8 +201,7 @@ export const command: Command = {
     thinking: false,
     category: 'ranks',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, options?: string[]) => {
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: SubCommandArgumentValue, execTimestamp?: number, options?: string[]) => {
         let fetchedCommand;
         let sub: SubCommandArgumentValue | undefined;
 
@@ -210,7 +209,7 @@ export const command: Command = {
             fetchedCommand = interaction.options.getSubcommand();
         } else {
             if (!options?.[0]) {
-                await client.args.interactionSend(interaction,{ embeds: [await client.args.createAwesomeEmbed(data, command, client, interaction)] });
+                await client.args.interactionSend(interaction, { embeds: [await client.args.createAwesomeEmbed(lang, command, client, interaction)] });
                 return;
             }
             const cmd = command.options?.find(x => options[0] === x.name || x.aliases?.includes(options[0]));
@@ -222,6 +221,6 @@ export const command: Command = {
         }
 
         const commandModule = await import(`./!${fetchedCommand}.js`);
-        await commandModule.default.run(client, interaction, data, sub, execTimestamp, options);
+        await commandModule.default.run(client, interaction, lang, sub, execTimestamp, options);
     },
 };

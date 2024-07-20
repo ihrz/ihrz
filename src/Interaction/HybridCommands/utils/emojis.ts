@@ -60,11 +60,9 @@ export const command: Command = {
     ],
     thinking: true,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var str = (interaction.options.getString('emojis') as string).split(' ');
@@ -82,7 +80,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.punishpub_not_admin });
+            await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
         };
 
@@ -95,7 +93,7 @@ export const command: Command = {
                     attachment: `https://cdn.discordapp.com/emojis/${match[2]}.${isAnimated ? 'gif' : 'png'}`,
                     name: match[1]
                 }).then((emoji) => {
-                    interaction.channel?.send(data.emoji_send_new_emoji
+                    interaction.channel?.send(lang.emoji_send_new_emoji
                         .replace('${emoji.name}', emoji.name!)
                         .replace('${emoji}', emoji.toString())
                     );
@@ -103,7 +101,7 @@ export const command: Command = {
                     cnt++;
                     nemj += `<${isAnimated ? 'a:' : ':'}${emoji.name}:${emoji.id}>`
                 }).catch(() => {
-                    interaction.channel?.send(data.emoji_send_err_emoji
+                    interaction.channel?.send(lang.emoji_send_err_emoji
                         .replace('${emoji.name}', emoji)
                     );
                 });
@@ -114,7 +112,7 @@ export const command: Command = {
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#bea9de')
             .setFooter(await client.args.bot.footerBuilder(interaction))
             .setTimestamp()
-            .setDescription(data.emoji_embed_desc_work
+            .setDescription(lang.emoji_embed_desc_work
                 .replace('${cnt}', cnt.toString())
                 .replace('${interaction.guild.name}', interaction.guild?.name!)
                 .replace('${nemj}', nemj)

@@ -98,7 +98,8 @@ export const event: BotEvent = {
                 await interaction.deferReply();
             };
 
-            await command.run(client, interaction, Date.now(), []);
+            let lang = await client.func.getLanguageData(interaction.guildId) as LanguageData;
+            await command.run(client, interaction, lang, command, Date.now(), []);
         } catch (e: any) {
             await client.args.interactionSend(interaction, { content: `\`\`\`js\n${e}\`\`\`` })
             console.error(e);
