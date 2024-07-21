@@ -141,7 +141,7 @@ export const command: Command = {
             var member = interaction.options.getUser('user') || interaction.user;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var member = client.args.user(interaction, 0) || interaction.author;
+            var member = client.args.user(interaction, args!, 0) || interaction.author;
         };
 
         async function sendMessage(user: User) {

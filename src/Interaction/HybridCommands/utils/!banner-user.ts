@@ -39,7 +39,7 @@ export default {
             var user: User | undefined = interaction.options.getUser('user') || interaction.user;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var user: User | undefined = client.args.user(interaction, 0) || interaction.author;
+            var user: User | undefined = client.args.user(interaction, args!, 0) || interaction.author;
         };
 
         let format = 'png';
@@ -64,7 +64,7 @@ export default {
             .setThumbnail((user?.displayAvatarURL() as string))
             .setFooter(await client.args.bot.footerBuilder(interaction));
 
-        await client.args.interactionSend(interaction,{
+        await client.args.interactionSend(interaction, {
             embeds: [embed],
             files: [await client.args.bot.footerAttachmentBuilder(interaction)]
         });

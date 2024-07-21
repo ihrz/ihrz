@@ -115,7 +115,7 @@ export const command: Command = {
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var type = client.args.string(args!, 0);
-            var channel = client.args.voiceChannel(interaction, 0)!;
+            var channel = client.args.voiceChannel(interaction, args!, 0)!;
             var messagei = client.args.string(args!, 2)?.toLowerCase()!;
         }
 

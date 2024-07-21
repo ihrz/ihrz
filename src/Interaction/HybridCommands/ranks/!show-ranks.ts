@@ -38,7 +38,7 @@ export default {
             var user = interaction.options.getMember("user") as GuildMember || interaction.member;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var user = client.args.member(interaction, 0) || interaction.member;
+            var user = client.args.member(interaction, args!, 0) || interaction.member;
         };
 
         let baseData = await client.db.get(`${interaction.guildId}.USER.${user.id}.XP_LEVELING`);

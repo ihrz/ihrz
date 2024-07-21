@@ -110,7 +110,7 @@ export const command: Command = {
             ],
         },
         {
-            name: "set-channel",
+            name: "ranks-channel",
             name_localizations: {
                 "fr": "définir-cannal"
             },
@@ -186,7 +186,7 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: "set-message",
+            name: "ranks-message",
 
             description: "Set a custom message when user earn level",
             description_localizations: {
