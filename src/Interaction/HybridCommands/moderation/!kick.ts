@@ -94,11 +94,11 @@ export default {
         member.send({
             content: data.kick_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-                .replace(/\${interaction\.member\.user\.username}/g, member.user.globalName || interaction.member.user.username)
+                .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.username)
         }).catch(() => { });
 
         try {
-            await member.kick(`Kicked by: ${member.user.globalName || interaction.member.user.username} | Reason: ${reason}`);
+            await member.kick(`Kicked by: ${interaction.member.user.username} | Reason: ${reason}`);
             let logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
                 .setTitle(data.kick_logs_embed_title)
