@@ -92,8 +92,8 @@ export const command: Command = {
             var reason = interaction.options.getString('reason');
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var member = client.args.member(interaction, 0) as GuildMember | null;
-            var user = client.args.user(interaction, 0);
+            var member = client.args.member(interaction, args!, 0) as GuildMember | null;
+            var user = client.args.user(interaction, args!, 0);
             var reason = client.args.longString(args!, 0);
         };
 

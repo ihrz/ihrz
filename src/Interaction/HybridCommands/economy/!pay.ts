@@ -39,7 +39,7 @@ export default {
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var amount = client.args.number(args!, 0) as number;
-            var user = client.args.member(interaction, 0) as GuildMember;
+            var user = client.args.member(interaction, args!, 0) as GuildMember;
         };
 
         let member = await client.db.get(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`);

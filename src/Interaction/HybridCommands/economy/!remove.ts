@@ -60,7 +60,7 @@ export default {
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var amount = client.args.number(args!, 0) as number;
-            var user = client.args.member(interaction, 0) as GuildMember;
+            var user = client.args.member(interaction, args!, 0) as GuildMember;
         };
 
         await client.db.sub(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, amount!);

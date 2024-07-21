@@ -69,7 +69,7 @@ export const command: Command = {
             var member = interaction.options.getMember("member") as GuildMember;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var member = client.args.member(interaction, 0) || interaction.member;
+            var member = client.args.member(interaction, args!, 0) || interaction.member;
         };
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]

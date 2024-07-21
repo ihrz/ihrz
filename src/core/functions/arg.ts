@@ -26,7 +26,7 @@ import { LanguageData } from "../../../types/languageData";
 import * as perm from './permissonsCalculator.js'
 import * as f from './displayBotName.js';
 
-export function user(interaction: Message, argsNumber: number): User | null {
+export function user(interaction: Message, args: string[], argsNumber: number): User | null {
     return interaction.content.startsWith(`<@${interaction.client.user.id}`)
         ?
         interaction.mentions.parsedUsers
@@ -35,36 +35,36 @@ export function user(interaction: Message, argsNumber: number): User | null {
         :
         interaction.mentions.parsedUsers
             .map(x => x)[argsNumber]
-        || null
+        || interaction.client.users.fetch(args[argsNumber]).catch(() => false) || null
 }
 
-export function member(interaction: Message, argsNumber: number): GuildMember | undefined | null {
+export function member(interaction: Message, args: string[], argsNumber: number): GuildMember | undefined | null {
     return interaction.content.startsWith(`<@${interaction.client.user.id}`)
         ?
         interaction.mentions.members?.map(x => x)
             .filter(x => x.id !== interaction.client.user?.id!)[argsNumber]
         :
         interaction.mentions.members?.map(x => x)[argsNumber]
-        || null
+        || interaction.guild?.members.cache.get(args[argsNumber]) || null
 }
 
-export function voiceChannel(interaction: Message, argsNumber: number): BaseGuildVoiceChannel | null {
+export function voiceChannel(interaction: Message, args: string[], argsNumber: number): BaseGuildVoiceChannel | null {
     return interaction.mentions.channels
         .map(x => x)
         .filter(x => x.type === ChannelType.GuildVoice || ChannelType.GuildStageVoice)
-    [argsNumber] as BaseGuildVoiceChannel || null;
+    [argsNumber] as BaseGuildVoiceChannel || interaction.guild?.channels.cache.get(args[argsNumber]) || null;
 }
 
-export function channel(interaction: Message, argsNumber: number): Channel | null {
+export function channel(interaction: Message, args: string[], argsNumber: number): Channel | null {
     return interaction.mentions.channels
         .map(x => x)
-    [argsNumber] || null;
+    [argsNumber] || interaction.guild?.channels.cache.get(args[argsNumber]) || null;
 }
 
-export function role(interaction: Message, argsNumber: number): Role | APIRole | null {
+export function role(interaction: Message, args: string[], argsNumber: number): Role | APIRole | null {
     return interaction.mentions.roles
         .map(x => x)
-    [argsNumber] || null;
+    [argsNumber] || interaction.guild?.roles.cache.get(args[argsNumber]) || null;
 }
 
 export function string(args: string[], argsNumber: number): string | null {
@@ -226,13 +226,13 @@ function isValidArgument(arg: string, type: string): boolean {
         case "string":
             return typeof arg === 'string';
         case "user":
-            return /^<@!?(\d+)>$/.test(arg);
+            return /^<@!?(\d+)>$/.test(arg) || !isNaN(Number(arg))
         case "roles":
-            return /^<@&(\d+)>$/.test(arg);
+            return /^<@&(\d+)>$/.test(arg) || !isNaN(Number(arg));
         case "number":
             return !isNaN(Number(arg));
         case "channel":
-            return /^<#(\d+)>$/.test(arg);
+            return /^<#(\d+)>$/.test(arg) || !isNaN(Number(arg));
         default:
             return false;
     }

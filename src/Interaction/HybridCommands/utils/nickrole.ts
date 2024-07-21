@@ -105,7 +105,7 @@ export const command: Command = {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var action_1 = client.args.string(args!, 0);
             var part_of_nickname = client.args.string(args!, 1)?.toLowerCase();
-            var role = client.args.role(interaction, 0);
+            var role = client.args.role(interaction, args!, 0);
         };
 
         if (!part_of_nickname || !role) return;

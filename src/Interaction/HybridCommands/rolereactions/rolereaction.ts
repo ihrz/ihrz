@@ -126,7 +126,7 @@ export const command: Command = {
             var type = client.args.string(args!, 0);
             var messagei = client.args.string(args!, 1);
             var reaction = client.args.string(args!, 2);
-            var role = client.args.role(interaction, 0);
+            var role = client.args.role(interaction, args!, 0);
         }
 
         let help_embed = new EmbedBuilder()

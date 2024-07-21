@@ -89,8 +89,8 @@ export const command: Command = {
             var toChannel = interaction.options.getChannel('to')! as BaseGuildVoiceChannel | null;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var fromChannel = client.args.voiceChannel(interaction, 0);
-            var toChannel = client.args.voiceChannel(interaction, 1);
+            var fromChannel = client.args.voiceChannel(interaction, args!, 0);
+            var toChannel = client.args.voiceChannel(interaction, args!, 1);
         };
 
         if (toChannel === null) return;

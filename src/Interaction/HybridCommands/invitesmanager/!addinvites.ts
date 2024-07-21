@@ -45,7 +45,7 @@ export default {
             var amount = interaction.options.getNumber("amount")!;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var user = client.args.member(interaction, 0)!;
+            var user = client.args.member(interaction, args!, 0)!;
             var amount = client.args.number(args!, 1);
         };
 
