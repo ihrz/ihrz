@@ -583,10 +583,18 @@ vc_embed_fields_1_name: "・メンバー数"
 vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} 人のメンバー```"
 vc_embed_fields_2_name: "・チャンネル数"
 vc_embed_fields_2_value: "```py\n${textChannelSize} テキストチャンネル\n${voiceChannelSize} ボイスチャンネル```"
+vc_embed_short_desc: "## ボイスステータス\n`${voiceStates?.size}` 人がボイスチャンネルにいます:\n${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${total_members_vc_video}\n## メンバーステータス\n`${total_members_size}` 人がギルドにいます:\n${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${total_members_states_idle}"
 
 # /massmove
 massmove_results: "${interaction.user}さん、iHorizonはボイスチャンネル間でメンバーを移動しました。\n\n**${movedCount}**人のメンバーが${fromChannel}から${toChannel}に正常に移動しました。\n**${errorCount}**人のメンバーは移動できませんでした (詳細はサーバーログをご確認ください)。"
 massmove_too_much_member: "メンバーが多すぎます。レート制限の可能性があるため、実行できません。"
+
+# /all-admins
+all_admins_nobody_admins: "このサーバーに管理者はいません！"
+all_admins_embed_title: "すべての管理者のリスト | ページ ${i / usersPerPage + 1}"
+all_admins_unrank_button_label: "全員のランクを下げる"
+all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}、iHorizonはAllAdminsモジュールの全員のランクダウンを実行しました。\n\n**${good}** ユーザーが__正常に__ランクを下げました\niHorizonは**${bad}** ユーザーのランクを下げることに__失敗しました__。"
+all_admins_unrank_not_owner: "サーバーの所有者のみがサーバーのすべての管理者のランクを下げることができます"
 
 
 # Guild Config commands

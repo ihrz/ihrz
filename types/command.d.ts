@@ -53,5 +53,5 @@ export interface Command {
     channel_types?: number[];
     type: ApplicationCommandType | 'PREFIX_IHORIZON_COMMAND';
     aliases?: string[];
-    async run(client: Client, interaction: CommandInteraction | Message, execTimestamp: number, options?: string[]): Promise<any>;
+    async run(client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]): Promise<any>;
 }

@@ -84,19 +84,17 @@ export const command: Command = {
     category: 'utils',
     thinking: true,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var action = interaction.options.getString("action");
             var role = interaction.options.getRole("role");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var action = client.args.string(args!, 0);
-            var role = client.args.role(interaction, 0);
+            var role = client.args.role(interaction, args!, 0);
         };
 
         let a: number = 0;
@@ -109,12 +107,12 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.punishpub_not_admin });
+            await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
         };
 
         if ((interaction.guild as Guild).memberCount >= 1500) {
-            await client.args.interactionSend(interaction, { content: data.massiverole_too_much_member });
+            await client.args.interactionSend(interaction, { content: lang.massiverole_too_much_member });
             return;
         };
 
@@ -147,7 +145,7 @@ export const command: Command = {
                 .setColor('#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild.iconURL())
-                .setDescription(data.massiverole_add_command_work
+                .setDescription(lang.massiverole_add_command_work
                     .replace('${interaction.user}', interaction.member.user.toString())
                     .replace('${a}', a.toString())
                     .replace('${s}', s.toString())
@@ -189,7 +187,7 @@ export const command: Command = {
                 .setColor('#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild.iconURL())
-                .setDescription(data.massiverole_sub_command_work
+                .setDescription(lang.massiverole_sub_command_work
                     .replace('${interaction.user}', interaction.member.user.toString())
                     .replace('${a}', a.toString())
                     .replace('${s}', s.toString())

@@ -48,11 +48,9 @@ export const command: Command = {
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
         const permissions = interaction instanceof ChatInputCommandInteraction ?
@@ -60,7 +58,8 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.punishpub_not_admin });
+            await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
+            return;
         }
 
         let channel = interaction.channel as BaseGuildTextChannel;
@@ -79,10 +78,10 @@ export const command: Command = {
                 reason: `Channel re-create by ${interaction.member.user} (${interaction.member.user.id})`
             });
 
-            here.send({ content: data.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.member.user.toString()) });
+            here.send({ content: lang.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.member.user.toString()) });
             return;
         } catch (error) {
-            await client.args.interactionSend(interaction,{ content: data.renew_dont_have_permission });
+            await client.args.interactionSend(interaction,{ content: lang.renew_dont_have_permission });
             return;
         }
     },

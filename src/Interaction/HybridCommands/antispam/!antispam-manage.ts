@@ -54,7 +54,7 @@ const AntiSpamPreset: { [key in PresetKeys]: AntiSpam.AntiSpamOptions } = {
         Threshold: 7,
         removeMessages: true,
         punishment_type: 'mute',
-        punishTime: 15_000,
+        punishTime: 1000 * 60 * 2 // 2 MINUTES,
     },
     guard: {
         BYPASS_ROLES: [],
@@ -64,7 +64,7 @@ const AntiSpamPreset: { [key in PresetKeys]: AntiSpam.AntiSpamOptions } = {
         Threshold: 5,
         removeMessages: true,
         punishment_type: 'mute',
-        punishTime: 30_000,
+        punishTime: 1000 * 60 * 4 // 4 MINUTES,
     },
     extreme: {
         BYPASS_ROLES: [],
@@ -74,7 +74,7 @@ const AntiSpamPreset: { [key in PresetKeys]: AntiSpam.AntiSpamOptions } = {
         Threshold: 3,
         removeMessages: true,
         punishment_type: 'mute',
-        punishTime: 60_000,
+        punishTime: 1000 * 60 * 30 // 30 MINUTES,
     },
 }
 
@@ -100,7 +100,7 @@ export default {
             Threshold: 3,
             removeMessages: true,
             punishment_type: 'mute',
-            punishTime: client.timeCalculator.to_ms('30s')!,
+            punishTime: client.timeCalculator.to_ms('15m')!,
         }
 
         const embed = new EmbedBuilder()
@@ -184,7 +184,7 @@ export default {
 
             switch (content.type) {
                 case 'boolean':
-                    value = inDb === true ? "🟢 " + lang.guildprofil_set_blockpub : inDb !== undefined ? "🔴 " + lang.setjoinroles_var_none : "🔴 " + lang.guildprofil_not_set_blockpub
+                    value = inDb === true ? "🟢 " + lang.guildprofil_set_blockpub : inDb === undefined ? "🔴 " + lang.setjoinroles_var_none : "🔴 " + lang.guildprofil_not_set_blockpub
                     break;
                 case 'number':
                     if (inDb) {

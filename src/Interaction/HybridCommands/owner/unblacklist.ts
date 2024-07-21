@@ -56,7 +56,7 @@ export const command: Command = {
     thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -65,7 +65,7 @@ export const command: Command = {
         let tableBlacklist = client.db.table('BLACKLIST');
 
         if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
-            await client.args.interactionSend(interaction,{ content: data.unblacklist_not_owner });
+            await client.args.interactionSend(interaction, { content: lang.unblacklist_not_owner });
             return;
         };
 
@@ -73,13 +73,14 @@ export const command: Command = {
             var member = interaction.options.getUser('user');
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.args.user(interaction, 0);
+            var member = client.args.user(interaction, args!, 0);
         };
 
         let fetched = await tableBlacklist.get(`${member?.id}`);
+        let guilds = client.guilds.cache.map(guild => guild.id);
 
         if (!fetched) {
-            await client.args.interactionSend(interaction,{ content: data.unblacklist_not_blacklisted.replace("${member.id}", member?.id!) });
+            await client.args.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", member?.id!) });
             return;
         };
 
@@ -87,19 +88,38 @@ export const command: Command = {
             let bannedMember = await client.users.fetch(member?.id as UserResolvable);
 
             if (!bannedMember) {
-                await client.args.interactionSend(interaction,{ content: data.unblacklist_user_is_not_exist });
+                await client.args.interactionSend(interaction, { content: lang.unblacklist_user_is_not_exist });
                 return;
             };
 
             await tableBlacklist.delete(`${member?.id}`);
             await interaction.guild.members.unban(bannedMember);
 
-            await client.args.interactionSend(interaction,{ content: data.unblacklist_command_work.replace(/\${member\.id}/g, member?.id!) });
+            await client.args.interactionSend(interaction, { content: lang.unblacklist_command_work.replace(/\${member\.id}/g, member?.id!) });
+
+            let banPromises = guilds.map(async guildId => {
+                let guild = client.guilds.cache.find(guild => guild.id === guildId);
+                if (guild) {
+                    try {
+                        await guild.members.unban(bannedMember.id!, "iHorizon Unblacklist");
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                }
+                return false;
+            });
+
+            let results = await Promise.all(banPromises);
+            let successCount = results.filter(result => result).length;
+
+            await interaction.channel.send({ content: `${bannedMember.username} is now unbanned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
+
             return;
         } catch (e) {
             await tableBlacklist.delete(`${member?.id}`);
-            await client.args.interactionSend(interaction,{
-                content: data.unblacklist_unblacklisted_but_can_unban_him.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            await client.args.interactionSend(interaction, {
+                content: lang.unblacklist_unblacklisted_but_can_unban_him.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };

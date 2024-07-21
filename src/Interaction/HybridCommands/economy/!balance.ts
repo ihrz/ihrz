@@ -46,7 +46,7 @@ export default {
             var member: GuildMember = interaction.options.getMember('user') as GuildMember || interaction.member;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var member: GuildMember = client.args.member(interaction, 0) || interaction.member;
+            var member: GuildMember = client.args.member(interaction, args!, 0) || interaction.member;
         };
 
         var bal = await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY.money`);

@@ -33,7 +33,7 @@ import {
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';export const command: Command = {
+import { Command } from '../../../../types/command'; export const command: Command = {
 
     name: 'remove-react',
     aliases: ['react-remove', 'removereact', 'reactremove'],
@@ -46,12 +46,11 @@ import { Command } from '../../../../types/command';export const command: Comman
     thinking: false,
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, interaction: Message, execTimestamp: number, args: string[]) => {
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
+    run: async (client: Client, interaction: Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {
 
         let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
 
-        let message = args[0];
+        let message = args![0];
 
         if (!permission) {
             return;

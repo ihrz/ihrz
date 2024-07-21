@@ -55,11 +55,9 @@ export const command: Command = {
     thinking: true,
     category: 'newfeatures',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
-
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         var sentences = interaction.options.getString("message-to-dev")
         let timeout = 18000000
@@ -69,22 +67,22 @@ export const command: Command = {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - cooldown));
 
             await interaction.editReply({
-                content: data.report_cooldown_command
+                content: lang.report_cooldown_command
                     .replace("${time}", time)
             });
             return;
         } else {
             if (interaction.guild.ownerId != interaction.user.id) {
-                await interaction.editReply({ content: data.report_owner_need });
+                await interaction.editReply({ content: lang.report_owner_need });
                 return;
             };
 
             if (sentences && sentences.split(' ').length < 8) {
-                await interaction.editReply({ content: data.report_specify });
+                await interaction.editReply({ content: lang.report_specify });
                 return;
             };
 
-            interaction.editReply({ content: data.report_command_work });
+            interaction.editReply({ content: lang.report_command_work });
             var embed = new EmbedBuilder()
                 .setColor("#ff0000")
                 .setDescription(`**${interaction.user.globalName || interaction.user.username}** (<@${interaction.user.id}>) reported:\n~~--------------------------------~~\n${sentences}\n~~--------------------------------~~\nServer ID: **${interaction.guild.id}**`)

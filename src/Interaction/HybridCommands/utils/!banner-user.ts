@@ -23,50 +23,51 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-    GuildMember,
-    InteractionEditReplyOptions,
     Message,
-    MessagePayload,
-    MessageReplyOptions,
-    User,
+    User
 } from 'pwss';
-import { LanguageData } from '../../../../types/languageData';
-import { SubCommandArgumentValue } from '../../../core/functions/arg.js';
 
+import { LanguageData } from '../../../../types/languageData';
+import { axios } from '../../../core/functions/axios.js';
+import { SubCommandArgumentValue, member } from '../../../core/functions/arg';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var member = interaction.options.getMember("member") as GuildMember || interaction.member;
+            var user: User | undefined = interaction.options.getUser('user') || interaction.user;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.args.member(interaction, 0) || interaction.member;
+            var user: User | undefined = client.args.user(interaction, args!, 0) || interaction.author;
         };
 
-        let baseData = await client.db.get(`${interaction.guildId}.USER.${member.id}.INVITES`);
+        let format = 'png';
 
-        let inv = baseData?.invites;
-        let leaves = baseData?.leaves;
-        let Regular = baseData?.regular;
-        let bonus = baseData?.bonus;
+        let config = {
+            headers: {
+                Authorization: `Bot ${client.token}`
+            }
+        };
+
+        let user_1 = (await axios.get(`https://discord.com/api/v8/users/${user?.id}`, config))?.data;
+        let banner = user_1?.['banner'];
+
+        if (banner !== null && banner?.substring(0, 2) === 'a_') {
+            format = 'gif'
+        };
 
         let embed = new EmbedBuilder()
-            .setColor("#92A8D1")
-            .setTitle(data.invites_confirmation_embed_title)
-            .setTimestamp()
-            .setThumbnail(member.displayAvatarURL())
-            .setDescription(
-                data.invites_confirmation_embed_description
-                    .replace(/\${member\.user\.id}/g, member.id)
-                    .replace(/\${bonus\s*\|\|\s*0}/g, bonus || 0)
-                    .replace(/\${leaves\s*\|\|\s*0}/g, leaves || 0)
-                    .replace(/\${Regular\s*\|\|\s*0}/g, Regular || 0)
-                    .replace(/\${inv\s*\|\|\s*0}/g, inv || 0)
-            );
+            .setColor('#c4afed')
+            .setTitle(data.banner_user_embed.replace('${user?.username}', user?.username))
+            .setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
+            .setThumbnail((user?.displayAvatarURL() as string))
+            .setFooter(await client.args.bot.footerBuilder(interaction));
 
-        await client.args.interactionSend(interaction, { embeds: [embed] });
+        await client.args.interactionSend(interaction, {
+            embeds: [embed],
+            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+        });
         return;
     },
 };

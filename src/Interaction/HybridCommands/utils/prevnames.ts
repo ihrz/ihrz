@@ -64,21 +64,19 @@ export const command: Command = {
     thinking: false,
     category: 'utils',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var user = interaction.options.getUser("user") || interaction.user;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var user = client.args.user(interaction, 0) || interaction.member.user;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var user = client.args.user(interaction, args!, 0) || interaction.member.user;
         };
 
         // if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-        //     await client.args.interactionSend(interaction,{ content: data.prevnames_not_admin });
+        //     await client.args.interactionSend(interaction,{ content: lang.prevnames_not_admin });
         //     return;
         // };
 
@@ -86,7 +84,7 @@ export const command: Command = {
         var char: Array<string> = await table.get(`${user.id}`) || [];
 
         if (char.length == 0) {
-            await client.args.interactionSend(interaction, { content: data.prevnames_undetected });
+            await client.args.interactionSend(interaction, { content: lang.prevnames_undetected });
             return;
         };
 
@@ -98,7 +96,7 @@ export const command: Command = {
             let pageUsers = char.slice(i, i + usersPerPage);
             let pageContent = pageUsers.map((userId) => userId).join('\n');
             pages.push({
-                title: `${data.prevnames_embed_title.replace("${user.username}", user.globalName as string)} | Page ${i / usersPerPage + 1}`,
+                title: `${lang.prevnames_embed_title.replace("${user.username}", user.globalName as string)} | Page ${i / usersPerPage + 1}`,
                 description: pageContent,
             });
         };
@@ -109,7 +107,7 @@ export const command: Command = {
                 .setTitle(pages[currentPage].title)
                 .setDescription(pages[currentPage].description)
                 .setFooter({
-                    text: data.prevnames_embed_footer_text
+                    text: lang.prevnames_embed_footer_text
                         .replace('${currentPage + 1}', (currentPage + 1).toString())
                         .replace('${pages.length}', pages.length.toString()),
                     iconURL: "attachment://footer_icon.png"
@@ -164,7 +162,7 @@ export const command: Command = {
                         embeds: [],
                         components: [],
                         files: [],
-                        content: data.prevnames_data_erased
+                        content: lang.prevnames_data_erased
                     })
                     return;
 

@@ -23,49 +23,56 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
     Message,
-    User
+    User,
 } from 'pwss';
-
 import { LanguageData } from '../../../../types/languageData';
-import { axios } from '../../../core/functions/axios.js';
-import { SubCommandArgumentValue, member } from '../../../core/functions/arg';
+import { SubCommandArgumentValue } from '../../../core/functions/arg';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var user: User | undefined = interaction.options.getUser('user') || interaction.user;
+            var user = interaction.options.getMember("user") as GuildMember || interaction.member;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var user: User | undefined = client.args.user(interaction, 0) || interaction.author;
+            var user = client.args.member(interaction, args!, 0) || interaction.member;
         };
 
-        let format = 'png';
+        let baseData = await client.db.get(`${interaction.guildId}.USER.${user.id}.XP_LEVELING`);
+        var level = baseData?.level || 0;
+        var currentxp = baseData?.xp || 0;
 
-        let config = {
-            headers: {
-                Authorization: `Bot ${client.token}`
-            }
-        };
+        var xpNeeded = level * 500 + 500;
+        var expNeededForLevelUp = xpNeeded - currentxp;
 
-        let user_1 = (await axios.get(`https://discord.com/api/v8/users/${user?.id}`, config))?.data;
-        let banner = user_1?.['banner'];
-
-        if (banner !== null && banner?.substring(0, 2) === 'a_') {
-            format = 'gif'
-        };
-
-        let embed = new EmbedBuilder()
-            .setColor('#c4afed')
-            .setTitle(data.banner_user_embed.replace('${user?.username}', user?.username))
-            .setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
-            .setThumbnail((user?.displayAvatarURL() as string))
+        let nivEmbed = new EmbedBuilder()
+            .setTitle(data.level_embed_title
+                .replace('${user.username}', String(user.user.globalName || user.displayName))
+            )
+            .setColor('#0014a8')
+            .addFields(
+                {
+                    name: data.level_embed_fields1_name, value: data.level_embed_fields1_value
+                        .replace('${currentxp}', currentxp)
+                        .replace('${xpNeeded}', xpNeeded.toString()), inline: true
+                },
+                {
+                    name: data.level_embed_fields2_name, value: data.level_embed_fields2_value
+                        .replace('${level}', level), inline: true
+                }
+            )
+            .setDescription(data.level_embed_description.replace('${expNeededForLevelUp}', expNeededForLevelUp.toString())
+            )
+            .setTimestamp()
+            .setThumbnail("https://cdn.discordapp.com/attachments/847484098070970388/850684283655946240/discord-icon-new-2021-logo-09772BF096-seeklogo.com.png")
             .setFooter(await client.args.bot.footerBuilder(interaction));
 
-        await client.args.interactionSend(interaction,{
-            embeds: [embed],
+        await client.args.interactionSend(interaction, {
+            embeds: [nivEmbed],
+            allowedMentions: { repliedUser: false },
             files: [await client.args.bot.footerAttachmentBuilder(interaction)]
         });
         return;

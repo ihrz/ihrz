@@ -107,55 +107,56 @@ export const command: Command = {
     thinking: false,
     category: 'newfeatures',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
-
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         var action = interaction.options.getString("action");
         var settings = interaction.options.getString("settings") || "None";
         var timeout = interaction.options.getString("timeout") || "None";
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.reply({ content: data.punishpub_not_admin });
+            await interaction.reply({ content: lang.punishpub_not_admin });
             return;
         };
 
         if (action === 'on') {
-            let state = await client.db.get(`${interaction.guildId}.GUILD_CONFIG.rolesaver.enable`);
 
             let embed = new EmbedBuilder()
                 .setColor("#3725a4")
-                .setTitle(data.rolesaver_embed_title)
-                .setDescription(data.rolesaver_embed_desc)
+                .setTitle(lang.rolesaver_embed_title)
+                .setDescription(lang.rolesaver_embed_desc)
                 .addFields(
-                    { name: data.rolesaver_embed_fields_1_name, value: `\`${action}\``, inline: false },
-                    { name: data.rolesaver_embed_fields_2_name, value: `\`${settings}\``, inline: false },
-                    { name: data.rolesaver_embed_fields_3_name, value: `\`${timeout}\``, inline: false }
+                    { name: lang.rolesaver_embed_fields_1_name, value: `\`${action}\``, inline: false },
+                    { name: lang.rolesaver_embed_fields_2_name, value: `\`${settings}\``, inline: false },
+                    { name: lang.rolesaver_embed_fields_3_name, value: `\`${timeout}\``, inline: false }
                 )
                 .setFooter(await client.args.bot.footerBuilder(interaction));
 
             await interaction.reply({ embeds: [embed], files: [await client.args.bot.footerAttachmentBuilder(interaction)] });
-            await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.enable`, true);
-            await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.timeout`, timeout);
-            await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver.admin`, settings);
+            await client.db.set(`${interaction.guildId}.GUILD_CONFIG`, {
+                rolesaver: {
+                    enable: true,
+                    timeout: timeout,
+                    admin: settings
+                }
+            });
 
             return;
         } else if (action === 'off') {
             let state = await client.db.get(`${interaction.guildId}.GUILD_CONFIG.rolesaver.enable`);
 
             if (!state) {
-                await interaction.reply({ content: data.rolesaver_on_off_already_set });
+                await interaction.reply({ content: lang.rolesaver_on_off_already_set });
                 return;
             };
 
             let embed = new EmbedBuilder()
                 .setColor("#3725a4")
-                .setTitle(data.rolesaver_on_off_embed_title)
-                .setDescription(data.rolesaver_on_off_embed_desc)
+                .setTitle(lang.rolesaver_on_off_embed_title)
+                .setDescription(lang.rolesaver_on_off_embed_desc)
                 .addFields(
-                    { name: data.rolesaver_on_off_embed_fields_1_name, value: `\`${action}\``, inline: false },
+                    { name: lang.rolesaver_on_off_embed_fields_1_name, value: `\`${action}\``, inline: false },
                 )
                 .setFooter(await client.args.bot.footerBuilder(interaction));
 

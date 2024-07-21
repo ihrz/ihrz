@@ -42,7 +42,7 @@ export default {
             var tomute = interaction.options.getMember("user") as GuildMember | null;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var tomute = client.args.member(interaction, 0) as GuildMember | null;
+            var tomute = client.args.member(interaction, args!, 0) as GuildMember | null;
         };
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]

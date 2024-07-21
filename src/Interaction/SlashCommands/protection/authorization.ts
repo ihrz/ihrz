@@ -44,8 +44,16 @@ export const rules = [
         value: "webhook"
     },
     {
+        placeholder: "Edit Guild",
+        value: "updateguild"
+    },
+    {
         placeholder: "Create Channel",
         value: "createchannel",
+    },
+    {
+        placeholder: "Update Channel",
+        value: "updatechannel"
     },
     {
         placeholder: "Delete Channel",
@@ -62,6 +70,10 @@ export const rules = [
     {
         placeholder: "Update Role",
         value: "updaterole",
+    },
+    {
+        placeholder: "Add/Remove Member Role(s)",
+        value: "updatemember"
     },
     {
         placeholder: "Ban Members",
@@ -185,11 +197,10 @@ export const command: Command = {
     thinking: true,
     category: 'protection',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
+    run: async (client: Client, interaction: ChatInputCommandInteraction, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         let command = interaction.options.getSubcommand();
 
         const commandModule = await import(`./!${command}.js`);
-        await commandModule.default.run(client, interaction, data);
+        await commandModule.default.run(client, interaction, lang);
     },
 };

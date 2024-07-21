@@ -48,7 +48,7 @@ export default {
             var reason = interaction.options.getString("reason")
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.args.member(interaction, 0) as GuildMember | null;
+            var member = client.args.member(interaction, args!, 0) as GuildMember | null;
             var reason = client.args.longString(args!, 1);
         };
 
@@ -106,7 +106,7 @@ export default {
         member.send({
             content: data.ban_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-                .replace(/\${interaction\.member\.user\.username}/g, member.user.globalName || interaction.member.user.username)
+                .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.username)
         })
             .catch(() => {
             })

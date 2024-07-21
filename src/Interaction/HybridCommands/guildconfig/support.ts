@@ -93,11 +93,9 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
         const permissions = interaction instanceof ChatInputCommandInteraction ?
@@ -105,7 +103,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.support_not_admin });
+            await client.args.interactionSend(interaction, { content: lang.support_not_admin });
             return;
         };
 
@@ -114,15 +112,15 @@ export const command: Command = {
             var roles = interaction.options.getRole("roles");
             var input = interaction.options.getString("input");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var action = client.args.string(args!, 0)
-            var roles = client.args.role(interaction, 0);
+            var roles = client.args.role(interaction, args!, 0);
             var input = client.args.longString(args!, 2)
         };
 
         if (action == "enable") {
             if (!roles) {
-                await client.args.interactionSend(interaction, { content: data.support_command_not_role });
+                await client.args.interactionSend(interaction, { content: lang.support_command_not_role });
                 return;
             }
 
@@ -135,7 +133,7 @@ export const command: Command = {
             );
 
             await client.args.interactionSend(interaction, {
-                content: data.support_command_work
+                content: lang.support_command_work
                     .replace("${interaction.guild.name}", interaction.guild.name)
                     .replace("${input}", input!)
                     .replace("${roles.id}", roles.id)
@@ -144,8 +142,8 @@ export const command: Command = {
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
-                    .setTitle(data.setjoinroles_logs_embed_title_on_enable)
-                    .setDescription(data.setjoinroles_logs_embed_description_on_enable
+                    .setTitle(lang.setjoinroles_logs_embed_title_on_enable)
+                    .setDescription(lang.setjoinroles_logs_embed_description_on_enable
                         .replace("${interaction.user.id}", interaction.member.user.id)
                     )
 
@@ -156,15 +154,15 @@ export const command: Command = {
             await client.db.delete(`${interaction.guildId}.GUILD.SUPPORT`);
 
             await client.args.interactionSend(interaction, {
-                content: data.support_command_work_on_disable
+                content: lang.support_command_work_on_disable
                     .replace("${interaction.guild.name}", interaction.guild.name)
             })
 
             try {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
-                    .setTitle(data.setjoinroles_logs_embed_title_on_enable)
-                    .setDescription(data.setjoinroles_logs_embed_description_on_enable
+                    .setTitle(lang.setjoinroles_logs_embed_title_on_enable)
+                    .setDescription(lang.setjoinroles_logs_embed_description_on_enable
                         .replace("${interaction.user.id}", interaction.member.user.id)
                     )
 

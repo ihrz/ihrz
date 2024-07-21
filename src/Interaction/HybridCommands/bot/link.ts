@@ -46,25 +46,22 @@ export const command: Command = {
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp: number, options?: string[]) => {
-        // Guard's Typing
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-
         let websitebutton = new ButtonBuilder()
-            .setLabel(data.links_website)
+            .setLabel(lang.links_website)
             .setStyle(ButtonStyle.Link)
             .setURL('https://ihrz.github.io');
 
         let githubbutton = new ButtonBuilder()
-            .setLabel(data.links_github)
+            .setLabel(lang.links_github)
             .setStyle(ButtonStyle.Link)
             .setURL('https://github.com/ihrz/ihrz')
 
         let row = new ActionRowBuilder<ButtonBuilder>().addComponents(websitebutton, githubbutton);
 
-        await client.args.interactionSend(interaction, { content: data.links_message, components: [row] });
+        await client.args.interactionSend(interaction, { content: lang.links_message, components: [row] });
         return;
     },
 };

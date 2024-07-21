@@ -55,7 +55,7 @@ export const command: Command = {
     thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -63,7 +63,7 @@ export const command: Command = {
         let tableOwner = client.db.table('OWNER');
 
         if (await tableOwner.get(`${interaction.member.user.id}.owner`) !== true) {
-            await client.args.interactionSend(interaction,{ content: data.unowner_not_owner });
+            await client.args.interactionSend(interaction, { content: lang.unowner_not_owner });
             return;
         };
 
@@ -71,17 +71,17 @@ export const command: Command = {
             var member = interaction.options.getUser('member');
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.args.user(interaction, 0);
+            var member = client.args.user(interaction, args!, 0);
         };
 
         if (client.owners.includes(member?.id!)) {
-            await client.args.interactionSend(interaction,{ content: data.unowner_cant_unowner_creator });
+            await client.args.interactionSend(interaction, { content: lang.unowner_cant_unowner_creator });
             return;
         };
 
         await tableOwner.delete(`${member?.id}`);
 
-        await client.args.interactionSend(interaction,{ content: data.unowner_command_work.replace(/\${member\.username}/g, member?.username!) });
+        await client.args.interactionSend(interaction, { content: lang.unowner_command_work.replace(/\${member\.username}/g, member?.username!) });
         return;
     },
 };

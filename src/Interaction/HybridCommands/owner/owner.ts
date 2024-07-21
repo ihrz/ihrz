@@ -56,7 +56,7 @@ export const command: Command = {
     thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -71,8 +71,8 @@ export const command: Command = {
             text += `<@${entry.id}>\n`;
         }
 
-        if (!isOwner.owner) {
-            await client.args.interactionSend(interaction,{ content: data.owner_not_owner });
+        if (!isOwner?.owner) {
+            await client.args.interactionSend(interaction, { content: lang.owner_not_owner });
             return;
         };
 
@@ -83,26 +83,26 @@ export const command: Command = {
             .setFooter(await client.args.bot.footerBuilder(interaction));
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var member = interaction.options.getUser('user');
+            var member = interaction.options.getUser('member');
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.args.user(interaction, 0);
+            var member = client.args.user(interaction, args!, 0);
         };
 
         if (!member) {
-            await client.args.interactionSend(interaction,{ embeds: [embed], files: [await client.args.bot.footerAttachmentBuilder(interaction)] });
+            await client.args.interactionSend(interaction, { embeds: [embed], files: [await client.args.bot.footerAttachmentBuilder(interaction)] });
             return;
         };
 
         let checkAx = await tableOwner.get(`${member.id}.owner`);
 
         if (checkAx) {
-            await client.args.interactionSend(interaction,{ content: data.owner_already_owner });
+            await client.args.interactionSend(interaction, { content: lang.owner_already_owner });
             return;
         };
 
         await tableOwner.set(`${member.id}`, { owner: true });
-        await client.args.interactionSend(interaction,{ content: data.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.globalName || member.displayName) });
+        await client.args.interactionSend(interaction, { content: lang.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.globalName || member.displayName) });
         return;
     },
 };

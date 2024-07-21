@@ -42,8 +42,8 @@ export default {
             var user2 = interaction.options.getMember("user2") as GuildMember || interaction.guild.members.cache.random() as GuildMember;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var user1 = client.args.member(interaction, 0) || interaction.member;
-            var user2 = client.args.member(interaction, 1) || interaction.guild.members.cache.random() as GuildMember;
+            var user1 = client.args.member(interaction, args!, 0) || interaction.member;
+            var user2 = client.args.member(interaction, args!, 1) || interaction.guild.members.cache.random() as GuildMember;
         }
 
         let profileImageSize = 512;

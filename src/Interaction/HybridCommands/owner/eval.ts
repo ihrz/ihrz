@@ -56,21 +56,19 @@ export const command: Command = {
     thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-
         if (!client.owners.includes(interaction.member.user.id)) {
-            await client.args.interactionSend(interaction,{ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
+            await client.args.interactionSend(interaction, { content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var code = interaction.options.getString("code")!;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var code = args?.join(" ") || "";
         };
 
@@ -102,10 +100,10 @@ export const command: Command = {
                 .setDescription(`\`\`\`JS\n${code || "None"}\n\`\`\``)
                 .setAuthor({ name: ((interaction.member as GuildMember).user.globalName || interaction.member.user.username) as string, iconURL: interaction.client.user.displayAvatarURL() });
 
-            await client.args.interactionSend(interaction,{ embeds: [embed], ephemeral: true });
+            await client.args.interactionSend(interaction, { embeds: [embed], ephemeral: true });
             return;
         } catch (err: any) {
-            await client.args.interactionSend(interaction,{ content: err.toString(), ephemeral: true });
+            await client.args.interactionSend(interaction, { content: err.toString(), ephemeral: true });
             return;
         };
     }

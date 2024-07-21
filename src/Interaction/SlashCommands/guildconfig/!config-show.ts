@@ -47,7 +47,7 @@ export default {
         let baseData = await client.db.get(`${interaction.guildId}.GUILD`) as DatabaseStructure.DbInId['GUILD'];
         const pages: EmbedBuilder[] = [];
 
-        const joinDmMessageField = { name: data.guildprofil_embed_fields_joinDmMessage, value: baseData?.GUILD_CONFIG?.joindm ? '```' + baseData?.GUILD_CONFIG?.joindm + '```' : data.guildprofil_not_set_joinDmMessage };
+        const joinDmMessageField = { name: data.guildprofil_embed_fields_joinDmMessage, value: baseData?.GUILD_CONFIG?.joindm ? '```' + baseData?.GUILD_CONFIG?.joindm.substring(0, 1020) + '```' : data.guildprofil_not_set_joinDmMessage };
         const joinMessageField = { name: data.guildprofil_embed_fields_joinmessage, value: baseData?.GUILD_CONFIG?.joinmessage ? '```' + baseData?.GUILD_CONFIG?.joinmessage + '```' : data.guildprofil_not_set_joinmessage };
         const leaveMessageField = { name: data.guildprofil_embed_fields_leavemessage, value: baseData?.GUILD_CONFIG?.leavemessage ? '```' + baseData?.GUILD_CONFIG?.leavemessage + '```' : data.guildprofil_not_set_leavemessage };
 

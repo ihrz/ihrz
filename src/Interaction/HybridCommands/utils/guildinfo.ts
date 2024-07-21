@@ -45,40 +45,38 @@ export const command: Command = {
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-
         let verlvl = {
-            0: data.serverinfo_verlvl_NONE,
-            1: data.serverinfo_verlvl_LOW,
-            2: data.serverinfo_verlvl_MEDIUM,
-            3: data.serverinfo_verlvl_HIGHT,
-            4: data.serverinfo_verlvl_VERY_HIGHT
+            0: lang.serverinfo_verlvl_NONE,
+            1: lang.serverinfo_verlvl_LOW,
+            2: lang.serverinfo_verlvl_MEDIUM,
+            3: lang.serverinfo_verlvl_HIGHT,
+            4: lang.serverinfo_verlvl_VERY_HIGHT
         };
 
         let embeds = new EmbedBuilder()
             .setColor("#C3B2A1")
             .setAuthor({
-                name: data.serverinfo_embed_author
+                name: lang.serverinfo_embed_author
                     .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
                 , iconURL: interaction.guild?.iconURL() as string
             })
-            .setDescription(data.serverinfo_embed_description
+            .setDescription(lang.serverinfo_embed_description
                 .replace(/\${interaction\.guild\.description}/g, interaction.guild.description || 'None'))
             .addFields(
-                { name: data.serverinfo_embed_fields_name, value: `\`${interaction.guild.name}\``, inline: true },
-                { name: data.serverinfo_embed_fields_members, value: `\`${interaction.guild.memberCount}\``, inline: true },
-                { name: data.serverinfo_embed_fields_id, value: `\`${interaction.guildId}\``, inline: true },
-                { name: data.serverinfo_embed_fields_owner, value: `\<@${interaction.guild.ownerId}>`, inline: true },
-                { name: data.serverinfo_embed_fields_verlvl, value: `\`${verlvl[interaction.guild.verificationLevel as GuildVerificationLevel]}\``, inline: true },
-                { name: data.serverinfo_embed_fields_region, value: `\`${interaction.guild.preferredLocale}\``, inline: true },
-                { name: data.serverinfo_embed_fields_roles, value: `\`${interaction.guild.roles.cache.size}\``, inline: true },
-                { name: data.serverinfo_embed_fields_channels, value: `\`${interaction.guild.channels.cache.size}\``, inline: true },
-                { name: data.serverinfo_embed_fields_joinat, value: `\`${(interaction.member as GuildMember)?.joinedAt}\``, inline: true },
-                { name: data.serverinfo_embed_fields_createat, value: `\`${interaction.guild.createdAt}\``, inline: true }
+                { name: lang.serverinfo_embed_fields_name, value: `\`${interaction.guild.name}\``, inline: true },
+                { name: lang.serverinfo_embed_fields_members, value: `\`${interaction.guild.memberCount}\``, inline: true },
+                { name: lang.serverinfo_embed_fields_id, value: `\`${interaction.guildId}\``, inline: true },
+                { name: lang.serverinfo_embed_fields_owner, value: `\<@${interaction.guild.ownerId}>`, inline: true },
+                { name: lang.serverinfo_embed_fields_verlvl, value: `\`${verlvl[interaction.guild.verificationLevel as GuildVerificationLevel]}\``, inline: true },
+                { name: lang.serverinfo_embed_fields_region, value: `\`${interaction.guild.preferredLocale}\``, inline: true },
+                { name: lang.serverinfo_embed_fields_roles, value: `\`${interaction.guild.roles.cache.size}\``, inline: true },
+                { name: lang.serverinfo_embed_fields_channels, value: `\`${interaction.guild.channels.cache.size}\``, inline: true },
+                { name: lang.serverinfo_embed_fields_joinat, value: `\`${(interaction.member as GuildMember)?.joinedAt}\``, inline: true },
+                { name: lang.serverinfo_embed_fields_createat, value: `\`${interaction.guild.createdAt}\``, inline: true }
             )
             .setFooter(await client.args.bot.footerBuilder(interaction))
             .setTimestamp()
