@@ -93,7 +93,7 @@ export const command: Command = {
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var member = client.args.member(interaction, args!, 0) as GuildMember | null;
-            var user = client.args.user(interaction, args!, 0);
+            var user = await client.args.user(interaction, args!, 0);
             var reason = client.args.longString(args!, 0);
         };
 

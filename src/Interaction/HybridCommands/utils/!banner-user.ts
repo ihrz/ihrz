@@ -39,7 +39,7 @@ export default {
             var user: User | undefined = interaction.options.getUser('user') || interaction.user;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var user: User | undefined = client.args.user(interaction, args!, 0) || interaction.author;
+            var user: User | undefined = await client.args.user(interaction, args!, 0) || interaction.author;
         };
 
         let format = 'png';
