@@ -41,7 +41,7 @@ export default {
             var slap = interaction.options.getMember("user") as GuildMember;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var slap = client.args.member(interaction, 0)!;
+            var slap = client.args.member(interaction, args!, 0)!;
         };
 
         let url = apiUrlParser.assetsFinder(client.assets, "slap");

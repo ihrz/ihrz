@@ -106,7 +106,7 @@ export const command: Command = {
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var type = client.args.string(args!, 0);
-            var argsid = client.args.role(interaction, 0);
+            var argsid = client.args.role(interaction, args!, 0);
             var nickname = client.args.longString(args!, 2);
         };
 
@@ -117,6 +117,7 @@ export const command: Command = {
 
         if (!permissions) {
             await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
+            return;
         }
 
         if (type === "on") {

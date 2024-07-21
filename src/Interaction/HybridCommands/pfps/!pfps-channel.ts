@@ -39,7 +39,7 @@ export default {
             var channel = interaction.options.getChannel('to') as BaseGuildTextChannel | null;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var channel = client.args.channel(interaction, 0) as BaseGuildTextChannel | null;
+            var channel = client.args.channel(interaction, args!, 0) as BaseGuildTextChannel | null;
         }
 
         let fetch = await client.db.get(`${interaction.guildId}.PFPS.disable`);

@@ -94,7 +94,7 @@ export const command: Command = {
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var action = client.args.string(args!, 0);
-            var role = client.args.role(interaction, 0);
+            var role = client.args.role(interaction, args!, 0);
         };
 
         let a: number = 0;

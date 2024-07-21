@@ -59,6 +59,7 @@ export const command: Command = {
 
         if (!permissions) {
             await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
+            return;
         }
 
         let channel = interaction.channel as BaseGuildTextChannel;

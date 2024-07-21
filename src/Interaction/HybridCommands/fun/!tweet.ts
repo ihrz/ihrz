@@ -51,7 +51,7 @@ export default {
             var messageArgs = entry!.split(' ');
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var user: GuildMember = client.args.member(interaction, 0) || interaction.member;
+            var user: GuildMember = client.args.member(interaction, args!, 0) || interaction.member;
             var entry = client.args.longString(args!, 1);
             var messageArgs = entry!.split(' ');
         };

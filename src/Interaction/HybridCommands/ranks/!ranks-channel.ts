@@ -44,7 +44,7 @@ export default {
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var type = client.args.string(args!, 0);
-            var argsid = client.args.channel(interaction, 0) || interaction.channel;
+            var argsid = client.args.channel(interaction, args!, 0) || client.args.channel(interaction, args!, 1) || interaction.channel;
         };
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]

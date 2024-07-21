@@ -41,7 +41,7 @@ export default {
             var hug = interaction.options.getMember("user") as GuildMember;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var hug = client.args.member(interaction, 0) || interaction.member;
+            var hug = client.args.member(interaction, args!, 0) || interaction.member;
         }
 
         let url = apiUrlParser.assetsFinder(client.assets, "hug");

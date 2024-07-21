@@ -60,7 +60,7 @@ export default {
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var amount = client.args.number(args!, 0) as number;
-            var member = client.args.member(interaction, 0);
+            var member = client.args.member(interaction, args!, 0);
         };
 
         await client.args.interactionSend(interaction, {

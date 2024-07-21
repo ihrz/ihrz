@@ -56,7 +56,7 @@ export default {
             var mutetime = interaction.options.getString("time");
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var tomute = client.args.member(interaction, 0) as GuildMember | null;
+            var tomute = client.args.member(interaction, args!, 0) as GuildMember | null;
             var mutetime = client.args.string(args!, 1) as string | null;
         };
 

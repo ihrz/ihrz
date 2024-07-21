@@ -42,7 +42,7 @@ export default {
             var member = interaction.options.getMember("user") as GuildMember | null;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.args.member(interaction, 0) as GuildMember | null;
+            var member = client.args.member(interaction, args!, 0) as GuildMember | null;
         };
 
         let mentionedUser = member || interaction.member.user as User;

@@ -60,7 +60,7 @@ export default {
             var reason = interaction.options.getString("reason")
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.args.member(interaction, 0) as GuildMember | null;
+            var member = client.args.member(interaction, args!, 0) as GuildMember | null;
             var reason = client.args.longString(args!, 1);
         };
 
@@ -94,11 +94,11 @@ export default {
         member.send({
             content: data.kick_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-                .replace(/\${interaction\.member\.user\.username}/g, member.user.globalName || interaction.member.user.username)
+                .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.username)
         }).catch(() => { });
 
         try {
-            await member.kick(`Kicked by: ${member.user.globalName || interaction.member.user.username} | Reason: ${reason}`);
+            await member.kick(`Kicked by: ${interaction.member.user.username} | Reason: ${reason}`);
             let logEmbed = new EmbedBuilder()
                 .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
                 .setTitle(data.kick_logs_embed_title)
