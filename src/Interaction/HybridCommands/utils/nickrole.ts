@@ -120,6 +120,7 @@ export const command: Command = {
 
         if (!permissions) {
             await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
+            return;
         }
 
         if (action_1 === 'add') {

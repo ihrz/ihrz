@@ -88,6 +88,7 @@ export const command: Command = {
 
         if (!permissions) {
             await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
+            return;
         }
 
         let textChannelSize = interaction.guild?.channels.cache.filter(c => c.type === ChannelType.GuildText).size;
