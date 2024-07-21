@@ -73,7 +73,7 @@ export const command: Command = {
             var member = interaction.options.getUser('user');
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.args.user(interaction, args!, 0);
+            var member = await client.args.user(interaction, args!, 0);
         };
 
         let fetched = await tableBlacklist.get(`${member?.id}`);

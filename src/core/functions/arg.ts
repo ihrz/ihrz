@@ -26,7 +26,7 @@ import { LanguageData } from "../../../types/languageData";
 import * as perm from './permissonsCalculator.js'
 import * as f from './displayBotName.js';
 
-export function user(interaction: Message, args: string[], argsNumber: number): User | null {
+export async function user(interaction: Message, args: string[], argsNumber: number): Promise<User | null> {
     return interaction.content.startsWith(`<@${interaction.client.user.id}`)
         ?
         interaction.mentions.parsedUsers
