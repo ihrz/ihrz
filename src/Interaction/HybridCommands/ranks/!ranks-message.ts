@@ -32,7 +32,7 @@ import {
     TextInputStyle
 } from 'pwss';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {

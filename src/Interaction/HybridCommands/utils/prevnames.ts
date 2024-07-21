@@ -46,7 +46,7 @@ export const command: Command = {
         "fr": "Recherchez un utilisateur Discord et voyez ces noms d'utilisateur précédent"
     },
 
-    aliases: ["pvnames", "pvname"],
+    aliases: ["pvnames", "pvname", "prevname"],
 
     options: [
         {
@@ -72,7 +72,7 @@ export const command: Command = {
             var user = interaction.options.getUser("user") || interaction.user;
         } else {
             var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var user = client.args.user(interaction, args!, 0) || interaction.member.user;
+            var user = await client.args.user(interaction, args!, 0) || interaction.member.user;
         };
 
         // if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
