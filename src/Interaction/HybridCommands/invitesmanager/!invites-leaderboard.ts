@@ -67,9 +67,10 @@ export default {
             ? data.leaderboard_rank_text.replace('${userRank + 1}', String(userRank + 1)).replace('${arr.length}', arr.length.toString()).replace('${arr[userRank].invites}', String(arr[userRank].invites))
             : data.leaderboard_rank_none;
 
+        const text = data.leaderboard_gen_time_msg.replace("${interaction.guild?.name}", interaction.guild?.name!).replace('${Date.now() - execTimestamp}', String(Date.now() - execTimestamp!));
+
         const generateEmbed = async (start: number) => {
             const current = arr.slice(start, start + itemsPerPage);
-            let text: string = data.leaderboard_gen_time_msg.replace("${interaction.guild?.name}", interaction.guild?.name!).replace('${Date.now() - execTimestamp}', String(Date.now() - execTimestamp!));
             let pageText = text;
             let i = start + 1;
             current.forEach((index) => {
