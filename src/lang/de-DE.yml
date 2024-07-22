@@ -1715,4 +1715,6 @@ hybridcommands_args_error_embed_desc: "```ts\nBefehl Name: ${currentCommand.name
 hybridcommands_embed_help_title: "${commandName} Hilfe Einbettung"
 hybridcommands_embed_help_fields_value: "**Aliase:** ${aliases}\n**Verwendung:** ${use}"
 
+ping_bot_show_info_msg: "Hey ${message.author.toString()}, ich bin zu 100% in `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) und zu mehr als 85% in Präfix-Befehl nutzbar. Mein Präfix auf **diesem Server** ist `${prefix}` !"
+
 # -----------------------------\ /-----------------------------
