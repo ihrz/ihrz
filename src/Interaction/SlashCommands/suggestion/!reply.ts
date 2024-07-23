@@ -20,9 +20,7 @@
 */
 
 import {
-    BaseGuildTextChannel,r(interaction))
-],
-files: [await interaction.client.method.bot.footerAttachment
+    BaseGuildTextChannel,
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,

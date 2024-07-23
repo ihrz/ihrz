@@ -173,7 +173,7 @@ let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
             await (client.users.cache.get(owner1))?.send({
                 embeds: [embed],
-                files: [await client.args.bot.footerAttachmentBuilder(guild)]
+                files: [await client.method.bot.footerAttachmentBuilder(guild)]
             }).catch(() => { });
 
             await (client.users.cache.get(owner2))?.send({
