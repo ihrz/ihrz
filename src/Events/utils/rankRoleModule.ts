@@ -24,6 +24,7 @@ import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../../types/database_structure';
 import { LanguageData } from '../../../types/languageData';
 import { guildPrefix } from '../../core/functions/prefix.js';
+import { cooldDown } from '../interaction/messageCommandHandler.js';
 
 export const event: BotEvent = {
     name: "messageCreate",
@@ -41,12 +42,16 @@ export const event: BotEvent = {
         var prefix = (await guildPrefix(client, message.guildId!)).string;
         let text = lang.ping_bot_show_info_msg
             .replace("${prefix}", prefix)
-            .replace("${message.author.toString()", message.author.toString())
+            .replace("${message.author.toString()}", message.author.toString())
             .replace("${client.iHorizon_Emojis.badge.Slash_Bot}", client.iHorizon_Emojis.badge.Slash_Bot)
             ;
 
-        if (!dbGet || !dbGet.roles) return await client.args.interactionSend(message, { content: text });
-
+        if (!dbGet || !dbGet.roles) {
+            if (await cooldDown(client, message)) {
+                return;
+            };
+            return await client.args.interactionSend(message, { content: text });
+        }
         let fetch = message.guild.roles.cache.find((role) => role.id === dbGet.roles);
 
         /**

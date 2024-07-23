@@ -24,9 +24,9 @@ import { BotEvent } from '../../../types/event';
 import { Client, Message } from 'pwss';
 import { LanguageData } from '../../../types/languageData';
 
-var timeout: number = 1000;
+var timeout: number = 1600;
 
-async function cooldDown(client: Client, message: Message) {
+export async function cooldDown(client: Client, message: Message) {
     let tn = Date.now();
     let table = client.db.table("TEMP");
     var fetch = await table.get(`COOLDOWN.${message.author.id}`);
