@@ -24,7 +24,6 @@ import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../../types/database_structure';
 import { LanguageData } from '../../../types/languageData';
 import { guildPrefix } from '../../core/functions/prefix.js';
-import { cooldDown } from '../interaction/messageCommandHandler.js';
 
 export const event: BotEvent = {
     name: "messageCreate",
@@ -47,10 +46,10 @@ export const event: BotEvent = {
             ;
 
         if (!dbGet || !dbGet.roles) {
-            if (await cooldDown(message, "ping_bot")) {
+            if (await client.method.helper.cooldDown(message, "ping_bot", 2000)) {
                 return;
             };
-            return await client.args.interactionSend(message, { content: text });
+            return await client.method.interactionSend(message, { content: text });
         }
         let fetch = message.guild.roles.cache.find((role) => role.id === dbGet.roles);
 
@@ -77,13 +76,13 @@ export const event: BotEvent = {
                     .replace("${message.author.id}", message.author.id)
                     .replace("${fetch.id}", fetch.id)
                 )
-                .setFooter(await client.args.bot.footerBuilder(message))
+                .setFooter(await client.method.bot.footerBuilder(message))
                 .setTimestamp();
 
             message.member?.roles.add(fetch).catch(() => { });
             message.channel.send({
                 embeds: [embed],
-                files: [await client.args.bot.footerAttachmentBuilder(message)],
+                files: [await client.method.bot.footerAttachmentBuilder(message)],
                 enforceNonce: true,
                 nonce
             }).catch(() => { });

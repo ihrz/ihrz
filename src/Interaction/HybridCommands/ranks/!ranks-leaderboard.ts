@@ -80,13 +80,13 @@ export default {
 
         embed
             .setThumbnail(interaction.guild.iconURL())
-            .setFooter(await client.args.bot.footerBuilder(interaction))
+            .setFooter(await client.method.bot.footerBuilder(interaction))
             .setTitle(data.ranks_leaderboard_embed_title.replace('${interaction.guild?.name}', interaction.guild.name));
 
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
             embeds: [embed],
             content: undefined,
-            files: [attachment, await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [attachment, await client.method.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

@@ -50,7 +50,7 @@ export const command: Command = {
         var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel.id}`);
 
         if (!based) {
-            await client.args.interactionSend(interaction,{ content: lang.snipe_no_previous_message_deleted });
+            await client.method.interactionSend(interaction,{ content: lang.snipe_no_previous_message_deleted });
             return;
         };
 
@@ -60,7 +60,7 @@ export const command: Command = {
             .setDescription(`\`\`\`${based.snipe}\`\`\``)
             .setTimestamp(based.snipeTimestamp);
 
-        await client.args.interactionSend(interaction,{ embeds: [embed] });
+        await client.method.interactionSend(interaction,{ embeds: [embed] });
         return;
     },
 };

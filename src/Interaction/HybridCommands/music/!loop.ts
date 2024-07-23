@@ -47,18 +47,18 @@ export default {
             if (interaction instanceof ChatInputCommandInteraction) {
                 var mode = interaction.options.getString('mode');
             } else {
-                var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-                var mode = client.args.string(args!, 0);
+                var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+                var mode = client.method.string(args!, 0);
             };
 
             if (!player || !player.playing || !voiceChannel) {
-                await client.args.interactionSend(interaction, { content: data.loop_no_queue });
+                await client.method.interactionSend(interaction, { content: data.loop_no_queue });
                 return;
             };
 
             await player.setRepeatMode(mode as "off" | "track" | "queue");
 
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.loop_command_work
                     .replace("{mode}", mode === 'track' ? `🔂` : `▶`)
             });

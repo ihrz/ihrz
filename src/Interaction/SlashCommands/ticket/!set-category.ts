@@ -52,7 +52,7 @@ export default {
         await client.db.set(`${interaction.guildId}.GUILD.TICKET.category`, category.id);
 
         let embed = new EmbedBuilder()
-            .setFooter(await client.args.bot.footerBuilder(interaction))
+            .setFooter(await client.method.bot.footerBuilder(interaction))
             .setColor('#00FFFF')
             .setDescription(data.setticketcategory_command_work
                 .replace('${category.name}', category.name)
@@ -61,7 +61,7 @@ export default {
 
         await interaction.editReply({
             embeds: [embed],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

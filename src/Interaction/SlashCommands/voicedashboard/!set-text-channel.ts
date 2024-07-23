@@ -150,7 +150,7 @@ export default {
                     inline: true
                 },
             )
-            .setFooter(await client.args.bot.footerBuilder(interaction));
+            .setFooter(await client.method.bot.footerBuilder(interaction));
 
         let buttonRows = [
             [

@@ -24,18 +24,6 @@ import { BotEvent } from '../../../types/event';
 import { Client, Message } from 'pwss';
 import { LanguageData } from '../../../types/languageData';
 
-var timeout: number = 1600;
-
-export async function cooldDown(message: Message, method: string) {
-    let tn = Date.now();
-    let table = message.client.db.table("TEMP");
-    var fetch = await table.get(`COOLDOWN.${method}.${message.author.id}`);
-    if (fetch !== null && timeout - (tn - fetch) > 0) return true;
-
-    await table.set(`COOLDOWN.${method}.${message.author.id}`, tn);
-    return false;
-};
-
 export async function isMessageCommand(client: Client, message: Message): Promise<{ s: boolean, a?: string[], c?: Command }> {
     var prefix = await client.func.prefix.guildPrefix(client, message.guildId!);
 
@@ -55,7 +43,7 @@ export const event: BotEvent = {
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        if (await cooldDown(message, "msg_commands")) {
+        if (await client.method.helper.cooldDown(message, "msg_commands", 1000)) {
             return;
         };
 

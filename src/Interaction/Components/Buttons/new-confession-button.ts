@@ -106,9 +106,9 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     if (view.toLowerCase().includes('no') || view.toLowerCase().includes(lang.mybot_submit_utils_msg_no)) {
         view = false;
 
-        files.push(await interaction.client.args.bot.footerAttachmentBuilder(interaction));
+        files.push(await interaction.client.method.bot.footerAttachmentBuilder(interaction));
 
-        embed.setFooter(await interaction.client.args.bot.footerBuilder(interaction));
+        embed.setFooter(await interaction.client.method.bot.footerBuilder(interaction));
     } else {
         view = true;
     }

@@ -43,7 +43,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.end_not_admin });
+            await client.method.interactionSend(interaction, { content: data.end_not_admin });
             return;
         };
 
@@ -62,7 +62,7 @@ export default {
                     iconURL: "attachment://guild_icon.png"
                 }
             )
-            .setFooter(await client.args.bot.footerBuilder(interaction));
+            .setFooter(await client.method.bot.footerBuilder(interaction));
 
         filtered.forEach(index => {
             let Channel = `<#${index.giveawayData.channelId}>`;
@@ -80,14 +80,14 @@ export default {
             );
         });
 
-        await client.args.interactionSend(interaction,
+        await client.method.interactionSend(interaction,
             {
                 embeds: [embed],
                 files: [
                     {
                         attachment: await interaction.client.func.image64(interaction.guild.iconURL() || client.user.displayAvatarURL()),
                         name: 'guild_icon.png'
-                    }, await interaction.client.args.bot.footerAttachmentBuilder(interaction)
+                    }, await interaction.client.method.bot.footerAttachmentBuilder(interaction)
                 ],
             }
         );

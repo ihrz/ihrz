@@ -139,8 +139,8 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getUser('user') || interaction.user;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var member = await client.args.user(interaction, args!, 0) || interaction.author;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var member = await client.method.user(interaction, args!, 0) || interaction.author;
         };
 
         async function sendMessage(user: User) {
@@ -160,7 +160,7 @@ export const command: Command = {
             };
 
             let embed = new EmbedBuilder()
-                .setFooter(await client.args.bot.footerBuilder(interaction))
+                .setFooter(await client.method.bot.footerBuilder(interaction))
                 .setThumbnail("attachment://user_icon.gif")
                 .setTimestamp()
                 .setColor('#0014a8')
@@ -194,7 +194,7 @@ export const command: Command = {
                 .setImage("attachment://user_banner.gif");
 
             var files: { name: string; attachment: string }[] = [
-                await client.args.bot.footerAttachmentBuilder(interaction),
+                await client.method.bot.footerAttachmentBuilder(interaction),
                 {
                     attachment: user.displayAvatarURL({ size: 512, forceStatic: false }),
                     name: 'user_icon.gif'
@@ -206,7 +206,7 @@ export const command: Command = {
                 name: 'user_banner.gif'
             });
 
-            await client.args.interactionEdit(originalInteraction, {
+            await client.method.interactionEdit(originalInteraction, {
                 content: client.iHorizon_Emojis.icon.Yes_Logo,
                 embeds: [embed],
                 files: files,
@@ -224,7 +224,7 @@ export const command: Command = {
             return;
         };
 
-        const originalInteraction = await client.args.interactionSend(interaction, {
+        const originalInteraction = await client.method.interactionSend(interaction, {
             content: lang.userinfo_wait_please.replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
         });
 

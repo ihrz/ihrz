@@ -37,7 +37,7 @@ export default {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -47,12 +47,12 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var user = interaction.options.getMember("member") as GuildMember;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var user = client.args.member(interaction, args!, 0) as GuildMember;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var user = client.method.member(interaction, args!, 0) as GuildMember;
         };
 
         if (talkedRecentlyforr.has(interaction.member.user.id)) {
-            await client.args.interactionSend(interaction, { content: data.rob_cooldown_error });
+            await client.method.interactionSend(interaction, { content: data.rob_cooldown_error });
             return;
         };
 
@@ -60,12 +60,12 @@ export default {
         let author = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`);
 
         if (author < 250) {
-            await client.args.interactionSend(interaction, { content: data.rob_dont_enought_error });
+            await client.method.interactionSend(interaction, { content: data.rob_dont_enought_error });
             return;
         };
 
         if (targetuser < 250) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.rob_him_dont_enought_error
                     .replace(/\${user\.user\.username}/g, user.user.globalName as string)
             });
@@ -83,7 +83,7 @@ export default {
             .setColor("#a4cb80")
             .setTimestamp()
 
-        await client.args.interactionSend(interaction, { embeds: [embed] });
+        await client.method.interactionSend(interaction, { embeds: [embed] });
 
         await client.db.sub(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, random);
         await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, random);

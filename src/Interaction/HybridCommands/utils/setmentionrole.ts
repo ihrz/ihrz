@@ -104,10 +104,10 @@ export const command: Command = {
             var argsid = interaction.options.getRole("roles");
             var nickname = interaction.options.getString("part-of-nickname");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var type = client.args.string(args!, 0);
-            var argsid = client.args.role(interaction, args!, 0);
-            var nickname = client.args.longString(args!, 2);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var type = client.method.string(args!, 0);
+            var argsid = client.method.role(interaction, args!, 0);
+            var nickname = client.method.longString(args!, 2);
         };
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
@@ -116,13 +116,13 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
+            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
         }
 
         if (type === "on") {
             if (!argsid) {
-                await client.args.interactionSend(interaction, {
+                await client.method.interactionSend(interaction, {
                     content: lang.setrankroles_not_roles_typed.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 });
                 return;
@@ -145,7 +145,7 @@ export const command: Command = {
                 let already = await client.db.get(`${interaction.guildId}.GUILD.RANK_ROLES.roles`);
 
                 if (already === argsid.id) {
-                    await client.args.interactionSend(interaction, {
+                    await client.method.interactionSend(interaction, {
                         content: lang.setrankroles_already_this_in_db.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                     });
                     return;
@@ -167,12 +167,12 @@ export const command: Command = {
 
                 let e = new EmbedBuilder().setDescription(msg);
 
-                await client.args.interactionSend(interaction, { embeds: [e] });
+                await client.method.interactionSend(interaction, { embeds: [e] });
                 return;
 
             } catch (e: any) {
                 logger.err(e);
-                await client.args.interactionSend(interaction, {
+                await client.method.interactionSend(interaction, {
                     content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 });
                 return;
@@ -193,14 +193,14 @@ export const command: Command = {
             try {
                 await client.db.delete(`${interaction.guildId}.GUILD.RANK_ROLES`);
 
-                await client.args.interactionSend(interaction, {
+                await client.method.interactionSend(interaction, {
                     content: lang.setrankroles_command_work_disable
                         .replace(/\${interaction\.user.id}/g, interaction.member.user.id)
                 });
                 return;
             } catch (e: any) {
                 logger.err(e)
-                await client.args.interactionSend(interaction, {
+                await client.method.interactionSend(interaction, {
                     content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 });
                 return;

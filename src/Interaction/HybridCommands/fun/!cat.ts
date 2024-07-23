@@ -41,7 +41,7 @@ export default {
                 .setTitle(lang.cats_embed_title)
                 .setTimestamp();
 
-            await client.args.interactionSend(interaction, { embeds: [emb] });
+            await client.method.interactionSend(interaction, { embeds: [emb] });
             return;
         });
     },

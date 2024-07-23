@@ -45,9 +45,9 @@ export default {
             var user = interaction.options.getMember("member") as GuildMember;
             var amount = interaction.options.getNumber("amount")!;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var user = client.args.member(interaction, args!, 0) || interaction.member;
-            var amount = client.args.number(args!, 1);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var user = client.method.member(interaction, args!, 0) || interaction.member;
+            var amount = client.method.number(args!, 1);
         };
 
         let a = new EmbedBuilder()
@@ -60,7 +60,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { embeds: [a] });
+            await client.method.interactionSend(interaction, { embeds: [a] });
             return;
         };
 
@@ -88,7 +88,7 @@ export default {
             .setColor(`#92A8D1`)
             .setFooter({ text: interaction.guild.name as string, iconURL: interaction.guild.iconURL() as string });
 
-        await client.args.interactionSend(interaction, { embeds: [finalEmbed] });
+        await client.method.interactionSend(interaction, { embeds: [finalEmbed] });
 
         try {
             let logEmbed = new EmbedBuilder()

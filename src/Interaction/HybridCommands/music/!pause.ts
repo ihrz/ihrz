@@ -39,7 +39,7 @@ export default {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (!(interaction.member as GuildMember)?.voice.channel) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.pause_no_queue.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
             });
             return;
@@ -50,13 +50,13 @@ export default {
             let player = client.player.getPlayer(interaction.guildId as string);
 
             if (!player || !player.playing || !voiceChannel) {
-                await client.args.interactionSend(interaction, { content: data.pause_nothing_playing });
+                await client.method.interactionSend(interaction, { content: data.pause_nothing_playing });
                 return;
             };
 
             player.pause();
 
-            await client.args.interactionSend(interaction, { content: player.paused ? data.pause_var_paused : data.pause_var_err });
+            await client.method.interactionSend(interaction, { content: player.paused ? data.pause_var_paused : data.pause_var_err });
             return;
         } catch (error: any) {
             logger.err(error);

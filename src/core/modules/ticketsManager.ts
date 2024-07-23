@@ -69,7 +69,7 @@ async function CreateButtonPanel(interaction: ChatInputCommandInteraction<CacheT
         .setTitle(data.name)
         .setColor("#3b8f41")
         .setDescription(data.description || lang.sethereticket_description_embed)
-        .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
+        .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
 
     let confirm = new ButtonBuilder()
         .setCustomId('open-new-ticket')
@@ -80,7 +80,7 @@ async function CreateButtonPanel(interaction: ChatInputCommandInteraction<CacheT
     interaction.channel?.send({
         embeds: [panel],
         components: [new ActionRowBuilder<ButtonBuilder>().addComponents(confirm)],
-        files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
+        files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
     }).then(async (message) => {
 
         await database.set(`${message.guildId}.GUILD.TICKET.${message.id}`,
@@ -107,10 +107,10 @@ async function CreateButtonPanel(interaction: ChatInputCommandInteraction<CacheT
                 .replace('${data.name}', data.name!)
                 .replace('${interaction}', interaction.channel?.toString()!)
             )
-            .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
+            .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
             .setTimestamp();
 
-        TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
+        TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });
         return;
     } catch (e) { return };
 };
@@ -131,7 +131,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
     let panel_for_create = new EmbedBuilder()
         .setColor(2829617)
         .setDescription(lang.sethereticket_panelforcreate_embed_desc)
-        .setFooter(await interaction.client.args.bot.footerBuilder(interaction));
+        .setFooter(await interaction.client.method.bot.footerBuilder(interaction));
 
     let button = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(
@@ -157,7 +157,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
         embeds: [panel_for_create],
         components: [button],
         content: null,
-        files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
+        files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
     });
 
     let collector = interaction.channel?.createMessageComponentCollector({
@@ -287,12 +287,12 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
             let reason = await reasonTicket(response!);
             let panel_message = await og_interaction.channel.send({
                 content: undefined,
-                files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)],
+                files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)],
                 embeds: [
                     new EmbedBuilder()
                         .setColor(2829617)
                         .setDescription(`## ${title}\n${desc}`)
-                        .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
+                        .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
                 ],
                 components: [
                     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
@@ -327,10 +327,10 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                     .setColor("#008000")
                     .setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
                     .setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc.replace('${data.name}', data.name!).replace('${interaction}', `${interaction.channel}`))
-                    .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
+                    .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
                     .setTimestamp();
 
-                TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
+                TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });
                 return;
             } catch (e) { return };
         }
@@ -551,7 +551,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                             .replace('{msg}', lang.event_ticket_embed_description.replace("${user.username}", interaction.user.username))
                             .replace('{category}', result.selection?.find(item => item.id === parseInt(interaction.values[0]))?.name!)
                     )
-                    .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
+                    .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
             );
 
             if (result.reason && result.reason) {
@@ -559,7 +559,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                     new EmbedBuilder()
                         .setColor(2829617)
                         .setDescription(lang.event_ticket_reason_embed_desc.replace('${reason}', reason))
-                        .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
+                        .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
                 );
             }
         } else {
@@ -569,7 +569,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                     .setDescription(lang.event_ticket_embed_description
                         .replace("${user.username}", interaction.user.username)
                     )
-                    .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
+                    .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
             )
         };
 
@@ -609,7 +609,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                     .addComponents(transcript_ticket_button)
                     .addComponents(delete_ticket_button)
             ],
-            files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
         }).catch((err: any) => {
             logger.err(err)
         });
@@ -626,10 +626,10 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${channel.id}', channel.id)
                 )
-                .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
+                .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
                 .setTimestamp();
 
-            TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
+            TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });
             return;
         } catch (e) { return };
     }).catch(() => { });
@@ -683,10 +683,10 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) 
                                     .replace('${interaction.user}', interaction.user.toString())
                                     .replace('${interaction.channel.id}', interaction.channel?.id!)
                                 )
-                                .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
+                                .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
                                 .setTimestamp();
 
-                            TicketLogsChannel.send({ embeds: [embed], files: [attachment, await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
+                            TicketLogsChannel.send({ embeds: [embed], files: [attachment, await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });
                             return;
                         } catch (e) { return };
                     });
@@ -757,10 +757,10 @@ async function TicketRemoveMember(interaction: ChatInputCommandInteraction<Cache
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${interaction.channel.id}', interaction.channel?.id!)
                 )
-                .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
+                .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
                 .setTimestamp();
 
-            TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
+            TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });
             return;
         } catch (e) { return };
 
@@ -796,10 +796,10 @@ async function TicketAddMember(interaction: ChatInputCommandInteraction<CacheTyp
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${interaction.channel.id}', interaction.channel?.id!)
                 )
-                .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
+                .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
                 .setTimestamp();
 
-            TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
+            TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });
             return;
         } catch (e) { return };
 
@@ -846,10 +846,10 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<CacheType>)
                                 .replace('${interaction.user}', interaction.user.toString())
                                 .replace('${interaction.channel.id}', interaction.channel.id)
                             )
-                            .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
+                            .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
                             .setTimestamp();
 
-                        TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
+                        TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });
                         return;
                     } catch (e) { return };
 
@@ -890,10 +890,10 @@ async function TicketDelete(interaction: Interaction<CacheType>) {
                             .replace('${interaction.user}', interaction.user.toString())
                             .replace('${interaction.channel.name}', (interaction.channel as BaseGuildTextChannel)?.name)
                         )
-                        .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
+                        .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
                         .setTimestamp();
 
-                    TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
+                    TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });
                     return;
                 } catch (e) { return };
             }
@@ -976,10 +976,10 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<CacheTyp
                 .replace('${interaction.channel}', interaction.channel?.toString()!)
 
             )
-            .setFooter(await interaction.client.args.bot.footerBuilder(interaction))
+            .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
             .setTimestamp();
 
-        TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
+        TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });
         return;
     } catch (e) { return };
 };

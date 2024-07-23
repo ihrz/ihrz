@@ -65,7 +65,7 @@ declare module 'pwss' {
         config: ConfigData,
         isModuled?: boolean,
         owners: string[],
-        args: typeof argsHelper,
+        method: typeof argsHelper,
         bash: Collection<string, BashCommands>
     }
 };

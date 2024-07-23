@@ -112,7 +112,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.reactionroles_dont_admin_added });
+            await client.method.interactionSend(interaction, { content: lang.reactionroles_dont_admin_added });
             return;
         };
 
@@ -122,11 +122,11 @@ export const command: Command = {
             var reaction = interaction.options.getString("reaction");
             var role = interaction.options.getRole("role");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var type = client.args.string(args!, 0);
-            var messagei = client.args.string(args!, 1);
-            var reaction = client.args.string(args!, 2);
-            var role = client.args.role(interaction, args!, 0);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var type = client.method.string(args!, 0);
+            var messagei = client.method.string(args!, 1);
+            var reaction = client.method.string(args!, 2);
+            var role = client.method.role(interaction, args!, 0);
         }
 
         let help_embed = new EmbedBuilder()
@@ -135,20 +135,20 @@ export const command: Command = {
             .setDescription(lang.reactionroles_embed_message_description_added);
 
         if (type == "add") {
-            if (!role) { await client.args.interactionSend(interaction, { embeds: [help_embed] }) };
-            if (!reaction) { return await client.args.interactionSend(interaction, { content: lang.reactionroles_missing_reaction_added }) };
+            if (!role) { await client.method.interactionSend(interaction, { embeds: [help_embed] }) };
+            if (!reaction) { return await client.method.interactionSend(interaction, { content: lang.reactionroles_missing_reaction_added }) };
 
             try {
                 await interaction.channel.messages.fetch((messagei as string))?.then((message) => { message.react(reaction as string) });
             } catch {
-                await client.args.interactionSend(interaction, { content: lang.reactionroles_dont_message_found });
+                await client.method.interactionSend(interaction, { content: lang.reactionroles_dont_message_found });
                 return;
             };
 
             let check = reaction.toString();
 
             if (check.includes("<") || check.includes(">") || check.includes(":")) {
-                await client.args.interactionSend(interaction, {
+                await client.method.interactionSend(interaction, {
                     content: lang.reactionroles_invalid_emote_format_added.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 })
                 return;
@@ -174,7 +174,7 @@ export const command: Command = {
                 if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
 
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: lang.reactionroles_command_work_added
                     .replace("${messagei}", messagei!)
                     .replace("${reaction}", reaction)
@@ -185,26 +185,26 @@ export const command: Command = {
         } else if (type == "remove") {
 
             if (!reaction) {
-                await client.args.interactionSend(interaction, { content: lang.reactionroles_missing_remove });
+                await client.method.interactionSend(interaction, { content: lang.reactionroles_missing_remove });
                 return;
             };
 
             let message = await interaction.channel.messages.fetch(messagei as string).catch(async () => {
-                await client.args.interactionSend(interaction, { content: lang.reactionroles_cant_fetched_reaction_remove })
+                await client.method.interactionSend(interaction, { content: lang.reactionroles_cant_fetched_reaction_remove })
                 return;
             });
 
             let fetched = await client.db.get(`${interaction.guildId}.GUILD.REACTION_ROLES.${messagei}.${reaction}`);
 
             if (!fetched) {
-                await client.args.interactionSend(interaction, { content: lang.reactionroles_missing_reaction_remove });
+                await client.method.interactionSend(interaction, { content: lang.reactionroles_missing_reaction_remove });
                 return
             };
 
             let reactionVar = message?.reactions.cache.get(fetched.reactionNAME);
 
             if (!reactionVar) {
-                await client.args.interactionSend(interaction, { content: lang.reactionroles_cant_fetched_reaction_remove })
+                await client.method.interactionSend(interaction, { content: lang.reactionroles_cant_fetched_reaction_remove })
                 return;
             };
             await reactionVar.users.remove(client.user.id).catch((err: string) => { logger.err(err) });
@@ -224,7 +224,7 @@ export const command: Command = {
                 if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
 
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: lang.reactionroles_command_work_remove
                     .replace("${reaction}", reaction!)
                     .replace("${messagei}", messagei!)

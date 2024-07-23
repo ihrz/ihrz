@@ -72,8 +72,8 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var targetCommand = interaction.options.getString('command-name');
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var targetCommand = client.args.string(args!, 0);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var targetCommand = client.method.string(args!, 0);
         };
 
         if (!targetCommand) {
@@ -156,19 +156,19 @@ export const command: Command = {
                     .replaceAll('${client.iHorizon_Emojis.vc.Region}', client.iHorizon_Emojis.vc.Region)
                     .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
                 )
-                .setFooter(await client.args.bot.footerBuilder(interaction))
+                .setFooter(await client.method.bot.footerBuilder(interaction))
                 .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
                 .setThumbnail("attachment://footer_icon.png")
                 .setTimestamp();
 
             let embed = new EmbedBuilder()
-                .setFooter(await client.args.bot.footerBuilder(interaction))
+                .setFooter(await client.method.bot.footerBuilder(interaction))
                 .setThumbnail("attachment://footer_icon.png");
 
-            let response = await client.args.interactionSend(interaction, {
+            let response = await client.method.interactionSend(interaction, {
                 embeds: [og_embed],
                 components: rows,
-                files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
             });
 
             let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840_000 });
@@ -246,7 +246,7 @@ export const command: Command = {
                         newEmbed
                             .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
                             .setDescription(categories[i.values[0] as unknown as number].description)
-                            .setFooter(await client.args.bot.footerBuilder(interaction))
+                            .setFooter(await client.method.bot.footerBuilder(interaction))
                             .setThumbnail("attachment://footer_icon.png")
                             .setTimestamp();
                     }
@@ -280,14 +280,14 @@ export const command: Command = {
             let fetchCommand = client.commands.get(targetCommand);
 
             if (!fetchCommand) {
-                await client.args.interactionSend(interaction, {
+                await client.method.interactionSend(interaction, {
                     content: `${client.iHorizon_Emojis.icon.No_Logo}`
                 })
                 return;
             }
 
-            await client.args.interactionSend(interaction, {
-                embeds: [await client.args.createAwesomeEmbed(lang, fetchCommand, client, interaction)]
+            await client.method.interactionSend(interaction, {
+                embeds: [await client.method.createAwesomeEmbed(lang, fetchCommand, client, interaction)]
             })
         }
     },

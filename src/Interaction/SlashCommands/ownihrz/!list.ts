@@ -54,7 +54,7 @@ async function buildEmbed(client: Client, data: any, lang: LanguageData, guildID
                 .replace('${expire}', expire)
                 .replace('${utils_msg}', utils_msg)
         )
-        .setFooter(await client.args.bot.footerBuilder(interaction))
+        .setFooter(await client.method.bot.footerBuilder(interaction))
         .setTimestamp();
 };
 export default {
@@ -70,7 +70,7 @@ export default {
             new EmbedBuilder()
                 .setTitle(data.mybot_list_embed0_title)
                 .setColor('#000000')
-                .setFooter(await client.args.bot.footerBuilder(interaction))
+                .setFooter(await client.method.bot.footerBuilder(interaction))
                 .setTimestamp()
         ];
 
@@ -91,7 +91,7 @@ export default {
         await interaction.reply({
             embeds: lsEmbed,
             ephemeral: true,
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

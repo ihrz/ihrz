@@ -47,7 +47,7 @@ export default {
                 data.tempvoice_staff_desc_embed
                     .replace('${targetedRole?.id}', targetedRole?.id as string)
             )
-            .setFooter(await client.args.bot.footerBuilder(interaction));
+            .setFooter(await client.method.bot.footerBuilder(interaction));
 
         await interaction.editReply({
             embeds: [embed]
