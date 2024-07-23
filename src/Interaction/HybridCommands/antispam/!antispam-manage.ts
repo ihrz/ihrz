@@ -89,7 +89,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.addmoney_not_admin });
+            await client.method.interactionSend(interaction, { content: lang.addmoney_not_admin });
             return;
         };
 
@@ -107,7 +107,7 @@ export default {
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#6666ff")
             .setTitle(lang.antispam_manage_embed_title)
             .setThumbnail(interaction.guild.iconURL({ forceStatic: false })!)
-            .setFooter(await client.args.bot.footerBuilder(interaction));
+            .setFooter(await client.method.bot.footerBuilder(interaction));
 
         const choices: {
             label: string;
@@ -257,13 +257,13 @@ export default {
             .setCustomId("antispam-manage-preset-button")
             .setLabel("Load Preset");
 
-        const originalResponse = await client.args.interactionSend(interaction, {
+        const originalResponse = await client.method.interactionSend(interaction, {
             embeds: [embed],
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
                 new ActionRowBuilder<ButtonBuilder>().addComponents(button, button2)
             ],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
 
         const collector = originalResponse.createMessageComponentCollector({

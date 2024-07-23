@@ -42,12 +42,12 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.addmoney_not_admin });
+            await client.method.interactionSend(interaction, { content: lang.addmoney_not_admin });
             return;
         };
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -58,12 +58,12 @@ export default {
             var amount = interaction.options.getNumber("amount") as number;
             var user = interaction.options.getMember("member");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var amount = client.args.number(args!, 0) as number;
-            var member = client.args.member(interaction, args!, 0);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var amount = client.method.number(args!, 0) as number;
+            var member = client.method.member(interaction, args!, 0);
         };
 
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
             content: lang.addmoney_command_work
                 .replace("${user.user.id}", member?.user.id!)
                 .replace("${amount.value}", amount.toString())

@@ -41,8 +41,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getMember("user") as GuildMember | null;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.args.member(interaction, args!, 0) as GuildMember | null;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var member = client.method.member(interaction, args!, 0) as GuildMember | null;
         };
 
         let mentionedUser = member || interaction.member.user as User;
@@ -55,11 +55,11 @@ export default {
             )
             .setDescription(data.avatar_embed_description)
             .setTimestamp()
-            .setFooter(await client.args.bot.footerBuilder(interaction));
+            .setFooter(await client.method.bot.footerBuilder(interaction));
 
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
             embeds: [embed],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

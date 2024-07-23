@@ -37,8 +37,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var user = interaction.options.getMember("user") as GuildMember || interaction.member;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var user = client.args.member(interaction, args!, 0) || interaction.member;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var user = client.method.member(interaction, args!, 0) || interaction.member;
         };
 
         let baseData = await client.db.get(`${interaction.guildId}.USER.${user.id}.XP_LEVELING`);
@@ -68,12 +68,12 @@ export default {
             )
             .setTimestamp()
             .setThumbnail("https://cdn.discordapp.com/attachments/847484098070970388/850684283655946240/discord-icon-new-2021-logo-09772BF096-seeklogo.com.png")
-            .setFooter(await client.args.bot.footerBuilder(interaction));
+            .setFooter(await client.method.bot.footerBuilder(interaction));
 
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
             embeds: [nivEmbed],
             allowedMentions: { repliedUser: false },
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

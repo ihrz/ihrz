@@ -42,8 +42,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var nw = interaction.options.getString("nickname") || '';
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var nw = client.args.longString(args!, 0) || '';
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var nw = client.method.longString(args!, 0) || '';
         }
 
         let n = [];
@@ -55,7 +55,7 @@ export default {
             }
         };
 
-        await client.args.interactionSend(interaction, { content: n.join("") || lang.serverinfo_verlvl_NONE });
+        await client.method.interactionSend(interaction, { content: n.join("") || lang.serverinfo_verlvl_NONE });
         return;
     },
 };

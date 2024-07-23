@@ -47,9 +47,9 @@ export default {
             var member = interaction.options.getMember("member") as GuildMember | null
             var reason = interaction.options.getString("reason")
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.args.member(interaction, args!, 0) as GuildMember | null;
-            var reason = client.args.longString(args!, 1);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var member = client.method.member(interaction, args!, 0) as GuildMember | null;
+            var reason = client.method.longString(args!, 1);
         };
 
         if (!reason) {
@@ -62,42 +62,42 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.ban_not_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
         if (!member) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.ban_dont_found_member
             });
             return;
         };
 
         if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.BanMembers)) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.ban_dont_have_perm_myself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
         if (member.user.id === interaction.member.user.id) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.ban_try_to_ban_yourself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
         if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= member.roles.highest.position) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.ban_attempt_ban_higter_member.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
             });
             return;
         };
 
         if (!member.bannable) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.ban_cant_ban_member.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
@@ -113,7 +113,7 @@ export default {
             .then(() => {
                 member?.ban({ reason: `Banned by: ${(interaction.member?.user as User).globalName || interaction.member?.user.username} | Reason: ${reason}` })
                     .then(async (member) => {
-                        client.args.interactionSend(interaction, {
+                        client.method.interactionSend(interaction, {
                             content: data.ban_command_work
                                 .replace(/\${member\.user\.id}/g, member.user.id)
                                 .replace(/\${interaction\.member\.id}/g, interaction.member?.user.id!)

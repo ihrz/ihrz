@@ -1715,4 +1715,6 @@ hybridcommands_args_error_embed_desc: "```ts\nコマンド名: ${currentCommand.
 hybridcommands_embed_help_title: "${commandName} ヘルプ埋め込み"
 hybridcommands_embed_help_fields_value: "**エイリアス:** ${aliases}\n**使用法:** ${use}"
 
+ping_bot_show_info_msg: "こんにちは ${message.author.toString()}、私は `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) で100%使用可能で、プレフィックスコマンドで85%以上使用可能です。このサーバーのプレフィックスは `${prefix}` です！"
+
 # -----------------------------\ /-----------------------------

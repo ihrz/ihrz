@@ -58,7 +58,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
+            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
         }
 
@@ -81,7 +81,7 @@ export const command: Command = {
             here.send({ content: lang.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.member.user.toString()) });
             return;
         } catch (error) {
-            await client.args.interactionSend(interaction,{ content: lang.renew_dont_have_permission });
+            await client.method.interactionSend(interaction,{ content: lang.renew_dont_have_permission });
             return;
         }
     },

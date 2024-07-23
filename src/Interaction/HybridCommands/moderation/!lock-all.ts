@@ -49,7 +49,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.lockall_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
+            await client.method.interactionSend(interaction, { content: data.lockall_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
             return;
         };
 
@@ -83,7 +83,7 @@ export default {
             logger.err(e)
         };
 
-        await client.args.interactionSend(interaction, { embeds: [Lockembed] });
+        await client.method.interactionSend(interaction, { embeds: [Lockembed] });
         return;
     },
 };

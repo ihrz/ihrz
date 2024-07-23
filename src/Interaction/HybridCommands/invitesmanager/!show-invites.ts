@@ -41,8 +41,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getMember("member") as GuildMember || interaction.member;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.args.member(interaction, args!, 0) || interaction.member;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var member = client.method.member(interaction, args!, 0) || interaction.member;
         };
 
         let baseData = await client.db.get(`${interaction.guildId}.USER.${member.id}.INVITES`);
@@ -66,7 +66,7 @@ export default {
                     .replace(/\${inv\s*\|\|\s*0}/g, inv || 0)
             );
 
-        await client.args.interactionSend(interaction, { embeds: [embed] });
+        await client.method.interactionSend(interaction, { embeds: [embed] });
         return;
     },
 };

@@ -41,7 +41,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var title = interaction.options.getString("query")!;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var title = (args?.join(" ") || " ") as string
         }
 
@@ -62,16 +62,16 @@ export default {
                         })
                         .setDescription(trimmedLyrics?.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics ?? 'null')
                         .setColor('#cd703a')
-                        .setFooter(await client.args.bot.footerBuilder(interaction));
+                        .setFooter(await client.method.bot.footerBuilder(interaction));
 
-                    await client.args.interactionSend(interaction, {
+                    await client.method.interactionSend(interaction, {
                         embeds: [embed],
-                        files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
+                        files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
                     });
                     return;
                 })
                 .catch(async err => {
-                    await client.args.interactionSend(interaction, { content: data.lyrics_not_found });
+                    await client.method.interactionSend(interaction, { content: data.lyrics_not_found });
                     return;
                 });
 

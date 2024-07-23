@@ -71,12 +71,12 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var toSay = interaction.options.getString('content')!;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var toSay = args?.join(" ")!;
         };
 
         if (!permissions) {
-            await client.args.interactionSend(interaction,{ content: lang.setserverlang_not_admin });
+            await client.method.interactionSend(interaction,{ content: lang.setserverlang_not_admin });
             return;
         };
 

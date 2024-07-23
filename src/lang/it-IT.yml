@@ -1715,4 +1715,6 @@ hybridcommands_args_error_embed_desc: "```ts\nNome del Comando: ${currentCommand
 hybridcommands_embed_help_title: "Incorporamento di Aiuto di ${commandName}"
 hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Uso:** ${use}"
 
+ping_bot_show_info_msg: "Ciao ${message.author.toString()}, sono al 100% in `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) e utilizzabile al 85% in comando prefisso. Il mio prefisso su **questo server** è `${prefix}` !"
+
 # -----------------------------\ /-----------------------------

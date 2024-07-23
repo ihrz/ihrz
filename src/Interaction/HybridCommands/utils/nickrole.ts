@@ -102,10 +102,10 @@ export const command: Command = {
             var part_of_nickname = interaction.options.getString("nickname")?.toLowerCase();
             var role = interaction.options.getRole('role');
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var action_1 = client.args.string(args!, 0);
-            var part_of_nickname = client.args.string(args!, 1)?.toLowerCase();
-            var role = client.args.role(interaction, args!, 0);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var action_1 = client.method.string(args!, 0);
+            var part_of_nickname = client.method.string(args!, 1)?.toLowerCase();
+            var role = client.method.role(interaction, args!, 0);
         };
 
         if (!part_of_nickname || !role) return;
@@ -119,7 +119,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
+            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
         }
 
@@ -154,7 +154,7 @@ export const command: Command = {
             } catch (error) { }
 
             let embed = new EmbedBuilder()
-                .setFooter(await client.args.bot.footerBuilder(interaction))
+                .setFooter(await client.method.bot.footerBuilder(interaction))
                 .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild.iconURL())
@@ -167,9 +167,9 @@ export const command: Command = {
                     .replaceAll('${role}', role?.toString()!)
                 );
 
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 embeds: [embed],
-                files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
             });
             return;
 
@@ -203,7 +203,7 @@ export const command: Command = {
             } catch (error) { }
 
             let embed = new EmbedBuilder()
-                .setFooter(await client.args.bot.footerBuilder(interaction))
+                .setFooter(await client.method.bot.footerBuilder(interaction))
                 .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild.iconURL())
@@ -216,9 +216,9 @@ export const command: Command = {
                     .replaceAll('${role}', role?.toString()!)
                 );
 
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 embeds: [embed],
-                files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
             });
             return;
         };

@@ -69,19 +69,19 @@ export default {
             .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#000000')
             .setAuthor({ name: data.authorization_configshow_embed1_author })
             .setDescription(text2)
-            .setFooter(await client.args.bot.footerBuilder(interaction))
+            .setFooter(await client.method.bot.footerBuilder(interaction))
             .setTimestamp();
 
         let embed2 = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#000000")
             .setAuthor({ name: data.authorization_configshow_embed2_author })
             .setDescription(text)
-            .setFooter(await client.args.bot.footerBuilder(interaction))
+            .setFooter(await client.method.bot.footerBuilder(interaction))
             .setTimestamp();
 
         await interaction.editReply({
             embeds: [embed1, embed2],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

@@ -80,14 +80,14 @@ export const command: Command = {
                 { name: lang.serverinfo_embed_fields_joinat, value: `\`${(interaction.member as GuildMember)?.joinedAt}\``, inline: true },
                 { name: lang.serverinfo_embed_fields_createat, value: `\`${interaction.guild.createdAt}\``, inline: true }
             )
-            .setFooter(await client.args.bot.footerBuilder(interaction))
+            .setFooter(await client.method.bot.footerBuilder(interaction))
             .setTimestamp()
             .setThumbnail(interaction.guild.iconURL())
             .setImage(`https://cdn.discordapp.com/icons/${interaction.guildId}/${interaction.guild?.banner}.png`);
 
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
             embeds: [embeds],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

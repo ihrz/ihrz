@@ -38,8 +38,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var channel = interaction.options.getChannel('to') as BaseGuildTextChannel | null;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var channel = client.args.channel(interaction, args!, 0) as BaseGuildTextChannel | null;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var channel = client.method.channel(interaction, args!, 0) as BaseGuildTextChannel | null;
         }
 
         let fetch = await client.db.get(`${interaction.guildId}.PFPS.disable`);
@@ -50,7 +50,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.pfps_channel_not_admin });
+            await client.method.interactionSend(interaction, { content: data.pfps_channel_not_admin });
             return;
         };
 
@@ -65,7 +65,7 @@ export default {
                 )
                 .setTimestamp();
 
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.pfps_channel_command_work
                     .replace('${interaction.user}', interaction.member.user.toString())
                     .replace('${channel}', channel.toString())
@@ -75,7 +75,7 @@ export default {
             return;
 
         } else {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.pfps_channel_command_error
                     .replace('${interaction.user}', interaction.member.user.toString())
             });

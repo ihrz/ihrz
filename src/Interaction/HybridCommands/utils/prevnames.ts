@@ -71,12 +71,12 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var user = interaction.options.getUser("user") || interaction.user;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var user = await client.args.user(interaction, args!, 0) || interaction.member.user;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var user = await client.method.user(interaction, args!, 0) || interaction.member.user;
         };
 
         // if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-        //     await client.args.interactionSend(interaction,{ content: lang.prevnames_not_admin });
+        //     await client.method.interactionSend(interaction,{ content: lang.prevnames_not_admin });
         //     return;
         // };
 
@@ -84,7 +84,7 @@ export const command: Command = {
         var char: Array<string> = await table.get(`${user.id}`) || [];
 
         if (char.length == 0) {
-            await client.args.interactionSend(interaction, { content: lang.prevnames_undetected });
+            await client.method.interactionSend(interaction, { content: lang.prevnames_undetected });
             return;
         };
 
@@ -130,10 +130,10 @@ export const command: Command = {
                 .setStyle(ButtonStyle.Danger)
         );
 
-        let messageEmbed = await client.args.interactionSend(interaction,{
+        let messageEmbed = await client.method.interactionSend(interaction,{
             embeds: [await createEmbed()],
             components: [row],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({

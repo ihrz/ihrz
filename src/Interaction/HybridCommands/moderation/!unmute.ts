@@ -41,8 +41,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var tomute = interaction.options.getMember("user") as GuildMember | null;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var tomute = client.args.member(interaction, args!, 0) as GuildMember | null;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var tomute = client.method.member(interaction, args!, 0) as GuildMember | null;
         };
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
@@ -53,34 +53,34 @@ export default {
         if (!tomute) return;
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.unmute_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;;
         };
 
         if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageRoles])) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.unmute_i_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;;
         };
 
         if (tomute?.id === interaction.member.user.id) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.unmute_attempt_mute_your_self.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;;
         };
 
         if (!tomute?.isCommunicationDisabled() === true) {
-            await client.args.interactionSend(interaction, { content: data.unmute_not_muted });
+            await client.method.interactionSend(interaction, { content: data.unmute_not_muted });
             return;;
         };
 
         tomute.disableCommunicationUntil(Date.now());
 
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
             content: data.unmute_command_work
                 .replace("${tomute.id}", tomute.id)
         });

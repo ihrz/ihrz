@@ -41,9 +41,9 @@ export default {
             var user1 = interaction.options.getMember("user1") as GuildMember || interaction.member;
             var user2 = interaction.options.getMember("user2") as GuildMember || interaction.guild.members.cache.random() as GuildMember;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var user1 = client.args.member(interaction, args!, 0) || interaction.member;
-            var user2 = client.args.member(interaction, args!, 1) || interaction.guild.members.cache.random() as GuildMember;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var user1 = client.method.member(interaction, args!, 0) || interaction.member;
+            var user2 = client.method.member(interaction, args!, 1) || interaction.guild.members.cache.random() as GuildMember;
         }
 
         let profileImageSize = 512;
@@ -97,19 +97,19 @@ export default {
                     .replace('${user2.username}', user2.user.username)
                     .replace('${randomNumber}', randomNumber.toString())
                 )
-                .setFooter(await client.args.bot.footerBuilder(interaction))
+                .setFooter(await client.method.bot.footerBuilder(interaction))
                 .setTimestamp();
 
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 embeds: [embed],
                 files: [
                     { attachment: buffer, name: 'love.png' },
-                    await interaction.client.args.bot.footerAttachmentBuilder(interaction),
+                    await interaction.client.method.bot.footerAttachmentBuilder(interaction),
                 ]
             });
         } catch (error: any) {
             logger.err(error);
-            await client.args.interactionSend(interaction, { content: lang.love_command_error });
+            await client.method.interactionSend(interaction, { content: lang.love_command_error });
         }
     },
 };

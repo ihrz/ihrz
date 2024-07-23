@@ -43,7 +43,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.clear_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
@@ -52,12 +52,12 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var numberx = interaction.options.getNumber("number")!;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var numberx = client.args.number(args!, 0);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var numberx = client.method.number(args!, 0);
         };
 
         if (numberx && numberx > 100) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.clear_max_message_limit.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;

@@ -37,8 +37,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getMember("user") as GuildMember || interaction.member;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.args.member(interaction, args!, 0) || interaction.member;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var member = client.method.member(interaction, args!, 0) || interaction.member;
         };
 
         let tableProfil = client.db.table('USER_PROFIL');
@@ -73,11 +73,11 @@ export default {
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#ffa550")
             .setThumbnail(member.displayAvatarURL({ extension: 'png', size: 512 }))
             .setTimestamp()
-            .setFooter(await client.args.bot.footerBuilder(interaction))
+            .setFooter(await client.method.bot.footerBuilder(interaction))
 
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
             embeds: [profil],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

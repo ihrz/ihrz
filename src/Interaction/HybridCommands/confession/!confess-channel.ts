@@ -45,9 +45,9 @@ export default {
             var channel = interaction.options.getChannel("to") as TextChannel;
             var buttonTitle = interaction.options.getString('button-title')?.substring(0, 22) || '+';
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var channel = (client.args.channel(interaction, args!, 0) || interaction.channel) as TextChannel;
-            var buttonTitle = client.args.string(args!, 1) || '+';
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var channel = (client.method.channel(interaction, args!, 0) || interaction.channel) as TextChannel;
+            var buttonTitle = client.method.string(args!, 1) || '+';
         };
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
@@ -56,20 +56,20 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.security_channel_not_admin });
+            await client.method.interactionSend(interaction, { content: data.security_channel_not_admin });
             return;
         };
 
         await client.db.set(`${interaction.guildId}.CONFESSION.channel`, channel.id);
 
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
             content: data.confession_channel_command_work
                 .replace('${channel?.toString()}', channel.toString()!)
         });
 
         let embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#ff05aa")
-            .setFooter(await client.args.bot.footerBuilder(interaction))
+            .setFooter(await client.method.bot.footerBuilder(interaction))
             .setTimestamp()
             .setDescription(data.confession_channel_panel_embed_desc)
             ;

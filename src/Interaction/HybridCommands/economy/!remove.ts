@@ -42,12 +42,12 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.removemoney_not_admin });
+            await client.method.interactionSend(interaction, { content: data.removemoney_not_admin });
             return;
         };
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -58,9 +58,9 @@ export default {
             var amount = interaction.options.getNumber("amount") as number;
             var user = interaction.options.getMember("member") as GuildMember;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var amount = client.args.number(args!, 0) as number;
-            var user = client.args.member(interaction, args!, 0) as GuildMember;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var amount = client.method.number(args!, 0) as number;
+            var user = client.method.member(interaction, args!, 0) as GuildMember;
         };
 
         await client.db.sub(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, amount!);
@@ -87,7 +87,7 @@ export default {
             if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
         } catch (e) { return; };
 
-        await client.args.interactionSend(interaction, { embeds: [embed] });
+        await client.method.interactionSend(interaction, { embeds: [embed] });
         return;
     },
 };

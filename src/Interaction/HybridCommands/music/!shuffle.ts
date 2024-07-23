@@ -40,18 +40,18 @@ export default {
         let player = client.player.getPlayer(interaction.guildId as string);
 
         if (!player || !player.playing || !voiceChannel) {
-            await client.args.interactionSend(interaction, { content: data.shuffle_no_queue });
+            await client.method.interactionSend(interaction, { content: data.shuffle_no_queue });
             return;
         };
 
         if (player.queue.tracks.length < 2) {
-            await client.args.interactionSend(interaction, { content: data.shuffle_no_enought });
+            await client.method.interactionSend(interaction, { content: data.shuffle_no_enought });
             return;
         };
 
         await player.queue.shuffle();
 
-        await client.args.interactionSend(interaction, { content: data.shuffle_command_work });
+        await client.method.interactionSend(interaction, { content: data.shuffle_command_work });
         return;
     },
 };

@@ -103,7 +103,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.support_not_admin });
+            await client.method.interactionSend(interaction, { content: lang.support_not_admin });
             return;
         };
 
@@ -112,15 +112,15 @@ export const command: Command = {
             var roles = interaction.options.getRole("roles");
             var input = interaction.options.getString("input");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var action = client.args.string(args!, 0)
-            var roles = client.args.role(interaction, args!, 0);
-            var input = client.args.longString(args!, 2)
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var action = client.method.string(args!, 0)
+            var roles = client.method.role(interaction, args!, 0);
+            var input = client.method.longString(args!, 2)
         };
 
         if (action == "enable") {
             if (!roles) {
-                await client.args.interactionSend(interaction, { content: lang.support_command_not_role });
+                await client.method.interactionSend(interaction, { content: lang.support_command_not_role });
                 return;
             }
 
@@ -132,7 +132,7 @@ export const command: Command = {
                 }
             );
 
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: lang.support_command_work
                     .replace("${interaction.guild.name}", interaction.guild.name)
                     .replace("${input}", input!)
@@ -153,7 +153,7 @@ export const command: Command = {
         } else {
             await client.db.delete(`${interaction.guildId}.GUILD.SUPPORT`);
 
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: lang.support_command_work_on_disable
                     .replace("${interaction.guild.name}", interaction.guild.name)
             })

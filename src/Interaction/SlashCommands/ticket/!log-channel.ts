@@ -54,12 +54,12 @@ export default {
                 .replace('${interaction.user}', interaction.user.toString())
                 .replace('${channel}', channel.toString())
             )
-            .setFooter(await client.args.bot.footerBuilder(interaction))
+            .setFooter(await client.method.bot.footerBuilder(interaction))
             .setTimestamp();
 
         await interaction.editReply({
             embeds: [embed],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

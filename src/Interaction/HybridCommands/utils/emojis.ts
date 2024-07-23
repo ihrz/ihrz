@@ -80,7 +80,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
+            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
         };
 
@@ -110,7 +110,7 @@ export const command: Command = {
 
         let embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#bea9de')
-            .setFooter(await client.args.bot.footerBuilder(interaction))
+            .setFooter(await client.method.bot.footerBuilder(interaction))
             .setTimestamp()
             .setDescription(lang.emoji_embed_desc_work
                 .replace('${cnt}', cnt.toString())
@@ -118,9 +118,9 @@ export const command: Command = {
                 .replace('${nemj}', nemj)
             )
 
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
             embeds: [embed],
-            files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

@@ -34,15 +34,15 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var age = interaction.options.getNumber("age")!;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var age = client.args.number(args!, 0);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var age = client.method.number(args!, 0);
         };
 
         let tableProfil = client.db.table('USER_PROFIL');
 
         await tableProfil.set(`${interaction.member.user.id}.age`, age);
 
-        await client.args.interactionSend(interaction,{ content: data.setprofilage_command_work, ephemeral: true });
+        await client.method.interactionSend(interaction,{ content: data.setprofilage_command_work, ephemeral: true });
         return;
     },
 };

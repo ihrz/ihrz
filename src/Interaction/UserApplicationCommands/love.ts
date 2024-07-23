@@ -93,12 +93,12 @@ export const command: AnotherCommand = {
                     .replace('${user2.username}', user2?.globalName!)
                     .replace('${randomNumber}', randomNumber.toString())
                 )
-                .setFooter(await client.args.bot.footerBuilder(interaction))
+                .setFooter(await client.method.bot.footerBuilder(interaction))
                 .setTimestamp();
 
             await interaction.reply({
                 embeds: [embed],
-                files: [{ attachment: buffer, name: 'love.png' }, await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
+                files: [{ attachment: buffer, name: 'love.png' }, await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
             });
         } catch (error: any) {
             logger.err(error);

@@ -42,9 +42,9 @@ export default {
             var type = interaction.options.getString("action");
             var argsid = interaction.options.getChannel("channel") as Channel;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var type = client.args.string(args!, 0);
-            var argsid = client.args.channel(interaction, args!, 0) || client.args.channel(interaction, args!, 1) || interaction.channel;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var type = client.method.string(args!, 0);
+            var argsid = client.method.channel(interaction, args!, 0) || client.method.channel(interaction, args!, 1) || interaction.channel;
         };
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
@@ -53,13 +53,13 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.setxpchannels_not_admin });
+            await client.method.interactionSend(interaction, { content: data.setxpchannels_not_admin });
             return;
         };
 
         if (type === "on") {
             if (!argsid) {
-                await client.args.interactionSend(interaction, { content: data.setxpchannels_valid_channel_message });
+                await client.method.interactionSend(interaction, { content: data.setxpchannels_valid_channel_message });
                 return;
             };
 
@@ -81,15 +81,15 @@ export default {
 
             try {
                 let already = await client.db.get(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`);
-                if (already === argsid.id) return await client.args.interactionSend(interaction, { content: data.setxpchannels_already_with_this_config });
+                if (already === argsid.id) return await client.method.interactionSend(interaction, { content: data.setxpchannels_already_with_this_config });
 
                 (client.channels.cache.get(argsid.id) as BaseGuildTextChannel).send({ content: data.setxpchannels_confirmation_message });
                 await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`, argsid.id);
 
-                await client.args.interactionSend(interaction, { content: data.setxpchannels_command_work_enable.replace(/\${argsid}/g, argsid.id) });
+                await client.method.interactionSend(interaction, { content: data.setxpchannels_command_work_enable.replace(/\${argsid}/g, argsid.id) });
                 return;
             } catch (e) {
-                await client.args.interactionSend(interaction, { content: data.setxpchannels_command_error_enable });
+                await client.method.interactionSend(interaction, { content: data.setxpchannels_command_error_enable });
                 return;
             };
         } else if (type == "off") {
@@ -112,15 +112,15 @@ export default {
                 let already2 = await client.db.get(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`);
 
                 if (already2 === "off") {
-                    await client.args.interactionSend(interaction, { content: data.setxpchannels_already_disabled_disable });
+                    await client.method.interactionSend(interaction, { content: data.setxpchannels_already_disabled_disable });
                     return;
                 };
 
                 await client.db.delete(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`);
-                await client.args.interactionSend(interaction, { content: data.setxpchannels_command_work_disable });
+                await client.method.interactionSend(interaction, { content: data.setxpchannels_command_work_disable });
                 return;
             } catch (e) {
-                await client.args.interactionSend(interaction, { content: data.setxpchannels_command_error_disable });
+                await client.method.interactionSend(interaction, { content: data.setxpchannels_command_error_disable });
                 return;
             };
         };

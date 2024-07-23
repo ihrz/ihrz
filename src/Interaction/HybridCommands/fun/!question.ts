@@ -37,14 +37,14 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var question = interaction.options.getString("question") as string;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var question = client.args.string(args!, 0) as string;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var question = client.method.string(args!, 0) as string;
         };
 
         let text = question?.split(" ");
 
         if (!text[2]) {
-            await client.args.interactionSend(interaction, { content: lang.question_not_full });
+            await client.method.interactionSend(interaction, { content: lang.question_not_full });
             return;
         }
 
@@ -61,7 +61,7 @@ export default {
             )
             .setTimestamp();
 
-        await client.args.interactionSend(interaction, { embeds: [embed] });
+        await client.method.interactionSend(interaction, { embeds: [embed] });
         return;
     },
 };

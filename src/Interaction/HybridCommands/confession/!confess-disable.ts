@@ -40,8 +40,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var action = interaction.options.getString("action");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var action = client.args.string(args!, 0);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var action = client.method.string(args!, 0);
         };
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
@@ -50,13 +50,13 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.security_disable_not_admin });
+            await client.method.interactionSend(interaction, { content: data.security_disable_not_admin });
             return;
         };
 
         if (action === 'on') {
             await client.db.set(`${interaction.guildId}.CONFESSION.disable`, false);
-            await client.args.interactionSend(interaction,{
+            await client.method.interactionSend(interaction,{
                 content: data.confession_disable_command_work_on
             });
 
@@ -78,7 +78,7 @@ export default {
         } else if (action === 'off') {
 
             await client.db.set(`${interaction.guildId}.CONFESSION.disable`, true);
-            await client.args.interactionSend(interaction,{
+            await client.method.interactionSend(interaction,{
                 content: data.confession_disable_command_work_off
             });
 

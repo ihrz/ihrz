@@ -39,8 +39,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var types = interaction.options.getString("action");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var types = client.args.string(args!, 0);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var types = client.method.string(args!, 0);
         };
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
@@ -49,7 +49,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.disablexp_not_admin });
+            await client.method.interactionSend(interaction, { content: data.disablexp_not_admin });
             return;
         };
 
@@ -71,7 +71,7 @@ export default {
 
             await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.disable`, false);
 
-            await client.args.interactionSend(interaction, { content: data.disablexp_command_work_disable });
+            await client.method.interactionSend(interaction, { content: data.disablexp_command_work_disable });
             return;
         } else if (types == "disable") {
             try {
@@ -91,7 +91,7 @@ export default {
 
             await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.disable`, 'disable');
 
-            await client.args.interactionSend(interaction, { content: data.disablexp_command_work_disable_entierly });
+            await client.method.interactionSend(interaction, { content: data.disablexp_command_work_disable_entierly });
             return;
         } else if (types == "on") {
             try {
@@ -111,7 +111,7 @@ export default {
 
             await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.disable`, true);
 
-            await client.args.interactionSend(interaction, { content: data.disablexp_command_work_enable });
+            await client.method.interactionSend(interaction, { content: data.disablexp_command_work_enable });
             return;
         };
     },

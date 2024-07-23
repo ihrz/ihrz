@@ -52,12 +52,12 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.lock_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
+            await client.method.interactionSend(interaction, { content: data.lock_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
             return;
         };
 
         (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(interaction.guildId as string, { SendMessages: false }).then(async () => {
-            await client.args.interactionSend(interaction, { embeds: [Lockembed] });
+            await client.method.interactionSend(interaction, { embeds: [Lockembed] });
         }).catch(() => { })
 
         try {

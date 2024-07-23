@@ -40,8 +40,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var action = interaction.options.getString("time") as string;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var action = (client.args.string(args!, 0) || "0s") as string
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var action = (client.method.string(args!, 0) || "0s") as string
         };
 
         let time = client.timeCalculator.to_ms(action);
@@ -52,19 +52,19 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.security_disable_not_admin });
+            await client.method.interactionSend(interaction, { content: data.security_disable_not_admin });
             return;
         };
 
         if (!time) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.too_new_account_invalid_time_on_enable
             });
             return;
         };
 
         await client.db.set(`${interaction.guildId}.GUILD.CONFESSION.cooldown`, time);
-        await client.args.interactionSend(interaction,{
+        await client.method.interactionSend(interaction,{
             content: data.confession_coolodwn_command_work
                 .replace('${interaction.user.toString()}', interaction.member.user.toString())
                 .replace('${client.timeCalculator.to_beautiful_string(time)}', client.timeCalculator.to_beautiful_string(time))

@@ -23,6 +23,7 @@ import { Client, EmbedBuilder, PermissionsBitField, ChannelType, Message, Client
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../../types/database_structure';
 import { LanguageData } from '../../../types/languageData';
+import { guildPrefix } from '../../core/functions/prefix.js';
 
 export const event: BotEvent = {
     name: "messageCreate",
@@ -30,16 +31,26 @@ export const event: BotEvent = {
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        let data = await client.func.getLanguageData(message.guild.id) as LanguageData;
+        let lang = await client.func.getLanguageData(message.guild.id) as LanguageData;
 
         if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || message.author.bot
             || message.author.id === client.user?.id || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)
             || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.ManageRoles) || message.content !== `<@${client.user?.id}>`) return;
 
         let dbGet = await client.db.get(`${message.guild.id}.GUILD.RANK_ROLES`) as DatabaseStructure.DbGuildObject['RANK_ROLES'];
+        var prefix = (await guildPrefix(client, message.guildId!)).string;
+        let text = lang.ping_bot_show_info_msg
+            .replace("${prefix}", prefix)
+            .replace("${message.author.toString()}", message.author.toString())
+            .replace("${client.iHorizon_Emojis.badge.Slash_Bot}", client.iHorizon_Emojis.badge.Slash_Bot)
+            ;
 
-        if (!dbGet || !dbGet.roles) return;
-
+        if (!dbGet || !dbGet.roles) {
+            if (await client.method.helper.cooldDown(message, "ping_bot", 2000)) {
+                return;
+            };
+            return await client.method.interactionSend(message, { content: text });
+        }
         let fetch = message.guild.roles.cache.find((role) => role.id === dbGet.roles);
 
         /**
@@ -61,20 +72,20 @@ export const event: BotEvent = {
             }
 
             let embed = new EmbedBuilder()
-                .setDescription(data.event_rank_role
+                .setDescription(lang.event_rank_role
                     .replace("${message.author.id}", message.author.id)
                     .replace("${fetch.id}", fetch.id)
                 )
-                .setFooter(await client.args.bot.footerBuilder(message))
+                .setFooter(await client.method.bot.footerBuilder(message))
                 .setTimestamp();
 
             message.member?.roles.add(fetch).catch(() => { });
             message.channel.send({
                 embeds: [embed],
-                files: [await client.args.bot.footerAttachmentBuilder(message)],
+                files: [await client.method.bot.footerAttachmentBuilder(message)],
                 enforceNonce: true,
                 nonce
             }).catch(() => { });
-        }
+        };
     },
 };

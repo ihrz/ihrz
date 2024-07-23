@@ -44,7 +44,7 @@ export const command: Command = {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
             content: lang.kisakay_message.replace("${client.iHorizon_Emojis.icon.Sparkles}", client.iHorizon_Emojis.icon.Sparkles)
         });
         return;

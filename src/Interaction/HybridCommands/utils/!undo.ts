@@ -40,7 +40,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.prevnames_not_admin });
+            await client.method.interactionSend(interaction, { content: data.prevnames_not_admin });
         }
 
         let unbanned_members = await client.db.get(`${interaction.guildId}.UTILS.unban_members`);
@@ -61,7 +61,7 @@ export default {
 
         await client.db.set(`${interaction.guildId}.UTILS.unban_members`, []);
 
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
             embeds: [
                 new EmbedBuilder()
                     .setColor(2829617)
@@ -72,9 +72,9 @@ export default {
                             .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                             .replace('${cannot_ban}', cannot_ban.toString())
                     )
-                    .setFooter(await client.args.bot.footerBuilder(interaction))
+                    .setFooter(await client.method.bot.footerBuilder(interaction))
             ],
-files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
+files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
         });
 
         return;

@@ -40,12 +40,12 @@ export default {
         let player = client.player.getPlayer(interaction.guildId as string);
 
         if (!player) {
-            await client.args.interactionSend(interaction, { content: data.queue_iam_not_voicec });
+            await client.method.interactionSend(interaction, { content: data.queue_iam_not_voicec });
             return;
         };
 
         if (!player.queue.tracks) {
-            await client.args.interactionSend(interaction, { content: data.queue_no_queue });
+            await client.method.interactionSend(interaction, { content: data.queue_no_queue });
             return;
         };
 
@@ -53,7 +53,7 @@ export default {
             .map((track, idx) => `**${++idx})** [${track.info.title}](${track.info.uri})`)
 
         if (tracks.length === 0) {
-            await client.args.interactionSend(interaction, { content: data.queue_empty_queue });
+            await client.method.interactionSend(interaction, { content: data.queue_empty_queue });
             return;
         };
 
@@ -77,7 +77,7 @@ export default {
             index++;
         };
 
-        let message = await client.args.interactionSend(interaction, { embeds: [embeds[0]] }) as Message;
+        let message = await client.method.interactionSend(interaction, { embeds: [embeds[0]] }) as Message;
 
         if (embeds.length === 1) return;
 

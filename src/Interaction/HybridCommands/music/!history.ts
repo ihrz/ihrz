@@ -47,14 +47,14 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.setxpchannels_not_admin });
+            await client.method.interactionSend(interaction, { content: data.setxpchannels_not_admin });
             return;
         };
 
         let history = await client.db.get(`${interaction.guildId}.MUSIC_HISTORY`);
 
         if (!history || !history.embed || history.embed.length == 0) {
-            await client.args.interactionSend(interaction, { content: data.history_no_entries });
+            await client.method.interactionSend(interaction, { content: data.history_no_entries });
             return;
         };
 
@@ -103,10 +103,10 @@ export default {
                 .setStyle(ButtonStyle.Secondary),
         );
 
-        let messageEmbed = await client.args.interactionSend(interaction, {
+        let messageEmbed = await client.method.interactionSend(interaction, {
             embeds: [createEmbed()],
             components: [(row as ActionRowBuilder<ButtonBuilder>)],
-            files: [attachment, await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [attachment, await client.method.bot.footerAttachmentBuilder(interaction)]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({

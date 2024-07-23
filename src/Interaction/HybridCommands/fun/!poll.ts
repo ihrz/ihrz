@@ -42,15 +42,15 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.poll_not_admin });
+            await client.method.interactionSend(interaction, { content: lang.poll_not_admin });
             return;
         };
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var pollMessage = interaction.options.getString("message");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var pollMessage = client.args.string(args!, 0);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var pollMessage = client.method.string(args!, 0);
         }
 
         let pollEmbed = new EmbedBuilder()
@@ -63,7 +63,7 @@ export default {
             .setImage("https://cdn.discordapp.com/attachments/610152915063013376/610947097969164310/loading-animation.gif")
             .setTimestamp()
 
-        let msg = await client.args.interactionSend(interaction, { embeds: [pollEmbed] });
+        let msg = await client.method.interactionSend(interaction, { embeds: [pollEmbed] });
 
         await msg.react(client.iHorizon_Emojis.icon.Yes_Logo);
         await msg.react(client.iHorizon_Emojis.icon.No_Logo);

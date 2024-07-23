@@ -20,7 +20,9 @@
 */
 
 import {
-    BaseGuildTextChannel,
+    BaseGuildTextChannel,r(interaction))
+],
+files: [await interaction.client.method.bot.footerAttachment
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
@@ -79,7 +81,7 @@ export default {
             });
 
             embed.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#8afe46');
-            embed.setFooter(await client.args.bot.footerBuilder(interaction));
+            embed.setFooter(await client.method.bot.footerBuilder(interaction));
             embed.setTitle(data.suggest_reply_embed_title_to_put
                 .replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title as string)
             );

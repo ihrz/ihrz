@@ -40,7 +40,7 @@ export default {
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await client.args.interactionSend(interaction, { content: data.ranksSetMessage_not_admin, ephemeral: true });
+            await client.method.interactionSend(interaction, { content: data.ranksSetMessage_not_admin, ephemeral: true });
             return;
         }
 
@@ -74,7 +74,7 @@ export default {
                     .setStyle(ButtonStyle.Danger),
             );
 
-        const message = await client.args.interactionSend(interaction, {
+        const message = await client.method.interactionSend(interaction, {
             embeds: [helpEmbed],
             components: [buttons]
         });

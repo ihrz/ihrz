@@ -53,16 +53,16 @@ export const event: BotEvent = {
                     { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true }
                 )
                 .setThumbnail(guild.iconURL())
-                .setFooter(await client.args.bot.footerBuilder(guild));
+                .setFooter(await client.method.bot.footerBuilder(guild));
 
             await (client.users.cache.get(owner1))?.send({
                 embeds: [embed],
-                files: [await client.args.bot.footerAttachmentBuilder(guild)]
+                files: [await client.method.bot.footerAttachmentBuilder(guild)]
             });
 
             await (client.users.cache.get(owner2))?.send({
                 embeds: [embed],
-                files: [await client.args.bot.footerAttachmentBuilder(guild)]
+                files: [await client.method.bot.footerAttachmentBuilder(guild)]
             });
         } catch (error: any) {
             logger.err(error);

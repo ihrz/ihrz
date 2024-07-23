@@ -63,25 +63,25 @@ export const command: Command = {
         let tableOwner = client.db.table('OWNER');
 
         if (await tableOwner.get(`${interaction.member.user.id}.owner`) !== true) {
-            await client.args.interactionSend(interaction, { content: lang.unowner_not_owner });
+            await client.method.interactionSend(interaction, { content: lang.unowner_not_owner });
             return;
         };
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getUser('member');
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = await client.args.user(interaction, args!, 0);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var member = await client.method.user(interaction, args!, 0);
         };
 
         if (client.owners.includes(member?.id!)) {
-            await client.args.interactionSend(interaction, { content: lang.unowner_cant_unowner_creator });
+            await client.method.interactionSend(interaction, { content: lang.unowner_cant_unowner_creator });
             return;
         };
 
         await tableOwner.delete(`${member?.id}`);
 
-        await client.args.interactionSend(interaction, { content: lang.unowner_command_work.replace(/\${member\.username}/g, member?.username!) });
+        await client.method.interactionSend(interaction, { content: lang.unowner_command_work.replace(/\${member\.username}/g, member?.username!) });
         return;
     },
 };

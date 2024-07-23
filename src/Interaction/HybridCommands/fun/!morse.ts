@@ -41,8 +41,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var text = interaction.options.getString("input")?.toUpperCase() as string;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var text = client.args.longString(args!, 0) as string;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var text = client.method.longString(args!, 0)?.toUpperCase() as string;
         }
 
         while (text.includes("Ä") || text.includes("Ö") || text.includes("Ü")) {
@@ -66,7 +66,7 @@ export default {
 
             text = textArray.join(" ");
         }
-        await client.args.interactionSend(interaction, { content: '```' + text + '```' });
+        await client.method.interactionSend(interaction, { content: '```' + text + '```', allowedMentions: { roles: undefined, users: undefined } });
         return;
     },
 };
