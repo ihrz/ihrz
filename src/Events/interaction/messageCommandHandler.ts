@@ -26,13 +26,13 @@ import { LanguageData } from '../../../types/languageData';
 
 var timeout: number = 1600;
 
-export async function cooldDown(client: Client, message: Message) {
+export async function cooldDown(message: Message, method: string) {
     let tn = Date.now();
-    let table = client.db.table("TEMP");
-    var fetch = await table.get(`COOLDOWN.${message.author.id}`);
+    let table = message.client.db.table("TEMP");
+    var fetch = await table.get(`COOLDOWN.${method}.${message.author.id}`);
     if (fetch !== null && timeout - (tn - fetch) > 0) return true;
 
-    await table.set(`COOLDOWN.${message.author.id}`, tn);
+    await table.set(`COOLDOWN.${method}.${message.author.id}`, tn);
     return false;
 };
 
@@ -55,7 +55,7 @@ export const event: BotEvent = {
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        if (await cooldDown(client, message)) {
+        if (await cooldDown(message, "msg_commands")) {
             return;
         };
 

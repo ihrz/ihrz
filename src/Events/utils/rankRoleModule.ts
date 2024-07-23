@@ -47,7 +47,7 @@ export const event: BotEvent = {
             ;
 
         if (!dbGet || !dbGet.roles) {
-            if (await cooldDown(client, message)) {
+            if (await cooldDown(message, "ping_bot")) {
                 return;
             };
             return await client.args.interactionSend(message, { content: text });
