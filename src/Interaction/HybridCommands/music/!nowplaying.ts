@@ -67,7 +67,7 @@ export default {
         let voiceChannel = (interaction.member as GuildMember).voice.channel;
 
         if (!player || !player.playing || !voiceChannel) {
-            await client.args.interactionSend(interaction, { content: data.nowplaying_no_queue });
+            await client.method.interactionSend(interaction, { content: data.nowplaying_no_queue });
             return;
         };
 
@@ -82,7 +82,7 @@ export default {
 
         if (player.queue.current?.info?.artworkUrl) embed.setThumbnail(player.queue.current?.info?.artworkUrl);
 
-        let response = await client.args.interactionSend(interaction, {
+        let response = await client.method.interactionSend(interaction, {
             embeds: [embed],
             components: [btn],
         });
@@ -143,10 +143,10 @@ export default {
                                         })
                                         .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
                                         .setColor('#cd703a')
-                                        .setFooter(await client.args.bot.footerBuilder(interaction));
+                                        .setFooter(await client.method.bot.footerBuilder(interaction));
                                     i.editReply({
                                         embeds: [embed],
-                                        files: [await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
+                                        files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
                                     });
                                 };
                                 break;

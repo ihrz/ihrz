@@ -116,12 +116,12 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var type = interaction.options.getString("language");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var type = args?.[0] as string | null;
         };
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.setserverlang_not_admin });
+            await client.method.interactionSend(interaction, { content: lang.setserverlang_not_admin });
             return;
         };
 
@@ -129,7 +129,7 @@ export const command: Command = {
         let already = await client.db.get(`${interaction.guildId}.GUILD.LANG`);
 
         if (already?.lang === type) {
-            await client.args.interactionSend(interaction, { content: lang.setserverlang_already });
+            await client.method.interactionSend(interaction, { content: lang.setserverlang_already });
             return;
         }
 
@@ -149,7 +149,7 @@ export const command: Command = {
             if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
         } catch (e: any) { logger.err(e) };
 
-        await client.args.interactionSend(interaction, { content: lang.setserverlang_command_work_enable.replace(/\${type}/g, type!) });
+        await client.method.interactionSend(interaction, { content: lang.setserverlang_command_work_enable.replace(/\${type}/g, type!) });
         return;
     },
 };

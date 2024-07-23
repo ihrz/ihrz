@@ -79,12 +79,12 @@ export default {
                         .replace('${code}', code)
                         .replace('${utils_msg}', utils_msg)
                 )
-                .setFooter(await client.args.bot.footerBuilder(interaction));
+                .setFooter(await client.method.bot.footerBuilder(interaction));
 
             await interaction.reply({
                 embeds: [embed],
                 ephemeral: true,
-                files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
             });
             return;
         };

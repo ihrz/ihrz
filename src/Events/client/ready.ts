@@ -100,7 +100,7 @@ export const event: BotEvent = {
                         member?.send({
                             content: member.toString(),
                             embeds: [embed],
-                            files: [await client.args.bot.footerAttachmentBuilder(client)]
+                            files: [await client.method.bot.footerAttachmentBuilder(client)]
                         }).catch(() => { });
 
                         await table.delete(`${array.id}.${ScheduleId}`);

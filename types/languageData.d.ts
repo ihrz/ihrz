@@ -1232,4 +1232,5 @@ export interface LanguageData {
   hybridcommands_args_error_embed_desc: string;
   hybridcommands_embed_help_title: string;
   hybridcommands_embed_help_fields_value: string;
+  ping_bot_show_info_msg: string;
 }

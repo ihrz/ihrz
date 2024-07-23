@@ -39,20 +39,20 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.pfps_disable_not_admin });
+            await client.method.interactionSend(interaction, { content: data.pfps_disable_not_admin });
             return;
         };
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var action = interaction.options.getString('action');
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var action = client.args.string(args!, 0);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var action = client.method.string(args!, 0);
         }
 
         if (action === 'on') {
             await client.db.set(`${interaction.guildId}.PFPS.disable`, false);
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.pfps_disable_command_action_on
                     .replace('${interaction.user}', interaction.member.user.toString())
             });
@@ -60,7 +60,7 @@ export default {
             return;
         } else if (action === 'off') {
             await client.db.set(`${interaction.guildId}.PFPS.disable`, true);
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.pfps_disable_command_action_off
                     .replace('${interaction.user}', interaction.member.user.toString())
             });

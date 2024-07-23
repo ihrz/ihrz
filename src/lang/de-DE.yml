@@ -1719,5 +1719,6 @@ hybridcommands_embed_help_fields_value: "**Aliase:** ${aliases}\n**Verwendung:**
 # help
 help_rpg_dsc: "Unser brandneues RPG, in diesem RPG kannst du tun, was immer du willst! Wir haben viele Quests, Bosse, Events und mehr! (Wir haben noch einige Tutorials, die dir ein wenig helfen, aber es ist immer noch DEIN Abenteuer!)"
 help_rpg_fields: "Triff eine Auswahl!"
+ping_bot_show_info_msg: "Hey ${message.author.toString()}, ich bin zu 100% in `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) und zu mehr als 85% in Präfix-Befehl nutzbar. Mein Präfix auf **diesem Server** ist `${prefix}` !"
 
 # -----------------------------\ /-----------------------------

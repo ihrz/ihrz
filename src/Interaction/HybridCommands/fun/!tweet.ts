@@ -50,14 +50,14 @@ export default {
             var entry = interaction.options.getString('comment');
             var messageArgs = entry!.split(' ');
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var user: GuildMember = client.args.member(interaction, args!, 0) || interaction.member;
-            var entry = client.args.longString(args!, 1);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var user: GuildMember = client.method.member(interaction, args!, 0) || interaction.member;
+            var entry = client.method.longString(args!, 1);
             var messageArgs = entry!.split(' ');
         };
 
         if (messageArgs.length < 1) {
-            await client.args.interactionSend(interaction, { content: lang.fun_var_good_sentence });
+            await client.method.interactionSend(interaction, { content: lang.fun_var_good_sentence });
             return;
         };
 
@@ -82,7 +82,7 @@ export default {
             .setColor('#000000')
             .setImage('attachment://tweet-elektra.png')
             .setTimestamp()
-            .setFooter(await client.args.bot.footerBuilder(interaction));
+            .setFooter(await client.method.bot.footerBuilder(interaction));
 
         let imgs: AttachmentBuilder;
 
@@ -91,7 +91,7 @@ export default {
             embed.setImage(`attachment://tweet-elektra.png`);
         });
 
-        await client.args.interactionSend(interaction, { embeds: [embed], files: [imgs!, await interaction.client.args.bot.footerAttachmentBuilder(interaction)] });
+        await client.method.interactionSend(interaction, { embeds: [embed], files: [imgs!, await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });
         return;
     },
 };

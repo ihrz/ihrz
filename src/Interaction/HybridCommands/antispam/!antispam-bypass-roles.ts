@@ -50,7 +50,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.addmoney_not_admin });
+            await client.method.interactionSend(interaction, { content: lang.addmoney_not_admin });
             return;
         };
 
@@ -67,7 +67,7 @@ export default {
                     ? all_roles.map(x => `<@&${x}>`).join(', ')
                     : lang.setjoinroles_var_none
             })
-            .setFooter(await client.args.bot.footerBuilder(interaction));
+            .setFooter(await client.method.bot.footerBuilder(interaction));
 
         const select = new RoleSelectMenuBuilder()
             .setCustomId('antispam-select-config')
@@ -85,7 +85,7 @@ export default {
             .setCustomId("antispam-manage-save-button")
             .setLabel(lang.antispam_manage_button_label);
 
-        const originalResponse = await client.args.interactionSend(interaction, {
+        const originalResponse = await client.method.interactionSend(interaction, {
             embeds: [embed],
             components: [
                 new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(select),
@@ -135,11 +135,11 @@ export default {
             })
 
             allroles = i.values;
-            await client.args.interactionEdit(originalResponse as Message, { embeds: [embed] });
+            await client.method.interactionEdit(originalResponse as Message, { embeds: [embed] });
         });
 
         collector.on('end', async () => {
-            await client.args.interactionEdit(originalResponse as Message, { components: [] });
+            await client.method.interactionEdit(originalResponse as Message, { components: [] });
         })
     },
 };

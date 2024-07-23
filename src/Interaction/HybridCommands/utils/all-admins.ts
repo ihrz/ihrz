@@ -67,12 +67,12 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.punishpub_not_admin });
+            await client.method.interactionSend(interaction, { content: data.punishpub_not_admin });
             return;
         };
 
         if (all_admin_members.length == 0) {
-            await client.args.interactionSend(interaction, { content: data.all_admins_nobody_admins });
+            await client.method.interactionSend(interaction, { content: data.all_admins_nobody_admins });
             return;
         };
 
@@ -120,10 +120,10 @@ export const command: Command = {
                 .setStyle(ButtonStyle.Danger)
         );
 
-        let messageEmbed = await client.args.interactionSend(interaction, {
+        let messageEmbed = await client.method.interactionSend(interaction, {
             embeds: [createEmbed()],
             components: [row],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({
@@ -170,7 +170,7 @@ export const command: Command = {
                         }
 
                         let embed = new EmbedBuilder()
-                            .setFooter(await client.args.bot.footerBuilder(interaction))
+                            .setFooter(await client.method.bot.footerBuilder(interaction))
                             .setColor('#007fff')
                             .setTimestamp()
                             .setThumbnail(interaction.guild?.iconURL()!)

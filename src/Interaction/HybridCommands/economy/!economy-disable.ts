@@ -41,15 +41,15 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.economy_disable_not_admin });
+            await client.method.interactionSend(interaction, { content: lang.economy_disable_not_admin });
             return;
         };
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var state = interaction.options.getString("action") as string;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var state = client.args.longString(args!, 0) as string;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var state = client.method.longString(args!, 0) as string;
         };
 
         let current_state = await client.db.get(`${interaction.guildId}.ECONOMY.disabled`);
@@ -57,7 +57,7 @@ export default {
         if (state === 'on') {
 
             if (!current_state) {
-                await client.args.interactionSend(interaction,{
+                await client.method.interactionSend(interaction,{
                     content: lang.economy_disable_already_enable
                         .replace('${interaction.user.id}', interaction.member.user.id)
                 });
@@ -66,14 +66,14 @@ export default {
 
             await client.db.set(`${interaction.guildId}.ECONOMY.disabled`, false);
 
-            await client.args.interactionSend(interaction,{
+            await client.method.interactionSend(interaction,{
                 content: lang.economy_disable_set_enable
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
         } else if (state === 'off') {
 
             if (current_state) {
-                await client.args.interactionSend(interaction,{
+                await client.method.interactionSend(interaction,{
                     content: lang.economy_disable_already_disable
                         .replace('${interaction.user.id}', interaction.member.user.id)
                 });
@@ -82,7 +82,7 @@ export default {
 
             await client.db.set(`${interaction.guildId}.ECONOMY.disabled`, true);
 
-            await client.args.interactionSend(interaction,{
+            await client.method.interactionSend(interaction,{
                 content: lang.economy_disable_set_disable
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });

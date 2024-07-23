@@ -46,7 +46,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.setxpchannels_not_admin });
+            await client.method.interactionSend(interaction, { content: lang.setxpchannels_not_admin });
             return;
         };
 
@@ -63,7 +63,7 @@ export default {
                     ? all_channels.map(x => `<#${x}>`).join(', ')
                     : lang.setjoinroles_var_none
             })
-            .setFooter(await client.args.bot.footerBuilder(interaction));
+            .setFooter(await client.method.bot.footerBuilder(interaction));
 
         const select = new ChannelSelectMenuBuilder()
             .setCustomId('ranks-select-config')
@@ -82,7 +82,7 @@ export default {
             .setCustomId("ranks-manage-save-config")
             .setLabel(lang.antispam_manage_button_label);
 
-        const originalResponse = await client.args.interactionSend(interaction, {
+        const originalResponse = await client.method.interactionSend(interaction, {
             embeds: [embed],
             components: [
                 new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(select),

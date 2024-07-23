@@ -1720,5 +1720,6 @@ hybridcommands_embed_help_fields_value: "**Apelidos:** ${aliases}\n**Uso:** ${us
 help_rpg_dsc: "Nosso novo RPG, neste RPG você pode fazer o que quiser! Temos muitas missões, chefes, eventos e mais! (Ainda temos alguns tutoriais para te guiar um pouco, mas a aventura ainda é SUA!)"
 help_rpg_fields: "Faça uma seleção!"
 
+ping_bot_show_info_msg: "Olá ${message.author.toString()}, estou 100% em `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) e utilizável em mais de 85% em comando de prefixo. Meu prefixo neste **servidor** é `${prefix}` !"
 
 # -----------------------------\ /-----------------------------

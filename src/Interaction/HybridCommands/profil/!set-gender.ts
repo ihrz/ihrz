@@ -35,7 +35,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var gender = interaction.options.getString("gender")!;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var gender = args?.join(" ") || "None";
         };
 
@@ -43,7 +43,7 @@ export default {
 
         await tableProfil.set(`${interaction.member.user.id}.gender`, gender);
 
-        await client.args.interactionSend(interaction,{ content: data.setprofildescriptions_command_work, ephemeral: true });
+        await client.method.interactionSend(interaction,{ content: data.setprofildescriptions_command_work, ephemeral: true });
         return;
     },
 };

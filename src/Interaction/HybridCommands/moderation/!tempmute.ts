@@ -47,7 +47,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.tempmute_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
+            await client.method.interactionSend(interaction, { content: data.tempmute_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
             return;
         };
 
@@ -55,9 +55,9 @@ export default {
             var tomute = interaction.options.getMember("user") as GuildMember | null;
             var mutetime = interaction.options.getString("time");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var tomute = client.args.member(interaction, args!, 0) as GuildMember | null;
-            var mutetime = client.args.string(args!, 1) as string | null;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var tomute = client.method.member(interaction, args!, 0) as GuildMember | null;
+            var mutetime = client.method.string(args!, 1) as string | null;
         };
 
         if (!mutetime || !tomute || !mutetime) { return; };
@@ -66,27 +66,27 @@ export default {
         let mutetimeString = client.timeCalculator.to_beautiful_string(mutetime);
 
         if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageMessages])) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.tempmute_i_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
         if (tomute.id === interaction.member.user.id) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.tempmute_cannot_mute_yourself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         }
 
         if (tomute.isCommunicationDisabled() === true) {
-            await client.args.interactionSend(interaction, { content: data.tempmute_already_muted });
+            await client.method.interactionSend(interaction, { content: data.tempmute_already_muted });
             return;
         };
 
         await (tomute.timeout(mutetimeMS, data.tempmute_logs_embed_title)).catch(() => { });
 
-        await client.args.interactionSend(interaction, data.tempmute_command_work
+        await client.method.interactionSend(interaction, data.tempmute_command_work
             .replace("${tomute.id}", tomute.id)
             .replace("${ms(ms(mutetime))}", mutetimeString)
         );

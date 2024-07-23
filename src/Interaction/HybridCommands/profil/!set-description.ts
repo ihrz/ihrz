@@ -34,7 +34,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var desc = interaction.options.getString("description")!;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var desc = args?.join(" ") || "None";
         };
 
@@ -42,7 +42,7 @@ export default {
 
         await tableProfil.set(`${interaction.member.user.id}.desc`, desc);
 
-        await client.args.interactionSend(interaction,{ content: data.setprofildescriptions_command_work, ephemeral: true });
+        await client.method.interactionSend(interaction,{ content: data.setprofildescriptions_command_work, ephemeral: true });
         return;
     },
 };

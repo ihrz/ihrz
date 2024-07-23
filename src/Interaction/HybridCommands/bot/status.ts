@@ -50,7 +50,7 @@ export const command: Command = {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (!client.owners.includes(interaction.member.user.id)) {
-            await client.args.interactionSend(interaction, { content: lang.status_be_bot_dev });
+            await client.method.interactionSend(interaction, { content: lang.status_be_bot_dev });
             return;
         };
 
@@ -65,11 +65,11 @@ export const command: Command = {
                 { name: "NodeJS Version", value: `${process.version}`, inline: false },
             )
             .setThumbnail(interaction.guild.iconURL() as string)
-            .setFooter(await client.args.bot.footerBuilder(interaction))
+            .setFooter(await client.method.bot.footerBuilder(interaction))
 
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
             embeds: [embed],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

@@ -167,7 +167,7 @@ import { SubCommandArgumentValue } from '../../../core/functions/arg';export con
             fetchedCommand = interaction.options.getSubcommand();
         } else {
             if (!options?.[0]) {
-                await client.args.interactionSend(interaction, { embeds: [await client.args.createAwesomeEmbed(lang, command, client, interaction)] });
+                await client.method.interactionSend(interaction, { embeds: [await client.method.createAwesomeEmbed(lang, command, client, interaction)] });
                 return;
             }
             const cmd = command.options?.find(x => options[0] === x.name || x.aliases?.includes(options[0]));

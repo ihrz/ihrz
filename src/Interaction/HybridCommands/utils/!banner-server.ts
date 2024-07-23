@@ -37,11 +37,11 @@ export default {
             .setTitle(data.banner_guild_embed)
             .setImage(interaction.guild.bannerURL({ extension: 'png', size: 4096 }))
             .setThumbnail(interaction.guild.iconURL({ size: 4096 }) as string)
-            .setFooter(await client.args.bot.footerBuilder(interaction))
+            .setFooter(await client.method.bot.footerBuilder(interaction))
 
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
             embeds: [embed],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

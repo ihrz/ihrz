@@ -1720,5 +1720,6 @@ hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Uso:** ${use}"
 help_rpg_dsc: "Il nostro nuovissimo RPG, in questo RPG puoi fare quello che vuoi! Abbiamo un sacco di missioni, boss, eventi e altro ancora! (Abbiamo ancora alcuni tutorial per guidarti un po', ma è comunque la TUA avventura!)"
 help_rpg_fields: "Fai una selezione!"
 
+ping_bot_show_info_msg: "Ciao ${message.author.toString()}, sono al 100% in `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) e utilizzabile al 85% in comando prefisso. Il mio prefisso su **questo server** è `${prefix}` !"
 
 # -----------------------------\ /-----------------------------

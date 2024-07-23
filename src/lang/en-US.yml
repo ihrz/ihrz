@@ -1721,5 +1721,6 @@ help_rpg_dsc: "Our brand new RPG, in that RPG you can do whatever you want to do
 help_rpg_fields: "Make a selection!"
 
 
+ping_bot_show_info_msg: "Hey ${message.author.toString()}, I am 100% in `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) and usable over 85% in prefix command. My prefix on **this server** is `${prefix}` !"
 
 # -----------------------------\ /-----------------------------

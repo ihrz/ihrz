@@ -100,12 +100,12 @@ export default {
                 .setDescription(data.mybot_manage_accept_embed_desc
                     .replace('${utils_msg}', utils_msg)
                 )
-                .setFooter(await client.args.bot.footerBuilder(interaction));
+                .setFooter(await client.method.bot.footerBuilder(interaction));
 
             await interaction.reply({
                 embeds: [embed],
                 ephemeral: false,
-                files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
             });
 
             try {

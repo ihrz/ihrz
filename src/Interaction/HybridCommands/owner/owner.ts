@@ -72,7 +72,7 @@ export const command: Command = {
         }
 
         if (!isOwner?.owner) {
-            await client.args.interactionSend(interaction, { content: lang.owner_not_owner });
+            await client.method.interactionSend(interaction, { content: lang.owner_not_owner });
             return;
         };
 
@@ -80,29 +80,29 @@ export const command: Command = {
             .setColor("#2E2EFE")
             .setAuthor({ name: "Owners" })
             .setDescription(text)
-            .setFooter(await client.args.bot.footerBuilder(interaction));
+            .setFooter(await client.method.bot.footerBuilder(interaction));
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getUser('member');
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.args.user(interaction, args!, 0);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var member = await client.method.user(interaction, args!, 0);
         };
 
         if (!member) {
-            await client.args.interactionSend(interaction, { embeds: [embed], files: [await client.args.bot.footerAttachmentBuilder(interaction)] });
+            await client.method.interactionSend(interaction, { embeds: [embed], files: [await client.method.bot.footerAttachmentBuilder(interaction)] });
             return;
         };
 
         let checkAx = await tableOwner.get(`${member.id}.owner`);
 
         if (checkAx) {
-            await client.args.interactionSend(interaction, { content: lang.owner_already_owner });
+            await client.method.interactionSend(interaction, { content: lang.owner_already_owner });
             return;
         };
 
         await tableOwner.set(`${member.id}`, { owner: true });
-        await client.args.interactionSend(interaction, { content: lang.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.globalName || member.displayName) });
+        await client.method.interactionSend(interaction, { content: lang.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.globalName || member.displayName) });
         return;
     },
 };

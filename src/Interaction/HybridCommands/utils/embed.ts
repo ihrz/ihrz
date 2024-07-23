@@ -75,8 +75,8 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var arg = interaction.options.getString("id");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var arg = client.args.string(args!, 0);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var arg = client.method.string(args!, 0);
         };
 
         let potentialEmbed = await client.db.get(`EMBED.${arg}`);
@@ -87,7 +87,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
+            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
         };
 
@@ -131,7 +131,7 @@ export const command: Command = {
             .setLabel(lang.embed_btn_cancel)
             .setStyle(ButtonStyle.Danger);
 
-        let response = await client.args.interactionSend(interaction,{
+        let response = await client.method.interactionSend(interaction,{
             content: lang.embed_first_message,
             embeds: [__tempEmbed],
             components: [

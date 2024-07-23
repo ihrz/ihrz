@@ -43,13 +43,13 @@ export default {
             let player = client.player.getPlayer(interaction.guildId as string);
 
             if (!player || !player.playing || !voiceChannel) {
-                await client.args.interactionSend(interaction, { content: data.stop_nothing_playing });
+                await client.method.interactionSend(interaction, { content: data.stop_nothing_playing });
                 return;
             };
 
             player.stopPlaying();
 
-            await client.args.interactionSend(interaction, { content: data.stop_command_work });
+            await client.method.interactionSend(interaction, { content: data.stop_command_work });
             return;
         } catch (error: any) {
             logger.err(error);

@@ -1720,5 +1720,6 @@ hybridcommands_embed_help_fields_value: "**エイリアス:** ${aliases}\n**使�
 help_rpg_dsc: "私たちの新しいRPGでは、あなたがやりたいことを何でもできます！ 多くのクエスト、ボス、イベントなどが満載です！ （いくつかのチュートリアルも用意していますが、それでもあなたの冒険です！）"
 help_rpg_fields: "選択してください！"
 
+ping_bot_show_info_msg: "こんにちは ${message.author.toString()}、私は `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) で100%使用可能で、プレフィックスコマンドで85%以上使用可能です。このサーバーのプレフィックスは `${prefix}` です！"
 
 # -----------------------------\ /-----------------------------

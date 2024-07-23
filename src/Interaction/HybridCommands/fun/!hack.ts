@@ -39,8 +39,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var victim = interaction.options.getMember("user") as GuildMember;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var victim = client.args.member(interaction, args!, 0) || interaction.member;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var victim = client.method.member(interaction, args!, 0) || interaction.member;
         }
 
         var ip = [
@@ -154,7 +154,7 @@ export default {
                 { name: lang.hack_embed_fields_password, value: `\`${generatedPassword}\`` })
             .setTimestamp()
 
-        await client.args.interactionSend(interaction, { embeds: [embed] });
+        await client.method.interactionSend(interaction, { embeds: [embed] });
         return;
     },
 };

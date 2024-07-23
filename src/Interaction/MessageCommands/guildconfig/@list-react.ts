@@ -90,7 +90,7 @@ import { DatabaseStructure } from '../../../../types/database_structure.js'; exp
         let messageEmbed = await interaction.reply({
             embeds: [createEmbed()],
             components: [(row as ActionRowBuilder<ButtonBuilder>)],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({
