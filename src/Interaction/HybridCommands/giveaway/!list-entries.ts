@@ -41,19 +41,19 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.end_not_admin });
+            await client.method.interactionSend(interaction, { content: data.end_not_admin });
             return;
         };
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var inputData = interaction.options.getString("giveaway-id") as string;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var inputData = client.args.string(args!, 0) as string;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var inputData = client.method.string(args!, 0) as string;
         };
 
         if (!await client.giveawaysManager.isValid(inputData)) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.end_not_find_giveaway
                     .replace(/\${gw}/g, inputData)
             });
@@ -61,7 +61,7 @@ export default {
         };
 
         if (await client.giveawaysManager.isEnded(inputData)) {
-            await client.args.interactionSend(interaction, { content: data.end_command_error });
+            await client.method.interactionSend(interaction, { content: data.end_command_error });
             return;
         };
 

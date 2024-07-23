@@ -44,12 +44,12 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.backup_not_admin });
+            await client.method.interactionSend(interaction, { content: data.backup_not_admin });
             return;
         };
 
         if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await client.args.interactionSend(interaction, { content: data.backup_i_dont_have_permission });
+            await client.method.interactionSend(interaction, { content: data.backup_i_dont_have_permission });
             return;
         };
 
@@ -59,8 +59,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var svMsg = interaction.options.getString('save-message')!;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var svMsg = client.args.string(args!, 0)!;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var svMsg = client.method.string(args!, 0)!;
         };
 
         // @ts-ignore
@@ -82,7 +82,7 @@ export default {
 
             interaction.channel?.send({ content: data.backup_command_work_on_creation });
 
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.backup_command_work_info_on_creation
                     .replace("${backupData.id}", backupData.id)
             });

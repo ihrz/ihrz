@@ -49,7 +49,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.kick_not_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
@@ -59,9 +59,9 @@ export default {
             var member = interaction.options.getMember("member") as GuildMember | null;
             var reason = interaction.options.getString("reason")
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.args.member(interaction, args!, 0) as GuildMember | null;
-            var reason = client.args.longString(args!, 1);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var member = client.method.member(interaction, args!, 0) as GuildMember | null;
+            var reason = client.method.longString(args!, 1);
         };
 
         if (!reason) {
@@ -71,21 +71,21 @@ export default {
         if (!member) return;
 
         if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.KickMembers)) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.kick_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
         if (member.id === interaction.member.user.id) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.kick_attempt_kick_your_self.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
         if ((interaction.member.roles as GuildMemberRoleManager).highest.position < member.roles.highest.position) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.kick_attempt_kick_higter_member.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
             });
             return;
@@ -113,7 +113,7 @@ export default {
                 (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
             };
 
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.kick_command_work
                     .replace(/\${member\.user}/g, member.user.toString())
                     .replace(/\${interaction\.user}/g, interaction.member.user.toString())

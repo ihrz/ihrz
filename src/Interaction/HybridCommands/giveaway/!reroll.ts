@@ -43,19 +43,19 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.reroll_not_perm });
+            await client.method.interactionSend(interaction, { content: data.reroll_not_perm });
             return;
         };
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var inputData = interaction.options.getString("giveaway-id");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var inputData = client.args.string(args!, 0);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var inputData = client.method.string(args!, 0);
         };
 
         if (!await client.giveawaysManager.isValid(inputData as string)) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.reroll_dont_find_giveaway
                     .replace("{args}", inputData as string)
             });
@@ -63,14 +63,14 @@ export default {
         };
 
         if (!await client.giveawaysManager.isEnded(inputData as string)) {
-            await client.args.interactionSend(interaction, { content: data.reroll_giveaway_not_over });
+            await client.method.interactionSend(interaction, { content: data.reroll_giveaway_not_over });
             return;
         };
 
         // @ts-ignore
         await client.giveawaysManager.reroll(client, inputData as string);
 
-        await client.args.interactionSend(interaction, { content: data.reroll_command_work });
+        await client.method.interactionSend(interaction, { content: data.reroll_command_work });
 
         try {
             let logEmbed = new EmbedBuilder()

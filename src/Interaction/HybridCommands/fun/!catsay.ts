@@ -51,8 +51,8 @@ export default {
     if (interaction instanceof ChatInputCommandInteraction) {
       var text = interaction.options.getString('text')?.slice(0, 30);
     } else {
-      var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-      var text = client.args.longString(args!, 0) as string | undefined;
+      var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+      var text = client.method.longString(args!, 0) as string | undefined;
     }
 
     let font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
@@ -69,7 +69,7 @@ export default {
       .setColor('#000000')
       .setImage('attachment://all-human-have-rights-elektra.png')
       .setTimestamp()
-      .setFooter(await client.args.bot.footerBuilder(interaction));
+      .setFooter(await client.method.bot.footerBuilder(interaction));
 
     let imgs: AttachmentBuilder | undefined;
 
@@ -78,14 +78,14 @@ export default {
       embed.setImage(`attachment://all-humans-have-right-elektra.png`);
 
       if (imgs) {
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
           embeds: [embed],
-          files: [imgs, await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
+          files: [imgs, await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
         });
       };
 
     } catch {
-      await client.args.interactionSend(interaction, { content: lang.fun_var_down_api });
+      await client.method.interactionSend(interaction, { content: lang.fun_var_down_api });
     }
 
     return;

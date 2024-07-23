@@ -29,7 +29,7 @@ export default {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.args.interactionSend(interaction,{
+            await client.method.interactionSend(interaction,{
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -53,7 +53,7 @@ export default {
             .setTitle(lang.economy_leaderboard_embed_title
                 .replace('${interaction.guild.name}', interaction.guild.name as string)
             )
-            .setFooter(await client.args.bot.footerBuilder(interaction))
+            .setFooter(await client.method.bot.footerBuilder(interaction))
             .setTimestamp();
 
         usersArray = usersArray.slice(0, 10);
@@ -77,9 +77,9 @@ export default {
             }
         });
 
-        await client.args.interactionSend(interaction,{
+        await client.method.interactionSend(interaction,{
             embeds: [embed],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

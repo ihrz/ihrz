@@ -42,15 +42,15 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.end_not_admin });
+            await client.method.interactionSend(interaction, { content: data.end_not_admin });
             return;
         };
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var giveawayId = interaction.options.getString("giveaway-id")!;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var giveawayId = client.args.string(args!, 0)!;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var giveawayId = client.method.string(args!, 0)!;
         };
 
         client.giveawaysManager.getGiveawayData(giveawayId)
@@ -116,9 +116,9 @@ export default {
                         }
                     )
                 }
-                await client.args.interactionSend(interaction, { embeds: [embed] });
+                await client.method.interactionSend(interaction, { embeds: [embed] });
             }).catch(async () => {
-                await client.args.interactionSend(interaction, { content: data.gw_doesnt_exit });
+                await client.method.interactionSend(interaction, { content: data.gw_doesnt_exit });
             })
         return;
     },

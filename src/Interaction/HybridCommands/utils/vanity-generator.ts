@@ -92,8 +92,8 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var VanityCode = interaction.options.getString('code') as string;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var VanityCode = client.args.string(args!, 0) as string;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var VanityCode = client.method.string(args!, 0) as string;
         };
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
@@ -102,7 +102,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.renew_not_administrator });
+            await client.method.interactionSend(interaction, { content: lang.renew_not_administrator });
         }
 
         let db = client.db.table('API');
@@ -112,23 +112,23 @@ export const command: Command = {
         let guildGet = get?.[`${interaction.guildId}`]?.['code'];
 
         if (!VerifyVanityCode(VanityCode)) {
-            await client.args.interactionSend(interaction,{ content: `The URL Vanity code \`${VanityCode}\` is invalid. The string should be alphanumeric and can include hyphens between words. The maximum length is 32 characters. Hyphens cannot be at the beginning or end of the string.` });
+            await client.method.interactionSend(interaction,{ content: `The URL Vanity code \`${VanityCode}\` is invalid. The string should be alphanumeric and can include hyphens between words. The maximum length is 32 characters. Hyphens cannot be at the beginning or end of the string.` });
             return;
         };
 
         if (await VanityCodeAlreadyExist(get, VanityCode)) {
-            await client.args.interactionSend(interaction,{ content: `The URL Vanity code are already taked! Choose an another one` });
+            await client.method.interactionSend(interaction,{ content: `The URL Vanity code are already taked! Choose an another one` });
             return;
         };
 
         let guildInvite = await interaction.guild.invites.create((interaction.channel as TextChannel), { temporary: false, reason: "iHorizon - VanityGenerator", maxAge: 0 });
 
         if (guildGet) {
-            await client.args.interactionSend(interaction,{ content: `The URL Vanity code \`${guildGet}\` have been overwrited for \`${VanityCode}\`. The guild is now joinable at: https://discord.wf/${VanityCode}` });
+            await client.method.interactionSend(interaction,{ content: `The URL Vanity code \`${guildGet}\` have been overwrited for \`${VanityCode}\`. The guild is now joinable at: https://discord.wf/${VanityCode}` });
             await db.set(`VANITY.${interaction.guildId}`, { vanity: VanityCode, invite: guildInvite?.code });
             return;
         } else {
-            await client.args.interactionSend(interaction,{ content: `The guild is now joinable at: https://discord.wf/${VanityCode}` });
+            await client.method.interactionSend(interaction,{ content: `The guild is now joinable at: https://discord.wf/${VanityCode}` });
             await db.set(`VANITY.${interaction.guildId}`, { vanity: VanityCode, invite: guildInvite?.code });
             return;
         };

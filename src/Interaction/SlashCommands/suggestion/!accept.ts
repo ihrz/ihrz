@@ -78,7 +78,7 @@ export default {
                 value: message as string
             });
 
-            embed.setFooter(await client.args.bot.footerBuilder(interaction));
+            embed.setFooter(await client.method.bot.footerBuilder(interaction));
             embed.setColor('#21744c');
             embed.setTitle(data.suggest_acceptembed_title_to_put
                 .replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title as string));

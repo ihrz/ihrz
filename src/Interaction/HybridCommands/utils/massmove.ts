@@ -88,9 +88,9 @@ export const command: Command = {
             var fromChannel = interaction.options.getChannel('from') as BaseGuildVoiceChannel | null;
             var toChannel = interaction.options.getChannel('to')! as BaseGuildVoiceChannel | null;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var fromChannel = client.args.voiceChannel(interaction, args!, 0);
-            var toChannel = client.args.voiceChannel(interaction, args!, 1);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var fromChannel = client.method.voiceChannel(interaction, args!, 0);
+            var toChannel = client.method.voiceChannel(interaction, args!, 1);
         };
 
         if (toChannel === null) return;
@@ -101,7 +101,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
+            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
         };
 
@@ -131,7 +131,7 @@ export const command: Command = {
         }
 
         let embed = new EmbedBuilder()
-            .setFooter(await client.args.bot.footerBuilder(interaction))
+            .setFooter(await client.method.bot.footerBuilder(interaction))
             .setColor('#007fff')
             .setTimestamp()
             .setThumbnail(interaction.guild.iconURL())
@@ -143,9 +143,9 @@ export const command: Command = {
                 .replace('${toChannel}', toChannel.toString())
             );
 
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
             embeds: [embed],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
     },
 };

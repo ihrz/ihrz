@@ -39,8 +39,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var backupID = interaction.options.getString('backup-id')!;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var backupID = client.args.string(args!, 0)!;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var backupID = client.method.string(args!, 0)!;
         };
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
@@ -49,22 +49,22 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.backup_dont_have_perm_on_load });
+            await client.method.interactionSend(interaction, { content: data.backup_dont_have_perm_on_load });
             return;
         };
 
         if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await client.args.interactionSend(interaction, { content: data.backup_i_dont_have_perm_on_load });
+            await client.method.interactionSend(interaction, { content: data.backup_i_dont_have_perm_on_load });
             return;
         };
 
         if (!backupID) {
-            await client.args.interactionSend(interaction, { content: data.backup_unvalid_id_on_load });
+            await client.method.interactionSend(interaction, { content: data.backup_unvalid_id_on_load });
             return;
         };
 
         if (backupID && !await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;

@@ -56,7 +56,7 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: data.start_not_perm });
+            await client.method.interactionSend(interaction, { content: data.start_not_perm });
             return;
         };
 
@@ -68,22 +68,22 @@ export default {
             var imageUrl = interaction.options.getString('image') as string;
             var giveawayPrize = interaction.options.getString("prize");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var giveawayNumberWinners = client.args.number(args!, 0);
-            var giveawayDuration = client.args.string(args!, 1);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var giveawayNumberWinners = client.method.number(args!, 0);
+            var giveawayDuration = client.method.string(args!, 1);
             var imageUrl = ""
-            var giveawayPrize = client.args.longString(args!, 2);
+            var giveawayPrize = client.method.longString(args!, 2);
         };
 
         if (isNaN(giveawayNumberWinners as number) || (parseInt(giveawayNumberWinners.toString()) <= 0)) {
-            await client.args.interactionSend(interaction, { content: data.start_is_not_valid });
+            await client.method.interactionSend(interaction, { content: data.start_is_not_valid });
             return;
         };
 
         let giveawayDurationFormated = client.timeCalculator.to_ms(giveawayDuration!);
 
         if (!giveawayDurationFormated) {
-            await client.args.interactionSend(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.start_time_not_valid
                     .replace('${interaction.user}', interaction.member.user.toString())
             });
@@ -116,7 +116,7 @@ export default {
             logger.err(e)
         };
 
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
             content: data.start_confirmation_command
                 .replace(/\${giveawayChannel}/g, giveawayChannel.toString())
         });

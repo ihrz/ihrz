@@ -48,18 +48,18 @@ export default {
             var check = interaction.options.getString("title")!;
             var source = interaction.options.getString('source') as SearchPlatform;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var source = "ytsearch" as SearchPlatform;
-            var check = client.args.longString(args!, 1)!
+            var check = client.method.longString(args!, 1)!
         }
 
         if (!voiceChannel) {
-            await client.args.interactionSend(interaction, { content: data.p_not_in_voice_channel });
+            await client.method.interactionSend(interaction, { content: data.p_not_in_voice_channel });
             return;
         };
 
         if (!client.func.isAllowedLinks(check)) {
-            return client.args.interactionSend(interaction, { content: data.p_not_allowed })
+            return client.method.interactionSend(interaction, { content: data.p_not_allowed })
         };
 
         let player = client.player.createPlayer({
@@ -76,7 +76,7 @@ export default {
                 .setColor('#ff0000')
                 .setTimestamp();
 
-            await client.args.interactionSend(interaction, { embeds: [results] });
+            await client.method.interactionSend(interaction, { embeds: [results] });
             return;
         };
 
@@ -126,7 +126,7 @@ export default {
             .setFooter({ text: data.p_duration + `${timeCalcultator()}` })
             .setThumbnail(yes.info.artworkUrl as string);
 
-        const i = await client.args.interactionSend(interaction, {
+        const i = await client.method.interactionSend(interaction, {
             content: data.p_loading_message
                 .replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
                 .replace("{result}", res.loadType === "playlist" ? 'playlist' : 'track')

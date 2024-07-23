@@ -41,12 +41,12 @@ export default {
                 let emb = new EmbedBuilder()
                     .setImage(res.data.message).setTitle(lang.dogs_embed_title).setTimestamp();
 
-                await client.args.interactionSend(interaction, { embeds: [emb] });
+                await client.method.interactionSend(interaction, { embeds: [emb] });
                 return;
             })
             .catch(async err => {
                 logger.err(err);
-                await client.args.interactionSend(interaction, { content: lang.dogs_embed_command_error });
+                await client.method.interactionSend(interaction, { content: lang.dogs_embed_command_error });
                 return;
             });
     },

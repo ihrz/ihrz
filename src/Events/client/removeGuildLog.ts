@@ -50,11 +50,11 @@ export const event: BotEvent = {
                     { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true }
                 )
                 .setThumbnail(guild.iconURL())
-                .setFooter(await client.args.bot.footerBuilder(guild));
+                .setFooter(await client.method.bot.footerBuilder(guild));
 
             let channel = client.channels.cache.get(client.config.core.guildLogsChannelID);
 
-            return (channel as BaseGuildTextChannel).send({ embeds: [embed], files: [await client.args.bot.footerAttachmentBuilder(guild)] });
+            return (channel as BaseGuildTextChannel).send({ embeds: [embed], files: [await client.method.bot.footerAttachmentBuilder(guild)] });
         } catch (error: any) {
             logger.err(error);
         }

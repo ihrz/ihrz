@@ -48,7 +48,7 @@ export const command: Command = {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        const ogI = await client.args.interactionSend(interaction,{ content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading });
+        const ogI = await client.method.interactionSend(interaction,{ content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading });
 
         let _net01: number | string = '';
         let _net02: number | string = '';
@@ -76,12 +76,12 @@ export const command: Command = {
                 .replace('${client.iHorizon_Emojis.icon.iHorizon_Pointer}', client.iHorizon_Emojis.icon.iHorizon_Pointer)
                 .replace('${averagePing}', averagePing.toString())
             )
-            .setFooter(await client.args.bot.footerBuilder(interaction));
+            .setFooter(await client.method.bot.footerBuilder(interaction));
 
         await ogI.edit({
             content: null,
             embeds: [embed],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)],
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)],
         });
         return;
     },

@@ -83,12 +83,12 @@ export default {
                 .setDescription(data.mybot_instance_deny_embed_desc
                     .replace('${utils_msg}', utils_msg)
                 )
-                .setFooter(await client.args.bot.footerBuilder(interaction));
+                .setFooter(await client.method.bot.footerBuilder(interaction));
 
             await interaction.reply({
                 embeds: [embed],
                 ephemeral: false,
-                files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
             });
 
             await table_1.delete(`OWNIHRZ.${interaction.user.id}`);

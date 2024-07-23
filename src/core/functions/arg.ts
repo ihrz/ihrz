@@ -25,6 +25,7 @@ import { Option } from "../../../types/option";
 import { LanguageData } from "../../../types/languageData";
 import * as perm from './permissonsCalculator.js'
 import * as f from './displayBotName.js';
+import * as  h from './helper.js';
 
 export async function user(interaction: Message, args: string[], argsNumber: number): Promise<User | null> {
     return interaction.content.startsWith(`<@${interaction.client.user.id}`)
@@ -279,11 +280,11 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
             .replace("${wrongArgumentName}", wrongArgumentName)
         )
         .setColor("Red")
-        .setFooter(await message.client.args.bot.footerBuilder(message));
+        .setFooter(await message.client.method.bot.footerBuilder(message));
 
-    await message.client.args.interactionSend(message, {
+    await message.client.method.interactionSend(message, {
         embeds: [embed],
-        files: [await message.client.args.bot.footerAttachmentBuilder(message)]
+        files: [await message.client.method.bot.footerAttachmentBuilder(message)]
     });
 }
 
@@ -337,3 +338,4 @@ export function hasSubCommand(options: Option[] | undefined): boolean {
 
 export const permission = perm;
 export const bot = f;
+export const helper = h;

@@ -1715,4 +1715,6 @@ hybridcommands_args_error_embed_desc: "```ts\nИмя Команды: ${currentCo
 hybridcommands_embed_help_title: "${commandName} Встроенная Помощь"
 hybridcommands_embed_help_fields_value: "**Псевдонимы:** ${aliases}\n**Использование:** ${use}"
 
+ping_bot_show_info_msg: "Привет ${message.author.toString()}, я на 100% используюсь в `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) и более чем на 85% в командном префиксе. Мой префикс на **этом сервере** — `${prefix}` !"
+
 # -----------------------------/ \-----------------------------

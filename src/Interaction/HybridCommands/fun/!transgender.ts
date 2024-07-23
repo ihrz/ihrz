@@ -48,8 +48,8 @@ export default {
     if (interaction instanceof ChatInputCommandInteraction) {
       var user = interaction.options.getMember('user') as GuildMember || interaction.member;
     } else {
-      var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-      var user = client.args.member(interaction, args!, 0) || interaction.member;
+      var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+      var user = client.method.member(interaction, args!, 0) || interaction.member;
     };
 
     let link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(user.displayAvatarURL({ extension: 'png', size: 1024 }))}`;
@@ -58,7 +58,7 @@ export default {
       .setColor('#000000')
       .setImage('attachment://all-human-have-rights-elektra.png')
       .setTimestamp()
-      .setFooter(await client.args.bot.footerBuilder(interaction));
+      .setFooter(await client.method.bot.footerBuilder(interaction));
 
     let imgs: AttachmentBuilder | undefined;
 
@@ -66,9 +66,9 @@ export default {
     imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'all-humans-have-right-elektra.png' });
     embed.setImage(`attachment://all-humans-have-right-elektra.png`);
 
-    await client.args.interactionSend(interaction, {
+    await client.method.interactionSend(interaction, {
       embeds: [embed],
-      files: [imgs, await interaction.client.args.bot.footerAttachmentBuilder(interaction)]
+      files: [imgs, await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
     });
     return;
   },

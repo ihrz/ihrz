@@ -40,8 +40,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var slap = interaction.options.getMember("user") as GuildMember;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var slap = client.args.member(interaction, args!, 0)!;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var slap = client.method.member(interaction, args!, 0)!;
         };
 
         let url = apiUrlParser.assetsFinder(client.assets, "slap");
@@ -56,10 +56,10 @@ export default {
                     )
                     .setImage(url)
                     .setTimestamp()
-                await client.args.interactionSend(interaction, { embeds: [embed] });
+                await client.method.interactionSend(interaction, { embeds: [embed] });
                 return;
             }).catch(async (err) => {
-                await client.args.interactionSend(interaction, { content: lang.fun_var_down_api });
+                await client.method.interactionSend(interaction, { content: lang.fun_var_down_api });
             });
     },
 };

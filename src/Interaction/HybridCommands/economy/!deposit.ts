@@ -38,12 +38,12 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var toDeposit = interaction.options.getNumber('how-much') as number;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var toDeposit = client.args.number(args!, 0) as number;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var toDeposit = client.method.number(args!, 0) as number;
         };
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.args.interactionSend(interaction,{
+            await client.method.interactionSend(interaction,{
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -51,7 +51,7 @@ export default {
         };
 
         if (toDeposit && toDeposit > balance) {
-            await client.args.interactionSend(interaction,{
+            await client.method.interactionSend(interaction,{
                 content: lang.deposit_cannot_abuse.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
@@ -70,12 +70,12 @@ export default {
                 .replace('${toDeposit}', toDeposit.toString())
             )
             .addFields({ name: lang.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
-            .setFooter(await client.args.bot.footerBuilder(interaction))
+            .setFooter(await client.method.bot.footerBuilder(interaction))
             .setTimestamp();
 
-        await client.args.interactionSend(interaction,{
+        await client.method.interactionSend(interaction,{
             embeds: [embed],
-            files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
         return;
     },

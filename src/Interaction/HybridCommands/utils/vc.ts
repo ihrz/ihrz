@@ -87,7 +87,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
+            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
         }
 
@@ -97,8 +97,8 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var mode = interaction.options.getString("show-mode");
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var mode = client.args.string(args!, 0);
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var mode = client.method.string(args!, 0);
         };
 
         if (!mode) {
@@ -108,7 +108,7 @@ export const command: Command = {
         let embed = new EmbedBuilder();
         let files = [];
 
-        files.push(await interaction.client.args.bot.footerAttachmentBuilder(interaction))
+        files.push(await interaction.client.method.bot.footerAttachmentBuilder(interaction))
 
         let total_members_size = membersStates?.size.toString()!;
         let total_members_states_dnd = membersStates?.filter(mbr => mbr.presence?.status === "dnd").size.toString()!;
@@ -165,7 +165,7 @@ export const command: Command = {
                         inline: true
                     },
                 )
-                .setFooter(await client.args.bot.footerBuilder(interaction))
+                .setFooter(await client.method.bot.footerBuilder(interaction))
                 ;
         } else {
             embed
@@ -189,7 +189,7 @@ export const command: Command = {
                         .replaceAll("${total_members_states_idle}", total_members_states_idle)
                 )
                 .setThumbnail("attachment://guild_icon.png")
-                .setFooter(await client.args.bot.footerBuilder(interaction))
+                .setFooter(await client.method.bot.footerBuilder(interaction))
 
             files.push({
                 name: "guild_icon.png",
@@ -197,7 +197,7 @@ export const command: Command = {
             })
         }
 
-        await client.args.interactionSend(interaction, {
+        await client.method.interactionSend(interaction, {
             embeds: [embed],
             files: files
         });

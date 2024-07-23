@@ -68,8 +68,8 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getMember("member") as GuildMember;
         } else {
-            var _ = await client.args.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var member = client.args.member(interaction, args!, 0) || interaction.member;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var member = client.method.member(interaction, args!, 0) || interaction.member;
         };
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
@@ -78,7 +78,7 @@ export const command: Command = {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { content: lang.punishpub_not_admin });
+            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
         };
 
@@ -113,15 +113,15 @@ export const command: Command = {
                         .replace('${bad}', bad.toString())
                         .replace('${member.id}', member.id)
                     )
-                    .setFooter(await client.args.bot.footerBuilder(interaction));
+                    .setFooter(await client.method.bot.footerBuilder(interaction));
 
-                await client.args.interactionSend(interaction, {
+                await client.method.interactionSend(interaction, {
                     embeds: [embed],
-                    files: [await client.args.bot.footerAttachmentBuilder(interaction)]
+                    files: [await client.method.bot.footerAttachmentBuilder(interaction)]
                 });
             })
             .catch(err => {
-                client.args.interactionSend(interaction, { content: lang.derank_msg_failed });
+                client.method.interactionSend(interaction, { content: lang.derank_msg_failed });
             });
     },
 };

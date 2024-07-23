@@ -54,11 +54,11 @@ async function waitForFinish(): Promise<void> {
     });
 }
 
-async function logsAction(lang: LanguageData, client: Client, guildId: string, users: Set<GuildMember>, actionType: 'sanction' | 'warn', sanctionType?: 'mute' | 'kick' | 'ban') {
+async function logsAction(lang: LanguageData, message: Message, users: Set<GuildMember>, sanctionType: 'mute' | 'kick' | 'ban') {
     if (users.size === 0) return;
 
     const firstUser = users.values().next().value;
-    const inDb = await client.db.get(`${guildId}.GUILD.SERVER_LOGS.antispam`) as string | null;
+    const inDb = await message.client.db.get(`${message.guildId}.GUILD.SERVER_LOGS.antispam`) as string | null;
 
     if (!inDb) return;
 
@@ -66,12 +66,12 @@ async function logsAction(lang: LanguageData, client: Client, guildId: string, u
     if (!channel) return;
 
     let embed = new EmbedBuilder()
-        .setColor(actionType === 'sanction' ? "#e4433f" : "#ff992e")
+        .setColor("#e4433f")
         .setTimestamp()
-        .setTitle(lang.antispam_log_embed_title.replace('${actionType}', actionType))
+        .setTitle(lang.antispam_log_embed_title.replace('${actionType}', sanctionType))
         .setDescription(lang.antispam_log_embed_desc
-            .replace("${client.user?.toString()}", client.user?.toString()!)
-            .replace("${actionType}", String(actionType === 'sanction' ? sanctionType : 'warn'))
+            .replace("${client.user?.toString()}", message.client.user?.toString()!)
+            .replace("${actionType}", 'sanction')
             .replace("${user.toString()}", Array.from(users).map(x => x.toString()).join(','))
         )
 
@@ -116,7 +116,7 @@ async function sendWarningMessage(
     });
 }
 
-async function clearSpamMessages(guildId: string, messages: Set<AntiSpam.CachedMessage>, client: Client): Promise<void> {
+async function clearSpamMessages(message: Message, messages: Set<AntiSpam.CachedMessage>): Promise<void> {
     try {
         const CHUNK_SIZE = 99;
         const messagesByChannel: Collection<Snowflake, Collection<string, Snowflake>> = new Collection();
@@ -130,7 +130,7 @@ async function clearSpamMessages(guildId: string, messages: Set<AntiSpam.CachedM
         });
 
         await Promise.all(messagesByChannel.map(async (messageIds, channelId) => {
-            const channel = client.channels.cache.get(channelId) as BaseGuildTextChannel | undefined;
+            const channel = message.client.channels.cache.get(channelId) as BaseGuildTextChannel | undefined;
             if (channel && messageIds.size > 0) {
                 const messageIdsArray = Array.from(messageIds.values());
                 for (let i = 0; i < messageIdsArray.length; i += CHUNK_SIZE) {
@@ -140,7 +140,7 @@ async function clearSpamMessages(guildId: string, messages: Set<AntiSpam.CachedM
                         chunk.forEach(messageId => {
                             messages.forEach(message => {
                                 if (message.messageID === messageId) {
-                                    cache.messages.get(guildId)?.delete(message);
+                                    cache.messages.get(message.guildID)?.delete(message);
                                 }
                             });
                         });
@@ -308,9 +308,9 @@ export const event: BotEvent = {
             if (timeout < currentTime) {
                 await waitForFinish();
                 await PunishUsers(message.guild.id, membersToPunish!, options);
-                await clearSpamMessages(message.guild.id, cache.messages.get(message.guild.id)!, client);
+                await clearSpamMessages(message, cache.messages.get(message.guild.id)!);
                 await sendWarningMessage(lang, membersToPunish!, message.channel as BaseGuildTextChannel, options);
-                await logsAction(lang, client, message.guild.id, membersToPunish!, "sanction", options.punishment_type);
+                await logsAction(lang, message, membersToPunish!, options.punishment_type);
                 membersToPunish?.clear();
             }
         }

@@ -40,7 +40,7 @@ export const command: BashCommands = {
                 (channel as BaseGuildTextChannel).send({
                     content: '@here',
                     embeds: [embed],
-                    files: [await client.args.bot.footerAttachmentBuilder(client)]
+                    files: [await client.method.bot.footerAttachmentBuilder(client)]
                 })
             };
         });

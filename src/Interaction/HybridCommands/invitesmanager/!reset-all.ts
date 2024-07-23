@@ -50,11 +50,11 @@ export default {
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions) {
-            await client.args.interactionSend(interaction, { embeds: [a] });
+            await client.method.interactionSend(interaction, { embeds: [a] });
             return;
         };
 
-        const response = await client.args.interactionSend(interaction, {
+        const response = await client.method.interactionSend(interaction, {
             content: data.resetallinvites_warning_msg,
             components: [
                 new ActionRowBuilder<ButtonBuilder>()

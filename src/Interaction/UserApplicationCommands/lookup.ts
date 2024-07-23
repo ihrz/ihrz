@@ -120,7 +120,7 @@ export const command: AnotherCommand = {
             };
 
             let embed = new EmbedBuilder()
-                .setFooter(await client.args.bot.footerBuilder(interaction))
+                .setFooter(await client.method.bot.footerBuilder(interaction))
                 .setThumbnail("attachment://user_icon.gif")
                 .setTimestamp()
                 .setColor('#0014a8')
@@ -154,7 +154,7 @@ export const command: AnotherCommand = {
                 .setImage("attachment://user_banner.gif");
 
             var files: { name: string; attachment: string }[] = [
-                await interaction.client.args.bot.footerAttachmentBuilder(interaction),
+                await interaction.client.method.bot.footerAttachmentBuilder(interaction),
                 {
                     attachment: user.displayAvatarURL({ size: 512, forceStatic: false }),
                     name: 'user_icon.gif'

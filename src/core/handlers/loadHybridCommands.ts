@@ -106,7 +106,7 @@ export default async function loadCommands(client: Client, path: string = p): Pr
 
     if (!client.commands) client.commands = new Collection<string, Command>();
     if (!client.message_commands) client.message_commands = new Collection<string, Command>();
-    if (!client.args) client.args = argsHelper;
+    if (!client.method) client.method = argsHelper;
 
     var i = 0;
     for (let path of paths) {
