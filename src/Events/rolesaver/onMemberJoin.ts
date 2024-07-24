@@ -33,7 +33,7 @@ export const event: BotEvent = {
 
             if (!array || array.length === 0) return;
 
-            await member.roles.set(array);
+            await member.roles.set(array).catch(() => false);
 
             await client.db.delete(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
             return;

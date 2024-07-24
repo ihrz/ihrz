@@ -49,7 +49,7 @@ export const event: BotEvent = {
                     case 'simply':
                         break;
                     case 'simply+derank':
-                        await user?.roles.set([], "Punish");
+                        await user?.roles.set([], "Punish").catch(() => false);
                         break;
                     case 'simply+ban':
                         user?.ban({ reason: 'Protect!' }).catch(() => { });
