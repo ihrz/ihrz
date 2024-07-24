@@ -31,6 +31,7 @@ import {
     Message,
     MessageReplyOptions,
     PermissionsBitField,
+    SnowflakeUtil,
     TextChannel
 } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
@@ -62,7 +63,7 @@ export default {
 
         await client.db.set(`${interaction.guildId}.CONFESSION.channel`, channel.id);
 
-        await client.method.interactionSend(interaction,{
+        await client.method.interactionSend(interaction, {
             content: data.confession_channel_command_work
                 .replace('${channel?.toString()}', channel.toString()!)
         });
@@ -81,15 +82,14 @@ export default {
                 .setCustomId('new-confession-button')
         )
 
+        const nonce = SnowflakeUtil.generate().toString();
+
         let message = await (channel as BaseGuildTextChannel).send({
             embeds: [embed],
-            files: [
-                {
-                    attachment: await interaction.client.func.image64(interaction.guild.iconURL() || client.user.displayAvatarURL()),
-                    name: 'guild_icon.png'
-                }
-            ],
-            components: [actionRow]
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)],
+            components: [actionRow],
+            enforceNonce: true,
+            nonce: nonce
         });
 
         await client.db.set(`${interaction.guildId}.GUILD.CONFESSION.panel`, {
