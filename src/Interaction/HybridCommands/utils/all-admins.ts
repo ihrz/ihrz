@@ -163,7 +163,7 @@ export const command: Command = {
                         );
 
                         try {
-                            await member.roles.set(filtered_roles);
+                            await member.roles.set(filtered_roles).catch(() => false);
                             good++
                         } catch (err) {
                             bad++
