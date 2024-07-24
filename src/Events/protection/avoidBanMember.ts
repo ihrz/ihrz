@@ -53,7 +53,7 @@ export const event: BotEvent = {
 
                 switch (data?.['SANCTION']) {
                     case 'simply+derank':
-                        await user?.roles.set([], "Punish");
+                        await user?.roles.set([], "Punish").catch(() => false);
                         break;
                     case 'simply+ban':
                         user?.ban({ reason: 'Protect!' }).catch(() => { });
