@@ -42,6 +42,11 @@ export default async (client: Client) => {
         playerOptions: {
             onEmptyQueue: {
                 destroyAfterMs: 30_000,
+            },
+            defaultSearchPlatform: "spotify",
+            onDisconnect: {
+                autoReconnect: false,
+                destroyPlayer: true
             }
         },
         client: {
