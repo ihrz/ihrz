@@ -29,6 +29,7 @@ import {
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
+import { DatabaseStructure } from '../../../../types/database_structure';
 
 export const command: Command = {
     name: 'snipe',
@@ -47,10 +48,10 @@ export const command: Command = {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel.id}`);
+        var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel.id}`) as DatabaseStructure.SnipeData[""];
 
         if (!based) {
-            await client.method.interactionSend(interaction,{ content: lang.snipe_no_previous_message_deleted });
+            await client.method.interactionSend(interaction, { content: lang.snipe_no_previous_message_deleted });
             return;
         };
 
@@ -60,7 +61,7 @@ export const command: Command = {
             .setDescription(`\`\`\`${based.snipe}\`\`\``)
             .setTimestamp(based.snipeTimestamp);
 
-        await client.method.interactionSend(interaction,{ embeds: [embed] });
+        await client.method.interactionSend(interaction, { embeds: [embed] });
         return;
     },
 };
