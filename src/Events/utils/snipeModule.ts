@@ -31,12 +31,12 @@ export const event: BotEvent = {
         if (!message.guild || !message.author
             || message.author.id == client.user?.id) return;
 
-        await client.db.set(`${message.guild.id}.GUILD.SNIPE.${message.channel.id}`,
+        await client.db.set(`${message.guildId}.GUILD.SNIPE.${message.channel.id}`,
             {
                 snipe: `${hidden(message.content)}`,
                 snipeUserInfoTag: `${message.author.username} (${message.author.id})`,
                 snipeUserInfoPp: `${message.author.displayAvatarURL()}`,
-                snipeTimestamp: Date.now()
+                snipeTimestamp: message.createdTimestamp
             }
         );
     },
