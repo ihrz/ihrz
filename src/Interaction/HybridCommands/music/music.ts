@@ -163,8 +163,8 @@ export const command: Command = {
                     },
 
                     choices: [
-                        { name: "Youtube", value: "ytsearch" },
-                        { name: "Youtube Music", value: "ytmsearch" },
+                        // { name: "Youtube", value: "ytsearch" },
+                        // { name: "Youtube Music", value: "ytmsearch" },
                         { name: "Soundcloud", value: "scsearch" },
                         // { name: "Deezer", value: "dzsearch" },
                         { name: "Spotify", value: "spsearch" },
@@ -183,7 +183,7 @@ export const command: Command = {
                     },
 
                     required: true
-                }
+                },
             ],
         },
         {

@@ -43,7 +43,7 @@ export const event: BotEvent = {
             let baseData = await client.db.get(`${newMember.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
             if (!baseData) {
-                await newMember.roles.set(oldMember.roles.cache);
+                await newMember.roles.set(oldMember.roles.cache).catch(() => false);
 
                 let user = newMember.guild.members.cache.get(firstEntry?.executorId as string);
 

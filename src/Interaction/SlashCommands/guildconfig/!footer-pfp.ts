@@ -26,18 +26,23 @@ import {
 } from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
+import { axios } from '../../../core/functions/axios.js';
+
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let action = interaction.options.getString("action");
-        let footerAvatar = interaction.options.getAttachment("avatar");
+        let footerAvatar = interaction.options.getAttachment("avatar")!;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setup_not_admin });
             return;
         };
+
+        const fileBuffer = (await axios.get(footerAvatar?.url!, { responseType: "arrayBuffer" })).data;
+        const buffer = Buffer.from(fileBuffer, "base64");
 
         if (action === "reset") {
             await client.db.delete(`${interaction.guildId}.BOT.botPFP`);
@@ -45,7 +50,7 @@ export default {
             return;
         } else if (footerAvatar && footerAvatar.contentType?.startsWith("image")) {
 
-            await client.db.set(`${interaction.guildId}.BOT.botPFP`, footerAvatar.url);
+            await client.db.set(`${interaction.guildId}.BOT.botPFP`, buffer);
 
             await interaction.editReply({ content: data.guildconfig_setbot_footeravatar_is_good });
             return;

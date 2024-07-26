@@ -20,6 +20,7 @@
 */
 
 import { JSONDriver, MemoryDriver, MySQLDriver, QuickDB } from 'quick.db';
+import { PostgresDriver } from 'quick.db/out/drivers/PostgresDriver.js'
 import { MongoDriver } from 'quickmongo';
 import ansiEscapes from 'ansi-escapes';
 import mysql from 'mysql2/promise.js';
@@ -102,6 +103,34 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                 logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
 
                 const mysql = new MySQLDriver({
+                    host: config.database?.mySQL?.host,
+                    user: config.database?.mySQL?.user,
+                    password: config.database?.mySQL?.password,
+                    database: config.database?.mySQL?.database,
+                    port: config.database?.mySQL?.port,
+                });
+
+                await mysql.connect();
+
+                const db = new QuickDB({ driver: mysql });
+                for (let table of tables) {
+                    db.table(table);
+                };
+                resolve(db);
+            });
+            break;
+        case 'POSTGRES':
+            dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
+                const connectionAvailable = await isReachable(config.database);
+
+                if (!connectionAvailable) {
+                    console.error(`${config.console.emojis.ERROR} >> Failed to connect to the Postgres database`);
+                    process.exit(1)
+                };
+
+                logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
+
+                const mysql = new PostgresDriver({
                     host: config.database?.mySQL?.host,
                     user: config.database?.mySQL?.user,
                     password: config.database?.mySQL?.password,
