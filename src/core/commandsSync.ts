@@ -39,7 +39,6 @@ const synchronizeCommands = async (client: Client): Promise<void> => {
                 name: command.name,
                 type: command.type,
                 description: command.description,
-                name_localizations: command.name_localizations,
                 description_localizations: command.description_localizations,
                 options: command.options,
             })) || [];
