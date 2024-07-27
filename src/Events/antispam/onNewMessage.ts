@@ -50,7 +50,7 @@ async function waitForFinish(): Promise<void> {
         if (timeout) clearTimeout(timeout);
         timeout = setTimeout(() => {
             resolve();
-        }, 5000);
+        }, 3000);
     });
 }
 
@@ -118,7 +118,7 @@ async function sendWarningMessage(
 
 async function clearSpamMessages(message: Message, messages: Set<AntiSpam.CachedMessage>): Promise<void> {
     try {
-        const CHUNK_SIZE = 99;
+        const CHUNK_SIZE = 15;
         const messagesByChannel: Collection<Snowflake, Collection<string, Snowflake>> = new Collection();
 
         messages.forEach(cachedMessage => {
@@ -271,7 +271,7 @@ export const event: BotEvent = {
         let memberTotalWarn = cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value!;
 
         const lastMessage = previousMessages.filter(x => x.authorID === message.author.id).slice(-1)[0];
-        const elapsedTime = lastMessage ? currentMessage.sentTimestamp - lastMessage.sentTimestamp : options.maxInterval - 10;
+        const elapsedTime = lastMessage ? currentMessage.sentTimestamp - lastMessage.sentTimestamp : options.maxInterval - 100;
 
         // Basic checks
         if (elapsedTime && elapsedTime < options.maxInterval) {
