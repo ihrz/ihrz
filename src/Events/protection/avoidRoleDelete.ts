@@ -43,18 +43,17 @@ export const event: BotEvent = {
             let baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
             if (!baseData) {
-                role.guild.roles.create({
-                    name: role.name,
-                    color: role.color,
-                    icon: role.icon,
-                    unicodeEmoji: role.unicodeEmoji,
-                    hoist: role.hoist,
-                    mentionable: role.mentionable,
-                    permissions: role?.permissions,
-                    position: role.rawPosition,
-                    reason: `Role re-create by Protect (${firstEntry.executorId} break the rule!)`
-                });
-                let user = await role.guild.members.cache.get(firstEntry?.executorId as string);
+                await role.guild.roles.create({
+                    ...role
+                }).then(async role => {
+                    let oldMemberWhoHaveThisRole = Array.from(role.members.values());
+
+                    for (let member of oldMemberWhoHaveThisRole) {
+                        await member.roles.add(role);
+                    };
+                })
+
+                let user = role.guild.members.cache.get(firstEntry?.executorId as string);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':
