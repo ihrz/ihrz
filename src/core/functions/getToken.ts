@@ -15,18 +15,30 @@
 
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
-・ Contribution by Naya (https://github.com/belugafr)
+
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import './core/functions/colors.js';
-import { ShardingManager } from 'discord.js';
-import config from './files/config.js';
-import logger from './core/logger.js';
-import { getToken } from './core/functions/getToken.js';
+import config from "../../files/config.js";
+import { axios } from "./axios.js";
+import { encrypt } from "./encryptDecryptMethod.js";
 
-const _token = await getToken();
+export async function getToken(): Promise<string | undefined> {
+    if (config.api.HorizonGateway) {
+        let url = config.api.HorizonGateway + "api/ihorizon/v1/login";
+        let key = config.api.apiToken;
+        let res = await axios.post(url,
+            { apiToken: encrypt(key, key), clientID: encrypt(key, config.api.clientID) },
+            {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }
+        );
 
-let manager = new ShardingManager('./dist/src/core/bot.js', { totalShards: "auto", token: _token || process.env.BOT_TOKEN || config.discord.token });
-manager.on("shardCreate", (shard) => logger.log(`${config.console.emojis.HOST} >> The Shard number ${shard.id} is now launched :) !`.green));
-manager.spawn();
+        return res.data?.token;
+    } else {
+        return undefined;
+    }
+
+}
