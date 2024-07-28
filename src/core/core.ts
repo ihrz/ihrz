@@ -43,6 +43,7 @@ import { LyricsManager } from './functions/lyrics-fetcher.js';
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";
 import { readFile } from 'node:fs/promises';
+import { getToken } from './functions/getToken.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -117,9 +118,9 @@ export async function main(client: Client) {
         });
     };
 
-    client.login(process.env.BOT_TOKEN || client.config.discord.token).then(() => {
-        client.token = "Mais ptdr, ta vraiment crue avoir le token d'iHorizon ? Sale tocard và! Nique tes morts!";
+    client.login(await getToken() || process.env.BOT_TOKEN || client.config.discord.token).then(() => {
         const title = "iHorizon - " + client.version.ClientVersion + " platform:" + process.platform;
+        client.token = "Mais ptdr, ta vraiment crue avoir le token d'iHorizon ? Sale tocard và! Nique tes morts!";
 
         if (process.platform === 'win32') {
             process.title = title;
