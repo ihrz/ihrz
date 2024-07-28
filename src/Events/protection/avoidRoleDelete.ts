@@ -22,7 +22,6 @@
 import { Client, AuditLogEvent, Role } from 'discord.js'
 
 import { BotEvent } from '../../../types/event';
-import logger from '../../core/logger.js';
 
 export const event: BotEvent = {
     name: "roleDelete",
@@ -45,16 +44,12 @@ export const event: BotEvent = {
 
             let baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
-
             if (!baseData) {
-                console.log(role)
-
                 let newRole = await role.guild.roles.create({
                     ...role, reason: `Role re-create by Protect (${firstEntry.executorId} break the rule!)`,
                 });
 
                 newRole.setPosition(role.rawPosition);
-                // console.log(role.position)
                 let user = role.guild.members.cache.get(firstEntry?.executorId as string);
 
                 switch (data?.['SANCTION']) {
