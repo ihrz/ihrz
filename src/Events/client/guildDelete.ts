@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, Guild, EmbedBuilder } from 'pwss';
+import { BaseGuildTextChannel, Client, Guild, EmbedBuilder } from 'discord.js';
 
 import logger from "../../core/logger.js";
 

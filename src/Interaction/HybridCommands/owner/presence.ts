@@ -26,7 +26,7 @@ import {
     ApplicationCommandOptionType,
     ActivityType,
     ApplicationCommandType
-} from 'pwss'
+} from 'discord.js'
 
 import { Command } from '../../../../types/command';
 
