@@ -53,7 +53,7 @@ export const event: BotEvent = {
                     ...role, reason: `Role re-create by Protect (${firstEntry.executorId} break the rule!)`,
                 });
 
-                newRole.setPosition(5)
+                newRole.setPosition(role.rawPosition);
                 // console.log(role.position)
                 let user = role.guild.members.cache.get(firstEntry?.executorId as string);
 
