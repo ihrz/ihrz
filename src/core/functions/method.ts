@@ -20,12 +20,13 @@
 */
 
 import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, Embed, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType } from "discord.js";
-import { Command } from "../../../types/command";
-import { Option } from "../../../types/option";
-import { LanguageData } from "../../../types/languageData";
+import { Command } from "../../../types/command.js";
+import { Option } from "../../../types/option.js";
+import { LanguageData } from "../../../types/languageData.js";
 import * as perm from './permissonsCalculator.js'
 import * as f from './displayBotName.js';
 import * as  h from './helper.js';
+import * as c from '../core.js';
 
 export async function user(interaction: Message, args: string[], argsNumber: number): Promise<User | null> {
     return interaction.content.startsWith(`<@${interaction.client.user.id}`)
@@ -339,3 +340,4 @@ export function hasSubCommand(options: Option[] | undefined): boolean {
 export const permission = perm;
 export const bot = f;
 export const helper = h;
+export const core = c;

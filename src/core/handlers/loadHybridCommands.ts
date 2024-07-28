@@ -27,7 +27,7 @@ import { Command } from "../../../types/command.js";
 import { EltType } from "../../../types/eltType.js";
 import { Option } from "../../../types/option.js";
 
-import * as argsHelper from '../functions/arg.js';
+import * as argsHelper from '../functions/method.js';
 import logger from "../logger.js";
 
 import { fileURLToPath } from 'url';

@@ -28,7 +28,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { axios } from '../../../core/functions/axios.js';
-import { SubCommandArgumentValue } from '../../../core/functions/arg';
+import { SubCommandArgumentValue } from '../../../core/functions/method';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {

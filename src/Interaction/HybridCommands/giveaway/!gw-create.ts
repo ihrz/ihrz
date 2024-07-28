@@ -34,7 +34,7 @@ import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import logger from '../../../core/logger.js';
 
 import { LanguageData } from '../../../../types/languageData';
-import { SubCommandArgumentValue } from '../../../core/functions/arg.js';
+import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 
 async function isImageUrl(url: string): Promise<boolean> {
     try {

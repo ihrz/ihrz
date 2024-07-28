@@ -42,11 +42,13 @@ import fs from 'fs';
 import { LyricsManager } from './functions/lyrics-fetcher.js';
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";
+import { readFile } from 'node:fs/promises';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const backups_folder = `${process.cwd()}/src/files/backups`;
+const uptime_path = path.join(process.cwd(), "src", "files", ".uptime")
 
 let global_config: ConfigData;
 
@@ -58,6 +60,7 @@ backup.setStorageFolder(backups_folder);
 
 export async function main(client: Client) {
     initConfig(client.config);
+    timestampInitializer();
 
     logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
     logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
@@ -144,3 +147,24 @@ export const getConfig = (): ConfigData => {
     }
     return global_config;
 };
+
+export function timestampInitializer() {
+    const date = Date.now().toString();
+
+    fs.writeFile(uptime_path, date, err => {
+        if (err) {
+            logger.err(err as any)
+        } else {
+            logger.log(`${global_config.console.emojis.OK} >> Timestamp Generated in .uptime`);
+        }
+    })
+}
+
+export async function getInitedTimestamp(): Promise<number> {
+    try {
+        const content = await readFile(uptime_path);
+        return Number(content);
+    } catch (err) {
+        return 0;
+    }
+}
