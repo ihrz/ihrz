@@ -255,7 +255,7 @@ export default {
         const button2 = new ButtonBuilder()
             .setStyle(ButtonStyle.Secondary)
             .setCustomId("antispam-manage-preset-button")
-            .setLabel("Load Preset");
+            .setLabel(lang.antispam_manage_button_preset_label);
 
         const originalResponse = await client.method.interactionSend(interaction, {
             embeds: [embed],
@@ -297,7 +297,7 @@ export default {
                     components: [
                         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(new StringSelectMenuBuilder()
                             .setCustomId('antispam-select-preset')
-                            .setPlaceholder("Preset Configurations")
+                            .setPlaceholder(lang.antispam_manage_selectstring_preset_label)
                             .addOptions([
                                 { label: lang.antispam_manage_preset_level1_name, value: "chill" },
                                 { label: lang.antispam_manage_preset_level2_name, value: "guard" },

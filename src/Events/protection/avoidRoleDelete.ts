@@ -22,6 +22,7 @@
 import { Client, AuditLogEvent, Role } from 'pwss'
 
 import { BotEvent } from '../../../types/event';
+import logger from '../../core/logger.js';
 
 export const event: BotEvent = {
     name: "roleDelete",
@@ -29,6 +30,8 @@ export const event: BotEvent = {
 
         let data = await client.db.get(`${role.guild.id}.PROTECTION`);
         if (!data) return;
+
+        console.log(role.members);
 
         if (data.deleterole && data.deleterole.mode === 'allowlist') {
             let fetchedLogs = await role.guild.fetchAuditLogs({
@@ -42,17 +45,16 @@ export const event: BotEvent = {
 
             let baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
+
             if (!baseData) {
-                await role.guild.roles.create({
-                    ...role
-                }).then(async role => {
-                    let oldMemberWhoHaveThisRole = Array.from(role.members.values());
+                console.log(role)
 
-                    for (let member of oldMemberWhoHaveThisRole) {
-                        await member.roles.add(role);
-                    };
-                })
+                let newRole = await role.guild.roles.create({
+                    ...role, reason: `Role re-create by Protect (${firstEntry.executorId} break the rule!)`,
+                });
 
+                newRole.setPosition(5)
+                // console.log(role.position)
                 let user = role.guild.members.cache.get(firstEntry?.executorId as string);
 
                 switch (data?.['SANCTION']) {

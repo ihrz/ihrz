@@ -1502,6 +1502,8 @@ antispam_manage_button_label: "Save config"
 antispam_manage_preset_level1_name: "Chill Mode"
 antispam_manage_preset_level2_name: "Guard Mode"
 antispam_manage_preset_level3_name: "Extreme Protection Mode"
+antispam_manage_button_preset_label: "Load Preset"
+antispam_manage_selectstring_preset_label: "Preset Configurations"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "All of the roles bellow can bypass the antispam module"
