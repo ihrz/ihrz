@@ -25,7 +25,7 @@ import {
     EmbedBuilder,
     GuildMember,
     Message,
-} from 'pwss';
+} from 'discord.js';
 
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData';

@@ -21,7 +21,7 @@
 
 import { Command } from '../../../types/command';
 import { BotEvent } from '../../../types/event';
-import { Client, Message, TextChannel } from 'pwss';
+import { Client, Message, TextChannel } from 'discord.js';
 
 interface LinkedChannelStructure {
     channels: { to_lang: string; in: string; out: string; }[]

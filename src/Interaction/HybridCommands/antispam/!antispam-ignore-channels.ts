@@ -34,7 +34,7 @@ import {
     MessagePayload,
     MessageReplyOptions,
     PermissionsBitField,
-} from 'pwss';
+} from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { AntiSpam } from '../../../../types/antispam';
 import { SubCommandArgumentValue } from '../../../core/functions/arg';

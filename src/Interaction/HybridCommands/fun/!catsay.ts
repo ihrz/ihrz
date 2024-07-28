@@ -33,7 +33,7 @@ import {
   Client,
   EmbedBuilder,
   Message,
-} from 'pwss';
+} from 'discord.js';
 
 import Jimp from 'jimp';
 

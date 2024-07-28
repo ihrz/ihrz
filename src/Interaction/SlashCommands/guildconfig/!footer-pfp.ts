@@ -23,7 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     PermissionsBitField,
-} from 'pwss';
+} from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { axios } from '../../../core/functions/axios.js';

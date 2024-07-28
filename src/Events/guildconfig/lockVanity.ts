@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { AuditLogEvent, Client, Guild, Message, SnowflakeUtil } from 'pwss';
+import { AuditLogEvent, Client, Guild, Message, SnowflakeUtil } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
 

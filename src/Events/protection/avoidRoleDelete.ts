@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, AuditLogEvent, Role } from 'pwss'
+import { Client, AuditLogEvent, Role } from 'discord.js'
 
 import { BotEvent } from '../../../types/event';
 
@@ -29,6 +29,8 @@ export const event: BotEvent = {
 
         let data = await client.db.get(`${role.guild.id}.PROTECTION`);
         if (!data) return;
+
+        console.log(role.members);
 
         if (data.deleterole && data.deleterole.mode === 'allowlist') {
             let fetchedLogs = await role.guild.fetchAuditLogs({
@@ -43,16 +45,11 @@ export const event: BotEvent = {
             let baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
             if (!baseData) {
-                await role.guild.roles.create({
-                    ...role
-                }).then(async role => {
-                    let oldMemberWhoHaveThisRole = Array.from(role.members.values());
+                let newRole = await role.guild.roles.create({
+                    ...role, reason: `Role re-create by Protect (${firstEntry.executorId} break the rule!)`,
+                });
 
-                    for (let member of oldMemberWhoHaveThisRole) {
-                        await member.roles.add(role);
-                    };
-                })
-
+                newRole.setPosition(role.rawPosition);
                 let user = role.guild.members.cache.get(firstEntry?.executorId as string);
 
                 switch (data?.['SANCTION']) {

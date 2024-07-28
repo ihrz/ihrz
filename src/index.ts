@@ -35,7 +35,7 @@ execSync("npx tsc", {
 });
 
 import './core/functions/colors.js';
-import { ShardingManager } from 'pwss';
+import { ShardingManager } from 'discord.js';
 import config from './files/config.js';
 import logger from './core/logger.js';
 

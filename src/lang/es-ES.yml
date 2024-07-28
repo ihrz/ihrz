@@ -1502,6 +1502,8 @@ antispam_manage_button_label: "Guardar configuración"
 antispam_manage_preset_level1_name: "Modo Relajado"
 antispam_manage_preset_level2_name: "Modo Guardián"
 antispam_manage_preset_level3_name: "Modo de Protección Extrema"
+antispam_manage_button_preset_label: "Cargar preajuste"
+antispam_manage_selectstring_preset_label: "Configuraciones predefinidas"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Todos los roles a continuación pueden omitir el módulo antispam"

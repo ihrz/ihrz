@@ -25,7 +25,7 @@ import {
     EmbedBuilder,
     GuildMember,
     Message,
-} from 'pwss';
+} from 'discord.js';
 
 import { axios, AxiosResponse } from '../../../core/functions/axios.js';
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';

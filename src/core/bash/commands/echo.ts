@@ -21,7 +21,7 @@
 
 import { BashCommands } from "../../../../types/bashCommands";
 import logger from "../../logger.js";
-import { Client } from "pwss";
+import { Client } from "discord.js";
 
 export const command: BashCommands = {
     command_name: "echo",

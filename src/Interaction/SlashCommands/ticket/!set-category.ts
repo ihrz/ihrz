@@ -25,7 +25,7 @@ import {
     PermissionsBitField,
     CategoryChannel,
     ChatInputCommandInteraction,
-} from 'pwss';
+} from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {

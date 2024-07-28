@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, AuditLogEvent, Role, GuildMember } from 'pwss'
+import { Client, AuditLogEvent, Role, GuildMember } from 'discord.js'
 
 import { BotEvent } from '../../../types/event';
 

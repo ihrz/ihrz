@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message } from "pwss";
+import { Message } from "discord.js";
 
 export async function cooldDown(message: Message, method: string, ms: number) {
     let tn = Date.now();
