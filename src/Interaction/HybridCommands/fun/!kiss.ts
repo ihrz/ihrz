@@ -30,7 +30,7 @@ import {
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData';
 import { axios } from '../../../core/functions/axios.js';
-import { SubCommandArgumentValue } from '../../../core/functions/arg.js';
+import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {

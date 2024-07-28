@@ -29,7 +29,7 @@ import {
 
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommandArgumentValue } from '../../../core/functions/arg.js';
+import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 
 export const command: Command = {
     name: "bulkunban",

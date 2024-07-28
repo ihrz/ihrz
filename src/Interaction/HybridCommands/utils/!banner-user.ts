@@ -29,7 +29,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { axios } from '../../../core/functions/axios.js';
-import { SubCommandArgumentValue, member } from '../../../core/functions/arg';
+import { SubCommandArgumentValue, member } from '../../../core/functions/method';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing

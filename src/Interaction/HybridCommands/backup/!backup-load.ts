@@ -28,9 +28,8 @@ import {
 } from 'discord.js';
 
 import backup from 'discord-rebackup';
-import { BackupData } from 'discord-rebackup/lib/types';
 import { LanguageData } from '../../../../types/languageData';
-import { SubCommandArgumentValue } from '../../../core/functions/arg';
+import { SubCommandArgumentValue } from '../../../core/functions/method';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing

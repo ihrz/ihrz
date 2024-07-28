@@ -31,7 +31,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
-import { SubCommandArgumentValue } from '../../../core/functions/arg.js';
+import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 
 
 export default {

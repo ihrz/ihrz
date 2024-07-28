@@ -40,7 +40,7 @@ import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { AntiSpam } from '../../../../types/antispam';
-import { SubCommandArgumentValue } from '../../../core/functions/arg.js';
+import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 
 type AntiSpamOptionKey = keyof AntiSpam.AntiSpamOptions;
 type PresetKeys = "chill" | "guard" | "extreme";

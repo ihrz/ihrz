@@ -28,7 +28,7 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import { SubCommandArgumentValue } from '../../../core/functions/arg';
+import { SubCommandArgumentValue } from '../../../core/functions/method';
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
 
