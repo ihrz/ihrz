@@ -1502,6 +1502,8 @@ antispam_manage_button_label: "Сохранить настройки"
 antispam_manage_preset_level1_name: "Режим Расслабления"
 antispam_manage_preset_level2_name: "Режим Охраны"
 antispam_manage_preset_level3_name: "Режим Экстремальной Защиты"
+antispam_manage_button_preset_label: "Загрузить пресет"
+antispam_manage_selectstring_preset_label: "Конфигурации пресетов"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Все роли ниже могут обойти модуль антиспама"

@@ -1502,6 +1502,8 @@ antispam_manage_button_label: "Konfiguration speichern"
 antispam_manage_preset_level1_name: "Entspannter Modus"
 antispam_manage_preset_level2_name: "Wachmodus"
 antispam_manage_preset_level3_name: "Extremer Schutzmodus"
+antispam_manage_button_preset_label: "Voreinstellung laden"
+antispam_manage_selectstring_preset_label: "Voreinstellungen"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Alle unten stehenden Rollen können das Antispam-Modul umgehen"

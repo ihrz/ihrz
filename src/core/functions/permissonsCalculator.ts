@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ChatInputCommandInteraction, Message } from "pwss";
+import { ChatInputCommandInteraction, Message } from "discord.js";
 import { LanguageData } from "../../../types/languageData";
 import { DatabaseStructure } from "../../../types/database_structure";
 import { Command } from "../../../types/command";

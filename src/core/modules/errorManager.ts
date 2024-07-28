@@ -25,7 +25,7 @@ import logger from '../logger.js';
 
 import { MongoDriver } from 'quickmongo';
 import fs from 'node:fs';
-import { Client } from 'pwss';
+import { Client } from 'discord.js';
 
 let exec = async (driver: MongoDriver, config: ConfigData) => {
     await driver.close();

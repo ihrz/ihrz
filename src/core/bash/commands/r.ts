@@ -22,7 +22,7 @@
 
 import { BashCommands } from "../../../../types/bashCommands";
 import { execSync } from 'child_process';
-import { Client } from 'pwss';
+import { Client } from 'discord.js';
 
 export const command: BashCommands = {
     command_name: "r",

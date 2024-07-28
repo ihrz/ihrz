@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client } from "pwss";
+import { Client } from "discord.js";
 
 export const guildPrefix = async (client: Client, guildId: string): Promise<{ type: 'prefix' | 'mention'; string: string; }> => {
     let custom_prefix = await client.db.get(`${guildId}.BOT.prefix`);

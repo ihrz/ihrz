@@ -118,7 +118,7 @@ setxpchannels_command_work_enable: "Vous avez défini avec succès les canaux d'
 setxpchannels_command_error_enable: "Erreur : autorisations manquantes ou canal introuvable."
 
 # /level
-level_embed_title: "__**XP Niveau**__: `${user.username}`"
+level_embed_title: "__**Niveau d'XP**__: `${user.username}`"
 level_embed_fields1_name: ":arrow_up:・__Niveau:__"
 level_embed_fields1_value: "`${currentxp}/${xpNeeded}`"
 level_embed_fields2_name: ":money_with_wings:・__Expérience:__"
@@ -827,13 +827,13 @@ too_new_account_command_work_on_disable: "${interaction.user}, le module a été
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "Le pied de page du bot est trop long, il sera trop laid à afficher."
 guildconfig_setbot_footername_is_good: "Changé avec succès, tous les embeds iHorizon utiliseront `${footerName}` comme pied de page!"
-guildconfig_setbot_footername_is_reset: "Le nom du pied de page a été supprimé. Désormais, toutes les intégrations iHorizon utiliseront le `nom du bot`."
+guildconfig_setbot_footername_is_reset: "Le nom du pied de page a été supprimé. Désormais, tous les embeds iHorizon utiliseront le `nom du bot`."
 guildconfig_setbot_footername_not_found: "Le nom du pied de page est introuvable. Veuillez réessayer !"
 
 # /guildconfig set-bot footer-pfp
 guildconfig_setbot_footeravatar_is_good: "Changé avec succès, tous les embeds d'iHorizon utiliseront `l'image` comme footer!"
 guildconfig_setbot_footeravatar_incorect: "Le fichier ne correspond pas à une image. Veuillez réessayer avec une image."
-guildconfig_setbot_footeravatar_is_reset: "L'avatar du pied de page a été supprimé. Désormais, toutes les intégrations iHorizon utiliseront l'`avatar du bot`."
+guildconfig_setbot_footeravatar_is_reset: "L'avatar du pied de page a été supprimé. Désormais, tous les embeds iHorizon utiliseront l'`avatar du bot`."
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "Le préfixe du bot pour les commandes est maintenant mention! `@Ping-Me`"
@@ -1502,6 +1502,8 @@ antispam_manage_button_label: "Sauvegarder la configuration"
 antispam_manage_preset_level1_name: "Mode Détente"
 antispam_manage_preset_level2_name: "Mode Garde"
 antispam_manage_preset_level3_name: "Mode Protection Extrême"
+antispam_manage_button_preset_label: "Charger le préréglage"
+antispam_manage_selectstring_preset_label: "Configurations prédéfinies"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Tous les rôles ci-dessous peuvent contourner le module antispam"
@@ -1703,7 +1705,7 @@ antispam_more_mute_msg: " Si vous continuez, vous serez mis en sourdine."
 antispam_more_kick_msg: " Si vous continuez, vous serez expulsés du serveur."
 
 # Intégrer les journaux d'AntiSpam
-antispam_log_embed_title: "[AntiSpam] Nouveau ${actionType}"
+antispam_log_embed_title: "[AntiSpam] Nouvelle sanction de type: ${actionType}"
 antispam_log_embed_desc: "${client.user?.toString()} a **${actionType}** ${user.toString()}"
 
 # Commandes Hybrides
@@ -1712,7 +1714,7 @@ antispam_log_embed_desc: "${client.user?.toString()} a **${actionType}** ${user.
 hybridcommands_global_prefix_mention: "`@Ping-Moi`"
 hybridcommands_global_prefix_cleaned_mention: "@Ping-Moi "
 hybridcommands_args_error_embed_desc: "```ts\nNom de la Commande: ${currentCommand.name}\nDescription de la Commande: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErreur lors de l'envoi de l'argument \"${wrongArgumentName}\".\n```"
-hybridcommands_embed_help_title: "${commandName} Aide en Intégration"
+hybridcommands_embed_help_title: "${commandName} Menue d'Aide"
 hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Utilisation:** ${use}"
 
 # RPG

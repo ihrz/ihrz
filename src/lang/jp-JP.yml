@@ -1502,6 +1502,8 @@ antispam_manage_button_label: "設定を保存"
 antispam_manage_preset_level1_name: "チルモード"
 antispam_manage_preset_level2_name: "ガードモード"
 antispam_manage_preset_level3_name: "エクストリーム保護モード"
+antispam_manage_button_preset_label: "プリセットを読み込む"
+antispam_manage_selectstring_preset_label: "プリセット構成"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "以下のすべてのロールはアンチスパムモジュールをバイパスできます"

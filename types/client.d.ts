@@ -24,7 +24,7 @@ import { iHorizonTimeCalculator } from "../src/core/functions/ms.js";
 import * as argsHelper from '../src/core/functions/arg.js'
 
 import { GiveawayManager } from "../src/core/modules/giveawaysManager.js";
-import { Collection, Snowflake } from 'pwss';
+import { Collection, Snowflake } from 'discord.js';
 import { LavalinkManager } from "lavalink-client";
 import { QuickDB } from "quick.db";
 
@@ -42,7 +42,7 @@ import { Assets } from "./assets";
 import { ConfigData } from "./configDatad.js";
 import { BashCommands } from "./bashCommands.js";
 
-declare module 'pwss' {
+declare module 'discord.js' {
     export interface Client {
         func: clientFunction,
         commands: Collection<string, Command>,

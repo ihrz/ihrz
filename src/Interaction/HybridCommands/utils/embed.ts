@@ -42,7 +42,7 @@ import {
     ChannelSelectMenuInteraction,
     Message,
     TextChannel,
-} from 'pwss';
+} from 'discord.js';
 
 import { Command } from '../../../../types/command';
 import { generatePassword } from '../../../core/functions/random.js';
