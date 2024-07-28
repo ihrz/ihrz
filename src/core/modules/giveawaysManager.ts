@@ -13,7 +13,7 @@ import {
     ButtonInteraction,
     CacheType,
     ColorResolvable,
-} from 'pwss';
+} from 'discord.js';
 
 import { GiveawayCreateOptions, GiveawayFetch } from '../../../types/giveaways';
 import getLanguageData from '../functions/getLanguageData.js';

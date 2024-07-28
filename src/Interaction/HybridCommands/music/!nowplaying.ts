@@ -35,7 +35,7 @@ import {
     MessagePayload,
     InteractionEditReplyOptions,
     MessageReplyOptions,
-} from 'pwss';
+} from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { SubCommandArgumentValue } from '../../../core/functions/arg';

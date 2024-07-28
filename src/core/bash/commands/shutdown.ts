@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client } from 'pwss';
+import { Client } from 'discord.js';
 import { BashCommands } from '../../../../types/bashCommands.js';
 import wait from '../../functions/wait.js';
 import logger from '../../logger.js';

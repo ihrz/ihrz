@@ -22,7 +22,7 @@
 import {
     Client,
     Message
-} from 'pwss'
+} from 'discord.js'
 
 import { Command } from '../../../../types/command';export const command: Command = {
     name: atob("a2lzYWtheS1zZWNyZXQtY29tbWFuZA=="), description: ' . . . ', description_localizations: { "fr": " . . . " }, category: '404', thinking: false, type: 'PREFIX_IHORIZON_COMMAND', run: async (client: Client, interaction: Message) => {// @ts-ignore

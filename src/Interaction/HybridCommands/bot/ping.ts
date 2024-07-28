@@ -26,7 +26,7 @@ import {
     CommandInteractionOptionResolver,
     EmbedBuilder,
     Message,
-} from 'pwss'
+} from 'discord.js'
 
 import { Command } from '../../../../types/command';
 import ping from 'ping';

@@ -25,7 +25,7 @@ import {
     ChatInputCommandInteraction,
     ApplicationCommandType,
     Message
-} from 'pwss'
+} from 'discord.js'
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
@@ -58,7 +58,7 @@ export const command: Command = {
                 { name: lang.botinfo_embed_fields_mychannels, value: `\`\`\`py\n${client.channels.cache.size}\`\`\``, inline: false },
                 { name: lang.botinfo_embed_fields_myservers, value: `\`\`\`py\n${client.guilds.cache.size}\`\`\``, inline: false },
                 { name: lang.botinfo_embed_fields_members, value: `\`\`\`py\n${usersize}\`\`\``, inline: false },
-                { name: lang.botinfo_embed_fields_libraires, value: `\`\`\`py\npwss@${client.version.djs}\`\`\``, inline: false },
+                { name: lang.botinfo_embed_fields_libraires, value: `\`\`\`py\ndiscord.js@${client.version.djs}\`\`\``, inline: false },
                 { name: lang.botinfo_embed_fields_created_at, value: "<t:1600042320:R>", inline: false },
                 { name: lang.botinfo_embed_fields_created_by, value: "<@171356978310938624>", inline: false },
             )

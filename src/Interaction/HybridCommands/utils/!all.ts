@@ -25,7 +25,7 @@ import {
     EmbedBuilder,
     Message,
     PermissionsBitField
-} from 'pwss';
+} from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import wait from '../../../core/functions/wait.js';
 import { Command } from '../../../../types/command';

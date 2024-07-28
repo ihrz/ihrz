@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Partials, GatewayIntentBits } from 'pwss';
+import { Client, Partials, GatewayIntentBits } from 'discord.js';
 import * as ClientVersion from "../version.js";
 import * as core from './core.js';
 import config from "../files/config.js";

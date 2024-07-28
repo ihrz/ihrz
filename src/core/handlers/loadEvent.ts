@@ -21,7 +21,7 @@
 
 import { join as pathJoin } from 'node:path';
 import { opendir } from 'fs/promises';
-import { Client } from 'pwss';
+import { Client } from 'discord.js';
 
 import logger from '../logger.js';
 

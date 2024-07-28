@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ButtonInteraction, ChatInputCommandInteraction, Client, Guild, GuildMember, Interaction, Message, StringSelectMenuInteraction, UserContextMenuCommandInteraction } from "pwss";
+import { ButtonInteraction, ChatInputCommandInteraction, Client, Guild, GuildMember, Interaction, Message, StringSelectMenuInteraction, UserContextMenuCommandInteraction } from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { getDatabaseInstance } from "../database.js";
 

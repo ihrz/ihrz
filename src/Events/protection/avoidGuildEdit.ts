@@ -23,7 +23,7 @@
 ... (Your copyright and license information)
 */
 
-import { Client, AuditLogEvent, Guild, GuildEditOptions, GuildAuditLogsEntry } from 'pwss';
+import { Client, AuditLogEvent, Guild, GuildEditOptions, GuildAuditLogsEntry } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
 

@@ -23,7 +23,7 @@ import {
     Client,
     MessageReaction,
     User,
-} from 'pwss';
+} from 'discord.js';
 
 import logger from '../../core/logger.js';
 
