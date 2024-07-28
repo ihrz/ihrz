@@ -28,7 +28,7 @@ import {
     User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
-import { SubCommandArgumentValue } from '../../../core/functions/arg';
+import { SubCommandArgumentValue } from '../../../core/functions/method';
 
 let talkedRecentlyforr = new Set();
 export default {

@@ -21,7 +21,7 @@
 
 import { LyricsManager } from "../src/core/functions/lyrics-fetcher.js";
 import { iHorizonTimeCalculator } from "../src/core/functions/ms.js";
-import * as argsHelper from '../src/core/functions/arg.js'
+import * as argsHelper from '../src/core/functions/method.js'
 
 import { GiveawayManager } from "../src/core/modules/giveawaysManager.js";
 import { Collection, Snowflake } from 'discord.js';
