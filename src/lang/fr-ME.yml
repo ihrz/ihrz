@@ -1502,6 +1502,8 @@ antispam_manage_button_label: "Sauvegarder la configuration"
 antispam_manage_preset_level1_name: "Mode Détente"
 antispam_manage_preset_level2_name: "Mode Garde"
 antispam_manage_preset_level3_name: "Mode Protection Extrême"
+antispam_manage_button_preset_label: "Charger le préréglage"
+antispam_manage_selectstring_preset_label: "Configurations prédéfinies"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Tous les rôles ci-dessous peuvent contourner le module antispam"

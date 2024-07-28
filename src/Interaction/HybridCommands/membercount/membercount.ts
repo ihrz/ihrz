@@ -31,7 +31,7 @@ import {
     Message,
     ChannelType,
     BaseGuildVoiceChannel
-} from 'pwss'
+} from 'discord.js'
 
 import { Command } from '../../../../types/command.js';
 import logger from '../../../core/logger.js';

@@ -30,7 +30,7 @@ import {
     EmbedBuilder,
     Message,
     PermissionsBitField,
-} from 'pwss';
+} from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { SubCommandArgumentValue } from '../../../core/functions/arg';
 import { DatabaseStructure } from '../../../../types/database_structure';

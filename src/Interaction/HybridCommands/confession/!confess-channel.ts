@@ -33,7 +33,7 @@ import {
     PermissionsBitField,
     SnowflakeUtil,
     TextChannel
-} from 'pwss';
+} from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { SubCommandArgumentValue } from '../../../core/functions/arg';
 

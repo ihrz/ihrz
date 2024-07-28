@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ApplicationCommandOptionType, Client, Collection } from 'pwss';
+import { ApplicationCommandOptionType, Client, Collection } from 'discord.js';
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
 

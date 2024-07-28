@@ -1090,6 +1090,8 @@ export interface LanguageData {
   antispam_manage_preset_level1_name: string;
   antispam_manage_preset_level2_name: string;
   antispam_manage_preset_level3_name: string;
+  antispam_manage_button_preset_label: string;
+  antispam_manage_selectstring_preset_label: string;
   antispam_manage_choices_11_desc: string;
   antispam_manage_choices_12_label: string;
   antispam_manage_choices_12_desc: string;

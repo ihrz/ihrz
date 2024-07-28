@@ -19,50 +19,52 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, GatewayIntentBits, ActivityType, BaseGuildTextChannel } from 'pwss';
+import { Client, GatewayIntentBits, ActivityType, BaseGuildTextChannel } from 'discord.js';
 import { log as Ox } from 'console';
 import { readFile } from "fs/promises";
 import { writeFileSync } from "fs";
+import { generatePassword } from '../src/core/functions/random.js';
 
-const ALL_CLIENT: Client[] = [];
+// Définir le chemin des tokens
+const tokensPath = `${process.cwd()}/all_discord_bot_tokens.txt`;
+let allTokens = (await readFile(tokensPath, 'utf-8')).split('\n');
 
-let tokens_path = `${process.cwd()}/all_discord_bot_tokens.txt`
-let ALL_TOKEN = (await readFile(tokens_path, 'utf-8')).split('\n');
-
-const DEVELOPER: string[] = [
+// Développeurs autorisés
+const DEVELOPERS = [
     '1181123770845503600',
     '233657223190937601'
-]
+];
 
-let FIRST_BOT: string | false = false;
+const main_bot = "1266794768088956959"
 
-async function i(x: string) {
+const clients: Client[] = [];
+
+// Fonction pour mettre à jour les flags d'un bot
+async function updateBotFlags(token: string) {
     try {
         const response = await fetch("https://discord.com/api/v10/applications/@me", {
             method: "PATCH",
             headers: {
-                Authorization: "Bot " + x,
+                Authorization: `Bot ${token}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ flags: 565248 }),
         });
         return await response.json();
-
-    } catch (_) {
-        Ox(_);
+    } catch (error) {
+        Ox(error);
     }
 };
 
-function w(milliseconds: number): Promise<void> {
-    return new Promise(resolve => {
-        setTimeout(resolve, milliseconds);
-    });
-};
+// Fonction de délai
+function wait(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
-for (const token of ALL_TOKEN) {
-    // await i(token);
-
-    let _ = new Client({
+// Création des clients et gestion des événements
+for (const token of allTokens) {
+    // await updateBotFlags(token);
+    const client = new Client({
         intents: [
             GatewayIntentBits.DirectMessageReactions,
             GatewayIntentBits.DirectMessages,
@@ -79,85 +81,93 @@ for (const token of ALL_TOKEN) {
         ],
     });
 
-    _.on('ready', async _ => {
-        if (FIRST_BOT === false) FIRST_BOT = _.user?.id!;
+    client.on('ready', async () => {
+        client.user?.setActivity({ type: ActivityType.Listening, name: 'orders' });
+        client.user?.setStatus('dnd');
+        Ox(`${client.user?.tag} >> Ready | https://discord.com/oauth2/authorize?client_id=${client.user?.id}&scope=bot&permissions=0`);
+    });
 
-        _.user.setActivity({ type: ActivityType.Listening, name: 'orders' });
-        _.user.setStatus('dnd');
-        Ox(`${_.user.tag} >> Ready | https://discord.com/oauth2/authorize?client_id=${_.user.id}&scope=bot&permissions=0`);
-    })
+    let isSpamming = false;
 
-    let isSpamming: boolean = false;
+    client.on('messageCreate', async (message) => {
+        if (!DEVELOPERS.includes(message.author.id)) return;
+        if (!message.guild || !message.channel) return;
 
-    _.on('messageCreate', async (m) => {
-        if (!DEVELOPER.includes(m.author.id)) return;
-        if (!m.guild || !m.channel) return;
-        let args = m.content.split(' ');
+        const args = message.content.split(' ');
 
-        if (m.content.startsWith('start')) {
-            m.react('✅').catch(() => { });
+        if (message.content.startsWith('start')) {
             isSpamming = true;
-            let count = parseInt(args[1]) || 1;
+            message.react('✅').catch(() => { });
+            const count = parseInt(args[1]) || 1;
             for (let i = 0; i < count; i++) {
                 if (!isSpamming) break;
-                m.channel.send("le code d'anaïs & sown est spé").catch(() => { });
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await message.channel.send("le code d'anaïs est spé").catch(() => { });
+                await wait(1000);
             }
-        } else if (m.content.startsWith('stop')) {
+        } else if (message.content.startsWith('stop')) {
             isSpamming = false;
-            m.react('✅').catch(() => { });
-        } else if (m.content.startsWith('cspam')) {
-            m.react('✅').catch(() => { });
+            message.react('✅').catch(() => { });
+        } else if (message.content.startsWith('cspam')) {
             isSpamming = true;
-            let count = parseInt(args[1]) || 1;
-            m.guild.channels.cache.forEach(async channel => {
+            message.react('✅').catch(() => { });
+            const count = parseInt(args[1]) || 1;
+            message.guild.channels.cache.forEach(async channel => {
                 if (channel.isTextBased() && channel instanceof BaseGuildTextChannel) {
                     for (let i = 0; i < count; i++) {
                         if (!isSpamming) break;
-                        (channel as BaseGuildTextChannel).send("le code d'anaïs & sown est spé").catch(() => { });
-                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        await (channel as BaseGuildTextChannel).send(generatePassword({ length: 500 })).catch(() => { });
+                        // await wait(1000);
                     }
                 }
-            })
-        } else if (m.content.startsWith('renew')) {
-            if (FIRST_BOT !== m.client.user.id) return m.react('❌');
-
-            let ignore = args[1]?.split(',');
-            m.guild.channels.cache.forEach(async channel => {
-                if (channel.isTextBased() && channel instanceof BaseGuildTextChannel && !ignore?.includes(channel.id)) {
-                    await channel?.delete();
-                    await channel?.clone({
-                        name: channel.name,
-                        parent: channel.parent,
-                        permissionOverwrites: channel.permissionOverwrites.cache!,
-                        topic: (channel as BaseGuildTextChannel).topic!,
-                        nsfw: channel.nsfw,
-                        rateLimitPerUser: channel.rateLimitPerUser!,
-                        position: channel.rawPosition,
-                        reason: `Channel re-create by ${m.author.username}`
-                    });
-                }
-            })
-        } else if (m.content.startsWith("untimeout")) {
-            let xyz = m.guild.members.cache.filter(x => x.isCommunicationDisabled());
-
-            if (FIRST_BOT !== m.client.user.id) return m.react('❌');
-
-            if (xyz.size === 0) {
-                m.reply("Aucun mec à untimeout")
+            });
+        } else if (message.content.startsWith('renew')) {
+            if (main_bot !== client.user?.id) return message.react('❌').catch(() => false);
+            const ignore = args[1]?.split(',');
+            try {
+                message.guild.channels.cache.forEach(async channel => {
+                    if (channel.isTextBased() && channel instanceof BaseGuildTextChannel && !ignore?.includes(channel.id)) {
+                        await channel.delete();
+                        await channel.clone({
+                            name: channel.name,
+                            parent: channel.parent,
+                            permissionOverwrites: channel.permissionOverwrites.cache,
+                            topic: (channel as BaseGuildTextChannel).topic ?? '',
+                            nsfw: channel.nsfw,
+                            rateLimitPerUser: channel.rateLimitPerUser ?? 0,
+                            position: channel.rawPosition,
+                            reason: `Channel re-create by ${message.author.username}`
+                        });
+                    }
+                });
+            } catch (err) {
+                Ox(err)
+            }
+        } else if (message.content.startsWith("untimeout")) {
+            if (main_bot !== client.user?.id) return message.react('❌').catch(() => false);
+            const timedOutMembers = message.guild.members.cache.filter(member => member.isCommunicationDisabled());
+            if (timedOutMembers.size === 0) {
+                message.reply("Aucun mec à untimeout");
             } else {
-                xyz.forEach(async k => { await k.timeout(null); });
+                timedOutMembers.forEach(async member => {
+                    member.timeout(null)
+                        .then(member => Ox("Untimeout =>", member.user.username))
+                        .catch(() => { });
+                });
             }
         }
     });
 
-    _.login(token).then(() => ALL_CLIENT.push(_)).catch(() => {
-        Ox(`[INVALID-TOKEN] >> ` + token)
-        ALL_TOKEN = ALL_TOKEN.filter(z => z !== token);
-        writeFileSync(tokens_path, ALL_TOKEN.join('\n'));
+    client.login(token).then(() => clients.push(client)).catch(() => {
+        Ox(`[INVALID-TOKEN] >> ${token}`);
+        allTokens = allTokens.filter(validToken => validToken !== token);
+        writeFileSync(tokensPath, allTokens.join('\n'));
     });
 }
 
+// Gestion de la fermeture du processus
 process.on('SIGINT', async () => {
-    for (let x of ALL_CLIENT) { await x.destroy(); Ox('\n', x.user?.tag, 'log out') }
-})
+    for (const client of clients) {
+        await client.destroy();
+        Ox(`\n${client.user?.tag} logged out`);
+    }
+});

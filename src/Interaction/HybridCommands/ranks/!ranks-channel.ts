@@ -28,7 +28,7 @@ import {
     Message,
     PermissionsBitField,
     User,
-} from 'pwss';
+} from 'discord.js';
 
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';

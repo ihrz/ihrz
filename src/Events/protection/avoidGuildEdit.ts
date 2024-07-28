@@ -23,7 +23,7 @@
 ... (Your copyright and license information)
 */
 
-import { Client, AuditLogEvent, Guild, GuildEditOptions, GuildAuditLogsEntry } from 'pwss';
+import { Client, AuditLogEvent, Guild, GuildEditOptions, GuildAuditLogsEntry } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
 
@@ -45,30 +45,7 @@ export const event: BotEvent = {
             let baseData = await client.db.get(`${newGuild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
             if (baseData) return;
 
-            const editOptions: GuildEditOptions = {
-                name: oldGuild.name,
-                verificationLevel: oldGuild.verificationLevel,
-                defaultMessageNotifications: oldGuild.defaultMessageNotifications,
-                explicitContentFilter: oldGuild.explicitContentFilter,
-                afkChannel: oldGuild.afkChannelId,
-                afkTimeout: oldGuild.afkTimeout,
-                systemChannel: oldGuild.systemChannelId,
-                rulesChannel: oldGuild.rulesChannelId,
-                publicUpdatesChannel: oldGuild.publicUpdatesChannelId,
-                preferredLocale: oldGuild.preferredLocale,
-                premiumProgressBarEnabled: oldGuild.premiumProgressBarEnabled,
-                icon: oldGuild.iconURL(),
-                splash: oldGuild.splashURL(),
-                banner: oldGuild.bannerURL(),
-                discoverySplash: oldGuild.discoverySplashURL(),
-                safetyAlertsChannel: oldGuild.safetyAlertsChannel,
-                reason: "[PROTECT]",
-                systemChannelFlags: oldGuild.systemChannelFlags,
-                description: oldGuild.description,
-                features: oldGuild.features,
-            };
-
-            await newGuild.edit(editOptions);
+            await newGuild.edit({ ...oldGuild });
 
             let member = newGuild.members.cache.get(firstEntry?.executorId!);
             if (!member) return;

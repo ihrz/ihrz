@@ -33,7 +33,7 @@ import {
     Message,
     CommandInteractionOptionResolver,
     ApplicationCommandOptionType,
-} from 'pwss'
+} from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData';
 import { CategoryData } from '../../../../types/category';

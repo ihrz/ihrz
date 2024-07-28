@@ -26,7 +26,7 @@ import {
     EmbedBuilder,
     Message,
     PermissionsBitField,
-} from 'pwss';
+} from 'discord.js';
 
 import { SubCommandArgumentValue } from '../../../core/functions/arg';
 import { LanguageData } from '../../../../types/languageData';

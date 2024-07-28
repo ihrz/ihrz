@@ -26,7 +26,7 @@ import {
     EmbedBuilder,
     Message,
     PermissionsBitField,
-} from 'pwss';
+} from 'discord.js';
 
 
 import logger from '../../../core/logger.js';

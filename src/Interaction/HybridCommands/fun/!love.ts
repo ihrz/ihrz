@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, ChatInputCommandInteraction, User, Message, GuildMember } from 'pwss';
+import { Client, EmbedBuilder, ChatInputCommandInteraction, User, Message, GuildMember } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
 import Jimp from 'jimp';

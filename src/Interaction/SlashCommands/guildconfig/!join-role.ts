@@ -35,7 +35,7 @@ import {
     PermissionFlagsBits,
     Message,
     BaseGuildTextChannel
-} from 'pwss';
+} from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../../types/database_structure.js';

@@ -34,7 +34,7 @@ import {
   EmbedBuilder,
   GuildMember,
   Message,
-} from 'pwss'
+} from 'discord.js'
 
 import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import { LanguageData } from '../../../../types/languageData.js';
