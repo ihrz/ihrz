@@ -24,7 +24,7 @@ import { axios } from "./axios.js";
 import { encrypt } from "./encryptDecryptMethod.js";
 
 export async function getToken(): Promise<string | undefined> {
-    if (config.api.HorizonGateway) {
+    if (config.api.HorizonGateway && config.api.clientID) {
         let url = config.api.HorizonGateway + "api/ihorizon/v1/login";
         let key = config.api.apiToken;
         let res = await axios.post(url,
