@@ -63,6 +63,7 @@ export interface ConfigData {
     };
 
     api: {
+        HorizonGateway?: string; // only for the production phase (private source code)
         useHttps?: boolean;
         domain?: string;
         port?: string;

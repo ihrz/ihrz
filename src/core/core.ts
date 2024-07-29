@@ -41,6 +41,7 @@ import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";
 import database from './functions/DatabaseModel.js';
 import { readFile } from 'node:fs/promises';
+import { getToken } from './functions/getToken.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
