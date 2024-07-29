@@ -27,18 +27,23 @@ export async function getToken(): Promise<string | undefined> {
     if (config.api.HorizonGateway) {
         let url = config.api.HorizonGateway + "api/ihorizon/v1/login";
         let key = config.api.apiToken;
-        let res = await axios.post(url,
-            { apiToken: encrypt(key, key), clientID: encrypt(key, config.api.clientID) },
-            {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            }
-        );
 
-        return res.data?.token;
+        try {
+            let res = await axios.post(url, {
+                apiToken: encrypt(key, key),
+                clientID: encrypt(key, config.api.clientID)
+            },
+                {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                }
+            );
+            return res.data?.token;
+        } catch {
+            return undefined;
+        }
     } else {
         return undefined;
     }
-
 }
