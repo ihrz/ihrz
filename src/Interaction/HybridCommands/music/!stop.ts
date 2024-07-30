@@ -22,7 +22,6 @@
 import {
     ChatInputCommandInteraction,
     Client,
-    Guild,
     GuildMember,
     InteractionEditReplyOptions,
     Message,
@@ -39,38 +38,21 @@ export default {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        if (await client.db.table("TEMP").get(`${interaction.guildId}.PLAYER_TYPE`) === "lavalink") {
-            try {
-                let voiceChannel = (interaction.member as GuildMember).voice.channel;
-                let player = client.lavalink.getPlayer(interaction.guildId as string);
+        try {
+            let voiceChannel = (interaction.member as GuildMember).voice.channel;
+            let player = client.player.getPlayer(interaction.guildId as string);
 
-                if (!player || !player.playing || !voiceChannel) {
-                    await client.method.interactionSend(interaction, { content: data.stop_nothing_playing });
-                    return;
-                };
-
-                player.stopPlaying();
-
-                await client.method.interactionSend(interaction, { content: data.stop_command_work });
+            if (!player || !player.playing || !voiceChannel) {
+                await client.method.interactionSend(interaction, { content: data.stop_nothing_playing });
                 return;
-            } catch (error: any) {
-                logger.err(error);
             };
-        } else {
-            try {
-                let queue = interaction.client.player.nodes.get(interaction.guild as Guild);
 
-                if (!queue || !queue.isPlaying()) {
-                    await client.method.interactionSend(interaction, { content: data.stop_nothing_playing, ephemeral: true });
-                    return;
-                };
+            player.stopPlaying();
 
-                interaction.client.player.nodes.delete(interaction.guild?.id as string);
-                await client.method.interactionSend(interaction, { content: data.stop_command_work });
-                return;
-            } catch (error: any) {
-                logger.err(error);
-            };
-        }
+            await client.method.interactionSend(interaction, { content: data.stop_command_work });
+            return;
+        } catch (error: any) {
+            logger.err(error);
+        };
     },
 };
