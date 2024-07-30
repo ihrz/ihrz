@@ -41,6 +41,7 @@ import * as ClientVersion from "../src/version.js";
 import { Assets } from "./assets";
 import { ConfigData } from "./configDatad.js";
 import { BashCommands } from "./bashCommands.js";
+import { Player } from "discord-player";
 
 declare module 'discord.js' {
     export interface Client {
@@ -48,7 +49,8 @@ declare module 'discord.js' {
         commands: Collection<string, Command>,
         category: Category[]
         message_commands: Collection<string, Command>,
-        player: LavalinkManager,
+        lavalink: LavalinkManager,
+        player: Player,
         invites: Collection<string, Collection<string, number | null>>,
         vanityInvites: Collection<Snowflake, VanityInviteData>,
         buttons: Collection<string, Function>,

@@ -39,21 +39,37 @@ export default {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        try {
-            let voiceChannel = (interaction.member as GuildMember).voice.channel;
-            let player = client.player.getPlayer(interaction.guildId as string);
+        if (await client.db.table("TEMP").get(`${interaction.guildId}.PLAYER_TYPE`) === "lavalink") {
+            try {
+                let voiceChannel = (interaction.member as GuildMember).voice.channel;
+                let player = client.lavalink.getPlayer(interaction.guildId as string);
 
-            if (!player || !player.playing || !voiceChannel) {
-                await client.method.interactionSend(interaction, { content: data.resume_nothing_playing });
+                if (!player || !player.playing || !voiceChannel) {
+                    await client.method.interactionSend(interaction, { content: data.resume_nothing_playing });
+                    return;
+                };
+
+                player.resume();
+
+                await client.method.interactionSend(interaction, { content: data.resume_command_work });
                 return;
+            } catch (error: any) {
+                logger.err(error);
             };
+        } else {
+            try {
+                let queue = interaction.client.player.nodes.get(interaction.guild as unknown as string)
 
-            player.resume();
-
-            await client.method.interactionSend(interaction, { content: data.resume_command_work });
-            return;
-        } catch (error: any) {
-            logger.err(error);
-        };
+                if (!queue || !queue.isPlaying()) {
+                    await client.method.interactionSend(interaction, { content: data.resume_nothing_playing });
+                    return;
+                }
+                queue.node.setPaused(false);
+                await client.method.interactionSend(interaction, { content: data.resume_command_work });
+                return;
+            } catch (error: any) {
+                logger.err(error);
+            };
+        }
     },
 };

@@ -47,42 +47,68 @@ export default {
             return;
         };
 
-        try {
-            let voiceChannel = (interaction.member as GuildMember).voice.channel;
-            let player = client.player.getPlayer(interaction.guildId as string);
-            let oldName = player.queue.current?.info.title;
-            let channel = client.channels.cache.get(player.textChannelId as string);
+        if (await client.db.table("TEMP").get(`${interaction.guildId}.PLAYER_TYPE`) === "lavalink") {
+            try {
+                let voiceChannel = (interaction.member as GuildMember).voice.channel;
+                let player = client.lavalink.getPlayer(interaction.guildId as string);
+                let oldName = player.queue.current?.info.title;
+                let channel = client.channels.cache.get(player.textChannelId as string);
 
-            if (!player || !player.playing || !voiceChannel) {
-                await client.method.interactionSend(interaction, { content: data.skip_nothing_playing });
+                if (!player || !player.playing || !voiceChannel) {
+                    await client.method.interactionSend(interaction, { content: data.skip_nothing_playing });
+                    return;
+                };
+
+                if (player.queue.tracks.length >= 1) {
+                    player.skip();
+                } else {
+                    player.stopPlaying();
+                }
+
+                (channel as BaseGuildTextChannel).send({
+                    embeds: [
+                        new EmbedBuilder()
+                            .setColor(2829617)
+                            .setDescription(data.event_mp_playerSkip
+                                .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
+                                .replace("${track.title}", oldName as string)
+                            )
+                    ]
+                });
+
+                await client.method.interactionSend(interaction, {
+                    content: data.skip_command_work
+                        .replace("{queue}", player.queue.current?.info.title as string),
+                });
+
                 return;
+            } catch (error: any) {
+                logger.err(error)
             };
+        } else {
+            try {
+                let queue = interaction.client.player.nodes.get(interaction.guild as Guild);
 
-            if (player.queue.tracks.length >= 1) {
-                player.skip();
-            } else {
-                player.stopPlaying();
-            }
+                if (!queue || !queue.isPlaying()) {
+                    await client.method.interactionSend(interaction, { content: data.skip_nothing_playing });
+                    return;
+                };
 
-            (channel as BaseGuildTextChannel).send({
-                embeds: [
-                    new EmbedBuilder()
-                        .setColor(2829617)
-                        .setDescription(data.event_mp_playerSkip
-                            .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-                            .replace("${track.title}", oldName as string)
-                        )
-                ]
-            });
-
-            await client.method.interactionSend(interaction, {
-                content: data.skip_command_work
-                    .replace("{queue}", player.queue.current?.info.title as string),
-            });
-
-            return;
-        } catch (error: any) {
-            logger.err(error)
-        };
+                queue.node.skip();
+                await client.method.interactionSend(interaction, {
+                    embeds: [
+                        new EmbedBuilder()
+                            .setColor(2829617)
+                            .setDescription(data.event_mp_playerSkip
+                                .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
+                                .replace("${track.title}", queue.currentTrack as unknown as string)
+                            )
+                    ]
+                });
+                return;
+            } catch (error: any) {
+                logger.err(error)
+            };
+        }
     },
 };

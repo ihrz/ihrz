@@ -34,37 +34,73 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
 import { SubCommandArgumentValue } from '../../../core/functions/method.js';
+import { QueueRepeatMode } from 'discord-player';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        try {
-            let voiceChannel = (interaction.member as GuildMember).voice.channel;
-            let player = client.player.getPlayer(interaction.guildId as string);
 
-            if (interaction instanceof ChatInputCommandInteraction) {
-                var mode = interaction.options.getString('mode');
-            } else {
-                var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-                var mode = client.method.string(args!, 0);
-            };
+        if (await client.db.table("TEMP").get(`${interaction.guildId}.PLAYER_TYPE`) === "lavalink") {
+            try {
+                let voiceChannel = (interaction.member as GuildMember).voice.channel;
+                let player = client.lavalink.getPlayer(interaction.guildId as string);
 
-            if (!player || !player.playing || !voiceChannel) {
-                await client.method.interactionSend(interaction, { content: data.loop_no_queue });
+                if (interaction instanceof ChatInputCommandInteraction) {
+                    var mode = interaction.options.getString('mode');
+                } else {
+                    var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+                    var mode = client.method.string(args!, 0);
+                };
+
+                if (!player || !player.playing || !voiceChannel) {
+                    await client.method.interactionSend(interaction, { content: data.loop_no_queue });
+                    return;
+                };
+
+                await player.setRepeatMode(mode as "off" | "track" | "queue");
+
+                await client.method.interactionSend(interaction, {
+                    content: data.loop_command_work
+                        .replace("{mode}", mode === 'track' ? `🔂` : `▶`)
+                });
                 return;
+            } catch (error: any) {
+                logger.err(error);
             };
+        } else {
+            try {
+                let queue = interaction.client.player.nodes.get(interaction.guild as Guild);
 
-            await player.setRepeatMode(mode as "off" | "track" | "queue");
+                if (!queue || !queue.isPlaying()) {
+                    await client.method.interactionSend(interaction, { content: data.loop_no_queue });
+                    return;
+                };
 
-            await client.method.interactionSend(interaction, {
-                content: data.loop_command_work
-                    .replace("{mode}", mode === 'track' ? `🔂` : `▶`)
-            });
-            return;
-        } catch (error: any) {
-            logger.err(error);
-        };
+                if (interaction instanceof ChatInputCommandInteraction) {
+                    var loopMode = interaction.options.getString('mode')!;
+                } else {
+                    var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+                    var loopMode = client.method.string(args!, 0)!;
+                };
+
+                var lpmode = 0;
+
+                if (loopMode === "off") lpmode = 0;
+                if (loopMode === "track") lpmode = 1;
+
+                queue.setRepeatMode(loopMode as unknown as number)
+                let mode = lpmode === QueueRepeatMode.TRACK ? `🔂` : lpmode === QueueRepeatMode.QUEUE ? `🔂` : `▶`;
+
+                await client.method.interactionSend(interaction, {
+                    content: data.loop_command_work
+                        .replace("{mode}", mode === 'track' ? `🔂` : `▶`)
+                });
+                return;
+            } catch (error: any) {
+                logger.err(error);
+            };
+        }
     },
 };
