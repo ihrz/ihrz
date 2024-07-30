@@ -45,36 +45,21 @@ export default {
             return;
         };
 
-        if (await client.db.table("TEMP").get(`${interaction.guildId}.PLAYER_TYPE`) === "lavalink") {
-            try {
-                let voiceChannel = (interaction.member as GuildMember).voice.channel;
-                let player = client.lavalink.getPlayer(interaction.guildId as string);
+        try {
+            let voiceChannel = (interaction.member as GuildMember).voice.channel;
+            let player = client.player.getPlayer(interaction.guildId as string);
 
-                if (!player || !player.playing || !voiceChannel) {
-                    await client.method.interactionSend(interaction, { content: data.pause_nothing_playing });
-                    return;
-                };
-
-                player.pause();
-
-                await client.method.interactionSend(interaction, { content: player.paused ? data.pause_var_paused : data.pause_var_err });
+            if (!player || !player.playing || !voiceChannel) {
+                await client.method.interactionSend(interaction, { content: data.pause_nothing_playing });
                 return;
-            } catch (error: any) {
-                logger.err(error);
             };
-        } else {
-            try {
-                let queue = interaction.client.player.nodes.get(interaction.guild!);
-                if (!queue || !queue.isPlaying()) {
-                    await client.method.interactionSend(interaction, { content: data.pause_nothing_playing, ephemeral: true });
-                    return;
-                }
-                let paused = queue.node.setPaused(true);
-                await client.method.interactionSend(interaction, { content: paused ? 'paused' : "something went wrong" });
-                return;
-            } catch (error: any) {
-                logger.err(error);
-            };
-        }
+
+            player.pause();
+
+            await client.method.interactionSend(interaction, { content: player.paused ? data.pause_var_paused : data.pause_var_err });
+            return;
+        } catch (error: any) {
+            logger.err(error);
+        };
     },
 };

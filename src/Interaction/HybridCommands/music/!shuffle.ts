@@ -30,7 +30,6 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
-import { useQueue } from 'discord-player';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
@@ -38,41 +37,21 @@ export default {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let voiceChannel = (interaction.member as GuildMember).voice.channel;
-        let player = client.lavalink.getPlayer(interaction.guildId as string);
+        let player = client.player.getPlayer(interaction.guildId as string);
 
-        if (await client.db.table("TEMP").get(`${interaction.guildId}.PLAYER_TYPE`) === "lavalink") {
-
-            if (!player || !player.playing || !voiceChannel) {
-                await client.method.interactionSend(interaction, { content: data.shuffle_no_queue });
-                return;
-            };
-
-            if (player.queue.tracks.length < 2) {
-                await client.method.interactionSend(interaction, { content: data.shuffle_no_enought });
-                return;
-            };
-
-            await player.queue.shuffle();
-
-            await client.method.interactionSend(interaction, { content: data.shuffle_command_work });
+        if (!player || !player.playing || !voiceChannel) {
+            await client.method.interactionSend(interaction, { content: data.shuffle_no_queue });
             return;
-        } else {
+        };
 
-            let queue = useQueue(interaction.guild?.id as string);
-            if (!queue) {
-                await client.method.interactionSend(interaction, { content: data.shuffle_no_queue });
-                return;
-            };
-
-            if (queue.tracks.size < 2) {
-                await client.method.interactionSend(interaction, { content: data.shuffle_no_enought });
-                return;
-            };
-
-            await queue.tracks.shuffle();
-
-            await client.method.interactionSend(interaction, { content: data.shuffle_command_work });
+        if (player.queue.tracks.length < 2) {
+            await client.method.interactionSend(interaction, { content: data.shuffle_no_enought });
             return;
-        }
+        };
+
+        await player.queue.shuffle();
+
+        await client.method.interactionSend(interaction, { content: data.shuffle_command_work });
+        return;
     },
 };

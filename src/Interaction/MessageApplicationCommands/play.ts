@@ -61,7 +61,7 @@ export const command: AnotherCommand = {
             return interaction.editReply({ content: data.p_not_allowed })
         };
 
-        let player = client.lavalink.createPlayer({
+        let player = client.player.createPlayer({
             guildId: interaction.guildId as string,
             voiceChannelId: voiceChannel.id,
             textChannelId: interaction.channelId,

@@ -124,7 +124,7 @@ export const event: BotEvent = {
             },
         });
 
-        await client.lavalink.init({ id: client.user?.id as string, username: 'bot_' + client.user?.id });
+        await client.player.init({ id: client.user?.id as string, username: 'bot_' + client.user?.id });
 
         new OwnIHRZ().Startup_Cluster(client);
 

@@ -31,163 +31,84 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
-import { useQueue } from 'discord-player';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        if (await client.db.table("TEMP").get(`${interaction.guildId}.PLAYER_TYPE`) === "lavalink") {
-            let player = client.lavalink.getPlayer(interaction.guildId as string);
+        let player = client.player.getPlayer(interaction.guildId as string);
 
-            if (!player) {
-                await client.method.interactionSend(interaction, { content: data.queue_iam_not_voicec });
-                return;
-            };
+        if (!player) {
+            await client.method.interactionSend(interaction, { content: data.queue_iam_not_voicec });
+            return;
+        };
 
-            if (!player.queue.tracks) {
-                await client.method.interactionSend(interaction, { content: data.queue_no_queue });
-                return;
-            };
+        if (!player.queue.tracks) {
+            await client.method.interactionSend(interaction, { content: data.queue_no_queue });
+            return;
+        };
 
-            let tracks = player.queue.tracks
-                .map((track, idx) => `**${++idx})** [${track.info.title}](${track.info.uri})`)
+        let tracks = player.queue.tracks
+            .map((track, idx) => `**${++idx})** [${track.info.title}](${track.info.uri})`)
 
-            if (tracks.length === 0) {
-                await client.method.interactionSend(interaction, { content: data.queue_empty_queue });
-                return;
-            };
+        if (tracks.length === 0) {
+            await client.method.interactionSend(interaction, { content: data.queue_empty_queue });
+            return;
+        };
 
-            let embeds: EmbedBuilder[] = [];
-            let chunkSize = 10;
-            let index = 0;
-            while (tracks.length > 0) {
-                let chunk = tracks.slice(0, chunkSize);
-                let embed = new EmbedBuilder()
-                    .setColor('#ff0000')
-                    .setTitle(data.queue_embed_title)
-                    .setDescription(chunk.join('\n') || data.queue_embed_description_empty)
-                    .setFooter({
-                        text: data.queue_embed_footer_text
-                            .replace("{index}", (index + 1).toString())
-                            .replace("{track}", player.queue.tracks.length.toString())
-                    });
+        let embeds: EmbedBuilder[] = [];
+        let chunkSize = 10;
+        let index = 0;
+        while (tracks.length > 0) {
+            let chunk = tracks.slice(0, chunkSize);
+            let embed = new EmbedBuilder()
+                .setColor('#ff0000')
+                .setTitle(data.queue_embed_title)
+                .setDescription(chunk.join('\n') || data.queue_embed_description_empty)
+                .setFooter({
+                    text: data.queue_embed_footer_text
+                        .replace("{index}", (index + 1).toString())
+                        .replace("{track}", player.queue.tracks.length.toString())
+                });
 
-                embeds.push(embed);
-                tracks.splice(0, chunkSize);
-                index++;
-            };
+            embeds.push(embed);
+            tracks.splice(0, chunkSize);
+            index++;
+        };
 
-            let message = await client.method.interactionSend(interaction, { embeds: [embeds[0]] }) as Message;
+        let message = await client.method.interactionSend(interaction, { embeds: [embeds[0]] }) as Message;
 
-            if (embeds.length === 1) return;
+        if (embeds.length === 1) return;
 
-            message.react('⬅️');
-            message.react('➡️');
+        message.react('⬅️');
+        message.react('➡️');
 
-            let collector = message.createReactionCollector({
-                filter: (reaction, user) => ['⬅️', '➡️'].includes(reaction.emoji.name as string) && user.id === interaction.member?.user.id,
-                time: 60000
-            });
+        let collector = message.createReactionCollector({
+            filter: (reaction, user) => ['⬅️', '➡️'].includes(reaction.emoji.name as string) && user.id === interaction.member?.user.id,
+            time: 60000
+        });
 
-            let currentIndex = 0;
-            collector.on('collect', (reaction, user) => {
-                switch (reaction.emoji.name) {
-                    case '⬅️':
-                        if (currentIndex === 0) return;
-                        currentIndex--;
-                        break;
-                    case '➡️':
-                        if (currentIndex === embeds.length - 1) return;
-                        currentIndex++;
-                        break;
-                    default:
-                        break;
-                }
-                reaction.users.remove(user.id).catch(() => { });
-                message.edit({ embeds: [embeds[currentIndex]] });
-            });
+        let currentIndex = 0;
+        collector.on('collect', (reaction, user) => {
+            switch (reaction.emoji.name) {
+                case '⬅️':
+                    if (currentIndex === 0) return;
+                    currentIndex--;
+                    break;
+                case '➡️':
+                    if (currentIndex === embeds.length - 1) return;
+                    currentIndex++;
+                    break;
+                default:
+                    break;
+            }
+            reaction.users.remove(user.id).catch(() => { });
+            message.edit({ embeds: [embeds[currentIndex]] });
+        });
 
-            collector.on('end', () => {
-                message.reactions.removeAll().catch(() => { });
-            });
-
-        } else {
-            let queue = useQueue(interaction.guildId as string);
-
-            if (!queue) {
-                await client.method.interactionSend(interaction, { content: data.queue_iam_not_voicec });
-                return;
-            };
-
-            if (!queue.tracks || !queue.currentTrack) {
-                await client.method.interactionSend(interaction, { content: data.queue_no_queue });
-                return;
-            };
-
-            let tracks = queue.tracks
-                .toArray()
-                .map((track, idx) => `**${++idx})** [${track.title}](${track.url})`);
-
-            if (tracks.length === 0) {
-                await client.method.interactionSend(interaction, { content: data.queue_empty_queue });
-                return;
-            };
-
-            let embeds: EmbedBuilder[] = [];
-            let chunkSize = 10;
-            let index = 0;
-            while (tracks.length > 0) {
-                let chunk = tracks.slice(0, chunkSize);
-                let embed = new EmbedBuilder()
-                    .setColor('#ff0000')
-                    .setTitle(data.queue_embed_title)
-                    .setDescription(chunk.join('\n') || data.queue_embed_description_empty)
-                    .setFooter({
-                        text: data.queue_embed_footer_text
-                            .replace("{index}", index + 1 as unknown as string)
-                            .replace("{track}", queue.tracks.size as unknown as string)
-                    });
-
-                embeds.push(embed);
-                tracks.splice(0, chunkSize);
-                index++;
-            };
-
-            let message = await client.method.interactionSend(interaction, { embeds: [embeds[0]] });
-
-            if (embeds.length === 1) return;
-
-            message.react('⬅️');
-            message.react('➡️');
-
-            let collector = message.createReactionCollector({
-                filter: (reaction, user) => ['⬅️', '➡️'].includes(reaction.emoji.name as string) && user.id === interaction.member?.user.id,
-                time: 60000
-            });
-
-            let currentIndex = 0;
-            collector.on('collect', (reaction, user) => {
-                switch (reaction.emoji.name) {
-                    case '⬅️':
-                        if (currentIndex === 0) return;
-                        currentIndex--;
-                        break;
-                    case '➡️':
-                        if (currentIndex === embeds.length - 1) return;
-                        currentIndex++;
-                        break;
-                    default:
-                        break;
-                }
-                reaction.users.remove(user.id).catch(() => { });
-                message.edit({ embeds: [embeds[currentIndex]] });
-            });
-
-            collector.on('end', () => {
-                message.reactions.removeAll().catch(() => { });
-            });
-        }
+        collector.on('end', () => {
+            message.reactions.removeAll().catch(() => { });
+        });
     },
 };

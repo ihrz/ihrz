@@ -26,6 +26,6 @@ export const event: BotEvent = {
     name: "raw",
     run: async (client: Client, data: any) => {
 
-        client.lavalink.sendRawData(data);
+        client.player.sendRawData(data);
     },
 };

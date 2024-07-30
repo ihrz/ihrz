@@ -19,21 +19,11 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Player, Track, GuildQueue } from 'discord-player';
-import { SpotifyExtractor, SoundCloudExtractor } from '@discord-player/extractor';
-import { YoutubeiExtractor } from "discord-player-youtubei"
-import DeezerExtractor from "discord-player-deezer"
-
-import { BaseGuildTextChannel, Client, EmbedBuilder, GuildMember, TextBasedChannel } from 'discord.js';
+import { BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
 import { LavalinkManager } from "lavalink-client";
+
 import { LanguageData } from '../../../types/languageData.js';
 import logger from '../logger.js';
-
-export interface MetadataPlayer {
-    channel: TextBasedChannel | null;
-    client: GuildMember | null | undefined;
-    requestedBy: string | null;
-}
 
 export default async (client: Client) => {
 
@@ -44,7 +34,7 @@ export default async (client: Client) => {
         i.retryDelay = 50_000
     });
 
-    client.lavalink = new LavalinkManager({
+    client.player = new LavalinkManager({
         nodes,
         sendToShard(id, payload) {
             return client.guilds.cache.get(id)?.shard?.send(payload);
@@ -65,7 +55,7 @@ export default async (client: Client) => {
         },
     });
 
-    client.lavalink.on("trackStart", async (player, track) => {
+    client.player.on("trackStart", async (player, track) => {
         let data = await client.func.getLanguageData(player.guildId) as LanguageData;
 
         const channel = client.channels.cache.get(player.textChannelId!);
@@ -84,7 +74,7 @@ export default async (client: Client) => {
 
     });
 
-    client.lavalink.on("queueEnd", async player => {
+    client.player.on("queueEnd", async player => {
         let data = await client.func.getLanguageData(player.guildId) as LanguageData;
 
         const channel = client.channels.cache.get(player.textChannelId!);
@@ -95,7 +85,7 @@ export default async (client: Client) => {
         return;
     });
 
-    client.lavalink.nodeManager.on("disconnect", (node, reason) => {
+    client.player.nodeManager.on("disconnect", (node, reason) => {
         logger.warn(`:: DISCONNECT :: ${node.id} Reason: ${reason.reason} (${reason.code})`);
     }).on("connect", (node) => {
         logger.log(`:: CONNECTED :: ${node.id}`);
@@ -110,64 +100,4 @@ export default async (client: Client) => {
     }).on("resumed", (node, payload, players) => {
         logger.log(`:: RESUMED :: ${node.id} ${players.length}`);
     });
-
-    let player = new Player(client, {
-        ytdlOptions: {
-            quality: "highestaudio",
-            highWaterMark: 1 << 25
-        }
-    });
-
-    await player.extractors.register(SpotifyExtractor, {});
-    await player.extractors.register(SoundCloudExtractor, {});
-    await player.extractors.register(DeezerExtractor, {});
-    await player.extractors.register(YoutubeiExtractor, {})
-
-    // await player.extractors.loadDefault();
-
-    player.events.on('playerStart', async (queue: GuildQueue, track: Track) => {
-        let data = await client.func.getLanguageData(queue.guild.id) as LanguageData;
-
-        (queue.metadata as MetadataPlayer).channel?.send({
-            embeds: [
-                new EmbedBuilder()
-                    .setColor(2829617)
-                    .setDescription(data.event_mp_playerStart
-                        .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-                        .replace("${track.title}", track.title)
-                        .replace("${queue.channel.name}", `<#${queue.channel?.id}>`)
-                    )
-            ]
-        });
-    });
-
-
-    player.events.on('playerError', async (queue: GuildQueue, error: Error) => {
-        let data = await client.func.getLanguageData(queue.channel?.guildId);
-
-        logger.err(data.event_mp_playerError
-            .replace("${error.message}", error.message)
-        );
-        return;
-    });
-
-    player.events.on('error', async (queue: GuildQueue, error: Error) => {
-        let data = await client.func.getLanguageData(queue.channel?.guildId);
-
-        logger.err(data.event_mp_error
-            .replace("${error.message}", error.message)
-        );
-        return;
-    });
-
-    player.events.on('emptyQueue', async (queue: GuildQueue) => {
-        let data = await client.func.getLanguageData(queue.guild.id) as LanguageData;
-
-        (queue.metadata as MetadataPlayer).channel?.send({
-            content: data.event_mp_emptyQueue.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
-        });
-        return;
-    });
-
-    client.player = player;
 };
