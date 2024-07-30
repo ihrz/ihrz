@@ -72,7 +72,7 @@ export default {
         interface Track {
             title: string;
             duration: number | string
-            artworkUrl: string;
+            artworkUrl: string | null;
             loadType: string;
             requester: any,
             uri: string;
@@ -139,7 +139,7 @@ export default {
             var yes: Track = {
                 title: res.tracks[0].info.title,
                 duration: res.tracks[0].info.duration || 0,
-                artworkUrl: res.tracks[0].info.artworkUrl || "",
+                artworkUrl: res.tracks[0].info.artworkUrl || null,
                 requester: player.queue.current?.requester,
                 loadType: yes.loadType,
                 uri: res.tracks[0].info.uri || ""
@@ -157,6 +157,9 @@ export default {
         } catch (error) {
             logger.err("Lavalink failed, then try with discord-player");
 
+            /**
+             * Discord-Player Method (Attempt 2)
+             */
             let result = await interaction.client.player.search(check as string, {
                 requestedBy: (interaction.member.user as User), searchEngine: QueryType.AUTO
             });
@@ -231,8 +234,6 @@ export default {
                 .replace("{result}", yes.loadType === "playlist" ? 'playlist' : 'track')
             , embeds: [embed]
         });
-        //         clientId: "d06893dec8784d298bc7cff317708370"
-        // clientSecret: "87e736b21e7e474a8d95f58e29463c2a"
 
         function deleteContent() {
             i.edit({ content: null });
