@@ -1626,6 +1626,7 @@ event_gw_removeentries_msg: "${interaction.user}, você saiu deste sorteio!"
 event_gw_leave_button_placeholder: "Sair do Sorteio"
 event_gw_confirm_leave_msg: "${interaction.user}, tem certeza de que deseja sair deste sorteio?"
 event_gw_embed_desc: "Termina: ${end_string} (${end_string2})\nOrganizado por: <@${data.hostedBy}>\nEntradas: **0**\nVencedores: **${winners_amount}**"
+event_gw_ended_embed_desc: "Encerrado: ${time1} (${time2})\nOrganizado por: <@${fetch.hostedBy}>\nEntradas **${fetch.entries.length}**\nVencedores: ${winners}"
 event_gw_entries_words: "Entradas"
 event_gw_ended_word: "Terminado: ${ended} (${time2})\nOrganizado por: <@${hostedBy}>\nEntradas **${entries}**\nVencedores: ${winners}"
 

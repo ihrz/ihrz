@@ -1626,6 +1626,7 @@ event_gw_removeentries_msg: "${interaction.user}さん、このギブアウェ�
 event_gw_leave_button_placeholder: "ギブアウェイを退出"
 event_gw_confirm_leave_msg: "${interaction.user}、このギブアウェイを退出してもよろしいですか？"
 event_gw_embed_desc: "終了: ${end_string} (${end_string2})\n主催者: <@${data.hostedBy}>\n参加数: **0**\n当選者: **${winners_amount}**"
+event_gw_ended_embed_desc: "終了: ${time1} (${time2})\n主催者: <@${fetch.hostedBy}>\nエントリー **${fetch.entries.length}**\n勝者: ${winners}"
 event_gw_entries_words: "参加数"
 event_gw_ended_word: "終了: ${ended} (${time2})\n主催者: <@${hostedBy}>\n参加数 **${entries}**\n当選者: ${winners}"
 

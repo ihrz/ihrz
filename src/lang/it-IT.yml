@@ -1626,6 +1626,7 @@ event_gw_removeentries_msg: "${interaction.user}, hai lasciato questo giveaway!"
 event_gw_leave_button_placeholder: "Lascia Giveaway"
 event_gw_confirm_leave_msg: "${interaction.user}, sei sicuro di voler lasciare questo giveaway?"
 event_gw_embed_desc: "Termina: ${end_string} (${end_string2})\nOspitato da: <@${data.hostedBy}>\nPartecipazioni: **0**\nVincitori: **${winners_amount}**"
+event_gw_ended_embed_desc: "Terminato: ${time1} (${time2})\nOspitato da: <@${fetch.hostedBy}>\nPartecipanti **${fetch.entries.length}**\nVincitori: ${winners}"
 event_gw_entries_words: "Partecipazioni"
 event_gw_ended_word: "Terminato: ${ended} (${time2})\nOspitato da: <@${hostedBy}>\nPartecipazioni **${entries}**\nVincitori: ${winners}"
 
