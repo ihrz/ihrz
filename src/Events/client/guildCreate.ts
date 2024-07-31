@@ -169,7 +169,7 @@ export const event: BotEvent = {
                     { name: "🥛 new members total", value: `${usersize} members` }
                 )
                 .setThumbnail(guild.iconURL())
-                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
+                .setFooter(await client.method.bot.footerBuilder(guild));
 
             await (client.users.cache.get(owner1))?.send({
                 embeds: [embed],
