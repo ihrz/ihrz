@@ -1626,6 +1626,7 @@ event_gw_removeentries_msg: "${interaction.user}, вы покинули этот
 event_gw_leave_button_placeholder: "Покинуть розыгрыш"
 event_gw_confirm_leave_msg: "${interaction.user}, вы уверены, что хотите покинуть этот розыгрыш?"
 event_gw_embed_desc: "Заканчивается: ${end_string} (${end_string2})\nОрганизатор: <@${data.hostedBy}>\nЗаписи: **0**\nПобедители: **${winners_amount}**"
+event_gw_ended_embed_desc: "Завершено: ${time1} (${time2})\nПровел: <@${fetch.hostedBy}>\nЗаписи **${fetch.entries.length}**\nПобедители: ${winners}"
 event_gw_entries_words: "Записи"
 event_gw_ended_word: "Завершено: ${ended} (${time2})\nОрганизатор: <@${hostedBy}>\nЗаписи **${entries}**\nПобедители: ${winners}"
 
