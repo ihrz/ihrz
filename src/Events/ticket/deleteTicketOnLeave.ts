@@ -19,10 +19,11 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, GuildMember } from 'discord.js'
+import { Client, EmbedBuilder, GuildMember, TextChannel } from 'discord.js'
 
 import { LanguageData } from '../../../types/languageData';
 import { BotEvent } from '../../../types/event';
+import { createTranscript } from 'discord-html-transcripts';
 
 export const event: BotEvent = {
     name: "guildMemberRemove",
@@ -33,12 +34,20 @@ export const event: BotEvent = {
         for (let channelId in fetch) {
             let lang = await client.func.getLanguageData(member.guild.id) as LanguageData;
             let channel = member.guild.channels.cache.get(fetch[channelId].channel);
-            await channel?.delete().catch(() => { });
 
             try {
                 let TicketLogsChannel = await client.db.get(`${member.guild.id}.GUILD.TICKET.logs`);
                 TicketLogsChannel = member.guild?.channels.cache.get(TicketLogsChannel);
                 if (!TicketLogsChannel) return;
+
+                // @ts-ignore
+                let attachment = await createTranscript(channel as TextChannel, {
+                    limit: -1,
+                    filename: 'transcript.html',
+                    footerText: "Exported {number} message{s}",
+                    poweredBy: false,
+                    hydrate: true
+                });
 
                 let embed = new EmbedBuilder()
                     .setColor(await client.db.get(`${member.guild?.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#008000")
@@ -52,8 +61,10 @@ export const event: BotEvent = {
 
                 TicketLogsChannel.send({
                     embeds: [embed],
-                    files: [await client.method.bot.footerAttachmentBuilder(member)]
+                    files: [await client.method.bot.footerAttachmentBuilder(member), attachment]
                 });
+
+                await channel?.delete().catch(() => { });
             } catch (e) { };
 
             await client.db.delete(`${member.guild.id}.TICKET_ALL.${member.user.id}`)
