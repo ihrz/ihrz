@@ -206,7 +206,8 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                         label: lang.sethereticket_modal_1_fields_2_label,
                         style: TextInputStyle.Short,
                         required: false,
-                        minLength: 1
+                        minLength: 1,
+                        maxLength: 30
                     }
                 ]
             }, i);
@@ -260,7 +261,8 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                         label: lang.sethereticket_modal_2_fields_2_placeholder,
                         style: TextInputStyle.Short,
                         required: false,
-                        minLength: 12
+                        minLength: 12,
+                        maxLength: 500
                     }
                 ]
             }, i);
