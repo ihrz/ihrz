@@ -205,7 +205,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                         style: TextInputStyle.Short,
                         required: false,
                         minLength: 1,
-                        maxLength: 30
+                        maxLength: 50
                     }
                 ]
             }, i);
