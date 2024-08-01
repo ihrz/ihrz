@@ -30,8 +30,6 @@ export const event: BotEvent = {
         let data = await client.db.get(`${role.guild.id}.PROTECTION`);
         if (!data) return;
 
-        console.log(role.members);
-
         if (data.deleterole && data.deleterole.mode === 'allowlist') {
             let fetchedLogs = await role.guild.fetchAuditLogs({
                 type: AuditLogEvent.RoleDelete,
