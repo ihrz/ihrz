@@ -39,5 +39,14 @@ export const event: BotEvent = {
                 snipeTimestamp: message.createdTimestamp
             }
         );
+
+        await client.db.set(`${message.guildId}.GUILD.SNIPE.${message.channel.id}`,
+            {
+                snipe: `${hidden(message.content)}`,
+                snipeUserInfoTag: `${message.author.username} (${message.author.id})`,
+                snipeUserInfoPp: `${message.author.displayAvatarURL()}`,
+                snipeTimestamp: message.createdTimestamp
+            }
+        );
     },
 };
