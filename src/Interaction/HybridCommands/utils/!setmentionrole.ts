@@ -37,65 +37,9 @@ import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export const command: Command = {
-    name: 'setmentionrole',
-
-    description: 'Give a specific role to the user who pings me!',
-    description_localizations: {
-        "fr": "Donner un rôle spécifique à l'utilisateur qui me ping"
-    },
-
-    aliases: ["setrank", "setranks", "rankset"],
-
-    options: [
-        {
-            name: 'action',
-            type: ApplicationCommandOptionType.String,
-
-            description: 'What you want to do?',
-            description_localizations: {
-                "fr": "Que veux-tu faire?"
-            },
-
-            required: true,
-            choices: [
-                {
-                    name: "Power Off",
-                    value: "off"
-                },
-                {
-                    name: 'Power On',
-                    value: "on"
-                }
-            ],
-        },
-        {
-            name: 'roles',
-            type: ApplicationCommandOptionType.Role,
-
-            description: 'The specific roles to give !',
-            description_localizations: {
-                "fr": "Les rôles spécifiques à donner"
-            },
-
-            required: false
-        },
-        {
-            name: 'part-of-nickname',
-            type: ApplicationCommandOptionType.String,
-
-            description: 'La partie du surnom que vous souhaitez que la personne ait dans son surnom',
-            description_localizations: {
-                "fr": "The part of the nickname you want the person to have in their nickname"
-            },
-
-            required: false
-        }
-    ],
-    category: 'utils',
-    thinking: false,
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+import { SubCommandArgumentValue } from '../../../core/functions/method';
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 

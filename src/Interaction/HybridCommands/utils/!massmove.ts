@@ -36,48 +36,10 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
 
-export const command: Command = {
-    name: 'massmove',
-
-    description: 'Move all members connected in a voice channel to another one',
-    description_localizations: {
-        "fr": "Déplacer tous les membres connectés dans un canal vocal vers un autre"
-    },
-
-    options: [
-        {
-            name: 'to',
-            type: ApplicationCommandOptionType.Channel,
-
-            channel_types: [ChannelType.GuildVoice],
-
-            description: 'The voice channel to move members to',
-            description_localizations: {
-                "fr": "Le canal vocal où déplacer les membres"
-            },
-
-            required: true,
-        },
-        {
-            name: 'from',
-            type: ApplicationCommandOptionType.Channel,
-
-            channel_types: [ChannelType.GuildVoice],
-
-            description: 'The voice channel to move members from',
-            description_localizations: {
-                "fr": "Le canal vocal d'où déplacer les membres"
-            },
-
-            required: false,
-        },
-    ],
-    thinking: true,
-    category: 'utils',
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+import { SubCommandArgumentValue, member } from '../../../core/functions/method';
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 

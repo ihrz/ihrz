@@ -44,31 +44,12 @@ import {
     TextChannel,
 } from 'discord.js';
 
-import { Command } from '../../../../types/command';
 import { generatePassword } from '../../../core/functions/random.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export const command: Command = {
-    name: 'embed',
-    description: 'Create a beautiful embed!',
-    description_localizations: {
-        "fr": "Créez un magnifique embed",
-    },
-    options: [
-        {
-            name: 'id',
-            type: ApplicationCommandOptionType.String,
-            description: 'If you have an embed\'s ID!',
-            description_localizations: {
-                "fr": "Si vous disposez d\'un identifiant d\'un embed précèdement enregistrer",
-            },
-            required: false,
-        },
-    ],
-    thinking: false,
-    category: 'utils',
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+import { SubCommandArgumentValue, member } from '../../../core/functions/method';
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 

@@ -34,40 +34,13 @@ import {
     MessageReplyOptions
 } from 'discord.js'
 
-import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
 
-export const command: Command = {
-
-    name: 'prevnames',
-
-    description: 'Lookup an Discord User, and see this previous username !',
-    description_localizations: {
-        "fr": "Recherchez un utilisateur Discord et voyez ces noms d'utilisateur précédent"
-    },
-
-    aliases: ["pvnames", "pvname", "prevname"],
-
-    options: [
-        {
-            name: 'user',
-            type: ApplicationCommandOptionType.User,
-
-            description: "L'utilisateur que vous voulez rechercher",
-            description_localizations: {
-                "fr": "user you want to see this previous username"
-            },
-
-            required: false
-        },
-    ],
-    thinking: false,
-    category: 'utils',
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+import { SubCommandArgumentValue, member } from '../../../core/functions/method';
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
         if (interaction instanceof ChatInputCommandInteraction) {
             var user = interaction.options.getUser("user") || interaction.user;
         } else {
