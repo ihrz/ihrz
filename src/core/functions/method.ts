@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, Embed, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType } from "discord.js";
+import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, Embed, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil } from "discord.js";
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -289,7 +289,9 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
     });
 }
 
-export async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | InteractionReplyOptions): Promise<Message> {
+export async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions): Promise<Message> {
+    const nonce = SnowflakeUtil.generate().toString();
+
     if (interaction instanceof ChatInputCommandInteraction) {
         const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
         return interaction.deferred ? await interaction.editReply(editOptions) : await interaction.reply(editOptions as any);
@@ -301,34 +303,14 @@ export async function interactionSend(interaction: ChatInputCommandInteraction |
         } else {
             replyOptions = {
                 ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
+                allowedMentions: { repliedUser: false, roles: [], users: [] },
+                content: options.content ?? undefined,
+                nonce: nonce,
+                enforceNonce: true
             } as MessageReplyOptions;
         }
 
         return await interaction.reply(replyOptions);
-    }
-}
-
-export async function interactionEdit(interaction: ChatInputCommandInteraction | Message, options: string | MessageEditOptions | InteractionEditReplyOptions): Promise<Message> {
-    // Global
-    if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return await interaction.editReply(editOptions);
-    } else {
-        let replyOptions: MessageEditOptions;
-
-        if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
-        } else {
-            replyOptions = {
-                ...options,
-                allowedMentions: { repliedUser: false },
-                content: options.content ?? undefined
-            } as MessageEditOptions;
-        }
-
-        return await interaction.edit(replyOptions);
     }
 }
 
