@@ -437,12 +437,49 @@ export const command: Command = {
             description_localizations: {
                 "fr": "Obtenez la liste de tous les membres de la guilde disposant d'autorisations d'administrateur"
             },
-        
+
             aliases: ["alladmin", "allperms"],
 
             type: ApplicationCommandOptionType.Subcommand
-        }
+        },
+        {
+            name: "addrole",
 
+            description: "Add role to user",
+            description_localizations: {
+                "fr": "Ajouter un rôle à un utilisateur"
+            },
+
+            options: [
+                {
+                    name: "user",
+
+                    description: "The user you want to add role",
+                    description_localizations: {
+                        "fr": "L'utilisateur que vous voulez ajouter le rôle"
+                    },
+
+                    type: ApplicationCommandOptionType.User,
+
+                    required: true
+                },
+                {
+                    name: "role",
+
+                    description: "The role you want to add to the user",
+                    description_localizations: {
+                        "fr": "Le role que vous voulez ajouter a l'utilisateur"
+                    },
+
+                    type: ApplicationCommandOptionType.Role,
+
+                    required: true
+                },
+
+            ],
+
+            type: ApplicationCommandOptionType.Subcommand
+        }
     ],
 
     category: 'utils',
