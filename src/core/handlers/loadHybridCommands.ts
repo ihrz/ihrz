@@ -132,12 +132,14 @@ export default async function loadCommands(client: Client, path: string = p): Pr
                     const directoryPath = path.substring(0, lastSlashIndex);
                     for (let option of command.options) {
                         if (option.name) {
-                            // for (let alias of option.aliases) {
-                            // client.message_commands.set(alias, command);
                             const commandModule = await import(`${directoryPath}/!${option.name}.js`);
                             option.run = commandModule.default.run
                             client.message_commands.set(option.name, option)
-                            // }
+
+                            let aliases = option.aliases || [];
+                            for (let alias of aliases) {
+                                client.message_commands.set(alias, option);
+                            }
                         }
                     }
                 }
