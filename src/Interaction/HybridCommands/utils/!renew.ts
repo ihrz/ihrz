@@ -32,23 +32,11 @@ import {
     PermissionsBitField,
 } from 'discord.js'
 
-import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
 
-export const command: Command = {
-    name: 'renew',
-
-    description: 'Re-created a channels (cloning permission and all configurations). nuke equivalent',
-    description_localizations: {
-        "fr": "Recréation d'un canal (autorisation de clonage et toutes les configurations)"
-    },
-
-    aliases: ["r", "rnw"],
-
-    category: 'utils',
-    thinking: false,
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+import { SubCommandArgumentValue } from '../../../core/functions/method';
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -81,7 +69,7 @@ export const command: Command = {
             here.send({ content: lang.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.member.user.toString()) });
             return;
         } catch (error) {
-            await client.method.interactionSend(interaction,{ content: lang.renew_dont_have_permission });
+            await client.method.interactionSend(interaction, { content: lang.renew_dont_have_permission });
             return;
         }
     },

@@ -26,6 +26,7 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     Role,
+    Guild,
     ApplicationCommandType,
     Message,
     MessagePayload,
@@ -33,82 +34,23 @@ import {
     MessageReplyOptions
 } from 'discord.js'
 
-import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
 
-
-export const command: Command = {
-    name: 'nickrole',
-
-    description: 'Give a roles to all user who have specified char in their username!',
-    description_localizations: {
-        "fr": "Donnez un rôle à tous les utilisateurs qui ont un caractère spécifique dans leur nom d'utilisateur"
-    },
-
-    options: [
-        {
-            name: 'action',
-            type: ApplicationCommandOptionType.String,
-
-            description: 'The action you want to do',
-            description_localizations: {
-                "fr": "L'action que vous souhaitez faire"
-            },
-
-            required: true,
-            choices: [
-                {
-                    name: 'Add',
-                    value: 'add'
-                },
-                {
-                    name: 'Remove',
-                    value: 'sub'
-                }
-            ]
-        },
-        {
-            name: 'nickname',
-            type: ApplicationCommandOptionType.String,
-
-            description: 'The part including in the nickname',
-            description_localizations: {
-                "fr": "La partie incluant dans le pseudo"
-            },
-
-            required: true,
-        },
-        {
-            name: 'role',
-            type: ApplicationCommandOptionType.Role,
-
-            description: 'The role you want to give',
-            description_localizations: {
-                "fr": "Le rôle que vous souhaitez donner"
-            },
-
-            required: true,
-        },
-    ],
-    thinking: true,
-    category: 'utils',
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+import { SubCommandArgumentValue, member } from '../../../core/functions/method';
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var action_1 = interaction.options.getString("action");
-            var part_of_nickname = interaction.options.getString("nickname")?.toLowerCase();
-            var role = interaction.options.getRole('role');
+            var action = interaction.options.getString("action");
+            var role = interaction.options.getRole("role");
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var action_1 = client.method.string(args!, 0);
-            var part_of_nickname = client.method.string(args!, 1)?.toLowerCase();
+            var action = client.method.string(args!, 0);
             var role = client.method.role(interaction, args!, 0);
         };
 
-        if (!part_of_nickname || !role) return;
         let a: number = 0;
         let s: number = 0;
         let e: number = 0;
@@ -121,22 +63,21 @@ export const command: Command = {
         if (!permissions) {
             await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
-        }
+        };
 
-        if (action_1 === 'add') {
+        if ((interaction.guild as Guild).memberCount >= 1500) {
+            await client.method.interactionSend(interaction, { content: lang.massiverole_too_much_member });
+            return;
+        };
+
+        if (action === 'add') {
 
             try {
                 let members = await interaction.guild.members.fetch();
                 let promises = [];
 
                 for (let [memberID, member] of members!) {
-                    if (
-                        (
-                            member.user.globalName?.toLowerCase().includes(part_of_nickname)
-                            || (member.nickname && member.nickname.toLowerCase().includes(part_of_nickname))
-                        )
-                        && !member.roles.cache.has(role?.id!)
-                    ) {
+                    if (!member.roles.cache.has(role?.id!)) {
                         let promise = member.roles.add(role as Role)
                             .then(() => {
                                 a++;
@@ -151,41 +92,34 @@ export const command: Command = {
                 };
 
                 await Promise.all(promises);
-            } catch (error) { }
+            } catch (error) { };
 
             let embed = new EmbedBuilder()
                 .setFooter(await client.method.bot.footerBuilder(interaction))
                 .setColor('#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild.iconURL())
-                .setDescription(lang.nickrole_add_command_work
+                .setDescription(lang.massiverole_add_command_work
                     .replace('${interaction.user}', interaction.member.user.toString())
                     .replace('${a}', a.toString())
                     .replace('${s}', s.toString())
                     .replace('${e}', e.toString())
-                    .replace('${part_of_nickname}', part_of_nickname)
                     .replaceAll('${role}', role?.toString()!)
                 );
 
             await client.method.interactionSend(interaction, {
                 embeds: [embed],
-                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
             });
             return;
+        } else if (action === 'sub') {
 
-        } else if (action_1 === 'sub') {
             try {
-                let members = await interaction.guild?.members.fetch();
+                let members = await interaction.guild.members.fetch();
                 let promises = [];
 
                 for (let [memberID, member] of members!) {
-                    if (
-                        (
-                            member.user.globalName?.toLowerCase().includes(part_of_nickname)
-                            || (member.nickname && member.nickname.toLowerCase().includes(part_of_nickname))
-                        )
-                        && member.roles.cache.has(role?.id!)
-                    ) {
+                    if (member.roles.cache.has(role?.id!)) {
                         let promise = member.roles.remove(role as Role)
                             .then(() => {
                                 a++;
@@ -200,19 +134,18 @@ export const command: Command = {
                 };
 
                 await Promise.all(promises);
-            } catch (error) { }
+            } catch (error) { };
 
             let embed = new EmbedBuilder()
                 .setFooter(await client.method.bot.footerBuilder(interaction))
                 .setColor('#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild.iconURL())
-                .setDescription(lang.nickrole_sub_command_work
+                .setDescription(lang.massiverole_sub_command_work
                     .replace('${interaction.user}', interaction.member.user.toString())
                     .replace('${a}', a.toString())
                     .replace('${s}', s.toString())
                     .replace('${e}', e.toString())
-                    .replace('${part_of_nickname}', part_of_nickname)
                     .replaceAll('${role}', role?.toString()!)
                 );
 
@@ -222,6 +155,7 @@ export const command: Command = {
             });
             return;
         };
+
         return;
     },
 };

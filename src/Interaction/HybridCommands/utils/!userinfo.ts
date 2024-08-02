@@ -37,34 +37,9 @@ import { axios } from '../../../core/functions/axios.js';
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData.js';
 
-export const command: Command = {
-
-    name: 'userinfo',
-
-    description: 'Get information about a user!',
-    description_localizations: {
-        "fr": "Obtenir des informations sur un utilisateur"
-    },
-
-    aliases: ["ui"],
-
-    options: [
-        {
-            name: 'user',
-            type: ApplicationCommandOptionType.User,
-
-            description: 'user you want to lookup',
-            description_localizations: {
-                "fr": "utilisateur que vous souhaitez rechercher"
-            },
-
-            required: false,
-        },
-    ],
-    category: 'utils',
-    thinking: false,
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+import { SubCommandArgumentValue } from '../../../core/functions/method';
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 

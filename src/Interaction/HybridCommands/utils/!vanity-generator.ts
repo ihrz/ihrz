@@ -57,35 +57,9 @@ async function VanityCodeAlreadyExist(AllVanityGuild: any, code: string): Promis
     return _;
 }
 
-export const command: Command = {
-
-    name: 'vanity-generator',
-
-    aliases: ["vanity", "vanity-gen", "customvanity"],
-
-    description: 'Get your own vanity URL in discord.wf format!',
-    description_localizations: {
-        "fr": "Créer votre propre URL vanity sous le format discord.wf"
-    },
-
-    options: [
-        {
-            name: "code",
-
-            description: "Vanity URL code",
-            description_localizations: {
-                "fr": "Le code du Vanity"
-            },
-
-            type: ApplicationCommandOptionType.String,
-            required: true
-        }
-    ],
-
-    category: 'utils',
-    thinking: false,
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+import { SubCommandArgumentValue, member } from '../../../core/functions/method';
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -112,23 +86,23 @@ export const command: Command = {
         let guildGet = get?.[`${interaction.guildId}`]?.['code'];
 
         if (!VerifyVanityCode(VanityCode)) {
-            await client.method.interactionSend(interaction,{ content: `The URL Vanity code \`${VanityCode}\` is invalid. The string should be alphanumeric and can include hyphens between words. The maximum length is 32 characters. Hyphens cannot be at the beginning or end of the string.` });
+            await client.method.interactionSend(interaction, { content: `The URL Vanity code \`${VanityCode}\` is invalid. The string should be alphanumeric and can include hyphens between words. The maximum length is 32 characters. Hyphens cannot be at the beginning or end of the string.` });
             return;
         };
 
         if (await VanityCodeAlreadyExist(get, VanityCode)) {
-            await client.method.interactionSend(interaction,{ content: `The URL Vanity code are already taked! Choose an another one` });
+            await client.method.interactionSend(interaction, { content: `The URL Vanity code are already taked! Choose an another one` });
             return;
         };
 
         let guildInvite = await interaction.guild.invites.create((interaction.channel as TextChannel), { temporary: false, reason: "iHorizon - VanityGenerator", maxAge: 0 });
 
         if (guildGet) {
-            await client.method.interactionSend(interaction,{ content: `The URL Vanity code \`${guildGet}\` have been overwrited for \`${VanityCode}\`. The guild is now joinable at: https://discord.wf/${VanityCode}` });
+            await client.method.interactionSend(interaction, { content: `The URL Vanity code \`${guildGet}\` have been overwrited for \`${VanityCode}\`. The guild is now joinable at: https://discord.wf/${VanityCode}` });
             await db.set(`VANITY.${interaction.guildId}`, { vanity: VanityCode, invite: guildInvite?.code });
             return;
         } else {
-            await client.method.interactionSend(interaction,{ content: `The guild is now joinable at: https://discord.wf/${VanityCode}` });
+            await client.method.interactionSend(interaction, { content: `The guild is now joinable at: https://discord.wf/${VanityCode}` });
             await db.set(`VANITY.${interaction.guildId}`, { vanity: VanityCode, invite: guildInvite?.code });
             return;
         };
