@@ -76,32 +76,6 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: 'vanity-generator',
-
-            aliases: ["vanity", "vanity-gen", "customvanity"],
-
-            description: 'Get your own vanity URL in discord.wf format!',
-            description_localizations: {
-                "fr": "Créer votre propre URL vanity sous le format discord.wf"
-            },
-
-            options: [
-                {
-                    name: "code",
-
-                    description: "Vanity URL code",
-                    description_localizations: {
-                        "fr": "Le code du Vanity"
-                    },
-
-                    type: ApplicationCommandOptionType.String,
-                    required: true
-                }
-            ],
-
-            type: ApplicationCommandOptionType.Subcommand,
-        },
-        {
             name: 'userinfo',
 
             description: 'Get information about a user!',
