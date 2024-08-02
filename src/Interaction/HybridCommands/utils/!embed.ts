@@ -45,9 +45,9 @@ import {
 } from 'discord.js';
 
 import { generatePassword } from '../../../core/functions/random.js';
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 
-import { SubCommandArgumentValue, member } from '../../../core/functions/method';
+import { SubCommandArgumentValue, member } from '../../../core/functions/method.js';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
@@ -265,7 +265,7 @@ export default {
                 case '12':
                     await handleCollector(i, 'embed_choose_12', async (message) => {
                         if (isValidColor(message.content)) {
-                            __tempEmbed.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || (message.content as ColorResolvable));
+                            __tempEmbed.setColor(message.content as ColorResolvable);
                             response.edit({ embeds: [__tempEmbed] });
                         } else {
                             await interaction.channel?.send({ content: lang.embed_choose_12_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
