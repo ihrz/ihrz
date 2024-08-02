@@ -32,23 +32,11 @@ import {
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
 
-export const command: Command = {
-    name: 'guildinfo',
-
-    description: 'Get information about the server!',
-    description_localizations: {
-        "fr": "Obtenir des informations sur le serveur"
-    },
-
-    aliases: ["si", "gi", "serverinfo"],
-
-    category: 'utils',
-    thinking: false,
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+import { SubCommandArgumentValue, member } from '../../../core/functions/method';
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
         let verlvl = {
             0: lang.serverinfo_verlvl_NONE,
             1: lang.serverinfo_verlvl_LOW,

@@ -32,35 +32,11 @@ import {
     MessageReplyOptions
 } from 'discord.js'
 
-import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
 
-export const command: Command = {
-
-    name: 'emojis',
-
-    description: 'Add emojis to your server easly',
-    description_localizations: {
-        "fr": "Ajoutez facilement des emojis à votre serveur"
-    },
-
-    category: 'utils',
-    options: [
-        {
-            name: 'emojis',
-            type: ApplicationCommandOptionType.String,
-
-            description: 'What the emoji then?',
-            description_localizations: {
-                "fr": "C'est quoi cette emoji alors ?"
-            },
-
-            required: true,
-        },
-    ],
-    thinking: true,
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+import { SubCommandArgumentValue, member } from '../../../core/functions/method';
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
