@@ -29,7 +29,6 @@ import {
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
-import { SubCommandArgumentValue } from '../../../core/functions/arg';
 
 export const command: Command = {
     name: 'botinfo',
@@ -60,7 +59,7 @@ export const command: Command = {
                 { name: lang.botinfo_embed_fields_members, value: `\`\`\`py\n${usersize}\`\`\``, inline: false },
                 { name: lang.botinfo_embed_fields_libraires, value: `\`\`\`py\ndiscord.js@${client.version.djs}\`\`\``, inline: false },
                 { name: lang.botinfo_embed_fields_created_at, value: "<t:1600042320:R>", inline: false },
-                { name: lang.botinfo_embed_fields_created_by, value: "<@171356978310938624>", inline: false },
+                { name: lang.botinfo_embed_fields_created_by, value: "<@171356978310938624>", inline: false }
             )
             .setTimestamp()
             .setFooter(await client.method.bot.footerBuilder(interaction))

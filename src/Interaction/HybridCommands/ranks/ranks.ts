@@ -30,7 +30,7 @@ import {
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
-import { SubCommandArgumentValue } from '../../../core/functions/arg';
+import { SubCommandArgumentValue } from '../../../core/functions/method';
 
 export const command: Command = {
     name: "ranks",

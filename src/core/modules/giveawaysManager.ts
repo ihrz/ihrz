@@ -263,7 +263,7 @@ class GiveawayManager {
                 fetch.winnerCount
             );
 
-            let winners = winner ? winner.map((winner: string) => `<@${winner}>`) : 'None';
+            let winners = winner ? winner.map((winner: string) => `<@${winner}>`).join(",") : 'None';
 
             let Finnish = new ButtonBuilder()
                 .setLabel(lang.event_gw_finnish_button_title)
@@ -274,7 +274,13 @@ class GiveawayManager {
                 .setColor(this.options.config.embedColorEnd as ColorResolvable)
                 .setTitle(fetch.prize)
                 .setImage(fetch.embedImageURL)
-                .setDescription(`Ended: ${time(new Date(fetch.expireIn), 'R')} (${time(new Date(fetch.expireIn), 'D')})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.entries.length}**\nWinners: ${winners}`)
+                .setDescription(lang.event_gw_ended_embed_desc
+                    .replace("${time1}", time(new Date(fetch.expireIn), 'R'))
+                    .replace("${time2}", time(new Date(fetch.expireIn), 'D'))
+                    .replace("${fetch.hostedBy}", fetch.hostedBy)
+                    .replace("${fetch.entries.length}", fetch.entries.length.toString())
+                    .replace("${winners}", winners)
+                )
                 .setTimestamp()
 
             await message?.edit({

@@ -27,7 +27,7 @@ import logger from '../../../core/logger.js';
 
 import { fileURLToPath } from 'url';
 import path from 'path';
-import { SubCommandArgumentValue } from '../../../core/functions/arg';
+import { SubCommandArgumentValue } from '../../../core/functions/method';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

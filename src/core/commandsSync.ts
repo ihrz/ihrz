@@ -21,11 +21,12 @@
 
 import { REST, Routes, Client, ApplicationCommand } from 'discord.js';
 import logger from "./logger.js";
+import { getToken } from './functions/getToken.js';
 
 const synchronizeCommands = async (client: Client): Promise<void> => {
     return new Promise(async (resolve, reject) => {
         try {
-            let rest = new REST().setToken(process.env.BOT_TOKEN || client.config.discord.token);
+            let rest = new REST().setToken(await getToken() || process.env.BOT_TOKEN || client.config.discord.token);
 
             logger.log(`${client.config.console.emojis.LOAD} >> Currently ${client.commands?.size || 0} of slash (/) commands awaiting for refreshing.`.white);
             logger.log(`${client.config.console.emojis.LOAD} >> Currently ${client.applicationsCommands?.size || 0} of application ([]) commands awaiting for refreshing.`.white);

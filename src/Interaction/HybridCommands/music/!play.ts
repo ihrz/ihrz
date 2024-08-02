@@ -35,7 +35,7 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import maskLink from '../../../core/functions/maskLink.js';
 import { SearchPlatform } from 'lavalink-client';
-import { SubCommandArgumentValue } from '../../../core/functions/arg';
+import { SubCommandArgumentValue } from '../../../core/functions/method';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
@@ -46,7 +46,7 @@ export default {
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var check = interaction.options.getString("title")!;
-            var source = interaction.options.getString('source') as SearchPlatform;
+            var source = "dzsearch" as SearchPlatform//interaction.options.getString('source') as SearchPlatform;
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var source = "ytsearch" as SearchPlatform;

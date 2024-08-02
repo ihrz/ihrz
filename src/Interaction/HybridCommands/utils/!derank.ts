@@ -33,35 +33,11 @@ import {
     MessageReplyOptions
 } from 'discord.js'
 
-import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
 
-export const command: Command = {
-
-    name: 'derank',
-
-    description: 'Remove all roles of an members',
-    description_localizations: {
-        "fr": "Supprimer tous les rôles d'un membre"
-    },
-
-    category: 'utils',
-    options: [
-        {
-            name: 'member',
-            type: ApplicationCommandOptionType.User,
-
-            description: 'The user',
-            description_localizations: {
-                "fr": "l'utilisateur"
-            },
-
-            required: true,
-        },
-    ],
-    thinking: true,
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+import { SubCommandArgumentValue, member } from '../../../core/functions/method';
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 

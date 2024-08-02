@@ -34,7 +34,7 @@ import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../../types/database_structure';
 
 const itemsPerPage = 5;
-import { SubCommandArgumentValue } from '../../../core/functions/arg';
+import { SubCommandArgumentValue } from '../../../core/functions/method';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing

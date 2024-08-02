@@ -20,29 +20,39 @@
 */
 
 import {
-    ChatInputCommandInteraction,
     Client,
-    EmbedBuilder,
     Message,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
-import { axios } from '../../../core/functions/axios.js';
-import { SubCommandArgumentValue } from '../../../core/functions/method';
+import { Command } from '../../../../types/command'; export const command: Command = {
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+    name: 'ownihrz',
 
-        axios.get('http://edgecats.net/random').then(async res => {
-            let emb = new EmbedBuilder()
-                .setImage(res.data)
-                .setTitle(lang.cats_embed_title)
-                .setTimestamp();
+    description: '...',
+    description_localizations: {
+        "fr": "..."
+    },
 
-            await client.method.interactionSend(interaction, { embeds: [emb] });
-            return;
-        });
+    thinking: false,
+    category: '404',
+    type: "PREFIX_IHORIZON_COMMAND",
+    run: async (client: Client, interaction: Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {
+
+        let option1 = args?.[0];
+        var content = "";
+
+        switch (option1) {
+            case "fr":
+                content = "https://youtu.be/Kse-72EqR0M"
+                break;
+            case "en":
+                content = "https://youtu.be/frE7G7jeG88"
+                break;
+            default:
+                return
+        };
+
+        await client.method.interactionSend(interaction, { content });
     },
 };

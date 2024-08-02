@@ -36,45 +36,10 @@ import {
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommandArgumentValue, member } from '../../../core/functions/method';
 
-export const command: Command = {
-
-    name: 'vc',
-
-    description: 'Get the voice states of the guild!',
-    description_localizations: {
-        "fr": "Obtenez les états des vocaux du serveur"
-    },
-
-    options: [
-        {
-            name: "show-mode",
-
-            description: "Show mode (large, brief)",
-            description_localizations: {
-                "fr": "Mode d'affichage (complet, court)"
-            },
-
-            choices: [
-                {
-                    name: "Large",
-                    value: "large"
-                },
-                {
-                    name: "Short",
-                    value: "short"
-                }
-            ],
-
-            type: ApplicationCommandOptionType.String,
-            required: false
-        }
-    ],
-
-    category: 'utils',
-    thinking: false,
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 

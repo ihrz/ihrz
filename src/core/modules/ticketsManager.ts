@@ -206,7 +206,8 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                         label: lang.sethereticket_modal_1_fields_2_label,
                         style: TextInputStyle.Short,
                         required: false,
-                        minLength: 1
+                        minLength: 1,
+                        maxLength: 50
                     }
                 ]
             }, i);
@@ -260,7 +261,8 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                         label: lang.sethereticket_modal_2_fields_2_placeholder,
                         style: TextInputStyle.Short,
                         required: false,
-                        minLength: 12
+                        minLength: 12,
+                        maxLength: 500
                     }
                 ]
             }, i);
@@ -876,12 +878,20 @@ async function TicketDelete(interaction: Interaction<CacheType>) {
                 (interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member?.user.id)) {
 
                 await database.delete(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
-                interaction.channel.delete();
 
                 try {
                     let TicketLogsChannel = await database.get(`${interaction.guildId}.GUILD.TICKET.logs`);
                     TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
                     if (!TicketLogsChannel) return;
+
+                    //@ts-ignore
+                    let attachment = await discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
+                        limit: -1,
+                        filename: 'transcript.html',
+                        footerText: "Exported {number} message{s}",
+                        poweredBy: false,
+                        hydrate: true
+                    });
 
                     let embed = new EmbedBuilder()
                         .setColor("#008000")
@@ -893,7 +903,9 @@ async function TicketDelete(interaction: Interaction<CacheType>) {
                         .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
                         .setTimestamp();
 
-                    TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });
+                    TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction), attachment] });
+
+                    interaction.channel.delete();
                     return;
                 } catch (e) { return };
             }

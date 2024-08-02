@@ -32,23 +32,11 @@ import {
     PermissionsBitField,
 } from 'discord.js'
 
-import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
 
-export const command: Command = {
-    name: 'admin-users',
-
-    description: 'Get the list of all guild member whose have admin permissions',
-    description_localizations: {
-        "fr": "Obtenez la liste de tous les membres de la guilde disposant d'autorisations d'administrateur"
-    },
-
-    aliases: ["alladmin", "allperms"],
-
-    category: 'utils',
-    thinking: false,
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, execTimestamp?: number, args?: string[]) => {
+import { SubCommandArgumentValue, member } from '../../../core/functions/method';
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
