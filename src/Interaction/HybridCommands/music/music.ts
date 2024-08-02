@@ -163,6 +163,7 @@ export const command: Command = {
                     },
 
                     choices: [
+                        { name: "Any", value: "ytsearch" },
                         // { name: "Youtube", value: "ytsearch" },
                         // { name: "Youtube Music", value: "ytmsearch" },
                         { name: "Soundcloud", value: "scsearch" },
