@@ -137,11 +137,11 @@ export default {
             })
 
             allchannel = i.values;
-            await client.method.interactionEdit(originalResponse as Message, { embeds: [embed] });
+            await client.method.interactionSend(originalResponse, { embeds: [embed] });
         });
 
         collector.on('end', async () => {
-            await client.method.interactionEdit(originalResponse as Message, { components: [] });
+            await client.method.interactionSend(originalResponse, { components: [] });
         })
     },
 };

@@ -48,7 +48,7 @@ export default {
         };
 
         if (backupID && !await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
-            await client.method.interactionEdit(interaction, {
+            await client.method.interactionSend(interaction, {
                 content: data.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
