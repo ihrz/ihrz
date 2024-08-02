@@ -596,6 +596,10 @@ all_admins_unrank_button_label: "Desclassificar todos"
 all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}, iHorizon executou a desclassificação de todos para o módulo AllAdmins.\n\n**${good}** Usuário(s) __desclassificados__ com sucesso\niHorizon __falhou__ em desclassificar **${bad}** Usuário(s)."
 all_admins_unrank_not_owner: "Somente o proprietário do servidor pode desclassificar todos os administradores do servidor"
 
+# /addrole
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Você não pode adicionar um papel a um usuário que tenha um papel superior ao seu..."
+utils_addrole_command_ok: "${author.toString()} adicionou com sucesso o papel ${role?.toString()} ao ${user.toString()}"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

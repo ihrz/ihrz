@@ -596,6 +596,10 @@ all_admins_unrank_button_label: "Разжаловать всех"
 all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}, iHorizon выполнил разжалование всех для модуля AllAdmins.\n\n**${good}** Пользователь(и) __успешно__ разжалованы\niHorizon __не смог__ разжаловать **${bad}** Пользователь(и)."
 all_admins_unrank_not_owner: "Только владелец сервера может разжаловать всех администраторов сервера"
 
+# /addrole
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Вы не можете добавить роль пользователю, который имеет более высокую роль, чем вы..."
+utils_addrole_command_ok: "${author.toString()} успешно добавил роль ${role?.toString()} пользователю ${user.toString()}"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

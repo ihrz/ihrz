@@ -424,6 +424,8 @@ export interface LanguageData {
   all_admins_unrank_button_label: string;
   all_admins_unrank_embed_desc: string;
   all_admins_unrank_not_owner: string;
+  utils_addrole_highter_or_egal_roles_msg: string;
+  utils_addrole_command_ok: string;
   blockpub_not_admin: string;
   blockpub_now_enable: string;
   blockpub_now_disable: string;
