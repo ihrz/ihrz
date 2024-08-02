@@ -181,7 +181,7 @@ export default {
                 name: 'user_banner.gif'
             });
 
-            await client.method.interactionEdit(originalInteraction, {
+            await client.method.interactionSend(originalInteraction, {
                 content: client.iHorizon_Emojis.icon.Yes_Logo,
                 embeds: [embed],
                 files: files,
