@@ -310,7 +310,11 @@ export async function interactionSend(interaction: ChatInputCommandInteraction |
             } as MessageReplyOptions;
         }
 
-        return await interaction.reply(replyOptions);
+        try {
+            return await interaction.reply(replyOptions);
+        } catch {
+            return await interaction.edit(replyOptions as MessageEditOptions);
+        }
     }
 }
 
