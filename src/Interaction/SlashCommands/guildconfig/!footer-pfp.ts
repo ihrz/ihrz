@@ -46,10 +46,11 @@ export default {
             await interaction.editReply({ content: data.guildconfig_setbot_footeravatar_is_reset });
             return;
         } else if (footerAvatar && footerAvatar.contentType?.startsWith("image")) {
-            const fileBuffer = (await axios.get(footerAvatar?.url!, { responseType: "arrayBuffer" })).data;
-            const buffer = Buffer.from(fileBuffer, "base64");
+            const fileBuffer = (await axios.get(footerAvatar.url!, { responseType: "arrayBuffer" })).data;
+            const buffer = Buffer.from(fileBuffer);
+            const base64String = buffer.toString('base64');
 
-            await client.db.set(`${interaction.guildId}.BOT.botPFP`, buffer);
+            await client.db.set(`${interaction.guildId}.BOT.botPFP`, base64String);
 
             await interaction.editReply({ content: data.guildconfig_setbot_footeravatar_is_good });
             return;
