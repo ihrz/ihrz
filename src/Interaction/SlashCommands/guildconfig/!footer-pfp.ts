@@ -41,14 +41,13 @@ export default {
             return;
         };
 
-        const fileBuffer = (await axios.get(footerAvatar?.url!, { responseType: "arrayBuffer" })).data;
-        const buffer = Buffer.from(fileBuffer, "base64");
-
         if (action === "reset") {
             await client.db.delete(`${interaction.guildId}.BOT.botPFP`);
             await interaction.editReply({ content: data.guildconfig_setbot_footeravatar_is_reset });
             return;
         } else if (footerAvatar && footerAvatar.contentType?.startsWith("image")) {
+            const fileBuffer = (await axios.get(footerAvatar?.url!, { responseType: "arrayBuffer" })).data;
+            const buffer = Buffer.from(fileBuffer, "base64");
 
             await client.db.set(`${interaction.guildId}.BOT.botPFP`, buffer);
 
