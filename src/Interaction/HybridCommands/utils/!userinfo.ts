@@ -168,7 +168,7 @@ export default {
                 )
                 .setImage("attachment://user_banner.gif");
 
-            var files: { name: string; attachment: string }[] = [
+            var files: { name: string; attachment: any }[] = [
                 await client.method.bot.footerAttachmentBuilder(interaction),
                 {
                     attachment: user.displayAvatarURL({ size: 512, forceStatic: false }),
