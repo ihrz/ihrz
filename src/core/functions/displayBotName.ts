@@ -31,23 +31,26 @@ export async function footerBuilder(message: ChatInputCommandInteraction | Messa
 }
 
 export async function footerAttachmentBuilder(interaction: ChatInputCommandInteraction | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild | Client) {
-    return {
-        attachment: await displayBotPP(
+
+    var buffer = Buffer.from(await displayBotPP(
+        interaction instanceof Client
+            ?
+            interaction
+            :
+            interaction.client,
+        interaction instanceof Guild
+            ?
+            interaction.id
+            :
             interaction instanceof Client
                 ?
-                interaction
+                undefined
                 :
-                interaction.client,
-            interaction instanceof Guild
-                ?
-                interaction.id
-                :
-                interaction instanceof Client
-                    ?
-                    undefined
-                    :
-                    interaction.guild?.id!
-        ),
+                interaction.guild?.id!
+    ), 'base64');
+
+    return {
+        attachment: buffer,
         name: 'footer_icon.png'
     }
 }

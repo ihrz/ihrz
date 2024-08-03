@@ -153,7 +153,7 @@ export const command: AnotherCommand = {
                 )
                 .setImage("attachment://user_banner.gif");
 
-            var files: { name: string; attachment: string }[] = [
+            var files: { name: string; attachment: any }[] = [
                 await interaction.client.method.bot.footerAttachmentBuilder(interaction),
                 {
                     attachment: user.displayAvatarURL({ size: 512, forceStatic: false }),
