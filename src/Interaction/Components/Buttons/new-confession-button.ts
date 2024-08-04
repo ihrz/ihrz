@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, ButtonInteraction, CacheType, EmbedBuilder, TextInputStyle, SnowflakeUtil } from 'discord.js';
+import { BaseGuildTextChannel, ButtonInteraction, CacheType, EmbedBuilder, TextInputStyle, SnowflakeUtil, MessageReplyOptions, InteractionReplyOptions } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { generatePassword } from '../../../core/functions/random.js'
@@ -106,9 +106,12 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     if (view.toLowerCase().includes('no') || view.toLowerCase().includes(lang.mybot_submit_utils_msg_no)) {
         view = false;
 
-        files.push(await interaction.client.method.bot.footerAttachmentBuilder(interaction));
+        files.push({ attachment: interaction.user.avatarURL({ size: 512 })!, name: "user_icon.png" });
 
-        embed.setFooter(await interaction.client.method.bot.footerBuilder(interaction));
+        embed.setFooter({
+            text: interaction.user.globalName || interaction.user.username,
+            iconURL: "attachment://user_icon.png"
+        });
     } else {
         view = true;
     }
@@ -127,5 +130,27 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
         files: files,
         enforceNonce: true, nonce: nonce
     });
+
+    let panelMessage = await interaction.channel?.messages.fetch(allDataConfession.panel?.messageId!);
+    let embedFromPanelMessage = panelMessage?.embeds[0];
+    let compFromPanelMessage = panelMessage?.components[0];
+
+    await panelMessage?.delete();
+
+    const newPanelFromOldData: MessageReplyOptions = {
+        embeds: [embedFromPanelMessage!], components: [compFromPanelMessage!],
+        //  files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)] 
+    };
+
+    interaction.channel?.send(newPanelFromOldData).then(async (msg) => {
+        let messageId = msg.id;
+        let channelId = msg.channelId;
+
+
+        await msg.client.db.set(`${interaction.guildId}.GUILD.CONFESSION.panel`, {
+            channelId,
+            messageId
+        });
+    })
     return;
 };
