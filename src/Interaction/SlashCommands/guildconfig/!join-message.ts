@@ -40,7 +40,7 @@ export default {
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.reply({ content: data.setjoinmessage_not_admin, ephemeral: true });
+            await interaction.editReply({ content: data.setjoinmessage_not_admin });
             return;
         }
 
@@ -81,7 +81,7 @@ export default {
 
         const collector = message.createMessageComponentCollector({
             componentType: ComponentType.Button,
-            time: 80_000
+            time: 8_00_000
         });
 
         collector.on('collect', async (buttonInteraction) => {

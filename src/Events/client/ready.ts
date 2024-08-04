@@ -25,6 +25,7 @@ import { format } from '../../core/functions/date-and-time.js';
 
 import status from "../../files/status.json" with { "type": "json" }
 import logger from "../../core/logger.js";
+import ping from 'ping';
 
 import { BotEvent } from '../../../types/event.js';
 import { GiveawayManager } from '../../core/modules/giveawaysManager.js';
@@ -118,6 +119,22 @@ export const event: BotEvent = {
             });
         };
 
+        async function refreshBotData() {
+            await client.db.set("BOT", {
+                "info": {
+                    members: client.guilds.cache.reduce((a, b) => a + b.memberCount, 0),
+                    servers: client.guilds.cache.size,
+                    shards: client.shard?.count,
+                    ping: client.ws.ping
+                },
+                "content": {
+                    commands: client.commands.size + client.message_commands.size + client.applicationsCommands.size,
+                    category: client.category.length
+                },
+                "user": client.user
+            })
+        }
+
         // @ts-ignore
         client.giveawaysManager = new GiveawayManager(client, {
             storage: `${process.cwd()}/src/files/giveaways/`,
@@ -136,7 +153,7 @@ export const event: BotEvent = {
 
         setInterval(quotesPresence, 80_000), setInterval(refreshSchedule, 15_000);
 
-        fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule();
+        fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule(), refreshBotData();
 
         PfpsManager_Init(client);
     },

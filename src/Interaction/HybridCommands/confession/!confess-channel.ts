@@ -44,7 +44,7 @@ export default {
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var channel = interaction.options.getChannel("to") as TextChannel;
-            var buttonTitle = interaction.options.getString('button-title')?.substring(0, 22) || '+';
+            var buttonTitle = interaction.options.getString('button-title')?.substring(0, 20) || '+';
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var channel = (client.method.channel(interaction, args!, 0) || interaction.channel) as TextChannel;
