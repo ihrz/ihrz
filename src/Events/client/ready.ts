@@ -114,7 +114,7 @@ export const event: BotEvent = {
         async function refreshBotData() {
             await client.db.set("BOT", {
                 "info": {
-                    members: client.users.cache.size,
+                    members: client.guilds.cache.reduce((a, b) => a + b.memberCount, 0),
                     servers: client.guilds.cache.size,
                     shards: client.shard?.count,
                     ping: client.ws.ping
