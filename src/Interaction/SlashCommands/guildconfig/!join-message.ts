@@ -40,7 +40,7 @@ export default {
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.reply({ content: data.setjoinmessage_not_admin, ephemeral: true });
+            await interaction.editReply({ content: data.setjoinmessage_not_admin });
             return;
         }
 
