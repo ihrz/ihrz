@@ -66,7 +66,7 @@ transript_disabled_command: "Vous ne pouvez pas utiliser cette commande car un a
 transript_name_sourcebin: " "
 transript_title_sourcebin: "Transcription du chat de ticket pour ${channel.name}"
 transript_command_error: "Une erreur s'est produite, veuillez réessayer !"
-transript_command_work: "Voici la transcription du ticket, ${interaction.user} !"
+transript_command_work: "Voici la transcription du ticket !"
 transript_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un ticket !"
 
 # /disableticket
