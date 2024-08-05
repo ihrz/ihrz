@@ -870,7 +870,6 @@ async function TicketDelete(interaction: Interaction<CacheType>) {
 
     for (let user in fetch) {
         for (let channel in fetch[user]) {
-
             let member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
 
             if (channel === interaction.channel?.id
@@ -882,30 +881,32 @@ async function TicketDelete(interaction: Interaction<CacheType>) {
                 try {
                     let TicketLogsChannel = await database.get(`${interaction.guildId}.GUILD.TICKET.logs`);
                     TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
-                    if (!TicketLogsChannel) return;
 
-                    //@ts-ignore
-                    let attachment = await discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
-                        limit: -1,
-                        filename: 'transcript.html',
-                        footerText: "Exported {number} message{s}",
-                        poweredBy: false,
-                        hydrate: true
-                    });
+                    if (TicketLogsChannel) {
+                        //@ts-ignore
+                        let attachment = await discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
+                            limit: -1,
+                            filename: 'transcript.html',
+                            footerText: "Exported {number} message{s}",
+                            poweredBy: false,
+                            hydrate: true
+                        });
 
-                    let embed = new EmbedBuilder()
-                        .setColor("#008000")
-                        .setTitle(data.event_ticket_logsChannel_onDelete_embed_title)
-                        .setDescription(data.event_ticket_logsChannel_onDelete_embed_desc
-                            .replace('${interaction.user}', interaction.user.toString())
-                            .replace('${interaction.channel.name}', (interaction.channel as BaseGuildTextChannel)?.name)
-                        )
-                        .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
-                        .setTimestamp();
+                        let embed = new EmbedBuilder()
+                            .setColor("#008000")
+                            .setTitle(data.event_ticket_logsChannel_onDelete_embed_title)
+                            .setDescription(data.event_ticket_logsChannel_onDelete_embed_desc
+                                .replace('${interaction.user}', interaction.user.toString())
+                                .replace('${interaction.channel.name}', (interaction.channel as BaseGuildTextChannel)?.name)
+                            )
+                            .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
+                            .setTimestamp();
+                        interaction.channel.delete();
 
-                    TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction), attachment] });
-
-                    interaction.channel.delete();
+                        TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction), attachment] });
+                    } else {
+                        await interaction.channel.delete();
+                    }
                     return;
                 } catch (e) { return };
             }
