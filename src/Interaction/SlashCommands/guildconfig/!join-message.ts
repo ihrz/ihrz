@@ -45,6 +45,8 @@ export default {
         }
 
         let joinMessage = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`);
+        let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
+
         joinMessage = joinMessage?.substring(0, 1010);
 
         const helpEmbed = new EmbedBuilder()
@@ -54,11 +56,11 @@ export default {
             .addFields(
                 {
                     name: data.setjoinmessage_help_embed_fields_custom_name,
-                    value: joinMessage ? `\`\`\`${joinMessage}\`\`\`\n${generateJoinMessagePreview(joinMessage, interaction)}` : data.setjoinmessage_help_embed_fields_custom_name_empy
+                    value: joinMessage ? `\`\`\`${joinMessage}\`\`\`\n${generateJoinMessagePreview(guildLocal, joinMessage, interaction)}` : data.setjoinmessage_help_embed_fields_custom_name_empy
                 },
                 {
                     name: data.setjoinmessage_help_embed_fields_default_name_empy,
-                    value: `\`\`\`${data.event_welcomer_inviter}\`\`\`\n${generateJoinMessagePreview(data.event_welcomer_inviter, interaction)}`
+                    value: `\`\`\`${data.event_welcomer_inviter}\`\`\`\n${generateJoinMessagePreview(guildLocal, data.event_welcomer_inviter, interaction)}`
                 }
             );
 
@@ -119,7 +121,7 @@ export default {
                                 .replaceAll("{memberUsername}", interaction.user.username)
                                 .replaceAll("{memberMention}", interaction.user.toString())
                                 .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
-                                .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
+                                .replaceAll('{createdAt}', interaction.user.createdAt.toLocaleDateString(guildLocal))
                                 .replaceAll('{guildName}', interaction.guild?.name!)
                                 .replaceAll('{inviterUsername}', interaction.client.user.username)
                                 .replaceAll('{inviterMention}', interaction.client.user.toString())
@@ -196,12 +198,12 @@ export default {
 };
 
 
-function generateJoinMessagePreview(message: string, interaction: ChatInputCommandInteraction): string {
+function generateJoinMessagePreview(guildLocal: string, message: string, interaction: ChatInputCommandInteraction): string {
     return message
         .replaceAll("{memberUsername}", interaction.user.username)
         .replaceAll("{memberMention}", interaction.user.toString())
         .replaceAll('{memberCount}', interaction.guild?.memberCount?.toString()!)
-        .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
+        .replaceAll('{createdAt}', interaction.user.createdAt.toLocaleDateString(guildLocal))
         .replaceAll('{guildName}', interaction.guild?.name!)
         .replaceAll('{inviterUsername}', interaction.client.user.username)
         .replaceAll('{inviterMention}', interaction.client.user.toString())

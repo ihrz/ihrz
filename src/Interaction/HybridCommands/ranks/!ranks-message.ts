@@ -45,6 +45,8 @@ export default {
         }
 
         let xpMessage = await client.db.get(`${interaction.guildId}.GUILD.XP_LEVELING.message`);
+        let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
+
         xpMessage = xpMessage?.substring(0, 1010);
 
         const helpEmbed = new EmbedBuilder()
@@ -54,11 +56,11 @@ export default {
             .addFields(
                 {
                     name: data.ranksSetMessage_help_embed_fields_custom_name,
-                    value: xpMessage ? `\`\`\`${xpMessage}\`\`\`\n${generateXpMessagePreview(xpMessage, interaction)}` : data.ranksSetMessage_help_embed_fields_custom_name_empy
+                    value: xpMessage ? `\`\`\`${xpMessage}\`\`\`\n${generateXpMessagePreview(guildLocal, xpMessage, interaction)}` : data.ranksSetMessage_help_embed_fields_custom_name_empy
                 },
                 {
                     name: data.ranksSetMessage_help_embed_fields_default_name_empy,
-                    value: `\`\`\`${data.event_xp_level_earn}\`\`\`\n${generateXpMessagePreview(data.event_xp_level_earn, interaction)}`
+                    value: `\`\`\`${data.event_xp_level_earn}\`\`\`\n${generateXpMessagePreview(guildLocal, data.event_xp_level_earn, interaction)}`
                 }
             );
 
@@ -119,7 +121,7 @@ export default {
                                 .replaceAll("{memberUsername}", interaction.user.username)
                                 .replaceAll("{memberMention}", interaction.user.toString())
                                 .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
-                                .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
+                                .replaceAll('{createdAt}', interaction.user.createdAt.toLocaleDateString(guildLocal))
                                 .replaceAll('{guildName}', interaction.guild?.name!)
                                 .replace("{xpLevel}", "4")
                                 .replaceAll("\\n", '\n')
@@ -193,12 +195,12 @@ export default {
 };
 
 
-function generateXpMessagePreview(message: string, interaction: ChatInputCommandInteraction): string {
+function generateXpMessagePreview(guildLocal: string, message: string, interaction: ChatInputCommandInteraction): string {
     return message
         .replaceAll("{memberUsername}", interaction.user.username)
         .replaceAll("{memberMention}", interaction.user.toString())
         .replaceAll('{memberCount}', interaction.guild?.memberCount?.toString()!)
-        .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
+        .replaceAll('{createdAt}', interaction.user.createdAt.toLocaleTimeString(guildLocal))
         .replaceAll('{guildName}', interaction.guild?.name!)
         .replace("{xpLevel}", "4")
         .replaceAll("\\n", '\n');
