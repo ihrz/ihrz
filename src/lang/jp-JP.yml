@@ -811,9 +811,13 @@ joinghostping_remove_logs_embed_desc: "${interaction.user} が Join GhostPing �
 automod_block_massmention_command_off: "${interaction.user}, あなたは`Mass-Mention AutoModルール`を**false**に設定しました。\n今、ユーザーはメッセージにメンションを送信できます。\nAutoMod x iHorizonはサーバーで無効になっています！"
 automod_block_massmention_command_on: "${interaction.user}, あなたは`Mass-Mention AutoModルール`を**true**に設定しました。\n今、ユーザーはメッセージに**${max_mention}**回以上のメンションを送信できません。\nAutoModは${logs_channel}にログを送信しています。\nAutoMod x iHorizonがサーバーを保護しています！"
 
+# /automod block links
+automod_block_link_command_on: "${interaction.user}、`Pub AutoModルール`を**true**に設定しました。\nこれでユーザーはメッセージにリンクを送信できません。\nAutoModは${logs_channel}に__ログを送信__します。\nAutoMod x iHorizonはあなたのサーバーを保護します！"
+automod_block_link_command_off: "${interaction.user}、`Pub AutoModルール`を**false**に設定しました。\nこれでユーザーはメッセージにリンクを送信できます。\nAutoMod x iHorizonはあなたのサーバーで無効になりました！"
+
 # /automod block pub
-automod_block_pub_command_on: "${interaction.user}, あなたは`Pub AutoModルール`を**true**に設定しました。\n今、ユーザーはメッセージに広告を送信できません。\nAutoModは${logs_channel}にログを送信しています。\nAutoMod x iHorizonがサーバーを保護しています！"
-automod_block_pub_command_off: "${interaction.user}, あなたは`Pub AutoModルール`を**false**に設定しました。\n今、ユーザーはメッセージに広告を送信できます。\nAutoMod x iHorizonはサーバーで無効になっています！"
+automod_block_pub_command_on: "${interaction.user}、`Pub AutoModルール`を**true**に設定しました。\nこれでユーザーはメッセージにサーバー招待を送信できません。\nAutoModは${logs_channel}に__ログを送信__します。\nAutoMod x iHorizonはあなたのサーバーを保護します！"
+automod_block_pub_command_off: "${interaction.user}、`Pub AutoModルール`を**false**に設定しました。\nこれでユーザーはメッセージにサーバー招待を送信できます。\nAutoMod x iHorizonはあなたのサーバーで無効になりました！"
 
 # /automod block spam
 automod_block_spam_command_on: "${interaction.user}, あなたは`Spam AutoModルール`を**true**に設定しました。\n今、ユーザーはスパムできません。\nAutoModは${logs_channel}にログを送信しています。\nAutoMod x iHorizonがサーバーを保護しています！"

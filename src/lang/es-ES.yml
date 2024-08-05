@@ -811,9 +811,13 @@ joinghostping_remove_logs_embed_desc: "${interaction.user} ha eliminado ${channe
 automod_block_massmention_command_off: "${interaction.user}, has desactivado la regla de `AutoModeración de Menciones Masivas` a **falso**.\nAhora los usuarios pueden enviar menciones en sus mensajes.\nAutoModeración x iHorizon ha sido desactivada en tu servidor."
 automod_block_massmention_command_on: "${interaction.user}, has activado la regla de `AutoModeración de Menciones Masivas` a **verdadero**.\nAhora los usuarios no pueden enviar más de **${max_mention}** mención(es) en sus mensajes.\nAutoModeración __enviando registros__ en ${logs_channel}.\nAutoModeración x iHorizon protege tu servidor!"
 
+# /automod block links
+automod_block_link_command_on: "${interaction.user}, has establecido la `Regla de AutoMod Pub` en **true**.\nAhora los usuarios no pueden enviar enlaces en sus mensajes.\nAutoMod __envía registros__ en ${logs_channel}.\n¡AutoMod x iHorizon protege tu servidor!"
+automod_block_link_command_off: "${interaction.user}, has establecido la `Regla de AutoMod Pub` en **false**.\nAhora los usuarios pueden enviar enlaces en sus mensajes.\n¡AutoMod x iHorizon ha sido deshabilitado en tu servidor!"
+
 # /automod block pub
-automod_block_pub_command_on: "${interaction.user}, has activado la regla de `AutoModeración de Publicidad` a **verdadero**.\nAhora los usuarios no pueden enviar publicidad en sus mensajes.\nAutoModeración __enviando registros__ en ${logs_channel}.\nAutoModeración x iHorizon protege tu servidor!"
-automod_block_pub_command_off: "${interaction.user}, has desactivado la regla de `AutoModeración de Publicidad` a **falso**.\nAhora los usuarios pueden enviar publicidad en sus mensajes.\nAutoModeración x iHorizon ha sido desactivada en tu servidor!"
+automod_block_pub_command_on: "${interaction.user}, has establecido la `Regla de AutoMod Pub` en **true**.\nAhora los usuarios no pueden enviar invitaciones de servidor en sus mensajes.\nAutoMod __envía registros__ en ${logs_channel}.\n¡AutoMod x iHorizon protege tu servidor!"
+automod_block_pub_command_off: "${interaction.user}, has establecido la `Regla de AutoMod Pub` en **false**.\nAhora los usuarios pueden enviar invitaciones de servidor en sus mensajes.\n¡AutoMod x iHorizon ha sido deshabilitado en tu servidor!"
 
 # /automod block spam
 automod_block_spam_command_on: "${interaction.user}, has activado la regla de `AutoModeración de Spam` a **verdadero**.\nAhora los usuarios no pueden hacer spam.\nAutoModeración __enviando registros__ en ${logs_channel}.\nAutoModeración x iHorizon protege tu servidor!"
