@@ -609,6 +609,8 @@ export interface LanguageData {
   joinghostping_remove_logs_embed_desc: string;
   automod_block_massmention_command_off: string;
   automod_block_massmention_command_on: string;
+  automod_block_link_command_on: string;
+  automod_block_link_command_off: string;
   automod_block_pub_command_on: string;
   automod_block_pub_command_off: string;
   automod_block_spam_command_on: string;

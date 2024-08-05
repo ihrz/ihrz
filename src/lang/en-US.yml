@@ -811,9 +811,13 @@ joinghostping_remove_logs_embed_desc: "${interaction.user} have delete ${channel
 automod_block_massmention_command_off: "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **false**.\nNow user can send mentions in their message.\nAutoMod x iHorizon have been disabled on your server!"
 automod_block_massmention_command_on: "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **true**.\nNow user can't send more than **${max_mention}** mention(s) in their message.\nAutoMod __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
 
+# /automod block links
+automod_block_link_command_on: "${interaction.user}, you have set the `Pub AutoMod Rule` to **true**.\nNow user can't send links in their message.\nAutoMod __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server! "
+automod_block_link_command_off: "${interaction.user}, you have set the `Pub AutoMod Rule` to **false**.\nNow user can send links in their message.\nAutoMod x iHorizon have been disabled on your server!"
+
 # /automod block pub
-automod_block_pub_command_on: "${interaction.user}, you have set the `Pub AutoMod Rule` to **true**.\nNow user can't send advertissment in their message.\nAutoMod __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server! "
-automod_block_pub_command_off: "${interaction.user}, you have set the `Pub AutoMod Rule` to **false**.\nNow user can send advertissment in their message.\nAutoMod x iHorizon have been disabled on your server!"
+automod_block_pub_command_on: "${interaction.user}, you have set the `Pub AutoMod Rule` to **true**.\nNow user can't send server invites in their message.\nAutoMod __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server! "
+automod_block_pub_command_off: "${interaction.user}, you have set the `Pub AutoMod Rule` to **false**.\nNow user can send server invites in their message.\nAutoMod x iHorizon have been disabled on your server!"
 
 # /automod block spam
 automod_block_spam_command_on: "${interaction.user}, you have set the `Spam AutoMod Rule` to **true**.\nNow user can't spam.\nAutoMod __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
