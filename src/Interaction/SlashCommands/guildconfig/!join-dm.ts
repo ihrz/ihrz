@@ -44,6 +44,8 @@ export default {
         };
 
         let joinDm = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`) as string | undefined;
+        let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
+
         joinDm = joinDm?.substring(0, 1010);
 
         let help_embed = new EmbedBuilder()
@@ -57,7 +59,7 @@ export default {
                         .replaceAll("{memberUsername}", interaction.user.username)
                         .replaceAll("{memberMention}", interaction.user.toString())
                         .replaceAll('{memberCount}', interaction.guild.memberCount.toString()!)
-                        .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
+                        .replaceAll('{createdAt}', interaction.user.createdAt.toLocaleDateString(guildLocal))
                         .replaceAll('{guildName}', interaction.guild.name!)
                         }\`\`\`\n` : data.setjoinmessage_help_embed_fields_custom_name_empy
                 }

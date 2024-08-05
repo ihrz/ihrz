@@ -27,6 +27,8 @@ export const event: BotEvent = {
     run: async (client: Client, member: GuildMember) => {
         try {
             let msg_dm = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`)
+            let guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "en-US";
+
             if (!msg_dm || msg_dm === "off") return;
 
             /**
@@ -40,7 +42,7 @@ export const event: BotEvent = {
                 .replaceAll("{memberUsername}", member.user.username)
                 .replaceAll("{memberMention}", member.user.toString())
                 .replaceAll('{memberCount}', member.guild?.memberCount.toString()!)
-                .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                .replaceAll('{createdAt}', member.user.createdAt.toLocaleDateString(guildLocal))
                 .replaceAll('{guildName}', member.guild?.name!)
 
             let button = new ButtonBuilder()

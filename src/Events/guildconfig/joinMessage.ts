@@ -30,6 +30,7 @@ export const event: BotEvent = {
 
         if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
 
+        let guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "en-US";
         let oldInvites = client.invites.get(member.guild.id);
         let newInvites = await member.guild.invites.fetch();
 
@@ -92,7 +93,7 @@ export const event: BotEvent = {
                     .replaceAll("{memberUsername}", member.user.username)
                     .replaceAll("{memberMention}", member.user.toString())
                     .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
-                    .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                    .replaceAll('{createdAt}', member.user.createdAt.toLocaleDateString(guildLocal))
                     .replaceAll('{guildName}', member.guild.name!)
                     .replaceAll('{inviterUsername}', isCustomVanity ? ".wf/" + CustomVanityInvite.vanity : inviter.username)
                     .replaceAll('{inviterMention}', isCustomVanity ? "discord.wf/" + CustomVanityInvite.vanity : inviter.toString())
@@ -104,7 +105,7 @@ export const event: BotEvent = {
                     .replaceAll("{memberUsername}", member.user.username)
                     .replaceAll("{memberMention}", member.user.toString())
                     .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
-                    .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                    .replaceAll('{createdAt}', member.user.createdAt.toLocaleDateString(guildLocal))
                     .replaceAll('{guildName}', member.guild.name!)
                     .replaceAll('{inviterUsername}', isCustomVanity ? ".wf/" + CustomVanityInvite.vanity : inviter.username)
                     .replaceAll('{inviterMention}', isCustomVanity ? "discord.wf/" + CustomVanityInvite.vanity : inviter.toString())
@@ -134,7 +135,7 @@ export const event: BotEvent = {
                     .replaceAll("{memberUsername}", member.user.username)
                     .replaceAll("{memberMention}", member.user.toString())
                     .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
-                    .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                    .replaceAll('{createdAt}', member.user.createdAt.toLocaleDateString(guildLocal))
                     .replaceAll('{guildName}', member.guild.name!)
                     .replaceAll('{inviterUsername}', '.gg/' + VanityURL.code)
                     .replaceAll('{inviterMention}', VanityURL.code!)
@@ -157,7 +158,7 @@ export const event: BotEvent = {
                 .replaceAll("{memberUsername}", member.user.username)
                 .replaceAll("{memberMention}", member.user.toString())
                 .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
-                .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                .replaceAll('{createdAt}', member.user.createdAt.toLocaleTimeString(guildLocal))
                 .replaceAll('{guildName}', member.guild.name!)
                 .replaceAll('{invitesCount}', invitesAmount)
                 .replaceAll("\\n", '\n');
