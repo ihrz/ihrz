@@ -51,9 +51,53 @@ export const command: Command = {
                 {
                     name: 'pub',
 
-                    description: 'Allow/Unallow the user to send a advertisement into them messages!',
+                    description: 'Allow/Unallow the user to send a server invites into them messages!',
                     description_localizations: {
-                        "fr": "Autoriser/Interdire à l'utilisateur d'envoyer une publicité dans ses messages"
+                        "fr": "Autoriser/Interdire à l'utilisateur d'envoyer une invitations de serveur dans ses messages"
+                    },
+
+                    type: ApplicationCommandOptionType.Subcommand,
+                    options: [
+                        {
+                            name: 'action',
+                            type: ApplicationCommandOptionType.String,
+
+                            description: 'What you want to do?',
+                            description_localizations: {
+                                "fr": "Que veux-tu faire?"
+                            },
+
+                            required: true,
+                            choices: [
+                                {
+                                    name: "Power On",
+                                    value: "on"
+                                },
+                                {
+                                    name: 'Power Off',
+                                    value: "off"
+                                },
+                            ],
+                        },
+                        {
+                            name: 'logs-channel',
+
+                            description: 'The channel you want logs when user break the rules!',
+                            description_localizations: {
+                                "fr": "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+                            },
+
+                            type: ApplicationCommandOptionType.Channel,
+                            required: false
+                        }
+                    ],
+                },
+                {
+                    name: 'link',
+
+                    description: 'Allow/Unallow the user to send links into them messages!',
+                    description_localizations: {
+                        "fr": "Autoriser/Interdire à l'utilisateur d'envoyer des liens dans ses messages"
                     },
 
                     type: ApplicationCommandOptionType.Subcommand,

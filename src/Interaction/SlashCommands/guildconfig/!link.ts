@@ -76,7 +76,9 @@ export default {
                     triggerMetadata:
                     {
                         regexPatterns: [
-                            '(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li)|discordapp\.com\/invite)\/.+[a-z]',
+                            '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
+                            '\bhttps?:\/\/\S+\b',
+                            '\b(https?:\/\/)?\S+\.\S+\b'
                         ]
                     },
                     actions: arrayActionsForRule
@@ -88,7 +90,9 @@ export default {
                     triggerMetadata:
                     {
                         regexPatterns: [
-                            '(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li)|discordapp\.com\/invite)\/.+[a-z]',
+                            '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
+                            '\bhttps?:\/\/\S+\b',
+                            '\b(https?:\/\/)?\S+\.\S+\b'
                         ]
                     },
                     actions: [
@@ -108,9 +112,8 @@ export default {
                 });
             };
 
-            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.antipub`, "on");
             await interaction.editReply({
-                content: data.automod_block_pub_command_on
+                content: data.automod_block_link_command_on
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${logs_channel}', (logs_channel?.toString() || 'None'))
             });
@@ -119,9 +122,8 @@ export default {
         } else if (turn === "off") {
             await KeywordPresetRule?.setEnabled(false);
 
-            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.antipub`, "off");
             await interaction.editReply({
-                content: data.automod_block_pub_command_off
+                content: data.automod_block_link_command_off
                     .replace('${interaction.user}', interaction.user.toString())
             });
 
