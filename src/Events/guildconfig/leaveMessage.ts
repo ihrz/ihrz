@@ -35,6 +35,7 @@ export const event: BotEvent = {
          */
         const nonce = SnowflakeUtil.generate().toString();
         let data = await client.func.getLanguageData(member.guild.id) as LanguageData;
+        let guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "en-US";
 
         try {
             let base = await client.db.get(`${member.guild.id}.USER.${member.user.id}.INVITES.BY`);
@@ -65,7 +66,7 @@ export const event: BotEvent = {
                         .replaceAll("{memberUsername}", member.user.username)
                         .replaceAll("{memberMention}", member.user.toString())
                         .replaceAll('{memberCount}', member.guild?.memberCount.toString()!)
-                        .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                        .replaceAll('{createdAt}', member.user.createdAt.toLocaleDateString(guildLocal))
                         .replaceAll('{guildName}', member.guild?.name!)
                         .replaceAll('{inviterUsername}', inviter.username)
                         .replaceAll('{inviterMention}', inviter.toString())
@@ -79,7 +80,7 @@ export const event: BotEvent = {
                 .replaceAll("{memberUsername}", member.user.username)
                 .replaceAll("{memberMention}", member.user.toString())
                 .replaceAll('{memberCount}', member.guild?.memberCount.toString()!)
-                .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                .replaceAll('{createdAt}', member.user.createdAt.toLocaleDateString(guildLocal))
                 .replaceAll('{guildName}', member.guild?.name!)
                 .replaceAll('{inviterUsername}', inviter.username)
                 .replaceAll('{inviterMention}', inviter.toString())
@@ -101,7 +102,7 @@ export const event: BotEvent = {
                     .replaceAll("{memberUsername}", member.user.username)
                     .replaceAll("{memberMention}", member.user.toString())
                     .replaceAll('{memberCount}', member.guild?.memberCount.toString()!)
-                    .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                    .replaceAll('{createdAt}', member.user.createdAt.toLocaleDateString(guildLocal))
                     .replaceAll('{guildName}', member.guild?.name!)
                     .replaceAll('{invitesCount}', invitesAmount)
                     .replaceAll("\\n", '\n'), enforceNonce: true, nonce: nonce

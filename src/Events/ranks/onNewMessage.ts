@@ -39,6 +39,7 @@ export const event: BotEvent = {
         if (!message.guild || message.author.bot || !message.channel) return;
 
         let data = await client.func.getLanguageData(message.guild.id) as LanguageData;
+        let guildLocal = await client.db.get(`${message.guild.id}.GUILD.LANG.lang`) || "en-US";
 
         if ((await isMessageCommand(client, message)).s) return;
 
@@ -75,7 +76,7 @@ export const event: BotEvent = {
                 .replaceAll("{memberUsername}", message.author.username)
                 .replaceAll("{memberMention}", message.author.toString())
                 .replaceAll('{memberCount}', message.guild?.memberCount?.toString()!)
-                .replaceAll('{createdAt}', message.author.createdAt.toDateString())
+                .replaceAll('{createdAt}', message.author.createdAt.toLocaleDateString(guildLocal))
                 .replaceAll('{guildName}', message.guild?.name!)
                 .replaceAll("\\n", '\n');
             ;
