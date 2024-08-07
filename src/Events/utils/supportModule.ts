@@ -39,7 +39,7 @@ export const event: BotEvent = {
 
         let fetchedUser = oldPresence.guild.members.cache.get(oldPresence.userId);
         let fetchedRoles = newPresence.guild.roles.cache.get(someinfo.rolesId);
-        if (!fetchedUser || !fetchedRoles || newPresence.guild.members.me.roles.highest.position < fetchedRoles.rawPosition || newPresence.status === 'offline') {
+        if (!fetchedUser || !fetchedRoles || newPresence.guild.members.me.roles.highest.position < fetchedRoles.rawPosition || newPresence.status === 'offline' || newPresence.status === "invisible") {
             return;
         };
 
