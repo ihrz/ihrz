@@ -596,6 +596,10 @@ all_admins_unrank_button_label: "Alle entlassen"
 all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}, iHorizon hat das Entlassen aller für das AllAdmins Modul ausgeführt.\n\n**${good}** Benutzer wurden __erfolgreich__ entlassen\niHorizon konnte **${bad}** Benutzer __nicht__ entlassen."
 all_admins_unrank_not_owner: "Nur der Besitzer des Servers kann alle Administratoren des Servers entlassen"
 
+# /addrole
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Du kannst einem Benutzer keine Rolle hinzufügen, der eine höhere Rolle als du hat..."
+utils_addrole_command_ok: "${author.toString()} hat erfolgreich die Rolle ${role?.toString()} zu ${user.toString()} hinzugefügt"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -807,9 +811,13 @@ joinghostping_remove_logs_embed_desc: "${interaction.user} hat ${channel} aus de
 automod_block_massmention_command_off: "${interaction.user}, du hast die `Massen-Erwähnungs-AutoMod-Regel` auf **false** gesetzt.\nJetzt können Benutzer Erwähnungen in ihren Nachrichten senden.\nAutoMod x iHorizon wurde auf deinem Server deaktiviert!"
 automod_block_massmention_command_on: "${interaction.user}, du hast die `Massen-Erwähnungs-AutoMod-Regel` auf **true** gesetzt.\nJetzt können Benutzer nicht mehr als **${max_mention}** Erwähnungen in ihren Nachrichten senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt deinen Server!"
 
+# /automod block links
+automod_block_link_command_on: "${interaction.user}, Sie haben die `Pub AutoMod Rule` auf **true** gesetzt.\nNun können Benutzer keine Links in ihren Nachrichten senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt Ihren Server!"
+automod_block_link_command_off: "${interaction.user}, Sie haben die `Pub AutoMod Rule` auf **false** gesetzt.\nNun können Benutzer Links in ihren Nachrichten senden.\nAutoMod x iHorizon wurde auf Ihrem Server deaktiviert!"
+
 # /automod block pub
-automod_block_pub_command_on: "${interaction.user}, du hast die `Werbe-AutoMod-Regel` auf **true** gesetzt.\nJetzt können Benutzer keine Werbung in ihren Nachrichten senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt deinen Server!"
-automod_block_pub_command_off: "${interaction.user}, du hast die `Werbe-AutoMod-Regel` auf **false** gesetzt.\nJetzt können Benutzer Werbung in ihren Nachrichten senden.\nAutoMod x iHorizon wurde auf deinem Server deaktiviert!"
+automod_block_pub_command_on: "${interaction.user}, Sie haben die `Pub AutoMod Rule` auf **true** gesetzt.\nNun können Benutzer keine Server-Einladungen in ihren Nachrichten senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt Ihren Server!"
+automod_block_pub_command_off: "${interaction.user}, Sie haben die `Pub AutoMod Rule` auf **false** gesetzt.\nNun können Benutzer Server-Einladungen in ihren Nachrichten senden.\nAutoMod x iHorizon wurde auf Ihrem Server deaktiviert!"
 
 # /automod block spam
 automod_block_spam_command_on: "${interaction.user}, du hast die `Spam-AutoMod-Regel` auf **true** gesetzt.\nJetzt können Benutzer keinen Spam mehr senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt deinen Server!"

@@ -31,35 +31,49 @@ export async function footerBuilder(message: ChatInputCommandInteraction | Messa
 }
 
 export async function footerAttachmentBuilder(interaction: ChatInputCommandInteraction | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild | Client) {
-    return {
-        attachment: await displayBotPP(
+
+    var res = await displayBotPP(
+        interaction instanceof Client
+            ?
+            interaction
+            :
+            interaction.client,
+        interaction instanceof Guild
+            ?
+            interaction.id
+            :
             interaction instanceof Client
                 ?
-                interaction
+                undefined
                 :
-                interaction.client,
-            interaction instanceof Guild
-                ?
-                interaction.id
-                :
-                interaction instanceof Client
-                    ?
-                    undefined
-                    :
-                    interaction.guild?.id!
-        ),
-        name: 'footer_icon.png'
+                interaction.guild?.id!
+    );
+
+    if (res.type === 1) {
+        return {
+            attachment: res.string,
+            name: 'footer_icon.png'
+        }
+    } else {
+        var buffer = Buffer.from(res.string, 'base64');
+
+        return {
+            attachment: buffer,
+            name: 'footer_icon.png'
+        }
     }
 }
 
-export async function displayBotPP(client: Client, guildId?: string): Promise<string> {
+export async function displayBotPP(client: Client, guildId?: string): Promise<{ type: 1 | 2; string: string; }> {
     let botPFP = await database.get(`${guildId}.BOT.botPFP`) as DatabaseStructure.DbGuildBotObject["botPFP"];
 
     if (!botPFP) {
         botPFP = client.user?.displayAvatarURL({ size: 1024 })!;
-    };
 
-    return botPFP;
+        return { type: 1, string: botPFP }
+    } else {
+        return { type: 2, string: botPFP }
+    }
 };
 
 export default async function displayBotName(guildId: string): Promise<string> {

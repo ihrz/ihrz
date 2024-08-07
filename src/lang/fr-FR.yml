@@ -66,7 +66,7 @@ transript_disabled_command: "Vous ne pouvez pas utiliser cette commande car un a
 transript_name_sourcebin: " "
 transript_title_sourcebin: "Transcription du chat de ticket pour ${channel.name}"
 transript_command_error: "Une erreur s'est produite, veuillez réessayer !"
-transript_command_work: "Voici la transcription du ticket, ${interaction.user} !"
+transript_command_work: "Voici la transcription du ticket !"
 transript_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un ticket !"
 
 # /disableticket
@@ -596,6 +596,10 @@ all_admins_unrank_button_label: "Déclasser tous"
 all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}, iHorizon a exécuté la déclassification de tous pour le module AllAdmins.\n\n**${good}** Utilisateur(s) __déclassés__ avec succès\niHorizon a __échoué__ à déclasser **${bad}** Utilisateur(s)."
 all_admins_unrank_not_owner: "Seul le propriétaire du serveur peut déclasser tous les administrateurs du serveur"
 
+# /addrole
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Vous ne pouvez pas ajouter un rôle à un utilisateur ayant un rôle supérieur au vôtre..."
+utils_addrole_command_ok: "${author.toString()} a réussi à ajouter le rôle ${role?.toString()} à ${user.toString()}"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -807,9 +811,13 @@ joinghostping_remove_logs_embed_desc: "${interaction.user} a supprimé ${channel
 automod_block_massmention_command_off: "${interaction.user}, vous avez désactivé la règle `AutoModération de Mention Massive` à **false**.\nMaintenant, les utilisateurs peuvent envoyer des mentions dans leurs messages.\nAutoMod x iHorizon a été désactivé sur votre serveur !"
 automod_block_massmention_command_on: "${interaction.user}, vous avez activé la règle `AutoModération de Mention Massive` à **true**.\nMaintenant, les utilisateurs ne peuvent pas envoyer plus de **${max_mention}** mention(s) dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur !"
 
+# /automod block links
+automod_block_link_command_on: "${interaction.user}, vous avez activé la `Règle AutoMod Pub` sur **true**.\nLes utilisateurs ne peuvent plus envoyer de liens dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur!"
+automod_block_link_command_off: "${interaction.user}, vous avez désactivé la `Règle AutoMod Pub` sur **false**.\nLes utilisateurs peuvent maintenant envoyer des liens dans leurs messages.\nAutoMod x iHorizon a été désactivé sur votre serveur!"
+
 # /automod block pub
-automod_block_pub_command_on: "${interaction.user}, vous avez activé la règle `AutoModération de Publicité` à **true**.\nMaintenant, les utilisateurs ne peuvent pas envoyer de publicité dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur !"
-automod_block_pub_command_off: "${interaction.user}, vous avez désactivé la règle `AutoModération de Publicité` à **false**.\nMaintenant, les utilisateurs peuvent envoyer de la publicité dans leurs messages.\nAutoMod x iHorizon a été désactivé sur votre serveur !"
+automod_block_pub_command_on: "${interaction.user}, vous avez activé la `Règle AutoMod Pub` sur **true**.\nLes utilisateurs ne peuvent plus envoyer d'invitations de serveur dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur!"
+automod_block_pub_command_off: "${interaction.user}, vous avez désactivé la `Règle AutoMod Pub` sur **false**.\nLes utilisateurs peuvent maintenant envoyer des invitations de serveur dans leurs messages.\nAutoMod x iHorizon a été désactivé sur votre serveur!"
 
 # /automod block spam
 automod_block_spam_command_on: "${interaction.user}, vous avez activé la règle `AutoModération de Spam` à **true**.\nMaintenant, les utilisateurs ne peuvent pas spammer.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur !"

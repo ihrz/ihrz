@@ -24,8 +24,6 @@ function maskLink(input: string): string {
         "http://",
         "https://",
         ".gg/",
-        "@everyone",
-        "@here"
     ];
 
     for (let content of blacklistContent) {

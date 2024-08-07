@@ -596,6 +596,10 @@ all_admins_unrank_button_label: "全員のランクを下げる"
 all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}、iHorizonはAllAdminsモジュールの全員のランクダウンを実行しました。\n\n**${good}** ユーザーが__正常に__ランクを下げました\niHorizonは**${bad}** ユーザーのランクを下げることに__失敗しました__。"
 all_admins_unrank_not_owner: "サーバーの所有者のみがサーバーのすべての管理者のランクを下げることができます"
 
+# /addrole
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} あなたよりも高い役割を持つユーザーに役割を追加することはできません..."
+utils_addrole_command_ok: "${author.toString()} が ${user.toString()} に役割 ${role?.toString()} を正常に追加しました"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -807,9 +811,13 @@ joinghostping_remove_logs_embed_desc: "${interaction.user} が Join GhostPing �
 automod_block_massmention_command_off: "${interaction.user}, あなたは`Mass-Mention AutoModルール`を**false**に設定しました。\n今、ユーザーはメッセージにメンションを送信できます。\nAutoMod x iHorizonはサーバーで無効になっています！"
 automod_block_massmention_command_on: "${interaction.user}, あなたは`Mass-Mention AutoModルール`を**true**に設定しました。\n今、ユーザーはメッセージに**${max_mention}**回以上のメンションを送信できません。\nAutoModは${logs_channel}にログを送信しています。\nAutoMod x iHorizonがサーバーを保護しています！"
 
+# /automod block links
+automod_block_link_command_on: "${interaction.user}、`Pub AutoModルール`を**true**に設定しました。\nこれでユーザーはメッセージにリンクを送信できません。\nAutoModは${logs_channel}に__ログを送信__します。\nAutoMod x iHorizonはあなたのサーバーを保護します！"
+automod_block_link_command_off: "${interaction.user}、`Pub AutoModルール`を**false**に設定しました。\nこれでユーザーはメッセージにリンクを送信できます。\nAutoMod x iHorizonはあなたのサーバーで無効になりました！"
+
 # /automod block pub
-automod_block_pub_command_on: "${interaction.user}, あなたは`Pub AutoModルール`を**true**に設定しました。\n今、ユーザーはメッセージに広告を送信できません。\nAutoModは${logs_channel}にログを送信しています。\nAutoMod x iHorizonがサーバーを保護しています！"
-automod_block_pub_command_off: "${interaction.user}, あなたは`Pub AutoModルール`を**false**に設定しました。\n今、ユーザーはメッセージに広告を送信できます。\nAutoMod x iHorizonはサーバーで無効になっています！"
+automod_block_pub_command_on: "${interaction.user}、`Pub AutoModルール`を**true**に設定しました。\nこれでユーザーはメッセージにサーバー招待を送信できません。\nAutoModは${logs_channel}に__ログを送信__します。\nAutoMod x iHorizonはあなたのサーバーを保護します！"
+automod_block_pub_command_off: "${interaction.user}、`Pub AutoModルール`を**false**に設定しました。\nこれでユーザーはメッセージにサーバー招待を送信できます。\nAutoMod x iHorizonはあなたのサーバーで無効になりました！"
 
 # /automod block spam
 automod_block_spam_command_on: "${interaction.user}, あなたは`Spam AutoModルール`を**true**に設定しました。\n今、ユーザーはスパムできません。\nAutoModは${logs_channel}にログを送信しています。\nAutoMod x iHorizonがサーバーを保護しています！"

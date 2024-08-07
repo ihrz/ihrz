@@ -596,6 +596,10 @@ all_admins_unrank_button_label: "Разжаловать всех"
 all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}, iHorizon выполнил разжалование всех для модуля AllAdmins.\n\n**${good}** Пользователь(и) __успешно__ разжалованы\niHorizon __не смог__ разжаловать **${bad}** Пользователь(и)."
 all_admins_unrank_not_owner: "Только владелец сервера может разжаловать всех администраторов сервера"
 
+# /addrole
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Вы не можете добавить роль пользователю, который имеет более высокую роль, чем вы..."
+utils_addrole_command_ok: "${author.toString()} успешно добавил роль ${role?.toString()} пользователю ${user.toString()}"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -807,9 +811,13 @@ joinghostping_remove_logs_embed_desc: "${interaction.user} удалил ${channe
 automod_block_massmention_command_off: "${interaction.user}, вы отключили `Правило автоматической модерации упоминаний` и теперь пользователи могут отправлять упоминания в своих сообщениях.\nAutoMod x iHorizon отключен на вашем сервере!"
 automod_block_massmention_command_on: "${interaction.user}, вы включили `Правило автоматической модерации упоминаний` и теперь пользователи не могут отправлять более **${max_mention}** упоминаний в своих сообщениях.\nAutoMod отправляет журналы в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
 
+# /automod block links
+automod_block_link_command_on: "${interaction.user}, вы установили `Pub AutoMod Rule` на **true**.\nТеперь пользователи не могут отправлять ссылки в своих сообщениях.\nAutoMod __отправляет логи__ в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
+automod_block_link_command_off: "${interaction.user}, вы установили `Pub AutoMod Rule` на **false**.\nТеперь пользователи могут отправлять ссылки в своих сообщениях.\nAutoMod x iHorizon был отключен на вашем сервере!"
+
 # /automod block pub
-automod_block_pub_command_on: "${interaction.user}, вы включили `Правило автоматической модерации рекламы` и теперь пользователи не могут отправлять рекламу в своих сообщениях.\nAutoMod отправляет журналы в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер! "
-automod_block_pub_command_off: "${interaction.user}, вы отключили `Правило автоматической модерации рекламы` и теперь пользователи могут отправлять рекламу в своих сообщениях.\nAutoMod x iHorizon отключен на вашем сервере!"
+automod_block_pub_command_on: "${interaction.user}, вы установили `Pub AutoMod Rule` на **true**.\nТеперь пользователи не могут отправлять приглашенияна сервер в своих сообщениях.\nAutoMod отправляет логи в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
+automod_block_pub_command_off: "${interaction.user}, вы установили Pub AutoMod Rule на false.\nТеперь пользователи могут отправлять приглашения на сервер в своих сообщениях.\nAutoMod x iHorizon был отключен на вашем сервере!"
 
 # /automod block spam
 automod_block_spam_command_on: "${interaction.user}, вы включили `Правило автоматической модерации спама` и теперь пользователи не могут спамить.\nAutoMod отправляет журналы в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
