@@ -1419,6 +1419,9 @@ mybot_manage_accept_utils_no: "Нет"
 mybot_manage_accept_embed_title: "Разместите свой собственный iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
 mybot_manage_accept_embed_desc: "Бот был принят\n\n${utils_msg}"
 
+# /mybot change-owner
+mybot_change_owner: "У OWNIHRZ теперь новый владелец: <@${OwnerOne}>, <@${OwnerTwo}>"
+
 # /mybot экземпляр отказать
 mybot_instance_deny_not_foud: "Бот в базе данных не может быть найден. Мы не можем продолжать."
 mybot_instance_deny_token_error: "Токен в базе данных недействителен. Мы не можем продолжать."

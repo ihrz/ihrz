@@ -29,6 +29,7 @@ export const ClusterMethod = {
     ShutdownContainer: 3,
     PowerOnContainer: 4,
     ChangeTokenContainer: 5,
+    ChangeOwnerContainer: 6
 };
 
 export function assetsFinder(body: Assets, type: string): string {

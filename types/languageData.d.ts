@@ -1034,6 +1034,7 @@ export interface LanguageData {
   mybot_manage_accept_utils_no: string;
   mybot_manage_accept_embed_title: string;
   mybot_manage_accept_embed_desc: string;
+  mybot_change_owner: string;
   mybot_instance_deny_not_foud: string;
   mybot_instance_deny_token_error: string;
   mybot_instance_deny_utils_msg: string;
