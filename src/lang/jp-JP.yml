@@ -1419,6 +1419,9 @@ mybot_manage_accept_utils_no: "いいえ"
 mybot_manage_accept_embed_title: "独自の iHorizon をホストする: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
 mybot_manage_accept_embed_desc: "ボットは承認されました\n\n${utils_msg}"
 
+# /mybot change-owner
+mybot_change_owner: "OWNIHRZの新しい所有者は次の通りです：<@${OwnerOne}>, <@${OwnerTwo}>"
+
 # /mybot インスタンス 拒否
 mybot_instance_deny_not_foud: "データベース内のボットが見つかりません。進行できません。"
 mybot_instance_deny_token_error: "データベース内のトークンは無効です。進行できません。"

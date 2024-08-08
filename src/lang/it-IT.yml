@@ -1419,6 +1419,9 @@ mybot_manage_accept_utils_no: "No"
 mybot_manage_accept_embed_title: "Ospita il tuo iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
 mybot_manage_accept_embed_desc: "Il bot è stato accettato\n\n${utils_msg}"
 
+# /mybot change-owner
+mybot_change_owner: "Gli OWNIHRZ hanno ora un nuovo proprietario: <@${OwnerOne}>, <@${OwnerTwo}>"
+
 # /mybot istanza rifiuta
 mybot_instance_deny_not_foud: "Il bot nel database non può essere trovato. Non possiamo procedere."
 mybot_instance_deny_token_error: "Il token nel database non è valido. Non possiamo procedere."
