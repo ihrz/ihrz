@@ -62,6 +62,7 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
+        await interaction.deferReply({ ephemeral: true });
         let table_1 = client.db.table("OWNIHRZ");
         let data_2 = await table_1.get(`MAIN.${interaction.user.id}`);
         let allData = await table_1.get("CLUSTER");
@@ -88,9 +89,8 @@ export default {
             }
         }
 
-        await interaction.reply({
+        await interaction.editReply({
             embeds: lsEmbed,
-            ephemeral: true,
             files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
         return;

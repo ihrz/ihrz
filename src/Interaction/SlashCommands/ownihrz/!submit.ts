@@ -36,14 +36,16 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
+        await interaction.deferReply({ ephemeral: true });
+
         let discord_bot_token = interaction.options.getString('discord_bot_token') as string;
         let bot_1 = (await OWNIHRZ.Get_Bot(discord_bot_token).catch(() => { }))?.data || 404;
 
         if (!bot_1.bot) {
-            await interaction.reply({ content: data.mybot_submit_token_invalid });
+            await interaction.editReply({ content: data.mybot_submit_token_invalid });
             return;
         } else {
-            var code = generatePassword({ length: 8 })
+            var code = generatePassword({ length: 8, numbers: true })
 
             var table_1 = client.db.table("TEMP");
             await table_1.set(`OWNIHRZ.${interaction.user.id}.${code}`,
@@ -81,9 +83,8 @@ export default {
                 )
                 .setFooter(await client.method.bot.footerBuilder(interaction));
 
-            await interaction.reply({
+            await interaction.editReply({
                 embeds: [embed],
-                ephemeral: true,
                 files: [await client.method.bot.footerAttachmentBuilder(interaction)]
             });
             return;

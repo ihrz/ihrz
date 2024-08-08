@@ -1419,6 +1419,9 @@ mybot_manage_accept_utils_no: "Non"
 mybot_manage_accept_embed_title: "Hébergez votre propre iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"
 mybot_manage_accept_embed_desc: "Le bot a été accepté\n\n${utils_msg}"
 
+# /mybot change-owner
+mybot_change_owner: "Les OWNIHRZ ont maintenant un nouveau propriétaire : <@${OwnerOne}>, <@${OwnerTwo}>"
+
 # /mybot instance refuser
 mybot_instance_deny_not_foud: "Le bot dans la base de données est introuvable. Nous ne pouvons pas continuer."
 mybot_instance_deny_token_error: "Le jeton dans la base de données est invalide. Nous ne pouvons pas continuer."
