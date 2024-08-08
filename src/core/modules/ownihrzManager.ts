@@ -127,8 +127,7 @@ class OwnIHRZ {
     };
 
     async Change_Token(config: ConfigData, cluster_id: number, botId: string, bot_token: string) {
-        axios.get(
-            OwnIhrzCluster(config, cluster_id!, ClusterMethod.ChangeTokenContainer, botId, bot_token))
+        axios.get(OwnIhrzCluster(config, cluster_id!, ClusterMethod.ChangeTokenContainer, botId, bot_token))
             .then(async () => {
             })
             .catch(error => {
@@ -172,6 +171,18 @@ class OwnIHRZ {
             }
         });
     };
+
+    async Change_Owner(config: ConfigData, cluster_id: number, botId: string, new_owner_id1: string, new_owner_id2: string) {
+        return await axios.post(OwnIhrzCluster(config, cluster_id, ClusterMethod.ChangeOwnerContainer),
+            {
+                adminKey: config.api.apiToken,
+                botId,
+                OwnerOne: new_owner_id1,
+                OwnerTwo: new_owner_id2
+            },
+            { headers: { 'Accept': 'application/json' } }
+        );
+    }
 
 }
 

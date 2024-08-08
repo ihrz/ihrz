@@ -29,6 +29,7 @@ export const ClusterMethod = {
     ShutdownContainer: 3,
     PowerOnContainer: 4,
     ChangeTokenContainer: 5,
+    ChangeOwnerContainer: 6
 };
 
 export function assetsFinder(body: Assets, type: string): string {
@@ -69,6 +70,9 @@ export function OwnIhrzCluster(config: ConfigData, cluster_number: number, clust
             if (bot_id) data += `/${bot_id}`
             if (discord_bot_token) data += `/${discord_bot_token}`
             if (admin_key) data += `/${admin_key}`
+            break;
+        case 6:
+            data += `change_owner`
             break;
     }
 

@@ -119,6 +119,51 @@ export const command: Command = {
             ],
         },
         {
+            name: "change-owner",
+
+            description: "Change the owner of your own iHorizon!",
+            description_localizations: {
+                "fr": "Changer les propriétaire de votre ownihrz"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+                {
+                    name: 'botid',
+                    type: ApplicationCommandOptionType.String,
+
+                    description: 'Identifiant of your own iHorizon!',
+                    description_localizations: {
+                        "fr": "l'identifiant de votre propre iHorizon"
+                    },
+
+                    required: true
+                },
+                {
+                    name: 'owner_one',
+                    type: ApplicationCommandOptionType.User,
+
+                    description: 'The new first owner of your own discord bot!',
+                    description_localizations: {
+                        "fr": "Le nouveau premier propriétaire de votre propre iHorizon"
+                    },
+
+                    required: true
+                },
+                {
+                    name: 'owner_two',
+                    type: ApplicationCommandOptionType.User,
+
+                    description: 'The second owner of your own discord bot!',
+                    description_localizations: {
+                        "fr": "Le nouveau second propriétaire de votre propre iHorizon (Optionnel)"
+                    },
+
+                    required: false
+                }
+            ],
+        },
+        {
             name: "list",
 
             description: "List your bot",
