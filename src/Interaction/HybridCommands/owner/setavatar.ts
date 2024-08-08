@@ -26,13 +26,15 @@ import {
     ApplicationCommandOptionType,
     ActivityType,
     ApplicationCommandType,
-    ChatInputCommandInteraction
+    ChatInputCommandInteraction,
+    Message
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
 
 import { axios } from '../../../core/functions/axios.js';
+import { LanguageData } from '../../../../types/languageData';
 
 var timeout: number = 1_800_000;
 
@@ -71,20 +73,29 @@ export const command: Command = {
     category: 'owner',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+        // Guard's Typing
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+
         async function cooldDown() {
             let tn = Date.now();
-            var fetch = await client.db.get(`TEMP_COOLDOWN.${interaction.user.id}.SETAVATAR`);
+            var fetch = await client.db.get(`TEMP_COOLDOWN.${interaction.member?.user.id}.SETAVATAR`);
 
             if (fetch !== null && timeout - (tn - fetch) > 0) return true;
 
             return false;
         };
 
-        let action_2 = interaction.options.getString("pfp");
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var action_2 = interaction.options.getString("pfp");
+        } else {
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var action_2 = client.method.string(args!, 0);
+        };
+
         let table = client.db.table('OWNER');
 
-        if (await table.get(`${interaction.user.id}.owner`)
+        if (await table.get(`${interaction.member.user.id}.owner`)
             !== true) {
 
             await interaction.reply({ content: '❌', ephemeral: true });
@@ -93,7 +104,7 @@ export const command: Command = {
 
         if (await cooldDown()) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() -
-                await client.db.get(`TEMP_COOLDOWN.${interaction.user.id}.SETAVATAR`)
+                await client.db.get(`TEMP_COOLDOWN.${interaction.member.user.id}.SETAVATAR`)
             ));
 
             await interaction.reply({ content: `Veuillez attendre ${time} avant de ré-éxecuter cette commandes!` });
@@ -104,7 +115,7 @@ export const command: Command = {
             .then(async (isValid) => {
                 if (isValid) {
                     client.user?.setAvatar(action_2);
-                    await client.db.set(`TEMP_COOLDOWN.${interaction.user.id}.SETAVATAR`, Date.now());
+                    await client.db.set(`TEMP_COOLDOWN.${interaction.member?.user.id}.SETAVATAR`, Date.now());
 
                     return interaction.reply({ content: `La photo de profil du bot as bien été changer avec succès.` });
                 } else {

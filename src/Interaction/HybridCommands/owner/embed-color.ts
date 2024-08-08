@@ -24,10 +24,13 @@ import {
     EmbedBuilder,
     PermissionsBitField,
     ApplicationCommandOptionType,
-    ApplicationCommandType
+    ApplicationCommandType,
+    ChatInputCommandInteraction,
+    Message
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'embed-color',
@@ -45,7 +48,7 @@ export const command: Command = {
             description: `What do you want to do ?`,
             description_localizations: {
                 "fr": "Quelle sont les embed concerné ?"
-            }, 
+            },
 
             required: true,
             choices: [
@@ -110,23 +113,36 @@ export const command: Command = {
     category: 'owner',
     thinking: true,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: any) => {
-        let data = await client.func.getLanguageData(interaction.guild.id);
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+        // Guard's Typing
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.setjoindm_not_admin });
+        const permissionsArray = [PermissionsBitField.Flags.ManageMessages]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions) {
+            await client.method.interactionSend(interaction, { content: lang.setjoindm_not_admin });
             return;
         };
 
-        let choices = interaction.options.getString("action");
-        let hex_color = interaction.options.getString("hex-color");
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var choices = interaction.options.getString("action");
+            var hex_color = interaction.options.getString("hex-color");
+        } else {
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var choices = client.method.string(args!, 0);
+            var hex_color = client.method.string(args!, 1);
+        };
+
         var reg = /^#([0-9a-f]{3}){1,2}$/i;
 
         if (choices === 'reset') {
             await client.db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`);
 
-            await interaction.editReply({
-                content: `${interaction.user}, now the color of all embeds are deleted!`
+            await client.method.interactionSend(interaction, {
+                content: `${interaction.member.user.toString()}, now the color of all embeds are deleted!`
             });
 
             return;
@@ -136,13 +152,13 @@ export const command: Command = {
 
             await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.${choices}`, hex_color);
 
-            await interaction.editReply({
-                content: `${interaction.user}, now the embed color is \`${hex_color}\` for ${choices} !`
+            await client.method.interactionSend(interaction, {
+                content: `${interaction.member.user.toString()}, now the embed color is \`${hex_color}\` for ${choices} !`
             });
 
             return;
         } else {
-            await interaction.editReply({ content: `${interaction.user}, color is not in the right format.\nPlease refer to **www.color-hex.com**` });
+            await client.method.interactionSend(interaction, { content: `${interaction.member.user.toString()}, color is not in the right format.\nPlease refer to **www.color-hex.com**` });
             return;
         };
     },

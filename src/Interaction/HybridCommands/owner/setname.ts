@@ -22,12 +22,15 @@
 import {
     Client,
     ApplicationCommandOptionType,
-    ApplicationCommandType
+    ApplicationCommandType,
+    ChatInputCommandInteraction,
+    Message
 } from 'discord.js'
 
 var timeout: number = 1_800_000;
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'setname',
@@ -50,43 +53,49 @@ export const command: Command = {
             required: true,
         },
     ],
-    thinking: true,
+    thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: any) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+        // Guard's Typing
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+
         async function cooldDown() {
             let tn = Date.now();
-            var fetch = await client.db.get(`TEMP_COOLDOWN.${interaction.user.id}.SETNAME`);
+            var fetch = await client.db.get(`TEMP_COOLDOWN.${interaction.member?.user.id}.SETNAME`);
 
             if (fetch !== null && timeout - (tn - fetch) > 0) return true;
 
             return false;
         };
 
-        let action_2 = interaction.options.getString("name");
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var action_2 = interaction.options.getString("name")!;
+        } else {
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var action_2 = client.method.string(args!, 0)!;
+        };
+
         let table = client.db.table('OWNER');
 
-        if (await table.get(`${interaction.user.id}.owner`)
+        if (await table.get(`${interaction.member.user.id}.owner`)
             !== true) {
-
-            await interaction.deleteReply();
-            await interaction.followUp({ content: '❌', ephemeral: true });
             return;
         };
 
         if (await cooldDown()) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() -
-                await client.db.get(`TEMP_COOLDOWN.${interaction.user.id}.SETNAME`)
+                await client.db.get(`TEMP_COOLDOWN.${interaction.member.user.id}.SETNAME`)
             ));
 
-            await interaction.editReply({ content: `Veuillez attendre ${time} avant de ré-éxecuter cette commandes!` });
+            await interaction.reply({ content: `Veuillez attendre ${time} avant de ré-éxecuter cette commandes!` });
             return;
         }
 
         await client.user?.setUsername(action_2);
-        await client.db.set(`TEMP_COOLDOWN.${interaction.user.id}.SETNAME`, Date.now());
+        await client.db.set(`TEMP_COOLDOWN.${interaction.member.user.id}.SETNAME`, Date.now());
 
-        await interaction.editReply({ content: `✅` });
+        await interaction.reply({ content: `✅` });
         return;
     },
 };

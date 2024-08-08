@@ -23,10 +23,13 @@ import {
     Client,
     ApplicationCommandOptionType,
     ActivityType,
-    ApplicationCommandType
+    ApplicationCommandType,
+    ChatInputCommandInteraction,
+    Message
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'presence',
@@ -104,18 +107,25 @@ export const command: Command = {
     category: 'owner',
     thinking: true,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: any) => {
-        let action_1 = interaction.options.getString("type");
-        let action_2 = interaction.options.getString("name");
-        let action_3 = interaction.options.getString("twitch_username") || "anaissaraiva";
+    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+        // Guard's Typing
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var action_1 = interaction.options.getString("type")!;
+            var action_2 = interaction.options.getString("name")!;
+            var action_3 = interaction.options.getString("twitch_username") || "anaissaraiva";
+        } else {
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var action_1 = client.method.string(args!, 0)!;
+            var action_2 = client.method.string(args!, 1)!;
+            var action_3 = client.method.longString(args!, 2) || "anaissaraiva"
+        };
 
         let table = client.db.table('OWNER');
 
-        if (await table.get(`${interaction.user.id}.owner`)
+        if (await table.get(`${interaction.member.user.id}.owner`)
             !== true) {
-
-            await interaction.deleteReply();
-            await interaction.followUp({ content: '❌', ephemeral: true });
             return;
         };
 
@@ -203,7 +213,7 @@ export const command: Command = {
                 break;
         };
 
-        await interaction.editReply({ content: `✅` });
+        await client.method.interactionSend(interaction, { content: `✅` });
         return;
     },
 };
