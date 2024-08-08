@@ -119,22 +119,6 @@ export const event: BotEvent = {
             });
         };
 
-        async function refreshBotData() {
-            await client.db.set("BOT", {
-                "info": {
-                    members: client.guilds.cache.reduce((a, b) => a + b.memberCount, 0),
-                    servers: client.guilds.cache.size,
-                    shards: client.shard?.count,
-                    ping: client.ws.ping
-                },
-                "content": {
-                    commands: client.commands.size + client.message_commands.size + client.applicationsCommands.size,
-                    category: client.category.length
-                },
-                "user": client.user
-            })
-        }
-
         // @ts-ignore
         client.giveawaysManager = new GiveawayManager(client, {
             storage: `${process.cwd()}/src/files/giveaways/`,
@@ -153,7 +137,7 @@ export const event: BotEvent = {
 
         setInterval(quotesPresence, 80_000), setInterval(refreshSchedule, 15_000);
 
-        fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule(), refreshBotData();
+        fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule();
 
         PfpsManager_Init(client);
     },

@@ -77,7 +77,7 @@ export async function main(client: Client) {
     errorManager.uncaughtExceptionHandler(client);
 
     process.on('SIGINT', async () => {
-        client.destroy();
+        await client.destroy();
         process.exit();
     });
 

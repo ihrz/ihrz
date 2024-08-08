@@ -21,8 +21,6 @@
 
 import {
     Client,
-    EmbedBuilder,
-    PermissionsBitField,
     ApplicationCommandOptionType,
     ActivityType,
     ApplicationCommandType
