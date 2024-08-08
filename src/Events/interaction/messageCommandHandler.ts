@@ -43,7 +43,7 @@ export const event: BotEvent = {
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        if (await client.method.helper.cooldDown(message, "msg_commands", 1000)) {
+        if (await client.method.helper.coolDown(message, "msg_commands", 1000)) {
             return;
         };
 
