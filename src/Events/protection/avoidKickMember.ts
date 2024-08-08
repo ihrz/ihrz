@@ -41,18 +41,23 @@ export const event: BotEvent = {
 
             let fetchedLogs = await member.guild.fetchAuditLogs({
                 type: AuditLogEvent.MemberKick,
-                limit: 1,
+                limit: 10,
             });
 
-            let firstEntry = fetchedLogs.entries.first();
-            if (!firstEntry || !firstEntry.target || member.id !== firstEntry.target.id) return;
+            let relevantLog = fetchedLogs.entries.find(entry =>
+                entry.targetId === member.id &&
+                entry.executorId !== client.user?.id &&
+                entry.executorId
+            );
 
-            if (firstEntry?.targetId !== member.user.id || firstEntry.executorId === client.user?.id || !firstEntry.executorId) return;
+            if (!relevantLog) {
+                return;
+            }
 
-            let baseData = await client.db.get(`${member.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
+            let baseData = await client.db.get(`${member.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
             if (!baseData) {
-                let user = member.guild.members.cache.get(firstEntry?.executorId);
+                let user = member.guild.members.cache.get(relevantLog?.executorId!);
 
                 switch (data?.['SANCTION']) {
                     case 'simply+derank':
