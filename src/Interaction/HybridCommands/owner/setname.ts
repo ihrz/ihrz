@@ -27,8 +27,6 @@ import {
     Message
 } from 'discord.js'
 
-var timeout: number = 1_800_000;
-
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
 
@@ -60,15 +58,6 @@ export const command: Command = {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        async function cooldDown() {
-            let tn = Date.now();
-            var fetch = await client.db.get(`TEMP_COOLDOWN.${interaction.member?.user.id}.SETNAME`);
-
-            if (fetch !== null && timeout - (tn - fetch) > 0) return true;
-
-            return false;
-        };
-
         if (interaction instanceof ChatInputCommandInteraction) {
             var action_2 = interaction.options.getString("name")!;
         } else {
@@ -83,9 +72,9 @@ export const command: Command = {
             return;
         };
 
-        if (await cooldDown()) {
-            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() -
-                await client.db.get(`TEMP_COOLDOWN.${interaction.member.user.id}.SETNAME`)
+        if (await client.method.helper.hardCooldown(client.db, "setname", 1_800_000)) {
+            let time = client.timeCalculator.to_beautiful_string(1_800_000 - (Date.now() -
+                await (client.db.table("TEMP")).get(`COOLDOWN.setname`)
             ));
 
             await interaction.reply({ content: `Veuillez attendre ${time} avant de ré-éxecuter cette commandes!` });
@@ -93,7 +82,6 @@ export const command: Command = {
         }
 
         await client.user?.setUsername(action_2);
-        await client.db.set(`TEMP_COOLDOWN.${interaction.member.user.id}.SETNAME`, Date.now());
 
         await interaction.reply({ content: `✅` });
         return;

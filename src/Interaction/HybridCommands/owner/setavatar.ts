@@ -36,8 +36,6 @@ import logger from '../../../core/logger.js';
 import { axios } from '../../../core/functions/axios.js';
 import { LanguageData } from '../../../../types/languageData';
 
-var timeout: number = 1_800_000;
-
 async function isImageUrl(url: string): Promise<boolean> {
     try {
         const response = await axios.head(url);
@@ -77,15 +75,6 @@ export const command: Command = {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        async function cooldDown() {
-            let tn = Date.now();
-            var fetch = await client.db.get(`TEMP_COOLDOWN.${interaction.member?.user.id}.SETAVATAR`);
-
-            if (fetch !== null && timeout - (tn - fetch) > 0) return true;
-
-            return false;
-        };
-
         if (interaction instanceof ChatInputCommandInteraction) {
             var action_2 = interaction.options.getString("pfp");
         } else {
@@ -102,9 +91,9 @@ export const command: Command = {
             return;
         };
 
-        if (await cooldDown()) {
-            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() -
-                await client.db.get(`TEMP_COOLDOWN.${interaction.member.user.id}.SETAVATAR`)
+        if (await client.method.helper.hardCooldown(client.db, "setavatar", 1_800_000)) {
+            let time = client.timeCalculator.to_beautiful_string(1_800_000 - (Date.now() -
+                await (client.db.table("TEMP")).get(`COOLDOWN.setavatar`)
             ));
 
             await interaction.reply({ content: `Veuillez attendre ${time} avant de ré-éxecuter cette commandes!` });
@@ -114,8 +103,7 @@ export const command: Command = {
         isImageUrl(action_2 as string)
             .then(async (isValid) => {
                 if (isValid) {
-                    client.user?.setAvatar(action_2);
-                    await client.db.set(`TEMP_COOLDOWN.${interaction.member?.user.id}.SETAVATAR`, Date.now());
+                    await client.user?.setAvatar(action_2);
 
                     return interaction.reply({ content: `La photo de profil du bot as bien été changer avec succès.` });
                 } else {
