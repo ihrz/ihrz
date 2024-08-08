@@ -31,15 +31,22 @@ export const event: BotEvent = {
         if (!data) return;
 
         if (data.updatechannel && data.updatechannel.mode === 'allowlist') {
-            let fetchedLogs = await newChannel.guild.fetchAuditLogs({
+            let fetchedLogs = await oldChannel.guild.fetchAuditLogs({
                 type: AuditLogEvent.ChannelUpdate,
-                limit: 1,
+                limit: 10,
             });
-            var firstEntry = fetchedLogs.entries.first();
-            if (firstEntry?.targetId !== newChannel.id) return;
-            if (firstEntry.executorId === client.user?.id) return;
 
-            let baseData = await client.db.get(`${newChannel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
+            let relevantLog = fetchedLogs.entries.find(entry =>
+                entry.targetId === newChannel.id &&
+                entry.executorId !== client.user?.id &&
+                entry.executorId
+            );
+
+            if (!relevantLog) {
+                return;
+            }
+
+            let baseData = await client.db.get(`${newChannel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
             if (!baseData) {
                 const editOptions: GuildChannelEditOptions = {
@@ -62,7 +69,7 @@ export const event: BotEvent = {
                 }
 
                 await newChannel.edit(editOptions);
-                let user = newChannel.guild.members.cache.get(firstEntry?.executorId as string);
+                let user = newChannel.guild.members.cache.get(relevantLog?.executorId as string);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':

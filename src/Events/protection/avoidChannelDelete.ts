@@ -36,16 +36,22 @@ export const event: BotEvent = {
 
             let fetchedLogs = await channel.guild.fetchAuditLogs({
                 type: AuditLogEvent.ChannelDelete,
-                limit: 1,
+                limit: 10,
             });
 
             let lang = await client.func.getLanguageData(channel.guildId) as LanguageData;
 
-            let firstEntry = fetchedLogs.entries.first();
+            let relevantLog = fetchedLogs.entries.find(entry =>
+                entry.targetId === channel.id &&
+                entry.executorId !== client.user?.id &&
+                entry.executorId
+            );
 
-            if (firstEntry?.targetId !== channel.id || firstEntry.executorId === client.user?.id || !firstEntry.executorId) return;
+            if (!relevantLog) {
+                return;
+            }
 
-            let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
+            let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
             if (!baseData) {
                 (await channel?.clone({
@@ -56,13 +62,13 @@ export const event: BotEvent = {
                     nsfw: (channel as BaseGuildTextChannel).nsfw,
                     rateLimitPerUser: (channel as BaseGuildTextChannel).rateLimitPerUser!,
                     position: channel.rawPosition,
-                    reason: `Channel re-create by Protect (${firstEntry.executorId} break the rule!)`
+                    reason: `Channel re-create by Protect (${relevantLog.executorId} break the rule!)`
                 }) as BaseGuildTextChannel).send(lang.protection_avoid_channel_delete
                     .replace('${channel.guild.ownerId}', channel.guild.ownerId)
-                    .replace('${firstEntry.executorId}', firstEntry.executorId)
+                    .replace('${firstEntry.executorId}', relevantLog.executorId!)
                 );
 
-                let user = channel.guild.members.cache.get(firstEntry.executorId);
+                let user = channel.guild.members.cache.get(relevantLog.executorId!);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':
