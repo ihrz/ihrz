@@ -19,7 +19,6 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel } from 'discord.js'
 import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel, CategoryChannel, ChannelType, TextChannel } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
