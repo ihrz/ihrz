@@ -33,22 +33,28 @@ export const event: BotEvent = {
         if (data.deleterole && data.deleterole.mode === 'allowlist') {
             let fetchedLogs = await role.guild.fetchAuditLogs({
                 type: AuditLogEvent.RoleDelete,
-                limit: 1,
+                limit: 10,
             });
 
-            var firstEntry = fetchedLogs.entries.first();
-            if (firstEntry?.targetId !== role.id) return;
-            if (firstEntry.executorId === client.user?.id) return;
+            let relevantLog = fetchedLogs.entries.find(entry =>
+                entry.targetId === role.id &&
+                entry.executorId !== client.user?.id &&
+                entry.executorId
+            );
 
-            let baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
+            if (!relevantLog) {
+                return;
+            }
+
+            let baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
             if (!baseData) {
                 let newRole = await role.guild.roles.create({
-                    ...role, reason: `Role re-create by Protect (${firstEntry.executorId} break the rule!)`,
+                    ...role, reason: `Role re-create by Protect (${relevantLog.executorId} break the rule!)`,
                 });
 
                 newRole.setPosition(role.rawPosition);
-                let user = role.guild.members.cache.get(firstEntry?.executorId as string);
+                let user = role.guild.members.cache.get(relevantLog?.executorId as string);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':

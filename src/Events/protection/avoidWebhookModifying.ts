@@ -33,22 +33,28 @@ export const event: BotEvent = {
         if (data.webhook && data.webhook.mode === 'allowlist') {
             let fetchedLogs = await channel.guild.fetchAuditLogs({
                 type: AuditLogEvent.WebhookCreate,
-                limit: 1,
+                limit: 10,
             });
 
-            var firstEntry = fetchedLogs.entries.first();
-            if (firstEntry?.target.channelId !== channel.id) return;
-            if (firstEntry.executorId === client.user?.id) return;
+            let relevantLog = fetchedLogs.entries.find(entry =>
+                entry.targetId === channel.id &&
+                entry.executorId !== client.user?.id &&
+                entry.executorId
+            );
 
-            let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
+            if (!relevantLog) {
+                return;
+            }
+
+            let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
             if (!baseData) {
                 let webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
-                let myWebhooks = webhooks.filter((webhook) => webhook.id === firstEntry?.target.id);
+                let myWebhooks = webhooks.filter((webhook) => webhook.id === relevantLog?.target.id);
 
                 for (let [id, webhook] of myWebhooks) await webhook.delete("Protect!");
 
-                let user = channel.guild.members.cache.get(firstEntry.executorId as string);
+                let user = channel.guild.members.cache.get(relevantLog.executorId as string);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':

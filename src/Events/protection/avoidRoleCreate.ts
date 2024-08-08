@@ -33,18 +33,24 @@ export const event: BotEvent = {
         if (data.createrole && data.createrole.mode === 'allowlist') {
             let fetchedLogs = await role.guild.fetchAuditLogs({
                 type: AuditLogEvent.RoleCreate,
-                limit: 1,
+                limit: 10,
             });
-            var firstEntry = fetchedLogs.entries.first();
-            if (firstEntry?.targetId !== role.id) return;
-            if (firstEntry.executorId === client.user?.id) return;
 
+            let relevantLog = fetchedLogs.entries.find(entry =>
+                entry.targetId === role.id &&
+                entry.executorId !== client.user?.id &&
+                entry.executorId
+            );
 
-            let baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
+            if (!relevantLog) {
+                return;
+            }
+
+            let baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
             if (!baseData) {
                 role.delete('Protect!');
-                let user = role.guild.members.cache.get(firstEntry?.executorId as string);
+                let user = role.guild.members.cache.get(relevantLog?.executorId as string);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':
