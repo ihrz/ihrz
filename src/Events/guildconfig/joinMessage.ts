@@ -113,7 +113,7 @@ export const event: BotEvent = {
                     .replaceAll("\\n", '\n');
             };
 
-            await channel.send({ content: msg, enforceNonce: true, nonce: nonce });
+            await client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce });
             return;
 
         } else if (member.guild.features.includes(GuildFeature.VanityURL)) {
@@ -142,7 +142,7 @@ export const event: BotEvent = {
                     .replaceAll('{invitesCount}', VanityURL.uses.toString()!)
                     .replaceAll("\\n", '\n');
 
-                channel.send({ content: msg, enforceNonce: true, nonce: nonce });
+                client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce });
                 return;
             };
 
@@ -163,7 +163,7 @@ export const event: BotEvent = {
                 .replaceAll('{invitesCount}', invitesAmount)
                 .replaceAll("\\n", '\n');
 
-            channel.send({ content: msg, enforceNonce: true, nonce: nonce });
+            client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce });
             return;
         };
 

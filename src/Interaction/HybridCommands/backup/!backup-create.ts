@@ -80,7 +80,7 @@ export default {
 
             await client.db.set(`BACKUPS.${interaction.member?.user.id}.${backupData.id}`, elData);
 
-            interaction.channel?.send({ content: data.backup_command_work_on_creation });
+            client.method.channelSend(interaction, { content: data.backup_command_work_on_creation });
 
             await client.method.interactionSend(interaction, {
                 content: data.backup_command_work_info_on_creation

@@ -170,7 +170,7 @@ export default {
                 await response.edit({ components: [] });
             });
         } catch {
-            await interaction.channel.send(client.iHorizon_Emojis.icon.Timer);
+            await client.method.channelSend(interaction, client.iHorizon_Emojis.icon.Timer);
             return;
         };
     }
