@@ -81,7 +81,7 @@ export const event: BotEvent = {
                 .replaceAll("\\n", '\n');
             ;
             if (!xpChan) {
-                message.channel.send({
+                client.method.channelSend(message, {
                     content: msg,
                     enforceNonce: true,
                     nonce: nonce

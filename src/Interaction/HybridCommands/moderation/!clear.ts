@@ -64,8 +64,8 @@ export default {
         };
 
         (interaction.channel as BaseGuildTextChannel).bulkDelete(numberx as unknown as number, true)
-            .then(async (messages: { size: number; }) => {
-                interaction.channel?.send({
+            .then(async (messages) => {
+                client.method.channelSend(interaction, {
                     content: data.clear_confirmation_message
                         .replace(/\${messages\.size}/g, messages.size.toString())
                 });

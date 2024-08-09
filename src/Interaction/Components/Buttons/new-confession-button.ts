@@ -142,10 +142,9 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
         //  files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)] 
     };
 
-    interaction.channel?.send(newPanelFromOldData).then(async (msg) => {
+    interaction.client.method.channelSend(interaction.message, newPanelFromOldData).then(async (msg) => {
         let messageId = msg.id;
         let channelId = msg.channelId;
-
 
         await msg.client.db.set(`${interaction.guildId}.GUILD.CONFESSION.panel`, {
             channelId,

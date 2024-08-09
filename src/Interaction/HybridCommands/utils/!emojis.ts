@@ -69,7 +69,7 @@ export default {
                     attachment: `https://cdn.discordapp.com/emojis/${match[2]}.${isAnimated ? 'gif' : 'png'}`,
                     name: match[1]
                 }).then((emoji) => {
-                    interaction.channel?.send(lang.emoji_send_new_emoji
+                    client.method.channelSend(interaction, lang.emoji_send_new_emoji
                         .replace('${emoji.name}', emoji.name!)
                         .replace('${emoji}', emoji.toString())
                     );
@@ -77,7 +77,7 @@ export default {
                     cnt++;
                     nemj += `<${isAnimated ? 'a:' : ':'}${emoji.name}:${emoji.id}>`
                 }).catch(() => {
-                    interaction.channel?.send(lang.emoji_send_err_emoji
+                    client.method.channelSend(interaction, lang.emoji_send_err_emoji
                         .replace('${emoji.name}', emoji)
                     );
                 });

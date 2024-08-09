@@ -62,7 +62,7 @@ async function logsAction(lang: LanguageData, message: Message, users: Set<Guild
 
     if (!inDb) return;
 
-    const channel = firstUser.guild.channels.cache.get(inDb);
+    const channel = firstUser?.guild.channels.cache.get(inDb);
     if (!channel) return;
 
     let embed = new EmbedBuilder()

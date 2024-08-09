@@ -235,7 +235,7 @@ export const command: Command = {
             let results = await Promise.all(banPromises);
             let successCount = results.filter(result => result).length;
 
-            await interaction.channel.send({ content: `${member.user.username} is banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
+            await client.method.channelSend(interaction, { content: `${member.user.username} is banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
         } else if (user) {
 
             if (user.id === client.user.id) {
@@ -281,7 +281,7 @@ export const command: Command = {
             let results = await Promise.all(banPromises);
             let successCount = results.filter(result => result).length;
 
-            await interaction.channel.send({ content: `${user.username} is banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
+            await client.method.channelSend(interaction, { content: `${user.username} is banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
         }
     },
 };

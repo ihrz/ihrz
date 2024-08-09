@@ -92,7 +92,7 @@ export default {
         );
 
         setTimeout(async () => {
-            await interaction.channel?.send({
+            await client.method.channelSend(interaction, {
                 content: data.tempmute_unmuted_by_time.replace("${tomute.id}", tomute?.id!),
             });
         }, mutetimeMS);
