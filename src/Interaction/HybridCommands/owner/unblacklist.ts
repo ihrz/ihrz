@@ -113,7 +113,7 @@ export const command: Command = {
             let results = await Promise.all(banPromises);
             let successCount = results.filter(result => result).length;
 
-            await interaction.channel.send({ content: `${bannedMember.username} is now unbanned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
+            await client.method.channelSend(interaction, { content: `${bannedMember.username} is now unbanned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
 
             return;
         } catch (e) {

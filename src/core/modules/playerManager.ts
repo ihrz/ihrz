@@ -30,7 +30,7 @@ export default async (client: Client) => {
     let nodes = client.config.lavalink.nodes;
 
     nodes.forEach(i => {
-        i.retryAmount = 100
+        i.retryAmount = Infinity
         i.retryDelay = 50_000
     });
 
@@ -90,14 +90,14 @@ export default async (client: Client) => {
     }).on("connect", (node) => {
         logger.log(`:: CONNECTED :: ${node.id}`);
     }).on("reconnecting", (node) => {
-        logger.warn(`:: RECONNECTING :: ${node.id}`);
+        // logger.warn(`:: RECONNECTING :: ${node.id}`);
     }).on("create", (node) => {
-        logger.log(`:: CREATED :: ${node.id}`);
+        // logger.log(`:: CREATED :: ${node.id}`);
     }).on("destroy", (node) => {
-        logger.err(`:: DESTROYED :: ${node.id}`);
+        // logger.err(`:: DESTROYED :: ${node.id}`);
     }).on("error", (node, error, payload) => {
-        logger.err(`:: ERROR :: ${node.id} ${error.message}`);
+        // logger.err(`:: ERROR :: ${node.id} ${error.message}`);
     }).on("resumed", (node, payload, players) => {
-        logger.log(`:: RESUMED :: ${node.id} ${players.length}`);
+        // logger.log(`:: RESUMED :: ${node.id} ${players.length}`);
     });
 };

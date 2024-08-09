@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, Embed, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil } from "discord.js";
+import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, Embed, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel } from "discord.js";
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -315,6 +315,29 @@ export async function interactionSend(interaction: ChatInputCommandInteraction |
         } catch {
             return await interaction.edit(replyOptions as MessageEditOptions);
         }
+    }
+}
+
+export async function channelSend(interaction: Message | ChatInputCommandInteraction | AnySelectMenuInteraction | BaseGuildTextChannel, options: string | MessageReplyOptions | MessageEditOptions): Promise<Message> {
+    const nonce = SnowflakeUtil.generate().toString();
+    let replyOptions: MessageReplyOptions;
+
+    if (typeof options === 'string') {
+        replyOptions = { content: options, allowedMentions: { repliedUser: false } };
+    } else {
+        replyOptions = {
+            ...options,
+            allowedMentions: { repliedUser: false, roles: [], users: [] },
+            content: options.content ?? undefined,
+            nonce: nonce,
+            enforceNonce: true
+        } as MessageReplyOptions;
+    }
+
+    if (interaction instanceof BaseGuildTextChannel) {
+        return await interaction.send(replyOptions)!;
+    } else {
+        return await interaction.channel?.send(replyOptions)!;
     }
 }
 
