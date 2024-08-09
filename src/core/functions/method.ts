@@ -318,6 +318,25 @@ export async function interactionSend(interaction: ChatInputCommandInteraction |
     }
 }
 
+export async function channelSend(interaction: Message, options: string | MessageReplyOptions | MessageEditOptions): Promise<Message> {
+    const nonce = SnowflakeUtil.generate().toString();
+    let replyOptions: MessageReplyOptions;
+
+    if (typeof options === 'string') {
+        replyOptions = { content: options, allowedMentions: { repliedUser: false } };
+    } else {
+        replyOptions = {
+            ...options,
+            allowedMentions: { repliedUser: false, roles: [], users: [] },
+            content: options.content ?? undefined,
+            nonce: nonce,
+            enforceNonce: true
+        } as MessageReplyOptions;
+    }
+
+    return await interaction.channel.send(replyOptions);
+}
+
 export function hasSubCommand(options: Option[] | undefined): boolean {
     if (!options) return false;
     return options.some(option => option.type === ApplicationCommandOptionType.Subcommand);
