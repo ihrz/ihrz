@@ -19,11 +19,11 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel, CategoryChannel, ChannelType, TextChannel } from 'discord.js';
+import { Client, AuditLogEvent, GuildChannel, CategoryChannel, ChannelType } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
-
-const categoryCache = new Map<string, { channelName: string, position: number, channels: BaseGuildTextChannel[] }>();
+import path from 'path';
+import fs from 'node:fs';
 
 export const event: BotEvent = {
     name: "channelDelete",
@@ -32,17 +32,6 @@ export const event: BotEvent = {
         let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
 
         if (!data) return;
-
-        if (channel instanceof CategoryChannel) {
-            categoryCache.set(channel.id, {
-                channelName: channel.name,
-                position: channel.position,
-                channels: channel.children.cache
-                    .filter((c) => c instanceof TextChannel || c.isTextBased() && c.rateLimitPerUser !== null)
-                    .map(c => c as BaseGuildTextChannel)
-            });
-            return;
-        }
 
         if (data.deletechannel && data.deletechannel.mode === 'allowlist') {
 
@@ -64,35 +53,6 @@ export const event: BotEvent = {
             let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
             if (!baseData) {
-                let parentCategory = channel.parent || categoryCache.get(channel.parentId || '');
-
-                if (parentCategory && 'channelName' in parentCategory) {
-                    parentCategory = await channel.guild.channels.create({
-                        name: parentCategory.channelName,
-                        type: ChannelType.GuildCategory,
-                        position: parentCategory.position,
-                        reason: `Category re-created by Protect (${relevantLog.executorId})`
-                    });
-                }
-
-                const clonedChannel = await channel.clone({
-                    name: channel.name,
-                    parent: parentCategory instanceof CategoryChannel ? parentCategory : undefined,
-                    permissionOverwrites: channel.permissionOverwrites.cache!,
-                    topic: (channel as BaseGuildTextChannel).topic!,
-                    nsfw: (channel as BaseGuildTextChannel).nsfw,
-                    rateLimitPerUser: (channel as BaseGuildTextChannel).rateLimitPerUser!,
-                    position: channel.rawPosition,
-                    reason: `Channel re-create by Protect (${relevantLog.executorId} break the rule!)`
-                });
-
-                if (clonedChannel instanceof BaseGuildTextChannel) {
-                    clonedChannel.send(lang.protection_avoid_channel_delete
-                        .replace('${channel.guild.ownerId}', channel.guild.ownerId)
-                        .replace('${firstEntry.executorId}', relevantLog.executorId!)
-                    );
-                }
-
                 let user = channel.guild.members.cache.get(relevantLog.executorId!);
 
                 switch (data?.['SANCTION']) {
@@ -108,8 +68,61 @@ export const event: BotEvent = {
                         return;
                 }
 
-                if (parentCategory instanceof CategoryChannel && categoryCache.has(parentCategory.id)) {
-                    categoryCache.delete(parentCategory.id);
+                const backupPath = path.join(process.cwd(), 'src', 'files', 'protection', 'backups', `${channel.guild.id}.json`);
+                if (!fs.existsSync(backupPath)) return;
+
+                const backup = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
+
+                const currentCategories = channel.guild.channels.cache.filter(ch => ch.type === ChannelType.GuildCategory) as Map<string, CategoryChannel>;
+                const currentChannels = channel.guild.channels.cache.filter(ch => ch.isTextBased() || ch.isVoiceBased());
+
+                for (const categoryBackup of backup.categories) {
+                    let category = currentCategories.get(categoryBackup.id);
+
+                    if (!category) {
+                        category = await channel.guild.channels.create({
+                            name: categoryBackup.name,
+                            type: ChannelType.GuildCategory,
+                            position: categoryBackup.position,
+                            reason: `Category re-created by Protect (${relevantLog.executorId})`
+                        });
+                    }
+
+                    for (const chBackup of categoryBackup.channels) {
+                        let existingChannel = currentChannels.get(chBackup.id);
+
+                        if (!existingChannel) {
+                            await channel.guild.channels.create({
+                                name: chBackup.name,
+                                type: chBackup.type,
+                                parent: category.id,
+                                position: chBackup.position,
+                                permissionOverwrites: chBackup.permissions,
+                                reason: `Restoration after raid by Protect (${relevantLog.executorId})`
+                            });
+                        } else if (existingChannel.parentId !== category.id) {
+                            await (existingChannel as GuildChannel).setParent(category.id, { lockPermissions: false }).catch(() => { })
+                            await (existingChannel as GuildChannel).setPosition(chBackup.position).catch(() => { })
+                        }
+                    }
+                }
+
+                for (const chBackup of backup.channels) {
+                    let existingChannel = currentChannels.get(chBackup.id);
+
+                    if (!existingChannel) {
+                        await channel.guild.channels.create({
+                            name: chBackup.name,
+                            type: chBackup.type,
+                            parent: chBackup.parent,
+                            position: chBackup.position,
+                            permissionOverwrites: chBackup.permissions,
+                            reason: `Restoration after raid by Protect (${relevantLog.executorId})`
+                        });
+                    } else if (chBackup.parent && existingChannel.parentId !== chBackup.parent) {
+                        await (existingChannel as GuildChannel).setParent(chBackup.parent, { lockPermissions: false }).catch(() => { })
+                        await (existingChannel as GuildChannel).setPosition(chBackup.position).catch(() => { })
+                    }
                 }
             }
         }
