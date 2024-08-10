@@ -33,7 +33,7 @@ export const event: BotEvent = {
 
             let fetchedLogs = await channel.guild.fetchAuditLogs({
                 type: AuditLogEvent.ChannelCreate,
-                limit: 10,
+                limit: 75,
             });
 
             let relevantLog = fetchedLogs.entries.find(entry =>
