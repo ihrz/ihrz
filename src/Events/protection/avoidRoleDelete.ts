@@ -33,7 +33,7 @@ export const event: BotEvent = {
         if (data.deleterole && data.deleterole.mode === 'allowlist') {
             let fetchedLogs = await role.guild.fetchAuditLogs({
                 type: AuditLogEvent.RoleDelete,
-                limit: 10,
+                limit: 75,
             });
 
             let relevantLog = fetchedLogs.entries.find(entry =>

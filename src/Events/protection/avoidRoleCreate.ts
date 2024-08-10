@@ -33,7 +33,7 @@ export const event: BotEvent = {
         if (data.createrole && data.createrole.mode === 'allowlist') {
             let fetchedLogs = await role.guild.fetchAuditLogs({
                 type: AuditLogEvent.RoleCreate,
-                limit: 10,
+                limit: 75,
             });
 
             let relevantLog = fetchedLogs.entries.find(entry =>

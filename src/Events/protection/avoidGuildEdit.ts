@@ -36,7 +36,7 @@ export const event: BotEvent = {
         if (data.updateguild && data.updateguild.mode === 'allowlist') {
             let fetchedLogs = await newGuild.fetchAuditLogs({
                 type: AuditLogEvent.GuildUpdate,
-                limit: 10,
+                limit: 75,
             });
 
             let relevantLog = fetchedLogs.entries.find(entry =>

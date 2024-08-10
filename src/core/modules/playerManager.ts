@@ -86,7 +86,7 @@ export default async (client: Client) => {
     });
 
     client.player.nodeManager.on("disconnect", (node, reason) => {
-        logger.warn(`:: DISCONNECT :: ${node.id} Reason: ${reason.reason} (${reason.code})`);
+        // logger.warn(`:: DISCONNECT :: ${node.id} Reason: ${reason.reason} (${reason.code})`);
     }).on("connect", (node) => {
         logger.log(`:: CONNECTED :: ${node.id}`);
     }).on("reconnecting", (node) => {

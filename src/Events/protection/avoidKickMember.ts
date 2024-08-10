@@ -41,7 +41,7 @@ export const event: BotEvent = {
 
             let fetchedLogs = await member.guild.fetchAuditLogs({
                 type: AuditLogEvent.MemberKick,
-                limit: 10,
+                limit: 75,
             });
 
             let relevantLog = fetchedLogs.entries.find(entry =>

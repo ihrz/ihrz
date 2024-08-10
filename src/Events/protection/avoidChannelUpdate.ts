@@ -33,7 +33,7 @@ export const event: BotEvent = {
         if (data.updatechannel && data.updatechannel.mode === 'allowlist') {
             let fetchedLogs = await oldChannel.guild.fetchAuditLogs({
                 type: AuditLogEvent.ChannelUpdate,
-                limit: 10,
+                limit: 75,
             });
 
             let relevantLog = fetchedLogs.entries.find(entry =>
