@@ -19,9 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Guild, GuildChannel, CategoryChannel, TextChannel, VoiceChannel, ChannelType, PermissionOverwrites, GuildBasedChannel } from 'discord.js';
-import fs from 'fs';
-import path from 'path';
+import { Client, GuildBasedChannel, CategoryChannel, ChannelType, PermissionOverwrites, GuildChannel } from 'discord.js';
 
 type BackupChannel = {
     id: string;
@@ -44,8 +42,20 @@ type GuildBackup = {
     channels: BackupChannel[];
 };
 
+export const protectionCache = {
+    data: new Map<string, GuildBackup>(),
+    isRaiding: new Map<string, boolean>(),
+    timeout: new Map<string, number>()
+}
+
 async function backupGuildStructure(client: Client) {
     for (const guild of client.guilds.cache.values()) {
+        if (protectionCache.isRaiding.get(guild.id)) return console.log(
+            "miskine le serveur se fait raid je sauvegarde pas les données frère"
+        );
+
+        console.log("je backup ce fils de viol de serveur de mes deux ovaire | GUILD: " + guild.id)
+
         const backup: GuildBackup = {
             categories: [],
             channels: []
@@ -62,7 +72,7 @@ async function backupGuildStructure(client: Client) {
                         name: child.name,
                         type: child.type,
                         position: child.rawPosition,
-                        permissions: child.permissionOverwrites.cache.map(perm => perm),
+                        permissions: Array.from(child.permissionOverwrites.cache.values()),
                         parent: channel.id
                     }))
                 };
@@ -73,15 +83,14 @@ async function backupGuildStructure(client: Client) {
                     name: channel.name,
                     type: channel.type,
                     position: channel.rawPosition,
-                    permissions: channel.permissionOverwrites.cache.map(perm => perm),
+                    permissions: Array.from(channel.permissionOverwrites.cache.values()),
                     parent: channel.parentId
                 };
                 backup.channels.push(channelData);
             }
         });
 
-        const backupPath = path.join(process.cwd(), 'src', 'files', 'protection', 'backups', `${guild.id}.json`);
-        fs.writeFileSync(backupPath, JSON.stringify(backup, null, 4));
+        protectionCache.data.set(guild.id, backup);
     }
 }
 

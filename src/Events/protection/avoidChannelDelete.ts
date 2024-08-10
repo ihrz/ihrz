@@ -21,16 +21,24 @@
 
 import { Client, AuditLogEvent, GuildChannel, CategoryChannel, ChannelType } from 'discord.js';
 import { BotEvent } from '../../../types/event';
-import { LanguageData } from '../../../types/languageData';
-import path from 'path';
-import fs from 'node:fs';
+import { protectionCache } from './ready.js';
+
+let timeout: NodeJS.Timeout | null = null;
+let isRestoring = new Map<string, boolean>();
+
+async function waitForFinish(): Promise<void> {
+    return new Promise((resolve) => {
+        if (timeout) clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            resolve();
+        }, 3000);
+    });
+}
 
 export const event: BotEvent = {
     name: "channelDelete",
     run: async (client: Client, channel: GuildChannel) => {
-
         let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
-
         if (!data) return;
 
         if (data.deletechannel && data.deletechannel.mode === 'allowlist') {
@@ -39,8 +47,6 @@ export const event: BotEvent = {
                 type: AuditLogEvent.ChannelDelete,
                 limit: 75,
             });
-
-            let lang = await client.func.getLanguageData(channel.guildId) as LanguageData;
 
             let relevantLog = fetchedLogs.entries.find(entry =>
                 entry.targetId === channel.id &&
@@ -68,61 +74,95 @@ export const event: BotEvent = {
                         return;
                 }
 
-                const backupPath = path.join(process.cwd(), 'src', 'files', 'protection', 'backups', `${channel.guild.id}.json`);
-                if (!fs.existsSync(backupPath)) return;
+                protectionCache.isRaiding.set(channel.guildId, true);
 
-                const backup = JSON.parse(fs.readFileSync(backupPath, 'utf8'));
-
-                const currentCategories = channel.guild.channels.cache.filter(ch => ch.type === ChannelType.GuildCategory) as Map<string, CategoryChannel>;
-                const currentChannels = channel.guild.channels.cache.filter(ch => ch.isTextBased() || ch.isVoiceBased());
-
-                for (const categoryBackup of backup.categories) {
-                    let category = currentCategories.get(categoryBackup.id);
-
-                    if (!category) {
-                        category = await channel.guild.channels.create({
-                            name: categoryBackup.name,
-                            type: ChannelType.GuildCategory,
-                            position: categoryBackup.position,
-                            reason: `Category re-created by Protect (${relevantLog.executorId})`
-                        });
-                    }
-
-                    for (const chBackup of categoryBackup.channels) {
-                        let existingChannel = currentChannels.get(chBackup.id);
-
-                        if (!existingChannel) {
-                            await channel.guild.channels.create({
-                                name: chBackup.name,
-                                type: chBackup.type,
-                                parent: category.id,
-                                position: chBackup.position,
-                                permissionOverwrites: chBackup.permissions,
-                                reason: `Restoration after raid by Protect (${relevantLog.executorId})`
-                            });
-                        } else if (existingChannel.parentId !== category.id) {
-                            await (existingChannel as GuildChannel).setParent(category.id, { lockPermissions: false }).catch(() => { })
-                            await (existingChannel as GuildChannel).setPosition(chBackup.position).catch(() => { })
-                        }
-                    }
+                if (!protectionCache.timeout?.has(channel.guildId)) {
+                    protectionCache.timeout?.set(channel.guildId, 0);
                 }
 
-                for (const chBackup of backup.channels) {
-                    let existingChannel = currentChannels.get(chBackup.id);
+                console.log("raid en cours")
 
-                    if (!existingChannel) {
-                        await channel.guild.channels.create({
-                            name: chBackup.name,
-                            type: chBackup.type,
-                            parent: chBackup.parent,
-                            position: chBackup.position,
-                            permissionOverwrites: chBackup.permissions,
-                            reason: `Restoration after raid by Protect (${relevantLog.executorId})`
-                        });
-                    } else if (chBackup.parent && existingChannel.parentId !== chBackup.parent) {
-                        await (existingChannel as GuildChannel).setParent(chBackup.parent, { lockPermissions: false }).catch(() => { })
-                        await (existingChannel as GuildChannel).setPosition(chBackup.position).catch(() => { })
+                const backup = protectionCache.data.get(channel.guild.id);
+                if (!backup) return;
+                console.log("backup chargé")
+
+                const timeout = protectionCache.timeout?.get(channel.guildId)!;
+                const currentTime = Date.now();
+
+                if (timeout < currentTime) {
+                    protectionCache.timeout?.set(channel.guildId, currentTime + 5000);
+                    console.log("timeout changé")
+                };
+
+                if (timeout < currentTime) {
+                    await waitForFinish();
+                    console.log("timeout terminé")
+
+                    // Si la restauration est déjà en cours, on ne fait rien
+                    if (isRestoring.get(channel.guild.id)) return;
+
+                    // On indique que la restauration est en cours pour cette guilde
+                    isRestoring.set(channel.guild.id, true);
+
+                    try {
+                        const currentCategories = channel.guild.channels.cache.filter(ch => ch.type === ChannelType.GuildCategory) as Map<string, CategoryChannel>;
+                        const currentChannels = channel.guild.channels.cache.filter(ch => ch.isTextBased() || ch.isVoiceBased());
+
+                        for (const categoryBackup of backup.categories) {
+                            let category = currentCategories.get(categoryBackup.id);
+
+                            if (!category) {
+                                category = await channel.guild.channels.create({
+                                    name: categoryBackup.name,
+                                    type: ChannelType.GuildCategory,
+                                    position: categoryBackup.position,
+                                    reason: `Category re-created by Protect (${relevantLog.executorId})`
+                                });
+                            }
+
+                            for (const chBackup of categoryBackup.channels) {
+                                let existingChannel = currentChannels.get(chBackup.id);
+
+                                if (!existingChannel) {
+                                    await channel.guild.channels.create({
+                                        name: chBackup.name,
+                                        type: chBackup.type as any,
+                                        parent: category.id,
+                                        position: chBackup.position,
+                                        permissionOverwrites: chBackup.permissions,
+                                        reason: `Restoration after raid by Protect (${relevantLog.executorId})`
+                                    });
+                                } else if (existingChannel.parentId !== category.id) {
+                                    await (existingChannel as GuildChannel).setParent(category.id, { lockPermissions: false }).catch(() => { });
+                                    await (existingChannel as GuildChannel).setPosition(chBackup.position).catch(() => { });
+                                }
+                            }
+                        }
+
+                        for (const chBackup of backup.channels) {
+                            let existingChannel = currentChannels.get(chBackup.id);
+
+                            if (!existingChannel) {
+                                await channel.guild.channels.create({
+                                    name: chBackup.name,
+                                    type: chBackup.type as any,
+                                    parent: chBackup.parent,
+                                    position: chBackup.position,
+                                    permissionOverwrites: chBackup.permissions,
+                                    reason: `Restoration after raid by Protect (${relevantLog.executorId})`
+                                });
+                            } else if (chBackup.parent && existingChannel.parentId !== chBackup.parent) {
+                                await (existingChannel as GuildChannel).setParent(chBackup.parent, { lockPermissions: false }).catch(() => { });
+                                await (existingChannel as GuildChannel).setPosition(chBackup.position).catch(() => { });
+                            }
+                        }
+
+                    } finally {
+                        // Une fois la restauration terminée, on libère le verrou
+                        isRestoring.set(channel.guild.id, false);
                     }
+
+                    protectionCache.isRaiding.set(channel.guildId, false);
                 }
             }
         }
