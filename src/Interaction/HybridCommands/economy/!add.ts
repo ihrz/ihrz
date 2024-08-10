@@ -56,20 +56,20 @@ export default {
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var amount = interaction.options.getNumber("amount") as number;
-            var user = interaction.options.getMember("member");
+            var user = interaction.options.getUser("member");
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var amount = client.method.number(args!, 0) as number;
-            var member = client.method.member(interaction, args!, 0);
+            var user = await client.method.user(interaction, args!, 0);
         };
 
         await client.method.interactionSend(interaction, {
             content: lang.addmoney_command_work
-                .replace("${user.user.id}", member?.user.id!)
+                .replace("${user.user.id}", user?.id!)
                 .replace("${amount.value}", amount.toString())
         });
 
-        await client.db.add(`${interaction.guildId}.USER.${member?.user.id}.ECONOMY.money`, amount);
+        await client.db.add(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`, amount);
 
         try {
             let logEmbed = new EmbedBuilder()
@@ -78,7 +78,7 @@ export default {
                 .setDescription(lang.addmoney_logs_embed_description
                     .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
                     .replace(/\${amount\.value}/g, amount.toString())
-                    .replace(/\${user\.user\.id}/g, member?.user.id!)
+                    .replace(/\${user\.user\.id}/g, user?.id!)
                 );
 
             let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');

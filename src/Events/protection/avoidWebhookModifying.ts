@@ -33,7 +33,7 @@ export const event: BotEvent = {
         if (data.webhook && data.webhook.mode === 'allowlist') {
             let fetchedLogs = await channel.guild.fetchAuditLogs({
                 type: AuditLogEvent.WebhookCreate,
-                limit: 10,
+                limit: 75,
             });
 
             let relevantLog = fetchedLogs.entries.find(entry =>

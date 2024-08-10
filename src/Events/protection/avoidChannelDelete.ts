@@ -48,7 +48,7 @@ export const event: BotEvent = {
 
             let fetchedLogs = await channel.guild.fetchAuditLogs({
                 type: AuditLogEvent.ChannelDelete,
-                limit: 10,
+                limit: 75,
             });
 
             let lang = await client.func.getLanguageData(channel.guildId) as LanguageData;
