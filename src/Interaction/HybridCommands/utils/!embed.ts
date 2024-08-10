@@ -112,7 +112,7 @@ export default {
             .setLabel(lang.embed_btn_cancel)
             .setStyle(ButtonStyle.Danger);
 
-        let response = await client.method.interactionSend(interaction,{
+        let response = await client.method.interactionSend(interaction, {
             content: lang.embed_first_message,
             embeds: [__tempEmbed],
             components: [
@@ -268,7 +268,7 @@ export default {
                             __tempEmbed.setColor(message.content as ColorResolvable);
                             response.edit({ embeds: [__tempEmbed] });
                         } else {
-                            await interaction.channel?.send({ content: lang.embed_choose_12_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
+                            await client.method.channelSend(interaction, { content: lang.embed_choose_12_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
                         }
                     });
                     break;

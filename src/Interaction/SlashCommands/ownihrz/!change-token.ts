@@ -71,8 +71,7 @@ export default {
             return;
         };
 
-        if (!client.owners.includes(interaction.user.id) ||
-            (id_2.OwnerOne !== interaction.user.id)) {
+        if (!client.owners.includes(interaction.user.id) && (id_2.OwnerOne !== interaction.user.id)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         }

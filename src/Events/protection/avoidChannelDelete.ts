@@ -19,10 +19,11 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel } from 'discord.js'
-
+import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel, CategoryChannel, ChannelType, TextChannel } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
+
+const categoryCache = new Map<string, { channelName: string, position: number, channels: BaseGuildTextChannel[] }>();
 
 export const event: BotEvent = {
     name: "channelDelete",
@@ -32,37 +33,67 @@ export const event: BotEvent = {
 
         if (!data) return;
 
+        if (channel instanceof CategoryChannel) {
+            categoryCache.set(channel.id, {
+                channelName: channel.name,
+                position: channel.position,
+                channels: channel.children.cache
+                    .filter((c) => c instanceof TextChannel || c.isTextBased() && c.rateLimitPerUser !== null)
+                    .map(c => c as BaseGuildTextChannel)
+            });
+            return;
+        }
+
         if (data.deletechannel && data.deletechannel.mode === 'allowlist') {
 
             let fetchedLogs = await channel.guild.fetchAuditLogs({
                 type: AuditLogEvent.ChannelDelete,
-                limit: 1,
+                limit: 75,
             });
 
             let lang = await client.func.getLanguageData(channel.guildId) as LanguageData;
 
-            let firstEntry = fetchedLogs.entries.first();
+            let relevantLog = fetchedLogs.entries.find(entry =>
+                entry.targetId === channel.id &&
+                entry.executorId !== client.user?.id &&
+                entry.executorId
+            );
 
-            if (firstEntry?.targetId !== channel.id || firstEntry.executorId === client.user?.id || !firstEntry.executorId) return;
+            if (!relevantLog) return;
 
-            let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
+            let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
             if (!baseData) {
-                (await channel?.clone({
+                let parentCategory = channel.parent || categoryCache.get(channel.parentId || '');
+
+                if (parentCategory && 'channelName' in parentCategory) {
+                    parentCategory = await channel.guild.channels.create({
+                        name: parentCategory.channelName,
+                        type: ChannelType.GuildCategory,
+                        position: parentCategory.position,
+                        reason: `Category re-created by Protect (${relevantLog.executorId})`
+                    });
+                }
+
+                const clonedChannel = await channel.clone({
                     name: channel.name,
-                    parent: channel.parent,
+                    parent: parentCategory instanceof CategoryChannel ? parentCategory : undefined,
                     permissionOverwrites: channel.permissionOverwrites.cache!,
                     topic: (channel as BaseGuildTextChannel).topic!,
                     nsfw: (channel as BaseGuildTextChannel).nsfw,
                     rateLimitPerUser: (channel as BaseGuildTextChannel).rateLimitPerUser!,
                     position: channel.rawPosition,
-                    reason: `Channel re-create by Protect (${firstEntry.executorId} break the rule!)`
-                }) as BaseGuildTextChannel).send(lang.protection_avoid_channel_delete
-                    .replace('${channel.guild.ownerId}', channel.guild.ownerId)
-                    .replace('${firstEntry.executorId}', firstEntry.executorId)
-                );
+                    reason: `Channel re-create by Protect (${relevantLog.executorId} break the rule!)`
+                });
 
-                let user = channel.guild.members.cache.get(firstEntry.executorId);
+                if (clonedChannel instanceof BaseGuildTextChannel) {
+                    clonedChannel.send(lang.protection_avoid_channel_delete
+                        .replace('${channel.guild.ownerId}', channel.guild.ownerId)
+                        .replace('${firstEntry.executorId}', relevantLog.executorId!)
+                    );
+                }
+
+                let user = channel.guild.members.cache.get(relevantLog.executorId!);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':
@@ -76,8 +107,11 @@ export const event: BotEvent = {
                     default:
                         return;
                 }
+
+                if (parentCategory instanceof CategoryChannel && categoryCache.has(parentCategory.id)) {
+                    categoryCache.delete(parentCategory.id);
+                }
             }
         }
-
     },
 };

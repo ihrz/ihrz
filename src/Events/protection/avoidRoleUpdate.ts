@@ -33,21 +33,27 @@ export const event: BotEvent = {
         if (data.updaterole && data.updaterole.mode === 'allowlist') {
             let fetchedLogs = await newRole.guild.fetchAuditLogs({
                 type: AuditLogEvent.RoleUpdate,
-                limit: 1,
+                limit: 75,
             });
-            var firstEntry = fetchedLogs.entries.first();
-            if (firstEntry?.targetId !== newRole.id) return;
-            if (firstEntry.executorId === client.user?.id) return;
 
+            let relevantLog = fetchedLogs.entries.find(entry =>
+                entry.targetId === oldRole.id &&
+                entry.executorId !== client.user?.id &&
+                entry.executorId
+            );
 
-            let baseData = await client.db.get(`${newRole.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
+            if (!relevantLog) {
+                return;
+            }
+
+            let baseData = await client.db.get(`${newRole.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
             if (!baseData) {
                 newRole.edit({
                     ...oldRole
                 });
 
-                let user = newRole.guild.members.cache.get(firstEntry?.executorId as string);
+                let user = newRole.guild.members.cache.get(relevantLog?.executorId as string);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':

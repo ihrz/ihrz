@@ -80,7 +80,7 @@ export const event: BotEvent = {
                 .setTimestamp();
 
             message.member?.roles.add(fetch).catch(() => { });
-            message.channel.send({
+            client.method.channelSend(message, {
                 embeds: [embed],
                 files: [await client.method.bot.footerAttachmentBuilder(message)],
                 enforceNonce: true,

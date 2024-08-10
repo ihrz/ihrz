@@ -66,7 +66,7 @@ export const event: BotEvent = {
         let args = message.content.split(' ');
         if (args.length < 5) return;
 
-        let msg = await message.channel.send({
+        let msg = await client.method.channelSend(message, {
             content: message.author.toString(),
             embeds: [suggestionEmbed],
             files: [await client.method.bot.footerAttachmentBuilder(message)],

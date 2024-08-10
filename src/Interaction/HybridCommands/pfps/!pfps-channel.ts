@@ -71,7 +71,7 @@ export default {
                     .replace('${channel}', channel.toString())
             });
 
-            channel.send({ embeds: [embed] });
+            client.method.channelSend(channel, { embeds: [embed] });
             return;
 
         } else {

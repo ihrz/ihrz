@@ -38,17 +38,23 @@ export const event: BotEvent = {
 
             let fetchedLogs = await ban.guild.fetchAuditLogs({
                 type: AuditLogEvent.MemberBanRemove,
-                limit: 1,
+                limit: 75,
             });
 
-            var firstEntry = fetchedLogs.entries.first();
+            let relevantLog = fetchedLogs.entries.find(entry =>
+                entry.targetId === ban.user.id &&
+                entry.executorId !== client.user?.id &&
+                entry.executorId
+            );
 
-            if (firstEntry?.targetId !== ban.user.id || firstEntry.executorId === client.user?.id || !firstEntry.executorId) return;
+            if (!relevantLog) {
+                return;
+            }
 
-            let baseData = await client.db.get(`${ban.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
+            let baseData = await client.db.get(`${ban.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
             if (!baseData) {
-                let user = ban.guild.members.cache.get(firstEntry?.executorId);
+                let user = ban.guild.members.cache.get(relevantLog?.executorId!);
                 await ban.guild.members.ban(ban.user.id);
 
                 switch (data?.['SANCTION']) {

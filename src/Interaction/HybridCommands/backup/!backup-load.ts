@@ -69,7 +69,7 @@ export default {
             return;
         };
 
-        await interaction.channel.send({
+        await client.method.channelSend(interaction, {
             content: data.backup_waiting_on_load.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
         });
 
@@ -78,11 +78,11 @@ export default {
             backup.load(backupID, interaction.guild).then(() => {
                 backup.remove(backupID);
             }).catch((err) => {
-                interaction.channel?.send({ content: data.backup_error_on_load.replace("${backupID}", backupID) });
+                client.method.channelSend(interaction, { content: data.backup_error_on_load.replace("${backupID}", backupID) });
                 return;
             });
         }).catch((err) => {
-            interaction.channel?.send({ content: client.iHorizon_Emojis.icon.No_Logo });
+            client.method.channelSend(interaction, { content: client.iHorizon_Emojis.icon.No_Logo });
             return;
         });
     },

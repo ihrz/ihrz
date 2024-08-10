@@ -36,7 +36,7 @@ export const event: BotEvent = {
 
             try {
                 const nonce = SnowflakeUtil.generate().toString();
-                const msg = await channel.send({
+                const msg = await client.method.channelSend(channel, {
                     content: `${member.user}`,
                     enforceNonce: true,
                     nonce: nonce

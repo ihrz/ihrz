@@ -31,21 +31,27 @@ export const event: BotEvent = {
         if (!data) return;
 
         if (data.updatemember && data.updatemember.mode === 'allowlist') {
-            let fetchedLogs = await newMember.guild.fetchAuditLogs({
+            let fetchedLogs = await oldMember.guild.fetchAuditLogs({
                 type: AuditLogEvent.MemberRoleUpdate,
-                limit: 1,
+                limit: 75,
             });
-            var firstEntry = fetchedLogs.entries.first();
-            if (firstEntry?.targetId !== newMember.id) return;
-            if (firstEntry.executorId === client.user?.id) return;
 
+            let relevantLog = fetchedLogs.entries.find(entry =>
+                entry.targetId === oldMember.id &&
+                entry.executorId !== client.user?.id &&
+                entry.executorId
+            );
 
-            let baseData = await client.db.get(`${newMember.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
+            if (!relevantLog) {
+                return;
+            }
+
+            let baseData = await client.db.get(`${newMember.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
             if (!baseData) {
                 await newMember.roles.set(oldMember.roles.cache).catch(() => false);
 
-                let user = newMember.guild.members.cache.get(firstEntry?.executorId as string);
+                let user = newMember.guild.members.cache.get(relevantLog?.executorId as string);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':
