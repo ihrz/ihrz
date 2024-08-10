@@ -24,14 +24,13 @@ import { BotEvent } from '../../../types/event';
 import { protectionCache } from './ready.js';
 
 let timeout: NodeJS.Timeout | null = null;
-let isRestoring = new Map<string, boolean>();
 
 async function waitForFinish(): Promise<void> {
     return new Promise((resolve) => {
         if (timeout) clearTimeout(timeout);
         timeout = setTimeout(() => {
             resolve();
-        }, 3000);
+        }, 5000);
     });
 }
 
@@ -79,12 +78,8 @@ export const event: BotEvent = {
                 if (!protectionCache.timeout?.has(channel.guildId)) {
                     protectionCache.timeout?.set(channel.guildId, 0);
                 }
-
-                console.log("raid en cours")
-
                 const backup = protectionCache.data.get(channel.guild.id);
                 if (!backup) return;
-                console.log("backup chargé")
 
                 const timeout = protectionCache.timeout?.get(channel.guildId)!;
                 const currentTime = Date.now();
@@ -95,14 +90,9 @@ export const event: BotEvent = {
                 };
 
                 if (timeout < currentTime) {
+                    console.log("raid en cours")
                     await waitForFinish();
-                    console.log("timeout terminé")
-
-                    // Si la restauration est déjà en cours, on ne fait rien
-                    if (isRestoring.get(channel.guild.id)) return;
-
-                    // On indique que la restauration est en cours pour cette guilde
-                    isRestoring.set(channel.guild.id, true);
+                    console.log("timeout terminé - restauration du serveur")
 
                     try {
                         const currentCategories = channel.guild.channels.cache.filter(ch => ch.type === ChannelType.GuildCategory) as Map<string, CategoryChannel>;
@@ -158,11 +148,8 @@ export const event: BotEvent = {
                         }
 
                     } finally {
-                        // Une fois la restauration terminée, on libère le verrou
-                        isRestoring.set(channel.guild.id, false);
+                        protectionCache.isRaiding.set(channel.guildId, false);
                     }
-
-                    protectionCache.isRaiding.set(channel.guildId, false);
                 }
             }
         }
