@@ -19,9 +19,10 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, CategoryChannel, ChannelType } from 'discord.js';
+import { Client, AuditLogEvent, GuildChannel, CategoryChannel, ChannelType, TextChannel } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { protectionCache } from './ready.js';
+import { LanguageData } from '../../../types/languageData';
 
 let timeout: NodeJS.Timeout | null = null;
 
@@ -65,10 +66,10 @@ export const event: BotEvent = {
                     const backup = protectionCache.data.get(channel.guild.id);
                     if (!backup) return;
 
-                    console.log("restauration des salon")
                     try {
                         const currentCategories = channel.guild.channels.cache.filter(ch => ch.type === ChannelType.GuildCategory) as Map<string, CategoryChannel>;
                         const currentChannels = channel.guild.channels.cache.filter(ch => ch.isTextBased() || ch.isVoiceBased());
+                        const lang = await client.func.getLanguageData(channel.guildId) as LanguageData;
 
                         for (const categoryBackup of backup.categories) {
                             let category = currentCategories.get(categoryBackup.id);
@@ -95,6 +96,11 @@ export const event: BotEvent = {
                                             permissionOverwrites: chBackup.permissions,
                                             reason: `Restoration after raid by Protect (${relevantLog.executorId})`
                                         });
+
+                                        (existingChannel as TextChannel).send(lang.protection_avoid_channel_delete
+                                            .replace('${channel.guild.ownerId}', channel.guild.ownerId)
+                                            .replace('${firstEntry.executorId}', relevantLog.executorId!)
+                                        );
                                     } catch {
                                         existingChannel = await channel.guild.channels.create({
                                             name: chBackup.name,
@@ -103,6 +109,11 @@ export const event: BotEvent = {
                                             permissionOverwrites: chBackup.permissions,
                                             reason: `Restoration after raid by Protect (${relevantLog.executorId})`
                                         });
+
+                                        (existingChannel as TextChannel).send(lang.protection_avoid_channel_delete
+                                            .replace('${channel.guild.ownerId}', channel.guild.ownerId)
+                                            .replace('${firstEntry.executorId}', relevantLog.executorId!)
+                                        );
                                     }
                                 } else if (existingChannel.parentId !== category.id || (existingChannel as any).position !== chBackup.position) {
                                     await (existingChannel as GuildChannel).setParent(category.id, { lockPermissions: false }).catch(() => { });
