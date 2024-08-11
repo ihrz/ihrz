@@ -25,18 +25,6 @@ import { protectionCache } from './ready.js';
 
 let timeout: NodeJS.Timeout | null = null;
 
-async function waitForFinish(): Promise<void> {
-    console.log("wait for finnish appeler")
-    return new Promise((resolve) => {
-        if (timeout) {
-            console.log("wait for finnish supprimer"); clearTimeout(timeout);
-        }
-        timeout = setTimeout(() => {
-            resolve();
-        }, 5000);
-    });
-}
-
 export const event: BotEvent = {
     name: "channelDelete",
     run: async (client: Client, channel: GuildChannel) => {
@@ -63,28 +51,16 @@ export const event: BotEvent = {
             if (!baseData) {
                 let user = channel.guild.members.cache.get(relevantLog.executorId!);
 
-                console.log("raid en cours")
-
                 protectionCache.isRaiding.set(channel.guildId, true);
 
-                if (!protectionCache.timeout.has(channel.guildId)) {
-                    protectionCache.timeout.set(channel.guildId, 0);
+                if (timeout) {
+                    clearTimeout(timeout);
                 }
 
-                const timeout = protectionCache.timeout.get(channel.guildId)!;
-                const currentTime = Date.now();
+                timeout = setTimeout(async () => {
+                    protectionCache.isRaiding.set(channel.guildId, false);
 
-                console.log("timeout", timeout, "currentTime", currentTime)
-                if (timeout < currentTime) {
-                    protectionCache.timeout.set(channel.guildId, currentTime + 5000);
-                    console.log("timeout changé")
-                };
-
-                if (timeout < currentTime) {
-                    await waitForFinish();
-                    await client.method.punish(data, user)
-
-                    console.log("timeout terminé - restauration du serveur")
+                    await client.method.punish(data, user);
 
                     const backup = protectionCache.data.get(channel.guild.id);
                     if (!backup) return;
@@ -145,7 +121,7 @@ export const event: BotEvent = {
                     } finally {
                         protectionCache.isRaiding.set(channel.guildId, false);
                     }
-                }
+                }, 5000);
             }
         }
     },
