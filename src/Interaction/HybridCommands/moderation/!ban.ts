@@ -44,11 +44,11 @@ export default {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var member = interaction.options.getMember("member") as GuildMember | null
+            var member = interaction.options.getUser("member")!
             var reason = interaction.options.getString("reason")
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.method.member(interaction, args!, 0) as GuildMember | null;
+            var member = await client.method.user(interaction, args!, 0) as User;
             var reason = client.method.longString(args!, 1);
         };
 
@@ -82,60 +82,68 @@ export default {
             return;
         };
 
-        if (member.user.id === interaction.member.user.id) {
+        let guildMember = interaction.guild.members.cache.get(member.id);
+
+        if (member.id === interaction.member.user.id) {
             await client.method.interactionSend(interaction, {
                 content: data.ban_try_to_ban_yourself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
-        if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= member.roles.highest.position) {
-            await client.method.interactionSend(interaction, {
-                content: data.ban_attempt_ban_higter_member.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
-            });
-            return;
-        };
+        if (guildMember) {
 
-        if (!member.bannable) {
-            await client.method.interactionSend(interaction, {
-                content: data.ban_cant_ban_member.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
-            });
-            return;
-        };
+            if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= guildMember.roles.highest.position) {
+                await client.method.interactionSend(interaction, {
+                    content: data.ban_attempt_ban_higter_member.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
+                });
+                return;
+            };
+
+            if (!guildMember.bannable) {
+                await client.method.interactionSend(interaction, {
+                    content: data.ban_cant_ban_member.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                });
+                return;
+            };
+        }
+
+        const ban = async () => {
+            interaction.guild?.bans.create(member?.id!, { reason: `Banned by: ${(interaction.member?.user as User).globalName || interaction.member?.user.username} | Reason: ${reason}` })
+                .then(() => {
+                    client.method.interactionSend(interaction, {
+                        content: data.ban_command_work
+                            .replace(/\${member\.user\.id}/g, member.id)
+                            .replace(/\${interaction\.member\.id}/g, interaction.member?.user.id!)
+                    }).catch(() => { });
+
+                    try {
+                        let logEmbed = new EmbedBuilder()
+                            .setColor("#bf0bb9")
+                            .setTitle(data.ban_logs_embed_title)
+                            .setDescription(data.ban_logs_embed_description
+                                .replace(/\${member\.user\.id}/g, member.id)
+                                .replace(/\${interaction\.member\.id}/g, interaction.member?.user.id!)
+                            )
+                        let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+
+                        if (logchannel) {
+                            (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
+                        };
+                    } catch (e: any) {
+                        logger.err(e);
+                    };
+                })
+        }
 
         member.send({
             content: data.ban_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
                 .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.username)
         })
-            .catch(() => {
-            })
-            .then(() => {
-                member?.ban({ reason: `Banned by: ${(interaction.member?.user as User).globalName || interaction.member?.user.username} | Reason: ${reason}` })
-                    .then(async (member) => {
-                        client.method.interactionSend(interaction, {
-                            content: data.ban_command_work
-                                .replace(/\${member\.user\.id}/g, member.user.id)
-                                .replace(/\${interaction\.member\.id}/g, interaction.member?.user.id!)
-                        }).catch(() => { });
+            .catch(() => false)
+            .then(() => false);
 
-                        try {
-                            let logEmbed = new EmbedBuilder()
-                                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                                .setTitle(data.ban_logs_embed_title)
-                                .setDescription(data.ban_logs_embed_description
-                                    .replace(/\${member\.user\.id}/g, member.user.id)
-                                    .replace(/\${interaction\.member\.id}/g, interaction.member?.user.id!)
-                                )
-                            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-                            if (logchannel) {
-                                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-                            };
-                        } catch (e: any) {
-                            logger.err(e);
-                        };
-                    })
-            });
+        ban();
     },
 };
