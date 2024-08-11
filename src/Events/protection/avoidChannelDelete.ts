@@ -65,6 +65,7 @@ export const event: BotEvent = {
                     const backup = protectionCache.data.get(channel.guild.id);
                     if (!backup) return;
 
+                    console.log("restauration des salon")
                     try {
                         const currentCategories = channel.guild.channels.cache.filter(ch => ch.type === ChannelType.GuildCategory) as Map<string, CategoryChannel>;
                         const currentChannels = channel.guild.channels.cache.filter(ch => ch.isTextBased() || ch.isVoiceBased());
@@ -107,35 +108,6 @@ export const event: BotEvent = {
                                     await (existingChannel as GuildChannel).setParent(category.id, { lockPermissions: false }).catch(() => { });
                                     await (existingChannel as GuildChannel).setPosition(chBackup.position).catch(() => { });
                                 }
-                            }
-                        }
-
-                        for (const chBackup of backup.channels) {
-                            let existingChannel = currentChannels.get(chBackup.id);
-
-                            if (!existingChannel) {
-                                try {
-                                    existingChannel = await channel.guild.channels.create({
-                                        name: chBackup.name,
-                                        type: chBackup.type as any,
-                                        parent: chBackup.parent,
-                                        position: chBackup.position,
-                                        permissionOverwrites: chBackup.permissions,
-                                        reason: `Restoration after raid by Protect (${relevantLog.executorId})`
-                                    });
-                                } catch {
-                                    existingChannel = await channel.guild.channels.create({
-                                        name: chBackup.name,
-                                        type: chBackup.type as any,
-                                        parent: null,
-                                        position: chBackup.position,
-                                        permissionOverwrites: chBackup.permissions,
-                                        reason: `Restoration after raid by Protect (${relevantLog.executorId})`
-                                    });
-                                }
-                            } else if (chBackup.parent && existingChannel.parentId !== chBackup.parent) {
-                                await (existingChannel as GuildChannel).setParent(chBackup.parent, { lockPermissions: false }).catch(() => { });
-                                await (existingChannel as GuildChannel).setPosition(chBackup.position).catch(() => { });
                             }
                         }
                     } finally {
