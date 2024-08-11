@@ -91,7 +91,7 @@ export const event: BotEvent = {
 
             let embed = new EmbedBuilder()
                 .setColor(2829617)
-                .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" })
+                .setFooter({ text: client.user?.username!, iconURL: "attachment://footer_icon.png" })
                 .setDescription(
                     `## ${welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)]}\n` +
                     `Hi there! I'm excited to join your server and be a part of your community.\n` +
