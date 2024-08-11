@@ -60,7 +60,7 @@ export const event: BotEvent = {
                         { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true }
                     )
                     .setThumbnail(guild.iconURL())
-                    .setFooter({ text: client.user?.username!, iconURL: "attachment://icon.png" });
+                    .setFooter({ text: client.user?.username!, iconURL: "attachment://footer_icon.png" });
 
                 await (client.users.cache.get(owner1))?.send({
                     embeds: [embed],
