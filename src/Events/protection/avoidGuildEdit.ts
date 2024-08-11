@@ -49,27 +49,25 @@ export const event: BotEvent = {
                 return;
             }
 
-
             let baseData = await client.db.get(`${newGuild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
             if (baseData) return;
 
-            await newGuild.edit({ ...oldGuild });
+            await newGuild.setAFKChannel(oldGuild.afkChannel);
+            await newGuild.setAFKTimeout(oldGuild.afkTimeout);
+            await newGuild.setBanner(oldGuild.banner);
+            await newGuild.setDefaultMessageNotifications(oldGuild.defaultMessageNotifications);
+            await newGuild.setDiscoverySplash(oldGuild.discoverySplash);
+            await newGuild.setExplicitContentFilter(oldGuild.explicitContentFilter);
+            await newGuild.setIcon(oldGuild.icon);
+            await newGuild.setMFALevel(oldGuild.mfaLevel);
+            await newGuild.setName(oldGuild.name);
+            await newGuild.setPreferredLocale(oldGuild.preferredLocale);
+            await newGuild.setPremiumProgressBarEnabled(oldGuild.premiumProgressBarEnabled);
 
             let member = newGuild.members.cache.get(relevantLog?.executorId!);
             if (!member) return;
 
-            switch (data?.['SANCTION']) {
-                case 'simply':
-                    break;
-                case 'simply+derank':
-                    await member.roles.set([], "Punish").catch(() => false);
-                    break;
-                case 'simply+ban':
-                    await member.ban({ reason: 'Protect!' });
-                    break;
-                default:
-                    return;
-            };
+            await client.method.punish(data, member);
         }
     },
 };

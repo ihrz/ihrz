@@ -19,30 +19,18 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel, CategoryChannel, ChannelType, TextChannel } from 'discord.js';
+import { Client, AuditLogEvent, GuildChannel, CategoryChannel, ChannelType, TextChannel } from 'discord.js';
 import { BotEvent } from '../../../types/event';
+import { protectionCache } from './ready.js';
 import { LanguageData } from '../../../types/languageData';
 
-const categoryCache = new Map<string, { channelName: string, position: number, channels: BaseGuildTextChannel[] }>();
+let timeout: NodeJS.Timeout | null = null;
 
 export const event: BotEvent = {
     name: "channelDelete",
     run: async (client: Client, channel: GuildChannel) => {
-
         let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
-
         if (!data) return;
-
-        if (channel instanceof CategoryChannel) {
-            categoryCache.set(channel.id, {
-                channelName: channel.name,
-                position: channel.position,
-                channels: channel.children.cache
-                    .filter((c) => c instanceof TextChannel || c.isTextBased() && c.rateLimitPerUser !== null)
-                    .map(c => c as BaseGuildTextChannel)
-            });
-            return;
-        }
 
         if (data.deletechannel && data.deletechannel.mode === 'allowlist') {
 
@@ -50,8 +38,6 @@ export const event: BotEvent = {
                 type: AuditLogEvent.ChannelDelete,
                 limit: 75,
             });
-
-            let lang = await client.func.getLanguageData(channel.guildId) as LanguageData;
 
             let relevantLog = fetchedLogs.entries.find(entry =>
                 entry.targetId === channel.id &&
@@ -64,53 +50,81 @@ export const event: BotEvent = {
             let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
             if (!baseData) {
-                let parentCategory = channel.parent || categoryCache.get(channel.parentId || '');
-
-                if (parentCategory && 'channelName' in parentCategory) {
-                    parentCategory = await channel.guild.channels.create({
-                        name: parentCategory.channelName,
-                        type: ChannelType.GuildCategory,
-                        position: parentCategory.position,
-                        reason: `Category re-created by Protect (${relevantLog.executorId})`
-                    });
-                }
-
-                const clonedChannel = await channel.clone({
-                    name: channel.name,
-                    parent: parentCategory instanceof CategoryChannel ? parentCategory : undefined,
-                    permissionOverwrites: channel.permissionOverwrites.cache!,
-                    topic: (channel as BaseGuildTextChannel).topic!,
-                    nsfw: (channel as BaseGuildTextChannel).nsfw,
-                    rateLimitPerUser: (channel as BaseGuildTextChannel).rateLimitPerUser!,
-                    position: channel.rawPosition,
-                    reason: `Channel re-create by Protect (${relevantLog.executorId} break the rule!)`
-                });
-
-                if (clonedChannel instanceof BaseGuildTextChannel) {
-                    clonedChannel.send(lang.protection_avoid_channel_delete
-                        .replace('${channel.guild.ownerId}', channel.guild.ownerId)
-                        .replace('${firstEntry.executorId}', relevantLog.executorId!)
-                    );
-                }
-
                 let user = channel.guild.members.cache.get(relevantLog.executorId!);
 
-                switch (data?.['SANCTION']) {
-                    case 'simply':
-                        break;
-                    case 'simply+derank':
-                        await user?.roles.set([], "Punish").catch(() => false);
-                        break;
-                    case 'simply+ban':
-                        user?.ban({ reason: 'Protect!' }).catch(() => { });
-                        break;
-                    default:
-                        return;
+                protectionCache.isRaiding.set(channel.guildId, true);
+
+                if (timeout) {
+                    clearTimeout(timeout);
                 }
 
-                if (parentCategory instanceof CategoryChannel && categoryCache.has(parentCategory.id)) {
-                    categoryCache.delete(parentCategory.id);
-                }
+                timeout = setTimeout(async () => {
+                    protectionCache.isRaiding.set(channel.guildId, false);
+
+                    await client.method.punish(data, user);
+
+                    const backup = protectionCache.data.get(channel.guild.id);
+                    if (!backup) return;
+
+                    try {
+                        const currentCategories = channel.guild.channels.cache.filter(ch => ch.type === ChannelType.GuildCategory) as Map<string, CategoryChannel>;
+                        const currentChannels = channel.guild.channels.cache.filter(ch => ch.isTextBased() || ch.isVoiceBased());
+                        const lang = await client.func.getLanguageData(channel.guildId) as LanguageData;
+
+                        for (const categoryBackup of backup.categories) {
+                            let category = currentCategories.get(categoryBackup.id);
+
+                            if (!category) {
+                                category = await channel.guild.channels.create({
+                                    name: categoryBackup.name,
+                                    type: ChannelType.GuildCategory,
+                                    position: categoryBackup.position,
+                                    reason: `Category re-created by Protect (${relevantLog.executorId})`
+                                });
+                            }
+
+                            for (const chBackup of categoryBackup.channels) {
+                                let existingChannel = currentChannels.get(chBackup.id);
+
+                                if (!existingChannel) {
+                                    try {
+                                        existingChannel = await channel.guild.channels.create({
+                                            name: chBackup.name,
+                                            type: chBackup.type as any,
+                                            parent: category.id,
+                                            position: chBackup.position,
+                                            permissionOverwrites: chBackup.permissions,
+                                            reason: `Restoration after raid by Protect (${relevantLog.executorId})`
+                                        });
+
+                                        (existingChannel as TextChannel).send(lang.protection_avoid_channel_delete
+                                            .replace('${channel.guild.ownerId}', channel.guild.ownerId)
+                                            .replace('${firstEntry.executorId}', relevantLog.executorId!)
+                                        );
+                                    } catch {
+                                        existingChannel = await channel.guild.channels.create({
+                                            name: chBackup.name,
+                                            type: chBackup.type as any,
+                                            parent: category.id,
+                                            permissionOverwrites: chBackup.permissions,
+                                            reason: `Restoration after raid by Protect (${relevantLog.executorId})`
+                                        });
+
+                                        (existingChannel as TextChannel).send(lang.protection_avoid_channel_delete
+                                            .replace('${channel.guild.ownerId}', channel.guild.ownerId)
+                                            .replace('${firstEntry.executorId}', relevantLog.executorId!)
+                                        );
+                                    }
+                                } else if (existingChannel.parentId !== category.id || (existingChannel as any).position !== chBackup.position) {
+                                    await (existingChannel as GuildChannel).setParent(category.id, { lockPermissions: false }).catch(() => { });
+                                    await (existingChannel as GuildChannel).setPosition(chBackup.position).catch(() => { });
+                                }
+                            }
+                        }
+                    } finally {
+                        protectionCache.isRaiding.set(channel.guildId, false);
+                    }
+                }, 5000);
             }
         }
     },
