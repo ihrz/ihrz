@@ -86,24 +86,24 @@ export const event: BotEvent = {
 
                                 if (!existingChannel) {
                                     try {
-                                        await channel.guild.channels.create({
+                                        existingChannel = await channel.guild.channels.create({
                                             name: chBackup.name,
                                             type: chBackup.type as any,
                                             parent: category.id,
                                             position: chBackup.position,
                                             permissionOverwrites: chBackup.permissions,
                                             reason: `Restoration after raid by Protect (${relevantLog.executorId})`
-                                        })
+                                        });
                                     } catch {
-                                        await channel.guild.channels.create({
+                                        existingChannel = await channel.guild.channels.create({
                                             name: chBackup.name,
                                             type: chBackup.type as any,
-                                            position: chBackup.position,
+                                            parent: category.id,
                                             permissionOverwrites: chBackup.permissions,
                                             reason: `Restoration after raid by Protect (${relevantLog.executorId})`
-                                        })
+                                        });
                                     }
-                                } else if (existingChannel.parentId !== category.id) {
+                                } else if (existingChannel.parentId !== category.id || (existingChannel as any).position !== chBackup.position) {
                                     await (existingChannel as GuildChannel).setParent(category.id, { lockPermissions: false }).catch(() => { });
                                     await (existingChannel as GuildChannel).setPosition(chBackup.position).catch(() => { });
                                 }
@@ -115,29 +115,29 @@ export const event: BotEvent = {
 
                             if (!existingChannel) {
                                 try {
-                                    await channel.guild.channels.create({
+                                    existingChannel = await channel.guild.channels.create({
                                         name: chBackup.name,
                                         type: chBackup.type as any,
                                         parent: chBackup.parent,
                                         position: chBackup.position,
                                         permissionOverwrites: chBackup.permissions,
                                         reason: `Restoration after raid by Protect (${relevantLog.executorId})`
-                                    })
+                                    });
                                 } catch {
-                                    await channel.guild.channels.create({
+                                    existingChannel = await channel.guild.channels.create({
                                         name: chBackup.name,
                                         type: chBackup.type as any,
+                                        parent: null,
                                         position: chBackup.position,
                                         permissionOverwrites: chBackup.permissions,
                                         reason: `Restoration after raid by Protect (${relevantLog.executorId})`
-                                    })
+                                    });
                                 }
                             } else if (chBackup.parent && existingChannel.parentId !== chBackup.parent) {
                                 await (existingChannel as GuildChannel).setParent(chBackup.parent, { lockPermissions: false }).catch(() => { });
                                 await (existingChannel as GuildChannel).setPosition(chBackup.position).catch(() => { });
                             }
                         }
-
                     } finally {
                         protectionCache.isRaiding.set(channel.guildId, false);
                     }
