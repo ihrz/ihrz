@@ -50,12 +50,7 @@ export const protectionCache = {
 
 async function backupGuildStructure(client: Client) {
     for (const guild of client.guilds.cache.values()) {
-        if (protectionCache.isRaiding.get(guild.id)) return console.log(
-            "miskine le serveur se fait raid je sauvegarde pas les données frère"
-        );
-
-        console.log("je backup ce fils de viol de serveur de mes deux ovaire | GUILD: " + guild.id)
-
+        if (protectionCache.isRaiding.get(guild.id)) return;
         const backup: GuildBackup = {
             categories: [],
             channels: []
