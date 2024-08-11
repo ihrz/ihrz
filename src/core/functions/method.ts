@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, Embed, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel } from "discord.js";
+import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits } from "discord.js";
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -344,6 +344,31 @@ export async function channelSend(interaction: Message | ChatInputCommandInterac
 export function hasSubCommand(options: Option[] | undefined): boolean {
     if (!options) return false;
     return options.some(option => option.type === ApplicationCommandOptionType.Subcommand);
+}
+
+export async function punish(data: any, user: GuildMember | undefined) {
+    switch (data?.['SANCTION']) {
+        case 'simply':
+            break;
+        case 'simply+derank':
+            let user_roles = Array.from(user?.roles.cache.values()!);
+            let role_app = user_roles.find(x => x.managed);
+            if (role_app) {
+                await role_app.setPermissions(PermissionFlagsBits.ViewChannel);
+            }
+
+            user_roles
+                .filter(x => !x.managed && x.position < x.guild.members.me?.roles.highest.position! && x.id !== x.guild.roles.everyone.id)
+                .forEach(async role => {
+                    await user?.roles.remove(role.id, "Protection").catch(() => { })
+                });
+            break;
+        case 'simply+ban':
+            user?.ban({ reason: 'Protect!' }).catch(() => { });
+            break;
+        default:
+            return;
+    }
 }
 
 export const permission = perm;
