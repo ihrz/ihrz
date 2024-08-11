@@ -50,7 +50,7 @@ async function waitForFinish(): Promise<void> {
         if (timeout) clearTimeout(timeout);
         timeout = setTimeout(() => {
             resolve();
-        }, 3000);
+        }, 5000);
     });
 }
 

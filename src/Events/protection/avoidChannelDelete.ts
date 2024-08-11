@@ -26,8 +26,11 @@ import { protectionCache } from './ready.js';
 let timeout: NodeJS.Timeout | null = null;
 
 async function waitForFinish(): Promise<void> {
+    console.log("wait for finnish appeler")
     return new Promise((resolve) => {
-        if (timeout) clearTimeout(timeout);
+        if (timeout) {
+            console.log("wait for finnish supprimer"); clearTimeout(timeout);
+        }
         timeout = setTimeout(() => {
             resolve();
         }, 5000);
@@ -58,28 +61,13 @@ export const event: BotEvent = {
             let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
             if (!baseData) {
-                let user = channel.guild.members.cache.get(relevantLog.executorId!);
-
-                switch (data?.['SANCTION']) {
-                    case 'simply':
-                        break;
-                    case 'simply+derank':
-                        await user?.roles.set([], "Punish").catch(() => false);
-                        break;
-                    case 'simply+ban':
-                        user?.ban({ reason: 'Protect!' }).catch(() => { });
-                        break;
-                    default:
-                        return;
-                }
+                console.log("raid en cours")
 
                 protectionCache.isRaiding.set(channel.guildId, true);
 
                 if (!protectionCache.timeout?.has(channel.guildId)) {
                     protectionCache.timeout?.set(channel.guildId, 0);
                 }
-                const backup = protectionCache.data.get(channel.guild.id);
-                if (!backup) return;
 
                 const timeout = protectionCache.timeout?.get(channel.guildId)!;
                 const currentTime = Date.now();
@@ -90,9 +78,14 @@ export const event: BotEvent = {
                 };
 
                 if (timeout < currentTime) {
-                    console.log("raid en cours")
                     await waitForFinish();
                     console.log("timeout terminé - restauration du serveur")
+
+                    let user = channel.guild.members.cache.get(relevantLog.executorId!);
+
+                    await client.method.punish(data, user)
+                    const backup = protectionCache.data.get(channel.guild.id);
+                    if (!backup) return;
 
                     try {
                         const currentCategories = channel.guild.channels.cache.filter(ch => ch.type === ChannelType.GuildCategory) as Map<string, CategoryChannel>;
