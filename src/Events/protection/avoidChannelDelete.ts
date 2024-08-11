@@ -61,29 +61,31 @@ export const event: BotEvent = {
             let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
             if (!baseData) {
+                let user = channel.guild.members.cache.get(relevantLog.executorId!);
+
                 console.log("raid en cours")
 
                 protectionCache.isRaiding.set(channel.guildId, true);
 
-                if (!protectionCache.timeout?.has(channel.guildId)) {
-                    protectionCache.timeout?.set(channel.guildId, 0);
+                if (!protectionCache.timeout.has(channel.guildId)) {
+                    protectionCache.timeout.set(channel.guildId, 0);
                 }
 
-                const timeout = protectionCache.timeout?.get(channel.guildId)!;
+                const timeout = protectionCache.timeout.get(channel.guildId)!;
                 const currentTime = Date.now();
 
+                console.log("timeout", timeout, "currentTime", currentTime)
                 if (timeout < currentTime) {
-                    protectionCache.timeout?.set(channel.guildId, currentTime + 5000);
+                    protectionCache.timeout.set(channel.guildId, currentTime + 5000);
                     console.log("timeout changé")
                 };
 
                 if (timeout < currentTime) {
                     await waitForFinish();
+                    await client.method.punish(data, user)
+
                     console.log("timeout terminé - restauration du serveur")
 
-                    let user = channel.guild.members.cache.get(relevantLog.executorId!);
-
-                    await client.method.punish(data, user)
                     const backup = protectionCache.data.get(channel.guild.id);
                     if (!backup) return;
 
