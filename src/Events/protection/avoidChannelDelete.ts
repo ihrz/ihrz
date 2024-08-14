@@ -66,7 +66,6 @@ export const event: BotEvent = {
                     const backup = protectionCache.data.get(channel.guild.id);
                     if (!backup) return;
 
-                    console.log("restauration en cours")
                     try {
                         const currentCategories = channel.guild.channels.cache.filter(ch => ch.type === ChannelType.GuildCategory) as Map<string, CategoryChannel>;
                         const currentChannels = channel.guild.channels.cache.filter(ch => ch.isTextBased() || ch.isVoiceBased());
