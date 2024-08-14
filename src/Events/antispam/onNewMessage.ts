@@ -144,8 +144,7 @@ async function clearSpamMessages(message: Message, messages: Set<AntiSpam.Cached
                                 }
                             });
                         });
-                    } catch (error) {
-                    }
+                    } catch { }
                 }
             }
         }));
