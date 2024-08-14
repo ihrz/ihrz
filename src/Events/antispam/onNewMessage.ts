@@ -91,11 +91,6 @@ async function sendWarningMessage(
         return;
     }
 
-    for (const member of membersToWarn) {
-        let amountOfWarn = cache.raidInfo.get(channel?.guildId!)?.get(`${member.id}.amount`) as number;
-        cache.raidInfo.get(channel?.guildId!)?.set(`${member.id}.amount`, amountOfWarn + 1);
-    }
-
     const mentionedMembers = membersToWarn.map(member => member.toString()).join(', ');
     let warningMessage = lang.antispam_base_warn_message.replace("${mentionedMembers}", mentionedMembers);
 
@@ -160,9 +155,6 @@ async function PunishUsers(
     const membersCleaned = [...new Set(members)];
 
     const punishPromises = membersCleaned.map(async (member) => {
-        let amountOfWarn = cache.raidInfo.get(guildId)?.get(`${member.id}.amount`) as number;
-        cache.raidInfo.get(guildId)?.set(`${member.id}.amount`, amountOfWarn + 1);
-
         let time = options.punishTime;
 
         switch (options.punishment_type) {
@@ -253,9 +245,6 @@ export const event: BotEvent = {
         }
 
         // Init User cache
-        if (!cache.raidInfo.get(message.guild.id)!.get(`${message.author.id}.amount`)) {
-            cache.raidInfo.get(message.guild.id)!.set(`${message.author.id}.amount`, 0)
-        }
         if (!cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)) {
             cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, 0)
         }
@@ -288,10 +277,6 @@ export const event: BotEvent = {
 
             let membersToPunish = cache.membersToPunish.get(message.guild.id);
             let guildRaidInfo = cache.raidInfo.get(message.guild.id);
-
-            if (!guildRaidInfo?.has(`${message.author.id}.amount`)) {
-                guildRaidInfo?.set(`${message.author.id}.amount`, 0);
-            }
 
             if (!guildRaidInfo?.has(`${message.author.id}.timeout`)) {
                 guildRaidInfo?.set(`${message.author.id}.timeout`, 0);
