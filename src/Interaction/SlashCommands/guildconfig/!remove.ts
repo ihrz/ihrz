@@ -42,7 +42,7 @@ export default {
         let channel = interaction.options.getChannel('channel') as GuildChannel;
         let all_channels: DatabaseStructure.GhostPingData['channels'] = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) || [];
 
-        if (!all_channels.includes(channel.id)) {
+        if (!all_channels?.includes(channel.id)) {
             await interaction.reply({
                 content: data.joinghostping_remove_isnt_set
                     .replace('${channel}', channel.toString())
@@ -50,7 +50,7 @@ export default {
             return;
         };
 
-        all_channels.splice(all_channels.indexOf(channel.id), 1);
+        all_channels?.splice(all_channels.indexOf(channel.id), 1);
 
         await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`, all_channels);
 

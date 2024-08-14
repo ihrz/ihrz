@@ -30,18 +30,19 @@
     "genius-lyrics": "^4.4.7",
     "jimp": "^0.22.12",
     "js-yaml": "^4.1.0",
-    "lavalink-client": "^2.2.1",
+    "lavalink-client": "^2.2.2",
     "mysql2": "3.10.0",
     "pg": "^8.12.0",
     "ping": "^0.4.4",
     "quick.db": "^9.1.7",
     "quickmongo": "^5.2.0",
+    "stegano.db": "^3.3.0",
     "toml": "^3.0.0",
     "write-file-atomic": "^5.0.1"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.14.12",
+    "@types/node": "^20.14.15",
     "@types/ping": "^0.4.4",
     "tslib": "^2.6.3",
     "typescript": "5.4.5"
