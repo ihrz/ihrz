@@ -33,10 +33,10 @@ export namespace AntiSpam {
     }
 
     export interface AntiSpamCache {
-        raidInfo: Map<string, Map<string, { value: number | boolean }>>;
+        raidInfo: Map<string, Map<string, number | boolean>>;
         messages: Map<string, Set<CachedMessage>>;
         membersToPunish: Map<string, Set<GuildMember>>;
-        membersFlags: Map<string, Map<string, { value: number }>>;
+        membersFlags: Map<string, Map<string, number>>;
     }
 
     export interface AntiSpamOptions {
