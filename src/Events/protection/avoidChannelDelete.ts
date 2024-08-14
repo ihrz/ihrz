@@ -56,7 +56,9 @@ export const event: BotEvent = {
 
                 var timeout = multiTimeout.get(channel.guildId);
 
-                if (timeout) clearTimeout(timeout);
+                if (timeout) {
+                    clearTimeout(timeout);
+                }
 
                 multiTimeout.set(channel.guildId, setTimeout(async () => {
                     protectionCache.isRaiding.set(channel.guildId, false);
