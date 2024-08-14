@@ -107,8 +107,8 @@ export default {
             try {
                 await OWNIHRZ.Change_Owner(client.config, id_2.Cluster!, id_2.Code, OwnerOne, OwnerTwo);
 
-                var botData = await table.get(`CLUSTER.${interaction.user.id}.${botId}`);
-                await table.delete(`CLUSTER.${interaction.user.id}.${botId}`);
+                var botData = await table.get(`CLUSTER.${id_2.OwnerOne}.${botId}`);
+                await table.delete(`CLUSTER.${id_2.OwnerOne}.${botId}`);
 
                 botData.OwnerOne = OwnerOne;
                 botData.OwnerTwo = OwnerTwo;
