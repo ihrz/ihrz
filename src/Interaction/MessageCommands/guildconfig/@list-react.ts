@@ -59,7 +59,7 @@ import { DatabaseStructure } from '../../../../types/database_structure.js'; exp
 
         let pages: string[] = [];
 
-        Object.entries(all_specific_message).forEach(([key, value]) => {
+        Object.entries(all_specific_message!).forEach(([key, value]) => {
             pages.push(`Quand une personne envoie **\`${key}\`**, je **réagis** avec ${value}\n`);
         });
 

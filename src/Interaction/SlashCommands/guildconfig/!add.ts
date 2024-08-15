@@ -42,7 +42,7 @@ export default {
         let channel = interaction.options.getChannel('channel') as GuildChannel;
         let all_channels: DatabaseStructure.GhostPingData['channels'] = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) || [];
 
-        if (all_channels.includes(channel.id)) {
+        if (all_channels?.includes(channel.id)) {
             await interaction.reply({
                 content: data.joinghostping_add_already_set
                     .replace('${channel}', channel.toString())
@@ -54,7 +54,7 @@ export default {
 
         (channel as BaseGuildTextChannel).send({ content: data.joinghostping_add_sent_to_channel });
 
-        all_channels.push(channel.id);
+        all_channels?.push(channel.id);
 
         let embed = new EmbedBuilder()
             .setTitle(data.joinghostping_add_ok_embed_title)

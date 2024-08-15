@@ -48,7 +48,7 @@ export const command: Command = {
                 "fr": "Récuperer l'avatar d'un utilisateur"
             },
 
-            aliases: ["pfp", "pp"],
+            aliases: ["pfp", "pp", "pic"],
 
             type: ApplicationCommandOptionType.Subcommand,
             options: [
