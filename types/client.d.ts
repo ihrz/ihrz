@@ -41,6 +41,7 @@ import * as ClientVersion from "../src/version.js";
 import { Assets } from "./assets";
 import { ConfigData } from "./configDatad.js";
 import { BashCommands } from "./bashCommands.js";
+import { SteganoDB } from "stegano.db";
 
 declare module 'discord.js' {
     export interface Client {
@@ -53,7 +54,7 @@ declare module 'discord.js' {
         vanityInvites: Collection<Snowflake, VanityInviteData>,
         buttons: Collection<string, Function>,
         selectmenu: Collection<string, Function>,
-        db: QuickDB,
+        db: QuickDB | SteganoDB,
         applicationsCommands: Collection<string, AnotherCommand>,
         iHorizon_Emojis: Emojis,
         giveawaysManager: GiveawayManager,

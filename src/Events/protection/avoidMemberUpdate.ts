@@ -52,19 +52,7 @@ export const event: BotEvent = {
                 await newMember.roles.set(oldMember.roles.cache).catch(() => false);
 
                 let user = newMember.guild.members.cache.get(relevantLog?.executorId as string);
-
-                switch (data?.['SANCTION']) {
-                    case 'simply':
-                        break;
-                    case 'simply+derank':
-                        await user?.roles.set([], "Punish");
-                        break;
-                    case 'simply+ban':
-                        user?.ban({ reason: 'Protect!' }).catch(() => { });
-                        break;
-                    default:
-                        return;
-                };
+                await client.method.punish(data, user);
             };
         }
     },

@@ -23,6 +23,7 @@ import { JSONDriver, MemoryDriver, MySQLDriver, QuickDB } from 'quick.db';
 import { PostgresDriver } from 'quick.db/out/drivers/PostgresDriver.js'
 import { MongoDriver } from 'quickmongo';
 import ansiEscapes from 'ansi-escapes';
+import { SteganoDB } from 'stegano.db';
 import mysql from 'mysql2/promise.js';
 import { setInterval } from 'timers';
 
@@ -31,7 +32,7 @@ import * as proc from './modules/errorManager.js';
 import logger from './logger.js';
 import fs from 'fs';
 
-let dbInstance: QuickDB<any>;
+let dbInstance: QuickDB<any> | SteganoDB;
 
 const tables = ['OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', 'json'];
 
@@ -56,8 +57,8 @@ const overwriteLastLine = (message: string) => {
     process.stdout.write(message);
 };
 
-export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<any>> => {
-    let dbPromise: Promise<QuickDB<any>>;
+export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<any> | SteganoDB> => {
+    let dbPromise: Promise<QuickDB<any>> | SteganoDB;
     let sqlitePath = `${process.cwd()}/src/files`;
 
     if (!fs.existsSync(sqlitePath)) {
@@ -153,6 +154,10 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                 resolve(new QuickDB({ filePath: sqlitePath + '/db.sqlite' }));
             });
             break;
+        case 'PNG':
+            dbPromise = new SteganoDB(sqlitePath + '/db.png');
+            logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
+            break;
         case 'CACHED_SQL':
             dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
                 const connectionAvailable = await isReachable(config.database);
@@ -224,7 +229,7 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
     return dbInstance;
 };
 
-export const getDatabaseInstance = (): QuickDB<any> => {
+export const getDatabaseInstance = (): QuickDB<any> | SteganoDB => {
     if (!dbInstance) {
         throw new Error('Database has not been initialized. Call initializeDatabase first.');
     }
