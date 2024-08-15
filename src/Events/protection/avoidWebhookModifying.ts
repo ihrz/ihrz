@@ -54,20 +54,8 @@ export const event: BotEvent = {
 
                 for (let [id, webhook] of myWebhooks) await webhook.delete("Protect!");
 
-                let user = channel.guild.members.cache.get(relevantLog.executorId as string);
-
-                switch (data?.['SANCTION']) {
-                    case 'simply':
-                        break;
-                    case 'simply+derank':
-                        await user?.roles.set([], "Punish").catch(() => false);
-                        break;
-                    case 'simply+ban':
-                        user?.ban({ reason: 'Protect!' }).catch(() => { });
-                        break;
-                    default:
-                        return;
-                };
+                let member = channel.guild.members.cache.get(relevantLog.executorId as string);
+                await client.method.punish(data, member);
             };
         }
     },

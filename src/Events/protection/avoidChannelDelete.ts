@@ -24,7 +24,7 @@ import { BotEvent } from '../../../types/event';
 import { protectionCache } from './ready.js';
 import { LanguageData } from '../../../types/languageData';
 
-let timeout: NodeJS.Timeout | null = null;
+let multiTimeout: Map<string, NodeJS.Timeout> = new Map<string, NodeJS.Timeout>();
 
 export const event: BotEvent = {
     name: "channelDelete",
@@ -54,11 +54,13 @@ export const event: BotEvent = {
 
                 protectionCache.isRaiding.set(channel.guildId, true);
 
+                var timeout = multiTimeout.get(channel.guildId);
+
                 if (timeout) {
                     clearTimeout(timeout);
                 }
 
-                timeout = setTimeout(async () => {
+                multiTimeout.set(channel.guildId, setTimeout(async () => {
                     protectionCache.isRaiding.set(channel.guildId, false);
 
                     await client.method.punish(data, user);
@@ -124,7 +126,7 @@ export const event: BotEvent = {
                     } finally {
                         protectionCache.isRaiding.set(channel.guildId, false);
                     }
-                }, 5000);
+                }, 5000));
             }
         }
     },

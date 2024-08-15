@@ -58,7 +58,7 @@ const AntiSpamPreset: { [key in PresetKeys]: AntiSpam.AntiSpamOptions } = {
     },
     guard: {
         BYPASS_ROLES: [],
-        ignoreBots: true,
+        ignoreBots: false,
         maxInterval: 2700,
         Enabled: true,
         Threshold: 5,
@@ -68,7 +68,7 @@ const AntiSpamPreset: { [key in PresetKeys]: AntiSpam.AntiSpamOptions } = {
     },
     extreme: {
         BYPASS_ROLES: [],
-        ignoreBots: true,
+        ignoreBots: false,
         maxInterval: 3200,
         Enabled: true,
         Threshold: 3,

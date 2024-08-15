@@ -37,10 +37,10 @@ import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
 
 export const cache: AntiSpam.AntiSpamCache = {
-    raidInfo: new Map<string, Map<string, { value: number | boolean; }>>(),
+    raidInfo: new Map<string, Map<string, number | boolean>>(),
     messages: new Map<string, Set<AntiSpam.CachedMessage>>(),
     membersToPunish: new Map<string, Set<GuildMember>>(),
-    membersFlags: new Map<string, Map<string, { value: number; }>>()
+    membersFlags: new Map<string, Map<string, number>>()
 };
 
 let timeout: NodeJS.Timeout | null = null;
@@ -91,11 +91,6 @@ async function sendWarningMessage(
         return;
     }
 
-    for (const member of membersToWarn) {
-        let amountOfWarn = cache.raidInfo.get(channel?.guildId!)?.get(`${member.id}.amount`)?.value as number;
-        cache.raidInfo.get(channel?.guildId!)?.set(`${member.id}.amount`, { value: amountOfWarn + 1 });
-    }
-
     const mentionedMembers = membersToWarn.map(member => member.toString()).join(', ');
     let warningMessage = lang.antispam_base_warn_message.replace("${mentionedMembers}", mentionedMembers);
 
@@ -144,8 +139,7 @@ async function clearSpamMessages(message: Message, messages: Set<AntiSpam.Cached
                                 }
                             });
                         });
-                    } catch (error) {
-                    }
+                    } catch { }
                 }
             }
         }));
@@ -161,9 +155,6 @@ async function PunishUsers(
     const membersCleaned = [...new Set(members)];
 
     const punishPromises = membersCleaned.map(async (member) => {
-        let amountOfWarn = cache.raidInfo.get(guildId)?.get(`${member.id}.amount`)?.value as number;
-        cache.raidInfo.get(guildId)?.set(`${member.id}.amount`, { value: amountOfWarn + 1 });
-
         let time = options.punishTime;
 
         switch (options.punishment_type) {
@@ -253,6 +244,11 @@ export const event: BotEvent = {
             cache.membersFlags.set(message.guild.id, new Map());
         }
 
+        // Init User cache
+        if (!cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)) {
+            cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, 0)
+        }
+
         // Load cache message
         const guildCacheMessages = cache.messages.get(message.guild.id)!;
         const previousMessages = Array.from(guildCacheMessages);
@@ -260,49 +256,37 @@ export const event: BotEvent = {
         // Add current message in cache
         guildCacheMessages.add(currentMessage);
 
-        // Init User cache
-        if (!cache.raidInfo.get(message.guild.id)!.get(`${message.author.id}.amount`)?.value) {
-            cache.raidInfo.get(message.guild.id)!.set(`${message.author.id}.amount`, { value: 0 })
-        }
-        if (!cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value) {
-            cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, { value: 0 })
-        }
-
-        let memberTotalWarn = cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value!;
+        let memberTotalWarn = cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)!;
 
         const lastMessage = previousMessages.filter(x => x.authorID === message.author.id).slice(-1)[0];
         const elapsedTime = lastMessage ? currentMessage.sentTimestamp - lastMessage.sentTimestamp : options.maxInterval - 100;
 
         // Basic checks
         if (elapsedTime && elapsedTime < options.maxInterval) {
-            cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, { value: memberTotalWarn + 1 });
+            cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, memberTotalWarn + 1);
             currentMessage.isSpam = true;
         }
-        if (cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value! >= options.Threshold) {
+        if (cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)! >= options.Threshold) {
             cache.membersToPunish.get(message.guild.id)!.add(message.member!);
             currentMessage.isSpam = true;
         };
 
         // if the member break the threshold
-        if (cache.membersToPunish.get(message.guild.id)!.size >= 1 && cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value! >= options.Threshold) {
+        if (cache.membersToPunish.get(message.guild.id)!.size >= 1 && cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)! >= options.Threshold) {
             currentMessage.isSpam = true;
 
             let membersToPunish = cache.membersToPunish.get(message.guild.id);
             let guildRaidInfo = cache.raidInfo.get(message.guild.id);
 
-            if (!guildRaidInfo?.has(`${message.author.id}.amount`)) {
-                guildRaidInfo?.set(`${message.author.id}.amount`, { value: 0 });
-            }
-
             if (!guildRaidInfo?.has(`${message.author.id}.timeout`)) {
-                guildRaidInfo?.set(`${message.author.id}.timeout`, { value: 0 });
+                guildRaidInfo?.set(`${message.author.id}.timeout`, 0);
             }
 
-            const timeout = guildRaidInfo?.get(`${message.author.id}.timeout`)?.value as number;
+            const timeout = guildRaidInfo?.get(`${message.author.id}.timeout`) as number;
             const currentTime = Date.now();
 
             if (timeout < currentTime) {
-                guildRaidInfo?.set(`${message.author.id}.timeout`, { value: currentTime + 5000 });
+                guildRaidInfo?.set(`${message.author.id}.timeout`, currentTime + 5000);
             }
 
             if (timeout < currentTime) {

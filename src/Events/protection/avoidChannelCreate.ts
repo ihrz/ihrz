@@ -50,20 +50,8 @@ export const event: BotEvent = {
 
             if (!baseData) {
                 await channel.delete();
-                let user = channel.guild.members.cache.get(relevantLog?.executorId!);
-
-                switch (data?.['SANCTION']) {
-                    case 'simply':
-                        break;
-                    case 'simply+derank':
-                        await user?.roles.set([], "Punish").catch(() => false);
-                        break;
-                    case 'simply+ban':
-                        user?.ban({ reason: 'Protect!' }).catch(() => { });
-                        break;
-                    default:
-                        return;
-                }
+                let member = channel.guild.members.cache.get(relevantLog?.executorId!);
+                await client.method.punish(data, member);
             }
         }
     },
