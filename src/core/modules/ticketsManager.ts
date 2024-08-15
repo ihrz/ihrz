@@ -713,6 +713,8 @@ async function TicketTranscript(interaction: ButtonInteraction<CacheType>) {
                 let member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
 
                 if (interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member?.user.id) {
+                    (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(member?.user.id!, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
+
                     // @ts-ignore
                     let attachment = await discordTranscripts.createTranscript(interactionChannel as TextBasedChannel, {
                         limit: -1,
