@@ -46,7 +46,8 @@ export interface Command {
     description: string;
     name_localizations?: NameLocalizations;
     description_localizations: DescriptionLocalizations;
-    interaction_types?: number[]
+    integration_types?: number[],
+    contexts?: number[],
     permission?: bigint | 0;
     category: string;
     options?: Option[];

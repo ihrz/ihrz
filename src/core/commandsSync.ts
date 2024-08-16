@@ -42,7 +42,8 @@ const synchronizeCommands = async (client: Client): Promise<void> => {
                 description: command.description,
                 description_localizations: command.description_localizations,
                 options: command.options,
-                interaction_types: command.interaction_types
+                integration_types: command.integration_types,
+                contexts: command.contexts
             })) || [];
 
             let allCommands = [...slashCommands, ...appCmds];
