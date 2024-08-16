@@ -31,14 +31,13 @@ import { SubCommandArgumentValue } from '../../../core/functions/method';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
-
         if (interaction instanceof ChatInputCommandInteraction) {
             var question = interaction.options.getString("question") as string;
+            var user = interaction.user;
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var question = client.method.string(args!, 0) as string;
+            var user = interaction.author;
         };
 
         let text = question?.split(" ");
@@ -52,7 +51,7 @@ export default {
 
         let embed = new EmbedBuilder()
             .setTitle(lang.question_embed_title
-                .replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username)
+                .replace(/\${interaction\.user\.username}/g, user.globalName || user.username)
             )
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#ddd98b")
             .addFields(

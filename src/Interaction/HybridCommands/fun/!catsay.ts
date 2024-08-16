@@ -42,9 +42,6 @@ import Jimp from 'jimp';
 
 export default {
   run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
-    // Guard's Typing
-    if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
-
     let baseImg = (await axios.get('https://api.thecatapi.com/v1/images/search?mime_types=jpg,png')).data;
 
     if (interaction instanceof ChatInputCommandInteraction) {

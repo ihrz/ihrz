@@ -32,7 +32,6 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-    GuildMember,
     Message,
     User,
 } from 'discord.js'
@@ -42,16 +41,13 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
-
         if (interaction instanceof ChatInputCommandInteraction) {
-            var user: GuildMember = interaction.options.getMember('user') as GuildMember || interaction.member;
+            var user: User = interaction.options.getUser('user') as User || interaction.user;
             var entry = interaction.options.getString('comment');
             var messageArgs = entry!.split(' ');
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var user: GuildMember = client.method.member(interaction, args!, 0) || interaction.member;
+            var user: User = await client.method.user(interaction, args!, 0) || interaction.author;
             var entry = client.method.longString(args!, 1);
             var messageArgs = entry!.split(' ');
         };
@@ -61,8 +57,8 @@ export default {
             return;
         };
 
-        let username = user.user.username;
-        let displayname = user.user.globalName;
+        let username = user.username;
+        let displayname = user.globalName;
 
         if (username.length > 15) {
             username = username.substring(0, 15);

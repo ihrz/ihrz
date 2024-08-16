@@ -33,14 +33,13 @@ import { SubCommandArgumentValue } from '../../../core/functions/method';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
-
         if (interaction instanceof ChatInputCommandInteraction) {
-            var victim = interaction.options.getMember("user") as GuildMember;
+            var victim = interaction.options.getUser("user") as User;
+            var user = interaction.user;
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var victim = client.method.member(interaction, args!, 0) || interaction.member;
+            var victim = await client.method.user(interaction, args!, 0) || interaction.author;
+            var user = interaction.author;
         }
 
         var ip = [
@@ -147,7 +146,7 @@ export default {
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#800000")
             .setDescription(lang.hack_embed_description
                 .replace(/\${victim\.id}/g, victim.id)
-                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+                .replace(/\${interaction\.user\.id}/g, user.id)
             )
             .addFields({ name: lang.hack_embed_fields_ip, value: `\`${generatedIp}\`` },
                 { name: lang.hack_embed_fields_email, value: `\`${generatedEmail}\`` },

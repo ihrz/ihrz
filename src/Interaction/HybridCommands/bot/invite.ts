@@ -44,29 +44,29 @@ export const command: Command = {
 
     aliases: ["inviteme", "oauth"],
 
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
+
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {
-        // Guard's Typing
-        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
         let button_add_me = new ButtonBuilder()
             .setStyle(ButtonStyle.Link)
             .setLabel(lang.invite_embed_title)
-            .setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=8&scope=bot`)
+            .setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`)
 
         let invites = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#416fec")
             .setTitle(lang.invite_embed_title)
             .setDescription(lang.invite_embed_description)
-            .setURL('https://discord.com/api/oauth2/authorize?client_id=' + client.user.id + '&permissions=8&scope=bot')
+            .setURL('https://discord.com/api/oauth2/authorize?client_id=' + client.user?.id + '&permissions=8&scope=bot')
             .setFooter(await client.method.bot.footerBuilder(interaction))
             .setThumbnail("attachment://footer_icon.png");
 
         let components = new ActionRowBuilder<ButtonBuilder>().addComponents(button_add_me);
 
-        await client.method.interactionSend(interaction,{
+        await client.method.interactionSend(interaction, {
             embeds: [invites],
             components: [components],
             files: [await client.method.bot.footerAttachmentBuilder(interaction)]

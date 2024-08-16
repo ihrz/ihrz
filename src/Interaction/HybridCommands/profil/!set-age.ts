@@ -28,19 +28,18 @@ import { LanguageData } from '../../../../types/languageData';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
-        // Guard's Typing
-        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
         if (interaction instanceof ChatInputCommandInteraction) {
             var age = interaction.options.getNumber("age")!;
+            var user = interaction.user;
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var age = client.method.number(args!, 0);
+            var user = interaction.author;
         };
 
         let tableProfil = client.db.table('USER_PROFIL');
 
-        await tableProfil.set(`${interaction.member.user.id}.age`, age);
+        await tableProfil.set(`${user.id}.age`, age);
 
         await client.method.interactionSend(interaction,{ content: data.setprofilage_command_work, ephemeral: true });
         return;
