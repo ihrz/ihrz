@@ -111,7 +111,7 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
-                    name: 'descriptions',
+                    name: 'description',
                     type: ApplicationCommandOptionType.String,
 
                     description: "Your descriptions on the iHorizon's profil",
@@ -166,6 +166,9 @@ export const command: Command = {
             ],
         }
     ],
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
+
     thinking: false,
     category: 'profil',
     type: ApplicationCommandType.ChatInput,

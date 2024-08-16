@@ -34,16 +34,13 @@ const __dirname = path.dirname(__filename);
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
-
         if (interaction instanceof ChatInputCommandInteraction) {
-            var user1 = interaction.options.getMember("user1") as GuildMember || interaction.member;
-            var user2 = interaction.options.getMember("user2") as GuildMember || interaction.guild.members.cache.random() as GuildMember;
+            var user1 = interaction.options.getUser("user1") as User || interaction.user;
+            var user2 = interaction.options.getUser("user2") as User || interaction.guild?.members.cache.random()?.user || client.user;
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var user1 = client.method.member(interaction, args!, 0) || interaction.member;
-            var user2 = client.method.member(interaction, args!, 1) || interaction.guild.members.cache.random() as GuildMember;
+            var user1 = await client.method.user(interaction, args!, 0) || interaction.author;
+            var user2 = await client.method.user(interaction, args!, 1) as User || interaction.guild?.members.cache.random()?.user || client.user;
         }
 
         let profileImageSize = 512;
@@ -93,8 +90,8 @@ export default {
                 .setTitle("💕")
                 .setImage(`attachment://love.png`)
                 .setDescription(lang.love_embed_description
-                    .replace('${user1.username}', user1.user.username)
-                    .replace('${user2.username}', user2.user.username)
+                    .replace('${user1.username}', user1.username)
+                    .replace('${user2.username}', user2.username)
                     .replace('${randomNumber}', randomNumber.toString())
                 )
                 .setFooter(await client.method.bot.footerBuilder(interaction))

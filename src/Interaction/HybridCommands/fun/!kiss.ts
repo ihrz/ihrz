@@ -25,6 +25,7 @@ import {
     EmbedBuilder,
     GuildMember,
     Message,
+    User,
 } from 'discord.js';
 
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
@@ -34,14 +35,13 @@ import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
-
         if (interaction instanceof ChatInputCommandInteraction) {
-            var kiss = interaction.options.getMember("user") as GuildMember;
+            var kiss = interaction.options.getUser("user") as User;
+            var user = interaction.user;
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var kiss = client.method.member(interaction, args!, 0) || interaction.member;
+            var kiss = await client.method.user(interaction, args!, 0) || interaction.author;
+            var user = interaction.author;
         }
 
         let url = apiUrlParser.assetsFinder(client.assets, "kiss");
@@ -52,7 +52,7 @@ export default {
                     .setColor("#ff0884")
                     .setDescription(lang.kiss_embed_description
                         .replace(/\${kiss\.id}/g, kiss.id)
-                        .replace(/\${interaction\.user\.id}/g, interaction.member?.user.id!)
+                        .replace(/\${interaction\.user\.id}/g, user.id)
                     )
                     .setImage(url)
                     .setTimestamp()

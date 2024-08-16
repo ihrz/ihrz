@@ -32,8 +32,8 @@ import {
   ChatInputCommandInteraction,
   Client,
   EmbedBuilder,
-  GuildMember,
   Message,
+  User,
 } from 'discord.js'
 
 import { AxiosResponse, axios } from '../../../core/functions/axios.js';
@@ -42,17 +42,14 @@ import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 
 export default {
   run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
-    // Guard's Typing
-    if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
-
     if (interaction instanceof ChatInputCommandInteraction) {
-      var user = interaction.options.getMember('user') as GuildMember || interaction.member;
+      var member1 = interaction.options.getUser('user') as User || interaction.user;
     } else {
       var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-      var user = client.method.member(interaction, args!, 0) || interaction.member;
+      var member1 = await client.method.user(interaction, args!, 0) || interaction.author;
     };
 
-    let link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(user.displayAvatarURL({ extension: 'png', size: 1024 }))}`;
+    let link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(member1.displayAvatarURL({ extension: 'png', size: 1024 }))}`;
 
     let embed = new EmbedBuilder()
       .setColor('#000000')
