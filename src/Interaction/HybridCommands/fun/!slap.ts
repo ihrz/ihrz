@@ -23,8 +23,8 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-    GuildMember,
     Message,
+    User,
 } from 'discord.js';
 
 import { axios, AxiosResponse } from '../../../core/functions/axios.js';
@@ -34,14 +34,13 @@ import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
-
         if (interaction instanceof ChatInputCommandInteraction) {
-            var slap = interaction.options.getMember("user") as GuildMember;
+            var slap = interaction.options.getUser("user") as User;
+            var user = interaction.user;
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var slap = client.method.member(interaction, args!, 0)!;
+            var slap = await client.method.user(interaction, args!, 0) as User;
+            var user = interaction.author;
         };
 
         let url = apiUrlParser.assetsFinder(client.assets, "slap");
@@ -52,7 +51,7 @@ export default {
                     .setColor("#42ff08")
                     .setDescription(lang.slap_embed_description
                         .replace(/\${slap\.id}/g, slap?.id as string)
-                        .replace(/\${interaction\.user\.id}/g, interaction.member?.user.id!)
+                        .replace(/\${interaction\.user\.id}/g, user.id)
                     )
                     .setImage(url)
                     .setTimestamp()

@@ -33,29 +33,31 @@ import { SubCommandArgumentValue } from '../../../core/functions/method';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
+        if (interaction.guild) {
+            const permissionsArray = [PermissionsBitField.Flags.Administrator]
+            const permissions = interaction instanceof ChatInputCommandInteraction ?
+                interaction.memberPermissions?.has(permissionsArray)
+                : interaction.member?.permissions.has(permissionsArray);
 
-        if (!permissions) {
-            await client.method.interactionSend(interaction, { content: lang.poll_not_admin });
-            return;
-        };
+            if (!permissions) {
+                await client.method.interactionSend(interaction, { content: lang.poll_not_admin });
+                return;
+            };
+        }
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var pollMessage = interaction.options.getString("message");
+            var user = interaction.user;
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var pollMessage = client.method.string(args!, 0);
+            var user = interaction.author;
         }
 
         let pollEmbed = new EmbedBuilder()
             .setTitle(lang.poll_embed_title
-                .replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username)
+                .replace(/\${interaction\.user\.username}/g, user.globalName || user.username)
             )
             .setColor("#ddd98b")
             .setDescription(pollMessage)
