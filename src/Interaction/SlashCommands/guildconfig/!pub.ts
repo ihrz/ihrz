@@ -77,6 +77,9 @@ export default {
                     {
                         regexPatterns: [
                             '(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li)|discordapp\.com\/invite)\/.+[a-z]',
+                            '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
+                            '\bhttps?:\/\/\S+\b',
+                            '\b(https?:\/\/)?\S+\.\S+\b'
                         ]
                     },
                     actions: arrayActionsForRule
@@ -89,6 +92,9 @@ export default {
                     {
                         regexPatterns: [
                             '(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li)|discordapp\.com\/invite)\/.+[a-z]',
+                            '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
+                            '\bhttps?:\/\/\S+\b',
+                            '\b(https?:\/\/)?\S+\.\S+\b'
                         ]
                     },
                     actions: [
