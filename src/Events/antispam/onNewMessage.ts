@@ -256,7 +256,7 @@ export const event: BotEvent = {
         // Add current message in cache
         guildCacheMessages.add(currentMessage);
 
-        let memberTotalWarn = cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)!;
+        let memberTotalWarn = cache.membersFlags.get(message.guild.id)!.get(message.author.id)!;
 
         const lastMessage = previousMessages.filter(x => x.authorID === message.author.id).slice(-1)[0];
         const elapsedTime = lastMessage ? currentMessage.sentTimestamp - lastMessage.sentTimestamp : options.maxInterval - 100;

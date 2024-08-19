@@ -24,6 +24,7 @@ import {
     Client,
     EmbedBuilder,
     GuildMember,
+    User,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
@@ -33,7 +34,7 @@ export default {
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let baseData = await client.db.get(`${interaction.guildId}.ALLOWLIST`);
-        let member = interaction.options.getMember('member') as GuildMember;
+        let member = interaction.options.getUser('member') as User;
 
         if (interaction.user.id !== interaction.guild.ownerId) {
             await interaction.reply({ content: data.allowlist_delete_not_owner });
@@ -50,20 +51,20 @@ export default {
             return;
         };
 
-        if (member.user.id === interaction.guild.ownerId) {
+        if (member.id === interaction.guild.ownerId) {
             await interaction.reply({ content: data.allowlist_delete_cant_remove_owner });
             return;
         };
 
-        if (!baseData.list[member.user.id]?.allowed == true) {
+        if (!baseData.list[member.id]?.allowed == true) {
             await interaction.reply({ content: data.allowlist_delete_isnt_in });
             return;
         };
 
-        await client.db.delete(`${interaction.guild.id}.ALLOWLIST.list.${member.user.id}`);
+        await client.db.delete(`${interaction.guild.id}.ALLOWLIST.list.${member.id}`);
         await interaction.reply({
             content: data.allowlist_delete_command_work
-                .replace('${member.user}', member.user.toString())
+                .replace('${member.user}', member.toString())
         });
 
         return;
