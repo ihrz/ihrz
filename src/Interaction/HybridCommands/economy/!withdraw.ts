@@ -38,10 +38,10 @@ export default {
         let dataAccount = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY`) as DatabaseStructure.EconomyUserSchema;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var toWithdraw = interaction.options.getNumber('how-much') as number;
+            var toWithdraw = interaction.options.getString('how-much') as string;
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var toWithdraw = client.method.number(args!, 0) as number;
+            var toWithdraw = client.method.string(args!, 0) as string;
         };
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
@@ -52,15 +52,27 @@ export default {
             return;
         };
 
-        if (toWithdraw && toWithdraw > dataAccount?.bank!) {
+        if (toWithdraw === "all") toWithdraw = dataAccount.bank?.toString()!;
+
+        if (isNaN(Number(toWithdraw))) {
+            await client.method.interactionSend(interaction, {
+                content: data.temporary_voice_limit_button_not_integer
+                    .replace("${interaction.client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            })
+            return;
+        }
+
+        var clean_to_withdraw = parseInt(toWithdraw)
+
+        if (toWithdraw && clean_to_withdraw > dataAccount?.bank!) {
             await client.method.interactionSend(interaction, {
                 content: data.withdraw_cannot_abuse.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
-        await client.db.sub(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`, toWithdraw!);
-        await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, toWithdraw!);
+        await client.db.sub(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`, parseInt(toWithdraw));
+        await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, parseInt(toWithdraw));
 
         let embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#a4cb80")

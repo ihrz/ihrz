@@ -36,10 +36,10 @@ export default {
         let balance = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`);
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var toDeposit = interaction.options.getNumber('how-much') as number;
+            var toDeposit = interaction.options.getString('how-much') as string;
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var toDeposit = client.method.number(args!, 0) as number;
+            var toDeposit = client.method.string(args!, 0) as string;
         };
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
@@ -50,6 +50,16 @@ export default {
             return;
         };
 
+        if (toDeposit === "all") toDeposit = balance;
+
+        if (isNaN(Number(toDeposit))) {
+            await client.method.interactionSend(interaction, {
+                content: lang.temporary_voice_limit_button_not_integer
+                    .replace("${interaction.client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            })
+            return;
+        }
+
         if (toDeposit && toDeposit > balance) {
             await client.method.interactionSend(interaction, {
                 content: lang.deposit_cannot_abuse.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
@@ -57,8 +67,8 @@ export default {
             return;
         };
 
-        await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`, toDeposit!);
-        await client.db.sub(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, toDeposit!);
+        await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`, parseInt(toDeposit));
+        await client.db.sub(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, parseInt(toDeposit));
 
         let embed = new EmbedBuilder()
             .setAuthor({ name: lang.daily_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
