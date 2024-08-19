@@ -31,14 +31,11 @@ import { LanguageData } from '../../../../types/languageData';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
-        // Guard's Typing
-        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
         if (interaction instanceof ChatInputCommandInteraction) {
-            var member = interaction.options.getMember("user") as GuildMember || interaction.member;
+            var member = interaction.options.getUser("user") as User || interaction.user;
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var member = client.method.member(interaction, args!, 0) || interaction.member;
+            var member = await client.method.user(interaction, args!, 0) || interaction.author;
         };
 
         let tableProfil = client.db.table('USER_PROFIL');
@@ -60,12 +57,12 @@ export default {
 
         let profil = new EmbedBuilder()
             .setTitle(data.profil_embed_title
-                .replace(/\${member\.tag}/g, member.user.username)
+                .replace(/\${member\.tag}/g, member.username)
                 .replace('${client.iHorizon_Emojis.icon.Pin}', client.iHorizon_Emojis.icon.Pin)
             )
             .setDescription(`\`${description}\``)
             .addFields(
-                { name: data.profil_embed_fields_nickname, value: member.user.username, inline: false },
+                { name: data.profil_embed_fields_nickname, value: member.username, inline: false },
                 { name: data.profil_embed_fields_money, value: balance + data.profil_embed_fields_money_value, inline: false },
                 { name: data.profil_embed_fields_xplevels, value: level + data.profil_embed_fields_xplevels_value, inline: false },
                 { name: data.profil_embed_fields_age, value: age + data.profil_embed_fields_age_value, inline: false },

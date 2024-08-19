@@ -43,7 +43,9 @@ export const event: BotEvent = {
         if (!interaction.isChatInputCommand()
             || interaction.user.bot) return;
 
-        if (interaction.channel?.type === ChannelType.DM) {
+        let command = client.commands?.get(interaction.commandName);
+
+        if (interaction.channel?.type === ChannelType.DM && !command?.integration_types?.includes(1)) {
             await interaction.reply({
                 embeds: [
                     new EmbedBuilder()
@@ -69,8 +71,6 @@ export const event: BotEvent = {
             })
             return;
         }
-        let command = client.commands?.get(interaction.commandName);
-
         if (!command) {
             return interaction.reply({ content: 'Connection error.', ephemeral: true });
         };

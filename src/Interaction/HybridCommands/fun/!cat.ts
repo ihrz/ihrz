@@ -32,9 +32,6 @@ import { SubCommandArgumentValue } from '../../../core/functions/method';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
-
         axios.get('http://edgecats.net/random').then(async res => {
             let emb = new EmbedBuilder()
                 .setImage(res.data)

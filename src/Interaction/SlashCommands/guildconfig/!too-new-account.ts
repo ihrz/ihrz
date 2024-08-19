@@ -64,9 +64,11 @@ export default {
                 let logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.too_new_account_logEmbed_title)
-                    .setDescription(data.too_new_account_logEmbed_desc_on_disable
+                    .setDescription(data.too_new_account_logEmbed_desc_on_enable
                         .replace('${interaction.user}', interaction.user.toString())
                         .replace('${beautifulTime}', beautifulTime.toString())
+                        .replace('${interaction.guild?.name}', beautifulTime.toString())
+
                     );
 
                 let logChannel = interaction.guild.channels.cache.find((channel) => channel.name === 'ihorizon-logs');

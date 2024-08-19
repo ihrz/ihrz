@@ -192,7 +192,7 @@ export const command: Command = {
             options: [
                 {
                     name: 'how-much',
-                    type: ApplicationCommandOptionType.Number,
+                    type: ApplicationCommandOptionType.String,
 
                     description: 'How much coin you want to deposit in your bank?',
                     description_localizations: {
@@ -302,7 +302,7 @@ export const command: Command = {
             options: [
                 {
                     name: 'how-much',
-                    type: ApplicationCommandOptionType.Number,
+                    type: ApplicationCommandOptionType.String,
 
                     description: 'How much coin you want to withdraw from your bank?',
                     description_localizations: {
