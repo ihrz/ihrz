@@ -1544,12 +1544,12 @@ event_channel_create_message_embed_title: "Успешная настройка!"
 event_channel_create_message_embed_description: "Бот был настроен и готов к работе. Вам больше ничего не нужно делать.\n\nВсе журналы модерации, связанные с iHorizon, будут отображаться здесь"
 
 # События приветствия
-event_welcomer_inviter: "{memberMention} (аккаунт создан {createdAt}) присоединился к серверу. Их пригласил **{inviterUsername}** (**{invitesCount}** Приглашения), теперь нас {memberCount} в {guildName}"
-event_welcomer_default: "{memberMention} (аккаунт создан {createdAt}) присоединился к серверу. Теперь нас {memberCount} в {guildName}"
+event_welcomer_inviter: "{memberMention} (аккаунт создан {accountCreationTimestamp}) присоединился к серверу. Их пригласил **{inviterUsername}** (**{invitesCount}** Приглашения), теперь нас {memberCount} в {guildName}"
+event_welcomer_default: "{memberMention} (аккаунт создан {accountCreationTimestamp}) присоединился к серверу. Теперь нас {memberCount} в {guildName}"
 
 # События прощания
-event_goodbye_inviter: "{memberUsername} (аккаунт создан {createdAt}) покинул сервер. Их пригласил **{inviterUsername}** (**{invitesCount}** Приглашения), теперь нас {memberCount} в {guildName}"
-event_goodbye_default: "{memberUsername} (аккаунт создан {createdAt}) покинул сервер. Теперь нас {memberCount} в {guildName}"
+event_goodbye_inviter: "{memberUsername} (аккаунт создан {accountCreationTimestamp}) покинул сервер. Их пригласил **{inviterUsername}** (**{invitesCount}** Приглашения), теперь нас {memberCount} в {guildName}"
+event_goodbye_default: "{memberUsername} (аккаунт создан {accountCreationTimestamp}) покинул сервер. Теперь нас {memberCount} в {guildName}"
 
 # События уровня XP
 event_xp_level_earn: "**GG**, {memberMention}, вы получили +1 уровень, ваш текущий уровень: **{xpLevel}**"

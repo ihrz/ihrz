@@ -1544,12 +1544,12 @@ event_channel_create_message_embed_title: "Configuration réussie !"
 event_channel_create_message_embed_description: "Bot bien config t'en fais pas bg fait toi un café. Tu n'avez plus rien à faire (zen).\n\nTous les journaux de modération liés à iHorizon seront affichés ici."
 
 # Welcome Message Events
-event_welcomer_inviter: "{memberMention} (compte créé le {createdAt}) a rejoint le serveur. Elle/Il a été invités par **{inviterUsername}** (**{invitesCount}** invitations), nous sommes maintenant {memberCount} dans {guildName}"
-event_welcomer_default: "{memberMention} (compte créé le {createdAt}) a rejoint le serveur. Nous sommes maintenant {memberCount} dans {guildName}"
+event_welcomer_inviter: "{memberMention} (compte créé le {accountCreationTimestamp}) a rejoint le serveur. Elle/Il a été invités par **{inviterUsername}** (**{invitesCount}** invitations), nous sommes maintenant {memberCount} dans {guildName}"
+event_welcomer_default: "{memberMention} (compte créé le {accountCreationTimestamp}) a rejoint le serveur. Nous sommes maintenant {memberCount} dans {guildName}"
 
 # Goodbye Message Events
-event_goodbye_inviter: "{memberUsername} (compte créé le {createdAt}) quitte la guilde. Elle/Il a été invités par **{inviterUsername}** (**{invitesCount}** invitations), nous sommes maintenant {memberCount} dans {guildName}"
-event_goodbye_default: "{memberUsername} (compte créé le {createdAt}) quitte la guilde. Nous sommes maintenant {memberCount} dans {guildName}"
+event_goodbye_inviter: "{memberUsername} (compte créé le {accountCreationTimestamp}) quitte la guilde. Elle/Il a été invités par **{inviterUsername}** (**{invitesCount}** invitations), nous sommes maintenant {memberCount} dans {guildName}"
+event_goodbye_default: "{memberUsername} (compte créé le {accountCreationTimestamp}) quitte la guilde. Nous sommes maintenant {memberCount} dans {guildName}"
 
 # XP Level Events
 event_xp_level_earn: "**GG**, {memberMention}, bravo sale modo, ta gagné un niveau! On sen branle (Niveau : **{xpLevel}**)"

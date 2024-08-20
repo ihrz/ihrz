@@ -1544,12 +1544,12 @@ event_channel_create_message_embed_title: "Setup effettuato con successo!"
 event_channel_create_message_embed_description: "Il bot è stato configurato perfettamente. Non devi fare più niente (zen).\n\nTutti i log relativi alla moderazione di iHorizon saranno mostrati qui."
 
 # Welcome Message Events
-event_welcomer_inviter: "{memberMention} (account creato il {createdAt}) si è unito al server. Sono stati invitati da **{inviterUsername}** (**{invitesCount}** inviti), siamo ora {memberCount} in {guildName}"
-event_welcomer_default: "{memberMention} (account creato il {createdAt}) si è unito al server. Siamo ora {memberCount} in {guildName}"
+event_welcomer_inviter: "{memberMention} (account creato il {accountCreationTimestamp}) si è unito al server. Sono stati invitati da **{inviterUsername}** (**{invitesCount}** inviti), siamo ora {memberCount} in {guildName}"
+event_welcomer_default: "{memberMention} (account creato il {accountCreationTimestamp}) si è unito al server. Siamo ora {memberCount} in {guildName}"
 
 # Goodbye Message Events
-event_goodbye_inviter: "{memberUsername} (account creato il {createdAt}) lascia la gilda. Sono stati invitati da **{inviterUsername}** (**{invitesCount}** inviti), siamo ora {memberCount} in {guildName}"
-event_goodbye_default: "{memberUsername} (account creato il {createdAt}) lascia la gilda. Siamo ora {memberCount} in {guildName}"
+event_goodbye_inviter: "{memberUsername} (account creato il {accountCreationTimestamp}) lascia la gilda. Sono stati invitati da **{inviterUsername}** (**{invitesCount}** inviti), siamo ora {memberCount} in {guildName}"
+event_goodbye_default: "{memberUsername} (account creato il {accountCreationTimestamp}) lascia la gilda. Siamo ora {memberCount} in {guildName}"
 
 # XP Level Events
 event_xp_level_earn: "**GG**, {memberMention} sei salito di livello (Livello: **{xpLevel}**)"

@@ -1544,12 +1544,12 @@ event_channel_create_message_embed_title: "Configuração concluída com sucesso
 event_channel_create_message_embed_description: "O bot foi configurado perfeitamente. Você não precisa fazer mais nada (zen).\n\nTodos os registros de moderação relacionados ao iHorizon serão exibidos aqui"
 
 # Eventos de Mensagem de Boas-vindas
-event_welcomer_inviter: "{memberMention} (conta criada em {createdAt}) entrou no servidor. Eles foram convidados por **{inviterUsername}** (**{invitesCount}** convites), agora somos {memberCount} em {guildName}"
-event_welcomer_default: "{memberMention} (conta criada em {createdAt}) entrou no servidor. Agora somos {memberCount} em {guildName}"
+event_welcomer_inviter: "{memberMention} (conta criada em {accountCreationTimestamp}) entrou no servidor. Eles foram convidados por **{inviterUsername}** (**{invitesCount}** convites), agora somos {memberCount} em {guildName}"
+event_welcomer_default: "{memberMention} (conta criada em {accountCreationTimestamp}) entrou no servidor. Agora somos {memberCount} em {guildName}"
 
 # Eventos de Mensagem de Despedida
-event_goodbye_inviter: "{memberUsername} (conta criada em {createdAt}) saiu do servidor. Eles foram convidados por **{inviterUsername}** (**{invitesCount}** convites), agora somos {memberCount} em {guildName}"
-event_goodbye_default: "{memberUsername} (conta criada em {createdAt}) saiu do servidor. Agora somos {memberCount} em {guildName}"
+event_goodbye_inviter: "{memberUsername} (conta criada em {accountCreationTimestamp}) saiu do servidor. Eles foram convidados por **{inviterUsername}** (**{invitesCount}** convites), agora somos {memberCount} em {guildName}"
+event_goodbye_default: "{memberUsername} (conta criada em {accountCreationTimestamp}) saiu do servidor. Agora somos {memberCount} em {guildName}"
 
 # Eventos de Nível XP
 event_xp_level_earn: "**GG**, {memberMention} você subiu de nível (+1 XP) (Nível: **{xpLevel}**)!"
