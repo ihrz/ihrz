@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil } from 'discord.js';
+import { BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil, time } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
 
@@ -35,6 +35,10 @@ export const event: BotEvent = {
         let newInvites = await member.guild.invites.fetch();
 
         let invite = newInvites.find((i: Invite) => i.uses && i.uses > (oldInvites?.get(i.code) || 0));
+        let joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
+        let wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
+
+        let channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
 
         /**
          * Why doing this?
@@ -74,10 +78,6 @@ export const event: BotEvent = {
             );
 
             var invitesAmount = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`);
-            let joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
-            let wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
-
-            let channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
             let isCustomVanity = false; // Is discord.wf link
             let msg = '';
 
@@ -89,28 +89,35 @@ export const event: BotEvent = {
             }
 
             if (!joinMessage) {
-                msg = data.event_welcomer_inviter
-                    .replaceAll("{memberUsername}", member.user.username)
-                    .replaceAll("{memberMention}", member.user.toString())
-                    .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
-                    .replaceAll('{createdAt}', member.user.createdAt.toLocaleDateString(guildLocal))
-                    .replaceAll('{guildName}', member.guild.name!)
-                    .replaceAll('{inviterUsername}', isCustomVanity ? ".wf/" + CustomVanityInvite.vanity : inviter.username)
-                    .replaceAll('{inviterMention}', isCustomVanity ? "discord.wf/" + CustomVanityInvite.vanity : inviter.toString())
-                    .replaceAll('{invitesCount}', invitesAmount)
-                    .replaceAll("\\n", '\n');
+                msg = client.method.generateCustomMessagePreview(data.event_welcomer_inviter,
+                    {
+                        user: member.user,
+                        guild: member.guild,
+                        guildLocal: guildLocal,
+                        inviter: {
+                            user: {
+                                username: (isCustomVanity ? ".wf/" + CustomVanityInvite.vanity : inviter.username),
+                                mention: isCustomVanity ? "discord.wf/" + CustomVanityInvite.vanity : inviter.toString()
+                            },
+                            invitesAmount: invitesAmount
+                        }
+                    }
+                );
             } else {
-
-                msg = joinMessage
-                    .replaceAll("{memberUsername}", member.user.username)
-                    .replaceAll("{memberMention}", member.user.toString())
-                    .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
-                    .replaceAll('{createdAt}', member.user.createdAt.toLocaleDateString(guildLocal))
-                    .replaceAll('{guildName}', member.guild.name!)
-                    .replaceAll('{inviterUsername}', isCustomVanity ? ".wf/" + CustomVanityInvite.vanity : inviter.username)
-                    .replaceAll('{inviterMention}', isCustomVanity ? "discord.wf/" + CustomVanityInvite.vanity : inviter.toString())
-                    .replaceAll('{invitesCount}', invitesAmount)
-                    .replaceAll("\\n", '\n');
+                msg = client.method.generateCustomMessagePreview(joinMessage,
+                    {
+                        user: member.user,
+                        guild: member.guild,
+                        guildLocal: guildLocal,
+                        inviter: {
+                            user: {
+                                username: (isCustomVanity ? ".wf/" + CustomVanityInvite.vanity : inviter.username),
+                                mention: isCustomVanity ? "discord.wf/" + CustomVanityInvite.vanity : inviter.toString()
+                            },
+                            invitesAmount: invitesAmount
+                        }
+                    }
+                );
             };
 
             await client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce });
@@ -130,17 +137,20 @@ export const event: BotEvent = {
             if (!wChan || !channel) return;
 
             if (vanityInviteCache && vanityInviteCache.uses! < VanityURL.uses!) {
-
-                msg = data.event_welcomer_inviter
-                    .replaceAll("{memberUsername}", member.user.username)
-                    .replaceAll("{memberMention}", member.user.toString())
-                    .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
-                    .replaceAll('{createdAt}', member.user.createdAt.toLocaleDateString(guildLocal))
-                    .replaceAll('{guildName}', member.guild.name!)
-                    .replaceAll('{inviterUsername}', '.gg/' + VanityURL.code)
-                    .replaceAll('{inviterMention}', VanityURL.code!)
-                    .replaceAll('{invitesCount}', VanityURL.uses.toString()!)
-                    .replaceAll("\\n", '\n');
+                msg = client.method.generateCustomMessagePreview(data.event_welcomer_inviter,
+                    {
+                        user: member.user,
+                        guild: member.guild,
+                        guildLocal: guildLocal,
+                        inviter: {
+                            user: {
+                                username: '.gg/' + VanityURL.code,
+                                mention: VanityURL.code!
+                            },
+                            invitesAmount: VanityURL.uses.toString()!
+                        }
+                    }
+                );
 
                 client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce });
                 return;
@@ -149,19 +159,15 @@ export const event: BotEvent = {
         } else {
 
             let msg = '';
-            let wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
-            let channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
-
             if (!wChan || !channel) return;
 
-            msg = data.event_welcomer_default
-                .replaceAll("{memberUsername}", member.user.username)
-                .replaceAll("{memberMention}", member.user.toString())
-                .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
-                .replaceAll('{createdAt}', member.user.createdAt.toLocaleTimeString(guildLocal))
-                .replaceAll('{guildName}', member.guild.name!)
-                .replaceAll('{invitesCount}', invitesAmount)
-                .replaceAll("\\n", '\n');
+            msg = client.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
+                {
+                    user: member.user,
+                    guild: member.guild,
+                    guildLocal: guildLocal,
+                }
+            );
 
             client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce });
             return;
