@@ -38,12 +38,13 @@ export const event: BotEvent = {
              */
             const nonce = SnowflakeUtil.generate().toString();
 
-            msg_dm = msg_dm
-                .replaceAll("{memberUsername}", member.user.username)
-                .replaceAll("{memberMention}", member.user.toString())
-                .replaceAll('{memberCount}', member.guild?.memberCount.toString()!)
-                .replaceAll('{createdAt}', member.user.createdAt.toLocaleDateString(guildLocal))
-                .replaceAll('{guildName}', member.guild?.name!)
+            msg_dm = client.method.generateCustomMessagePreview(msg_dm,
+                {
+                    user: member.user,
+                    guild: member.guild,
+                    guildLocal: guildLocal,
+                }
+            );
 
             let button = new ButtonBuilder()
                 .setDisabled(true)

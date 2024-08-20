@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits } from "discord.js";
+import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time } from "discord.js";
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -369,6 +369,38 @@ export async function punish(data: any, user: GuildMember | undefined) {
         default:
             return;
     }
+}
+
+export function generateCustomMessagePreview(
+    message: string,
+    input: {
+        guild: Guild;
+        user: User;
+        guildLocal: string;
+        inviter?: {
+            user: {
+                username: string;
+                mention: string;
+            }
+            invitesAmount: string;
+        },
+        ranks?: {
+            level: string;
+        }
+    }
+): string {
+    return message
+        .replaceAll("{memberUsername}", input.user.username)
+        .replaceAll("{memberMention}", input.user.toString())
+        .replaceAll('{memberCount}', input.guild.memberCount?.toString()!)
+        .replaceAll('{createdAt}', input.user.createdAt.toLocaleDateString(input.guildLocal))
+        .replaceAll('{accountCreationTimestamp}', time(input.user.createdAt))
+        .replaceAll('{guildName}', input.guild.name)
+        .replaceAll('{inviterUsername}', input.inviter?.user.username || `unknow_user`)
+        .replaceAll('{inviterMention}', input.inviter?.user.mention || `@unknow_user`)
+        .replaceAll('{invitesCount}', input.inviter?.invitesAmount || '1337')
+        .replaceAll('{xpLevel}', input.ranks?.level || "1337")
+        .replaceAll("\\n", '\n');
 }
 
 export const permission = perm;
