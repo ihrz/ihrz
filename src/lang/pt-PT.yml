@@ -151,7 +151,7 @@ ranksSetMessage_command_work_ls: "A mensagem de ranks é:"
 ranksSetMessage_help_embed_fields_custom_name: "Mensagem personalizada"
 ranksSetMessage_help_embed_fields_custom_name_empy: "Não definida!"
 ranksSetMessage_help_embed_fields_default_name_empy: "Mensagem padrão"
-ranksSetMessage_help_embed_desc: "{memberUsername} => O nome de usuário do membro\n{memberMention} => Mencionar o membro\n{memberCount} => Contagem de membros da guilda\n{guildName} => O nome da guilda\n{createdAt} => Criação da conta em dd/mm/yyyy\n{xpLevel} => O nível de XP do usuário"
+ranksSetMessage_help_embed_desc: "{memberUsername} => Nome de usuário do membro\n{memberMention} => Mencionar o membro\n{memberCount} => Número de membros na guilda\n{guildName} => Nome da guilda\n{createdAt} => Data de criação da conta em dd/mm/aaaa\n{xpLevel} => Nível de XP do usuário\n{accountCreationTimestamp} => Timestamp da criação da conta"
 ranksSetMessage_button_set_name: "Definir mensagem"
 ranksSetMessage_buttom_del_name: "Mensagem padrão"
 ranksSetMessage_awaiting_response: "Escreva a nova mensagem de ranks personalizada."
@@ -698,7 +698,7 @@ setjoindm_already_disable: "A mensagem de boas-vindas no DM já está desativada
 setjoindm_not_setup_ls: "Não há configuração de DM de boas-vindas aqui!"
 setjoindm_command_work_ls: "A mensagem de boas-vindas no DM é: \n```${already_off}```"
 setjoindm_help_embed_title: "Ajuda de Mensagem de Boas-Vindas no DM!"
-setjoindm_help_embed_desc: "{memberUsername} => Nome de usuário do membro\n{memberMention} => Mencionar o membro\n{memberCount} => Contagem de membros da Guilda\n{guildName} => Nome da Guilda\n{createdAt} => Criação da conta em dd/mm/yyyy"
+setjoindm_help_embed_desc: "{memberUsername} => Nome de usuário do membro\n{memberMention} => Mencionar o membro\n{memberCount} => Número de membros na guilda\n{guildName} => Nome da guilda\n{createdAt} => Data de criação da conta em dd/mm/aaaa\n{accountCreationTimestamp} => Timestamp da data de criação da conta"
 setjoindm_buttom_set_name: "Definir Mensagem"
 setjoindm_buttom_delete_name: "Excluir Mensagem de DM"
 setjoindm_awaiting_response: "Escreva a nova mensagem de boas-vindas no DM no canal."
@@ -719,7 +719,7 @@ setjoinmessage_command_work_ls: "A mensagem de boas-vindas é:"
 setjoinmessage_help_embed_fields_custom_name: "Mensagem Personalizada"
 setjoinmessage_help_embed_fields_custom_name_empy: "Não Definido!"
 setjoinmessage_help_embed_fields_default_name_empy: "Mensagem Padrão"
-setjoinmessage_help_embed_desc: "{memberUsername} => Nome de usuário do membro\n{memberMention} => Mencionar o membro\n{inviterUsername} => Nome do convidante\n{inviterMention} => Mencionar o convidante\n{memberCount} => Contagem de membros da Guilda\n{invitesCount} => Número de convites do convidante\n{guildName} => Nome da Guilda\n{createdAt} => Criação da conta em dd/mm/yyyy"
+setjoinmessage_help_embed_desc: "{memberUsername} => Nome de usuário do membro\n{memberMention} => Mencionar o membro\n{inviterUsername} => Nome de usuário do convidador\n{inviterMention} => Mencionar o convidador\n{memberCount} => Número de membros na guilda\n{invitesCount} => Número de convites do convidador\n{guildName} => Nome da guilda\n{createdAt} => Data de criação da conta em dd/mm/aaaa\n{accountCreationTimestamp} => Timestamp da data de criação da conta"
 setjoinmessage_button_set_name: "Definir mensagem"
 setjoinmessage_buttom_del_name: "Mensagem Padrão"
 setjoinmessage_awaiting_response: "Escreva a nova mensagem de boas-vindas."
@@ -1544,12 +1544,12 @@ event_channel_create_message_embed_title: "Configuração concluída com sucesso
 event_channel_create_message_embed_description: "O bot foi configurado perfeitamente. Você não precisa fazer mais nada (zen).\n\nTodos os registros de moderação relacionados ao iHorizon serão exibidos aqui"
 
 # Eventos de Mensagem de Boas-vindas
-event_welcomer_inviter: "{memberMention} (conta criada em {createdAt}) entrou no servidor. Eles foram convidados por **{inviterUsername}** (**{invitesCount}** convites), agora somos {memberCount} em {guildName}"
-event_welcomer_default: "{memberMention} (conta criada em {createdAt}) entrou no servidor. Agora somos {memberCount} em {guildName}"
+event_welcomer_inviter: "{memberMention} (conta criada em {accountCreationTimestamp}) entrou no servidor. Eles foram convidados por **{inviterUsername}** (**{invitesCount}** convites), agora somos {memberCount} em {guildName}"
+event_welcomer_default: "{memberMention} (conta criada em {accountCreationTimestamp}) entrou no servidor. Agora somos {memberCount} em {guildName}"
 
 # Eventos de Mensagem de Despedida
-event_goodbye_inviter: "{memberUsername} (conta criada em {createdAt}) saiu do servidor. Eles foram convidados por **{inviterUsername}** (**{invitesCount}** convites), agora somos {memberCount} em {guildName}"
-event_goodbye_default: "{memberUsername} (conta criada em {createdAt}) saiu do servidor. Agora somos {memberCount} em {guildName}"
+event_goodbye_inviter: "{memberUsername} (conta criada em {accountCreationTimestamp}) saiu do servidor. Eles foram convidados por **{inviterUsername}** (**{invitesCount}** convites), agora somos {memberCount} em {guildName}"
+event_goodbye_default: "{memberUsername} (conta criada em {accountCreationTimestamp}) saiu do servidor. Agora somos {memberCount} em {guildName}"
 
 # Eventos de Nível XP
 event_xp_level_earn: "**GG**, {memberMention} você subiu de nível (+1 XP) (Nível: **{xpLevel}**)!"

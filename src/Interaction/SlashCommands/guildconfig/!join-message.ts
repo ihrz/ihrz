@@ -56,11 +56,19 @@ export default {
             .addFields(
                 {
                     name: data.setjoinmessage_help_embed_fields_custom_name,
-                    value: joinMessage ? `\`\`\`${joinMessage}\`\`\`\n${generateJoinMessagePreview(guildLocal, joinMessage, interaction)}` : data.setjoinmessage_help_embed_fields_custom_name_empy
+                    value: joinMessage ? `\`\`\`${joinMessage}\`\`\`\n${client.method.generateCustomMessagePreview(joinMessage, {
+                        user: interaction.user,
+                        guild: interaction.guild!,
+                        guildLocal: guildLocal,
+                    })}` : data.setjoinmessage_help_embed_fields_custom_name_empy
                 },
                 {
                     name: data.setjoinmessage_help_embed_fields_default_name_empy,
-                    value: `\`\`\`${data.event_welcomer_inviter}\`\`\`\n${generateJoinMessagePreview(guildLocal, data.event_welcomer_inviter, interaction)}`
+                    value: `\`\`\`${data.event_welcomer_inviter}\`\`\`\n${client.method.generateCustomMessagePreview(data.event_welcomer_inviter, {
+                        user: interaction.user,
+                        guild: interaction.guild!,
+                        guildLocal: guildLocal,
+                    })}`
                 }
             );
 
@@ -117,17 +125,11 @@ export default {
                     const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
                         {
                             name: data.setjoinmessage_help_embed_fields_custom_name,
-                            value: response ? `\`\`\`${response}\`\`\`\n${response
-                                .replaceAll("{memberUsername}", interaction.user.username)
-                                .replaceAll("{memberMention}", interaction.user.toString())
-                                .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
-                                .replaceAll('{createdAt}', interaction.user.createdAt.toLocaleDateString(guildLocal))
-                                .replaceAll('{guildName}', interaction.guild?.name!)
-                                .replaceAll('{inviterUsername}', interaction.client.user.username)
-                                .replaceAll('{inviterMention}', interaction.client.user.toString())
-                                .replaceAll('{invitesCount}', '1337')
-                                .replaceAll("\\n", '\n')
-                                }` : data.setjoinmessage_help_embed_fields_custom_name_empy
+                            value: response ? `\`\`\`${response}\`\`\`\n${client.method.generateCustomMessagePreview(response, {
+                                user: interaction.user,
+                                guild: interaction.guild!,
+                                guildLocal: guildLocal,
+                            })}` : data.setjoinmessage_help_embed_fields_custom_name_empy
                         },
                     );
 
@@ -196,17 +198,3 @@ export default {
         });
     },
 };
-
-
-function generateJoinMessagePreview(guildLocal: string, message: string, interaction: ChatInputCommandInteraction): string {
-    return message
-        .replaceAll("{memberUsername}", interaction.user.username)
-        .replaceAll("{memberMention}", interaction.user.toString())
-        .replaceAll('{memberCount}', interaction.guild?.memberCount?.toString()!)
-        .replaceAll('{createdAt}', interaction.user.createdAt.toLocaleDateString(guildLocal))
-        .replaceAll('{guildName}', interaction.guild?.name!)
-        .replaceAll('{inviterUsername}', interaction.client.user.username)
-        .replaceAll('{inviterMention}', interaction.client.user.toString())
-        .replaceAll('{invitesCount}', '1337')
-        .replaceAll("\\n", '\n');
-}

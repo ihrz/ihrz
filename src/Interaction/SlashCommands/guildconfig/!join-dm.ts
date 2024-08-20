@@ -55,13 +55,11 @@ export default {
             .setFields(
                 {
                     name: data.setjoinmessage_help_embed_fields_custom_name,
-                    value: joinDm ? `\`\`\`${joinDm
-                        .replaceAll("{memberUsername}", interaction.user.username)
-                        .replaceAll("{memberMention}", interaction.user.toString())
-                        .replaceAll('{memberCount}', interaction.guild.memberCount.toString()!)
-                        .replaceAll('{createdAt}', interaction.user.createdAt.toLocaleDateString(guildLocal))
-                        .replaceAll('{guildName}', interaction.guild.name!)
-                        }\`\`\`\n` : data.setjoinmessage_help_embed_fields_custom_name_empy
+                    value: joinDm ? `\`\`\`${client.method.generateCustomMessagePreview(joinDm, {
+                        user: interaction.user,
+                        guild: interaction.guild,
+                        guildLocal: guildLocal,
+                    })}\`\`\`\n` : data.setjoinmessage_help_embed_fields_custom_name_empy
                 }
             );
 

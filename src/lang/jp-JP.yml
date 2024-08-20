@@ -151,7 +151,7 @@ ranksSetMessage_command_work_ls: "ランクメッセージは:"
 ranksSetMessage_help_embed_fields_custom_name: "カスタムメッセージ"
 ranksSetMessage_help_embed_fields_custom_name_empy: "未設定！"
 ranksSetMessage_help_embed_fields_default_name_empy: "デフォルトメッセージ"
-ranksSetMessage_help_embed_desc: "{memberUsername} => メンバーのユーザー名\n{memberMention} => メンバーをメンション\n{memberCount} => ギルドのメンバー数\n{guildName} => ギルドの名前\n{createdAt} => アカウント作成日 dd/mm/yyyy\n{xpLevel} => ユーザーのXPレベル"
+ranksSetMessage_help_embed_desc: "{memberUsername} => メンバーのユーザー名\n{memberMention} => メンバーをメンションする\n{memberCount} => ギルドのメンバー数\n{guildName} => ギルドの名前\n{createdAt} => アカウント作成日 (dd/mm/yyyy)\n{xpLevel} => ユーザーのXPレベル\n{accountCreationTimestamp} => アカウント作成のタイムスタンプ"
 ranksSetMessage_button_set_name: "メッセージを設定"
 ranksSetMessage_buttom_del_name: "デフォルトメッセージ"
 ranksSetMessage_awaiting_response: "新しいカスタムランクメッセージを書いてください。"
@@ -719,7 +719,7 @@ setjoinmessage_command_work_ls: "参加メッセージは以下の通りです�
 setjoinmessage_help_embed_fields_custom_name: "カスタムメッセージ"
 setjoinmessage_help_embed_fields_custom_name_empy: "未設定！"
 setjoinmessage_help_embed_fields_default_name_empy: "デフォルトメッセージ"
-setjoinmessage_help_embed_desc: "{memberUsername} => メンバーのユーザー名\n{memberMention} => メンバーのメンション\n{inviterUsername} => 招待者の名前\n{inviterMention} => 招待者のメンション\n{memberCount} => ギルドのメンバー数\n{invitesCount} => 招待者の招待数\n{guildName} => ギルドの名前\n{createdAt} => アカウント作成日（DD/MM/YYYY形式）"
+setjoinmessage_help_embed_desc: "{memberUsername} => メンバーのユーザー名\n{memberMention} => メンバーをメンションする\n{inviterUsername} => 招待者のユーザー名\n{inviterMention} => 招待者をメンションする\n{memberCount} => ギルドのメンバー数\n{invitesCount} => 招待者の招待数\n{guildName} => ギルドの名前\n{createdAt} => アカウント作成日 (dd/mm/yyyy)\n{accountCreationTimestamp} => アカウント作成のタイムスタンプ"
 setjoinmessage_button_set_name: "メッセージを設定"
 setjoinmessage_buttom_del_name: "デフォルトメッセージ"
 setjoinmessage_awaiting_response: "新しいカスタム参加メッセージを作成しました"
@@ -1544,12 +1544,12 @@ event_channel_create_message_embed_title: "正常にセットアップされま�
 event_channel_create_message_embed_description: "ボットは完璧にセットアップされました。もう何もする必要はありません。\n\niHorizonに関連するすべてのモデレーションログがここに表示されます。"
 
 # Welcome Message Events
-event_welcomer_inviter: "{memberMention}（アカウント作成日：{createdAt}）がサーバーに参加しました。**{inviterUsername}** によって招待されました（**{invitesCount}**回の招待）。現在、{guildName} には{memberCount}人います"
-event_welcomer_default: "{memberMention}（アカウント作成日：{createdAt}）がサーバーに参加しました。現在、{guildName} には{memberCount}人います"
+event_welcomer_inviter: "{memberMention}（アカウント作成日：{accountCreationTimestamp}）がサーバーに参加しました。**{inviterUsername}** によって招待されました（**{invitesCount}**回の招待）。現在、{guildName} には{memberCount}人います"
+event_welcomer_default: "{memberMention}（アカウント作成日：{accountCreationTimestamp}）がサーバーに参加しました。現在、{guildName} には{memberCount}人います"
 
 # Goodbye Message Events
-event_goodbye_inviter: "{memberUsername}（アカウント作成日：{createdAt}）がサーバーを退会しました。**{inviterUsername}** によって招待されました（**{invitesCount}**回の招待）。現在、{guildName} には{memberCount}人います"
-event_goodbye_default: "{memberUsername}（アカウント作成日：{createdAt}）がサーバーを退会しました。現在、{guildName} には{memberCount}人います"
+event_goodbye_inviter: "{memberUsername}（アカウント作成日：{accountCreationTimestamp}）がサーバーを退会しました。**{inviterUsername}** によって招待されました（**{invitesCount}**回の招待）。現在、{guildName} には{memberCount}人います"
+event_goodbye_default: "{memberUsername}（アカウント作成日：{accountCreationTimestamp}）がサーバーを退会しました。現在、{guildName} には{memberCount}人います"
 
 # XP Level Events
 event_xp_level_earn: "{memberMention} さん、レベルアップ (+1) おめでとうございます (現在のレベル: **{xpLevel}**)。"

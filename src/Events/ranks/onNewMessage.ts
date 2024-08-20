@@ -71,15 +71,17 @@ export const event: BotEvent = {
             let xpChan = xpData?.xpchannels!;
             let MsgChannel = message.guild.channels.cache.get(xpChan) as GuildTextBasedChannel | null;
 
-            let msg = (xpData?.message || data.event_xp_level_earn)
-                .replace("{xpLevel}", newLevel)
-                .replaceAll("{memberUsername}", message.author.username)
-                .replaceAll("{memberMention}", message.author.toString())
-                .replaceAll('{memberCount}', message.guild?.memberCount?.toString()!)
-                .replaceAll('{createdAt}', message.author.createdAt.toLocaleDateString(guildLocal))
-                .replaceAll('{guildName}', message.guild?.name!)
-                .replaceAll("\\n", '\n');
-            ;
+            let msg = client.method.generateCustomMessagePreview(xpData?.message || data.event_xp_level_earn,
+                {
+                    user: message.author,
+                    guild: message.guild,
+                    guildLocal: guildLocal,
+                    ranks: {
+                        level: newLevel
+                    }
+                },
+            );
+
             if (!xpChan) {
                 client.method.channelSend(message, {
                     content: msg,
