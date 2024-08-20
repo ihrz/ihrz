@@ -56,11 +56,29 @@ export default {
             .addFields(
                 {
                     name: data.ranksSetMessage_help_embed_fields_custom_name,
-                    value: xpMessage ? `\`\`\`${xpMessage}\`\`\`\n${generateXpMessagePreview(guildLocal, xpMessage, interaction)}` : data.ranksSetMessage_help_embed_fields_custom_name_empy
+                    value: xpMessage ? `\`\`\`${xpMessage}\`\`\`\n${client.method.generateCustomMessagePreview(xpMessage,
+                        {
+                            user: interaction.user,
+                            guild: interaction.guild!,
+                            guildLocal: guildLocal,
+                            ranks: {
+                                level: "4"
+                            }
+                        },
+                    )}` : data.ranksSetMessage_help_embed_fields_custom_name_empy
                 },
                 {
                     name: data.ranksSetMessage_help_embed_fields_default_name_empy,
-                    value: `\`\`\`${data.event_xp_level_earn}\`\`\`\n${generateXpMessagePreview(guildLocal, data.event_xp_level_earn, interaction)}`
+                    value: `\`\`\`${data.event_xp_level_earn}\`\`\`\n${client.method.generateCustomMessagePreview(data.event_xp_level_earn,
+                        {
+                            user: interaction.user,
+                            guild: interaction.guild!,
+                            guildLocal: guildLocal,
+                            ranks: {
+                                level: "4"
+                            }
+                        },
+                    )}`
                 }
             );
 
@@ -117,15 +135,15 @@ export default {
                     const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
                         {
                             name: data.ranksSetMessage_help_embed_fields_custom_name,
-                            value: response ? `\`\`\`${response}\`\`\`\n${response
-                                .replaceAll("{memberUsername}", interaction.user.username)
-                                .replaceAll("{memberMention}", interaction.user.toString())
-                                .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
-                                .replaceAll('{createdAt}', interaction.user.createdAt.toLocaleDateString(guildLocal))
-                                .replaceAll('{guildName}', interaction.guild?.name!)
-                                .replace("{xpLevel}", "4")
-                                .replaceAll("\\n", '\n')
-                                }` : data.ranksSetMessage_help_embed_fields_custom_name_empy
+                            value: response ? `\`\`\`${response}\`\`\`\n${client.method.generateCustomMessagePreview(response,
+                                {
+                                    user: interaction.user,
+                                    guild: interaction.guild!,
+                                    guildLocal: guildLocal,
+                                    ranks: {
+                                        level: "4"
+                                    }
+                                })}` : data.ranksSetMessage_help_embed_fields_custom_name_empy
                         },
                     );
 
@@ -193,15 +211,3 @@ export default {
         });
     },
 };
-
-
-function generateXpMessagePreview(guildLocal: string, message: string, interaction: ChatInputCommandInteraction): string {
-    return message
-        .replaceAll("{memberUsername}", interaction.user.username)
-        .replaceAll("{memberMention}", interaction.user.toString())
-        .replaceAll('{memberCount}', interaction.guild?.memberCount?.toString()!)
-        .replaceAll('{createdAt}', interaction.user.createdAt.toLocaleTimeString(guildLocal))
-        .replaceAll('{guildName}', interaction.guild?.name!)
-        .replace("{xpLevel}", "4")
-        .replaceAll("\\n", '\n');
-}

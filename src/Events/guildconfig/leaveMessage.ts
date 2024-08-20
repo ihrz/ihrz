@@ -56,36 +56,45 @@ export const event: BotEvent = {
 
             if (!lChan || !member.guild.channels.cache.get(lChan)) return;
 
-            let joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leavemessage`);
+            let leaveMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leavemessage`);
 
-            if (!joinMessage) {
+            if (!leaveMessage) {
                 let lChanManager = member.guild.channels.cache.get(lChan);
 
                 (lChanManager as BaseGuildTextChannel).send({
-                    content: data.event_goodbye_inviter
-                        .replaceAll("{memberUsername}", member.user.username)
-                        .replaceAll("{memberMention}", member.user.toString())
-                        .replaceAll('{memberCount}', member.guild?.memberCount.toString()!)
-                        .replaceAll('{createdAt}', member.user.createdAt.toLocaleDateString(guildLocal))
-                        .replaceAll('{guildName}', member.guild?.name!)
-                        .replaceAll('{inviterUsername}', inviter.username)
-                        .replaceAll('{inviterMention}', inviter.toString())
-                        .replaceAll('{invitesCount}', invitesAmount)
-                        .replaceAll("\\n", '\n'), enforceNonce: true, nonce: nonce
+                    content: client.method.generateCustomMessagePreview(data.event_goodbye_inviter,
+                        {
+                            user: member.user,
+                            guild: member.guild,
+                            guildLocal: guildLocal,
+                            inviter: {
+                                user: {
+                                    username: inviter.username,
+                                    mention: inviter.toString()
+                                },
+                                invitesAmount: invitesAmount
+                            }
+                        }
+                    ),
+                    enforceNonce: true, nonce: nonce
                 });
                 return;
             };
 
-            var joinMessageFormated = joinMessage
-                .replaceAll("{memberUsername}", member.user.username)
-                .replaceAll("{memberMention}", member.user.toString())
-                .replaceAll('{memberCount}', member.guild?.memberCount.toString()!)
-                .replaceAll('{createdAt}', member.user.createdAt.toLocaleDateString(guildLocal))
-                .replaceAll('{guildName}', member.guild?.name!)
-                .replaceAll('{inviterUsername}', inviter.username)
-                .replaceAll('{inviterMention}', inviter.toString())
-                .replaceAll('{invitesCount}', invitesAmount)
-                .replaceAll("\\n", '\n');
+            var joinMessageFormated = client.method.generateCustomMessagePreview(data.event_goodbye_inviter,
+                {
+                    user: member.user,
+                    guild: member.guild,
+                    guildLocal: guildLocal,
+                    inviter: {
+                        user: {
+                            username: inviter.username,
+                            mention: inviter.toString()
+                        },
+                        invitesAmount: invitesAmount
+                    }
+                }
+            )
 
             let lChanManager = member.guild.channels.cache.get(lChan) as BaseGuildTextChannel;
 
@@ -98,14 +107,14 @@ export const event: BotEvent = {
             let lChanManager = member.guild.channels.cache.get(lChan);
 
             (lChanManager as BaseGuildTextChannel).send({
-                content: data.event_goodbye_default
-                    .replaceAll("{memberUsername}", member.user.username)
-                    .replaceAll("{memberMention}", member.user.toString())
-                    .replaceAll('{memberCount}', member.guild?.memberCount.toString()!)
-                    .replaceAll('{createdAt}', member.user.createdAt.toLocaleDateString(guildLocal))
-                    .replaceAll('{guildName}', member.guild?.name!)
-                    .replaceAll('{invitesCount}', invitesAmount)
-                    .replaceAll("\\n", '\n'), enforceNonce: true, nonce: nonce
+                content: client.method.generateCustomMessagePreview(data.event_goodbye_default,
+                    {
+                        user: member.user,
+                        guild: member.guild,
+                        guildLocal: guildLocal,
+                    }
+                ),
+                enforceNonce: true, nonce: nonce
             }).catch(() => { });
             return;
         }
