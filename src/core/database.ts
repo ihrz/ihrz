@@ -59,10 +59,10 @@ const overwriteLastLine = (message: string) => {
 
 export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<any> | SteganoDB> => {
     let dbPromise: Promise<QuickDB<any>> | SteganoDB;
-    let sqlitePath = `${process.cwd()}/src/files`;
+    let databasePath = `${process.cwd()}/src/files`;
 
-    if (!fs.existsSync(sqlitePath)) {
-        fs.mkdirSync(sqlitePath, { recursive: true });
+    if (!fs.existsSync(databasePath)) {
+        fs.mkdirSync(databasePath, { recursive: true });
     }
 
     switch (config.database?.method) {
@@ -151,11 +151,15 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
         case 'SQLITE':
             dbPromise = new Promise<QuickDB>((resolve, reject) => {
                 logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
-                resolve(new QuickDB({ filePath: sqlitePath + '/db.sqlite' }));
+                resolve(new QuickDB({ filePath: databasePath + '/db.sqlite' }));
             });
             break;
         case 'PNG':
-            dbPromise = new SteganoDB(sqlitePath + '/db.png');
+            dbPromise = new SteganoDB(databasePath + '/db.png');
+            logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
+            break;
+        case 'JSON2':
+            dbPromise = new SteganoDB({ driver: "json", filePath: databasePath + '/db.json' });
             logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
             break;
         case 'CACHED_SQL':
@@ -220,7 +224,7 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
         default:
             dbPromise = new Promise<QuickDB>((resolve, reject) => {
                 logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
-                resolve(new QuickDB({ filePath: sqlitePath + '/db.sqlite' }));
+                resolve(new QuickDB({ filePath: databasePath + '/db.sqlite' }));
             });
             break;
     }
