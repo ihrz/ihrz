@@ -864,9 +864,9 @@ guildconfig_config_restore_msg: "Les données ont été enregistrées dans ma ba
 # /setmembercount
 setmembercount_not_admin: ":x: | Tu devez être administrateur de ce serveur pour utiliser les commandes de configuration !"
 setmembercount_helpembed_title: "Aide pour la configuration du nombre de membres !"
-setmembercount_helpembed_description: "/setmembercount <Activer / Désactiver> <Nom du salon>"
-setmembercount_helpembed_fields_name: "Comment utiliser ?"
-setmembercount_helpembed_fields_value: "Utilisez la commande /setjoinmessage <Activer / Désactiver / Afficher le message> <message>\n{membercount} = nombre de membres dans le serveur\n{rolescount} = nombre de rôles\n{botcount} = nombre de bots dans le serveur"
+setmembercount_helpembed_description: "/membercount <Activer / Désactiver> <Nom du salon>"
+setmembercount_helpembed_fields_name: "Comment l'utiliser ?"
+setmembercount_helpembed_fields_value: "{MemberCount} = nombre de membres dans le serveur\n{RolesCount} = nombre de rôles\n{BotCount} = nombre de bots dans le serveur\n{ChannelCount} = nombre de salons dans le serveur\n{BoostCount} = nombre de boost sur le serveur"
 setmembercount_logs_embed_title_on_enable: "Logs de configuration du nombre de membres"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> a activé le nombre de membres dans <#${channel.id}> avec le message ${messagei} !"
 setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Configuration du nombre de membres activée avec succès."
@@ -1128,7 +1128,7 @@ reactionroles_cant_fetched_reaction_remove: "Impossible de récupérer la réact
 reactionroles_logs_embed_title_remove: "Logs des ReactionRoles"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> a supprimé un ReactionRole: Message: `${messagei}` | Réaction: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} a été supprimé du message ${messagei}"
-reactionroles_dont_message_found: "Je ne peux pas obtenir le message avec l'ID de ton message actuel !"
+reactionroles_dont_message_found: "Je ne peux pas obtenir le message avec l'ID de votre message actuel, ou alors l'émojis que vous avez sélectionner n'est pas sur un serveur où je suis!"
 
 
 # New feature commands
