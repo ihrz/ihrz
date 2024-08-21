@@ -864,9 +864,9 @@ guildconfig_config_restore_msg: "Данные были сохранены в м�
 # /setmembercount
 setmembercount_not_admin: ":x: | Вы должны быть администратором этого сервера, чтобы использовать эту команду!"
 setmembercount_helpembed_title: "Помощь по установке счетчика участников!"
-setmembercount_helpembed_description: "/setmembercount <Включить / Выключить> <Имя канала>"
-setmembercount_helpembed_fields_name: "Как использовать?"
-setmembercount_helpembed_fields_value: "Используйте ```/setjoinmessage <Включить / Выключить / Показать установленное сообщение> <сообщение>```\n{membercount} = Количество участников сервера\n{rolescount} = Количество ролей\n{botcount} = Количество ботов на сервере"
+setmembercount_helpembed_description: "/membercount <Включить / Отключить> <Название канала>"
+setmembercount_helpembed_fields_name: "Как это использовать?"
+setmembercount_helpembed_fields_value: "{MemberCount} = количество участников на сервере\n{RolesCount} = количество ролей\n{BotCount} = количество ботов на сервере\n{ChannelCount} = количество каналов на сервере\n{BoostCount} = количество бустов на сервере"
 setmembercount_logs_embed_title_on_enable: "Журнал установки счетчика участников"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> установил счетчик участников на <#${channel.id}> в `${messagei}`!"
 setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Успешно установлен счетчик участников."
