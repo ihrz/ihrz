@@ -110,36 +110,42 @@ const getArgumentOptionTypeWithOptions = (o: Option): string => {
 
 export async function createAwesomeEmbed(lang: LanguageData, command: Command, client: Client, interaction: ChatInputCommandInteraction | Message): Promise<EmbedBuilder> {
     var commandName = command.name.charAt(0).toUpperCase() + command.name.slice(1);
-
-    const embed = new EmbedBuilder()
-        .setTitle(lang.hybridcommands_embed_help_title.replace("${commandName}", commandName))
-        .setColor("LightGrey");
-
     var botPrefix = await client.func.prefix.guildPrefix(client, interaction.guildId!);
     var cleanBotPrefix = botPrefix.string;
 
-    if (botPrefix.type === "mention") { cleanBotPrefix = lang.hybridcommands_global_prefix_mention; }
+    if (botPrefix.type === "mention") cleanBotPrefix = lang.hybridcommands_global_prefix_mention;
 
-    command.options?.map(x => {
-        var pathString = '';
-        var fullNameCommand = command.name + " " + x.name;
-        var shortCommandName = x.name;
+    let embed = new EmbedBuilder()
+        .setTitle(lang.hybridcommands_embed_help_title.replace("${commandName}", commandName))
+        .setColor("LightGrey");
 
-        x.options?.forEach((value) => {
-            pathString += value.required ? "**`[" : "**`<";
-            pathString += getArgumentOptionTypeWithOptions(value);
-            pathString += value.required ? "]`**" + " " : ">`**" + " ";
+    if (hasSubCommand(command.options)) {
+        command.options?.map(x => {
+            var pathString = '';
+            var fullNameCommand = command.name + " " + x.name;
+            var shortCommandName = x.name;
+
+            x.options?.forEach((value) => {
+                pathString += value.required ? "**`[" : "**`<";
+                pathString += getArgumentOptionTypeWithOptions(value);
+                pathString += value.required ? "]`**" + " " : ">`**" + " ";
+            });
+            var aliases = x.aliases?.map(x => `\`${x}\``).join(", ") || lang.setjoinroles_var_none;
+            var use = `${cleanBotPrefix}${fullNameCommand} ${pathString}`;
+
+            embed.addFields({
+                name: `${cleanBotPrefix}${fullNameCommand} / ${cleanBotPrefix}${shortCommandName}`,
+                value: lang.hybridcommands_embed_help_fields_value
+                    .replace("${aliases}", aliases)
+                    .replace("${use}", use)
+            });
         });
-        var aliases = x.aliases?.map(x => `\`${x}\``).join(", ") || lang.setjoinroles_var_none;
-        var use = `${cleanBotPrefix}${fullNameCommand} ${pathString}`;
-
+    } else {
         embed.addFields({
-            name: `${cleanBotPrefix}${fullNameCommand} / ${cleanBotPrefix}${shortCommandName}`,
-            value: lang.hybridcommands_embed_help_fields_value
-                .replace("${aliases}", aliases)
-                .replace("${use}", use)
+            name: `${cleanBotPrefix}${command.name} `,
+            value: `**\`${command.description}\`**`
         });
-    });
+    }
 
     return embed;
 }
