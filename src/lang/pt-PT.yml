@@ -1128,8 +1128,8 @@ reactionroles_cant_fetched_reaction_remove: "Não consigo buscar a reação alvo
 reactionroles_logs_embed_title_remove: "Logs de Reações de Funções"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> removeu uma reação de função: Mensagem: `${messagei}` | Reação: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} foi removida da mensagem ${messagei}"
+reactionroles_dont_message_found: "Não consigo obter a mensagem com o ID da sua mensagem atual, ou o emoji que você selecionou não está em um servidor onde estou!"
 
-reactionroles_dont_message_found: "Não consigo obter a mensagem com o ID fornecido!"
 
 # Novos comandos de funcionalidades
 # /punishpub, /report, /support

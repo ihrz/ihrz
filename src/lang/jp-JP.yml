@@ -1128,7 +1128,7 @@ reactionroles_cant_fetched_reaction_remove: "このメッセージから対象�
 reactionroles_logs_embed_title_remove: "ReactionRoles ログ"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> がリアクションロールを削除しました：メッセージ： `${messagei}` | リアクション： `${reaction}`"
 reactionroles_command_work_remove: "${reaction} が ${messagei} のメッセージから削除されました"
-reactionroles_dont_message_found: "現在のメッセージ ID でメッセージを取得できません！"
+reactionroles_dont_message_found: "現在のメッセージIDでメッセージを取得できません。または、選択した絵文字が私がいるサーバーにありません!"
 
 
 # New feature commands

@@ -106,6 +106,7 @@ export const command: Command = {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
+        const regex = /<a?:\w+:(\d+)>/;
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
         const permissions = interaction instanceof ChatInputCommandInteraction ?
             interaction.memberPermissions?.has(permissionsArray)
@@ -129,6 +130,9 @@ export const command: Command = {
             var role = client.method.role(interaction, args!, 0);
         }
 
+        let match = reaction?.match(regex);
+        reaction = match ? match[1] : reaction;
+
         let help_embed = new EmbedBuilder()
             .setColor("#0000FF")
             .setTitle("/reactionroles Help !")
@@ -138,49 +142,51 @@ export const command: Command = {
             if (!role) { await client.method.interactionSend(interaction, { embeds: [help_embed] }) };
             if (!reaction) { return await client.method.interactionSend(interaction, { content: lang.reactionroles_missing_reaction_added }) };
 
-            try {
-                await interaction.channel.messages.fetch((messagei as string))?.then((message) => { message.react(reaction as string) });
-            } catch {
-                await client.method.interactionSend(interaction, { content: lang.reactionroles_dont_message_found });
-                return;
-            };
+            let msg = await interaction.channel.messages.fetch(messagei!);
 
-            let check = reaction.toString();
+            msg.react(reaction)
+                .then(async () => {
+                    if (!reaction) return;
 
-            if (check.includes("<") || check.includes(">") || check.includes(":")) {
-                await client.method.interactionSend(interaction, {
-                    content: lang.reactionroles_invalid_emote_format_added.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                    if (reaction.includes("<") || reaction.includes(">") || reaction.includes(":")) {
+                        await client.method.interactionSend(interaction, {
+                            content: lang.reactionroles_invalid_emote_format_added.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                        })
+                        return;
+                    };
+
+                    await client.db.set(`${interaction.guildId}.GUILD.REACTION_ROLES.${messagei}.${reaction}`,
+                        {
+                            rolesID: role?.id, reactionNAME: reaction, enable: true
+                        }
+                    );
+
+                    try {
+                        let logEmbed = new EmbedBuilder()
+                            .setColor("#bf0bb9")
+                            .setTitle(lang.reactionroles_logs_embed_title_added)
+                            .setDescription(lang.reactionroles_logs_embed_description_added
+                                .replace("${interaction.user.id}", interaction.member?.user.id!)
+                                .replace("${messagei}", messagei!)
+                                .replace("${reaction}", reaction)
+                                .replace("${role}", role?.toString()!)
+                            )
+                        let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                        if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
+                    } catch (e: any) { logger.err(e) };
+
+                    await client.method.interactionSend(interaction, {
+                        content: lang.reactionroles_command_work_added
+                            .replace("${messagei}", messagei!)
+                            .replace("${reaction}", reaction)
+                            .replace("${role}", role?.toString()!)
+                        , ephemeral: true
+                    });
                 })
-                return;
-            };
-
-            await client.db.set(`${interaction.guildId}.GUILD.REACTION_ROLES.${messagei}.${reaction}`,
-                {
-                    rolesID: role?.id, reactionNAME: reaction, enable: true
-                }
-            );
-
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
-                    .setTitle(lang.reactionroles_logs_embed_title_added)
-                    .setDescription(lang.reactionroles_logs_embed_description_added
-                        .replace("${interaction.user.id}", interaction.member.user.id)
-                        .replace("${messagei}", messagei!)
-                        .replace("${reaction}", reaction)
-                        .replace("${role}", role?.toString()!)
-                    )
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
-            } catch (e: any) { logger.err(e) };
-
-            await client.method.interactionSend(interaction, {
-                content: lang.reactionroles_command_work_added
-                    .replace("${messagei}", messagei!)
-                    .replace("${reaction}", reaction)
-                    .replace("${role}", role?.toString()!)
-                , ephemeral: true
-            });
+                .catch(async () => {
+                    await client.method.interactionSend(interaction, { content: lang.reactionroles_dont_message_found });
+                    return;
+                })
             return;
         } else if (type == "remove") {
 

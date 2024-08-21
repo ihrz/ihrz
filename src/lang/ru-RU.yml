@@ -1128,7 +1128,7 @@ reactionroles_cant_fetched_reaction_remove: "Не удается получит�
 reactionroles_logs_embed_title_remove: "Логи реакций на роли"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> удалил реакцию на роли: Сообщение: `${messagei}` | Реакция: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} была удалена из сообщения ${messagei}"
-reactionroles_dont_message_found: "Я не могу получить сообщение с текущим"
+reactionroles_dont_message_found: "Я не могу получить сообщение с текущим ID сообщения, или выбранный вами эмодзи не находится на сервере, где я есть!"
 
 
 # Команды новых функций

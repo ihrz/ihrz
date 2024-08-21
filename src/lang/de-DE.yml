@@ -1128,7 +1128,7 @@ reactionroles_cant_fetched_reaction_remove: "Kann die Zielreaktion in dieser Nac
 reactionroles_logs_embed_title_remove: "ReactionRoles-Protokolle"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> hat eine Reaktionsrolle gelöscht: Nachricht: `${messagei}` | Reaktion: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} wurde aus der Nachricht von ${messagei} gelöscht"
-reactionroles_dont_message_found: "Ich kann die Nachricht mit Ihrer aktuellen Nachrichten-ID nicht abrufen!"
+reactionroles_dont_message_found: "Ich kann die Nachricht mit der aktuellen Nachrichten-ID nicht abrufen, oder das Emoji, das Sie ausgewählt haben, befindet sich nicht auf einem Server, auf dem ich bin!"
 
 
 # Neue Funktionenbefehle

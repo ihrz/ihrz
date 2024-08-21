@@ -1128,7 +1128,7 @@ reactionroles_cant_fetched_reaction_remove: "Can't fetch targeted reaction on th
 reactionroles_logs_embed_title_remove: "ReactionRoles Logs"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> delete a reaction roles: Message: `${messagei}` | Reaction: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} has been deleted to the ${messagei}'s message"
-reactionroles_dont_message_found: "I can't get the message with you'r current message's ID !"
+reactionroles_dont_message_found: "I can't retrieve the message with your current message ID, or the emoji you selected is not on a server where I am!"
 
 
 # New feature commands

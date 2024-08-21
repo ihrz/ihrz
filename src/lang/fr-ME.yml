@@ -1128,7 +1128,7 @@ reactionroles_cant_fetched_reaction_remove: "Impossible de récupérer la réact
 reactionroles_logs_embed_title_remove: "Logs des ReactionRoles"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> a supprimé un ReactionRole: Message: `${messagei}` | Réaction: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} a été supprimé du message ${messagei}"
-reactionroles_dont_message_found: "Je ne peux pas obtenir le message avec l'ID de ton message actuel !"
+reactionroles_dont_message_found: "Je ne peux pas obtenir le message avec l'ID de votre message actuel, ou alors l'émojis que vous avez sélectionner n'est pas sur un serveur où je suis!"
 
 
 # New feature commands
