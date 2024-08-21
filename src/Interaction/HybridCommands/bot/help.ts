@@ -287,7 +287,7 @@ export const command: Command = {
             }
 
             await client.method.interactionSend(interaction, {
-                embeds: [await client.method.createAwesomeEmbed(lang, fetchCommand, client, interaction)]
+                embeds: [await client.method.createAwesomeEmbed(lang, fetchCommand, client, interaction)], ephemeral: true
             })
         }
     },
