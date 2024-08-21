@@ -864,9 +864,9 @@ guildconfig_config_restore_msg: "Die Daten wurden in meiner Datenbank gespeicher
 # /setmembercount
 setmembercount_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
 setmembercount_helpembed_title: "Set MemberCount Hilfe!"
-setmembercount_helpembed_description: "/setmembercount <Einschalten / Ausschalten> <Name des Kanals>"
-setmembercount_helpembed_fields_name: "Wie man es benutzt?"
-setmembercount_helpembed_fields_value: "Benutzen Sie ```/setjoinmessage <Einschalten / Ausschalten / Anzeige der Nachricht> <Nachricht>```\n{membercount} = Anzahl der Mitglieder in der Gilde\n{rolescount} = Anzahl der Rollen\n{botcount} = Anzahl der Bots in der Gilde"
+setmembercount_helpembed_description: "/membercount <Aktivieren / Deaktivieren> <Kanalname>"
+setmembercount_helpembed_fields_name: "Wie benutzt man es?"
+setmembercount_helpembed_fields_value: "{MemberCount} = Anzahl der Mitglieder auf dem Server\n{RolesCount} = Anzahl der Rollen\n{BotCount} = Anzahl der Bots auf dem Server\n{ChannelCount} = Anzahl der Kanäle auf dem Server\n{BoostCount} = Anzahl der Boosts auf dem Server"
 setmembercount_logs_embed_title_on_enable: "Set MemberCount Logs"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> hat den MemberCount von <#${channel.id}> auf `${messagei}` gesetzt!"
 setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | MemberCount erfolgreich eingerichtet."
@@ -1128,7 +1128,7 @@ reactionroles_cant_fetched_reaction_remove: "Kann die Zielreaktion in dieser Nac
 reactionroles_logs_embed_title_remove: "ReactionRoles-Protokolle"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> hat eine Reaktionsrolle gelöscht: Nachricht: `${messagei}` | Reaktion: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} wurde aus der Nachricht von ${messagei} gelöscht"
-reactionroles_dont_message_found: "Ich kann die Nachricht mit Ihrer aktuellen Nachrichten-ID nicht abrufen!"
+reactionroles_dont_message_found: "Ich kann die Nachricht mit der aktuellen Nachrichten-ID nicht abrufen, oder das Emoji, das Sie ausgewählt haben, befindet sich nicht auf einem Server, auf dem ich bin!"
 
 
 # Neue Funktionenbefehle

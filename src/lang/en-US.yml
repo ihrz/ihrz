@@ -864,9 +864,9 @@ guildconfig_config_restore_msg: "The data have been set in my database."
 # /setmembercount
 setmembercount_not_admin: ":x: | You must be an administrator of this server to request this command commands!"
 setmembercount_helpembed_title: "Set MemberCount Help !"
-setmembercount_helpembed_description: "/setmembercount <Power on /Power off> <Name of the channel>"
-setmembercount_helpembed_fields_name: "how to use ?"
-setmembercount_helpembed_fields_value: "Use ```/setjoinmessage <Power on /Power off/Show the message set> <message>```\n{membercount} = guild's member count\n{rolescount} = amount of roles\n{botcount} = guild's bot count"
+setmembercount_helpembed_description: "/membercount <Enable / Disable> <Channel Name>"
+setmembercount_helpembed_fields_name: "How to use it?"
+setmembercount_helpembed_fields_value: "{MemberCount} = number of members in the server\n{RolesCount} = number of roles\n{BotCount} = number of bots in the server\n{ChannelCount} = number of channels in the server\n{BoostCount} = number of boosts on the server"
 setmembercount_logs_embed_title_on_enable: "Set MemberCount Logs"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> set the MemberCount of <#${channel.id}> to `${messagei}`!"
 setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Successfully set MemberCount."
@@ -1128,7 +1128,7 @@ reactionroles_cant_fetched_reaction_remove: "Can't fetch targeted reaction on th
 reactionroles_logs_embed_title_remove: "ReactionRoles Logs"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> delete a reaction roles: Message: `${messagei}` | Reaction: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} has been deleted to the ${messagei}'s message"
-reactionroles_dont_message_found: "I can't get the message with you'r current message's ID !"
+reactionroles_dont_message_found: "I can't retrieve the message with your current message ID, or the emoji you selected is not on a server where I am!"
 
 
 # New feature commands

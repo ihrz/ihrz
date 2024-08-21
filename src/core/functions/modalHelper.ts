@@ -50,7 +50,7 @@ export interface ModalOptionsBuilder {
 export function iHorizonModalBuilder(modalOptions: ModalOptionsBuilder): APIModalInteractionResponseCallbackData {
     let modal = new ModalBuilder()
         .setCustomId(modalOptions.customId)
-        .setTitle(modalOptions.title);
+        .setTitle(modalOptions.title.substring(0, 32));
 
     modalOptions.fields.forEach((content) => {
         let _ = new TextInputBuilder()
