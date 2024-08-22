@@ -220,6 +220,28 @@ export namespace DatabaseStructure {
         };
     }
 
+    export interface StatsMessage {
+        sentTimestamp: number;
+        contentLength: number;
+        channelId: string
+    }
+
+    export interface StatsVoice {
+        startTimestamp: number;
+        endTimestamp: number;
+        channelId: string
+    }
+
+    export interface UserStats {
+        messages?: StatsMessage[]
+        voices?: StatsVoice[];
+    }
+    export interface GuildStats {
+        USER?: {
+            [userId: string]: UserStats
+        }
+    }
+
     export interface DbInId {
         USER?: DbGuildUserObject;
         GUILD?: DbGuildObject;
@@ -239,6 +261,7 @@ export namespace DatabaseStructure {
         };
         VOICE_INTERFACE?: VoiceData;
         UTILS?: UtilsData;
+        STATS?: GuildStats;
     }
 
     export interface UtilsData {
