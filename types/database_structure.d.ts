@@ -233,8 +233,8 @@ export namespace DatabaseStructure {
     }
 
     export interface UserStats {
-        messages: StatsMessage[]
-        voices: StatsVoice[];
+        messages?: StatsMessage[]
+        voices?: StatsVoice[];
     }
     export interface GuildStats {
         USER?: {

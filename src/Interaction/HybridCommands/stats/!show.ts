@@ -20,18 +20,17 @@
 */
 
 import {
-    BaseGuildTextChannel,
+    AttachmentBuilder,
     ChatInputCommandInteraction,
     Client,
-    EmbedBuilder,
     GuildMember,
     Message,
-    PermissionsBitField,
-    TextChannel
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
 import { DatabaseStructure } from '../../../../types/database_structure';
+import { readFileSync } from 'fs';
+import path from 'path';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
@@ -64,6 +63,7 @@ export default {
         let monthlyMessages: DatabaseStructure.StatsMessage[] = [];
         let weeklyMessage: DatabaseStructure.StatsMessage[] = [];
         let dailyMessages: DatabaseStructure.StatsMessage[] = [];
+        let totalMessages: number = res.messages?.length || 0;
 
         let nowTimestamp = Date.now();
 
@@ -144,73 +144,50 @@ export default {
             thirdActiveVoiceChannel = sortedVoiceChannels[2] ? sortedVoiceChannels[2][0] : "N/A";
         }
 
-        calculateActiveChannels(res.messages);
-        res.messages.forEach((x) => calculateMessageTime(x));
+        function getChannelName(str: string): string {
+            return interaction.guild?.channels.cache.get(str)?.name || "Deleted Channel"
+        }
 
-        calculateActiveVoiceChannels(res.voices);
-        res.voices.forEach((v) => calculateVoiceActivity(v));
+        function getChannelMessagesCount(channelId: string, msg: DatabaseStructure.StatsMessage[]) {
+            return msg.filter(x => x.channelId === channelId).length || 0
+        }
 
-        var embed = new EmbedBuilder()
-            .setColor("DarkGold")
-            .setDescription(`User stats of ${member.toString()}`)
-            .setFields(
-                {
-                    name: "Daily Messages",
-                    value: String(dailyMessages.length),
-                    inline: true
-                },
-                {
-                    name: "Daily Voice Activity",
-                    value: `${Math.round(dailyVoiceActivity / 1000 / 60)} minutes`, // Conversion en minutes
-                    inline: true
-                },
-                {
-                    name: "** **",
-                    value: "** **",
-                    inline: false
-                },
-                {
-                    name: "Weekly Messages",
-                    value: String(weeklyMessage.length),
-                    inline: true
-                },
-                {
-                    name: "Weekly Voice Activity",
-                    value: `${Math.round(weeklyVoiceActivity / 1000 / 60)} minutes`,
-                    inline: true
-                },
-                {
-                    name: "** **",
-                    value: `** **`,
-                    inline: false
-                },
-                {
-                    name: "Monthly Messages",
-                    value: String(monthlyMessages.length),
-                    inline: true
-                },
-                {
-                    name: "Monthly Voice Activity",
-                    value: `${Math.round(monthlyVoiceActivity / 1000 / 60)} minutes`,
-                    inline: true
-                },
-                {
-                    name: "** **",
-                    value: `** **`,
-                    inline: false
-                },
-                {
-                    name: "Top Active Channels (Message)",
-                    value: `Top 1: <#${firstActiveChannel}>\nTop 2: <#${secondActiveChannel}>\nTop 3: <#${thirdActiveChannel}>`,
-                    inline: true
-                },
-                {
-                    name: "Top Active Channels (Voice)",
-                    value: `Top 1: <#${firstActiveVoiceChannel}>\nTop 2: <#${secondActiveVoiceChannel}>\nTop 3: <#${thirdActiveVoiceChannel}>`,
-                    inline: true
-                }
-            );
+        calculateActiveChannels(res.messages || []);
+        res.messages?.forEach((x) => calculateMessageTime(x));
 
-        await client.method.interactionSend(interaction, { embeds: [embed] });
+        calculateActiveVoiceChannels(res.voices || []);
+        res.voices?.forEach((v) => calculateVoiceActivity(v));
+
+        var htmlContent = readFileSync(path.join(process.cwd(), "src", "assets", "userStatsPage.html"), 'utf-8');
+
+        htmlContent = htmlContent
+            .replaceAll("{guild_name}", interaction.guild.name)
+            .replaceAll("{messages_length}", String(totalMessages))
+            .replaceAll("{voice_daily}", String(Math.round(dailyVoiceActivity / 1000 / 60)))
+            .replaceAll("{voice_weekly}", String(Math.round(weeklyVoiceActivity / 1000 / 60)))
+            .replaceAll("{voice_monthly}", String(Math.round(monthlyVoiceActivity / 1000 / 60)))
+            .replaceAll("{message_daily}", String(dailyMessages.length))
+            .replaceAll("{message_weekly}", String(weeklyMessage.length))
+            .replaceAll("{message_monthly}", String(monthlyMessages.length))
+            .replaceAll("{messages_top1}", String(getChannelName(firstActiveChannel)))
+            .replaceAll("{messages_top2}", String(getChannelName(secondActiveChannel)))
+            .replaceAll("{messages_top3}", String(getChannelName(thirdActiveChannel)))
+            .replaceAll("{messages_top1_2}", String(getChannelMessagesCount(firstActiveChannel, res.messages!)))
+            .replaceAll("{messages_top2_2}", String(getChannelMessagesCount(secondActiveChannel, res.messages!)))
+            .replaceAll("{messages_top3_2}", String(getChannelMessagesCount(thirdActiveChannel, res.messages!)))
+
+        var image = await client.method.imageManipulation.html2Png(htmlContent);
+
+        const attachment = new AttachmentBuilder(image, { name: "image.png" })
+
+        // .setFields(
+        //     {
+        //         name: "Top Active Channels (Voice)",
+        //         value: `Top 1: <#${firstActiveVoiceChannel}>\nTop 2: <#${secondActiveVoiceChannel}>\nTop 3: <#${thirdActiveVoiceChannel}>`,
+        //         inline: true
+        //     }
+        // );
+
+        await client.method.interactionSend(interaction, { files: [attachment] });
     },
 };
