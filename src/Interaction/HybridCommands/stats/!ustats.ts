@@ -172,6 +172,11 @@ export default {
         var htmlContent = readFileSync(path.join(process.cwd(), "src", "assets", "userStatsPage.html"), 'utf-8');
 
         htmlContent = htmlContent
+            .replaceAll("{header_h1_value}", data.header_h1_value)
+            .replaceAll("{messages_word}", data.messages_word)
+            .replaceAll("{voice_activity}", data.messages_word)
+            .replaceAll("{minutes_word}", data.minutes_word)
+            .replaceAll("{top_message}", data.top_message)
             .replaceAll("{author_username}", member.user.globalName || member.user.displayName)
             .replaceAll("{author_pfp}", member.user.displayAvatarURL({ size: 512 }))
             .replaceAll("{guild_name}", interaction.guild.name)

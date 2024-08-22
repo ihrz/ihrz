@@ -115,46 +115,46 @@
 
     <div class="container">
         <div class="header">
-            <h1>{author_username}'s Messages Stats</h1>
+            <h1>{header_h1_value}</h1>
             <img src="{author_pfp}" alt="Server Logo">
         </div>
 
         <div class="stat">
-            <p class="label" style="font-weight: bold;">Messages</p>
+            <p class="label" style="font-weight: bold;">{messages_word}</p>
             <p>1d<br><strong>{message_daily} messages</strong></p>
             <p>7d<br><strong>{message_weekly} messages</strong></p>
             <p>30d<br><strong>{message_monthly} messages</strong></p>
         </div>
         <div class="stat">
-            <p class="label" style="font-weight: bold;">Voice Activity</p>
+            <p class="label" style="font-weight: bold;">{voice_activity}</p>
             <p>1d<br><strong>{voice_daily} minutes</strong></p>
             <p>7d<br><strong>{voice_weekly} minutes</strong></p>
             <p>30d<br><strong>{voice_monthly} minutes</strong></p>
         </div>
 
         <div class="top-message-members">
-            <p class="label" style="font-weight: bold;">Top Message Channels</p>
+            <p class="label" style="font-weight: bold;">{top_message}</p>
             <div class="list-item">
-                <span># {messages_top1}</span><span>{messages_top1_2} messages</span>
+                <span># {messages_top1}</span><span>{messages_top1_2} {messages_word}</span>
             </div>
             <div class="list-item">
-                <span># {messages_top2}</span><span>{messages_top2_2} messages</span>
+                <span># {messages_top2}</span><span>{messages_top2_2} {messages_word}</span>
             </div>
             <div class="list-item">
-                <span># {messages_top3}</span><span>{messages_top3_2} messages</span>
+                <span># {messages_top3}</span><span>{messages_top3_2} {messages_word}</span>
             </div>
         </div>
 
         <div class="top-message-channels">
-            <p class="label" style="font-weight: bold;">Top Voice Channels</p>
+            <p class="label" style="font-weight: bold;">{top_voice}</p>
             <div class="list-item">
-                <span># {voice_top1}</span><span>{voice_top1_2} minutes</span>
+                <span># {voice_top1}</span><span>{voice_top1_2} {minutes_word}</span>
             </div>
             <div class="list-item">
-                <span># {voice_top2}</span><span>{voice_top2_2} minutes</span>
+                <span># {voice_top2}</span><span>{voice_top2_2} {minutes_word}</span>
             </div>
             <div class="list-item">
-                <span># {voice_top3}</span><span>{voice_top3_2} minutes</span>
+                <span># {voice_top3}</span><span>{voice_top3_2} {minutes_word}</span>
             </div>
         </div>
     </div>

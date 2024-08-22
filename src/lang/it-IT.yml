@@ -1522,6 +1522,18 @@ antispan_bypassroles_embed_desc: "Tutti i ruoli sottostanti possono bypassare il
 # /antispam bypass-roles
 antispam_ignorechannels_embed_desc: "Tutti i messaggi inviati in uno dei canali sottostanti possono bypassare il modulo antispam."
 
+
+# Stats Module
+# /stats ustats
+
+# /stats ustats
+header_h1_value: "Statistiche dei messaggi di {author_username}"
+messages_word: "Messaggi"
+voice_activity: "Attività vocale"
+minutes_word: "Minuti"
+top_voice: "Canali vocali principali"
+top_message: "Canali di messaggi principali"
+
 # -----------------------------/ \-----------------------------
 # Eventi del Modulo Confessioni
 confession_module_modal_title: "Invia una confessione"

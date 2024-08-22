@@ -1522,6 +1522,18 @@ antispan_bypassroles_embed_desc: "Alle unten stehenden Rollen können das Antisp
 # /antispam bypass-roles
 antispam_ignorechannels_embed_desc: "Alle Nachrichten, die in einem der unten stehenden Kanäle gesendet werden, können das Antispam-Modul umgehen."
 
+
+# Stats Module
+# /stats ustats
+
+# /stats ustats
+header_h1_value: "{author_username}s Nachrichtenstatistik"
+messages_word: "Nachrichten"
+minutes_word: "Minuten"
+voice_activity: "Sprachaktivität"
+top_voice: "Top-Sprachkanäle"
+top_message: "Top-Nachrichtenkanäle"
+
 # -----------------------------/ \-----------------------------
 # Bekenntnismodul Ereignisse
 confession_module_modal_title: "Ein Geständnis ablegen"
