@@ -173,6 +173,7 @@ export default {
 
         htmlContent = htmlContent
             .replaceAll("{author_username}", member.user.globalName || member.user.displayName)
+            .replaceAll("{author_pfp}", member.user.displayAvatarURL({ size: 512 }))
             .replaceAll("{guild_name}", interaction.guild.name)
             .replaceAll("{messages_length}", String(totalMessages))
             .replaceAll("{voice_daily}", String(Math.round(dailyVoiceActivity / 1000 / 60)))
