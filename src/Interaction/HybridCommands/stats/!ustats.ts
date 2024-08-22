@@ -152,6 +152,17 @@ export default {
             return msg.filter(x => x.channelId === channelId).length || 0
         }
 
+        function getChannelMinutesCount(channelId: string, voices: DatabaseStructure.StatsVoice[]): number {
+            const totalDuration = voices
+                .filter(voice => voice.channelId === channelId)
+                .reduce((acc, voice) => {
+                    const sessionDuration = voice.endTimestamp - voice.startTimestamp;
+                    return acc + sessionDuration;
+                }, 0);
+
+            return Math.round(totalDuration / 1000 / 60);
+        }
+
         calculateActiveChannels(res.messages || []);
         res.messages?.forEach((x) => calculateMessageTime(x));
 
@@ -173,24 +184,19 @@ export default {
             .replaceAll("{messages_top1}", String(getChannelName(firstActiveChannel)))
             .replaceAll("{messages_top2}", String(getChannelName(secondActiveChannel)))
             .replaceAll("{messages_top3}", String(getChannelName(thirdActiveChannel)))
-            .replaceAll("{messages_top1_2}", String(getChannelMessagesCount(firstActiveChannel, res.messages!)))
-            .replaceAll("{messages_top2_2}", String(getChannelMessagesCount(secondActiveChannel, res.messages!)))
-            .replaceAll("{messages_top3_2}", String(getChannelMessagesCount(thirdActiveChannel, res.messages!)))
+            .replaceAll("{messages_top1_2}", String(getChannelMessagesCount(firstActiveChannel, res.messages || [])))
+            .replaceAll("{messages_top2_2}", String(getChannelMessagesCount(secondActiveChannel, res.messages || [])))
+            .replaceAll("{messages_top3_2}", String(getChannelMessagesCount(thirdActiveChannel, res.messages || [])))
             .replaceAll("{voice_top1}", String(getChannelName(firstActiveVoiceChannel)))
             .replaceAll("{voice_top2}", String(getChannelName(secondActiveVoiceChannel)))
             .replaceAll("{voice_top3}", String(getChannelName(thirdActiveVoiceChannel)))
+            .replaceAll("{voice_top1_2}", String(getChannelMinutesCount(thirdActiveVoiceChannel, res.voices || [])))
+            .replaceAll("{voice_top2_2}", String(getChannelMinutesCount(thirdActiveVoiceChannel, res.voices || [])))
+            .replaceAll("{voice_top3_2}", String(getChannelMinutesCount(thirdActiveVoiceChannel, res.voices || [])))
 
         var image = await client.method.imageManipulation.html2Png(htmlContent);
 
         const attachment = new AttachmentBuilder(image, { name: "image.png" })
-
-        // .setFields(
-        //     {
-        //         name: "Top Active Channels (Voice)",
-        //         value: `Top 1: <#${firstActiveVoiceChannel}>\nTop 2: <#${secondActiveVoiceChannel}>\nTop 3: <#${thirdActiveVoiceChannel}>`,
-        //         inline: true
-        //     }
-        // );
 
         await client.method.interactionSend(interaction, { files: [attachment] });
     },
