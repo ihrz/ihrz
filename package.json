@@ -34,6 +34,7 @@
     "mysql2": "3.10.0",
     "pg": "^8.12.0",
     "ping": "^0.4.4",
+    "puppeteer": "^23.1.1",
     "quick.db": "^9.1.7",
     "quickmongo": "^5.2.0",
     "stegano.db": "^3.5.0",

@@ -1,0 +1,11 @@
+{
+    "categoryInitializer": {
+        "categoryName": "stats",
+        "categoryColor": "#258bd9",
+        "options": {
+            "description": "help_memberc_dsc",
+            "emoji": "👥",
+            "placeholder": "help_memberc_fields"
+        }
+    }
+}

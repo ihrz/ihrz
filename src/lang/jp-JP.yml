@@ -1522,6 +1522,18 @@ antispan_bypassroles_embed_desc: "以下のすべてのロールはアンチス�
 # /antispam bypass-roles
 antispam_ignorechannels_embed_desc: "以下のチャネルのいずれかに送信されたすべてのメッセージは、アンチスパムモジュールをバイパスできます。"
 
+
+# Stats Module
+# /stats ustats
+
+# /stats ustats
+header_h1_value: "{author_username}のメッセージ統計"
+messages_word: "メッセージ"
+voice_activity: "音声活動"
+minutes_word: "分"
+top_voice: "トップ音声チャンネル"
+top_message: "トップメッセージチャンネル"
+
 # -----------------------------/ \-----------------------------
 # 告白モジュールイベント
 confession_module_modal_title: "告白を送る"

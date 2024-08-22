@@ -1522,6 +1522,17 @@ antispan_bypassroles_embed_desc: "Все роли ниже могут обойт
 # /antispam bypass-roles
 antispam_ignorechannels_embed_desc: "Все сообщения, отправленные в один из указанных ниже каналов, могут обходить модуль антиспама."
 
+
+# Stats Module
+# /stats ustats
+
+# /stats ustats
+header_h1_value: "Статистика сообщений {author_username}"
+messages_word: "Сообщения"
+minutes_word: "Минуты"
+top_voice: "Лучшие голосовые каналы"
+top_message: "Лучшие каналы сообщений"
+
 # -----------------------------/ \-----------------------------
 # События Модуля Исповедей
 confession_module_modal_title: "Отправить исповедь"

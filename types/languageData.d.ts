@@ -1106,6 +1106,12 @@ export interface LanguageData {
   antispam_manage_button_label: string;
   antispan_bypassroles_embed_desc: string;
   antispam_ignorechannels_embed_desc: string;
+  header_h1_value: string;
+  messages_word: string;
+  messages_word: string;
+  minutes_word: string;
+  top_voice: string;
+  top_message: string;
   confession_module_modal_title: string;
   confession_module_modal_components1_label: string;
   confession_module_modal_components1_placeholder: string;

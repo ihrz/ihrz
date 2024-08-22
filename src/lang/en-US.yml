@@ -1522,6 +1522,18 @@ antispan_bypassroles_embed_desc: "All of the roles bellow can bypass the antispa
 # /antispam bypass-roles
 antispam_ignorechannels_embed_desc: "All message sent in one of this channels bellow can bypass the antispam module"
 
+
+# Stats Module
+# /stats ustats
+
+# /stats ustats
+header_h1_value: "{author_username}'s Messages Stats"
+messages_word: "Messages"
+voice_activity: "Voice Activity"
+minutes_word: "Minutes"
+top_voice: "Top Voice Channels"
+top_message: "Top Message Channels"
+
 # -----------------------------/ \-----------------------------
 # Confession Module Events
 confession_module_modal_title: "Send a confession"
