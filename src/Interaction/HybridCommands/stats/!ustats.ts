@@ -176,6 +176,7 @@ export default {
             .replaceAll("{messages_word}", data.messages_word)
             .replaceAll("{voice_activity}", data.messages_word)
             .replaceAll("{minutes_word}", data.minutes_word)
+            .replaceAll("{top_voice}", data.top_voice)
             .replaceAll("{top_message}", data.top_message)
             .replaceAll("{author_username}", member.user.globalName || member.user.displayName)
             .replaceAll("{author_pfp}", member.user.displayAvatarURL({ size: 512 }))
