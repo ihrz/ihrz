@@ -39,7 +39,7 @@ import { SubCommandArgumentValue } from '../../../core/functions/method'; export
 
     options: [
         {
-            name: "show",
+            name: "ustats",
 
             description: "See profil",
             description_localizations: {

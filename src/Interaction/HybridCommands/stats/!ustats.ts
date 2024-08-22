@@ -161,6 +161,7 @@ export default {
         var htmlContent = readFileSync(path.join(process.cwd(), "src", "assets", "userStatsPage.html"), 'utf-8');
 
         htmlContent = htmlContent
+            .replaceAll("{author_username}", member.user.globalName || member.user.displayName)
             .replaceAll("{guild_name}", interaction.guild.name)
             .replaceAll("{messages_length}", String(totalMessages))
             .replaceAll("{voice_daily}", String(Math.round(dailyVoiceActivity / 1000 / 60)))
@@ -175,6 +176,9 @@ export default {
             .replaceAll("{messages_top1_2}", String(getChannelMessagesCount(firstActiveChannel, res.messages!)))
             .replaceAll("{messages_top2_2}", String(getChannelMessagesCount(secondActiveChannel, res.messages!)))
             .replaceAll("{messages_top3_2}", String(getChannelMessagesCount(thirdActiveChannel, res.messages!)))
+            .replaceAll("{voice_top1}", String(getChannelName(firstActiveVoiceChannel)))
+            .replaceAll("{voice_top2}", String(getChannelName(secondActiveVoiceChannel)))
+            .replaceAll("{voice_top3}", String(getChannelName(thirdActiveVoiceChannel)))
 
         var image = await client.method.imageManipulation.html2Png(htmlContent);
 

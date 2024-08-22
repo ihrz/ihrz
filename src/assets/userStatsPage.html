@@ -105,17 +105,16 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1># Messages</h1>
-            <p>{guild_name}</p>
+            <h1>{author_username}'s Messages Stats</h1>
         </div>
         <section class="section">
             <h2>User Lookback</h2>
             <div class="stats-grid">
                 <div class="stat-block">
                     <h3>Messages</h3>
-                    <p>1d: {message_daily} minutes</p>
-                    <p>7d: {message_weekly} minutes</p>
-                    <p>30d: {message_monthly} minutes</p>
+                    <p>1d: {message_daily} messages</p>
+                    <p>7d: {message_weekly} messages</p>
+                    <p>30d: {message_monthly} messages</p>
                 </div>
                 <div class="stat-block">
                     <h3>Voice Activity</h3>
@@ -136,9 +135,9 @@
         <section class="section">
             <h2>Top Voice Channels</h2>
             <ul>
-                <li>#{top1} <span>85 messages</span></li>
-                <!-- <li>#Support-C... <span>64 messages</span></li>
-                <li>#ticket-lol_990 <span>50 messages</span></li> -->
+                <li>#{voice_top1} <span>85 messages</span></li>
+                <li>#{voice_top2} <span>64 messages</span></li>
+                <li>#{voice_top3} <span>50 messages</span></li>
             </ul>
         </section>
         <footer>
