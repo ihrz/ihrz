@@ -21,15 +21,26 @@
 
 import puppeteer from "puppeteer";
 
-export async function html2Png(code: string): Promise<Buffer> {
+export async function html2Png(code: string, options: { width: number; height: number; scaleSize: number } = { width: 1280, height: 800, scaleSize: 1 }): Promise<Buffer> {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
+    await page.setViewport({
+        width: options.width,
+        height: options.height,
+        deviceScaleFactor: options.scaleSize,
+    });
+
     await page.setContent(code);
 
-    const imageBuffer = await page.screenshot({ fullPage: true, omitBackground: true, type: "png", fromSurface: true });
+    const imageBuffer = await page.screenshot({
+        fullPage: true,
+        omitBackground: true,
+        type: "png",
+        fromSurface: true,
+    });
 
     await browser.close();
 
-    return Buffer.from(imageBuffer);;
+    return Buffer.from(imageBuffer);
 }

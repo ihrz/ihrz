@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Banner</title>
+    <style>
+        .container {
+            text-align: center;
+        }
+        .profile-icon {
+            width: 150px;
+            height: 150px;
+            background-color: #3389ff;
+            border-radius: 50%;
+            border: 10px solid #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+            overflow: hidden; /* Ensure the image does not overflow outside the circle */
+        }
+        .profile-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensure the image covers the entire circle without distortion */
+            border-radius: 50%; /* Make sure the image itself is circular */
+        }
+        .welcome-text {
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+            font-size: 20px;
+            margin-top: 20px;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('BACKGROUNDURL'); /* Image PNG avec effet de flou */
+            background-size: cover;
+            background-position: center;
+        }
+        .content {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="profile-icon">
+            <img src="USERLOGO" alt="Profile Icon">
+        </div>
+        <div class="welcome-text">
+            Welcome <span id="username">USERNAME</span> to <span id="servername">SERVERNAME</span><br>
+            We are now <span id="membercount">XXX</span> in the guild
+        </div>
+    </div>
+</body>
+</html>
