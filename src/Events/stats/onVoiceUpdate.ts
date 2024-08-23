@@ -47,9 +47,6 @@ export const event: BotEvent = {
                         endTimestamp,
                         channelId: session.channelId
                     };
-
-                    console.log('Session Info (ancien salon):', sessionInfo);
-
                     voiceSessionTimestamps.delete(userId);
                 }
             }
@@ -68,9 +65,6 @@ export const event: BotEvent = {
                 };
 
                 await client.db.push(`${newState.guild.id}.STATS.USER.${userId}.voices`, sessionInfo)
-
-                console.log('Session Info:', sessionInfo);
-
                 voiceSessionTimestamps.delete(userId);
             }
         }
