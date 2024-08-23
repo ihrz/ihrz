@@ -72,6 +72,10 @@ export const command: Command = {
                     value: "en-US"
                 },
                 {
+                    name: "Arab Egyptian",
+                    value: "ar-EG"
+                },
+                {
                     name: "French",
                     value: "fr-FR"
                 },
