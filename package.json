@@ -37,7 +37,7 @@
     "puppeteer": "^23.1.1",
     "quick.db": "^9.1.7",
     "quickmongo": "^5.2.0",
-    "stegano.db": "^4.0.0",
+    "stegano.db": "^3.5.0",
     "toml": "^3.0.0",
     "write-file-atomic": "^5.0.1"
   },

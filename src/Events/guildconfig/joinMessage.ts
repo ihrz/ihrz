@@ -119,7 +119,7 @@ export const event: BotEvent = {
 
         let files = [];
 
-        if (ImageBannerStates !== "off") {
+        if (ImageBannerStates === "on") {
             files.push(await generateJoinImage(member))
         }
 

@@ -398,7 +398,7 @@ export default {
 
                 if (ImageBannerStates === "off") {
                     let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL: backgroundURL, profilePictureRound, textColour, message }))!;
-                    await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinbannerStates`)
+                    await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinbannerStates`, "on")
                     ImageBannerStates = undefined;
 
                     buttons2.components[2].setStyle(ImageBannerStates !== "off" ? ButtonStyle.Danger : ButtonStyle.Success)
