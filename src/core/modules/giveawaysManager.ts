@@ -183,6 +183,10 @@ class GiveawayManager {
                 return;
             };
         });
+
+        collector.on("end", async () => {
+            await interaction.deleteReply();
+        })
     }
 
     public isValid(giveawayId: string): Promise<boolean> {
@@ -251,6 +255,14 @@ class GiveawayManager {
             });
             if (!guild) return;
 
+            let winner = this.selectWinners(
+                { entries: fetch.entries, winners: fetch.winners },
+                fetch.winnerCount
+            );
+
+            db.SetEnded(giveawayId, true)
+            db.SetWinners(giveawayId, winner || 'None')
+
             let channel = await guild.channels.fetch(channelId).catch(() => { db.DeleteGiveaway(giveawayId) })
 
             let message = await (channel as GuildTextBasedChannel).messages.fetch(giveawayId).catch(async () => {
@@ -258,12 +270,7 @@ class GiveawayManager {
                 return;
             }) as Message;
 
-            let winner = this.selectWinners(
-                { entries: fetch.entries, winners: fetch.winners },
-                fetch.winnerCount
-            );
-
-            let winners = winner ? winner.map((winner: string) => `<@${winner}>`).join(",") : 'None';
+            let winners = winner ? winner.map((winner: string) => `<@${winner}>`).join(",") : null;
 
             let Finnish = new ButtonBuilder()
                 .setLabel(lang.event_gw_finnish_button_title)
@@ -279,7 +286,7 @@ class GiveawayManager {
                     .replace("${time2}", time(new Date(fetch.expireIn), 'D'))
                     .replace("${fetch.hostedBy}", fetch.hostedBy)
                     .replace("${fetch.entries.length}", fetch.entries.length.toString())
-                    .replace("${winners}", winners)
+                    .replace("${winners}", winners || lang.setjoinroles_var_none)
                 )
                 .setTimestamp()
 
@@ -289,18 +296,17 @@ class GiveawayManager {
                         .addComponents(Finnish)]
             });
 
-            if (winners !== 'None') {
+            if (winners) {
                 await message?.reply({
                     content: lang.event_gw_reroll_win_msg.replace("${winners}", winners.toString()).replace("${fetch[channelId][messageId].prize}", fetch.prize)
                 })
+                return;
             } else {
                 await message?.reply({
                     content: lang.event_gw_finnish_cannot_msg
                 });
+                return;
             };
-
-            db.SetEnded(giveawayId, true)
-            db.SetWinners(giveawayId, winner || 'None')
         };
         return;
     };
