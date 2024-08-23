@@ -21,6 +21,7 @@
 
 import {
     ActionRowBuilder,
+    CategoryChannel,
     ChatInputCommandInteraction,
     Client,
     ComponentType,
@@ -38,6 +39,7 @@ export default {
 
         let panelName = interaction.options.getString("name");
         let panelDesc = interaction.options.getString("description");
+        let panelCategory = interaction.options.getChannel("category") as CategoryChannel | null;
 
         if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
             await interaction.editReply({ content: data.ticket_disabled_command });
@@ -81,7 +83,8 @@ export default {
                 await CreateButtonPanel(interaction, {
                     name: panelName,
                     author: interaction.user.id,
-                    description: panelDesc
+                    description: panelDesc,
+                    category: panelCategory?.id
                 });
 
                 await i.deferUpdate();
