@@ -76,11 +76,6 @@ export async function main(client: Client) {
 
     errorManager.uncaughtExceptionHandler(client);
 
-    process.on('SIGINT', async () => {
-        await client.destroy();
-        process.exit();
-    });
-
     assetsCalc(client);
     playerManager(client);
     emojis(client);
