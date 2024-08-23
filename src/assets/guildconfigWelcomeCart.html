@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
         .container {
             text-align: center;
         }
+
         .profile-icon {
             width: 150px;
             height: 150px;
@@ -19,21 +21,24 @@
             justify-content: center;
             align-items: center;
             margin: 0 auto;
-            overflow: hidden; /* Ensure the image does not overflow outside the circle */
+            overflow: hidden;
         }
+
         .profile-icon img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Ensure the image covers the entire circle without distortion */
-            border-radius: 50%; /* Make sure the image itself is circular */
+            object-fit: cover;
+            border-radius: 50%;
         }
+
         .welcome-text {
-            color: #ffffff;
+            color: #aa9999;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 20px;
+            font-size: 40px;
             margin-top: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Add shadow to the text */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
         }
+
         body {
             margin: 0;
             padding: 0;
@@ -41,27 +46,31 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-image: url('BACKGROUNDURL'); /* Image PNG avec effet de flou */
+            background-image: BACKGROUNDURL;
             background-size: cover;
             background-position: center;
         }
+
         .content {
-            background: rgba(255, 255, 255, 0.7);
+            background: rgba(0, 0, 0, 0.7);
             padding: 20px;
             border-radius: 10px;
             text-align: center;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="profile-icon">
             <img src="USERLOGO" alt="Profile Icon">
         </div>
         <div class="welcome-text">
-            Welcome <span id="username">USERNAME</span> to <span id="servername">SERVERNAME</span><br>
-            We are now <span id="membercount">XXX</span> in the guild
+            MSG
+            <!-- Welcome USERNAME to SERVERNAME<br>
+            We are now XXX in the guild -->
         </div>
     </div>
 </body>
+
 </html>

@@ -28,12 +28,22 @@ import {
     Client,
     ComponentType,
     EmbedBuilder,
+    GuildMember,
     PermissionsBitField,
+    StringSelectMenuBuilder,
+    StringSelectMenuOptionBuilder,
     TextInputStyle
 } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData';
+import { generateJoinImage } from '../../../Events/guildconfig/joinMessage.js';
 import logger from '../../../core/logger.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
+
+function isValidColor(color: string): boolean {
+    return /^#([0-9a-f]{3}){1,2}$/i.test(color);
+}
+
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
         // Guard's Typing
@@ -45,9 +55,25 @@ export default {
         }
 
         let joinMessage = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`);
+        let ImageBannerOptions = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinbanner`) as DatabaseStructure.JoinBannerOptions | undefined;
+        let ImageBannerStates = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinbannerStates`) as string | undefined;
         let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
 
+        var backgroundURL = ImageBannerOptions?.backgroundURL || "https://img.freepik.com/vecteurs-libre/fond-courbe-bleue_53876-113112.jpg";
+        var profilePictureRound: any = ImageBannerOptions?.profilePictureRound || "status";
+        var textColour = ImageBannerOptions?.textColour || "#000000"
+        var message = ImageBannerOptions?.message || "Welcome {memberUsername} to {guildName}<br>We are now {memberCount} in the guild";
+
+        message = client.method.generateCustomMessagePreview(message, {
+            user: interaction.user,
+            guild: interaction.guild,
+            guildLocal: guildLocal
+        })
+        await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinbanner`, { backgroundURL, profilePictureRound, textColour, message })
+
         joinMessage = joinMessage?.substring(0, 1010);
+
+        let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL: backgroundURL, profilePictureRound, textColour, message }))!;
 
         const helpEmbed = new EmbedBuilder()
             .setColor("#ffb3cc")
@@ -72,6 +98,11 @@ export default {
                 }
             );
 
+        const helpEmbed2 = new EmbedBuilder()
+            .setColor("#ffb3cc")
+            .setTitle("Join Message Cart")
+            .setImage("attachment://image.png")
+
         const buttons = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
                 new ButtonBuilder()
@@ -81,15 +112,37 @@ export default {
                 new ButtonBuilder()
                     .setCustomId("joinMessage-default-message")
                     .setLabel(data.setjoinmessage_buttom_del_name)
-                    .setStyle(ButtonStyle.Danger),
+                    .setStyle(ButtonStyle.Danger)
             );
 
-        const message = await interaction.editReply({
-            embeds: [helpEmbed],
-            components: [buttons]
+        const buttons2 = new ActionRowBuilder<ButtonBuilder>()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId("joinMessage-set-image")
+                    .setLabel("Change Image")
+                    .setStyle(ButtonStyle.Primary),
+                new ButtonBuilder()
+                    .setCustomId("joinMessage-default-image")
+                    .setLabel("Default Image")
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
+                    .setCustomId("joinMessage-delete-image")
+                    .setLabel(ImageBannerStates !== "off" ? "Delete Image" : "Enable Image")
+                    .setStyle(ImageBannerStates !== "off" ? ButtonStyle.Danger : ButtonStyle.Success),
+            );
+
+        var embeds = [helpEmbed];
+        var files = [];
+
+        if (ImageBannerStates !== "off") embeds.push(helpEmbed2) && files.push(attachment)
+
+        const message2 = await interaction.editReply({
+            embeds: embeds,
+            components: [buttons, buttons2],
+            files: files
         });
 
-        const collector = message.createMessageComponentCollector({
+        const collector = message2.createMessageComponentCollector({
             componentType: ComponentType.Button,
             time: 8_00_000
         });
@@ -140,7 +193,7 @@ export default {
                         ephemeral: true
                     });
                     newEmbed.addFields(helpEmbed.data.fields![1]);
-                    await message.edit({ embeds: [newEmbed] });
+                    await message2.edit({ embeds: [newEmbed] });
 
                     const logEmbed = new EmbedBuilder()
                         .setColor("#bf0bb9")
@@ -174,7 +227,7 @@ export default {
                 });
 
                 newEmbed.addFields(helpEmbed.data.fields![1]);
-                await message.edit({ embeds: [newEmbed] });
+                await message2.edit({ embeds: [newEmbed] });
 
                 const logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
@@ -187,6 +240,180 @@ export default {
                 if (logchannel) {
                     (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
                 }
+            } else if (buttonInteraction.customId === "joinMessage-set-image") {
+                await buttonInteraction.deferUpdate();
+
+                let stringSelectMenu = new StringSelectMenuBuilder()
+                    .setCustomId("test")
+                    .addOptions(
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel("Change Background")
+                            .setValue("change_background"),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel("Change Round Frame Color")
+                            .setValue("change_frame"),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel("Change Text Colour")
+                            .setValue("change_text_colour"),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel("Change Text Message")
+                            .setValue("change_text_message"),
+                    );
+
+                let attachment = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(stringSelectMenu);
+
+                let msg = await buttonInteraction.editReply({ components: [attachment] });
+
+                let i1 = await msg.awaitMessageComponent({
+                    componentType: ComponentType.StringSelect,
+                    time: 1_250_000,
+                    // filter: (x) => x.user.id !== interaction.user.id
+                });
+
+                if (i1.values[0] === "change_background") {
+                    let res = await iHorizonModalResolve({
+                        title: "Change Background",
+                        customId: 'change_background',
+                        deferUpdate: true,
+                        fields: [
+                            {
+                                customId: 'url',
+                                label: 'background image url',
+                                style: TextInputStyle.Short,
+                                required: true,
+                                maxLength: 300,
+                                minLength: 7
+                            }
+                        ]
+                    }, i1);
+
+                    backgroundURL = res?.fields.getTextInputValue("url")!;
+
+                    let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message }))!;
+                    await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], files: [attachment], components: [buttons, buttons2] })
+                } else if (i1.values[0] === "change_frame") {
+                    await i1.deferUpdate();
+
+                    let stringSelectMenu = new StringSelectMenuBuilder()
+                        .setCustomId("test")
+                        .addOptions(
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel("Based on user profil color")
+                                .setValue("hexProfileColor"),
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel("Based on user status")
+                                .setValue("status"),
+                        );
+
+                    let attachment = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(stringSelectMenu);
+
+                    let msg = await buttonInteraction.editReply({ components: [attachment] });
+
+                    let i = await msg.awaitMessageComponent({
+                        componentType: ComponentType.StringSelect,
+                        time: 1_250_000,
+                        // filter: (x) => x.user.id !== interaction.user.id
+                    });
+
+                    i.deferUpdate()
+
+                    profilePictureRound = i.values[0];
+
+                    let attachment2 = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message }))!;
+                    await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], files: [attachment2], components: [buttons, buttons2] })
+                } else if (i1.values[0] === "change_text_colour") {
+                    let res = await iHorizonModalResolve({
+                        title: "Change Text Colour",
+                        customId: 'change_text_colour',
+                        deferUpdate: false,
+                        fields: [
+                            {
+                                customId: 'colour',
+                                label: 'colour www.color-hex.com',
+                                style: TextInputStyle.Short,
+                                required: true,
+                                maxLength: 9,
+                                minLength: 3
+                            }
+                        ]
+                    }, i1);
+
+
+                    textColour = res?.fields.getTextInputValue("colour")!;
+
+                    if (!isValidColor(textColour)) {
+                        res?.reply({ content: data.embed_choose_12_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) })
+                    }
+
+                    await res?.deferUpdate();
+
+                    let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message }))!;
+                    await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], files: [attachment], components: [buttons, buttons2] })
+                } else if (i1.values[0] === "change_text_message") {
+                    let res = await iHorizonModalResolve({
+                        title: "Change Text Message",
+                        customId: 'change_text_message',
+                        deferUpdate: true,
+                        fields: [
+                            {
+                                customId: 'msg',
+                                label: 'message you want',
+                                style: TextInputStyle.Short,
+                                required: true,
+                                maxLength: 100,
+                                minLength: 15
+                            }
+                        ],
+                    }, i1);
+
+
+                    message = client.method.generateCustomMessagePreview(res?.fields.getTextInputValue("msg")!, {
+                        user: interaction.user,
+                        guild: interaction.guild!,
+                        guildLocal: guildLocal
+                    });
+
+                    let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL: backgroundURL, profilePictureRound, textColour, message }))!;
+                    await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], files: [attachment], components: [buttons, buttons2] });
+                };
+
+                await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinbanner`, { backgroundURL, profilePictureRound, textColour, message })
+            } else if (buttonInteraction.customId === "joinMessage-default-image") {
+                backgroundURL = "https://img.freepik.com/vecteurs-libre/fond-courbe-bleue_53876-113112.jpg";
+                profilePictureRound = "status";
+                textColour = "#000000"
+                message = client.method.generateCustomMessagePreview("Welcome {memberUsername} to {guildName}<br>We are now {memberCount} in the guild", {
+                    user: interaction.user,
+                    guild: interaction.guild!,
+                    guildLocal: guildLocal
+                })
+
+                await buttonInteraction.deferUpdate();
+
+                let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL: backgroundURL, profilePictureRound, textColour, message }))!;
+                await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], files: [attachment], components: [buttons, buttons2] });
+                await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinbanner`)
+            } else if (buttonInteraction.customId === "joinMessage-delete-image") {
+                await buttonInteraction.deferUpdate();
+
+                if (ImageBannerStates === "off") {
+                    let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL: backgroundURL, profilePictureRound, textColour, message }))!;
+                    await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinbannerStates`)
+                    ImageBannerStates = undefined;
+
+                    buttons2.components[2].setStyle(ImageBannerStates !== "off" ? ButtonStyle.Danger : ButtonStyle.Success)
+                    buttons2.components[2].setLabel(ImageBannerStates !== "off" ? "Delete Image" : "Enable Image")
+    
+                    await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], components: [buttons, buttons2], files: [attachment] });
+                } else {
+                    await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinbannerStates`, "off")
+                    ImageBannerStates = "off"
+
+                    buttons2.components[2].setStyle(ImageBannerStates !== "off" ? ButtonStyle.Danger : ButtonStyle.Success)
+                    buttons2.components[2].setLabel(ImageBannerStates !== "off" ? "Delete Image" : "Enable Image")
+    
+                    await interaction.editReply({ embeds: [helpEmbed], components: [buttons, buttons2], files: [] });
+                }
             }
         });
 
@@ -194,7 +421,7 @@ export default {
             buttons.components.forEach(x => {
                 x.setDisabled(true)
             })
-            await message.edit({ components: [buttons] });
+            await message2.edit({ components: [buttons] });
         });
     },
 };

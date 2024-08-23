@@ -19,9 +19,85 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil, time } from 'discord.js';
+import { AttachmentBuilder, BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil, time } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { DatabaseStructure } from '../../../types/database_structure';
+
+export async function generateJoinImage(member: GuildMember, optionalOptions?: DatabaseStructure.JoinBannerOptions): Promise<AttachmentBuilder> {
+    var htmlContent = readFileSync(path.join(process.cwd(), "src", "assets", "guildconfigWelcomeCart.html"), 'utf-8');
+    var ImageBannerOptions = await member.client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinbanner`) as DatabaseStructure.JoinBannerOptions | undefined;
+
+    var backgroundURL = member.guild.bannerURL({ size: 512 }) || member.user.bannerURL({ size: 512 }) || ""
+    var profilePictureRound = member.displayHexColor;
+    var textColour = "#aa9999";
+    var textMessage = member.client.method.generateCustomMessagePreview("Welcome {memberUsername} to {guildName}<br>We are now {memberCount} in the guild", {
+        user: member.user,
+        guild: member.guild,
+        guildLocal: "en-US"
+    })
+
+    if (optionalOptions) {
+        backgroundURL = optionalOptions.backgroundURL;
+        textColour = optionalOptions.textColour;
+        textMessage = optionalOptions.message;
+
+        if (optionalOptions.profilePictureRound === "status") {
+            switch (member.presence?.status) {
+                case "dnd":
+                    profilePictureRound = "#f23f43"
+                    break;
+                case "invisible":
+                case "offline":
+                    profilePictureRound = "#80848e"
+                    break;
+                case "idle":
+                    profilePictureRound = "#f0b232"
+                    break;
+                case "online":
+                    profilePictureRound = "#23a55a"
+                    break;
+            }
+        }
+    } else if (ImageBannerOptions) {
+        backgroundURL = ImageBannerOptions.backgroundURL;
+        textColour = ImageBannerOptions.textColour
+        textMessage = ImageBannerOptions.message
+
+        if (ImageBannerOptions.profilePictureRound === "status") {
+            switch (member.presence?.status) {
+                case "dnd":
+                    profilePictureRound = "#f23f43"
+                    break;
+                case "invisible":
+                case "offline":
+                    profilePictureRound = "#80848e"
+                    break;
+                case "idle":
+                    profilePictureRound = "#f0b232"
+                    break;
+                case "online":
+                    profilePictureRound = "#23a55a"
+                    break;
+            }
+        }
+    }
+
+    htmlContent = htmlContent
+        .replaceAll("USERLOGO", member.displayAvatarURL({ size: 512 }))
+        .replaceAll("USERNAME", member.user.globalName || member.user.displayName)
+        .replaceAll("SERVERNAME", member.guild.name)
+        .replaceAll("XXX", member.guild.memberCount.toString())
+        .replaceAll("#000000", profilePictureRound)
+        .replaceAll("BACKGROUNDURL", `url('${backgroundURL}')`)
+        .replaceAll("#aa9999", textColour)
+        .replaceAll("MSG", textMessage)
+
+    var image = await member.client.method.imageManipulation.html2Png(htmlContent);
+    return new AttachmentBuilder(image, { name: "image.png" })
+};
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
@@ -37,8 +113,15 @@ export const event: BotEvent = {
         let invite = newInvites.find((i: Invite) => i.uses && i.uses > (oldInvites?.get(i.code) || 0));
         let joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
         let wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
+        let ImageBannerStates = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinbannerStates`) as string | undefined;
 
         let channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
+
+        let files = [];
+
+        if (ImageBannerStates !== "off") {
+            files.push(await generateJoinImage(member))
+        }
 
         /**
          * Why doing this?
@@ -120,7 +203,7 @@ export const event: BotEvent = {
                 );
             };
 
-            await client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce });
+            await client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce, files: files });
             return;
 
         } else if (member.guild.features.includes(GuildFeature.VanityURL)) {
@@ -152,7 +235,7 @@ export const event: BotEvent = {
                     }
                 );
 
-                client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce });
+                await client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce, files });
                 return;
             };
 
@@ -169,7 +252,7 @@ export const event: BotEvent = {
                 }
             );
 
-            client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce });
+            await client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce, files });
             return;
         };
 
