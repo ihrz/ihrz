@@ -24,6 +24,7 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     ApplicationCommandType,
+    ChannelType,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
@@ -201,6 +202,19 @@ export const command: Command = {
 
                     type: ApplicationCommandOptionType.String,
                     required: false,
+                },
+                {
+                    name: "category",
+
+                    description: "The category for the ticket.",
+                    description_localizations: {
+                        "fr": "La catégorie pour les ticket"
+                    },
+
+                    channel_types: [ChannelType.GuildCategory],
+
+                    type: ApplicationCommandOptionType.Channel,
+                    required: false,
                 }
             ],
         },
@@ -221,6 +235,8 @@ export const command: Command = {
                     description_localizations: {
                         "fr": "Le nom du panneau de votre ticket"
                     },
+
+                    channel_types: [ChannelType.GuildCategory],
 
                     type: ApplicationCommandOptionType.Channel,
                     required: true,
