@@ -21,7 +21,10 @@
 
 import puppeteer from "puppeteer";
 
-export async function html2Png(code: string, options: { width: number; height: number; scaleSize: number } = { width: 1280, height: 800, scaleSize: 1 }): Promise<Buffer> {
+export async function html2Png(
+    code: string,
+    options: { width: number; height: number; scaleSize: number; elementSelector: string } = { width: 1280, height: 800, scaleSize: 1, elementSelector: '.container' }
+): Promise<Buffer> {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
@@ -33,11 +36,27 @@ export async function html2Png(code: string, options: { width: number; height: n
 
     await page.setContent(code);
 
+    const element = await page.$(options.elementSelector);
+
+    if (!element) {
+        throw new Error("Element not found");
+    }
+
+    const boundingBox = await element.boundingBox();
+
+    if (!boundingBox) {
+        throw new Error("Unable to get bounding box for the element");
+    }
+
     const imageBuffer = await page.screenshot({
-        fullPage: true,
-        omitBackground: true,
+        clip: {
+            x: boundingBox.x,
+            y: boundingBox.y,
+            width: Math.min(boundingBox.width, options.width),
+            height: Math.min(boundingBox.height, options.height)
+        },
         type: "png",
-        fromSurface: true,
+        omitBackground: true,
     });
 
     await browser.close();

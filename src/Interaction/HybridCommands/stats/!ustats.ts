@@ -201,7 +201,7 @@ export default {
             .replaceAll("{voice_top2_2}", String(getChannelMinutesCount(thirdActiveVoiceChannel, res.voices || [])))
             .replaceAll("{voice_top3_2}", String(getChannelMinutesCount(thirdActiveVoiceChannel, res.voices || [])))
 
-        var image = await client.method.imageManipulation.html2Png(htmlContent);
+        var image = await client.method.imageManipulation.html2Png(htmlContent, { width: 1280, height: 720, scaleSize: 2, elementSelector: '.container' });
 
         const attachment = new AttachmentBuilder(image, { name: "image.png" })
 
