@@ -287,8 +287,17 @@ export namespace DatabaseStructure {
         };
     }
 
+    export interface JoinBannerOptions {
+        backgroundURL: string;
+        profilePictureRound: "hexProfileColor" | "status";
+        message: string;
+        textColour: string;
+    }
+
     export interface GuildConfigSchema {
         joinmessage?: string;
+        joinbanner?: JoinBannerOptions;
+        joinbannerStates?: string;
         join?: string;
         leave?: string;
         joindm?: string;

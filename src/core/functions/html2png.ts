@@ -21,15 +21,70 @@
 
 import puppeteer from "puppeteer";
 
-export async function html2Png(code: string): Promise<Buffer> {
-    const browser = await puppeteer.launch();
+const browser = await puppeteer.launch();
+
+export async function html2Png(
+    code: string,
+    options: {
+        width: number;
+        height: number;
+        scaleSize: number;
+        elementSelector: string;
+        omitBackground: boolean
+        selectElement: boolean
+    } = {
+            width: 1280,
+            height: 800,
+            scaleSize: 1,
+            elementSelector: '.container',
+            omitBackground: false,
+            selectElement: false
+        }
+): Promise<Buffer> {
     const page = await browser.newPage();
+
+    await page.setViewport({
+        width: options.width,
+        height: options.height,
+        deviceScaleFactor: options.scaleSize,
+    });
 
     await page.setContent(code);
 
-    const imageBuffer = await page.screenshot({ fullPage: true, omitBackground: true, type: "png", fromSurface: true });
+    let imageBuffer;
+    if (options.selectElement) {
+        const element = await page.$(options.elementSelector);
 
-    await browser.close();
+        if (!element) {
+            throw new Error("Element not found");
+        }
 
-    return Buffer.from(imageBuffer);;
+        const boundingBox = await element.boundingBox();
+
+        if (!boundingBox) {
+            throw new Error("Unable to get bounding box for the element");
+        }
+
+        imageBuffer = await page.screenshot({
+            clip: {
+                x: boundingBox.x,
+                y: boundingBox.y,
+                width: Math.min(boundingBox.width, options.width),
+                height: Math.min(boundingBox.height, options.height)
+            },
+            type: "png",
+            omitBackground: options.omitBackground,
+        });
+    } else {
+        imageBuffer = await page.screenshot({
+            fullPage: true,
+            omitBackground: options.omitBackground,
+            type: "png",
+            fromSurface: true,
+        });
+    }
+
+    page.close();
+
+    return Buffer.from(imageBuffer);
 }
