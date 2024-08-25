@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import puppeteer from 'puppeteer-core';
+import puppeteer from 'puppeteer';
 
 export async function html2Png(
     code: string,
