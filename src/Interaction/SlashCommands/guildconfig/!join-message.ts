@@ -74,33 +74,34 @@ export default {
         joinMessage = joinMessage?.substring(0, 1010);
 
         let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL: backgroundURL, profilePictureRound, textColour, message }))!;
+        let helpembed_fields = [
+            {
+                name: data.setjoinmessage_help_embed_fields_custom_name,
+                value: joinMessage ? `\`\`\`${joinMessage}\`\`\`\n${client.method.generateCustomMessagePreview(joinMessage, {
+                    user: interaction.user,
+                    guild: interaction.guild!,
+                    guildLocal: guildLocal,
+                })}` : data.setjoinmessage_help_embed_fields_custom_name_empy
+            },
+            {
+                name: data.setjoinmessage_help_embed_fields_default_name_empy,
+                value: `\`\`\`${data.event_welcomer_inviter}\`\`\`\n${client.method.generateCustomMessagePreview(data.event_welcomer_inviter, {
+                    user: interaction.user,
+                    guild: interaction.guild!,
+                    guildLocal: guildLocal,
+                })}`
+            }
+        ];
 
         const helpEmbed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0014a8")
             .setDescription(data.setjoinmessage_help_embed_desc)
             .setTitle(data.setjoinmessage_help_embed_title)
-            .addFields(
-                {
-                    name: data.setjoinmessage_help_embed_fields_custom_name,
-                    value: joinMessage ? `\`\`\`${joinMessage}\`\`\`\n${client.method.generateCustomMessagePreview(joinMessage, {
-                        user: interaction.user,
-                        guild: interaction.guild!,
-                        guildLocal: guildLocal,
-                    })}` : data.setjoinmessage_help_embed_fields_custom_name_empy
-                },
-                {
-                    name: data.setjoinmessage_help_embed_fields_default_name_empy,
-                    value: `\`\`\`${data.event_welcomer_inviter}\`\`\`\n${client.method.generateCustomMessagePreview(data.event_welcomer_inviter, {
-                        user: interaction.user,
-                        guild: interaction.guild!,
-                        guildLocal: guildLocal,
-                    })}`
-                }
-            );
+            .setFields(helpembed_fields);
 
         const helpEmbed2 = new EmbedBuilder()
             .setColor("#ffb3cc")
-            .setTitle("Join Message Cart")
+            .setTitle("Join Message Card")
             .setImage("attachment://image.png")
 
         const buttons = new ActionRowBuilder<ButtonBuilder>()
@@ -175,7 +176,7 @@ export default {
                 try {
                     const response = modalInteraction.fields.getTextInputValue('joinMessage-input');
 
-                    const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
+                    helpEmbed.setFields(
                         {
                             name: data.setjoinmessage_help_embed_fields_custom_name,
                             value: response ? `\`\`\`${response}\`\`\`\n${client.method.generateCustomMessagePreview(response, {
@@ -184,6 +185,7 @@ export default {
                                 guildLocal: guildLocal,
                             })}` : data.setjoinmessage_help_embed_fields_custom_name_empy
                         },
+                        helpembed_fields[1]
                     );
 
                     await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`, response);
@@ -192,8 +194,13 @@ export default {
                             .replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo),
                         ephemeral: true
                     });
-                    newEmbed.addFields(helpEmbed.data.fields![1]);
-                    await message2.edit({ embeds: [newEmbed] });
+
+                    let emb = [helpEmbed]
+                    let files = [];
+
+                    if (ImageBannerStates === "on") emb.push(helpEmbed2) && files.push((await generateJoinImage(interaction.member as GuildMember, { backgroundURL: backgroundURL, profilePictureRound, textColour, message }))!);
+
+                    await message2.edit({ embeds: emb, files: files });
 
                     const logEmbed = new EmbedBuilder()
                         .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
@@ -202,7 +209,7 @@ export default {
                             .replace("${interaction.user.id}", interaction.user.id)
                         );
 
-                    const logchannel = interaction.guild?.channels.cache.find((channel: { name: string }) => channel.name === 'ihorizon-logs');
+                    const logchannel = interaction.guild?.channels.cache.find((channel) => channel.name === 'ihorizon-logs');
 
                     if (logchannel) {
                         (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
@@ -211,11 +218,12 @@ export default {
                     logger.err(e as any);
                 }
             } else if (buttonInteraction.customId === "joinMessage-default-message") {
-                const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
+                helpEmbed.setFields(
                     {
                         name: data.setjoinmessage_help_embed_fields_custom_name,
                         value: data.setjoinmessage_help_embed_fields_custom_name_empy
                     },
+                    helpembed_fields[1]
                 );
 
                 await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`);
@@ -226,8 +234,12 @@ export default {
                     ephemeral: true
                 });
 
-                newEmbed.addFields(helpEmbed.data.fields![1]);
-                await message2.edit({ embeds: [newEmbed] });
+                let emb = [helpEmbed]
+                let files = [];
+
+                if (ImageBannerStates === "on") emb.push(helpEmbed2) && files.push((await generateJoinImage(interaction.member as GuildMember, { backgroundURL: backgroundURL, profilePictureRound, textColour, message }))!);
+
+                await message2.edit({ embeds: emb, files: files });
 
                 const logEmbed = new EmbedBuilder()
                     .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
@@ -267,7 +279,7 @@ export default {
                 let i1 = await msg.awaitMessageComponent({
                     componentType: ComponentType.StringSelect,
                     time: 1_250_000,
-                    // filter: (x) => x.user.id !== interaction.user.id
+                    filter: (x) => x.user.id === interaction.user.id
                 });
 
                 if (i1.values[0] === "change_background") {
@@ -399,11 +411,11 @@ export default {
                 if (ImageBannerStates === "off") {
                     let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL: backgroundURL, profilePictureRound, textColour, message }))!;
                     await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinbannerStates`, "on")
-                    ImageBannerStates = undefined;
+                    ImageBannerStates = "on";
 
                     buttons2.components[2].setStyle(ImageBannerStates !== "off" ? ButtonStyle.Danger : ButtonStyle.Success)
                     buttons2.components[2].setLabel(ImageBannerStates !== "off" ? "Delete Image" : "Enable Image")
-    
+
                     await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], components: [buttons, buttons2], files: [attachment] });
                 } else {
                     await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinbannerStates`, "off")
@@ -411,7 +423,7 @@ export default {
 
                     buttons2.components[2].setStyle(ImageBannerStates !== "off" ? ButtonStyle.Danger : ButtonStyle.Success)
                     buttons2.components[2].setLabel(ImageBannerStates !== "off" ? "Delete Image" : "Enable Image")
-    
+
                     await interaction.editReply({ embeds: [helpEmbed], components: [buttons, buttons2], files: [] });
                 }
             }
