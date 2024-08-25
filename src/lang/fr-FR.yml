@@ -1652,6 +1652,7 @@ event_gw_embed_desc: "Se termine: ${end_string} (${end_string2})\nOrganisé par:
 event_gw_ended_embed_desc: "Terminé : ${time1} (${time2})\nOrganisé par : <@${fetch.hostedBy}>\nEntrées: **${fetch.entries.length}**\nGagnants : ${winners}"
 event_gw_entries_words: "Participations"
 event_gw_ended_word: "Terminé: ${ended} (${time2})\nOrganisé par: <@${hostedBy}>\nParticipations **${entries}**\nGagnants: ${winners}"
+event_gw_break_req: "${interaction.client.iHorizon_Emojis.icon.No_Logo} Vous ne remplissez pas les conditions nécessaires pour participer à ce concours.\nType : `${giveawayData?.requirement.type}`\nValeur : `${giveawayData?.requirement.value}`"
 
 # Événement de Boost Logs
 event_boostlog_add: "<@${newMember.user.id}> **viens de boosté** le serveur! (**${newMember.guild.premiumSubscriptionCount}** boosts total)"

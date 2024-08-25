@@ -1652,6 +1652,7 @@ event_gw_embed_desc: "Заканчивается: ${end_string} (${end_string2})
 event_gw_ended_embed_desc: "Завершено: ${time1} (${time2})\nПровел: <@${fetch.hostedBy}>\nЗаписи **${fetch.entries.length}**\nПобедители: ${winners}"
 event_gw_entries_words: "Записи"
 event_gw_ended_word: "Завершено: ${ended} (${time2})\nОрганизатор: <@${hostedBy}>\nЗаписи **${entries}**\nПобедители: ${winners}"
+event_gw_break_req: "${interaction.client.iHorizon_Emojis.icon.No_Logo} Вы не соответствуете необходимым условиям для участия в этом розыгрыше.\nТип: `${giveawayData?.requirement.type}`\nЗначение: `${giveawayData?.requirement.value}`"
 
 # Событие логов улучшения
 event_boostlog_add: "<@${newMember.user.id}> **только что улучшил(а)** сервер! (**${newMember.guild.premiumSubscriptionCount}** всего улучшений)"
