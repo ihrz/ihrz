@@ -19,9 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import puppeteer from "puppeteer";
-
-const browser = await puppeteer.launch();
+import puppeteer from 'puppeteer-core';
 
 export async function html2Png(
     code: string,
@@ -30,61 +28,65 @@ export async function html2Png(
         height: number;
         scaleSize: number;
         elementSelector: string;
-        omitBackground: boolean
-        selectElement: boolean
+        omitBackground: boolean;
+        selectElement: boolean;
     } = {
-            width: 1280,
-            height: 800,
-            scaleSize: 1,
-            elementSelector: '.container',
-            omitBackground: false,
-            selectElement: false
-        }
-): Promise<Buffer> {
-    const page = await browser.newPage();
-
-    await page.setViewport({
-        width: options.width,
-        height: options.height,
-        deviceScaleFactor: options.scaleSize,
-    });
-
-    await page.setContent(code);
-
-    let imageBuffer;
-    if (options.selectElement) {
-        const element = await page.$(options.elementSelector);
-
-        if (!element) {
-            throw new Error("Element not found");
-        }
-
-        const boundingBox = await element.boundingBox();
-
-        if (!boundingBox) {
-            throw new Error("Unable to get bounding box for the element");
-        }
-
-        imageBuffer = await page.screenshot({
-            clip: {
-                x: boundingBox.x,
-                y: boundingBox.y,
-                width: Math.min(boundingBox.width, options.width),
-                height: Math.min(boundingBox.height, options.height)
-            },
-            type: "png",
-            omitBackground: options.omitBackground,
-        });
-    } else {
-        imageBuffer = await page.screenshot({
-            fullPage: true,
-            omitBackground: options.omitBackground,
-            type: "png",
-            fromSurface: true,
-        });
+        width: 1280,
+        height: 800,
+        scaleSize: 1,
+        elementSelector: '.container',
+        omitBackground: false,
+        selectElement: false,
     }
+): Promise<Buffer> {
+    let browser;
+    try {
+        browser = await puppeteer.launch({
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
+        const page = await browser.newPage();
 
-    page.close();
+        await page.setViewport({
+            width: options.width,
+            height: options.height,
+            deviceScaleFactor: options.scaleSize,
+        });
 
-    return Buffer.from(imageBuffer);
+        await page.setContent(code);
+
+        let imageBuffer;
+        if (options.selectElement) {
+            const element = await page.$(options.elementSelector);
+            if (!element) throw new Error('Element not found');
+            const boundingBox = await element.boundingBox();
+            if (!boundingBox) throw new Error('Unable to get bounding box for the element');
+
+            imageBuffer = await page.screenshot({
+                clip: {
+                    x: boundingBox.x,
+                    y: boundingBox.y,
+                    width: Math.min(boundingBox.width, options.width),
+                    height: Math.min(boundingBox.height, options.height),
+                },
+                type: 'png',
+                omitBackground: options.omitBackground,
+            });
+        } else {
+            imageBuffer = await page.screenshot({
+                fullPage: true,
+                omitBackground: options.omitBackground,
+                type: 'png',
+                fromSurface: true,
+            });
+        }
+
+        return Buffer.from(imageBuffer);
+    } catch (error) {
+        console.error('Error capturing screenshot:', error);
+        throw error;
+    } finally {
+        if (browser) {
+            await browser.close();
+        }
+    }
 }

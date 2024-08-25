@@ -62,6 +62,16 @@ import { SubCommandArgumentValue } from '../../../core/functions/method'; export
 
             type: ApplicationCommandOptionType.Subcommand
         },
+        {
+            name: "gstats",
+
+            description: "See guild leaderboard",
+            description_localizations: {
+                fr: "Regarder le classement du serveur"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand
+        },
         // {
         //     name: "reset",
 
