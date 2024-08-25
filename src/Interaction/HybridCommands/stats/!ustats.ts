@@ -152,7 +152,7 @@ export default {
         htmlContent = htmlContent
             .replaceAll('{header_h1_value}', data.header_h1_value)
             .replaceAll('{messages_word}', data.messages_word)
-            .replaceAll('{voice_activity}', data.messages_word)
+            .replaceAll('{voice_activity}', data.voice_activity)
             .replaceAll('{minutes_word}', data.minutes_word)
             .replaceAll('{top_voice}', data.top_voice)
             .replaceAll('{top_message}', data.top_message)
