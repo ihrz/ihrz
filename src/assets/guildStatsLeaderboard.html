@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: #2c2c2c;
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 100%;
+            width: 1024px;
+            height: auto;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-rows: auto 1fr 1fr;
+            gap: 10px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin: 0;
+        }
+
+        .header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .section {
+            background-color: #383838;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 16px;
+        }
+
+        .footer {
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                width: 90%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 100%;
+            }
+
+            .section {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>{header_h1_value}</h1>
+            <img src="{guild_pfp}" alt="Server Logo">
+        </div>
+
+        <div class="section">
+            <p class="label" style="font-weight: bold;">Top Active Users</p>
+            {top_message_users}
+        </div>
+
+        <div class="section">
+            <p class="label" style="font-weight: bold;">Top Active Text Channels</p>
+            {top_text_channels}
+        </div>
+
+        <div class="section">
+            <p class="label" style="font-weight: bold;">Top Active Voice Channels</p>
+            {top_voice_channels}
+        </div>
+    </div>
+
+</body>
+
+</html>
