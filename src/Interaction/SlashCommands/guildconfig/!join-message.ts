@@ -209,14 +209,13 @@ export default {
                             .replace("${interaction.user.id}", interaction.user.id)
                         );
 
-                    const logchannel = interaction.guild?.channels.cache.find((channel: { name: string }) => channel.name === 'ihorizon-logs');
+                    const logchannel = interaction.guild?.channels.cache.find((channel) => channel.name === 'ihorizon-logs');
 
                     if (logchannel) {
                         (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
                     }
                 } catch (e) {
-                    // logger.err(e as any);
-                    console.error(e)
+                    logger.err(e as any);
                 }
             } else if (buttonInteraction.customId === "joinMessage-default-message") {
                 helpEmbed.setFields(
