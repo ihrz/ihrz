@@ -1197,6 +1197,7 @@ export interface LanguageData {
   event_gw_ended_embed_desc: string;
   event_gw_entries_words: string;
   event_gw_ended_word: string;
+  event_gw_break_req: string;
   event_boostlog_add: string;
   event_boostlog_sub: string;
   economy_disable_msg: string;

@@ -1652,6 +1652,7 @@ event_gw_embed_desc: "終了: ${end_string} (${end_string2})\n主催者: <@${dat
 event_gw_ended_embed_desc: "終了: ${time1} (${time2})\n主催者: <@${fetch.hostedBy}>\nエントリー **${fetch.entries.length}**\n勝者: ${winners}"
 event_gw_entries_words: "参加数"
 event_gw_ended_word: "終了: ${ended} (${time2})\n主催者: <@${hostedBy}>\n参加数 **${entries}**\n当選者: ${winners}"
+event_gw_break_req: "${interaction.client.iHorizon_Emojis.icon.No_Logo} このプレゼントに参加するための必要条件を満たしていません。\nタイプ: `${giveawayData?.requirement.type}`\n値: `${giveawayData?.requirement.value}`"
 
 # ブーストログイベント
 event_boostlog_add: "<@${newMember.user.id}> **がサーバーをブーストしました**！（合計**${newMember.guild.premiumSubscriptionCount}**ブースト）"

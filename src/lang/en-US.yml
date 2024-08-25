@@ -1652,6 +1652,7 @@ event_gw_embed_desc: "Ends: ${end_string} (${end_string2})\nHosted by: <@${data.
 event_gw_ended_embed_desc: "Ended: ${time1} (${time2})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.entries.length}**\nWinners: ${winners}"
 event_gw_entries_words: "Entries"
 event_gw_ended_word: "Ended: ${ended} (${time2})\nHosted by: <@${hostedBy}>\nEntries **${entries}**\nWinners: ${winners}"
+event_gw_break_req: "${interaction.client.iHorizon_Emojis.icon.No_Logo} You don't follow the needed conditions to enter in this giveaways.\nType: `${giveawayData?.requirement.type}`\nValue: `${giveawayData?.requirement.value}`"
 
 # Boost Logs Event
 event_boostlog_add: "<@${newMember.user.id}> **just boosted** the server! (**${newMember.guild.premiumSubscriptionCount}** total boosts)"

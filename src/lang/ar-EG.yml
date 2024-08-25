@@ -1645,6 +1645,7 @@ event_gw_embed_desc: "ينتهي: ${end_string} (${end_string2})\nمستضاف �
 event_gw_ended_embed_desc: "انتهت: ${time1} (${time2})\nمستضاف من قبل: <@${fetch.hostedBy}>\nالمشاركات **${fetch.entries.length}**\nالفائزون: ${winners}"
 event_gw_entries_words: "المشاركات"
 event_gw_ended_word: "انتهت: ${ended} (${time2})\nمستضاف من قبل: <@${hostedBy}>\nالمشاركات **${entries}**\nالفائزون: ${winners}"
+event_gw_break_req: "${interaction.client.iHorizon_Emojis.icon.No_Logo} إنت مش متوافق مع الشروط المطلوبة للمشاركة في الهدايا.\nالنوع: `${giveawayData?.requirement.type}`\nالقيمة: `${giveawayData?.requirement.value}`"
 
 # أحداث تعزيز السرفر
 event_boostlog_add: "<@${newMember.user.id}> **قام بتعزيز** الخادم! (**${newMember.guild.premiumSubscriptionCount}** تعزيزات إجمالية)"
