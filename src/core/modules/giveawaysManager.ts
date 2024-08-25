@@ -92,6 +92,8 @@ class GiveawayManager {
                     ]
                 });
 
+                let requirement = data.requirement;
+
                 db.Create(
                     {
                         channelId: response.channelId,
@@ -105,7 +107,8 @@ class GiveawayManager {
                         entries: [],
                         winners: [],
                         isValid: true,
-                        embedImageURL: data.embedImageURL
+                        embedImageURL: data.embedImageURL,
+                        requirement
                     }, response.id
                 );
 
@@ -118,13 +121,42 @@ class GiveawayManager {
 
     public async addEntries(interaction: ButtonInteraction<CacheType>) {
 
-        let members = db.GetGiveawayData(interaction.message.id)!.entries;
+        let giveawayData = db.GetGiveawayData(interaction.message.id);
         let lang = await getLanguageData(interaction.guildId!);
 
-        if (members?.includes(interaction.user.id)) {
+        if (giveawayData?.entries?.includes(interaction.user.id)) {
             await this.removeEntries(interaction);
             return;
         } else {
+            if (giveawayData?.requirement.type !== "none") {
+                var reqPass: boolean = false;
+                switch (giveawayData?.requirement.type) {
+                    case "invites":
+                        reqPass = await interaction.client.
+                            db.get(`${interaction.guildId}.USER.${interaction.member?.user.id}.INVITES.invites`)
+                            >= parseInt(giveawayData.requirement.value!);;
+                        break;
+                    case "messages":
+                        reqPass = ((await interaction.client.
+                            db.get(`${interaction.guildId}.STATS.USER.${interaction.member?.user.id}.messages`)
+                            || []
+                        ) as string[]).length >= parseInt(giveawayData.requirement.value!);
+                        break;
+                    case "roles":
+                        reqPass = (interaction.member?.roles as string[]).includes(giveawayData.requirement.value!)
+                        break;
+                };
+                if (!reqPass) {
+                    return interaction.reply({
+                        content:
+                            lang.event_gw_break_req
+                                .replace("${giveawayData?.requirement.value}", String(giveawayData?.requirement.value))
+                                .replace("${giveawayData?.requirement.type}", String(giveawayData?.requirement.type))
+                                .replace("${interaction.client.iHorizon_Emojis.icon.No_Logo}", interaction.client.iHorizon_Emojis.icon.No_Logo)
+                        , ephemeral: true
+                    })
+                }
+            };
 
             await interaction.deferUpdate();
             let regexPattern = `${lang.event_gw_entries_words}: \\*\\*\\d+\\*\\*`;
@@ -132,7 +164,7 @@ class GiveawayManager {
 
             let embedsToEdit = EmbedBuilder.from(interaction.message.embeds[0])
                 .setDescription(interaction.message.embeds[0]?.description!
-                    .replace(regex, `${lang.event_gw_entries_words}: **${members.length + 1}**`)
+                    .replace(regex, `${lang.event_gw_entries_words}: **${giveawayData?.entries.length! + 1}**`)
                 );
 
             await interaction.message.edit({ embeds: [embedsToEdit] });
