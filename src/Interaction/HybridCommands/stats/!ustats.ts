@@ -79,9 +79,9 @@ export default {
             return;
         }
 
-        let monthlyVoiceActivity = { value: 0 };
-        let weeklyVoiceActivity = { value: 0 };
-        let dailyVoiceActivity = { value: 0 };
+        let monthlyVoiceActivity = 0
+        let weeklyVoiceActivity = 0;
+        let dailyVoiceActivity = 0;
 
         let monthlyMessages: DatabaseStructure.StatsMessage[] = [];
         let weeklyMessage: DatabaseStructure.StatsMessage[] = [];
@@ -94,13 +94,13 @@ export default {
         let weeklyTimeout = 604_800_000; // One week in ms
         let monthlyTimeout = 2_592_000_000; // One month in ms
 
-        let firstActiveVoiceChannel = { value: "" };
-        let secondActiveVoiceChannel = { value: "" };
-        let thirdActiveVoiceChannel = { value: "" };
+        let firstActiveVoiceChannel = "";
+        let secondActiveVoiceChannel = "";
+        let thirdActiveVoiceChannel = "";
 
-        let firstActiveChannel = { value: "" };
-        let secondActiveChannel = { value: "" };
-        let thirdActiveChannel = { value: "" };
+        let firstActiveChannel = "";
+        let secondActiveChannel = "";
+        let thirdActiveChannel = "";
 
         res.messages?.forEach((msg) => {
             calculateMessageTime(
@@ -147,24 +147,24 @@ export default {
             .replaceAll('{author_pfp}', member.user.displayAvatarURL({ size: 512 }))
             .replaceAll('{guild_name}', interaction.guild.name)
             .replaceAll('{messages_length}', String(totalMessages))
-            .replaceAll('{voice_daily}', String(Math.round(dailyVoiceActivity.value / 1000 / 60)))
-            .replaceAll('{voice_weekly}', String(Math.round(weeklyVoiceActivity.value / 1000 / 60)))
-            .replaceAll('{voice_monthly}', String(Math.round(monthlyVoiceActivity.value / 1000 / 60)))
+            .replaceAll('{voice_daily}', String(Math.round(dailyVoiceActivity / 1000 / 60)))
+            .replaceAll('{voice_weekly}', String(Math.round(weeklyVoiceActivity / 1000 / 60)))
+            .replaceAll('{voice_monthly}', String(Math.round(monthlyVoiceActivity / 1000 / 60)))
             .replaceAll('{message_daily}', String(dailyMessages.length))
             .replaceAll('{message_weekly}', String(weeklyMessage.length))
             .replaceAll('{message_monthly}', String(monthlyMessages.length))
-            .replaceAll('{messages_top1}', String(getChannelName(interaction.guild, firstActiveChannel.value)))
-            .replaceAll('{messages_top2}', String(getChannelName(interaction.guild, secondActiveChannel.value)))
-            .replaceAll('{messages_top3}', String(getChannelName(interaction.guild, thirdActiveChannel.value)))
-            .replaceAll('{messages_top1_2}', String(getChannelMessagesCount(firstActiveChannel.value, res.messages || [])))
-            .replaceAll('{messages_top2_2}', String(getChannelMessagesCount(secondActiveChannel.value, res.messages || [])))
-            .replaceAll('{messages_top3_2}', String(getChannelMessagesCount(thirdActiveChannel.value, res.messages || [])))
-            .replaceAll('{voice_top1}', String(getChannelName(interaction.guild, firstActiveVoiceChannel.value)))
-            .replaceAll('{voice_top2}', String(getChannelName(interaction.guild, secondActiveVoiceChannel.value)))
-            .replaceAll('{voice_top3}', String(getChannelName(interaction.guild, thirdActiveVoiceChannel.value)))
-            .replaceAll('{voice_top1_2}', String(getChannelMinutesCount(firstActiveVoiceChannel.value, res.voices || [])))
-            .replaceAll('{voice_top2_2}', String(getChannelMinutesCount(secondActiveVoiceChannel.value, res.voices || [])))
-            .replaceAll('{voice_top3_2}', String(getChannelMinutesCount(thirdActiveVoiceChannel.value, res.voices || [])));
+            .replaceAll('{messages_top1}', String(getChannelName(interaction.guild, firstActiveChannel)))
+            .replaceAll('{messages_top2}', String(getChannelName(interaction.guild, secondActiveChannel)))
+            .replaceAll('{messages_top3}', String(getChannelName(interaction.guild, thirdActiveChannel)))
+            .replaceAll('{messages_top1_2}', String(getChannelMessagesCount(firstActiveChannel, res.messages || [])))
+            .replaceAll('{messages_top2_2}', String(getChannelMessagesCount(secondActiveChannel, res.messages || [])))
+            .replaceAll('{messages_top3_2}', String(getChannelMessagesCount(thirdActiveChannel, res.messages || [])))
+            .replaceAll('{voice_top1}', String(getChannelName(interaction.guild, firstActiveVoiceChannel)))
+            .replaceAll('{voice_top2}', String(getChannelName(interaction.guild, secondActiveVoiceChannel)))
+            .replaceAll('{voice_top3}', String(getChannelName(interaction.guild, thirdActiveVoiceChannel)))
+            .replaceAll('{voice_top1_2}', String(getChannelMinutesCount(firstActiveVoiceChannel, res.voices || [])))
+            .replaceAll('{voice_top2_2}', String(getChannelMinutesCount(secondActiveVoiceChannel, res.voices || [])))
+            .replaceAll('{voice_top3_2}', String(getChannelMinutesCount(thirdActiveVoiceChannel, res.voices || [])));
 
         const image = await client.method.imageManipulation.html2Png(htmlContent, {
             width: 1280,

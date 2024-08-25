@@ -28,28 +28,28 @@ export function calculateVoiceActivity(
     dailyTimeout: number,
     weeklyTimeout: number,
     monthlyTimeout: number,
-    dailyVoiceActivity: { value: number },
-    weeklyVoiceActivity: { value: number },
-    monthlyVoiceActivity: { value: number }
+    dailyVoiceActivity: number,
+    weeklyVoiceActivity: number,
+    monthlyVoiceActivity: number
 ) {
     const sessionDuration = voice.endTimestamp - voice.startTimestamp;
 
     if (voice.endTimestamp >= nowTimestamp - dailyTimeout) {
-        dailyVoiceActivity.value += sessionDuration;
+        dailyVoiceActivity += sessionDuration;
     }
     if (voice.endTimestamp >= nowTimestamp - weeklyTimeout) {
-        weeklyVoiceActivity.value += sessionDuration;
+        weeklyVoiceActivity += sessionDuration;
     }
     if (voice.endTimestamp >= nowTimestamp - monthlyTimeout) {
-        monthlyVoiceActivity.value += sessionDuration;
+        monthlyVoiceActivity += sessionDuration;
     }
 }
 
 export function calculateActiveChannels(
     messages: DatabaseStructure.StatsMessage[],
-    firstActiveChannel: { value: string },
-    secondActiveChannel: { value: string },
-    thirdActiveChannel: { value: string }
+    firstActiveChannel: string,
+    secondActiveChannel: string,
+    thirdActiveChannel: string
 ) {
     const channelMessageCount: { [channelId: string]: number } = {};
 
@@ -64,16 +64,16 @@ export function calculateActiveChannels(
         .sort(([, countA], [, countB]) => countB - countA)
         .slice(0, 3);
 
-    firstActiveChannel.value = sortedChannels[0] ? sortedChannels[0][0] : "N/A";
-    secondActiveChannel.value = sortedChannels[1] ? sortedChannels[1][0] : "N/A";
-    thirdActiveChannel.value = sortedChannels[2] ? sortedChannels[2][0] : "N/A";
+    firstActiveChannel = sortedChannels[0] ? sortedChannels[0][0] : "N/A";
+    secondActiveChannel = sortedChannels[1] ? sortedChannels[1][0] : "N/A";
+    thirdActiveChannel = sortedChannels[2] ? sortedChannels[2][0] : "N/A";
 }
 
 export function calculateActiveVoiceChannels(
     voices: DatabaseStructure.StatsVoice[],
-    firstActiveVoiceChannel: { value: string },
-    secondActiveVoiceChannel: { value: string },
-    thirdActiveVoiceChannel: { value: string }
+    firstActiveVoiceChannel: string,
+    secondActiveVoiceChannel: string,
+    thirdActiveVoiceChannel: string
 ) {
     const channelVoiceDuration: { [channelId: string]: number } = {};
 
@@ -89,9 +89,9 @@ export function calculateActiveVoiceChannels(
         .sort(([, durationA], [, durationB]) => durationB - durationA)
         .slice(0, 3);
 
-    firstActiveVoiceChannel.value = sortedVoiceChannels[0] ? sortedVoiceChannels[0][0] : "N/A";
-    secondActiveVoiceChannel.value = sortedVoiceChannels[1] ? sortedVoiceChannels[1][0] : "N/A";
-    thirdActiveVoiceChannel.value = sortedVoiceChannels[2] ? sortedVoiceChannels[2][0] : "N/A";
+    firstActiveVoiceChannel = sortedVoiceChannels[0] ? sortedVoiceChannels[0][0] : "N/A";
+    secondActiveVoiceChannel = sortedVoiceChannels[1] ? sortedVoiceChannels[1][0] : "N/A";
+    thirdActiveVoiceChannel = sortedVoiceChannels[2] ? sortedVoiceChannels[2][0] : "N/A";
 }
 
 export function getChannelName(guild: Guild, channelId: string): string {
