@@ -4,6 +4,7 @@ import {
     Client,
     GuildMember,
     Message,
+    User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
@@ -18,6 +19,7 @@ import {
     getChannelMessagesCount,
     getChannelMinutesCount,
     getChannelName,
+    getStatsLeaderboard,
 } from "../../../core/functions/userStatsUtils.js";
 
 type MemberStats = {
@@ -43,7 +45,7 @@ export default {
         if (!client.user || !interaction.guild || !interaction.channel) return;
 
         let leaderboardData: {
-            member: GuildMember,
+            member: User | undefined,
             dailyMessages: number,
             weeklyMessages: number,
             monthlyMessages: number,
@@ -65,7 +67,6 @@ export default {
         let allMessages: DatabaseStructure.StatsMessage[] = [];
         let allVoiceActivities: DatabaseStructure.StatsVoice[] = [];
 
-        // Calcul des statistiques des membres et des canaux
         for (let memberId in res?.USER) {
             let userData = res.USER[memberId];
             let dailyMessages = 0, weeklyMessages = 0, monthlyMessages = 0;
@@ -74,7 +75,7 @@ export default {
             allMessages = [...allMessages, ...userData.messages || []];
             allVoiceActivities = [...allVoiceActivities, ...userData.voices || []];
 
-            let member = interaction.guild.members.cache.get(memberId);
+            let user = client.users.cache.get(memberId);
 
             userData.messages?.forEach(message => {
                 if (nowTimestamp - message.sentTimestamp <= dailyTimeout) {
@@ -87,7 +88,6 @@ export default {
                     monthlyMessages++;
                 }
 
-                // Mise à jour des statistiques de canal
                 if (!channelStats[message.channelId]) {
                     channelStats[message.channelId] = { dailyMessages: 0, weeklyMessages: 0, monthlyMessages: 0, dailyVoice: 0, weeklyVoice: 0, monthlyVoice: 0 };
                 }
@@ -109,7 +109,6 @@ export default {
                     monthlyVoice += voiceDuration;
                 }
 
-                // Mise à jour des statistiques de canal vocal
                 if (!channelStats[voice.channelId]) {
                     channelStats[voice.channelId] = { dailyMessages: 0, weeklyMessages: 0, monthlyMessages: 0, dailyVoice: 0, weeklyVoice: 0, monthlyVoice: 0 };
                 }
@@ -120,7 +119,7 @@ export default {
             });
 
             leaderboardData.push({
-                member: member!,
+                member: user,
                 dailyMessages: dailyMessages,
                 weeklyMessages: weeklyMessages,
                 monthlyMessages: monthlyMessages,
@@ -132,7 +131,6 @@ export default {
             memberStats[memberId] = { dailyMessages, weeklyMessages, monthlyMessages, dailyVoice, weeklyVoice, monthlyVoice };
         }
 
-        // Fonction pour obtenir le top 3 des canaux
         function topThree(obj: { [key: string]: { [statKey: string]: number } }, key: string) {
             return Object.entries(obj)
                 .sort(([, a], [, b]) => (b[key] as number) - (a[key] as number))
@@ -140,12 +138,12 @@ export default {
                 .map(([id, stats]) => ({ id, ...(stats as object) }));
         }
 
-        // Obtenir les meilleurs canaux pour les messages et l'activité vocale
         let [firstActiveChannel, secondActiveChannel, thirdActiveChannel] = topThree(channelStats, 'dailyMessages').map(item => item.id);
         let [firstActiveVoiceChannel, secondActiveVoiceChannel, thirdActiveVoiceChannel] = topThree(channelStats, 'dailyVoice').map(item => item.id);
 
-        console.log(topThree(channelStats, 'dailyVoice'))
         var htmlContent = readFileSync(path.join(process.cwd(), 'src', 'assets', 'guildStatsLeaderboard.html'), 'utf-8');
+
+        leaderboardData = getStatsLeaderboard(leaderboardData)
 
         htmlContent = htmlContent
             .replaceAll('{header_h1_value}', data.header_h1_value)
@@ -153,7 +151,7 @@ export default {
             .replaceAll("{author_username}", interaction.guild.name)
             .replaceAll('{top_message_users}', leaderboardData.map((user, index) => `
             <div class="list-item">
-                <span>${index + 1}. @${user.member.user.username}</span>
+                <span>${index + 1}. @${user.member?.username}</span>
                 <span>1d: ${user.dailyMessages} ${data.messages_word}, 7d: ${user.weeklyMessages} ${data.messages_word}, 30d: ${user.monthlyMessages} ${data.messages_word}</span>
             </div>
         `).join(''))

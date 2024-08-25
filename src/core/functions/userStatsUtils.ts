@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Guild } from 'discord.js';
+import { Guild, User } from 'discord.js';
 import { DatabaseStructure } from '../../../types/database_structure';
 
 export function calculateMessageTime(
@@ -156,4 +156,57 @@ export function getChannelMinutesCount(
         }, 0);
 
     return Math.round(totalDuration / 1000 / 60);
+}
+
+export function getStatsLeaderboard(data: {
+    member: User | undefined,
+    dailyMessages: number,
+    weeklyMessages: number,
+    monthlyMessages: number,
+    dailyVoiceActivity: number,
+    weeklyVoiceActivity: number,
+    monthlyVoiceActivity: number
+}[]) {
+    const compare = (a: {
+        member: User | undefined,
+        dailyMessages: number,
+        weeklyMessages: number,
+        monthlyMessages: number,
+        dailyVoiceActivity: number,
+        weeklyVoiceActivity: number,
+        monthlyVoiceActivity: number
+    }, b: {
+        member: User | undefined,
+        dailyMessages: number,
+        weeklyMessages: number,
+        monthlyMessages: number,
+        dailyVoiceActivity: number,
+        weeklyVoiceActivity: number,
+        monthlyVoiceActivity: number
+    }) => {
+        if (b.dailyMessages !== a.dailyMessages) {
+            return b.dailyMessages - a.dailyMessages;
+        }
+        if (b.weeklyMessages !== a.weeklyMessages) {
+            return b.weeklyMessages - a.weeklyMessages;
+        }
+        if (b.monthlyMessages !== a.monthlyMessages) {
+            return b.monthlyMessages - a.monthlyMessages;
+        }
+        if (b.dailyVoiceActivity !== a.dailyVoiceActivity) {
+            return b.dailyVoiceActivity - a.dailyVoiceActivity;
+        }
+        if (b.weeklyVoiceActivity !== a.weeklyVoiceActivity) {
+            return b.weeklyVoiceActivity - a.weeklyVoiceActivity;
+        }
+        return b.monthlyVoiceActivity - a.monthlyVoiceActivity;
+    };
+
+    const sortedData = data
+        .filter(entry => entry.member !== undefined)
+        .sort(compare);
+
+    const top3 = sortedData.slice(0, 3);
+
+    return top3;
 }
