@@ -1,3 +1,24 @@
+/*
+・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+
+    ・   Under the following terms:
+
+        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+        ・ NonCommercial — You may not use the material for commercial purposes.
+
+        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://github.com/Kisakay)
+
+・ Copyright © 2020-2024 iHorizon
+*/
+
 import { Guild } from 'discord.js';
 import { DatabaseStructure } from '../../../types/database_structure';
 
@@ -8,18 +29,24 @@ export function calculateMessageTime(
     weeklyTimeout: number,
     monthlyTimeout: number,
     dailyMessages: DatabaseStructure.StatsMessage[],
-    weeklyMessage: DatabaseStructure.StatsMessage[],
+    weeklyMessages: DatabaseStructure.StatsMessage[],
     monthlyMessages: DatabaseStructure.StatsMessage[]
-) {
+): {
+    dailyMessages: DatabaseStructure.StatsMessage[],
+    weeklyMessages: DatabaseStructure.StatsMessage[],
+    monthlyMessages: DatabaseStructure.StatsMessage[],
+} {
     if (msg.sentTimestamp >= nowTimestamp - dailyTimeout) {
         dailyMessages.push(msg);
     }
     if (msg.sentTimestamp >= nowTimestamp - weeklyTimeout) {
-        weeklyMessage.push(msg);
+        weeklyMessages.push(msg);
     }
     if (msg.sentTimestamp >= nowTimestamp - monthlyTimeout) {
         monthlyMessages.push(msg);
     }
+
+    return { dailyMessages, weeklyMessages, monthlyMessages };
 }
 
 export function calculateVoiceActivity(
@@ -31,7 +58,11 @@ export function calculateVoiceActivity(
     dailyVoiceActivity: number,
     weeklyVoiceActivity: number,
     monthlyVoiceActivity: number
-) {
+): {
+    dailyVoiceActivity: number,
+    weeklyVoiceActivity: number,
+    monthlyVoiceActivity: number,
+} {
     const sessionDuration = voice.endTimestamp - voice.startTimestamp;
 
     if (voice.endTimestamp >= nowTimestamp - dailyTimeout) {
@@ -43,14 +74,17 @@ export function calculateVoiceActivity(
     if (voice.endTimestamp >= nowTimestamp - monthlyTimeout) {
         monthlyVoiceActivity += sessionDuration;
     }
+
+    return { dailyVoiceActivity, weeklyVoiceActivity, monthlyVoiceActivity };
 }
 
 export function calculateActiveChannels(
-    messages: DatabaseStructure.StatsMessage[],
+    messages: DatabaseStructure.StatsMessage[]
+): {
     firstActiveChannel: string,
     secondActiveChannel: string,
-    thirdActiveChannel: string
-) {
+    thirdActiveChannel: string,
+} {
     const channelMessageCount: { [channelId: string]: number } = {};
 
     messages.forEach((msg) => {
@@ -64,17 +98,20 @@ export function calculateActiveChannels(
         .sort(([, countA], [, countB]) => countB - countA)
         .slice(0, 3);
 
-    firstActiveChannel = sortedChannels[0] ? sortedChannels[0][0] : "N/A";
-    secondActiveChannel = sortedChannels[1] ? sortedChannels[1][0] : "N/A";
-    thirdActiveChannel = sortedChannels[2] ? sortedChannels[2][0] : "N/A";
+    return {
+        firstActiveChannel: sortedChannels[0] ? sortedChannels[0][0] : "N/A",
+        secondActiveChannel: sortedChannels[1] ? sortedChannels[1][0] : "N/A",
+        thirdActiveChannel: sortedChannels[2] ? sortedChannels[2][0] : "N/A",
+    };
 }
 
 export function calculateActiveVoiceChannels(
-    voices: DatabaseStructure.StatsVoice[],
+    voices: DatabaseStructure.StatsVoice[]
+): {
     firstActiveVoiceChannel: string,
     secondActiveVoiceChannel: string,
-    thirdActiveVoiceChannel: string
-) {
+    thirdActiveVoiceChannel: string,
+} {
     const channelVoiceDuration: { [channelId: string]: number } = {};
 
     voices.forEach((voice) => {
@@ -89,9 +126,11 @@ export function calculateActiveVoiceChannels(
         .sort(([, durationA], [, durationB]) => durationB - durationA)
         .slice(0, 3);
 
-    firstActiveVoiceChannel = sortedVoiceChannels[0] ? sortedVoiceChannels[0][0] : "N/A";
-    secondActiveVoiceChannel = sortedVoiceChannels[1] ? sortedVoiceChannels[1][0] : "N/A";
-    thirdActiveVoiceChannel = sortedVoiceChannels[2] ? sortedVoiceChannels[2][0] : "N/A";
+    return {
+        firstActiveVoiceChannel: sortedVoiceChannels[0] ? sortedVoiceChannels[0][0] : "N/A",
+        secondActiveVoiceChannel: sortedVoiceChannels[1] ? sortedVoiceChannels[1][0] : "N/A",
+        thirdActiveVoiceChannel: sortedVoiceChannels[2] ? sortedVoiceChannels[2][0] : "N/A",
+    };
 }
 
 export function getChannelName(guild: Guild, channelId: string): string {
@@ -100,9 +139,9 @@ export function getChannelName(guild: Guild, channelId: string): string {
 
 export function getChannelMessagesCount(
     channelId: string,
-    msg: DatabaseStructure.StatsMessage[]
-) {
-    return msg.filter((x) => x.channelId === channelId).length || 0;
+    messages: DatabaseStructure.StatsMessage[]
+): number {
+    return messages.filter((msg) => msg.channelId === channelId).length || 0;
 }
 
 export function getChannelMinutesCount(

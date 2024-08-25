@@ -84,7 +84,7 @@ export default {
         let dailyVoiceActivity = 0;
 
         let monthlyMessages: DatabaseStructure.StatsMessage[] = [];
-        let weeklyMessage: DatabaseStructure.StatsMessage[] = [];
+        let weeklyMessages: DatabaseStructure.StatsMessage[] = [];
         let dailyMessages: DatabaseStructure.StatsMessage[] = [];
         let totalMessages: number = res.messages?.length || 0;
 
@@ -103,20 +103,23 @@ export default {
         let thirdActiveChannel = "";
 
         res.messages?.forEach((msg) => {
-            calculateMessageTime(
+            const result = calculateMessageTime(
                 msg,
                 nowTimestamp,
                 dailyTimeout,
                 weeklyTimeout,
                 monthlyTimeout,
                 dailyMessages,
-                weeklyMessage,
+                weeklyMessages,
                 monthlyMessages
             );
+            dailyMessages = result.dailyMessages;
+            weeklyMessages = result.weeklyMessages;
+            monthlyMessages = result.monthlyMessages;
         });
 
         res.voices?.forEach((voice) => {
-            calculateVoiceActivity(
+            const result = calculateVoiceActivity(
                 voice,
                 nowTimestamp,
                 dailyTimeout,
@@ -126,10 +129,20 @@ export default {
                 weeklyVoiceActivity,
                 monthlyVoiceActivity
             );
+            dailyVoiceActivity = result.dailyVoiceActivity;
+            weeklyVoiceActivity = result.weeklyVoiceActivity;
+            monthlyVoiceActivity = result.monthlyVoiceActivity;
         });
 
-        calculateActiveChannels(res.messages || [], firstActiveChannel, secondActiveChannel, thirdActiveChannel);
-        calculateActiveVoiceChannels(res.voices || [], firstActiveVoiceChannel, secondActiveVoiceChannel, thirdActiveVoiceChannel);
+        const activeChannels = calculateActiveChannels(res.messages || []);
+        firstActiveChannel = activeChannels.firstActiveChannel;
+        secondActiveChannel = activeChannels.secondActiveChannel;
+        thirdActiveChannel = activeChannels.thirdActiveChannel;
+
+        const activeVoiceChannels = calculateActiveVoiceChannels(res.voices || []);
+        firstActiveVoiceChannel = activeVoiceChannels.firstActiveVoiceChannel;
+        secondActiveVoiceChannel = activeVoiceChannels.secondActiveVoiceChannel;
+        thirdActiveVoiceChannel = activeVoiceChannels.thirdActiveVoiceChannel;
 
         let htmlContent = readFileSync(
             path.join(process.cwd(), 'src', 'assets', 'userStatsPage.html'),
@@ -139,7 +152,7 @@ export default {
         htmlContent = htmlContent
             .replaceAll('{header_h1_value}', data.header_h1_value)
             .replaceAll('{messages_word}', data.messages_word)
-            .replaceAll('{voice_activity}', data.messages_word)
+            .replaceAll('{voice_activity}', data.voice_activity)
             .replaceAll('{minutes_word}', data.minutes_word)
             .replaceAll('{top_voice}', data.top_voice)
             .replaceAll('{top_message}', data.top_message)
@@ -151,7 +164,7 @@ export default {
             .replaceAll('{voice_weekly}', String(Math.round(weeklyVoiceActivity / 1000 / 60)))
             .replaceAll('{voice_monthly}', String(Math.round(monthlyVoiceActivity / 1000 / 60)))
             .replaceAll('{message_daily}', String(dailyMessages.length))
-            .replaceAll('{message_weekly}', String(weeklyMessage.length))
+            .replaceAll('{message_weekly}', String(weeklyMessages.length))
             .replaceAll('{message_monthly}', String(monthlyMessages.length))
             .replaceAll('{messages_top1}', String(getChannelName(interaction.guild, firstActiveChannel)))
             .replaceAll('{messages_top2}', String(getChannelName(interaction.guild, secondActiveChannel)))
