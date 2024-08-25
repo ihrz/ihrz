@@ -1106,7 +1106,7 @@ export interface LanguageData {
   antispan_bypassroles_embed_desc: string;
   antispam_ignorechannels_embed_desc: string;
   header_h1_value: string;
-  messages_word: string;
+  voice_activity: string;
   messages_word: string;
   minutes_word: string;
   top_voice: string;
