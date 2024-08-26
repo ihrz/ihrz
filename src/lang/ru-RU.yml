@@ -314,6 +314,8 @@ help_confession_dsc: "Хотите сделать признание? Очень
 help_confession_fields: "Исповедь"
 help_antispam_dsc: "Надоел спам? Отлично! iHorizon здесь, чтобы модерировать спам!"
 help_antispam_fields: "AntiSpam"
+help_stats_fields: "Статистика пользователя"
+help_stats_dsc: "Посмотреть количество сообщений и голосовую активность пользователя в гильдии"
 
 # /say
 say_footer_msg: "\n\nОтправлено из `/говорить` от ${interaction.user}"

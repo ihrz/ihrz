@@ -314,6 +314,8 @@ help_confession_dsc: "Hai una confessione da fare? Molto bene, per quanto sordid
 help_confession_fields: "Confessione"
 help_antispam_dsc: "Stanco dello spam? Ottimo! iHorizon è qui per moderare lo spam!"
 help_antispam_fields: "AntiSpam"
+help_stats_fields: "Statistiche utente"
+help_stats_dsc: "Visualizza il numero di messaggi e l'attività vocale di un utente in una gilda"
 
 # /say
 say_footer_msg: "\n\nInviato da `/say` da ${interaction.user}"
