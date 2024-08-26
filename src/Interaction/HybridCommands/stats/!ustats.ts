@@ -76,7 +76,7 @@ export default {
         let res = (await client.db.get(`${interaction.guildId}.STATS.USER.${member.user.id}`)) as DatabaseStructure.UserStats | null;
 
         if (!res) {
-            return;
+            return await client.method.interactionSend(interaction, { content: data.unblacklist_user_is_not_exist })
         }
 
         let monthlyVoiceActivity = 0
