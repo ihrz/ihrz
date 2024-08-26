@@ -152,7 +152,7 @@ export default {
             .replaceAll('{top_message_users}', leaderboardData.map((user, index) => `
             <div class="list-item">
                 <span>${index + 1}. @${user.member?.username}</span>
-                <span>1d: ${user.dailyMessages} ${data.messages_word}, 7d: ${user.weeklyMessages} ${data.messages_word}, 30d: ${user.monthlyMessages} ${data.messages_word}</span>
+                <span>1d: ${user.dailyMessages} ${data.messages_word} ${(user.dailyVoiceActivity / 1000 / 60).toFixed(2)} ${data.minutes_word}, 7d: ${user.weeklyMessages} ${data.messages_word} ${(user.weeklyVoiceActivity / 1000 / 60).toFixed(2)} ${data.minutes_word}, 30d: ${user.monthlyMessages} ${data.messages_word} ${(user.monthlyVoiceActivity / 1000 / 60).toFixed(2)} ${data.minutes_word}</span>
             </div>
         `).join(''))
             .replaceAll('{top_text_channels}', `
