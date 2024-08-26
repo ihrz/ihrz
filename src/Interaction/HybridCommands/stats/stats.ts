@@ -55,7 +55,7 @@ import { SubCommandArgumentValue } from '../../../core/functions/method'; export
                         fr: "L'utilisateur que vous souhaiter"
                     },
 
-                    type: ApplicationCommandOptionType.String,
+                    type: ApplicationCommandOptionType.User,
                     required: false
                 }
             ],
