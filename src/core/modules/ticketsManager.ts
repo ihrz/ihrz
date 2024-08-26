@@ -495,7 +495,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
     await interaction.guild?.channels.create({
         name: `ticket-${interaction.user.username}`,
         type: ChannelType.GuildText,
-        parent: interaction instanceof StringSelectMenuInteraction ? (result.selection?.find(item => item.id === parseInt(interaction.values[0]))?.categoryId ?? category) : category
+        parent: interaction.guild.channels.cache.get(interaction instanceof StringSelectMenuInteraction ? (result.selection?.find(item => item.id === parseInt(interaction.values[0]))?.categoryId ?? category) : category)?.id || null
     }).then(async (channel) => {
         if (category) {
             channel.lockPermissions();
