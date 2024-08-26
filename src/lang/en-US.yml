@@ -314,6 +314,8 @@ help_confession_dsc: "Do you have a confession to make? Very well, no matter how
 help_confession_fields: "Confession"
 help_antispam_dsc: "Borring of spamming ? Noice! iHorizon is here, to moderate somes spamming!"
 help_antispam_fields: "AntiSpam"
+help_stats_fields: "User Stats"
+help_stats_dsc: "See messages amount and the voice activity on an user in a guild"
 
 # /say
 say_footer_msg: "\n\nSent from `/say` by ${interaction.user}"

@@ -249,6 +249,8 @@ export interface LanguageData {
   help_confession_fields: string;
   help_antispam_dsc: string;
   help_antispam_fields: string;
+  help_stats_fields: string;
+  help_stats_dscL: string;
   say_footer_msg: string;
   ping_down_msg: string;
   ping_embed_desc: string;
