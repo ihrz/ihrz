@@ -161,7 +161,7 @@ export class StreamNotifier {
                 if (!await this.mediaHaveAlreadyBeNotified(entry.guildId, media)) {
                     let guild = this.client.guilds.cache.get(entry.guildId);
                     let channel = guild?.channels.cache.get(entry.value.channelId) as BaseGuildTextChannel | undefined;
-                    let message = entry.value.message || `@everyone [${media.content.author}](<https://youtube.com/channel/${media.user.id_or_username}>) have published new video [Click Here](${media.content.link})`;
+                    let message = entry.value.message || `@everyone **[${media.content.author}](<https://youtube.com/channel/${media.user.id_or_username}>)** have published new video **[Click Here](${media.content.link})**`;
 
                     if (!channel) break;
                     await this.client.db.push(`${entry.guildId}.NOTIFIER.lastMediaNotified`, {
