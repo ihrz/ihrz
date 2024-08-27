@@ -316,6 +316,10 @@ help_antispam_dsc: "Надоел спам? Отлично! iHorizon здесь, 
 help_antispam_fields: "AntiSpam"
 help_stats_fields: "Статистика пользователя"
 help_stats_dsc: "Посмотреть количество сообщений и голосовую активность пользователя в гильдии"
+help_ownihrz_dsc: "Хостите и управляйте своим собственным ботом iHorizon! (OWNIHRZ)"
+help_ownihrz_fields: "OWNIHRZ"
+help_notifier_dsc: "Получайте уведомления, когда ютубер или стример публикует видео!"
+help_notifier_fields: "Уведомитель"
 
 # /say
 say_footer_msg: "\n\nОтправлено из `/говорить` от ${interaction.user}"

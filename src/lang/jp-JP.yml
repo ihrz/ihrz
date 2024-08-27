@@ -316,6 +316,10 @@ help_antispam_dsc: "スパムにうんざり？大丈夫！iHorizonがスパム�
 help_antispam_fields: "AntiSpam"
 help_stats_fields: "ユーザースタッツ"
 help_stats_dsc: "サーバー内のユーザーのメッセージ数と音声アクティビティを確認する"
+help_ownihrz_dsc: "カスタムiHorizonボットをホストして管理しよう！ (OWNIHRZ)"
+help_ownihrz_fields: "OWNIHRZ"
+help_notifier_dsc: "YouTuberやストリーマーが動画を公開したら通知を受け取ろう！"
+help_notifier_fields: "通知機能"
 
 # /say
 say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"

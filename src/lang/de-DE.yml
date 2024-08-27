@@ -316,6 +316,10 @@ help_antispam_dsc: "Genervt von Spam? Kein Problem! iHorizon ist da, um Spam zu 
 help_antispam_fields: "AntiSpam"
 help_stats_fields: "Benutzerstatistiken"
 help_stats_dsc: "Sieh dir die Anzahl der Nachrichten und die Sprachaktivität eines Benutzers in einer Gilde an"
+help_ownihrz_dsc: "Hoste und verwalte deinen eigenen benutzerdefinierten iHorizon-Bot! (OWNIHRZ)"
+help_ownihrz_fields: "OWNIHRZ"
+help_notifier_dsc: "Werde benachrichtigt, wenn ein YouTuber oder Streamer ein Video veröffentlicht!"
+help_notifier_fields: "Benachrichtigung"
 
 # /say
 say_footer_msg: "\n\nGesendet von `/sagen` von ${interaction.user}"
