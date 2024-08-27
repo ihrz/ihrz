@@ -89,7 +89,7 @@ export const command: Command = {
         if (await table.get(`${interaction.member.user.id}.owner`)
             !== true) {
 
-            await interaction.reply({ content: '❌', ephemeral: true });
+            await client.method.interactionSend(interaction, { content: lang.owner_not_owner, ephemeral: true });
             return;
         };
 
