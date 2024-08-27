@@ -63,17 +63,19 @@ export default {
         var profilePictureRound: any = ImageBannerOptions?.profilePictureRound || "status";
         var textColour = ImageBannerOptions?.textColour || "#000000"
         var message = ImageBannerOptions?.message || "Welcome {memberUsername} to {guildName}<br>We are now {memberCount} in the guild";
+        var textSize = ImageBannerOptions?.textSize || "40px";
+        var avatarSize = ImageBannerOptions?.avatarSize || "140px";
 
         message = client.method.generateCustomMessagePreview(message, {
             user: interaction.user,
             guild: interaction.guild,
             guildLocal: guildLocal
         })
-        await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinbanner`, { backgroundURL, profilePictureRound, textColour, message })
+        await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinbanner`, { backgroundURL, profilePictureRound, textColour, message, textSize, avatarSize })
 
         joinMessage = joinMessage?.substring(0, 1010);
 
-        let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL: backgroundURL, profilePictureRound, textColour, message }))!;
+        let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message, textSize, avatarSize }))!;
         let helpembed_fields = [
             {
                 name: data.setjoinmessage_help_embed_fields_custom_name,
@@ -198,7 +200,7 @@ export default {
                     let emb = [helpEmbed]
                     let files = [];
 
-                    if (ImageBannerStates === "on") emb.push(helpEmbed2) && files.push((await generateJoinImage(interaction.member as GuildMember, { backgroundURL: backgroundURL, profilePictureRound, textColour, message }))!);
+                    if (ImageBannerStates === "on") emb.push(helpEmbed2) && files.push((await generateJoinImage(interaction.member as GuildMember, { backgroundURL: backgroundURL, profilePictureRound, textColour, message, textSize, avatarSize }))!);
 
                     await message2.edit({ embeds: emb, files: files });
 
@@ -237,7 +239,7 @@ export default {
                 let emb = [helpEmbed]
                 let files = [];
 
-                if (ImageBannerStates === "on") emb.push(helpEmbed2) && files.push((await generateJoinImage(interaction.member as GuildMember, { backgroundURL: backgroundURL, profilePictureRound, textColour, message }))!);
+                if (ImageBannerStates === "on") emb.push(helpEmbed2) && files.push((await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message, textSize, avatarSize }))!);
 
                 await message2.edit({ embeds: emb, files: files });
 
@@ -270,6 +272,12 @@ export default {
                         new StringSelectMenuOptionBuilder()
                             .setLabel("Change Text Message")
                             .setValue("change_text_message"),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel("Change Text Size")
+                            .setValue("change_text_size"),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel("Change Avatar Size")
+                            .setValue("change_avatar_size"),
                     );
 
                 let attachment = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(stringSelectMenu);
@@ -301,7 +309,7 @@ export default {
 
                     backgroundURL = res?.fields.getTextInputValue("url")!;
 
-                    let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message }))!;
+                    let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message, textSize, avatarSize }))!;
                     await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], files: [attachment], components: [buttons, buttons2] })
                 } else if (i1.values[0] === "change_frame") {
                     await i1.deferUpdate();
@@ -331,7 +339,7 @@ export default {
 
                     profilePictureRound = i.values[0];
 
-                    let attachment2 = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message }))!;
+                    let attachment2 = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message, textSize, avatarSize }))!;
                     await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], files: [attachment2], components: [buttons, buttons2] })
                 } else if (i1.values[0] === "change_text_colour") {
                     let res = await iHorizonModalResolve({
@@ -359,7 +367,7 @@ export default {
 
                     await res?.deferUpdate();
 
-                    let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message }))!;
+                    let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message, textSize, avatarSize }))!;
                     await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], files: [attachment], components: [buttons, buttons2] })
                 } else if (i1.values[0] === "change_text_message") {
                     let res = await iHorizonModalResolve({
@@ -385,11 +393,92 @@ export default {
                         guildLocal: guildLocal
                     });
 
-                    let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL: backgroundURL, profilePictureRound, textColour, message }))!;
+                    let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message, textSize, avatarSize }))!;
                     await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], files: [attachment], components: [buttons, buttons2] });
+                } else if (i1.values[0] === "change_text_size") {
+                    await i1.deferUpdate()
+
+                    let stringSelectMenu = new StringSelectMenuBuilder()
+                        .setCustomId("test")
+                        .addOptions(
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel("Text Size: 0.5")
+                                .setValue("20px"),
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel("Text Size: 1")
+                                .setValue("40px"),
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel("Text Size: 1.5")
+                                .setValue("60px"),
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel("Text Size: 2")
+                                .setValue("80px"),
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel("Text Size: 3")
+                                .setValue("120px"),
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel("Text Size: 4")
+                                .setValue("160px"),
+                        );
+
+                    let attachment = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(stringSelectMenu);
+
+                    let msg = await buttonInteraction.editReply({ components: [attachment] });
+
+                    let i = await msg.awaitMessageComponent({
+                        componentType: ComponentType.StringSelect,
+                        time: 1_250_000,
+                        // filter: (x) => x.user.id !== interaction.user.id
+                    });
+
+                    i.deferUpdate()
+
+                    textSize = i.values[0];
+
+                    let attachment2 = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message, textSize, avatarSize }))!;
+                    await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], files: [attachment2], components: [buttons, buttons2] });
+                } else if (i1.values[0] === "change_avatar_size") {
+                    await i1.deferUpdate()
+
+                    let stringSelectMenu = new StringSelectMenuBuilder()
+                        .setCustomId("test")
+                        .addOptions(
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel("Avatar Size: 0.5")
+                                .setValue("70px"),
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel("Avatar Size: 1")
+                                .setValue("140px"),
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel("Avatar Size: 1.5")
+                                .setValue("210px"),
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel("Avatar Size: 2")
+                                .setValue("280px"),
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel("Avatar Size: 3")
+                                .setValue("430px"),
+                        );
+
+                    let attachment = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(stringSelectMenu);
+
+                    let msg = await buttonInteraction.editReply({ components: [attachment] });
+
+                    let i = await msg.awaitMessageComponent({
+                        componentType: ComponentType.StringSelect,
+                        time: 1_250_000,
+                        // filter: (x) => x.user.id !== interaction.user.id
+                    });
+
+                    i.deferUpdate()
+
+                    avatarSize = i.values[0];
+
+                    let attachment2 = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message, textSize, avatarSize }))!;
+                    await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], files: [attachment2], components: [buttons, buttons2] });
                 };
 
-                await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinbanner`, { backgroundURL, profilePictureRound, textColour, message })
+                await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinbanner`, { backgroundURL, profilePictureRound, textColour, message, textSize, avatarSize })
             } else if (buttonInteraction.customId === "joinMessage-default-image") {
                 backgroundURL = "https://img.freepik.com/vecteurs-libre/fond-courbe-bleue_53876-113112.jpg";
                 profilePictureRound = "status";
@@ -399,17 +488,19 @@ export default {
                     guild: interaction.guild!,
                     guildLocal: guildLocal
                 })
+                avatarSize = "140px"
+                textSize = "40px"
 
                 await buttonInteraction.deferUpdate();
 
-                let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL: backgroundURL, profilePictureRound, textColour, message }))!;
+                let attachment = (await generateJoinImage(interaction.member as GuildMember, { textSize, backgroundURL, profilePictureRound, textColour, message, avatarSize }))!;
                 await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], files: [attachment], components: [buttons, buttons2] });
                 await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinbanner`)
             } else if (buttonInteraction.customId === "joinMessage-delete-image") {
                 await buttonInteraction.deferUpdate();
 
                 if (ImageBannerStates === "off") {
-                    let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL: backgroundURL, profilePictureRound, textColour, message }))!;
+                    let attachment = (await generateJoinImage(interaction.member as GuildMember, { textSize, backgroundURL, profilePictureRound, textColour, message, avatarSize }))!;
                     await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinbannerStates`, "on")
                     ImageBannerStates = "on";
 

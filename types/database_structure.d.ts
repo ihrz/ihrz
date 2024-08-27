@@ -292,6 +292,8 @@ export namespace DatabaseStructure {
         profilePictureRound: "hexProfileColor" | "status";
         message: string;
         textColour: string;
+        textSize: string;
+        avatarSize: string;
     }
 
     export interface GuildConfigSchema {
