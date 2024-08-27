@@ -202,7 +202,6 @@ export default {
         });
 
         collector.on('end', async () => {
-            interaction.followUp({ content: data.setjoinroles_var_timesup, ephemeral: true });
             comp.components.forEach(x => {
                 x.setDisabled(true)
             });

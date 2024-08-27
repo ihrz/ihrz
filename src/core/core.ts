@@ -88,7 +88,7 @@ export async function main(client: Client) {
     process.on('SIGINT', async () => {
         client.destroy();
         await new OwnIHRZ().QuitProgram(client);
-        process.exit();
+        if (client.config.database?.method !== "CACHED_SQL") process.exit();
     });
 
     assetsCalc(client);
