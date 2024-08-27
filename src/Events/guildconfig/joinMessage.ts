@@ -37,12 +37,16 @@ export async function generateJoinImage(member: GuildMember, optionalOptions?: D
         user: member.user,
         guild: member.guild,
         guildLocal: "en-US"
-    })
+    });
+    var textSize = "40px";
+    var avatarSize = "140px"
 
     if (optionalOptions) {
         backgroundURL = optionalOptions.backgroundURL;
         textColour = optionalOptions.textColour;
         textMessage = optionalOptions.message;
+        textSize = optionalOptions.textSize;
+        avatarSize = optionalOptions.avatarSize;
 
         if (optionalOptions.profilePictureRound === "status") {
             switch (member.presence?.status) {
@@ -63,8 +67,10 @@ export async function generateJoinImage(member: GuildMember, optionalOptions?: D
         }
     } else if (ImageBannerOptions) {
         backgroundURL = ImageBannerOptions.backgroundURL;
-        textColour = ImageBannerOptions.textColour
-        textMessage = ImageBannerOptions.message
+        textColour = ImageBannerOptions.textColour;
+        textMessage = ImageBannerOptions.message;
+        textSize = ImageBannerOptions.textSize;
+        avatarSize = ImageBannerOptions.avatarSize;
 
         if (ImageBannerOptions.profilePictureRound === "status") {
             switch (member.presence?.status) {
@@ -94,6 +100,8 @@ export async function generateJoinImage(member: GuildMember, optionalOptions?: D
         .replaceAll("BACKGROUNDURL", `url('${backgroundURL}')`)
         .replaceAll("#aa9999", textColour)
         .replaceAll("MSG", textMessage)
+        .replaceAll("40px", textSize)
+        .replaceAll("140px", avatarSize)
 
     var image = await member.client.method.imageManipulation.html2Png(htmlContent);
     return new AttachmentBuilder(image, { name: "image.png" })

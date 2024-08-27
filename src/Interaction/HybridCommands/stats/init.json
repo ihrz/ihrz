@@ -4,7 +4,7 @@
         "categoryColor": "#258bd9",
         "options": {
             "description": "help_stats_dsc",
-            "emoji": "👥",
+            "emoji": "📊",
             "placeholder": "help_stats_fields"
         }
     }
