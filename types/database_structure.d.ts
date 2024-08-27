@@ -242,6 +242,23 @@ export namespace DatabaseStructure {
         }
     }
 
+    export interface NotifierUserSchema {
+        id_or_username: string;
+        platform: string;
+    }
+
+    export interface NotifierLastNotifiedMedias {
+        userId: string;
+        mediaId: string;
+    }
+
+    export interface NotifierSchema {
+        message?: string;
+        users?: NotifierUserSchema[];
+        lastMediaNotified?: NotifierLastNotifiedMedias[];
+        channelId: string;
+    }
+
     export interface DbInId {
         USER?: DbGuildUserObject;
         GUILD?: DbGuildObject;
@@ -249,6 +266,7 @@ export namespace DatabaseStructure {
         PROTECTION?: ProtectionData;
         ROLE_SAVER?: RoleSaverData;
         ALLOWLIST?: AllowListData;
+        NOTIFIER?: NotifierSchema
         SUGGEST?: SuggestSchema;
         SUGGESTION?: SuggestionData;
         ECONOMY?: {
