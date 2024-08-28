@@ -57,7 +57,7 @@ export default {
         if (state === 'on') {
 
             if (!current_state) {
-                await client.method.interactionSend(interaction,{
+                await client.method.interactionSend(interaction, {
                     content: lang.economy_disable_already_enable
                         .replace('${interaction.user.id}', interaction.member.user.id)
                 });
@@ -66,14 +66,14 @@ export default {
 
             await client.db.set(`${interaction.guildId}.ECONOMY.disabled`, false);
 
-            await client.method.interactionSend(interaction,{
+            await client.method.interactionSend(interaction, {
                 content: lang.economy_disable_set_enable
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
         } else if (state === 'off') {
 
             if (current_state) {
-                await client.method.interactionSend(interaction,{
+                await client.method.interactionSend(interaction, {
                     content: lang.economy_disable_already_disable
                         .replace('${interaction.user.id}', interaction.member.user.id)
                 });
@@ -82,23 +82,17 @@ export default {
 
             await client.db.set(`${interaction.guildId}.ECONOMY.disabled`, true);
 
-            await client.method.interactionSend(interaction,{
+            await client.method.interactionSend(interaction, {
                 content: lang.economy_disable_set_disable
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
         };
 
-        try {
-            let logEmbed = new EmbedBuilder()
-                .setColor("#bf0bb9")
-                .setTitle(lang.economy_disable_logs_embed_title)
-                .setDescription(lang.economy_disable_logs_embed_desc
-                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
-                    .replace('${state}', state)
-                );
-
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-            if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
-        } catch (e) { return; };
+        await client.method.iHorizonLogs.send(interaction, {
+            title: lang.economy_disable_logs_embed_title,
+            description: lang.economy_disable_logs_embed_desc
+                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+                .replace('${state}', state)
+        });
     },
 };

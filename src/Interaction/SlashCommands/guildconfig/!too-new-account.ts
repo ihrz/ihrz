@@ -60,24 +60,13 @@ export default {
 
             let beautifulTime = client.timeCalculator.to_beautiful_string(calculatedTime);
 
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
-                    .setTitle(data.too_new_account_logEmbed_title)
-                    .setDescription(data.too_new_account_logEmbed_desc_on_enable
-                        .replace('${interaction.user}', interaction.user.toString())
-                        .replace('${beautifulTime}', beautifulTime.toString())
-                        .replace('${interaction.guild?.name}', beautifulTime.toString())
-
-                    );
-
-                let logChannel = interaction.guild.channels.cache.find((channel) => channel.name === 'ihorizon-logs');
-                if (logChannel) {
-                    (logChannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
-                }
-            } catch (e: any) {
-                logger.err(e);
-            }
+            await client.method.iHorizonLogs.send(interaction, {
+                title: data.too_new_account_logEmbed_title,
+                description: data.too_new_account_logEmbed_desc_on_enable
+                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${beautifulTime}', beautifulTime.toString())
+                    .replace('${interaction.guild?.name}', beautifulTime.toString())
+            });
 
             await client.db.set(`${interaction.guildId}.GUILD.BLOCK_NEW_ACCOUNT`, {
                 state: true,
@@ -93,21 +82,11 @@ export default {
             return;
 
         } else if (action === 'off') {
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
-                    .setTitle(data.too_new_account_logEmbed_title)
-                    .setDescription(data.too_new_account_logEmbed_desc_on_disable
-                        .replace('${interaction.user}', interaction.user.toString())
-                    );
-
-                let logChannel = interaction.guild.channels.cache.find((channel) => channel.name === 'ihorizon-logs');
-                if (logChannel) {
-                    (logChannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
-                }
-            } catch (e: any) {
-                logger.err(e);
-            }
+            await client.method.iHorizonLogs.send(interaction, {
+                title: data.too_new_account_logEmbed_title,
+                description: data.too_new_account_logEmbed_desc_on_disable
+                    .replace('${interaction.user}', interaction.user.toString())
+            });
 
             await client.db.delete(`${interaction.guildId}.GUILD.BLOCK_NEW_ACCOUNT`);
 

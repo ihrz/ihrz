@@ -92,18 +92,11 @@ export default {
             })
             .catch((err: string) => logger.err(err));
 
-        try {
-            let logEmbed = new EmbedBuilder().setColor("#bf0bb9").setTitle(data.unban_logs_embed_title)
-                .setDescription(data.unban_logs_embed_description
-                    .replace(/\${userID}/g, userID as string)
-                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
-                )
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-            if (logchannel) {
-                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
-            };
-        } catch (e: any) {
-            logger.err(e);
-        };
+        await client.method.iHorizonLogs.send(interaction, {
+            title: data.unban_logs_embed_title,
+            description: data.unban_logs_embed_description
+                .replace(/\${userID}/g, userID as string)
+                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+        });
     },
 };

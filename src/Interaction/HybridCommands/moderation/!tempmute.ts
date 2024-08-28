@@ -97,22 +97,12 @@ export default {
             });
         }, mutetimeMS);
 
-        try {
-            let logEmbed = new EmbedBuilder()
-                .setColor("#bf0bb9")
-                .setTitle(data.tempmute_logs_embed_title)
-                .setDescription(data.tempmute_logs_embed_description
-                    .replace("${interaction.user.id}", interaction.member.user.id)
-                    .replace("${tomute.id}", tomute.id)
-                    .replace("${ms(ms(mutetime))}", mutetimeString)
-                )
-
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-            if (logchannel) {
-                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-            };
-        } catch (e: any) {
-            logger.err(e)
-        };
+        await client.method.iHorizonLogs.send(interaction, {
+            title: data.tempmute_logs_embed_title,
+            description: data.tempmute_logs_embed_description
+                .replace("${interaction.user.id}", interaction.member.user.id)
+                .replace("${tomute.id}", tomute.id)
+                .replace("${ms(ms(mutetime))}", mutetimeString)
+        });
     },
 };

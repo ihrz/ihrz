@@ -316,6 +316,10 @@ help_antispam_dsc: "Stanco dello spam? Ottimo! iHorizon è qui per moderare lo s
 help_antispam_fields: "AntiSpam"
 help_stats_fields: "Statistiche utente"
 help_stats_dsc: "Visualizza il numero di messaggi e l'attività vocale di un utente in una gilda"
+help_ownihrz_dsc: "Ospita e gestisci il tuo bot personalizzato di iHorizon! (OWNIHRZ)"
+help_ownihrz_fields: "OWNIHRZ"
+help_notifier_dsc: "Ricevi una notifica quando un Youtuber o Streamer pubblica un video!"
+help_notifier_fields: "Notificatore"
 
 # /say
 say_footer_msg: "\n\nInviato da `/say` da ${interaction.user}"
@@ -1536,6 +1540,25 @@ minutes_word: "Minuti"
 top_voice: "Canali vocali principali"
 top_message: "Canali di messaggi principali"
 
+
+# Modulo di Notifica
+# autore della notifica, configurazione della notifica
+
+# /notifier author add
+notifier_author_add_author_doesnt_exist: "L'autore non esiste. Verifica l'ID."
+
+# /notifier config channel
+notifier_config_channel_logsEmbed_title: "Modulo del Canale di Notifica"
+notifier_config_channel_logsEmbed_desc: "${interaction.user.id} ha impostato il modulo del Canale di Notifica su ${channel}"
+notifier_config_message_command_ok: "Ora, quando uno Streamer/YouTuber/Twitcher pubblica un video, invierò un messaggio in ${channel.toString()}"
+
+# /notifier config message
+notifier_config_message_helpEmbed_title: "Messaggio di Notifica Personalizzato"
+notifier_config_message_helpEmbed_desc: "{artistAuthor} => Il nome utente dello Streamer/YouTuber\n{artistLink} => Il link al canale dello Streamer/YouTuber\n{mediaURL} => L'URL del video dello Streamer/YouTuber"
+notifier_config_message_embed_fields_notifyMessage: "Messaggio di Notifica"
+notifier_config_message_awaiting_response: "Scrivi il messaggio di notifica."
+notifier_config_message_command_work_on_enable: "Abilitazione del lavoro sul messaggio di notifica."
+
 # -----------------------------/ \-----------------------------
 # Eventi del Modulo Confessioni
 confession_module_modal_title: "Invia una confessione"
@@ -1745,5 +1768,14 @@ hybridcommands_embed_help_title: "Incorporamento di Aiuto di ${commandName}"
 hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Uso:** ${use}"
 
 ping_bot_show_info_msg: "Ciao ${message.author.toString()}, sono al 100% in `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) e utilizzabile al 85% in comando prefisso. Il mio prefisso su **questo server** è `${prefix}` !"
+
+# Modulo di Notifica
+notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** ha pubblicato un nuovo video [Clicca qui]({mediaURL})"
+notifier_on_new_media_default_button_label: "Guarda!"
+notifier_generateAuthorsEmbed_embed_desc: "Questa è la lista di tutti gli Streamer/YouTuber:\n"
+notifier_generateAuthorsEmbed_embed_title: "Tutti gli Streamer/YouTuber nel server"
+notifier_generateConfigurationEmbed_embed_title: "Configurazione del Modulo di Notifica"
+notifier_generateConfigurationEmbed_embed_fields_1_name: "Canale di Notifica"
+notifier_generateConfigurationEmbed_embed_fields_2_name: "Messaggio di Notifica"
 
 # -----------------------------\ /-----------------------------

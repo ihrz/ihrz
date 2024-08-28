@@ -316,6 +316,10 @@ help_antispam_dsc: "スパムにうんざり？大丈夫！iHorizonがスパム�
 help_antispam_fields: "AntiSpam"
 help_stats_fields: "ユーザースタッツ"
 help_stats_dsc: "サーバー内のユーザーのメッセージ数と音声アクティビティを確認する"
+help_ownihrz_dsc: "カスタムiHorizonボットをホストして管理しよう！ (OWNIHRZ)"
+help_ownihrz_fields: "OWNIHRZ"
+help_notifier_dsc: "YouTuberやストリーマーが動画を公開したら通知を受け取ろう！"
+help_notifier_fields: "通知機能"
 
 # /say
 say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
@@ -1536,6 +1540,25 @@ minutes_word: "分"
 top_voice: "トップ音声チャンネル"
 top_message: "トップメッセージチャンネル"
 
+
+# 通知モジュール
+# 通知の作成者, 通知の設定
+
+# /notifier author add
+notifier_author_add_author_doesnt_exist: "作成者が存在しません。IDを確認してください。"
+
+# /notifier config channel
+notifier_config_channel_logsEmbed_title: "通知チャンネルモジュール"
+notifier_config_channel_logsEmbed_desc: "${interaction.user.id} が通知チャンネルモジュールを ${channel} に設定しました"
+notifier_config_message_command_ok: "これで、ストリーマー/ユーチューバー/ツイッチャーが動画を公開すると、${channel.toString()} にメッセージを送信します"
+
+# /notifier config message
+notifier_config_message_helpEmbed_title: "カスタム通知メッセージ"
+notifier_config_message_helpEmbed_desc: "{artistAuthor} => ストリーマー/ユーチューバーのユーザー名\n{artistLink} => ストリーマー/ユーチューバーのチャンネルリンク\n{mediaURL} => ストリーマー/ユーチューバーの動画URL"
+notifier_config_message_embed_fields_notifyMessage: "通知メッセージ"
+notifier_config_message_awaiting_response: "通知メッセージを書いてください。"
+notifier_config_message_command_work_on_enable: "通知メッセージの有効化作業中。"
+
 # -----------------------------/ \-----------------------------
 # 告白モジュールイベント
 confession_module_modal_title: "告白を送る"
@@ -1745,5 +1768,14 @@ hybridcommands_embed_help_title: "${commandName} ヘルプ埋め込み"
 hybridcommands_embed_help_fields_value: "**エイリアス:** ${aliases}\n**使用法:** ${use}"
 
 ping_bot_show_info_msg: "こんにちは ${message.author.toString()}、私は `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) で100%使用可能で、プレフィックスコマンドで85%以上使用可能です。このサーバーのプレフィックスは `${prefix}` です！"
+
+# 通知モジュール
+notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** が新しい動画を公開しました [ここをクリック]({mediaURL})"
+notifier_on_new_media_default_button_label: "チェックする！"
+notifier_generateAuthorsEmbed_embed_desc: "これはすべてのストリーマー/ユーチューバーのリストです:\n"
+notifier_generateAuthorsEmbed_embed_title: "サーバー内のすべてのストリーマー/ユーチューバー"
+notifier_generateConfigurationEmbed_embed_title: "通知モジュールの設定"
+notifier_generateConfigurationEmbed_embed_fields_1_name: "通知チャンネル"
+notifier_generateConfigurationEmbed_embed_fields_2_name: "通知メッセージ"
 
 # -----------------------------\ /-----------------------------

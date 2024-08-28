@@ -279,7 +279,9 @@ class GiveawayManager {
     public async finish(client: Client, giveawayId: string, guildId: string, channelId: string) {
         let lang = await getLanguageData(guildId);
 
-        let fetch = db.GetGiveawayData(giveawayId)!;
+        let fetch = db.GetGiveawayData(giveawayId);
+
+        if (!fetch) return;
 
         if (!fetch.ended || fetch.ended === 'End()') {
             let guild = await client.guilds.fetch(guildId).catch(async () => {

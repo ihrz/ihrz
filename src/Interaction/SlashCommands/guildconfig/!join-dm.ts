@@ -102,22 +102,11 @@ export default {
                 questionReply?.on('collect', async collected => {
                     let response = collected.content.substring(0, 1010);
 
-                    try {
-                        let logEmbed = new EmbedBuilder()
-                            .setColor("#bf0bb9")
-                            .setTitle(data.setjoindm_logs_embed_title_on_enable)
-                            .setDescription(data.setjoindm_logs_embed_description_on_enable
-                                .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                            );
-
-                        let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-                        if (logchannel) {
-                            (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-                        };
-                    } catch (e: any) {
-                        logger.err(e)
-                    };
+                    await client.method.iHorizonLogs.send(interaction, {
+                        title: data.setjoindm_logs_embed_title_on_enable,
+                        description: data.setjoindm_logs_embed_description_on_enable
+                            .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                    });
 
                     await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`, response);
 
@@ -133,17 +122,11 @@ export default {
                 });
             } else if (collectInteraction.customId === "joinMessage-default-message") {
                 await collectInteraction.deferUpdate();
-
-                try {
-                    let logEmbed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
-                        .setTitle(data.setjoindm_logs_embed_title_on_disable)
-                        .setDescription(data.setjoindm_logs_embed_description_on_disable
-                            .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                        )
-                    let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-                } catch { };
+                await client.method.iHorizonLogs.send(interaction, {
+                    title: data.setjoindm_logs_embed_title_on_disable,
+                    description: data.setjoindm_logs_embed_description_on_disable
+                        .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                });
 
                 let already_off = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`);
 
