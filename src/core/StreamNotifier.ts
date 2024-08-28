@@ -243,9 +243,15 @@ export class StreamNotifier {
 
             const { access_token, expires_in } = response.data;
             this.twitchAccessToken = access_token;
-            this.twitchAccessTokenExpireIn = expires_in;
+            this.twitchAccessTokenExpireIn = Date.now() + expires_in * 1000;
         } catch (error) {
-            throw error;
+            throw new Error(`Failed to get app access token: ${error}`);
+        }
+    }
+
+    private async ensureValidAccessToken(): Promise<void> {
+        if (!this.twitchAccessToken || !this.twitchAccessTokenExpireIn || Date.now() >= this.twitchAccessTokenExpireIn) {
+            await this.getAppAccessToken();
         }
     }
 
@@ -281,6 +287,7 @@ export class StreamNotifier {
     }
 
     private async refresh() {
+        await this.ensureValidAccessToken();
         const guildsData = await this.getGuildsData();
 
         for (let entry of guildsData) {
