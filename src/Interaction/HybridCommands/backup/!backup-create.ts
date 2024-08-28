@@ -87,23 +87,11 @@ export default {
                     .replace("${backupData.id}", backupData.id)
             });
 
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                    .setTitle(data.backup_logs_embed_title_on_creation)
-                    .setDescription(data.backup_logs_embed_description_on_creation
-                        .replace('${interaction.user.id}', interaction.member?.user.id!)
-                    );
-
-                let logchannel = interaction.guild?.channels.cache.find((channel: {
-                    name: string;
-                }) => channel.name === 'ihorizon-logs');
-
-                if (!logchannel) return;
-                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
-            } catch (e: any) {
-                logger.err(e)
-            };
+            await client.method.iHorizonLogs.send(interaction, {
+                title: data.backup_logs_embed_title_on_creation,
+                description: data.backup_logs_embed_description_on_creation
+                    .replace('${interaction.user.id}', interaction.member?.user.id!)
+            });
         });
     },
 };

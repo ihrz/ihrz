@@ -31,13 +31,13 @@ export async function html2Png(
         omitBackground: boolean;
         selectElement: boolean;
     } = {
-        width: 1280,
-        height: 800,
-        scaleSize: 1,
-        elementSelector: '.container',
-        omitBackground: false,
-        selectElement: false,
-    }
+            width: 1280,
+            height: 800,
+            scaleSize: 1,
+            elementSelector: '.container',
+            omitBackground: false,
+            selectElement: false,
+        }
 ): Promise<Buffer> {
     let browser;
     try {
@@ -82,7 +82,6 @@ export async function html2Png(
 
         return Buffer.from(imageBuffer);
     } catch (error) {
-        console.error('Error capturing screenshot:', error);
         throw error;
     } finally {
         if (browser) {

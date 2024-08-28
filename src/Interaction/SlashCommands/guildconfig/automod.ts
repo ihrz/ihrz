@@ -24,6 +24,7 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     ApplicationCommandType,
+    ChannelType,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
@@ -88,7 +89,9 @@ export const command: Command = {
                             },
 
                             type: ApplicationCommandOptionType.Channel,
-                            required: false
+                            channel_types: [ChannelType.GuildText],
+
+                            required: false,
                         }
                     ],
                 },
@@ -132,6 +135,8 @@ export const command: Command = {
                             },
 
                             type: ApplicationCommandOptionType.Channel,
+                            channel_types: [ChannelType.GuildText],
+
                             required: false
                         }
                     ],
@@ -176,6 +181,8 @@ export const command: Command = {
                             },
 
                             type: ApplicationCommandOptionType.Channel,
+                            channel_types: [ChannelType.GuildText],
+
                             required: false
                         }
                     ],
@@ -231,6 +238,8 @@ export const command: Command = {
                             },
 
                             type: ApplicationCommandOptionType.Channel,
+                            channel_types: [ChannelType.GuildText],
+
                             required: false
                         }
                     ],

@@ -42,6 +42,7 @@ import assetsCalc from "./functions/assetsCalc.js";
 import database from './functions/DatabaseModel.js';
 import { readFile } from 'node:fs/promises';
 import { getToken } from './functions/getToken.js';
+import { StreamNotifier } from './StreamNotifier.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -87,6 +88,7 @@ export async function main(client: Client) {
     client.timeCalculator = new iHorizonTimeCalculator();
     client.lyricsSearcher = new LyricsManager();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
+    client.notifier = new StreamNotifier(client, process.env.TWITCH_APPLICATION_ID || "", process.env.TWITCH_APPLICATION_SECRET || "");
 
     let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
     let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));

@@ -65,20 +65,12 @@ export default {
                 value: all_channels ? Array.from(new Set(all_channels.map(x => `<#${x}>`))).join('\n') : `<#${channel.id}>`
             });
 
-        try {
-            let logEmbed = new EmbedBuilder()
-                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                .setTitle(data.joinghostping_add_logs_embed_title)
-                .setDescription(data.joinghostping_add_logs_embed_desc
-                    .replace('${interaction.user}', interaction.user.toString())
-                    .replace('${channel}', channel.toString())
-                )
-
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-            if (logchannel) {
-                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-            }
-        } catch { };
+        await client.method.iHorizonLogs.send(interaction, {
+            title: data.joinghostping_add_logs_embed_title,
+            description: data.joinghostping_add_logs_embed_desc
+                .replace('${interaction.user}', interaction.user.toString())
+                .replace('${channel}', channel.toString())
+        });
 
         await interaction.reply({ embeds: [embed] });
         return;

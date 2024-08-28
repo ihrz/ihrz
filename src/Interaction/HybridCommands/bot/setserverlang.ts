@@ -140,18 +140,12 @@ export const command: Command = {
         await client.db.set(`${interaction.guildId}.GUILD.LANG`, { lang: type });
         lang = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
-        try {
-            let logEmbed = new EmbedBuilder()
-                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                .setTitle(lang.setserverlang_logs_embed_title_on_enable)
-                .setDescription(lang.setserverlang_logs_embed_description_on_enable
-                    .replace(/\${type}/g, type!)
-                    .replace(/\${interaction\.user.id}/g, interaction.member.user.id)
-                );
-
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-            if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
-        } catch (e: any) { logger.err(e) };
+        await client.method.iHorizonLogs.send(interaction, {
+            title: lang.setserverlang_logs_embed_title_on_enable,
+            description: lang.setserverlang_logs_embed_description_on_enable
+                .replace(/\${type}/g, type!)
+                .replace(/\${interaction\.user.id}/g, interaction.member.user.id)
+        });
 
         await client.method.interactionSend(interaction, { content: lang.setserverlang_command_work_enable.replace(/\${type}/g, type!) });
         return;

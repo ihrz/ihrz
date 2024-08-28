@@ -29,6 +29,7 @@ import ping from 'ping';
 
 import { BotEvent } from '../../../types/event.js';
 import { GiveawayManager } from '../../core/modules/giveawaysManager.js';
+import { StreamNotifier } from '../../core/StreamNotifier.js';
 
 export const event: BotEvent = {
     name: "ready",
@@ -134,6 +135,7 @@ export const event: BotEvent = {
         });
 
         await client.player.init({ id: client.user?.id as string, username: 'bot_' + client.user?.id });
+        await client.notifier.start();
 
         setInterval(quotesPresence, 80_000), setInterval(refreshSchedule, 15_000);
 

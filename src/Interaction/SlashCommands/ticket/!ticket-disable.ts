@@ -42,37 +42,19 @@ export default {
         let type = interaction.options.getString('action');
 
         if (type === "off") {
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                    .setTitle(data.disableticket_logs_embed_title_disable)
-                    .setDescription(data.disableticket_logs_embed_description_disable.replace(/\${interaction\.user\.id}/g, interaction.user.id));
-
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) {
-                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-                }
-            } catch (e: any) {
-                logger.err(e)
-            };
+            await client.method.iHorizonLogs.send(interaction, {
+                title: data.disableticket_logs_embed_title_disable,
+                description: data.disableticket_logs_embed_description_disable.replace(/\${interaction\.user\.id}/g, interaction.user.id)
+            });
 
             await client.db.set(`${interaction.guildId}.GUILD.TICKET.disable`, true);
             await interaction.editReply({ content: data.disableticket_command_work_disable });
             return;
         } else if (type === "on") {
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                    .setTitle(data.disableticket_logs_embed_title_enable)
-                    .setDescription(data.disableticket_logs_embed_description_enable.replace(/\${interaction\.user\.id}/g, interaction.user.id));
-
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) {
-                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-                }
-            } catch (e: any) {
-                logger.err(e)
-            };
+            await client.method.iHorizonLogs.send(interaction, {
+                title: data.disableticket_logs_embed_title_enable,
+                description: data.disableticket_logs_embed_description_enable.replace(/\${interaction\.user\.id}/g, interaction.user.id)
+            });
 
             await client.db.set(`${interaction.guildId}.GUILD.TICKET.disable`, false);
             await interaction.editReply({ content: data.disableticket_command_work_enable });

@@ -70,23 +70,13 @@ export default {
                         .replace(/\${messages\.size}/g, messages.size.toString())
                 });
 
-                try {
-                    let logEmbed = new EmbedBuilder()
-                        .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                        .setTitle(data.clear_logs_embed_title)
-                        .setDescription(data.clear_logs_embed_description
-                            .replace(/\${interaction\.user\.id}/g, interaction.member?.user.id!)
-                            .replace(/\${messages\.size}/g, messages.size.toString())
-                            .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id!)
-                        )
-                    let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-                    if (logchannel) {
-                        (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
-                    };
-                } catch (e: any) {
-                    logger.err(e)
-                };
+                await client.method.iHorizonLogs.send(interaction, {
+                    title: data.clear_logs_embed_title,
+                    description: data.clear_logs_embed_description
+                        .replace(/\${interaction\.user\.id}/g, interaction.member?.user.id!)
+                        .replace(/\${messages\.size}/g, messages.size.toString())
+                        .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id!)
+                });
             });
     },
 };

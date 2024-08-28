@@ -178,22 +178,11 @@ export default {
 
                 await og_response.edit({ components: [newComp_2] })
 
-                try {
-                    let logEmbed = new EmbedBuilder()
-                        .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                        .setTitle(data.setjoinroles_logs_embed_title_on_enable)
-                        .setDescription(data.setjoinroles_logs_embed_description_on_enable
-                            .replace("${interaction.user.id}", interaction.user.id)
-                        );
-
-                    let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-                    if (logchannel) {
-                        (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
-                    };
-                } catch (e: any) {
-                    logger.err(e)
-                };
+                await client.method.iHorizonLogs.send(interaction, {
+                    title: data.setjoinroles_logs_embed_title_on_enable,
+                    description: data.setjoinroles_logs_embed_description_on_enable
+                        .replace("${interaction.user.id}", interaction.user.id)
+                });
 
                 await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinroles`, all_roles);
                 collector.stop();
@@ -202,7 +191,6 @@ export default {
         });
 
         collector.on('end', async () => {
-            interaction.followUp({ content: data.setjoinroles_var_timesup, ephemeral: true });
             comp.components.forEach(x => {
                 x.setDisabled(true)
             });

@@ -204,18 +204,11 @@ export default {
 
                     await message2.edit({ embeds: emb, files: files });
 
-                    const logEmbed = new EmbedBuilder()
-                        .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                        .setTitle(data.setjoinmessage_logs_embed_title_on_enable)
-                        .setDescription(data.setjoinmessage_logs_embed_description_on_enable
+                    await client.method.iHorizonLogs.send(interaction, {
+                        title: data.setjoinmessage_logs_embed_title_on_enable,
+                        description: data.setjoinmessage_logs_embed_description_on_enable
                             .replace("${interaction.user.id}", interaction.user.id)
-                        );
-
-                    const logchannel = interaction.guild?.channels.cache.find((channel) => channel.name === 'ihorizon-logs');
-
-                    if (logchannel) {
-                        (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
-                    }
+                    });
                 } catch (e) {
                     logger.err(e as any);
                 }
@@ -243,17 +236,11 @@ export default {
 
                 await message2.edit({ embeds: emb, files: files });
 
-                const logEmbed = new EmbedBuilder()
-                    .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                    .setTitle(data.setjoinmessage_logs_embed_title_on_disable)
-                    .setDescription(data.setjoinmessage_logs_embed_description_on_disable
+                await client.method.iHorizonLogs.send(interaction, {
+                    title: data.setjoinmessage_logs_embed_title_on_disable,
+                    description: data.setjoinmessage_logs_embed_description_on_disable
                         .replace("${interaction.user.id}", interaction.user.id)
-                    );
-
-                const logchannel = interaction.guild?.channels.cache.find((channel: { name: string }) => channel.name === 'ihorizon-logs');
-                if (logchannel) {
-                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
-                }
+                });
             } else if (buttonInteraction.customId === "joinMessage-set-image") {
                 await buttonInteraction.deferUpdate();
 
@@ -524,7 +511,10 @@ export default {
             buttons.components.forEach(x => {
                 x.setDisabled(true)
             })
-            await message2.edit({ components: [buttons] });
+            buttons2.components.forEach(x => {
+                x.setDisabled(true)
+            })
+            await message2.edit({ components: [buttons, buttons2] });
         });
     },
 };

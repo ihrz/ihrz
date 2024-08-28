@@ -85,22 +85,11 @@ export default {
                 .replace("${tomute.id}", tomute.id)
         });
 
-        try {
-            let logEmbed = new EmbedBuilder()
-                .setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                .setTitle(data.unmute_logs_embed_title)
-                .setDescription(data.unmute_logs_embed_description
-                    .replace("${interaction.user.id}", interaction.member.user.id)
-                    .replace("${tomute.id}", tomute.id)
-                );
-
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-            if (logchannel) {
-                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
-            };
-        } catch (e: any) {
-            logger.err(e)
-        };
+        await client.method.iHorizonLogs.send(interaction, {
+            title: data.unmute_logs_embed_title,
+            description: data.unmute_logs_embed_description
+                .replace("${interaction.user.id}", interaction.member.user.id)
+                .replace("${tomute.id}", tomute.id)
+        });
     },
 };

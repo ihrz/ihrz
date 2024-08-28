@@ -128,6 +128,7 @@ export const command: Command = {
                 {
                     name: 'channel',
                     type: ApplicationCommandOptionType.Channel,
+                    channel_types: [ChannelType.GuildText],
 
                     description: 'Where you want the logs',
                     description_localizations: {

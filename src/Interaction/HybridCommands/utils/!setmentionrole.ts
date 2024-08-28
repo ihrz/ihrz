@@ -72,18 +72,12 @@ export default {
                 return;
             };
 
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                    .setTitle(lang.setrankroles_logs_embed_title_enable)
-                    .setDescription(lang.setrankroles_logs_embed_description_enable
-                        .replace(/\${interaction\.user.id}/g, interaction.member.user.id)
-                        .replace(/\${argsid}/g, argsid.id)
-                    );
-
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
-            } catch (e: any) { logger.err(e) };
+            await client.method.iHorizonLogs.send(interaction, {
+                title: lang.setrankroles_logs_embed_title_enable,
+                description: lang.setrankroles_logs_embed_description_enable
+                    .replace(/\${interaction\.user.id}/g, interaction.member.user.id)
+                    .replace(/\${argsid}/g, argsid.id)
+            });
 
             try {
                 let already = await client.db.get(`${interaction.guildId}.GUILD.RANK_ROLES.roles`);
@@ -122,17 +116,11 @@ export default {
                 return;
             }
         } else if (type == "off") {
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                    .setTitle(lang.setrankroles_logs_embed_title_disable)
-                    .setDescription(lang.setrankroles_logs_embed_description_disable
-                        .replace(/\${interaction\.user.id}/g, interaction.member.user.id)
-                    )
-
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
-            } catch (e: any) { logger.err(e) };
+            await client.method.iHorizonLogs.send(interaction, {
+                title: lang.setrankroles_logs_embed_title_disable,
+                description: lang.setrankroles_logs_embed_description_disable
+                    .replace(/\${interaction\.user.id}/g, interaction.member.user.id)
+            });
 
             try {
                 await client.db.delete(`${interaction.guildId}.GUILD.RANK_ROLES`);

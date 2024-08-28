@@ -138,18 +138,6 @@ export const command: Command = {
                     .replace("${input}", input!)
                     .replace("${roles.id}", roles.id)
             });
-
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                    .setTitle(lang.setjoinroles_logs_embed_title_on_enable)
-                    .setDescription(lang.setjoinroles_logs_embed_description_on_enable
-                        .replace("${interaction.user.id}", interaction.member.user.id)
-                    )
-
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
-            } catch (e: any) { logger.err(e) };
         } else {
             await client.db.delete(`${interaction.guildId}.GUILD.SUPPORT`);
 
@@ -157,18 +145,6 @@ export const command: Command = {
                 content: lang.support_command_work_on_disable
                     .replace("${interaction.guild.name}", interaction.guild.name)
             })
-
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                    .setTitle(lang.setjoinroles_logs_embed_title_on_enable)
-                    .setDescription(lang.setjoinroles_logs_embed_description_on_enable
-                        .replace("${interaction.user.id}", interaction.member.user.id)
-                    )
-
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
-            } catch (e: any) { logger.err(e) };
             return;
         };
     },

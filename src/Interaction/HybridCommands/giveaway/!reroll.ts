@@ -72,23 +72,12 @@ export default {
 
         await client.method.interactionSend(interaction, { content: data.reroll_command_work });
 
-        try {
-            let logEmbed = new EmbedBuilder()
-                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                .setTitle(data.reroll_logs_embed_title)
-                .setDescription(data.reroll_logs_embed_description
-                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
-                    .replace(/\${giveaway\.messageID}/g, inputData as string)
-                )
-
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-            if (logchannel) {
-                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-            };
-        } catch (e: any) {
-            logger.err(e)
-        };
+        await client.method.iHorizonLogs.send(interaction, {
+            title: data.reroll_logs_embed_title,
+            description: data.reroll_logs_embed_description
+                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+                .replace(/\${giveaway\.messageID}/g, inputData as string)
+        });
 
         return;
     },

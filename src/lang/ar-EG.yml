@@ -312,6 +312,10 @@ help_antispam_dsc: "هل سئمت من الرسائل المزعجة؟ حسنً�
 help_antispam_fields: "مكافحة الرسائل المزعجة"
 help_stats_fields: "إحصائيات المستخدم"
 help_stats_dsc: "شوف عدد الرسائل ونشاط الصوت الخاص بالمستخدم في السيرفر"
+help_ownihrz_dsc: "استضيف وادير بوت iHorizon المخصص بتاعك ! (OWNIHRZ)"
+help_ownihrz_fields: "OWNIHRZ"
+help_notifier_dsc: "خليك متبلغ لما يوتيوبر أو ستريمر ينشر فيديو!"
+help_notifier_fields: "المُبلغ"
 
 # /say
 say_footer_msg: "\n\nأُرسل من `/say` بواسطة ${interaction.user}"
@@ -1528,6 +1532,25 @@ minutes_word: "دقائق"
 top_voice: "أفضل قنوات الصوت"
 top_message: "أفضل قنوات الرسائل"
 
+
+# وحدة التنبيه
+# مؤلف المنبه, إعدادات المنبه
+
+# /notifier author add
+notifier_author_add_author_doesnt_exist: "المؤلف غير موجود. من فضلك تحقق من الـ ID."
+
+# /notifier config channel
+notifier_config_channel_logsEmbed_title: "وحدة قناة التنبيه"
+notifier_config_channel_logsEmbed_desc: "${interaction.user.id} قام بتعيين وحدة قناة التنبيه إلى ${channel}"
+notifier_config_message_command_ok: "دلوقتي، لما ستريمر أو يوتيوبر ينشر فيديو، هبعت رسالة في ${channel.toString()}"
+
+# /notifier config message
+notifier_config_message_helpEmbed_title: "رسالة التنبيه المخصصة"
+notifier_config_message_helpEmbed_desc: "{artistAuthor} => اسم المستخدم للستريمر أو اليوتيوبر\n{artistLink} => رابط قناة الستريمر أو اليوتيوبر\n{mediaURL} => رابط الفيديو للستريمر أو اليوتيوبر"
+notifier_config_message_embed_fields_notifyMessage: "رسالة التنبيه"
+notifier_config_message_awaiting_response: "اكتب رسالة التنبيه."
+notifier_config_message_command_work_on_enable: "تمكين العمل على رسالة التنبيه."
+
 # -----------------------------/ \-----------------------------
 # Confession Module Events
 confession_module_modal_title: "أرسل اعترافاً"
@@ -1732,5 +1755,13 @@ hybridcommands_embed_help_fields_value: "**الألقاب:** ${aliases}\n**ال�
 
 ping_bot_show_info_msg: "مرحبًا ${message.author.toString()}, أنا 100% في `أوامر التفاعل` (${client.iHorizon_Emojis.badge.Slash_Bot}) وقابل للاستخدام بنسبة 85% عبر الأوامر البادئة. بادئتي على **هذا الخادم** هي `${prefix}`!"
 
+# وحدة التنبيه
+notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** نشر فيديو جديد **[اضغط هنا]({mediaURL})"
+notifier_on_new_media_default_button_label: "اتفرج!"
+notifier_generateAuthorsEmbed_embed_desc: "هذه قائمة بكل الستريمر/اليوتيوبر:\n"
+notifier_generateAuthorsEmbed_embed_title: "جميع الستريمر/اليوتيوبر في الخادم"
+notifier_generateConfigurationEmbed_embed_title: "إعدادات وحدة التنبيه"
+notifier_generateConfigurationEmbed_embed_fields_1_name: "قناة التنبيه"
+notifier_generateConfigurationEmbed_embed_fields_2_name: "رسالة التنبيه"
 
 # -----------------------------\ /-----------------------------

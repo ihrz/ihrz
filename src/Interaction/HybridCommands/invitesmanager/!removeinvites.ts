@@ -90,23 +90,12 @@ export default {
 
         await client.method.interactionSend(interaction, { embeds: [finalEmbed] });
 
-        try {
-            let logEmbed = new EmbedBuilder()
-                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                .setTitle(data.removeinvites_logs_embed_title)
-                .setDescription(data.removeinvites_logs_embed_description
-                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
-                    .replace(/\${amount}/g, amount.toString())
-                    .replace(/\${user\.id}/g, user.id)
-                );
-
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-            if (logchannel) {
-                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-            };
-        } catch {
-            return;
-        };
+        await client.method.iHorizonLogs.send(interaction, {
+            title: data.removeinvites_logs_embed_title,
+            description: data.removeinvites_logs_embed_description
+                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+                .replace(/\${amount}/g, amount.toString())
+                .replace(/\${user\.id}/g, user.id)
+        });
     },
 };

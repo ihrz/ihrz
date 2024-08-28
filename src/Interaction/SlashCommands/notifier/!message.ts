@@ -44,39 +44,33 @@ export default {
             return;
         }
 
-        let xpMessage = await client.db.get(`${interaction.guildId}.GUILD.XP_LEVELING.message`);
+        let notifyMessage = await client.db.get(`${interaction.guildId}.NOTIFIER.message`);
         let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
 
-        xpMessage = xpMessage?.substring(0, 1010);
+        notifyMessage = notifyMessage?.substring(0, 1010);
 
         const helpEmbed = new EmbedBuilder()
             .setColor("#ffb3cc")
-            .setDescription(data.ranksSetMessage_help_embed_desc)
-            .setTitle(data.ranksSetMessage_help_embed_title)
+            .setTitle(data.notifier_config_message_helpEmbed_title)
+            .setDescription(data.notifier_config_message_helpEmbed_desc)
             .addFields(
                 {
                     name: data.ranksSetMessage_help_embed_fields_custom_name,
-                    value: xpMessage ? `\`\`\`${xpMessage}\`\`\`\n${client.method.generateCustomMessagePreview(xpMessage,
+                    value: notifyMessage ? `\`\`\`${notifyMessage}\`\`\`\n${client.method.generateCustomMessagePreview(notifyMessage,
                         {
                             user: interaction.user,
                             guild: interaction.guild!,
                             guildLocal: guildLocal,
-                            ranks: {
-                                level: "4"
-                            }
                         },
                     )}` : data.ranksSetMessage_help_embed_fields_custom_name_empy
                 },
                 {
                     name: data.ranksSetMessage_help_embed_fields_default_name_empy,
-                    value: `\`\`\`${data.event_xp_level_earn}\`\`\`\n${client.method.generateCustomMessagePreview(data.event_xp_level_earn,
+                    value: `\`\`\`${data.notifier_on_new_media_default_message}\`\`\`\n${client.method.generateCustomMessagePreview(data.notifier_on_new_media_default_message,
                         {
                             user: interaction.user,
                             guild: interaction.guild!,
                             guildLocal: guildLocal,
-                            ranks: {
-                                level: "4"
-                            }
                         },
                     )}`
                 }
@@ -85,11 +79,11 @@ export default {
         const buttons = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
                 new ButtonBuilder()
-                    .setCustomId("xpMessage-set-message")
+                    .setCustomId("notifyMessage-set-message")
                     .setLabel(data.ranksSetMessage_button_set_name)
                     .setStyle(ButtonStyle.Primary),
                 new ButtonBuilder()
-                    .setCustomId("xpMessage-default-message")
+                    .setCustomId("notifyMessage-default-message")
                     .setLabel(data.ranksSetMessage_buttom_del_name)
                     .setStyle(ButtonStyle.Danger),
             );
@@ -110,15 +104,15 @@ export default {
                 return;
             };
 
-            if (buttonInteraction.customId === "xpMessage-set-message") {
+            if (buttonInteraction.customId === "notifyMessage-set-message") {
                 let modalInteraction = await iHorizonModalResolve({
-                    customId: 'xpMessage-modal',
-                    title: data.ranksSetMessage_awaiting_response,
+                    customId: 'notifyMessage-Modal',
+                    title: data.notifier_config_message_awaiting_response,
                     deferUpdate: false,
                     fields: [
                         {
-                            customId: 'xpMessage-input',
-                            label: data.ranksSetMessage_embed_fields_xpmessage,
+                            customId: 'notifyMessage-input',
+                            label: data.notifier_config_message_embed_fields_notifyMessage,
                             style: TextInputStyle.Paragraph,
                             required: true,
                             maxLength: 1010,
@@ -130,7 +124,7 @@ export default {
                 if (!modalInteraction) return;
 
                 try {
-                    const response = modalInteraction.fields.getTextInputValue('xpMessage-input');
+                    const response = modalInteraction.fields.getTextInputValue('notifyMessage-input');
 
                     const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
                         {
@@ -140,31 +134,28 @@ export default {
                                     user: interaction.user,
                                     guild: interaction.guild!,
                                     guildLocal: guildLocal,
-                                    ranks: {
-                                        level: "4"
-                                    }
                                 })}` : data.ranksSetMessage_help_embed_fields_custom_name_empy
                         },
                     );
 
-                    await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.message`, response);
+                    await client.db.set(`${interaction.guildId}.NOTIFIER.message`, response);
                     await modalInteraction.reply({
-                        content: data.ranksSetMessage_command_work_on_enable
+                        content: data.notifier_config_message_command_work_on_enable
                             .replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo),
                         ephemeral: true
                     });
                     newEmbed.addFields(helpEmbed.data.fields![1]);
                     await message.edit({ embeds: [newEmbed] });
 
-                    await client.method.iHorizonLogs.send(interaction, {
-                        title: data.ranksSetMessage_logs_embed_title_on_enable,
-                        description: data.ranksSetMessage_logs_embed_description_on_enable
-                            .replace("${interaction.user.id}", interaction.user.id)
-                    });
+                    // await client.method.iHorizonLogs.send(interaction, {
+                    //     title: data.ranksSetMessage_logs_embed_title_on_enable,
+                    //     description: data.ranksSetMessage_logs_embed_description_on_enable
+                    //         .replace("${interaction.user.id}", interaction.user.id)
+                    // });
                 } catch (e) {
                     logger.err(e as any);
                 }
-            } else if (buttonInteraction.customId === "xpMessage-default-message") {
+            } else if (buttonInteraction.customId === "notifyMessage-default-message") {
                 const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
                     {
                         name: data.ranksSetMessage_help_embed_fields_custom_name,
@@ -172,9 +163,9 @@ export default {
                     },
                 );
 
-                await client.db.delete(`${interaction.guildId}.GUILD.XP_LEVELING.message`);
+                await client.db.delete(`${interaction.guildId}.NOTIFIER.message`);
                 await buttonInteraction.reply({
-                    content: data.ranksSetMessage_command_work_on_enable
+                    content: data.notifier_config_message_command_work_on_enable
                         .replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo),
                     ephemeral: true
                 });
@@ -182,11 +173,11 @@ export default {
                 newEmbed.addFields(helpEmbed.data.fields![1]);
                 await message.edit({ embeds: [newEmbed] });
 
-                await client.method.iHorizonLogs.send(interaction, {
-                    title: data.ranksSetMessage_logs_embed_title_on_disable,
-                    description: data.ranksSetMessage_logs_embed_description_on_disable
-                        .replace("${interaction.user.id}", interaction.user.id)
-                });
+                // await client.method.iHorizonLogs.send(interaction, {
+                //     title: data.ranksSetMessage_logs_embed_title_on_disable,
+                //     description: data.ranksSetMessage_logs_embed_description_on_disable
+                //         .replace("${interaction.user.id}", interaction.user.id)
+                // });
             }
         });
 

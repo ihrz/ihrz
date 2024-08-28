@@ -103,22 +103,12 @@ export default {
             requirement: { type: giveawayRequirement as any, value: giveawayRequirementValue }
         });
 
-        try {
-            let logEmbed = new EmbedBuilder()
-                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                .setTitle(data.reroll_logs_embed_title)
-                .setDescription(data.start_logs_embed_description
-                    .replace('${interaction.user.id}', interaction.member.user.id)
-                    .replace(/\${giveawayChannel}/g, giveawayChannel.toString()!)
-                );
-
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-            if (logchannel) {
-                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-            };
-        } catch (e: any) {
-            logger.err(e)
-        };
+        await client.method.iHorizonLogs.send(interaction, {
+            title: data.reroll_logs_embed_title,
+            description: data.start_logs_embed_description
+                .replace('${interaction.user.id}', interaction.member.user.id)
+                .replace(/\${giveawayChannel}/g, giveawayChannel.toString()!)
+        });
 
         await client.method.interactionSend(interaction, {
             content: data.start_confirmation_command

@@ -316,6 +316,10 @@ help_antispam_dsc: "Fatigué du spam ? Super ! iHorizon est là pour modérer le
 help_antispam_fields: "AntiSpam"
 help_stats_fields: "Statistiques de l'utilisateur"
 help_stats_dsc: "Voir le nombre de messages et l'activité vocale d'un utilisateur dans une guilde"
+help_ownihrz_dsc: "Hébergez et gérez votre propre bot iHorizon personnalisé ! (OWNIHRZ)"
+help_ownihrz_fields: "OWNIHRZ"
+help_notifier_dsc: "Soyez notifié lorsque un Youtuber ou Streamer publie une vidéo !"
+help_notifier_fields: "Notificateur"
 
 # /say
 say_footer_msg: "\n\nEnvoyé depuis `/say` par ${interaction.user}"
@@ -1536,6 +1540,25 @@ minutes_word: "Minutes"
 top_voice: "Principaux canaux vocaux"
 top_message: "Principaux canaux de messages"
 
+
+# Module de Notification
+# auteur de la notification, configuration de la notification
+
+# /notifier author add
+notifier_author_add_author_doesnt_exist: "L'auteur n'existe pas. Veuillez vérifier l'ID."
+
+# /notifier config channel
+notifier_config_channel_logsEmbed_title: "Module du Canal de Notification"
+notifier_config_channel_logsEmbed_desc: "${interaction.user.id} a configuré le module du Canal de Notification sur ${channel}"
+notifier_config_message_command_ok: "Désormais, lorsqu'un Streamer/Youtuber/Twitcher publie une vidéo, j'enverrai un message dans ${channel.toString()}"
+
+# /notifier config message
+notifier_config_message_helpEmbed_title: "Message de Notification Personnalisé"
+notifier_config_message_helpEmbed_desc: "{artistAuthor} => Le nom d'utilisateur du Streamer/Youtuber\n{artistLink} => Le lien vers la chaîne du Streamer/Youtuber\n{mediaURL} => L'URL de la vidéo du Streamer/Youtuber"
+notifier_config_message_embed_fields_notifyMessage: "Message de Notification"
+notifier_config_message_awaiting_response: "Écrivez le message de notification."
+notifier_config_message_command_work_on_enable: "Activation du travail sur le message de notification."
+
 # -----------------------------/ \-----------------------------
 # Événements du Module de Confession
 confession_module_modal_title: "Envoyer une confession"
@@ -1745,5 +1768,14 @@ hybridcommands_embed_help_title: "${commandName} Aide en Intégration"
 hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Utilisation:** ${use}"
 
 ping_bot_show_info_msg: "Hey ${message.author.toString()}, je suis 100% en `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) et utilisable à plus de 85% en commande préfixe. Mon préfixe sur **ce serveur** est `${prefix}` !"
+
+# Module de Notification
+notifier_on_new_media_default_message: "@everyone le mec en calecon dans sa chambre aka **[{artistAuthor}](<{artistLink}>)** a publié une nouvelle vidéo [Cliquez ici]({mediaURL})"
+notifier_on_new_media_default_button_label: "Regarder !"
+notifier_generateAuthorsEmbed_embed_desc: "Voici la liste de tous les Streamers/YouTubers :\n"
+notifier_generateAuthorsEmbed_embed_title: "Tous les Streamers/YouTubers du serveur"
+notifier_generateConfigurationEmbed_embed_title: "Configuration du Module de Notification"
+notifier_generateConfigurationEmbed_embed_fields_1_name: "Canal de Notification"
+notifier_generateConfigurationEmbed_embed_fields_2_name: "Message de Notification"
 
 # -----------------------------\ /-----------------------------

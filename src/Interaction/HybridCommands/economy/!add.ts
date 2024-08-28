@@ -71,18 +71,12 @@ export default {
 
         await client.db.add(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`, amount);
 
-        try {
-            let logEmbed = new EmbedBuilder()
-                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
-                .setTitle(lang.addmoney_logs_embed_title)
-                .setDescription(lang.addmoney_logs_embed_description
-                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
-                    .replace(/\${amount\.value}/g, amount.toString())
-                    .replace(/\${user\.user\.id}/g, user?.id!)
-                );
-
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-            if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
-        } catch (e) { return; };
+        await client.method.iHorizonLogs.send(interaction, {
+            title: lang.addmoney_logs_embed_title,
+            description: lang.addmoney_logs_embed_description
+                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+                .replace(/\${amount\.value}/g, amount.toString())
+                .replace(/\${user\.user\.id}/g, user?.id!)
+        });
     },
 };
