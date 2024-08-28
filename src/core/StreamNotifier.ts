@@ -48,14 +48,16 @@ interface YoutubeRssResponse {
 export class StreamNotifier {
     private parser: RSSParser;
     private twitchClientID: string;
-    private twitchAccessToken: string;
+    private twitchAccessToken: string | null;
+    private twitchAccessTokenExpireIn: number | null;
+    private twitchClientSecret: string;
     private client: Client;
 
-    constructor(client: Client, twitchClientID: string, twitchAccessToken: string) {
+    constructor(client: Client, twitchClientID: string, twitchClientSecret: string) {
         this.parser = new RSSParser();
         this.client = client;
         this.twitchClientID = twitchClientID;
-        this.twitchAccessToken = twitchAccessToken;
+        this.twitchClientSecret = twitchClientSecret;
     }
 
     private delay(ms: number): Promise<void> {
@@ -214,6 +216,23 @@ export class StreamNotifier {
         }
     }
 
+    private async getAppAccessToken(): Promise<string> {
+        try {
+            const response = await axios.post("https://id.twitch.tv/oauth2/token", {
+                client_id: this.twitchClientID,
+                client_secret: this.twitchClientSecret,
+                grant_type: 'client_credentials',
+            });
+
+            const { access_token, expires_in } = response.data;
+            this.twitchAccessToken = access_token;
+            this.twitchAccessTokenExpireIn = expires_in;
+            return access_token;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     public async generateAuthorsEmbed(guild: Guild): Promise<EmbedBuilder> {
         let lang = await this.client.func.getLanguageData(guild?.id) as LanguageData;
         let authors = (await this.getGuildData(guild.id))?.users || [];
@@ -245,7 +264,7 @@ export class StreamNotifier {
         return embed;
     }
 
-    public async start() {
+    private async refresh() {
         const guildsData = await this.getGuildsData();
 
         for (let entry of guildsData) {
@@ -285,7 +304,11 @@ export class StreamNotifier {
                 }
             }
         }
+    }
 
-        setInterval(async () => await this.start(), 30_000);
+    public async start() {
+        this.getAppAccessToken()
+
+        setInterval(async () => await this.refresh(), 30_000);
     }
 }
