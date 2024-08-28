@@ -1251,4 +1251,5 @@ export interface LanguageData {
   hybridcommands_embed_help_fields_value: string;
   ping_bot_show_info_msg: string;
   notifier_on_new_media_default_message: string;
+  notifier_on_new_media_default_button_label: string;
 }

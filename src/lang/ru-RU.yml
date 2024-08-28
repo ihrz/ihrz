@@ -1752,5 +1752,6 @@ ping_bot_show_info_msg: "Привет ${message.author.toString()}, я на 100%
 
 # Модуль уведомлений
 notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** опубликовал новое видео **[Нажмите здесь]({mediaURL})**"
+notifier_on_new_media_default_button_label: "Смотреть!"
 
 # -----------------------------/ \-----------------------------

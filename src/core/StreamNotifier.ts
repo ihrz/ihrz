@@ -124,13 +124,13 @@ export class StreamNotifier {
         return notifiedMedias.some(item => item.userId === media.user.id_or_username && item.mediaId === media.content.id);
     }
 
-    private createLinkButton(url: string): ActionRowBuilder<ButtonBuilder> {
+    private createLinkButton(url: string, label: string): ActionRowBuilder<ButtonBuilder> {
         return new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
                 new ButtonBuilder()
                     .setStyle(ButtonStyle.Link)
                     .setURL(url)
-                    .setLabel("Check out!")
+                    .setLabel(label)
             );
     }
 
@@ -270,7 +270,7 @@ export class StreamNotifier {
                         });
                         await channel.send({
                             content: message,
-                            components: [this.createLinkButton(media.content.link)],
+                            components: [this.createLinkButton(media.content.link, lang.notifier_on_new_media_default_button_label)],
                             nonce: SnowflakeUtil.generate().toString(),
                             enforceNonce: true,
                         });

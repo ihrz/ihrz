@@ -1752,5 +1752,6 @@ ping_bot_show_info_msg: "Hey ${message.author.toString()}, je suis 100% en `Slas
 
 # Module de Notification
 notifier_on_new_media_default_message: "@everyone le mec en calecon dans sa chambre aka **[{artistAuthor}](<{artistLink}>)** a publié une nouvelle vidéo **[Cliquez ici]({mediaURL})**"
+notifier_on_new_media_default_button_label: "Regarder !"
 
 # -----------------------------\ /-----------------------------

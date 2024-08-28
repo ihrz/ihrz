@@ -1752,5 +1752,6 @@ ping_bot_show_info_msg: "Hola ${message.author.toString()}, soy 100% en `Slash C
 
 # Módulo de Notificaciones
 notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** ha publicado un nuevo video **[Haz clic aquí]({mediaURL})**"
+notifier_on_new_media_default_button_label: "¡Míralo!"
 
 # -----------------------------\ /-----------------------------

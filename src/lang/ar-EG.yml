@@ -1738,5 +1738,6 @@ ping_bot_show_info_msg: "مرحبًا ${message.author.toString()}, أنا 100% 
 
 # وحدة التنبيه
 notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** نشر فيديو جديد **[اضغط هنا]({mediaURL})**"
+notifier_on_new_media_default_button_label: "اتفرج!"
 
 # -----------------------------\ /-----------------------------

@@ -1752,5 +1752,6 @@ ping_bot_show_info_msg: "こんにちは ${message.author.toString()}、私は `
 
 # 通知モジュール
 notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** が新しい動画を公開しました **[ここをクリック]({mediaURL})**"
+notifier_on_new_media_default_button_label: "チェックする！"
 
 # -----------------------------\ /-----------------------------
