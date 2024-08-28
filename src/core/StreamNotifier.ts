@@ -20,11 +20,12 @@
 */
 
 import { ActionRowBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, Client, EmbedBuilder, Guild, SnowflakeUtil } from 'discord.js';
-import { axios } from './functions/axios.js';
-import RSSParser from 'rss-parser';
+
 import { DatabaseStructure } from '../../types/database_structure.js';
 import logger from './logger.js';
 import { LanguageData } from '../../types/languageData.js';
+import { axios } from './functions/axios.js';
+import RSSParser from 'rss-parser';
 
 export type Platform = "kick" | "youtube" | "twitch";
 type VideoType = "short" | "video";
@@ -55,6 +56,10 @@ export class StreamNotifier {
         this.client = client;
         this.twitchClientID = twitchClientID;
         this.twitchAccessToken = twitchAccessToken;
+    }
+
+    private delay(ms: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     private async getGuildData(guildID: string): Promise<DatabaseStructure.NotifierSchema | null> {
