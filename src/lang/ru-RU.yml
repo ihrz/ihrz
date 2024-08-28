@@ -1772,5 +1772,10 @@ ping_bot_show_info_msg: "Привет ${message.author.toString()}, я на 100%
 # Модуль уведомлений
 notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** опубликовал новое видео **[Нажмите здесь]({mediaURL})**"
 notifier_on_new_media_default_button_label: "Смотреть!"
+notifier_generateAuthorsEmbed_embed_desc: "Это список всех стримеров/ютуберов:\n"
+notifier_generateAuthorsEmbed_embed_title: "Все стримеры/ютуберы на сервере"
+notifier_generateConfigurationEmbed_embed_title: "Конфигурация модуля уведомлений"
+notifier_generateConfigurationEmbed_embed_fields_1_name: "Канал уведомлений"
+notifier_generateConfigurationEmbed_embed_fields_2_name: "Сообщение уведомления"
 
 # -----------------------------/ \-----------------------------

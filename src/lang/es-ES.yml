@@ -1772,5 +1772,10 @@ ping_bot_show_info_msg: "Hola ${message.author.toString()}, soy 100% en `Slash C
 # Módulo de Notificaciones
 notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** ha publicado un nuevo video **[Haz clic aquí]({mediaURL})**"
 notifier_on_new_media_default_button_label: "¡Míralo!"
+notifier_generateAuthorsEmbed_embed_desc: "Esta es la lista de todos los Streamers/YouTubers:\n"
+notifier_generateAuthorsEmbed_embed_title: "Todos los Streamers/YouTubers en el servidor"
+notifier_generateConfigurationEmbed_embed_title: "Configuración del Módulo de Notificación"
+notifier_generateConfigurationEmbed_embed_fields_1_name: "Canal de Notificación"
+notifier_generateConfigurationEmbed_embed_fields_2_name: "Mensaje de Notificación"
 
 # -----------------------------\ /-----------------------------

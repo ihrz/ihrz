@@ -1758,5 +1758,10 @@ ping_bot_show_info_msg: "مرحبًا ${message.author.toString()}, أنا 100% 
 # وحدة التنبيه
 notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** نشر فيديو جديد **[اضغط هنا]({mediaURL})**"
 notifier_on_new_media_default_button_label: "اتفرج!"
+notifier_generateAuthorsEmbed_embed_desc: "هذه قائمة بكل الستريمر/اليوتيوبر:\n"
+notifier_generateAuthorsEmbed_embed_title: "جميع الستريمر/اليوتيوبر في الخادم"
+notifier_generateConfigurationEmbed_embed_title: "إعدادات وحدة التنبيه"
+notifier_generateConfigurationEmbed_embed_fields_1_name: "قناة التنبيه"
+notifier_generateConfigurationEmbed_embed_fields_2_name: "رسالة التنبيه"
 
 # -----------------------------\ /-----------------------------

@@ -1261,4 +1261,9 @@ export interface LanguageData {
   ping_bot_show_info_msg: string;
   notifier_on_new_media_default_message: string;
   notifier_on_new_media_default_button_label: string;
+  notifier_generateAuthorsEmbed_embed_desc: string;
+  notifier_generateAuthorsEmbed_embed_title: string;
+  notifier_generateConfigurationEmbed_embed_title: string;
+  notifier_generateConfigurationEmbed_embed_fields_1_name: string;
+  notifier_generateConfigurationEmbed_embed_fields_2_name: string;
 }

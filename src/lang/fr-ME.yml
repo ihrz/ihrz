@@ -1772,5 +1772,10 @@ ping_bot_show_info_msg: "Hey ${message.author.toString()}, je suis 100% en `Slas
 # Module de Notification
 notifier_on_new_media_default_message: "@everyone le mec en calecon dans sa chambre aka **[{artistAuthor}](<{artistLink}>)** a publié une nouvelle vidéo **[Cliquez ici]({mediaURL})**"
 notifier_on_new_media_default_button_label: "Regarder !"
+notifier_generateAuthorsEmbed_embed_desc: "Voici la liste de tous les Streamers/YouTubers :\n"
+notifier_generateAuthorsEmbed_embed_title: "Tous les Streamers/YouTubers du serveur"
+notifier_generateConfigurationEmbed_embed_title: "Configuration du Module de Notification"
+notifier_generateConfigurationEmbed_embed_fields_1_name: "Canal de Notification"
+notifier_generateConfigurationEmbed_embed_fields_2_name: "Message de Notification"
 
 # -----------------------------\ /-----------------------------

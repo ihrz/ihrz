@@ -209,13 +209,14 @@ export class StreamNotifier {
     }
 
     public async generateAuthorsEmbed(guild: Guild): Promise<EmbedBuilder> {
+        let lang = await this.client.func.getLanguageData(guild?.id) as LanguageData;
         let authors = (await this.getGuildData(guild.id))?.users || [];
         let embed = new EmbedBuilder();
-        let desc = "This is the list of all Streamer/Youtuber:\n";
+        let desc = lang.notifier_generateAuthorsEmbed_embed_desc;
         for (let author of authors) {
             desc += `${author.platform} - [\`${await this.getChannelNameById(author.platform, author.id_or_username)}\`](https://youtube.com/channel/${author.id_or_username})\n`
         }
-        embed.setTitle("All Streamer/Youtuber in the guild");
+        embed.setTitle(lang.notifier_generateAuthorsEmbed_embed_title);
         embed.setColor(2829617);
         embed.setDescription(desc);
 
@@ -229,11 +230,11 @@ export class StreamNotifier {
         let channel = guild.channels.cache.get(config?.channelId || "");
         let embed = new EmbedBuilder();
 
-        embed.setTitle("Notifier Module Configuration");
+        embed.setTitle(lang.notifier_generateConfigurationEmbed_embed_title);
         embed.setColor(2829617);
         embed.setFields(
-            { name: "Notify Channel", value: `${channel?.toString() || lang.setjoinroles_var_none}`, inline: false },
-            { name: "Notify Message", value: `${config?.message || lang.notifier_on_new_media_default_message}`, inline: false }
+            { name: lang.notifier_generateConfigurationEmbed_embed_fields_1_name, value: `${channel?.toString() || lang.setjoinroles_var_none}`, inline: false },
+            { name: lang.notifier_generateConfigurationEmbed_embed_fields_2_name, value: `${config?.message || lang.notifier_on_new_media_default_message}`, inline: false }
         );
         return embed;
     }

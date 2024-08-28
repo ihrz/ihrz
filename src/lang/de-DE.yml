@@ -1772,5 +1772,10 @@ ping_bot_show_info_msg: "Hey ${message.author.toString()}, ich bin zu 100% in `S
 # Benachrichtigungsmodul
 notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** hat ein neues Video veröffentlicht **[Hier klicken]({mediaURL})**"
 notifier_on_new_media_default_button_label: "Ansehen!"
+notifier_generateAuthorsEmbed_embed_desc: "Dies ist die Liste aller Streamer/YouTuber:\n"
+notifier_generateAuthorsEmbed_embed_title: "Alle Streamer/YouTuber im Server"
+notifier_generateConfigurationEmbed_embed_title: "Konfiguration des Benachrichtigungsmoduls"
+notifier_generateConfigurationEmbed_embed_fields_1_name: "Benachrichtigungskanal"
+notifier_generateConfigurationEmbed_embed_fields_2_name: "Benachrichtigungsnachricht"
 
 # -----------------------------\ /-----------------------------
