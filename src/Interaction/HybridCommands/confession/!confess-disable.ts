@@ -56,45 +56,29 @@ export default {
 
         if (action === 'on') {
             await client.db.set(`${interaction.guildId}.CONFESSION.disable`, false);
-            await client.method.interactionSend(interaction,{
+            await client.method.interactionSend(interaction, {
                 content: data.confession_disable_command_work_on
             });
 
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
-                    .setTitle(data.confession_log_embed_title_on_enable)
-                    .setDescription(data.confession_log_embed_desc_on_enable
-                        .replace('${interaction.user}', interaction.member.user.toString())
-                    )
-
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) {
-                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-                }
-            } catch { };
+            await client.method.iHorizonLogs.send(interaction, {
+                title: data.confession_log_embed_title_on_enable,
+                description: data.confession_log_embed_desc_on_enable
+                    .replace('${interaction.user}', interaction.member.user.toString())
+            });
 
             return;
         } else if (action === 'off') {
 
             await client.db.set(`${interaction.guildId}.CONFESSION.disable`, true);
-            await client.method.interactionSend(interaction,{
+            await client.method.interactionSend(interaction, {
                 content: data.confession_disable_command_work_off
             });
 
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
-                    .setTitle(data.confession_log_embed_title_on_enable)
-                    .setDescription(data.confession_log_embed_desc_on_disabled
-                        .replace('${interaction.user}', interaction.member.user.toString())
-                    )
-
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) {
-                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-                }
-            } catch { };
+            await client.method.iHorizonLogs.send(interaction, {
+                title: data.confession_log_embed_title_on_enable,
+                description: data.confession_log_embed_desc_on_disabled
+                    .replace('${interaction.user}', interaction.member.user.toString())
+            });
 
             return;
         };

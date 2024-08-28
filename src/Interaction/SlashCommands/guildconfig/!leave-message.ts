@@ -141,23 +141,11 @@ export default {
                 });
                 newEmbed.addFields(helpEmbed.data.fields![1]);
                 await originalResponse.edit({ embeds: [newEmbed] });
-
-                try {
-                    let logEmbed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
-                        .setTitle(data.setleavemessage_logs_embed_title_on_enable)
-                        .setDescription(data.setleavemessage_logs_embed_description_on_enable
-                            .replace("${interaction.user.id}", interaction.user.id)
-                        );
-
-                    let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-                    if (logchannel) {
-                        (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
-                    };
-                } catch (e: any) {
-                    logger.err(e);
-                };
+                await client.method.iHorizonLogs.send(interaction, {
+                    title: data.setleavemessage_logs_embed_title_on_enable,
+                    description: data.setleavemessage_logs_embed_description_on_enable
+                        .replace("${interaction.user.id}", interaction.user.id)
+                });
             } else if (buttonInteraction.customId === "leaveMessage-default-message") {
                 let newEmbed = EmbedBuilder.from(helpEmbed).setFields(
                     {
@@ -177,22 +165,11 @@ export default {
                 newEmbed.addFields(helpEmbed.data.fields![1]);
                 await originalResponse.edit({ embeds: [newEmbed] });
 
-                try {
-                    let logEmbed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
-                        .setTitle(data.setleavemessage_logs_embed_title_on_disable)
-                        .setDescription(data.setleavemessage_logs_embed_description_on_disable
-                            .replace("${interaction.user.id}", interaction.user.id)
-                        );
-
-                    let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-                    if (logchannel) {
-                        (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
-                    };
-                } catch (e: any) {
-                    logger.err(e)
-                };
+                await client.method.iHorizonLogs.send(interaction, {
+                    title: data.setleavemessage_logs_embed_title_on_disable,
+                    description: data.setleavemessage_logs_embed_description_on_disable
+                        .replace("${interaction.user.id}", interaction.user.id)
+                });
             }
         });
 

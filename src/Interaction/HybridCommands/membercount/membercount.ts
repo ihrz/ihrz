@@ -166,19 +166,14 @@ export const command: Command = {
                 );
             };
 
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
-                    .setTitle(lang.setmembercount_logs_embed_title_on_enable)
-                    .setDescription(lang.setmembercount_logs_embed_description_on_enable
-                        .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
-                        .replace(/\${channel\.id}/g, channel?.id!)
-                        .replace(/\${messagei}/g, messagei)
-                    );
+            await client.method.iHorizonLogs.send(interaction, {
+                title: lang.setmembercount_logs_embed_title_on_enable,
+                description: lang.setmembercount_logs_embed_description_on_enable
+                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+                    .replace(/\${channel\.id}/g, channel?.id!)
+                    .replace(/\${messagei}/g, messagei)
+            });
 
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }); };
-            } catch (e: any) { logger.err(e) };
             let fetched = interaction.guild?.channels.cache.get(channel?.id as string);
 
             (fetched as BaseGuildTextChannel).edit({ name: joinmsgreplace });
@@ -189,16 +184,12 @@ export const command: Command = {
 
         } else if (type == "off") {
             await client.db.delete(`${interaction.guildId}.GUILD.MCOUNT`);
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
-                    .setTitle(lang.setmembercount_logs_embed_title_on_disable)
-                    .setDescription(lang.setmembercount_logs_embed_description_on_disable
-                        .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
-                    )
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
-            } catch (e: any) { logger.err(e) };
+
+            await client.method.iHorizonLogs.send(interaction, {
+                title: lang.setmembercount_logs_embed_title_on_disable,
+                description: lang.setmembercount_logs_embed_description_on_disable
+                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+            });
 
             await client.method.interactionSend(interaction, {
                 content: lang.setmembercount_command_work_on_disable.replace('${client.iHorizon_Emojis.icon.Yes_Logo}', client.iHorizon_Emojis.icon.Yes_Logo)

@@ -39,44 +39,22 @@ export default {
             await interaction.editReply({ content: data.blockbot_not_owner });
             return;
         } else if (action === 'on') {
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
-                    .setTitle(data.blockbot_logs_enable_title)
-                    .setDescription(data.blockbot_logs_enable_description
-                        .replace(/\${interaction\.user}/g, interaction.user.toString())
-                    );
-
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-                if (logchannel) {
-                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-                };
-            } catch (e: any) {
-                logger.err(e);
-            };
+            await client.method.iHorizonLogs.send(interaction, {
+                title: data.blockbot_logs_enable_title,
+                description: data.blockbot_logs_enable_description
+                    .replace(/\${interaction\.user}/g, interaction.user.toString())
+            });
 
             await client.db.set(`${interaction.guildId}.GUILD.BLOCK_BOT`, true);
 
             await interaction.editReply({ content: data.blockbot_command_work_on_enable });
             return;
         } else if (action === 'off') {
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
-                    .setTitle(data.blockbot_logs_disable_commmand_work)
-                    .setDescription(data.blockbot_logs_disable_description
-                        .replace(/\${interaction\.user}/g, interaction.user.toString())
-                    );
-
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-                if (logchannel) {
-                    (logchannel as BaseGuildTextChannel)?.send({ embeds: [logEmbed] });
-                };
-            } catch (e: any) {
-                logger.err(e);
-            };
+            await client.method.iHorizonLogs.send(interaction, {
+                title: data.blockbot_logs_disable_commmand_work,
+                description: data.blockbot_logs_disable_description
+                    .replace(/\${interaction\.user}/g, interaction.user.toString())
+            });
 
             await client.db.delete(`${interaction.guildId}.GUILD.BLOCK_BOT`);
 

@@ -56,23 +56,12 @@ export default {
             .setDescription(data.unlock_embed_message_description);
 
         await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(interaction.guildId as string, { SendMessages: true });
-
-        try {
-            let logEmbed = new EmbedBuilder()
-                .setColor("#bf0bb9")
-                .setTitle(data.unlock_logs_embed_title)
-                .setDescription(data.unlock_logs_embed_description
-                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
-                    .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id!)
-                )
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-            if (logchannel) {
-                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-            }
-        } catch (e: any) {
-            logger.err(e)
-        };
+        await client.method.iHorizonLogs.send(interaction, {
+            title: data.unlock_logs_embed_title,
+            description: data.unlock_logs_embed_description
+                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+                .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id!)
+        });
 
         await client.method.interactionSend(interaction, { embeds: [embed] });
         return;

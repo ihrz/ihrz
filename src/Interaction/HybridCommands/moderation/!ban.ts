@@ -110,29 +110,19 @@ export default {
 
         const ban = async () => {
             interaction.guild?.bans.create(member?.id!, { reason: `Banned by: ${(interaction.member?.user as User).globalName || interaction.member?.user.username} | Reason: ${reason}` })
-                .then(() => {
+                .then(async () => {
                     client.method.interactionSend(interaction, {
                         content: data.ban_command_work
                             .replace(/\${member\.user\.id}/g, member.id)
                             .replace(/\${interaction\.member\.id}/g, interaction.member?.user.id!)
                     }).catch(() => { });
 
-                    try {
-                        let logEmbed = new EmbedBuilder()
-                            .setColor("#bf0bb9")
-                            .setTitle(data.ban_logs_embed_title)
-                            .setDescription(data.ban_logs_embed_description
-                                .replace(/\${member\.user\.id}/g, member.id)
-                                .replace(/\${interaction\.member\.id}/g, interaction.member?.user.id!)
-                            )
-                        let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-                        if (logchannel) {
-                            (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-                        };
-                    } catch (e: any) {
-                        logger.err(e);
-                    };
+                    await client.method.iHorizonLogs.send(interaction, {
+                        title: data.ban_logs_embed_title,
+                        description: data.ban_logs_embed_description
+                            .replace(/\${member\.user\.id}/g, member.id)
+                            .replace(/\${interaction\.member\.id}/g, interaction.member?.user.id!)
+                    });
                 })
         }
 

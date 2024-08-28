@@ -64,26 +64,18 @@ export default {
         };
 
         await client.db.set(`${interaction.guildId}.GUILD.CONFESSION.cooldown`, time);
-        await client.method.interactionSend(interaction,{
+        await client.method.interactionSend(interaction, {
             content: data.confession_coolodwn_command_work
                 .replace('${interaction.user.toString()}', interaction.member.user.toString())
                 .replace('${client.timeCalculator.to_beautiful_string(time)}', client.timeCalculator.to_beautiful_string(time))
         });
 
-        try {
-            let logEmbed = new EmbedBuilder()
-                .setColor("#bf0bb9")
-                .setTitle(data.confession_cooldown_log_embed_title)
-                .setDescription(data.confession_cooldown_log_embed_desc
-                    .replace('${interaction.user}', interaction.member.user.toString())
-                    .replace('${client.timeCalculator.to_beautiful_string(time)}', client.timeCalculator.to_beautiful_string(time))
-                )
-
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-            if (logchannel) {
-                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-            }
-        } catch { };
+        await client.method.iHorizonLogs.send(interaction, {
+            title: data.confession_cooldown_log_embed_title,
+            description: data.confession_cooldown_log_embed_desc
+                .replace('${interaction.user}', interaction.member.user.toString())
+                .replace('${client.timeCalculator.to_beautiful_string(time)}', client.timeCalculator.to_beautiful_string(time))
+        });
 
         return;
     },

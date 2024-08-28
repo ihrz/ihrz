@@ -137,18 +137,13 @@ export const command: Command = {
                 }
             );
 
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
-                    .setTitle(lang.punishpub_logs_embed_title)
-                    .setDescription(lang.punishpub_logs_embed_description
-                        .replace("${interaction.user.id}", interaction.user.id)
-                        .replace("${amount}", amount.toString())
-                        .replace("${punishement}", punishment?.toString()!)
-                    )
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
-            } catch (e) { };
+            await client.method.iHorizonLogs.send(interaction, {
+                title: lang.punishpub_logs_embed_title,
+                description: lang.punishpub_logs_embed_description
+                    .replace("${interaction.user.id}", interaction.user.id)
+                    .replace("${amount}", amount.toString())
+                    .replace("${punishement}", punishment?.toString()!)
+            });
 
             await interaction.reply({
                 content: lang.punishpub_confirmation_message_enable
@@ -161,16 +156,11 @@ export const command: Command = {
             await client.db.delete(`${interaction.guildId}.GUILD.PUNISH.PUNISH_PUB`);
             await interaction.reply({ content: lang.punishpub_confirmation_disable })
 
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
-                    .setTitle(lang.punishpub_logs_embed_title_disable)
-                    .setDescription(lang.punishpub_logs_embed_description_disable
-                        .replace("${interaction.user.id}", interaction.user.id)
-                    )
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
-            } catch (e) { };
+            await client.method.iHorizonLogs.send(interaction, {
+                title: lang.punishpub_logs_embed_title_disable,
+                description: lang.punishpub_logs_embed_description_disable
+                    .replace("${interaction.user.id}", interaction.user.id)
+            });
 
             return;
         };
