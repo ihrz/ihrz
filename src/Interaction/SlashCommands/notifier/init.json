@@ -4,7 +4,7 @@
         "categoryColor": "#6a329f",
         "options": {
             "description": "help_notifier_dsc",
-            "emoji": "💎",
+            "emoji": "📹",
             "placeholder": "help_notifier_fields"
         }
     }
