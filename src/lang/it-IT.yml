@@ -1770,7 +1770,7 @@ hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Uso:** ${use}"
 ping_bot_show_info_msg: "Ciao ${message.author.toString()}, sono al 100% in `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) e utilizzabile al 85% in comando prefisso. Il mio prefisso su **questo server** è `${prefix}` !"
 
 # Modulo di Notifica
-notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** ha pubblicato un nuovo video **[Clicca qui]({mediaURL})**"
+notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** ha pubblicato un nuovo video [Clicca qui]({mediaURL})"
 notifier_on_new_media_default_button_label: "Guarda!"
 notifier_generateAuthorsEmbed_embed_desc: "Questa è la lista di tutti gli Streamer/YouTuber:\n"
 notifier_generateAuthorsEmbed_embed_title: "Tutti gli Streamer/YouTuber nel server"

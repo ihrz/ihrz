@@ -33,7 +33,7 @@ type VideoType = "short" | "video";
 interface NotifierUserResponse {
     user: DatabaseStructure.NotifierUserSchema;
     platform: Platform;
-    content: YoutubeRssResponse;
+    content: YoutubeRssResponse | TwitchResponse;
 }
 
 interface YoutubeRssResponse {
@@ -43,6 +43,14 @@ interface YoutubeRssResponse {
     author: string;
     id: string;
     isoDate: Date;
+}
+
+interface TwitchResponse {
+    title: string;
+    link: string;
+    pubDate: Date // is started_at
+    author: string; // is user_name
+    id: string;
 }
 
 export class StreamNotifier {
@@ -98,7 +106,10 @@ export class StreamNotifier {
                         result.push({ user, content: latestMedia, platform: "youtube" });
                     }
                 } else if (user.platform === 'twitch') {
-                    await this.checkTwitchStream(user.id_or_username);
+                    const feed = await this.checkTwitchStream(user.id_or_username);
+                    if (feed) {
+                        result.push({ user, content: feed, platform: "twitch" })
+                    }
                 }
             } catch (error) {
                 logger.err(`Erreur lors de la vérification des flux pour ${user.id_or_username} sur ${user.platform} : ${error}`);
@@ -108,7 +119,7 @@ export class StreamNotifier {
         return result;
     }
 
-    private async checkTwitchStream(userName: string) {
+    private async checkTwitchStream(userName: string): Promise<TwitchResponse | null> {
         try {
             const { data } = await axios.get(`https://api.twitch.tv/helix/streams?user_login=${userName}`, {
                 headers: {
@@ -117,13 +128,20 @@ export class StreamNotifier {
                 },
             });
 
-            if (data.data.length > 0) {
-                console.log(`Le streamer Twitch ${userName} est en live : ${data.data[0].title} - https://www.twitch.tv/${userName}`);
+            if (data.data && data.data.length > 0) {
+                return {
+                    pubDate: new Date(data.data[0].started_at),
+                    title: data.data[0].title,
+                    link: "https://twitch.tv/" + userName,
+                    author: data.data[0].user_name,
+                    id: data.data[0].id
+                }
             } else {
-                console.log(`Le streamer Twitch ${userName} n'est pas en live.`);
+                return null;
             }
         } catch (error) {
-            console.error('Erreur lors de la vérification des streams Twitch :', error);
+            return null;
+            // console.error('Erreur lors de la vérification des streams Twitch :', error);
         }
     }
 
@@ -207,7 +225,7 @@ export class StreamNotifier {
                 },
             });
 
-            return { state: response.data.data.length > 0 }
+            return { state: response.data?.data.length > 0 }
         } catch (error: any) {
             if (error.response && error.response.status === 404) {
                 return { state: false };
@@ -216,7 +234,7 @@ export class StreamNotifier {
         }
     }
 
-    private async getAppAccessToken(): Promise<string> {
+    private async getAppAccessToken(): Promise<void> {
         try {
             const response = await axios.post("https://id.twitch.tv/oauth2/token", {
                 client_id: this.twitchClientID,
@@ -227,7 +245,6 @@ export class StreamNotifier {
             const { access_token, expires_in } = response.data;
             this.twitchAccessToken = access_token;
             this.twitchAccessTokenExpireIn = expires_in;
-            return access_token;
         } catch (error) {
             throw error;
         }
@@ -283,7 +300,7 @@ export class StreamNotifier {
                             guildLocal: "en-US",
                             notifier: {
                                 artistAuthor: media.content.author,
-                                artistLink: `https://youtube.com/channel/${media.user.id_or_username}`,
+                                artistLink: media.platform === "twitch" ? `https://twitch.tv/${media.user.id_or_username}` : `https://youtube.com/channel/${media.user.id_or_username}`,
                                 mediaURL: media.content.link
                             }
                         }
@@ -307,8 +324,9 @@ export class StreamNotifier {
     }
 
     public async start() {
-        this.getAppAccessToken()
+        await this.getAppAccessToken()
 
-        setInterval(async () => await this.refresh(), 30_000);
+        await this.refresh()
+        // setInterval(async () => await this.refresh(), 30_000);
     }
 }
