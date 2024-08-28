@@ -511,7 +511,10 @@ export default {
             buttons.components.forEach(x => {
                 x.setDisabled(true)
             })
-            await message2.edit({ components: [buttons] });
+            buttons2.components.forEach(x => {
+                x.setDisabled(true)
+            })
+            await message2.edit({ components: [buttons, buttons2] });
         });
     },
 };

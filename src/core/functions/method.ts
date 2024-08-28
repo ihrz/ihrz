@@ -335,7 +335,6 @@ export async function channelSend(interaction: Message | ChatInputCommandInterac
     } else {
         replyOptions = {
             ...options,
-            allowedMentions: { repliedUser: false, roles: [], users: [] },
             content: options.content ?? undefined,
             nonce: nonce,
             enforceNonce: true
