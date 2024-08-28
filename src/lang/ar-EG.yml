@@ -1736,5 +1736,7 @@ hybridcommands_embed_help_fields_value: "**الألقاب:** ${aliases}\n**ال�
 
 ping_bot_show_info_msg: "مرحبًا ${message.author.toString()}, أنا 100% في `أوامر التفاعل` (${client.iHorizon_Emojis.badge.Slash_Bot}) وقابل للاستخدام بنسبة 85% عبر الأوامر البادئة. بادئتي على **هذا الخادم** هي `${prefix}`!"
 
+# وحدة التنبيه
+notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** نشر فيديو جديد **[اضغط هنا]({mediaURL})**"
 
 # -----------------------------\ /-----------------------------

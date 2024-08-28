@@ -1750,4 +1750,7 @@ hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Utilisation:**
 
 ping_bot_show_info_msg: "Hey ${message.author.toString()}, je suis 100% en `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) et utilisable à plus de 85% en commande préfixe. Mon préfixe sur **ce serveur** est `${prefix}` !"
 
+# Module de Notification
+notifier_on_new_media_default_message: "@everyone le mec en calecon dans sa chambre aka **[{artistAuthor}](<{artistLink}>)** a publié une nouvelle vidéo **[Cliquez ici]({mediaURL})**"
+
 # -----------------------------\ /-----------------------------

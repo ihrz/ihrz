@@ -1750,4 +1750,7 @@ hybridcommands_embed_help_fields_value: "**エイリアス:** ${aliases}\n**使�
 
 ping_bot_show_info_msg: "こんにちは ${message.author.toString()}、私は `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) で100%使用可能で、プレフィックスコマンドで85%以上使用可能です。このサーバーのプレフィックスは `${prefix}` です！"
 
+# 通知モジュール
+notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** が新しい動画を公開しました **[ここをクリック]({mediaURL})**"
+
 # -----------------------------\ /-----------------------------
