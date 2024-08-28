@@ -46,7 +46,7 @@ export default {
         if (await client.notifier.authorExist(platform, author)) {
             let fetched = await client.db.get(`${interaction.guildId}.NOTIFIER`) as DatabaseStructure.NotifierSchema;
 
-            const filteredArray = fetched.users?.filter((user) => 
+            const filteredArray = fetched?.users?.filter((user) =>
                 !(user.platform === platform && user.id_or_username === author)
             );
 
@@ -54,7 +54,7 @@ export default {
                 index === self.findIndex((t) => (
                     JSON.stringify(t) === JSON.stringify(value)
                 ))
-            );
+            ) || [];
 
             await client.db.set(`${interaction.guildId}.NOTIFIER.users`, uniqueArray);
 
