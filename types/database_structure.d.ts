@@ -22,6 +22,7 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import { CaseList } from "../src/core/modules/ticketsManager.js";
 import { AntiSpam } from "./antispam.js";
+import { Platform } from "../src/core/StreamNotifier.js";
 
 export namespace DatabaseStructure {
 
@@ -244,7 +245,7 @@ export namespace DatabaseStructure {
 
     export interface NotifierUserSchema {
         id_or_username: string;
-        platform: string;
+        platform: Platform;
     }
 
     export interface NotifierLastNotifiedMedias {

@@ -152,9 +152,9 @@ export class StreamNotifier {
     public async authorExistOnPlatform(platform: Platform, author_id_or_username: string): Promise<boolean> {
         try {
             if (platform === 'youtube') {
-                return await this.checkYouTubeChannelExists(author_id_or_username);
+                return (await this.checkYouTubeChannelExists(author_id_or_username)).state;
             } else if (platform === 'twitch') {
-                return await this.checkTwitchUserExists(author_id_or_username);
+                return (await this.checkTwitchUserExists(author_id_or_username)).state;
             } else {
                 throw new Error('Unsupported platform');
             }
@@ -164,20 +164,31 @@ export class StreamNotifier {
         }
     }
 
-    private async checkYouTubeChannelExists(channelId: string): Promise<boolean> {
+    public async getChannelNameById(platform: Platform, author_id_or_username: string): Promise<string> {
         try {
-            const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
-            const response = await axios.get(url);
-            return response.status === 200;
-        } catch (error: any) {
-            if (error.response && error.response.status === 404) {
-                return false;
+            if (platform === 'youtube') {
+                return (await this.checkYouTubeChannelExists(author_id_or_username)).name || author_id_or_username;
+            } else if (platform === 'twitch') {
+                return (await this.checkTwitchUserExists(author_id_or_username)).name || author_id_or_username;
+            } else {
+                throw new Error('Unsupported platform');
             }
-            throw error;
+        } catch (error) {
+            logger.err(`Error checking if author exists on platform ${platform} for ${author_id_or_username}: ${error}`);
+            return author_id_or_username;
         }
     }
 
-    private async checkTwitchUserExists(userName: string): Promise<boolean> {
+    private async checkYouTubeChannelExists(channelId: string): Promise<{ state: boolean, name?: string }> {
+        try {
+            const feed = await this.parser.parseURL(`https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`);
+            return { state: true, name: feed.title }
+        } catch (error: any) {
+            return { state: false };
+        }
+    }
+
+    private async checkTwitchUserExists(userName: string): Promise<{ state: boolean, name?: string }> {
         try {
             const url = `https://api.twitch.tv/helix/users?login=${userName}`;
             const response = await axios.get(url, {
@@ -187,10 +198,10 @@ export class StreamNotifier {
                 },
             });
 
-            return response.data.data.length > 0;
+            return { state: response.data.data.length > 0 }
         } catch (error: any) {
             if (error.response && error.response.status === 404) {
-                return false;
+                return { state: false };
             }
             throw error;
         }
@@ -201,7 +212,7 @@ export class StreamNotifier {
         let embed = new EmbedBuilder();
         let desc = "This is the list of all Streamer/Youtuber:\n";
         for (let author of authors) {
-            desc += `\`${author.id_or_username}\`\n`
+            desc += `[\`${await this.getChannelNameById(author.platform, author.id_or_username)}\`](https://youtube.com/channel/${author.id_or_username})\n`
         }
         embed.setTitle("All Streamer/Youtuber in the guild")
         embed.setDescription(desc)
