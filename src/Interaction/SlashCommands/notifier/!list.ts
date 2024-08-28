@@ -37,7 +37,10 @@ export default {
         };
 
         await client.method.interactionSend(interaction, {
-            embeds: [await client.notifier.generateAuthorsEmbed(interaction.guild)]
+            embeds: [
+                await client.notifier.generateAuthorsEmbed(interaction.guild),
+                await client.notifier.generateConfigurationEmbed(interaction.guild)
+            ]
         })
     },
 };

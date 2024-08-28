@@ -46,18 +46,21 @@ export default {
         if (await client.notifier.authorExistOnPlatform(platform, author)) {
             let fetched = await client.db.get(`${interaction.guildId}.NOTIFIER`) as DatabaseStructure.NotifierSchema;
 
+            fetched.users?.push({ id_or_username: author, platform: platform });
+
             const uniqueArray = fetched?.users?.filter((value, index, self) =>
                 index === self.findIndex((t) => (
                     JSON.stringify(t) === JSON.stringify(value)
                 ))
             ) || [];
 
-            uniqueArray?.push({ id_or_username: author, platform: platform });
-
             await client.db.set(`${interaction.guildId}.NOTIFIER.users`, uniqueArray);
 
             await client.method.interactionSend(interaction, {
-                embeds: [await client.notifier.generateAuthorsEmbed(interaction.guild)]
+                embeds: [
+                    await client.notifier.generateAuthorsEmbed(interaction.guild),
+                    await client.notifier.generateConfigurationEmbed(interaction.guild)
+                ]
             })
         } else {
             return interaction.reply({ content: "Author doesn't exist. Please verify the ID." })

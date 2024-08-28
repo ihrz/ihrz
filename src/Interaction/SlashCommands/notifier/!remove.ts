@@ -59,7 +59,10 @@ export default {
             await client.db.set(`${interaction.guildId}.NOTIFIER.users`, uniqueArray);
 
             await client.method.interactionSend(interaction, {
-                embeds: [await client.notifier.generateAuthorsEmbed(interaction.guild)]
+                embeds: [
+                    await client.notifier.generateAuthorsEmbed(interaction.guild),
+                    await client.notifier.generateConfigurationEmbed(interaction.guild)
+                ]
             });
         } else {
             return interaction.reply({ content: "Author doesn't exist in the database. Please verify the ID." });

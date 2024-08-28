@@ -57,9 +57,9 @@ export class StreamNotifier {
         this.twitchAccessToken = twitchAccessToken;
     }
 
-    private async getGuildData(guildID: string): Promise<DatabaseStructure.NotifierUserSchema[]> {
+    private async getGuildData(guildID: string): Promise<DatabaseStructure.NotifierSchema | null> {
         const all = await this.client.db.get(`${guildID}.NOTIFIER`) as DatabaseStructure.NotifierSchema | null
-        return all?.users || []
+        return all
     }
 
     private async getGuildsData(): Promise<{ value: DatabaseStructure.NotifierSchema, guildId: string }[]> {
@@ -209,15 +209,32 @@ export class StreamNotifier {
     }
 
     public async generateAuthorsEmbed(guild: Guild): Promise<EmbedBuilder> {
-        let authors = await this.getGuildData(guild.id);
+        let authors = (await this.getGuildData(guild.id))?.users || [];
         let embed = new EmbedBuilder();
         let desc = "This is the list of all Streamer/Youtuber:\n";
         for (let author of authors) {
             desc += `${author.platform} - [\`${await this.getChannelNameById(author.platform, author.id_or_username)}\`](https://youtube.com/channel/${author.id_or_username})\n`
         }
-        embed.setTitle("All Streamer/Youtuber in the guild")
-        embed.setDescription(desc)
+        embed.setTitle("All Streamer/Youtuber in the guild");
+        embed.setColor(2829617);
+        embed.setDescription(desc);
 
+        return embed;
+    }
+
+    public async generateConfigurationEmbed(guild: Guild) {
+        let lang = await this.client.func.getLanguageData(guild?.id) as LanguageData;
+        let config = (await this.getGuildData(guild.id));
+
+        let channel = guild.channels.cache.get(config?.channelId || "");
+        let embed = new EmbedBuilder();
+
+        embed.setTitle("Notifier Module Configuration");
+        embed.setColor(2829617);
+        embed.setFields(
+            { name: "Notify Channel", value: `${channel?.toString() || lang.setjoinroles_var_none}`, inline: false },
+            { name: "Notify Message", value: `${config?.message || lang.notifier_on_new_media_default_message}`, inline: false }
+        );
         return embed;
     }
 
