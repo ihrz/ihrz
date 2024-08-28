@@ -24,6 +24,7 @@ import { axios } from './functions/axios.js';
 import RSSParser from 'rss-parser';
 import { DatabaseStructure } from '../../types/database_structure.js';
 import logger from './logger.js';
+import { LanguageData } from '../../types/languageData.js';
 
 export type Platform = "kick" | "youtube" | "twitch";
 type VideoType = "short" | "video";
@@ -212,7 +213,7 @@ export class StreamNotifier {
         let embed = new EmbedBuilder();
         let desc = "This is the list of all Streamer/Youtuber:\n";
         for (let author of authors) {
-            desc += `[\`${await this.getChannelNameById(author.platform, author.id_or_username)}\`](https://youtube.com/channel/${author.id_or_username})\n`
+            desc += `${author.platform} - [\`${await this.getChannelNameById(author.platform, author.id_or_username)}\`](https://youtube.com/channel/${author.id_or_username})\n`
         }
         embed.setTitle("All Streamer/Youtuber in the guild")
         embed.setDescription(desc)
@@ -223,14 +224,27 @@ export class StreamNotifier {
     public async start() {
         const guildsData = await this.getGuildsData();
 
-        for (const entry of guildsData) {
-            const medias = await this.fetchUsersMedias(entry.value.users || []);
+        for (let entry of guildsData) {
+            let guild = this.client.guilds.cache.get(entry.guildId);
+            let channel = guild?.channels.cache.get(entry.value.channelId) as BaseGuildTextChannel | undefined;
+            let lang = await this.client.func.getLanguageData(guild?.id) as LanguageData;
+            let medias = await this.fetchUsersMedias(entry.value.users || []);
 
-            for (const media of medias) {
+            for (let media of medias) {
                 if (!await this.mediaHaveAlreadyBeNotified(entry.guildId, media)) {
-                    const guild = this.client.guilds.cache.get(entry.guildId);
-                    const channel = guild?.channels.cache.get(entry.value.channelId) as BaseGuildTextChannel | undefined;
-                    const message = entry.value.message || `@everyone **[${media.content.author}](<https://youtube.com/channel/${media.user.id_or_username}>)** have published new video **[Click Here](${media.content.link})**`;
+                    let message = this.client.method.generateCustomMessagePreview(
+                        entry.value.message || lang.notifier_on_new_media_default_message,
+                        {
+                            guild: guild!,
+                            user: this.client.user!,
+                            guildLocal: "en-US",
+                            notifier: {
+                                artistAuthor: media.content.author,
+                                artistLink: `https://youtube.com/channel/${media.user.id_or_username}`,
+                                mediaURL: media.content.link
+                            }
+                        }
+                    );
 
                     if (channel) {
                         await this.client.db.push(`${entry.guildId}.NOTIFIER.lastMediaNotified`, {
