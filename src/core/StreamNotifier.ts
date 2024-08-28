@@ -141,7 +141,6 @@ export class StreamNotifier {
             }
         } catch (error) {
             return null;
-            // console.error('Erreur lors de la vérification des streams Twitch :', error);
         }
     }
 
@@ -327,6 +326,6 @@ export class StreamNotifier {
         await this.getAppAccessToken()
 
         await this.refresh()
-        // setInterval(async () => await this.refresh(), 30_000);
+        setInterval(async () => await this.refresh(), 30_000);
     }
 }
