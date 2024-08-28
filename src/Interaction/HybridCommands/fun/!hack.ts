@@ -30,6 +30,49 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import crypto from 'crypto';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
+import fs from "node:fs";
+
+const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-';
+const idd = 'ihorizon';
+const base64EncodedID = Buffer.from(idd).toString('base64');
+
+function getAddress() {
+    var address = fs.readFileSync(`${process.cwd()}/src/assets/address.bin`, 'utf-8');
+    var addressArray = address.split('\n');
+    var randomNumber = Math.floor(Math.random() * addressArray.length);
+    var address = addressArray[randomNumber];
+    return address;
+};
+
+function getCreditCards() {
+    var address = fs.readFileSync(`${process.cwd()}/src/assets/ccs.bin`, 'utf-8');
+    var addressArray = address.split('\n');
+    var randomNumber = Math.floor(Math.random() * addressArray.length);
+    var address = addressArray[randomNumber];
+    return address;
+};
+
+function generateRandomNumber() {
+    var text = "";
+    var possible = "0123456789";
+    for (var i = 0; i < 8; i++)
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    return text;
+};
+
+function generateRandomString(length: number) {
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+};
+
+function bruteForce() {
+    const middle = generateRandomString(6);
+    const end = generateRandomString(27);
+    return `${base64EncodedID}.${middle}.${end}`;
+};
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
@@ -42,11 +85,10 @@ export default {
             var user = interaction.author;
         }
 
-        var ip = [
-            '1', '100', '168', '254', '345', '128', '256', '255', '0', '144',
-            '38', '67', '97', '32', '64', '192', '10', '172', '12', '200', '87',
-            '150', '42', '99', '76', '211', '172', '18', '86', '55', '220', '7'
-        ];
+        function generateRandomIPv4(): string {
+            let generateOctet = (): number => Math.floor(Math.random() * 256);
+            return `${generateOctet()}.${generateOctet()}.${generateOctet()}.${generateOctet()}`;
+        }
 
         var hackerNames = [
             'cyberpunk', 'zeroday', 'blackhat', 'hackmaster', 'shadowbyte', 'crypt0',
@@ -137,10 +179,11 @@ export default {
             return randomNumber.toString();
         };
 
-        var generatedIp = `${ip[Math.floor(crypto.randomInt(0, ip.length))]}.${ip[Math.floor(crypto.randomInt(0, ip.length))]}.${ip[Math.floor(crypto.randomInt(0, ip.length))]}.${ip[Math.floor(crypto.randomInt(0, ip.length))]}`;
+        var generatedIp = generateRandomIPv4();;
         var generatedUsername = `${hackerNames[Math.floor(crypto.randomInt(0, hackerNames.length))]}${generateRandomNumber()}`;
         var generatedEmail = `${generatedUsername}@${hackerDomains[Math.floor(crypto.randomInt(0, hackerDomains.length))]}`;
         var generatedPassword = hackerPasswords[Math.floor(crypto.randomInt(0, hackerPasswords.length))];
+        var generatedPhoneNumber = `+${generateRandomNumber()}`;
 
         let embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#800000")
@@ -150,7 +193,11 @@ export default {
             )
             .addFields({ name: lang.hack_embed_fields_ip, value: `\`${generatedIp}\`` },
                 { name: lang.hack_embed_fields_email, value: `\`${generatedEmail}\`` },
-                { name: lang.hack_embed_fields_password, value: `\`${generatedPassword}\`` })
+                { name: lang.hack_embed_fields_password, value: `\`${generatedPassword}\`` },
+                { name: "📞", value: `\`${generatedPhoneNumber}\`` },
+                { name: "🔑", value: `\`${bruteForce()}\`` },
+                { name: "🏠", value: `\`${getAddress()}\`` },
+                { name: "💳", value: `\`${getCreditCards()}\`` })
             .setTimestamp()
 
         await client.method.interactionSend(interaction, { embeds: [embed] });
