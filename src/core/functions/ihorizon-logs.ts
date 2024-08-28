@@ -30,7 +30,7 @@ export async function send(
 ) {
     try {
         let logEmbed = new EmbedBuilder()
-            .setColor("#bf0bb9")
+            .setColor(await interaction.client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
             .setTitle(embed.title)
             .setDescription(embed.description);
 
