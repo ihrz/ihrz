@@ -85,7 +85,7 @@ export async function main(client: Client) {
     client.timeCalculator = new iHorizonTimeCalculator();
     client.lyricsSearcher = new LyricsManager();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
-    client.notifier = new StreamNotifier(client, "ttt", "tt");
+    client.notifier = new StreamNotifier(client, process.env.TWITCH_APPLICATION_ID || "", process.env.TWITCH_APPLICATION_SECRET || "");
 
     process.on('SIGINT', async () => {
         client.destroy();
