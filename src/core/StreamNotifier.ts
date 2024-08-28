@@ -101,6 +101,7 @@ export class StreamNotifier {
             } catch (error) {
                 logger.err(`Erreur lors de la vérification des flux pour ${user.id_or_username} sur ${user.platform} : ${error}`);
             }
+            await this.delay(20_000);
         }
         return result;
     }
