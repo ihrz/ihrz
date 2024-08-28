@@ -314,6 +314,12 @@ help_confession_dsc: "Tu as une confession à faire ? Très bien, aussi sordide 
 help_confession_fields: "Confession"
 help_antispam_dsc: "Fatigué du spam ? Super ! iHorizon est là pour modérer le spam."
 help_antispam_fields: "AntiSpam"
+help_stats_fields: "Statistiques de l'utilisateur"
+help_stats_dsc: "Voir le nombre de messages et l'activité vocale d'un utilisateur dans une guilde"
+help_ownihrz_dsc: "Hébergez et gérez votre propre bot iHorizon personnalisé ! (OWNIHRZ)"
+help_ownihrz_fields: "OWNIHRZ"
+help_notifier_dsc: "Soyez notifié lorsque un Youtuber ou Streamer publie une vidéo !"
+help_notifier_fields: "Notificateur"
 
 # /say
 say_footer_msg: "\n\nEnvoyé depuis `/say` par ${interaction.user}"
@@ -1522,6 +1528,37 @@ antispan_bypassroles_embed_desc: "Tous les rôles ci-dessous peuvent contourner 
 # /antispam bypass-roles
 antispam_ignorechannels_embed_desc: "Tous les messages envoyés dans l'un des canaux ci-dessous peuvent contourner le module antispam."
 
+
+# Stats Module
+# /stats ustats
+
+# /stats ustats
+header_h1_value: "Statistiques de messages de {author_username}"
+messages_word: "Messages"
+voice_activity: "Activité vocale"
+minutes_word: "Minutes"
+top_voice: "Principaux canaux vocaux"
+top_message: "Principaux canaux de messages"
+
+
+# Module de Notification
+# auteur de la notification, configuration de la notification
+
+# /notifier author add
+notifier_author_add_author_doesnt_exist: "L'auteur n'existe pas. Veuillez vérifier l'ID."
+
+# /notifier config channel
+notifier_config_channel_logsEmbed_title: "Module du Canal de Notification"
+notifier_config_channel_logsEmbed_desc: "${interaction.user.id} a configuré le module du Canal de Notification sur ${channel}"
+notifier_config_message_command_ok: "Désormais, lorsqu'un Streamer/Youtuber/Twitcher publie une vidéo, j'enverrai un message dans ${channel.toString()}"
+
+# /notifier config message
+notifier_config_message_helpEmbed_title: "Message de Notification Personnalisé"
+notifier_config_message_helpEmbed_desc: "{artistAuthor} => Le nom d'utilisateur du Streamer/Youtuber\n{artistLink} => Le lien vers la chaîne du Streamer/Youtuber\n{mediaURL} => L'URL de la vidéo du Streamer/Youtuber"
+notifier_config_message_embed_fields_notifyMessage: "Message de Notification"
+notifier_config_message_awaiting_response: "Écrivez le message de notification."
+notifier_config_message_command_work_on_enable: "Activation du travail sur le message de notification."
+
 # -----------------------------/ \-----------------------------
 # Événements du Module de Confession
 confession_module_modal_title: "Envoyer une confession"
@@ -1637,9 +1674,10 @@ event_gw_removeentries_msg: "${interaction.user}, vous avez quitté ce giveaway 
 event_gw_leave_button_placeholder: "Quitter le concours"
 event_gw_confirm_leave_msg: "${interaction.user}, es-tu sûr de vouloir quitter ce concours ?"
 event_gw_embed_desc: "Se termine: ${end_string} (${end_string2})\nOrganisé par: <@${data.hostedBy}>\nParticipations: **0**\nGagnants: **${winners_amount}**"
-event_gw_ended_embed_desc: "Terminé : ${time1} (${time2})\nOrganisé par : <@${fetch.hostedBy}>\nEntrées **${fetch.entries.length}**\nGagnants : ${winners}"
+event_gw_ended_embed_desc: "Terminé : ${time1} (${time2})\nOrganisé par : <@${fetch.hostedBy}>\nEntrées: **${fetch.entries.length}**\nGagnants: ${winners}"
 event_gw_entries_words: "Participations"
 event_gw_ended_word: "Terminé: ${ended} (${time2})\nOrganisé par: <@${hostedBy}>\nParticipations **${entries}**\nGagnants: ${winners}"
+event_gw_break_req: "${interaction.client.iHorizon_Emojis.icon.No_Logo} Vous ne remplissez pas les conditions nécessaires pour participer à ce concours.\nType : `${giveawayData?.requirement.type}`\nValeur : `${giveawayData?.requirement.value}`"
 
 # Événement de Logs de Boost
 event_boostlog_add: "<@${newMember.user.id}> **vient de claquer toute ces thune** pour enculé la barre de boost du serveur (**${newMember.guild.premiumSubscriptionCount}** boosts au total)"
@@ -1735,5 +1773,14 @@ help_rpg_dsc: "Le nouveau RPG, ce machin truc il est trop dar wsh, tu branle c'q
 help_rpg_fields: "Fait ton choix wsh!"
 
 ping_bot_show_info_msg: "Hey ${message.author.toString()}, je suis 100% en `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) et utilisable à plus de 85% en commande préfixe. Mon préfixe sur **ce serveur** est `${prefix}` !"
+
+# Module de Notification
+notifier_on_new_media_default_message: "@everyone le mec en calecon dans sa chambre aka **[{artistAuthor}](<{artistLink}>)** a publié une nouvelle vidéo [Cliquez ici]({mediaURL})"
+notifier_on_new_media_default_button_label: "Regarder !"
+notifier_generateAuthorsEmbed_embed_desc: "Voici la liste de tous les Streamers/YouTubers :\n"
+notifier_generateAuthorsEmbed_embed_title: "Tous les Streamers/YouTubers du serveur"
+notifier_generateConfigurationEmbed_embed_title: "Configuration du Module de Notification"
+notifier_generateConfigurationEmbed_embed_fields_1_name: "Canal de Notification"
+notifier_generateConfigurationEmbed_embed_fields_2_name: "Message de Notification"
 
 # -----------------------------\ /-----------------------------

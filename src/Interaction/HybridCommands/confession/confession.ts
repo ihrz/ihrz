@@ -26,6 +26,7 @@ import {
     ApplicationCommandType,
     Message,
     EmbedBuilder,
+    ChannelType,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
@@ -59,6 +60,8 @@ export const command: Command = {
                     description_localizations: {
                         "fr": "Le channel"
                     },
+
+                    channel_types: [ChannelType.GuildText],
 
                     required: true
                 },

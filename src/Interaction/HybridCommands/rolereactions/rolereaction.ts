@@ -161,19 +161,14 @@ export const command: Command = {
                         }
                     );
 
-                    try {
-                        let logEmbed = new EmbedBuilder()
-                            .setColor("#bf0bb9")
-                            .setTitle(lang.reactionroles_logs_embed_title_added)
-                            .setDescription(lang.reactionroles_logs_embed_description_added
-                                .replace("${interaction.user.id}", interaction.member?.user.id!)
-                                .replace("${messagei}", messagei!)
-                                .replace("${reaction}", reaction)
-                                .replace("${role}", role?.toString()!)
-                            )
-                        let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                        if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
-                    } catch (e: any) { logger.err(e) };
+                    await client.method.iHorizonLogs.send(interaction, {
+                        title: lang.reactionroles_logs_embed_title_added,
+                        description: lang.reactionroles_logs_embed_description_added
+                            .replace("${interaction.user.id}", interaction.member?.user.id!)
+                            .replace("${messagei}", messagei!)
+                            .replace("${reaction}", reaction)
+                            .replace("${role}", role?.toString()!)
+                    });
 
                     await client.method.interactionSend(interaction, {
                         content: lang.reactionroles_command_work_added
@@ -217,18 +212,13 @@ export const command: Command = {
 
             await client.db.delete(`${interaction.guildId}.GUILD.REACTION_ROLES.${messagei}.${reaction}`);
 
-            try {
-                let logEmbed = new EmbedBuilder()
-                    .setColor("#bf0bb9")
-                    .setTitle(lang.reactionroles_logs_embed_title_remove)
-                    .setDescription(lang.reactionroles_logs_embed_description_remove
-                        .replace("${interaction.user.id}", interaction.member.user.id)
-                        .replace("${messagei}", messagei!)
-                        .replace("${reaction}", reaction!)
-                    );
-                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
-            } catch (e: any) { logger.err(e) };
+            await client.method.iHorizonLogs.send(interaction, {
+                title: lang.reactionroles_logs_embed_title_remove,
+                description: lang.reactionroles_logs_embed_description_remove
+                    .replace("${interaction.user.id}", interaction.member.user.id)
+                    .replace("${messagei}", messagei!)
+                    .replace("${reaction}", reaction!)
+            });
 
             await client.method.interactionSend(interaction, {
                 content: lang.reactionroles_command_work_remove

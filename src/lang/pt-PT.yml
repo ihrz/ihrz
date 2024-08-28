@@ -314,6 +314,12 @@ help_confession_dsc: "Você tem uma confissão a fazer? Muito bem, não importa 
 help_confession_fields: "Confissão"
 help_antispam_dsc: "Cansado de spam? Ótimo! O iHorizon está aqui para moderar alguns spams!"
 help_antispam_fields: "AntiSpam"
+help_stats_fields: "Estatísticas do usuário"
+help_stats_dsc: "Veja a quantidade de mensagens e a atividade de voz de um usuário em uma guilda"
+help_ownihrz_dsc: "Hospede e gerencie seu bot iHorizon personalizado! (OWNIHRZ)"
+help_ownihrz_fields: "OWNIHRZ"
+help_notifier_dsc: "Seja notificado quando um Youtuber ou Streamer publicar um vídeo!"
+help_notifier_fields: "Notificador"
 
 # /say
 say_footer_msg: "\n\nEnviado de `/say` por ${interaction.user}"
@@ -1522,6 +1528,37 @@ antispan_bypassroles_embed_desc: "Todos os papéis abaixo podem ignorar o módul
 # /antispam bypass-roles
 antispam_ignorechannels_embed_desc: "Todas as mensagens enviadas em um dos canais abaixo podem ignorar o módulo antispam."
 
+
+# Stats Module
+# /stats ustats
+
+# /stats ustats
+header_h1_value: "Estatísticas de mensagens de {author_username}"
+messages_word: "Mensagens"
+minutes_word: "Minutos"
+voice_activity: "Atividade de voz"
+top_voice: "Principais canais de voz"
+top_message: "Principais canais de mensagens"
+
+
+# Módulo de Notificação
+# autor da notificação, configuração da notificação
+
+# /notifier author add
+notifier_author_add_author_doesnt_exist: "O autor não existe. Por favor, verifique o ID."
+
+# /notifier config channel
+notifier_config_channel_logsEmbed_title: "Módulo de Canal de Notificação"
+notifier_config_channel_logsEmbed_desc: "${interaction.user.id} configurou o módulo de Canal de Notificação para ${channel}"
+notifier_config_message_command_ok: "Agora, quando um Streamer/Youtuber/Twitcher publicar um vídeo, enviarei uma mensagem em ${channel.toString()}"
+
+# /notifier config message
+notifier_config_message_helpEmbed_title: "Mensagem de Notificação Personalizada"
+notifier_config_message_helpEmbed_desc: "{artistAuthor} => O nome de usuário do Streamer/Youtuber\n{artistLink} => O link do canal do Streamer/Youtuber\n{mediaURL} => A URL do vídeo do Streamer/Youtuber"
+notifier_config_message_embed_fields_notifyMessage: "Mensagem de Notificação"
+notifier_config_message_awaiting_response: "Escreva a mensagem de notificação."
+notifier_config_message_command_work_on_enable: "Trabalhando na ativação da mensagem de notificação."
+
 # -----------------------------/ \-----------------------------
 # Eventos do Módulo de Confissões
 confession_module_modal_title: "Enviar uma confissão"
@@ -1640,6 +1677,7 @@ event_gw_embed_desc: "Termina: ${end_string} (${end_string2})\nOrganizado por: <
 event_gw_ended_embed_desc: "Encerrado: ${time1} (${time2})\nOrganizado por: <@${fetch.hostedBy}>\nEntradas **${fetch.entries.length}**\nVencedores: ${winners}"
 event_gw_entries_words: "Entradas"
 event_gw_ended_word: "Terminado: ${ended} (${time2})\nOrganizado por: <@${hostedBy}>\nEntradas **${entries}**\nVencedores: ${winners}"
+event_gw_break_req: "${interaction.client.iHorizon_Emojis.icon.No_Logo} Você não cumpre as condições necessárias para participar deste sorteio.\nTipo: `${giveawayData?.requirement.type}`\nValor: `${giveawayData?.requirement.value}`"
 
 # Evento de Logs de Boost
 event_boostlog_add: "<@${newMember.user.id}> **acabou de dar boost** no servidor! (**${newMember.guild.premiumSubscriptionCount}** boosts no total)"
@@ -1735,5 +1773,14 @@ help_rpg_dsc: "Nosso novo RPG, neste RPG você pode fazer o que quiser! Temos mu
 help_rpg_fields: "Faça uma seleção!"
 
 ping_bot_show_info_msg: "Olá ${message.author.toString()}, estou 100% em `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) e utilizável em mais de 85% em comando de prefixo. Meu prefixo neste **servidor** é `${prefix}` !"
+
+# Módulo de Notificação
+notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** publicou um novo vídeo [Clique aqui]({mediaURL})"
+notifier_on_new_media_default_button_label: "Confira!"
+notifier_generateAuthorsEmbed_embed_desc: "Esta é a lista de todos os Streamers/YouTubers:\n"
+notifier_generateAuthorsEmbed_embed_title: "Todos os Streamers/YouTubers no servidor"
+notifier_generateConfigurationEmbed_embed_title: "Configuração do Módulo de Notificação"
+notifier_generateConfigurationEmbed_embed_fields_1_name: "Canal de Notificação"
+notifier_generateConfigurationEmbed_embed_fields_2_name: "Mensagem de Notificação"
 
 # -----------------------------\ /-----------------------------

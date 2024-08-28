@@ -66,22 +66,11 @@ export default {
                 .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
             );
 
-        try {
-            let logEmbed = new EmbedBuilder()
-                .setColor("#bf0bb9")
-                .setTitle(data.lockall_logs_embed_title)
-                .setDescription(data.lockall_logs_embed_description
-                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
-                );
-
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-            if (logchannel) {
-                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-            };
-        } catch (e: any) {
-            logger.err(e)
-        };
+        await client.method.iHorizonLogs.send(interaction, {
+            title: data.lockall_logs_embed_title,
+            description: data.lockall_logs_embed_description
+                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+        });
 
         await client.method.interactionSend(interaction, { embeds: [Lockembed] });
         return;

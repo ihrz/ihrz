@@ -143,7 +143,7 @@ ranksSetMessage_help_embed_description: "/ranks set-message"
 ranksSetMessage_help_embed_fields_name: "how to use ?"
 ranksSetMessage_logs_embed_title_on_enable: "RanksSetMessage Logs"
 ranksSetMessage_logs_embed_description_on_enable: "<@${interaction.user.id}> set the ranks message !"
-ranksSetMessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo}  | Successfully set ranks message."
+ranksSetMessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo} | Successfully set ranks message."
 ranksSetMessage_logs_embed_title_on_disable: "RanksSetMessage Logs"
 ranksSetMessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deleted the ranks message !"
 ranksSetMessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Successfully deleted custom ranks message."
@@ -314,6 +314,12 @@ help_confession_dsc: "Do you have a confession to make? Very well, no matter how
 help_confession_fields: "Confession"
 help_antispam_dsc: "Borring of spamming ? Noice! iHorizon is here, to moderate somes spamming!"
 help_antispam_fields: "AntiSpam"
+help_stats_fields: "User Stats"
+help_stats_dsc: "See messages amount and the voice activity on an user in a guild"
+help_ownihrz_dsc: "Host and manage your custom iHorizon bot ! (OWNIHRZ)"
+help_ownihrz_fields: "OWNIHRZ"
+help_notifier_dsc: "Be notified when a Youtuber, Streamer publish a video!"
+help_notifier_fields: "Notifier"
 
 # /say
 say_footer_msg: "\n\nSent from `/say` by ${interaction.user}"
@@ -1522,6 +1528,37 @@ antispan_bypassroles_embed_desc: "All of the roles bellow can bypass the antispa
 # /antispam bypass-roles
 antispam_ignorechannels_embed_desc: "All message sent in one of this channels bellow can bypass the antispam module"
 
+
+# Stats Module
+# /stats ustats
+
+# /stats ustats
+header_h1_value: "{author_username}'s Messages Stats"
+messages_word: "Messages"
+voice_activity: "Voice Activity"
+minutes_word: "Minutes"
+top_voice: "Top Voice Channels"
+top_message: "Top Message Channels"
+
+
+# Notifier Module
+# notifier author, notifier config
+
+# /notifier author add
+notifier_author_add_author_doesnt_exist: "Author doesn't exist. Please verify the ID."
+
+# /notifier config channel
+notifier_config_channel_logsEmbed_title: "Notifier Channel Module"
+notifier_config_channel_logsEmbed_desc: "${interaction.user.id} have set the Notifier Channel module to ${channel}"
+notifier_config_message_command_ok: "Now, when Streamer/Youtuber/Twitcher publish a video, i send message in ${channel.toString()}"
+
+# /notifier config message
+notifier_config_message_helpEmbed_title: "Custom Notify Message"
+notifier_config_message_helpEmbed_desc: "{artistAuthor} => The username of the Streamer/Youtuber\n{artistLink} => The link of the Streamer/Youtuber channel\n{mediaURL} => The video URL of the Streamer/Youtuber"
+notifier_config_message_embed_fields_notifyMessage: "Notify Message"
+notifier_config_message_awaiting_response: "Wrote the notify message."
+notifier_config_message_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo} | Successfully set notify message."
+
 # -----------------------------/ \-----------------------------
 # Confession Module Events
 confession_module_modal_title: "Send a confession"
@@ -1640,6 +1677,7 @@ event_gw_embed_desc: "Ends: ${end_string} (${end_string2})\nHosted by: <@${data.
 event_gw_ended_embed_desc: "Ended: ${time1} (${time2})\nHosted by: <@${fetch.hostedBy}>\nEntries **${fetch.entries.length}**\nWinners: ${winners}"
 event_gw_entries_words: "Entries"
 event_gw_ended_word: "Ended: ${ended} (${time2})\nHosted by: <@${hostedBy}>\nEntries **${entries}**\nWinners: ${winners}"
+event_gw_break_req: "${interaction.client.iHorizon_Emojis.icon.No_Logo} You don't follow the needed conditions to enter in this giveaways.\nType: `${giveawayData?.requirement.type}`\nValue: `${giveawayData?.requirement.value}`"
 
 # Boost Logs Event
 event_boostlog_add: "<@${newMember.user.id}> **just boosted** the server! (**${newMember.guild.premiumSubscriptionCount}** total boosts)"
@@ -1736,5 +1774,14 @@ help_rpg_fields: "Make a selection!"
 
 
 ping_bot_show_info_msg: "Hey ${message.author.toString()}, I am 100% in `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) and usable over 85% in prefix command. My prefix on **this server** is `${prefix}` !"
+
+# Notifier Module
+notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** have published new video [Click Here]({mediaURL})"
+notifier_on_new_media_default_button_label: "Check out!"
+notifier_generateAuthorsEmbed_embed_desc: "This is the list of all Streamer/Youtuber:\n"
+notifier_generateAuthorsEmbed_embed_title: "All Streamer/Youtuber in the guild"
+notifier_generateConfigurationEmbed_embed_title: "Notifier Module Configuration"
+notifier_generateConfigurationEmbed_embed_fields_1_name: "Notify Channel"
+notifier_generateConfigurationEmbed_embed_fields_2_name: "Notify Message"
 
 # -----------------------------\ /-----------------------------

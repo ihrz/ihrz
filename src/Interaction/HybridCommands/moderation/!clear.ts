@@ -64,29 +64,19 @@ export default {
         };
 
         (interaction.channel as BaseGuildTextChannel).bulkDelete(numberx as unknown as number, true)
-            .then((messages) => {
+            .then(async (messages) => {
                 client.method.channelSend(interaction, {
                     content: data.clear_confirmation_message
                         .replace(/\${messages\.size}/g, messages.size.toString())
                 });
 
-                try {
-                    let logEmbed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
-                        .setTitle(data.clear_logs_embed_title)
-                        .setDescription(data.clear_logs_embed_description
-                            .replace(/\${interaction\.user\.id}/g, interaction.member?.user.id!)
-                            .replace(/\${messages\.size}/g, messages.size.toString())
-                            .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id!)
-                        )
-                    let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
-                    if (logchannel) {
-                        (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
-                    };
-                } catch (e: any) {
-                    logger.err(e)
-                };
+                await client.method.iHorizonLogs.send(interaction, {
+                    title: data.clear_logs_embed_title,
+                    description: data.clear_logs_embed_description
+                        .replace(/\${interaction\.user\.id}/g, interaction.member?.user.id!)
+                        .replace(/\${messages\.size}/g, messages.size.toString())
+                        .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id!)
+                });
             });
     },
 };

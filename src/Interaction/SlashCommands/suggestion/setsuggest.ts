@@ -24,6 +24,7 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     ApplicationCommandType,
+    ChannelType,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
@@ -84,6 +85,7 @@ export const command: Command = {
                 {
                     name: 'channel',
                     type: ApplicationCommandOptionType.Channel,
+                    channel_types: [ChannelType.GuildText],
 
                     description: 'What the channel for the suggestion place?',
                     description_localizations: {

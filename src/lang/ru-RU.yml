@@ -314,6 +314,12 @@ help_confession_dsc: "Хотите сделать признание? Очень
 help_confession_fields: "Исповедь"
 help_antispam_dsc: "Надоел спам? Отлично! iHorizon здесь, чтобы модерировать спам!"
 help_antispam_fields: "AntiSpam"
+help_stats_fields: "Статистика пользователя"
+help_stats_dsc: "Посмотреть количество сообщений и голосовую активность пользователя в гильдии"
+help_ownihrz_dsc: "Хостите и управляйте своим собственным ботом iHorizon! (OWNIHRZ)"
+help_ownihrz_fields: "OWNIHRZ"
+help_notifier_dsc: "Получайте уведомления, когда ютубер или стример публикует видео!"
+help_notifier_fields: "Уведомитель"
 
 # /say
 say_footer_msg: "\n\nОтправлено из `/говорить` от ${interaction.user}"
@@ -1522,6 +1528,37 @@ antispan_bypassroles_embed_desc: "Все роли ниже могут обойт
 # /antispam bypass-roles
 antispam_ignorechannels_embed_desc: "Все сообщения, отправленные в один из указанных ниже каналов, могут обходить модуль антиспама."
 
+
+# Stats Module
+# /stats ustats
+
+# /stats ustats
+header_h1_value: "Статистика сообщений {author_username}"
+messages_word: "Сообщения"
+minutes_word: "Минуты"
+top_voice: "Лучшие голосовые каналы"
+top_message: "Лучшие каналы сообщений"
+voice_activity: "Активность в голосовых каналах"
+
+
+# Модуль уведомлений
+# автор уведомлений, настройка уведомлений
+
+# /notifier author add
+notifier_author_add_author_doesnt_exist: "Автор не существует. Пожалуйста, проверьте ID."
+
+# /notifier config channel
+notifier_config_channel_logsEmbed_title: "Модуль Канала Уведомлений"
+notifier_config_channel_logsEmbed_desc: "${interaction.user.id} установил модуль Канала Уведомлений на ${channel}"
+notifier_config_message_command_ok: "Теперь, когда Стример/Ютубер/Twitcher публикует видео, я отправлю сообщение в ${channel.toString()}"
+
+# /notifier config message
+notifier_config_message_helpEmbed_title: "Пользовательское Сообщение Уведомления"
+notifier_config_message_helpEmbed_desc: "{artistAuthor} => Имя пользователя Стримера/Ютубера\n{artistLink} => Ссылка на канал Стримера/Ютубера\n{mediaURL} => URL видео Стримера/Ютубера"
+notifier_config_message_embed_fields_notifyMessage: "Сообщение Уведомления"
+notifier_config_message_awaiting_response: "Напишите сообщение уведомления."
+notifier_config_message_command_work_on_enable: "Работа над включением сообщения уведомления."
+
 # -----------------------------/ \-----------------------------
 # События Модуля Исповедей
 confession_module_modal_title: "Отправить исповедь"
@@ -1640,6 +1677,7 @@ event_gw_embed_desc: "Заканчивается: ${end_string} (${end_string2})
 event_gw_ended_embed_desc: "Завершено: ${time1} (${time2})\nПровел: <@${fetch.hostedBy}>\nЗаписи **${fetch.entries.length}**\nПобедители: ${winners}"
 event_gw_entries_words: "Записи"
 event_gw_ended_word: "Завершено: ${ended} (${time2})\nОрганизатор: <@${hostedBy}>\nЗаписи **${entries}**\nПобедители: ${winners}"
+event_gw_break_req: "${interaction.client.iHorizon_Emojis.icon.No_Logo} Вы не соответствуете необходимым условиям для участия в этом розыгрыше.\nТип: `${giveawayData?.requirement.type}`\nЗначение: `${giveawayData?.requirement.value}`"
 
 # Событие логов улучшения
 event_boostlog_add: "<@${newMember.user.id}> **только что улучшил(а)** сервер! (**${newMember.guild.premiumSubscriptionCount}** всего улучшений)"
@@ -1735,5 +1773,14 @@ help_rpg_dsc: "Наш новый RPG, в этом RPG вы можете дела
 help_rpg_fields: "Сделайте выбор!"
 
 ping_bot_show_info_msg: "Привет ${message.author.toString()}, я на 100% используюсь в `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) и более чем на 85% в командном префиксе. Мой префикс на **этом сервере** — `${prefix}` !"
+
+# Модуль уведомлений
+notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** опубликовал новое видео [Нажмите здесь]({mediaURL})"
+notifier_on_new_media_default_button_label: "Смотреть!"
+notifier_generateAuthorsEmbed_embed_desc: "Это список всех стримеров/ютуберов:\n"
+notifier_generateAuthorsEmbed_embed_title: "Все стримеры/ютуберы на сервере"
+notifier_generateConfigurationEmbed_embed_title: "Конфигурация модуля уведомлений"
+notifier_generateConfigurationEmbed_embed_fields_1_name: "Канал уведомлений"
+notifier_generateConfigurationEmbed_embed_fields_2_name: "Сообщение уведомления"
 
 # -----------------------------/ \-----------------------------

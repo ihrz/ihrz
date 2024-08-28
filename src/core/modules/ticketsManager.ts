@@ -43,6 +43,7 @@ import {
     StringSelectMenuOptionBuilder,
     ChannelSelectMenuBuilder,
     ModalSubmitInteraction,
+    CategoryChannel,
 } from 'discord.js';
 
 import { LanguageData } from '../../../types/languageData';
@@ -58,7 +59,8 @@ const database = getDatabaseInstance();
 interface CreatePanelData {
     name: string | null;
     description: string | null;
-    author: string
+    author: string;
+    category?: string | undefined
 }
 
 async function CreateButtonPanel(interaction: ChatInputCommandInteraction<CacheType>, data: CreatePanelData) {
@@ -91,6 +93,7 @@ async function CreateButtonPanel(interaction: ChatInputCommandInteraction<CacheT
                 reason: false,
                 channel: message.channel.id,
                 messageID: message.id,
+                categoryId: data.category
             }
         );
     });
@@ -444,7 +447,8 @@ async function CreateTicketChannel(interaction: ButtonInteraction<CacheType> | S
 
 interface ResultButton {
     panelName: string;
-    reason?: boolean
+    reason?: boolean;
+    categoryId?: string;
     selection?: {
         id: number;
         name: string;
@@ -456,6 +460,8 @@ interface ResultButton {
 async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringSelectMenuInteraction<CacheType>, result: ResultButton) {
     let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let category = await database.get(`${interaction.message.guildId}.GUILD.TICKET.category`);
+
+    if (result.categoryId) category = result.categoryId
 
     let reason = '';
     let reasonInteraction: ModalSubmitInteraction<CacheType>;
@@ -491,7 +497,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
     await interaction.guild?.channels.create({
         name: `ticket-${interaction.user.username}`,
         type: ChannelType.GuildText,
-        parent: interaction instanceof StringSelectMenuInteraction ? (result.selection?.find(item => item.id === parseInt(interaction.values[0]))?.categoryId ?? category) : category
+        parent: interaction.guild.channels.cache.get(interaction instanceof StringSelectMenuInteraction ? (result.selection?.find(item => item.id === parseInt(interaction.values[0]))?.categoryId ?? category) : category)?.id || null
     }).then(async (channel) => {
         if (category) {
             channel.lockPermissions();

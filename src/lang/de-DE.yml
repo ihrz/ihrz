@@ -314,6 +314,12 @@ help_confession_dsc: "Möchtest du ein Geständnis ablegen? Sehr gut, egal wie s
 help_confession_fields: "Beichte"
 help_antispam_dsc: "Genervt von Spam? Kein Problem! iHorizon ist da, um Spam zu moderieren!"
 help_antispam_fields: "AntiSpam"
+help_stats_fields: "Benutzerstatistiken"
+help_stats_dsc: "Sieh dir die Anzahl der Nachrichten und die Sprachaktivität eines Benutzers in einer Gilde an"
+help_ownihrz_dsc: "Hoste und verwalte deinen eigenen benutzerdefinierten iHorizon-Bot! (OWNIHRZ)"
+help_ownihrz_fields: "OWNIHRZ"
+help_notifier_dsc: "Werde benachrichtigt, wenn ein YouTuber oder Streamer ein Video veröffentlicht!"
+help_notifier_fields: "Benachrichtigung"
 
 # /say
 say_footer_msg: "\n\nGesendet von `/sagen` von ${interaction.user}"
@@ -1522,6 +1528,37 @@ antispan_bypassroles_embed_desc: "Alle unten stehenden Rollen können das Antisp
 # /antispam bypass-roles
 antispam_ignorechannels_embed_desc: "Alle Nachrichten, die in einem der unten stehenden Kanäle gesendet werden, können das Antispam-Modul umgehen."
 
+
+# Stats Module
+# /stats ustats
+
+# /stats ustats
+header_h1_value: "{author_username}s Nachrichtenstatistik"
+messages_word: "Nachrichten"
+minutes_word: "Minuten"
+voice_activity: "Sprachaktivität"
+top_voice: "Top-Sprachkanäle"
+top_message: "Top-Nachrichtenkanäle"
+
+
+# Benachrichtigungsmodul
+# Benachrichtigungsautor, Benachrichtigungskonfiguration
+
+# /notifier author add
+notifier_author_add_author_doesnt_exist: "Der Autor existiert nicht. Bitte überprüfe die ID."
+
+# /notifier config channel
+notifier_config_channel_logsEmbed_title: "Benachrichtigungskanalmodul"
+notifier_config_channel_logsEmbed_desc: "${interaction.user.id} hat das Benachrichtigungskanalmodul auf ${channel} gesetzt"
+notifier_config_message_command_ok: "Jetzt, wenn ein Streamer/YouTuber/Twitcher ein Video veröffentlicht, sende ich eine Nachricht in ${channel.toString()}"
+
+# /notifier config message
+notifier_config_message_helpEmbed_title: "Benutzerdefinierte Benachrichtigungsnachricht"
+notifier_config_message_helpEmbed_desc: "{artistAuthor} => Der Benutzername des Streamers/YouTubers\n{artistLink} => Der Link zum Streamer/YouTuber-Kanal\n{mediaURL} => Die Video-URL des Streamers/YouTubers"
+notifier_config_message_embed_fields_notifyMessage: "Benachrichtigungsnachricht"
+notifier_config_message_awaiting_response: "Schreibe die Benachrichtigungsnachricht."
+notifier_config_message_command_work_on_enable: "Arbeite an der Aktivierung der Benachrichtigungsnachricht."
+
 # -----------------------------/ \-----------------------------
 # Bekenntnismodul Ereignisse
 confession_module_modal_title: "Ein Geständnis ablegen"
@@ -1640,6 +1677,7 @@ event_gw_embed_desc: "Endet: ${end_string} (${end_string2})\nVeranstaltet von: <
 event_gw_ended_embed_desc: "Beendet: ${time1} (${time2})\nGastgeber: <@${fetch.hostedBy}>\nEinträge **${fetch.entries.length}**\nGewinner: ${winners}"
 event_gw_entries_words: "Teilnehmer"
 event_gw_ended_word: "Beendet: ${ended} (${time2})\nVeranstaltet von: <@${hostedBy}>\nTeilnehmer **${entries}**\nGewinner: ${winners}"
+event_gw_break_req: "${interaction.client.iHorizon_Emojis.icon.No_Logo} Du erfüllst nicht die erforderlichen Bedingungen, um an diesem Gewinnspiel teilzunehmen.\nTyp: `${giveawayData?.requirement.type}`\nWert: `${giveawayData?.requirement.value}`"
 
 # Ereignisprotokoll für Boosts
 event_boostlog_add: "<@${newMember.user.id}> **hat gerade den Server geboostet**! (**${newMember.guild.premiumSubscriptionCount}** insgesamt)"
@@ -1734,5 +1772,14 @@ hybridcommands_embed_help_fields_value: "**Aliase:** ${aliases}\n**Verwendung:**
 help_rpg_dsc: "Unser brandneues RPG, in diesem RPG kannst du tun, was immer du willst! Wir haben viele Quests, Bosse, Events und mehr! (Wir haben noch einige Tutorials, die dir ein wenig helfen, aber es ist immer noch DEIN Abenteuer!)"
 help_rpg_fields: "Triff eine Auswahl!"
 ping_bot_show_info_msg: "Hey ${message.author.toString()}, ich bin zu 100% in `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) und zu mehr als 85% in Präfix-Befehl nutzbar. Mein Präfix auf **diesem Server** ist `${prefix}` !"
+
+# Benachrichtigungsmodul
+notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** hat ein neues Video veröffentlicht [Hier klicken]({mediaURL})"
+notifier_on_new_media_default_button_label: "Ansehen!"
+notifier_generateAuthorsEmbed_embed_desc: "Dies ist die Liste aller Streamer/YouTuber:\n"
+notifier_generateAuthorsEmbed_embed_title: "Alle Streamer/YouTuber im Server"
+notifier_generateConfigurationEmbed_embed_title: "Konfiguration des Benachrichtigungsmoduls"
+notifier_generateConfigurationEmbed_embed_fields_1_name: "Benachrichtigungskanal"
+notifier_generateConfigurationEmbed_embed_fields_2_name: "Benachrichtigungsnachricht"
 
 # -----------------------------\ /-----------------------------

@@ -76,6 +76,36 @@ export const command: Command = {
                     required: true
                 },
                 {
+                    name: "requirement",
+
+                    description: "The requirement to enter into the giveaway",
+                    description_localizations: {
+                        "fr": "Le prérequis pour rentrer dans le giveaways",
+                    },
+
+                    choices: [
+                        {
+                            name: "None",
+                            value: "none"
+                        },
+                        {
+                            name: "Need Specific invitations amount",
+                            value: "invites"
+                        },
+                        {
+                            name: "Need specific messages number",
+                            value: "messages"
+                        },
+                        {
+                            name: "Need specific roles",
+                            value: "roles"
+                        }
+                    ],
+
+                    type: ApplicationCommandOptionType.String,
+                    required: true
+                },
+                {
                     name: 'prize',
                     type: ApplicationCommandOptionType.String,
 
@@ -87,6 +117,17 @@ export const command: Command = {
                     required: true
                 },
                 {
+                    name: 'requirement-value',
+                    type: ApplicationCommandOptionType.String,
+
+                    description: 'The requirement value',
+                    description_localizations: {
+                        "fr": "La valeur du prérequis pour entrer dans le giveaways"
+                    },
+
+                    required: false
+                },
+                {
                     name: 'image',
                     type: ApplicationCommandOptionType.String,
 
@@ -96,7 +137,7 @@ export const command: Command = {
                     },
 
                     required: false
-                }
+                },
             ]
         },
         {

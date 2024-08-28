@@ -36,6 +36,11 @@ export interface Giveaway {
     duration?: number;
 
     embedImageURL: string | null;
+
+    requirement: {
+        type: "none" | "invites" | "messages" | "roles";
+        value: string | null;
+    }
 };
 
 export interface GiveawayCreateOptions {
@@ -44,6 +49,7 @@ export interface GiveawayCreateOptions {
     winnerCount: number;
     hostedBy: string;
     embedImageURL: string | null;
+    requirement: { type: "none" | "invites" | "messages" | "roles", value: string | null }
 };
 
 export interface GiveawayData {

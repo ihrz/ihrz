@@ -62,10 +62,10 @@ export default {
                 topic: (channel as BaseGuildTextChannel).topic!,
                 nsfw: channel.nsfw,
                 rateLimitPerUser: channel.rateLimitPerUser!,
-                position: channel.rawPosition,
                 reason: `Channel re-create by ${interaction.member.user} (${interaction.member.user.id})`
             });
 
+            await here.setPosition(channel.rawPosition);
             here.send({ content: lang.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.member.user.toString()) });
             return;
         } catch (error) {

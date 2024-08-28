@@ -36,7 +36,7 @@ export const event: BotEvent = {
         if (data.updateguild && data.updateguild.mode === 'allowlist') {
             let fetchedLogs = await newGuild.fetchAuditLogs({
                 type: AuditLogEvent.GuildUpdate,
-                limit: 75,
+                limit: 1,
             });
 
             let relevantLog = fetchedLogs.entries.find(entry =>
@@ -52,22 +52,44 @@ export const event: BotEvent = {
             let baseData = await client.db.get(`${newGuild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
             if (baseData) return;
 
-            await newGuild.setAFKChannel(oldGuild.afkChannel);
-            await newGuild.setAFKTimeout(oldGuild.afkTimeout);
-            await newGuild.setBanner(oldGuild.banner);
-            await newGuild.setDefaultMessageNotifications(oldGuild.defaultMessageNotifications);
-            await newGuild.setDiscoverySplash(oldGuild.discoverySplash);
-            await newGuild.setExplicitContentFilter(oldGuild.explicitContentFilter);
-            await newGuild.setIcon(oldGuild.icon);
-            await newGuild.setMFALevel(oldGuild.mfaLevel);
-            await newGuild.setName(oldGuild.name);
-            await newGuild.setPreferredLocale(oldGuild.preferredLocale);
-            await newGuild.setPremiumProgressBarEnabled(oldGuild.premiumProgressBarEnabled);
-
             let member = newGuild.members.cache.get(relevantLog?.executorId!);
             if (!member) return;
 
             await client.method.punish(data, member);
+
+            if (oldGuild.afkChannel !== newGuild.afkChannel) {
+                await newGuild.setAFKChannel(oldGuild.afkChannel);
+            }
+            if (oldGuild.afkTimeout !== newGuild.afkTimeout) {
+                await newGuild.setAFKTimeout(oldGuild.afkTimeout);
+            }
+            if (oldGuild.banner !== newGuild.banner) {
+                await newGuild.setBanner(oldGuild.banner);
+            }
+            if (oldGuild.defaultMessageNotifications !== newGuild.defaultMessageNotifications) {
+                await newGuild.setDefaultMessageNotifications(oldGuild.defaultMessageNotifications);
+            }
+            if (oldGuild.discoverySplash !== newGuild.discoverySplash) {
+                await newGuild.setDiscoverySplash(oldGuild.discoverySplash);
+            }
+            if (oldGuild.explicitContentFilter !== newGuild.explicitContentFilter) {
+                await newGuild.setExplicitContentFilter(oldGuild.explicitContentFilter);
+            }
+            if (oldGuild.icon !== newGuild.icon) {
+                await newGuild.setIcon(oldGuild.icon);
+            }
+            if (oldGuild.mfaLevel !== newGuild.mfaLevel) {
+                await newGuild.setMFALevel(oldGuild.mfaLevel);
+            }
+            if (oldGuild.name !== newGuild.name) {
+                await newGuild.setName(oldGuild.name);
+            }
+            if (oldGuild.preferredLocale !== newGuild.preferredLocale) {
+                await newGuild.setPreferredLocale(oldGuild.preferredLocale);
+            }
+            if (oldGuild.premiumProgressBarEnabled !== newGuild.premiumProgressBarEnabled) {
+                await newGuild.setPremiumProgressBarEnabled(oldGuild.premiumProgressBarEnabled);
+            }
         }
     },
 };

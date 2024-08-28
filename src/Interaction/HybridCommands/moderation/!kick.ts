@@ -97,29 +97,19 @@ export default {
                 .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.username)
         }).catch(() => { });
 
-        try {
-            await member.kick(`Kicked by: ${interaction.member.user.username} | Reason: ${reason}`);
-            let logEmbed = new EmbedBuilder()
-                .setColor("#bf0bb9")
-                .setTitle(data.kick_logs_embed_title)
-                .setDescription(data.kick_logs_embed_description
-                    .replace(/\${member\.user}/g, member.user.toString())
-                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
-                );
+        await member.kick(`Kicked by: ${interaction.member.user.username} | Reason: ${reason}`);
 
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+        await client.method.interactionSend(interaction, {
+            content: data.kick_command_work
+                .replace(/\${member\.user}/g, member.user.toString())
+                .replace(/\${interaction\.user}/g, interaction.member.user.toString())
+        });
 
-            if (logchannel) {
-                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-            };
-
-            await client.method.interactionSend(interaction, {
-                content: data.kick_command_work
-                    .replace(/\${member\.user}/g, member.user.toString())
-                    .replace(/\${interaction\.user}/g, interaction.member.user.toString())
-            });
-        } catch (e: any) {
-            logger.err(e);
-        };
+        await client.method.iHorizonLogs.send(interaction, {
+            title: data.kick_logs_embed_title,
+            description: data.kick_logs_embed_description
+                .replace(/\${member\.user}/g, member.user.toString())
+                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+        });
     },
 };

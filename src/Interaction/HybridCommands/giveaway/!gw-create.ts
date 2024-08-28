@@ -63,6 +63,8 @@ export default {
         var giveawayChannel = interaction.channel! as Channel;
 
         if (interaction instanceof ChatInputCommandInteraction) {
+            var giveawayRequirement = interaction.options.getString("requirement");
+            var giveawayRequirementValue = interaction.options.getString("requirement-value");
             var giveawayDuration = interaction.options.getString("time");
             var giveawayNumberWinners = interaction.options.getNumber("winner")!;
             var imageUrl = interaction.options.getString('image') as string;
@@ -71,8 +73,10 @@ export default {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var giveawayNumberWinners = client.method.number(args!, 0);
             var giveawayDuration = client.method.string(args!, 1);
+            var giveawayRequirement = client.method.string(args!, 2);
+            var giveawayPrize = client.method.string(args!, 3);
+            var giveawayRequirementValue = client.method.string(args!, 4);
             var imageUrl = ""
-            var giveawayPrize = client.method.longString(args!, 2);
         };
 
         if (isNaN(giveawayNumberWinners as number) || (parseInt(giveawayNumberWinners.toString()) <= 0)) {
@@ -90,31 +94,21 @@ export default {
             return;
         };
 
-        // @ts-ignore
-        await client.giveawaysManager.create(giveawayChannel as TextBasedChannel, {
+        await client.giveawaysManager.create(giveawayChannel as BaseGuildTextChannel, {
             duration: giveawayDurationFormated,
             prize: giveawayPrize as string,
             winnerCount: giveawayNumberWinners as number,
             hostedBy: interaction.member.user.id,
-            embedImageURL: await isImageUrl(imageUrl) ? imageUrl : null
+            embedImageURL: await isImageUrl(imageUrl) ? imageUrl : null,
+            requirement: { type: giveawayRequirement as any, value: giveawayRequirementValue }
         });
 
-        try {
-            let logEmbed = new EmbedBuilder()
-                .setColor("#bf0bb9")
-                .setTitle(data.reroll_logs_embed_title)
-                .setDescription(data.start_logs_embed_description
-                    .replace('${interaction.user.id}', interaction.member.user.id)
-                    .replace(/\${giveawayChannel}/g, giveawayChannel.toString()!)
-                );
-
-            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-            if (logchannel) {
-                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-            };
-        } catch (e: any) {
-            logger.err(e)
-        };
+        await client.method.iHorizonLogs.send(interaction, {
+            title: data.reroll_logs_embed_title,
+            description: data.start_logs_embed_description
+                .replace('${interaction.user.id}', interaction.member.user.id)
+                .replace(/\${giveawayChannel}/g, giveawayChannel.toString()!)
+        });
 
         await client.method.interactionSend(interaction, {
             content: data.start_confirmation_command

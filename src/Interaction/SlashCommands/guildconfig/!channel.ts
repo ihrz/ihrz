@@ -146,22 +146,12 @@ export default {
                             .replace('${client.iHorizon_Emojis.icon.Warning_Icon}', client.iHorizon_Emojis.icon.Warning_Icon)
                         );
                     } else {
-                        try {
-                            let logEmbed = new EmbedBuilder()
-                                .setColor("#bf0bb9")
-                                .setTitle(data.setchannels_logs_embed_title_on_join)
-                                .setDescription(data.setchannels_logs_embed_description_on_join
-                                    .replace(/\${argsid\.id}/g, channelId as string)
-                                    .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                                )
-
-                            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                            if (logchannel) {
-                                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-                            }
-                        } catch (e: any) {
-                            logger.err(e)
-                        };
+                        await client.method.iHorizonLogs.send(interaction, {
+                            title: data.setchannels_logs_embed_title_on_join,
+                            description: data.setchannels_logs_embed_description_on_join
+                                .replace(/\${argsid\.id}/g, channelId as string)
+                                .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                        });
 
                         try {
                             let already = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`);
@@ -235,22 +225,12 @@ export default {
                         return;
                     }
 
-                    try {
-                        let logEmbed = new EmbedBuilder()
-                            .setColor("#bf0bb9")
-                            .setTitle(data.setchannels_logs_embed_title_on_leave)
-                            .setDescription(data.setchannels_logs_embed_description_on_leave
-                                .replace(/\${argsid\.id}/g, channelId as string)
-                                .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                            );
-
-                        let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-                        if (logchannel) {
-                            (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-                        }
-                    } catch (e: any) {
-                        logger.err(e)
-                    };
+                    await client.method.iHorizonLogs.send(interaction, {
+                        title: data.setchannels_logs_embed_title_on_leave,
+                        description: data.setchannels_logs_embed_description_on_leave
+                            .replace(/\${argsid\.id}/g, channelId as string)
+                            .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                    });
 
                     try {
                         let already = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`);
@@ -287,22 +267,11 @@ export default {
                 })
 
             } else if (i.customId === 'guildconfig-channel-panel-erase-data') {
-                try {
-                    let logEmbed = new EmbedBuilder()
-                        .setColor("#bf0bb9")
-                        .setTitle(data.setchannels_logs_embed_title_on_off)
-                        .setDescription(data.setchannels_logs_embed_description_on_off
-                            .replace(/\${interaction\.user\.id}/g, interaction.user.id)
-                        )
-
-                    let logchannel = interaction.guild?.channels.cache.find((channel) => channel.name === 'ihorizon-logs');
-
-                    if (logchannel) {
-                        (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-                    };
-                } catch (e: any) {
-                    logger.err(e)
-                };
+                await client.method.iHorizonLogs.send(interaction, {
+                    title: data.setchannels_logs_embed_title_on_off,
+                    description: data.setchannels_logs_embed_description_on_off
+                        .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                });
 
                 let leavec = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`);
                 let joinc = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`);

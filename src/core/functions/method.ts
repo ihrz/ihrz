@@ -27,6 +27,8 @@ import * as perm from './permissonsCalculator.js'
 import * as f from './displayBotName.js';
 import * as  h from './helper.js';
 import * as c from '../core.js';
+import * as html from './html2png.js';
+import * as l from './ihorizon-logs.js';
 
 export async function user(interaction: Message, args: string[], argsNumber: number): Promise<User | null> {
     return interaction.content.startsWith(`<@${interaction.client.user.id}`)
@@ -333,7 +335,6 @@ export async function channelSend(interaction: Message | ChatInputCommandInterac
     } else {
         replyOptions = {
             ...options,
-            allowedMentions: { repliedUser: false, roles: [], users: [] },
             content: options.content ?? undefined,
             nonce: nonce,
             enforceNonce: true
@@ -392,6 +393,11 @@ export function generateCustomMessagePreview(
         },
         ranks?: {
             level: string;
+        },
+        notifier?: {
+            artistAuthor: string;
+            artistLink: string;
+            mediaURL: string;
         }
     }
 ): string {
@@ -406,10 +412,16 @@ export function generateCustomMessagePreview(
         .replaceAll('{inviterMention}', input.inviter?.user.mention || `@unknow_user`)
         .replaceAll('{invitesCount}', input.inviter?.invitesAmount || '1337')
         .replaceAll('{xpLevel}', input.ranks?.level || "1337")
-        .replaceAll("\\n", '\n');
+        .replaceAll("\\n", '\n')
+        .replaceAll('{artistAuthor}', input.notifier?.artistAuthor || "Ninja")
+        .replaceAll('{artistLink}', input.notifier?.artistLink || "https://twitch.tv/Ninja")
+        .replaceAll('{mediaURL}', input.notifier?.mediaURL || "https://twitch.tv/Ninja/media");
+
 }
 
 export const permission = perm;
 export const bot = f;
 export const helper = h;
 export const core = c;
+export const imageManipulation = html;
+export const iHorizonLogs = l;

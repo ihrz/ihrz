@@ -217,7 +217,7 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                         await syncToMySQL()
                     }
                 });
-                setInterval(syncToMySQL, 45000);
+                setInterval(syncToMySQL, 60000 * 5);
                 resolve(memoryDB);
             });
             break;

@@ -22,6 +22,7 @@
 import { EmbedBuilder } from "@discordjs/builders";
 import { CaseList } from "../src/core/modules/ticketsManager.js";
 import { AntiSpam } from "./antispam.js";
+import { Platform } from "../src/core/StreamNotifier.js";
 
 export namespace DatabaseStructure {
 
@@ -220,6 +221,45 @@ export namespace DatabaseStructure {
         };
     }
 
+    export interface StatsMessage {
+        sentTimestamp: number;
+        contentLength: number;
+        channelId: string
+    }
+
+    export interface StatsVoice {
+        startTimestamp: number;
+        endTimestamp: number;
+        channelId: string
+    }
+
+    export interface UserStats {
+        messages?: StatsMessage[]
+        voices?: StatsVoice[];
+    }
+    export interface GuildStats {
+        USER?: {
+            [userId: string]: UserStats
+        }
+    }
+
+    export interface NotifierUserSchema {
+        id_or_username: string;
+        platform: Platform;
+    }
+
+    export interface NotifierLastNotifiedMedias {
+        userId: string;
+        mediaId: string;
+    }
+
+    export interface NotifierSchema {
+        message?: string;
+        users?: NotifierUserSchema[];
+        lastMediaNotified?: NotifierLastNotifiedMedias[];
+        channelId: string;
+    }
+
     export interface DbInId {
         USER?: DbGuildUserObject;
         GUILD?: DbGuildObject;
@@ -227,6 +267,7 @@ export namespace DatabaseStructure {
         PROTECTION?: ProtectionData;
         ROLE_SAVER?: RoleSaverData;
         ALLOWLIST?: AllowListData;
+        NOTIFIER?: NotifierSchema
         SUGGEST?: SuggestSchema;
         SUGGESTION?: SuggestionData;
         ECONOMY?: {
@@ -239,6 +280,7 @@ export namespace DatabaseStructure {
         };
         VOICE_INTERFACE?: VoiceData;
         UTILS?: UtilsData;
+        STATS?: GuildStats;
     }
 
     export interface UtilsData {
@@ -264,8 +306,19 @@ export namespace DatabaseStructure {
         };
     }
 
+    export interface JoinBannerOptions {
+        backgroundURL: string;
+        profilePictureRound: "hexProfileColor" | "status";
+        message: string;
+        textColour: string;
+        textSize: string;
+        avatarSize: string;
+    }
+
     export interface GuildConfigSchema {
         joinmessage?: string;
+        joinbanner?: JoinBannerOptions;
+        joinbannerStates?: string;
         join?: string;
         leave?: string;
         joindm?: string;
