@@ -1540,6 +1540,25 @@ minutes_word: "Minutes"
 top_voice: "Principaux canaux vocaux"
 top_message: "Principaux canaux de messages"
 
+
+# Module de Notification
+# auteur de la notification, configuration de la notification
+
+# /notifier author add
+notifier_author_add_author_doesnt_exist: "L'auteur n'existe pas. Veuillez vérifier l'ID."
+
+# /notifier config channel
+notifier_config_channel_logsEmbed_title: "Module du Canal de Notification"
+notifier_config_channel_logsEmbed_desc: "${interaction.user.id} a configuré le module du Canal de Notification sur ${channel}"
+notifier_config_message_command_ok: "Désormais, lorsqu'un Streamer/Youtuber/Twitcher publie une vidéo, j'enverrai un message dans ${channel.toString()}"
+
+# /notifier config message
+notifier_config_message_helpEmbed_title: "Message de Notification Personnalisé"
+notifier_config_message_helpEmbed_desc: "{artistAuthor} => Le nom d'utilisateur du Streamer/Youtuber\n{artistLink} => Le lien vers la chaîne du Streamer/Youtuber\n{mediaURL} => L'URL de la vidéo du Streamer/Youtuber"
+notifier_config_message_embed_fields_notifyMessage: "Message de Notification"
+notifier_config_message_awaiting_response: "Écrivez le message de notification."
+notifier_config_message_command_work_on_enable: "Activation du travail sur le message de notification."
+
 # -----------------------------/ \-----------------------------
 # Événements du Module de Confession
 confession_module_modal_title: "Envoyer une confession"

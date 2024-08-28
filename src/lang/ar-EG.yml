@@ -1532,6 +1532,25 @@ minutes_word: "دقائق"
 top_voice: "أفضل قنوات الصوت"
 top_message: "أفضل قنوات الرسائل"
 
+
+# وحدة التنبيه
+# مؤلف المنبه, إعدادات المنبه
+
+# /notifier author add
+notifier_author_add_author_doesnt_exist: "المؤلف غير موجود. من فضلك تحقق من الـ ID."
+
+# /notifier config channel
+notifier_config_channel_logsEmbed_title: "وحدة قناة التنبيه"
+notifier_config_channel_logsEmbed_desc: "${interaction.user.id} قام بتعيين وحدة قناة التنبيه إلى ${channel}"
+notifier_config_message_command_ok: "دلوقتي، لما ستريمر أو يوتيوبر ينشر فيديو، هبعت رسالة في ${channel.toString()}"
+
+# /notifier config message
+notifier_config_message_helpEmbed_title: "رسالة التنبيه المخصصة"
+notifier_config_message_helpEmbed_desc: "{artistAuthor} => اسم المستخدم للستريمر أو اليوتيوبر\n{artistLink} => رابط قناة الستريمر أو اليوتيوبر\n{mediaURL} => رابط الفيديو للستريمر أو اليوتيوبر"
+notifier_config_message_embed_fields_notifyMessage: "رسالة التنبيه"
+notifier_config_message_awaiting_response: "اكتب رسالة التنبيه."
+notifier_config_message_command_work_on_enable: "تمكين العمل على رسالة التنبيه."
+
 # -----------------------------/ \-----------------------------
 # Confession Module Events
 confession_module_modal_title: "أرسل اعترافاً"

@@ -49,14 +49,17 @@ export default {
         };
 
         await client.method.iHorizonLogs.send(interaction, {
-            title: "Notifier Channel Module",
-            description: "${interaction.user.id} have set the Notifier Channel module to ${channel}"
+            title: lang.notifier_config_channel_logsEmbed_title,
+            description: lang.notifier_config_channel_logsEmbed_desc
                 .replace('${interaction.user.id}', interaction.member.toString())
                 .replace('${channel}', channel.toString())
         });
 
         await client.db.set(`${interaction.guildId}.NOTIFIER.channelId`, channel.id);
 
-        await client.method.interactionSend(interaction, { content: `Now, when Streamer/Youtuber/Twitcher publish a video, i send message in ${channel.toString()}` })
+        await client.method.interactionSend(interaction, {
+            content: lang.notifier_config_message_command_ok
+                .replace("${channel.toString()}", channel.toString())
+        })
     },
 };

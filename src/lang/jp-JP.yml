@@ -1540,6 +1540,25 @@ minutes_word: "分"
 top_voice: "トップ音声チャンネル"
 top_message: "トップメッセージチャンネル"
 
+
+# 通知モジュール
+# 通知の作成者, 通知の設定
+
+# /notifier author add
+notifier_author_add_author_doesnt_exist: "作成者が存在しません。IDを確認してください。"
+
+# /notifier config channel
+notifier_config_channel_logsEmbed_title: "通知チャンネルモジュール"
+notifier_config_channel_logsEmbed_desc: "${interaction.user.id} が通知チャンネルモジュールを ${channel} に設定しました"
+notifier_config_message_command_ok: "これで、ストリーマー/ユーチューバー/ツイッチャーが動画を公開すると、${channel.toString()} にメッセージを送信します"
+
+# /notifier config message
+notifier_config_message_helpEmbed_title: "カスタム通知メッセージ"
+notifier_config_message_helpEmbed_desc: "{artistAuthor} => ストリーマー/ユーチューバーのユーザー名\n{artistLink} => ストリーマー/ユーチューバーのチャンネルリンク\n{mediaURL} => ストリーマー/ユーチューバーの動画URL"
+notifier_config_message_embed_fields_notifyMessage: "通知メッセージ"
+notifier_config_message_awaiting_response: "通知メッセージを書いてください。"
+notifier_config_message_command_work_on_enable: "通知メッセージの有効化作業中。"
+
 # -----------------------------/ \-----------------------------
 # 告白モジュールイベント
 confession_module_modal_title: "告白を送る"

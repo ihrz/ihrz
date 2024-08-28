@@ -1540,6 +1540,25 @@ top_voice: "Лучшие голосовые каналы"
 top_message: "Лучшие каналы сообщений"
 voice_activity: "Активность в голосовых каналах"
 
+
+# Модуль уведомлений
+# автор уведомлений, настройка уведомлений
+
+# /notifier author add
+notifier_author_add_author_doesnt_exist: "Автор не существует. Пожалуйста, проверьте ID."
+
+# /notifier config channel
+notifier_config_channel_logsEmbed_title: "Модуль Канала Уведомлений"
+notifier_config_channel_logsEmbed_desc: "${interaction.user.id} установил модуль Канала Уведомлений на ${channel}"
+notifier_config_message_command_ok: "Теперь, когда Стример/Ютубер/Twitcher публикует видео, я отправлю сообщение в ${channel.toString()}"
+
+# /notifier config message
+notifier_config_message_helpEmbed_title: "Пользовательское Сообщение Уведомления"
+notifier_config_message_helpEmbed_desc: "{artistAuthor} => Имя пользователя Стримера/Ютубера\n{artistLink} => Ссылка на канал Стримера/Ютубера\n{mediaURL} => URL видео Стримера/Ютубера"
+notifier_config_message_embed_fields_notifyMessage: "Сообщение Уведомления"
+notifier_config_message_awaiting_response: "Напишите сообщение уведомления."
+notifier_config_message_command_work_on_enable: "Работа над включением сообщения уведомления."
+
 # -----------------------------/ \-----------------------------
 # События Модуля Исповедей
 confession_module_modal_title: "Отправить исповедь"

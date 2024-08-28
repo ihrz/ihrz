@@ -63,7 +63,7 @@ export default {
                 ]
             })
         } else {
-            return interaction.reply({ content: "Author doesn't exist. Please verify the ID." })
+            return interaction.reply({ content: lang.notifier_author_add_author_doesnt_exist })
         }
     },
 };

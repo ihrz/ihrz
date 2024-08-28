@@ -1113,6 +1113,15 @@ export interface LanguageData {
   minutes_word: string;
   top_voice: string;
   top_message: string;
+  notifier_author_add_author_doesnt_exist: string;
+  notifier_config_channel_logsEmbed_title: string;
+  notifier_config_channel_logsEmbed_desc: string;
+  notifier_config_message_command_ok: string;
+  notifier_config_message_helpEmbed_title: string;
+  notifier_config_message_helpEmbed_desc: string;
+  notifier_config_message_embed_fields_notifyMessage: string;
+  notifier_config_message_awaiting_response: string;
+  notifier_config_message_command_work_on_enable: string;
   confession_module_modal_title: string;
   confession_module_modal_components1_label: string;
   confession_module_modal_components1_placeholder: string;

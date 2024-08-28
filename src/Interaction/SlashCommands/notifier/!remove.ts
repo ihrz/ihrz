@@ -65,7 +65,7 @@ export default {
                 ]
             });
         } else {
-            return interaction.reply({ content: "Author doesn't exist in the database. Please verify the ID." });
+            return client.method.interactionSend(interaction, { content: lang.notifier_author_add_author_doesnt_exist });
         }
     },
 };
