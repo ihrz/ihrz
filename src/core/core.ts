@@ -94,6 +94,7 @@ export async function main(client: Client) {
     let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
     let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
 
+    setMaxListeners(0)
     for (const file of handlerFiles) {
         const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
         if (handlerFunction && typeof handlerFunction === 'function') {
