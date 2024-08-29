@@ -44,11 +44,12 @@ export default {
         let author = interaction.options.getString("author") as string;
 
         if (await client.notifier.authorExistOnPlatform(platform, author)) {
-            let fetched = await client.db.get(`${interaction.guildId}.NOTIFIER`) as DatabaseStructure.NotifierSchema;
+            let fetched = await client.db.get(`${interaction.guildId}.NOTIFIER`) as DatabaseStructure.NotifierSchema | null;
+            let fetchedUsers = fetched?.users || [];
 
-            fetched.users?.push({ id_or_username: author, platform: platform });
+            fetchedUsers.push({ id_or_username: author, platform: platform });
 
-            const uniqueArray = fetched?.users?.filter((value, index, self) =>
+            const uniqueArray = fetchedUsers.filter((value, index, self) =>
                 index === self.findIndex((t) => (
                     JSON.stringify(t) === JSON.stringify(value)
                 ))
