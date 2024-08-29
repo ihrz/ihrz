@@ -97,6 +97,31 @@ export async function main(client: Client) {
         if (client.config.database?.method !== "CACHED_SQL") process.exit();
     });
 
+    client.config.owner.owners?.forEach(owner => {
+        if (!Number.isNaN(Number.parseInt(owner))) client.owners.push(owner);
+    });
+    if (!Number.isNaN(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
+    if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
+
+    errorManager.uncaughtExceptionHandler(client);
+    client.db = await initializeDatabase(client.config);
+    client.notifier = new StreamNotifier(client, process.env.TWITCH_APPLICATION_ID || "", process.env.TWITCH_APPLICATION_SECRET || "");
+
+    assetsCalc(client);
+    playerManager(client);
+    bash(client);
+    emojis(client);
+
+    let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
+    let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
+
+    for (const file of handlerFiles) {
+        const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
+        if (handlerFunction && typeof handlerFunction === 'function') {
+            await handlerFunction(client);
+        }
+    }
+
     client.login(await getToken() || process.env.BOT_TOKEN || client.config.discord.token).then(async () => {
         const title = "iHorizon - " + client.version.ClientVersion + " platform:" + process.platform;
         client.token = "Mais ptdr, ta vraiment crue avoir le token d'iHorizon ? Sale tocard và! Nique tes morts!";
@@ -106,30 +131,6 @@ export async function main(client: Client) {
         } else {
             process.stdout.write('\x1b]2;' + title + '\x1b\x5c');
         };
-
-        client.config.owner.owners?.forEach(owner => {
-            if (!Number.isNaN(Number.parseInt(owner))) client.owners.push(owner);
-        });
-        if (!Number.isNaN(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
-        if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
-
-        errorManager.uncaughtExceptionHandler(client);
-        client.db = await initializeDatabase(client.config);
-        client.notifier = new StreamNotifier(client, process.env.TWITCH_APPLICATION_ID || "", process.env.TWITCH_APPLICATION_SECRET || "");
-
-        assetsCalc(client);
-        playerManager(client);
-        bash(client);
-        emojis(client);
-        let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
-        let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
-
-        for (const file of handlerFiles) {
-            const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
-            if (handlerFunction && typeof handlerFunction === 'function') {
-                await handlerFunction(client);
-            }
-        }
 
         commandsSync(client).then(() => {
             logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);
