@@ -45,6 +45,7 @@ import assetsCalc from "./functions/assetsCalc.js";
 import { readFile } from 'node:fs/promises';
 import { getToken } from './functions/getToken.js';
 import { StreamNotifier } from './StreamNotifier.js';
+import { setMaxListeners } from 'node:events';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -98,6 +99,7 @@ export async function main(client: Client) {
     bash(client);
     emojis(client);
 
+    setMaxListeners(0)
     let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
     let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
 
