@@ -44,8 +44,8 @@ export default {
         let author = interaction.options.getString("author") as string;
 
         if (await client.notifier.authorExist(platform, author)) {
-            let fetched = await client.db.get(`${interaction.guildId}.NOTIFIER`) as DatabaseStructure.NotifierSchema;
-            let fetchedUsers = fetched.users || [];
+            let fetched = await client.db.get(`${interaction.guildId}.NOTIFIER`) as DatabaseStructure.NotifierSchema | null;
+            let fetchedUsers = fetched?.users || [];
 
             const uniqueArray = fetchedUsers.filter((value, index, self) =>
                 index === self.findIndex((t) => (
