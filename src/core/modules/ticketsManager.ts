@@ -43,7 +43,6 @@ import {
     StringSelectMenuOptionBuilder,
     ChannelSelectMenuBuilder,
     ModalSubmitInteraction,
-    CategoryChannel,
 } from 'discord.js';
 
 import { LanguageData } from '../../../types/languageData';
@@ -618,6 +617,8 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                     .addComponents(delete_ticket_button)
             ],
             files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+        }).then(async (msg) => {
+            await msg.pin("Ticket Panel").catch(() => { })
         }).catch((err: any) => {
             logger.err(err)
         });
