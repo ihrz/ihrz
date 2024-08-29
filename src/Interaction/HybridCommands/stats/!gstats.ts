@@ -150,43 +150,58 @@ export default {
             .replaceAll("{guild_pfp}", interaction.guild.iconURL({ size: 512 }) || client.user.displayAvatarURL({ size: 512 }))
             .replaceAll("{author_username}", interaction.guild.name)
             .replaceAll('{top_message_users}', leaderboardData.map((user, index) => `
-            <div class="list-item">
+        <div class="list-item">
+            <div class="user-info">
                 <span>${index + 1}. @${user.member?.username}</span>
-                <span>1d: ${user.dailyMessages} ${data.messages_word} ${(user.dailyVoiceActivity / 1000 / 60).toFixed(2)} ${data.minutes_word}, 7d: ${user.weeklyMessages} ${data.messages_word} ${(user.weeklyVoiceActivity / 1000 / 60).toFixed(2)} ${data.minutes_word}, 30d: ${user.monthlyMessages} ${data.messages_word} ${(user.monthlyVoiceActivity / 1000 / 60).toFixed(2)} ${data.minutes_word}</span>
             </div>
+            <div class="activity-stats">
+                <div>
+                    <span class="badge">1d</span>
+                    <span>${user.dailyMessages} ${data.messages_word}, ${(user.dailyVoiceActivity / 1000 / 60).toFixed(2)} ${data.minutes_word}</span>
+                </div>
+                <div>
+                    <span class="badge">7d</span>
+                    <span>${user.weeklyMessages} ${data.messages_word}, ${(user.weeklyVoiceActivity / 1000 / 60).toFixed(2)} ${data.minutes_word}</span>
+                </div>
+                <div>
+                    <span class="badge">30d</span>
+                    <span>${user.monthlyMessages} ${data.messages_word}, ${(user.monthlyVoiceActivity / 1000 / 60).toFixed(2)} ${data.minutes_word}</span>
+                </div>
+            </div>
+        </div>
         `).join(''))
             .replaceAll('{top_text_channels}', `
-            <div class="list-item">
-                <span># ${getChannelName(interaction.guild, firstActiveChannel)}</span>
-                <span>${getChannelMessagesCount(firstActiveChannel, allMessages)} ${data.messages_word}</span>
-            </div>
-            <div class="list-item">
-                <span># ${getChannelName(interaction.guild, secondActiveChannel)}</span>
-                <span>${getChannelMessagesCount(secondActiveChannel, allMessages)} ${data.messages_word}</span>
-            </div>
-            <div class="list-item">
-                <span># ${getChannelName(interaction.guild, thirdActiveChannel)}</span>
-                <span>${getChannelMessagesCount(thirdActiveChannel, allMessages)} ${data.messages_word}</span>
-            </div>
+        <div class="list-item">
+            <span># ${getChannelName(interaction.guild, firstActiveChannel)}</span>
+            <span>${getChannelMessagesCount(firstActiveChannel, allMessages)} ${data.messages_word}</span>
+        </div>
+        <div class="list-item">
+            <span># ${getChannelName(interaction.guild, secondActiveChannel)}</span>
+            <span>${getChannelMessagesCount(secondActiveChannel, allMessages)} ${data.messages_word}</span>
+        </div>
+        <div class="list-item">
+            <span># ${getChannelName(interaction.guild, thirdActiveChannel)}</span>
+            <span>${getChannelMessagesCount(thirdActiveChannel, allMessages)} ${data.messages_word}</span>
+        </div>
         `)
             .replaceAll('{top_voice_channels}', `
-            <div class="list-item">
-                <span># ${getChannelName(interaction.guild, firstActiveVoiceChannel)}</span>
-                <span>${getChannelMinutesCount(firstActiveVoiceChannel, allVoiceActivities)} ${data.minutes_word}</span>
-            </div>
-            <div class="list-item">
-                <span># ${getChannelName(interaction.guild, secondActiveVoiceChannel)}</span>
-                <span>${getChannelMinutesCount(secondActiveVoiceChannel, allVoiceActivities)} ${data.minutes_word}</span>
-            </div>
-            <div class="list-item">
-                <span># ${getChannelName(interaction.guild, thirdActiveVoiceChannel)}</span>
-                <span>${getChannelMinutesCount(thirdActiveVoiceChannel, allVoiceActivities)} ${data.minutes_word}</span>
-            </div>
+        <div class="list-item">
+            <span># ${getChannelName(interaction.guild, firstActiveVoiceChannel)}</span>
+            <span>${getChannelMinutesCount(firstActiveVoiceChannel, allVoiceActivities)} ${data.minutes_word}</span>
+        </div>
+        <div class="list-item">
+            <span># ${getChannelName(interaction.guild, secondActiveVoiceChannel)}</span>
+            <span>${getChannelMinutesCount(secondActiveVoiceChannel, allVoiceActivities)} ${data.minutes_word}</span>
+        </div>
+        <div class="list-item">
+            <span># ${getChannelName(interaction.guild, thirdActiveVoiceChannel)}</span>
+            <span>${getChannelMinutesCount(thirdActiveVoiceChannel, allVoiceActivities)} ${data.minutes_word}</span>
+        </div>
         `);
 
         const image = await client.method.imageManipulation.html2Png(htmlContent, {
-            width: 1280,
-            height: 720,
+            width: 1902,
+            height: 1080,
             scaleSize: 2,
             elementSelector: '.container',
             omitBackground: true,
