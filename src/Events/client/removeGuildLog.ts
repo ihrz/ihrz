@@ -32,7 +32,7 @@ export const event: BotEvent = {
         try {
             let i: string = '';
 
-            if (!guild) {
+            if (guild.name === undefined || null) {
                 return;
             }
 
