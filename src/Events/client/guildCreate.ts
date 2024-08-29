@@ -30,8 +30,7 @@ export const event: BotEvent = {
     run: async (client: Client, guild: Guild) => {
         if (!guild) return;
 
-        let channel = guild.channels.cache.get(guild?.systemChannelId!)
-            || guild.channels.cache.first();
+        let channel = guild.systemChannelId ? guild.channels.cache.get(guild?.systemChannelId) : guild.channels.cache.first();
 
         // async function antiPoubelle() {
         //   let embed = new EmbedBuilder()
@@ -153,6 +152,7 @@ export const event: BotEvent = {
                     return 'None';
                 }
             }
+
             let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
             let embed = new EmbedBuilder()
@@ -165,8 +165,9 @@ export const event: BotEvent = {
                     { name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
                     { name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
                     { name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
-                    { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true },
-                    { name: "🥛 new members total", value: `${usersize} members` }
+                    { name: "🍻・New guilds total", value: client.guilds.cache.size.toString(), inline: true },
+                    { name: "🥛・New members total", value: `${usersize} members`, inline: true },
+                    
                 )
                 .setThumbnail(guild.iconURL())
                 .setFooter(await client.method.bot.footerBuilder(guild));

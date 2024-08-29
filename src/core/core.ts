@@ -43,6 +43,7 @@ import database from './functions/DatabaseModel.js';
 import { readFile } from 'node:fs/promises';
 import { getToken } from './functions/getToken.js';
 import { StreamNotifier } from './StreamNotifier.js';
+import { setMaxListeners } from 'node:events';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -99,11 +100,6 @@ export async function main(client: Client) {
             await handlerFunction(client);
         }
     }
-
-    assetsCalc(client);
-    playerManager(client);
-    emojis(client);
-    errorManager.uncaughtExceptionHandler(client);
 
     if (client.config.discord.phonePresence) {
 

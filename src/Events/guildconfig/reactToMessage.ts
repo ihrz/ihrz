@@ -26,13 +26,6 @@ import { BotEvent } from '../../../types/event';
 export const event: BotEvent = {
     name: "messageCreate",
     run: async (client: Client, message: Message) => {
-        /**
-         * Why doing this?
-         * On iHorizon Production, we have some ~problems~ 👎
-         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-         */
-        const nonce = SnowflakeUtil.generate().toString();
-
         if (!message.guild || message.author.bot || !message.channel) return;
 
         if (!message.guild
@@ -40,33 +33,23 @@ export const event: BotEvent = {
             || !message.channel
             || await client.db.get(`${message.guildId}.GUILD.GUILD_CONFIG.hey_reaction`) === false) return;
 
-        let recognizeItem: Array<string> = [
-            'hey',
-            'salut',
-            'coucou',
-            'bonjour',
-            'salem',
-            'wesh',
-            'hello',
-            'bienvenue',
-            'welcome',
+        const recognizeItems: string[] = [
+            'hey', 'salut', 'coucou', 'bonjour', 'salem', 'wesh',
+            'hello', 'bienvenue', 'welcome', 'hi'
         ];
+        const customReacts = await client.db.get<{ [msg: string]: string }>(`${message.guildId}.GUILD.REACT_MSG`);
+        const firstWord = message.content.split(' ')[0]?.toLowerCase();
 
-        recognizeItem.forEach(content => {
-            if (message.content.split(' ')[0]?.toLocaleLowerCase()
-                .startsWith(content.toLocaleLowerCase())) {
+        if (customReacts) {
+            const react = Object.keys(customReacts).find(r => message.content.includes(r));
+            if (react) {
+                await message.react(customReacts[react]).catch(() => { });
+            }
+        }
 
-                try {
-                    message.react('👋');
-                    return;
-                } catch (e) {
-                    return;
-                };
-            };
-        });
-
-        let custom_react = await client.db.get(`${message.guildId}.GUILD.REACT_MSG.${message.content.split(' ')[0]?.toLocaleLowerCase()}`)
-        if (custom_react) await message.react(custom_react).catch(() => { });
+        if (firstWord && recognizeItems.some(item => firstWord.startsWith(item.toLowerCase()))) {
+            await message.react('👋').catch(() => { });
+        }
         return;
     },
 };

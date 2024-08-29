@@ -32,7 +32,7 @@ export const event: BotEvent = {
         try {
             let i: string = '';
 
-            if (guild.name === undefined || null) {
+            if (!guild) {
                 return;
             }
 
@@ -40,6 +40,8 @@ export const event: BotEvent = {
             let owner2 = client.config.owner.ownerid2;
 
             if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
+
+            let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
             let embed = new EmbedBuilder()
                 .setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.owner`) || "#ff0505")
@@ -50,10 +52,11 @@ export const event: BotEvent = {
                     { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
                     { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
                     { name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
-                    { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true }
+                    { name: "🍻・New guilds total", value: client.guilds.cache.size.toString(), inline: true },
+                    { name: "🥛・New members total", value: `${usersize} members`, inline: true },
                 )
                 .setThumbnail(guild.iconURL())
-                .setFooter(await client.method.bot.footerBuilder(guild));
+                .setFooter({ text: `${client.user?.username!} ・ Joined at`, iconURL: "attachment://footer_icon.png" })
 
             await (client.users.cache.get(owner1))?.send({
                 embeds: [embed],
