@@ -93,7 +93,7 @@ export async function main(client: Client) {
 
     process.on('SIGINT', async () => {
         client.destroy();
-        await new OwnIHRZ().QuitProgram(client);
+        if (client.config.core.shutdownClusterWhenStop) await new OwnIHRZ().QuitProgram(client);
         if (client.config.database?.method !== "CACHED_SQL") process.exit();
     });
 
@@ -111,7 +111,6 @@ export async function main(client: Client) {
     playerManager(client);
     bash(client);
     emojis(client);
-
     let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
     let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
 

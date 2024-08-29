@@ -106,23 +106,21 @@ class OwnIHRZ {
         let table = client.db.table("OWNIHRZ")
         let ownihrzClusterData = await table.get("CLUSTER");
 
-        if (client.config.core.shutdownClusterWhenStop) {
-            for (let userId in ownihrzClusterData as any) {
-                for (let botId in ownihrzClusterData[userId]) {
-                    if (ownihrzClusterData[userId][botId].PowerOff || !ownihrzClusterData[userId][botId].Code) continue;
-                    await axios.get(
-                        OwnIhrzCluster(
-                            client.config,
-                            parseInt(ownihrzClusterData[userId][botId].Cluster),
-                            ClusterMethod.ShutdownContainer,
-                            botId,
-                        )
-                    ).then(function (response) {
-                        logger.log(response.data)
-                    }).catch(function (error) { logger.err(error); });
-                }
-            };
-        }
+        for (let userId in ownihrzClusterData as any) {
+            for (let botId in ownihrzClusterData[userId]) {
+                if (ownihrzClusterData[userId][botId].PowerOff || !ownihrzClusterData[userId][botId].Code) continue;
+                await axios.get(
+                    OwnIhrzCluster(
+                        client.config,
+                        parseInt(ownihrzClusterData[userId][botId].Cluster),
+                        ClusterMethod.ShutdownContainer,
+                        botId,
+                    )
+                ).then(function (response) {
+                    logger.log(response.data)
+                }).catch(function (error) { logger.err(error); });
+            }
+        };
         return;
     };
 
