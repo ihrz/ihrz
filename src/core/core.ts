@@ -69,47 +69,6 @@ export async function main(client: Client) {
     logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
     logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
 
-    client.owners = [];
-
-    client.config.owner.owners?.forEach(owner => {
-        if (!Number.isNaN(Number.parseInt(owner))) client.owners.push(owner);
-    });
-    if (!Number.isNaN(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
-    if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
-
-    errorManager.uncaughtExceptionHandler(client);
-
-    client.db = await initializeDatabase(client.config);
-    client.content = [];
-    client.category = [];
-    client.invites = new Collection();
-    client.timeCalculator = new iHorizonTimeCalculator();
-    client.lyricsSearcher = new LyricsManager();
-    client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
-    client.notifier = new StreamNotifier(client, process.env.TWITCH_APPLICATION_ID || "", process.env.TWITCH_APPLICATION_SECRET || "");
-
-    process.on('SIGINT', async () => {
-        client.destroy();
-        await new OwnIHRZ().QuitProgram(client);
-        if (client.config.database?.method !== "CACHED_SQL") process.exit();
-    });
-
-    assetsCalc(client);
-    playerManager(client);
-    bash(client);
-    emojis(client);
-
-    setMaxListeners(0)
-    let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
-    let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
-
-    for (const file of handlerFiles) {
-        const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
-        if (handlerFunction && typeof handlerFunction === 'function') {
-            await handlerFunction(client);
-        }
-    }
-
     if (client.config.discord.phonePresence) {
 
         const { identifyProperties } = DefaultWebSocketManagerOptions;
@@ -122,7 +81,23 @@ export async function main(client: Client) {
         });
     };
 
-    client.login(await getToken() || process.env.BOT_TOKEN || client.config.discord.token).then(() => {
+    setMaxListeners(0)
+
+    client.owners = [];
+    client.content = [];
+    client.category = [];
+    client.invites = new Collection();
+    client.timeCalculator = new iHorizonTimeCalculator();
+    client.lyricsSearcher = new LyricsManager();
+    client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
+
+    process.on('SIGINT', async () => {
+        client.destroy();
+        await new OwnIHRZ().QuitProgram(client);
+        if (client.config.database?.method !== "CACHED_SQL") process.exit();
+    });
+
+    client.login(await getToken() || process.env.BOT_TOKEN || client.config.discord.token).then(async () => {
         const title = "iHorizon - " + client.version.ClientVersion + " platform:" + process.platform;
 
         if (process.platform === 'win32') {
@@ -130,6 +105,30 @@ export async function main(client: Client) {
         } else {
             process.stdout.write('\x1b]2;' + title + '\x1b\x5c');
         };
+
+        client.config.owner.owners?.forEach(owner => {
+            if (!Number.isNaN(Number.parseInt(owner))) client.owners.push(owner);
+        });
+        if (!Number.isNaN(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
+        if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
+
+        errorManager.uncaughtExceptionHandler(client);
+        client.db = await initializeDatabase(client.config);
+        client.notifier = new StreamNotifier(client, process.env.TWITCH_APPLICATION_ID || "", process.env.TWITCH_APPLICATION_SECRET || "");
+
+        assetsCalc(client);
+        playerManager(client);
+        bash(client);
+        emojis(client);
+        let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
+        let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
+
+        for (const file of handlerFiles) {
+            const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
+            if (handlerFunction && typeof handlerFunction === 'function') {
+                await handlerFunction(client);
+            }
+        }
 
         commandsSync(client).then(() => {
             logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);

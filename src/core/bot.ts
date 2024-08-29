@@ -24,7 +24,7 @@ import * as ClientVersion from "../version.js";
 import * as core from './core.js';
 import config from "../files/config.js";
 
-let client = new Client({
+const client = new Client({
     intents: [
         GatewayIntentBits.AutoModerationConfiguration,
         GatewayIntentBits.AutoModerationExecution,
