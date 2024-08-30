@@ -150,5 +150,7 @@ export const event: BotEvent = {
         fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule(), refreshBotData();
 
         PfpsManager_Init(client);
+
+        logger.log(`${client.config.console.emojis.HOST} >> Bot is ready`.white);
     },
 };
