@@ -63,7 +63,6 @@ backup.setStorageFolder(backups_folder);
 
 export async function main(client: Client) {
     initConfig(client.config);
-    timestampInitializer();
 
     logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
     logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
