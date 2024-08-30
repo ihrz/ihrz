@@ -20,6 +20,7 @@
 */
 
 import './src/core/functions/colors.js';
+core.timestampInitializer()
 
 import { Client, Partials, GatewayIntentBits } from "discord.js";
 import * as core from './src/core/core.js';
