@@ -63,6 +63,7 @@ backup.setStorageFolder(backups_folder);
 
 export async function main(client: Client) {
     initConfig(client.config);
+    timestampInitializer();
 
     logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
     logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
@@ -151,15 +152,8 @@ export const getConfig = (): ConfigData => {
 };
 
 export function timestampInitializer() {
-    const date = Date.now().toString();
-
-    fs.writeFile(uptime_path, date, err => {
-        if (err) {
-            logger.err(err as any)
-        } else {
-            logger.log(`${global_config.console.emojis.OK} >> Timestamp Generated in .uptime`);
-        }
-    })
+    fs.writeFileSync(uptime_path, Date.now().toString())
+    logger.log(`${global_config.console.emojis.OK} >> Timestamp Generated in .uptime`);
 }
 
 export async function getInitedTimestamp(): Promise<number> {

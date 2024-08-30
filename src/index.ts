@@ -24,9 +24,7 @@ import { ShardingManager } from 'discord.js';
 import config from './files/config.js';
 import logger from './core/logger.js';
 import { getToken } from './core/functions/getToken.js';
-import { timestampInitializer } from './core/core.js';
 
-timestampInitializer();
 const _token = await getToken();
 
 let manager = new ShardingManager('./dist/src/core/bot.js', { totalShards: "auto", token: _token || process.env.BOT_TOKEN || config.discord.token });
