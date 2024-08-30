@@ -134,12 +134,10 @@ export const command: Command = {
                 .setFooter(await client.method.bot.footerBuilder(interaction));
 
             await interaction.reply({ embeds: [embed], files: [await client.method.bot.footerAttachmentBuilder(interaction)] });
-            await client.db.set(`${interaction.guildId}.GUILD_CONFIG`, {
-                rolesaver: {
-                    enable: true,
-                    timeout: timeout,
-                    admin: settings
-                }
+            await client.db.set(`${interaction.guildId}.GUILD_CONFIG.rolesaver`, {
+                enable: true,
+                timeout: timeout,
+                admin: settings
             });
 
             return;
