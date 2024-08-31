@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Collection, EmbedBuilder, PermissionsBitField, Guild, GuildTextBasedChannel, Client, BaseGuildTextChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle, TextChannel } from 'discord.js';
+import { Collection, EmbedBuilder, PermissionsBitField, Guild, GuildTextBasedChannel, Client, BaseGuildTextChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle, TextChannel, ChannelType } from 'discord.js';
 
 import logger from "../../core/logger.js";
 
@@ -30,7 +30,17 @@ export const event: BotEvent = {
     run: async (client: Client, guild: Guild) => {
         if (!guild) return;
 
-        let channel = guild.systemChannelId ? guild.channels.cache.get(guild?.systemChannelId) : guild.channels.cache.first();
+        let highestPositionChannel: TextChannel | null = null;
+
+        guild.channels.cache.forEach(channel => {
+            if (channel.type === ChannelType.GuildText) {
+                if (!highestPositionChannel || channel.position < highestPositionChannel.position) {
+                    highestPositionChannel = channel;
+                }
+            }
+        });
+
+        let channel = guild.systemChannelId ? guild.channels.cache.get(guild?.systemChannelId) : highestPositionChannel;
 
         // async function antiPoubelle() {
         //   let embed = new EmbedBuilder()
@@ -167,7 +177,7 @@ export const event: BotEvent = {
                     { name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
                     { name: "🍻・New guilds total", value: client.guilds.cache.size.toString(), inline: true },
                     { name: "🥛・New members total", value: `${usersize} members`, inline: true },
-                    
+
                 )
                 .setThumbnail(guild.iconURL())
                 .setFooter(await client.method.bot.footerBuilder(guild));
