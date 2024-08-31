@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Collection, EmbedBuilder, PermissionsBitField, Guild, GuildTextBasedChannel, Client, BaseGuildTextChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle, TextChannel } from 'discord.js';
+import { Collection, EmbedBuilder, PermissionsBitField, Guild, GuildTextBasedChannel, Client, BaseGuildTextChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle, TextChannel, ChannelType } from 'discord.js';
 
 import logger from "../../core/logger.js";
 
@@ -30,8 +30,17 @@ export const event: BotEvent = {
     run: async (client: Client, guild: Guild) => {
         if (!guild) return;
 
-        let channel = guild.channels.cache.get(guild?.systemChannelId!)
-            || guild.channels.cache.first();
+        let highestPositionChannel: TextChannel | null = null;
+
+        guild.channels.cache.forEach(channel => {
+            if (channel.type === ChannelType.GuildText) {
+                if (!highestPositionChannel || channel.position < highestPositionChannel.position) {
+                    highestPositionChannel = channel;
+                }
+            }
+        });
+
+        let channel = guild.systemChannelId ? guild.channels.cache.get(guild?.systemChannelId) : highestPositionChannel;
 
         // async function antiPoubelle() {
         //   let embed = new EmbedBuilder()
@@ -140,9 +149,7 @@ export const event: BotEvent = {
             let i: string = '';
             if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
-            let channel = guild.channels.cache.get((guild.systemChannelId as string)) || guild.channels.cache.random();
-
-            async function createInvite(channel: BaseGuildTextChannel) {
+            async function createInvite(channel: BaseGuildTextChannel): Promise<string> {
                 try {
                     let invite = await channel.createInvite();
                     let inviteCode = invite.code;
@@ -152,6 +159,7 @@ export const event: BotEvent = {
                     return 'None';
                 }
             }
+
             let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
             let embed = new EmbedBuilder()
@@ -164,13 +172,14 @@ export const event: BotEvent = {
                     { name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
                     { name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
                     { name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
-                    { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true },
-                    { name: "🥛 new members total", value: `${usersize} members` }
+                    { name: "🍻・New guilds total", value: client.guilds.cache.size.toString(), inline: true },
+                    { name: "🥛・New members total", value: `${usersize} members`, inline: true },
+
                 )
                 .setThumbnail(guild.iconURL())
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://footer_icon.png" });
+                .setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" });
 
-            let logsChannel: TextChannel | null = client.channels.cache.get(client.config.core.guildLogsChannelID) as TextChannel;
+            let logsChannel = client.channels.cache.get(client.config.core.guildLogsChannelID) as TextChannel | null;
 
             logsChannel?.send({
                 embeds: [embed],

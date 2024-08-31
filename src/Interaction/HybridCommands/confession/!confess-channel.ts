@@ -44,11 +44,11 @@ export default {
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var channel = interaction.options.getChannel("to") as TextChannel;
-            var buttonTitle = interaction.options.getString('button-title')?.substring(0, 20) || '+';
+            var buttonTitle = interaction.options.getString('button-title')?.substring(0, 32) || '+';
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
             var channel = (client.method.channel(interaction, args!, 0) || interaction.channel) as TextChannel;
-            var buttonTitle = client.method.string(args!, 1) || '+';
+            var buttonTitle = client.method.string(args!, 1)?.substring(0, 32) || '+';
         };
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]
@@ -100,8 +100,8 @@ export default {
         await client.method.iHorizonLogs.send(interaction, {
             title: data.confession_channel_log_embed_title,
             description: data.confession_channel_log_embed_desc
-            .replace('${interaction.user}', interaction.member.user.toString())
-            .replace('${channel}', channel.toString())
+                .replace('${interaction.user}', interaction.member.user.toString())
+                .replace('${channel}', channel.toString())
         });
 
         return;

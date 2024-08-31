@@ -26,11 +26,9 @@ import { format } from '../../core/functions/date-and-time.js';
 
 import status from "../../files/status.json" with { "type": "json" }
 import logger from "../../core/logger.js";
-import ping from 'ping';
 
 import { BotEvent } from '../../../types/event.js';
 import { GiveawayManager } from '../../core/modules/giveawaysManager.js';
-import { StreamNotifier } from '../../core/StreamNotifier.js';
 
 export const event: BotEvent = {
     name: "ready",
@@ -152,5 +150,7 @@ export const event: BotEvent = {
         fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule(), refreshBotData();
 
         PfpsManager_Init(client);
+
+        logger.log(`${client.config.console.emojis.HOST} >> Bot is ready`.white);
     },
 };

@@ -45,6 +45,7 @@ import assetsCalc from "./functions/assetsCalc.js";
 import { readFile } from 'node:fs/promises';
 import { getToken } from './functions/getToken.js';
 import { StreamNotifier } from './StreamNotifier.js';
+import { setMaxListeners } from 'node:events';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -68,46 +69,6 @@ export async function main(client: Client) {
     logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
     logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
 
-    client.owners = [];
-
-    client.config.owner.owners?.forEach(owner => {
-        if (!Number.isNaN(Number.parseInt(owner))) client.owners.push(owner);
-    });
-    if (!Number.isNaN(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
-    if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
-
-    errorManager.uncaughtExceptionHandler(client);
-
-    client.db = await initializeDatabase(client.config);
-    client.content = [];
-    client.category = [];
-    client.invites = new Collection();
-    client.timeCalculator = new iHorizonTimeCalculator();
-    client.lyricsSearcher = new LyricsManager();
-    client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
-    client.notifier = new StreamNotifier(client, process.env.TWITCH_APPLICATION_ID || "", process.env.TWITCH_APPLICATION_SECRET || "");
-
-    process.on('SIGINT', async () => {
-        client.destroy();
-        await new OwnIHRZ().QuitProgram(client);
-        if (client.config.database?.method !== "CACHED_SQL") process.exit();
-    });
-
-    assetsCalc(client);
-    playerManager(client);
-    bash(client);
-    emojis(client);
-
-    let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
-    let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
-
-    for (const file of handlerFiles) {
-        const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
-        if (handlerFunction && typeof handlerFunction === 'function') {
-            await handlerFunction(client);
-        }
-    }
-
     if (client.config.discord.phonePresence) {
 
         const { identifyProperties } = DefaultWebSocketManagerOptions;
@@ -120,7 +81,47 @@ export async function main(client: Client) {
         });
     };
 
-    client.login(await getToken() || process.env.BOT_TOKEN || client.config.discord.token).then(() => {
+    setMaxListeners(0)
+
+    client.owners = [];
+    client.content = [];
+    client.category = [];
+    client.invites = new Collection();
+    client.timeCalculator = new iHorizonTimeCalculator();
+    client.lyricsSearcher = new LyricsManager();
+    client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
+
+    process.on('SIGINT', async () => {
+        client.destroy();
+        if (client.config.core.shutdownClusterWhenStop) await new OwnIHRZ().QuitProgram(client);
+        if (client.config.database?.method !== "CACHED_SQL") process.exit();
+    });
+
+    client.config.owner.owners?.forEach(owner => {
+        if (!Number.isNaN(Number.parseInt(owner))) client.owners.push(owner);
+    });
+    if (!Number.isNaN(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
+    if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
+
+    errorManager.uncaughtExceptionHandler(client);
+    client.db = await initializeDatabase(client.config);
+    client.notifier = new StreamNotifier(client, process.env.TWITCH_APPLICATION_ID || "", process.env.TWITCH_APPLICATION_SECRET || "");
+
+    assetsCalc(client);
+    playerManager(client);
+    bash(client);
+    emojis(client);
+    let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
+    let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
+
+    for (const file of handlerFiles) {
+        const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
+        if (handlerFunction && typeof handlerFunction === 'function') {
+            await handlerFunction(client);
+        }
+    }
+
+    client.login(await getToken() || process.env.BOT_TOKEN || client.config.discord.token).then(async () => {
         const title = "iHorizon - " + client.version.ClientVersion + " platform:" + process.platform;
 
         if (process.platform === 'win32') {
@@ -151,15 +152,8 @@ export const getConfig = (): ConfigData => {
 };
 
 export function timestampInitializer() {
-    const date = Date.now().toString();
-
-    fs.writeFile(uptime_path, date, err => {
-        if (err) {
-            logger.err(err as any)
-        } else {
-            logger.log(`${global_config.console.emojis.OK} >> Timestamp Generated in .uptime`);
-        }
-    })
+    fs.writeFileSync(uptime_path, Date.now().toString())
+    logger.log(`${global_config.console.emojis.OK} >> Timestamp Generated in .uptime`);
 }
 
 export async function getInitedTimestamp(): Promise<number> {
