@@ -9,6 +9,9 @@ name: Lint Code Base
 on:
   schedule:
   - cron: "0 0 * * 0"
+  push:
+    branches:
+    - dev
 
 jobs:
   run-lint:
