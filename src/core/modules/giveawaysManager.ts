@@ -193,7 +193,7 @@ class GiveawayManager {
         });
 
         let collector = interaction.channel!.createMessageComponentCollector({
-            time: 30_000,
+            time: 60_000,
             filter: (i) => interaction.user.id === i.user.id
         });
 
