@@ -56,7 +56,8 @@ export const event: BotEvent = {
                     { name: "🥛・New members total", value: `${usersize} members`, inline: true },
                 )
                 .setThumbnail(guild.iconURL())
-                .setFooter({ text: `${client.user?.username!} ・ Joined at`, iconURL: "attachment://footer_icon.png" })
+                .setTimestamp(guild.joinedTimestamp)
+                .setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" })
 
             await (client.users.cache.get(owner1))?.send({
                 embeds: [embed],

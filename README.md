@@ -105,6 +105,8 @@ In the `LICENSE` files, the name `Anaïs Saraiva` is the name of the owner.
 <br>
 Noémie : She is even prettier than most :D
 
+Camille : Real she is really pretty.
+
 ## Remarks
 
 Any sorts of hate trowards any contributor will not be tolerated.<br>

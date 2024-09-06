@@ -118,6 +118,10 @@ export default {
             var member = await client.method.user(interaction, args!, 0) || interaction.author;
         };
 
+        const originalInteraction = await client.method.interactionSend(interaction, {
+            content: lang.userinfo_wait_please.replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
+        });
+
         async function sendMessage(user: User) {
 
             let format = 'png';
@@ -181,7 +185,7 @@ export default {
                 name: 'user_banner.gif'
             });
 
-            await client.method.interactionSend(originalInteraction, {
+            await originalInteraction.edit({
                 content: client.iHorizon_Emojis.icon.Yes_Logo,
                 embeds: [embed],
                 files: files,
@@ -198,10 +202,6 @@ export default {
 
             return;
         };
-
-        const originalInteraction = await client.method.interactionSend(interaction, {
-            content: lang.userinfo_wait_please.replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
-        });
 
         function GetNitro(input: number): string {
             let nitro = '';
