@@ -132,13 +132,14 @@ export default {
                     currentPage++;
                 }
 
-            await i.update({
-                embeds: [await generateEmbed(currentPage)],
-                components: [generateButtons(currentPage)]
-            });
+                await i.update({
+                    embeds: [await generateEmbed(currentPage)],
+                    components: [generateButtons(currentPage)]
+                });
 
-            collector.on('end', () => {
-                originalResponse.edit({ components: [] });
+                collector.on('end', () => {
+                    originalResponse.edit({ components: [] });
+                });
             });
         }
 
