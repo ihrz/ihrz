@@ -60,37 +60,7 @@ export const event: BotEvent = {
 
                 await result.c?.run(client, message, lang, result.c, Date.now(), result.a);
 
-            } catch (err) {
-                let block = `\`\`\`TS\nMessage: The command ran into a problem!\nCommand Name: ${result.c?.name}\nError: ${err}\`\`\`\n`
-                let channel = client.channels.cache.get(client.config.core.reportChannelID);
-
-                if (channel) {
-
-                    return (channel as BaseGuildTextChannel).send({
-                        embeds: [
-                            new EmbedBuilder()
-                                .setTitle(`MSG_CMD_CRASH_NOT_HANDLE`)
-                                .setDescription(block)
-                                .setTimestamp()
-                                .setFields(
-                                    {
-                                        name: "🛡️ Bot Admin",
-                                        value: message.guild?.members.me?.permissions.has(PermissionFlagsBits.Administrator) ? "yes" : "no"
-                                    },
-                                    {
-                                        name: "📝 User Admin",
-                                        value: (message.member as GuildMember)?.permissions.has(PermissionFlagsBits.Administrator) ? "yes" : "no"
-                                    },
-                                    {
-                                        name: "** **",
-                                        value: message.content
-                                    },
-                                )
-                        ]
-                    })
-                }
-
-            }
+            } catch (err) {}
         };
     },
 };
