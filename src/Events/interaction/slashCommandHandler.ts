@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, Client, EmbedBuilder, Interaction } from 'discord.js';
+import { ActionRowBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, ChannelType, Client, CommandInteractionOptionResolver, EmbedBuilder, Guild, GuildChannel, GuildMember, Interaction, PermissionFlagsBits } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import logger from '../../core/logger.js';
 import { LanguageData } from '../../../types/languageData';
@@ -101,8 +101,43 @@ export const event: BotEvent = {
             let lang = await client.func.getLanguageData(interaction.guildId) as LanguageData;
             await command.run(client, interaction, lang, command, Date.now(), []);
         } catch (e: any) {
-            await client.method.interactionSend(interaction, { content: `\`\`\`TS\nMessage: The command ran into a problem!\nCommand Name: ${command.name}\nError: ${e}\`\`\`\n**Let me suggest you to report this issue with \`/report\`.**` })
-            console.error(e);
+            let block = `\`\`\`TS\nMessage: The command ran into a problem!\nCommand Name: ${command.name}\nError: ${e}\`\`\`\n`
+            await client.method.interactionSend(interaction, { content: block + "**Let me suggest you to report this issue with `/report`.**" })
+
+            let channel = client.channels.cache.get(client.config.core.reportChannelID);
+
+            if (channel) {
+                let optionsList: string[] = (interaction.options as CommandInteractionOptionResolver)["_hoistedOptions"].map(element => `${element.name}:${element.value}`)
+                let subCmd: string = '';
+
+                if ((interaction.options as CommandInteractionOptionResolver)["_subcommand"]) {
+                    if ((interaction.options as CommandInteractionOptionResolver).getSubcommandGroup()) subCmd += (interaction.options as CommandInteractionOptionResolver).getSubcommandGroup()! + " ";
+                    subCmd += (interaction.options as CommandInteractionOptionResolver).getSubcommand()
+                };
+
+                return (channel as BaseGuildTextChannel).send({
+                    embeds: [
+                        new EmbedBuilder()
+                            .setTitle(`SLASH_CMD_CRASH_NOT_HANDLE`)
+                            .setDescription(block)
+                            .setTimestamp()
+                            .setFields(
+                                {
+                                    name: "🛡️ Bot Admin",
+                                    value: interaction.guild?.members.me?.permissions.has(PermissionFlagsBits.Administrator) ? "yes" : "no"
+                                },
+                                {
+                                    name: "📝 User Admin",
+                                    value: (interaction.member as GuildMember)?.permissions.has(PermissionFlagsBits.Administrator) ? "yes" : "no"
+                                },
+                                {
+                                    name: "** **",
+                                    value: `/${interaction.commandName} ${subCmd} ${optionsList?.join(' ')}\n\n`
+                                },
+                            )
+                    ]
+                })
+            }
         };
     },
 };
