@@ -91,7 +91,7 @@ export const command: Command = {
                 categories.push({
                     name: placeholder.toString(),
                     value: commands,
-                    inline: true,
+                    inline: false,
                     description: description,
                     color: color,
                     emoji: cat.options.emoji
@@ -220,18 +220,7 @@ export const command: Command = {
                             break;
                     }
                     let descValue = (guildLang === "fr-ME" || guildLang === "fr-FR") ? `\`${element.desc_localized["fr"]}\`` : `\`${element.desc}\``;
-
-                    switch (guildLang) {
-                        case "en-US":
-                            currentGroup.push({ name: cmdPrefix, value: descValue, inline: true });
-                            break;
-                        case "fr-FR":
-                            currentGroup.push({ name: cmdPrefix, value: descValue, inline: true });
-                            break;
-                        default:
-                            currentGroup.push({ name: cmdPrefix, value: descValue, inline: true });
-                            break;
-                    }
+                    currentGroup.push({ name: cmdPrefix, value: descValue, inline: false });
 
                     if ((index + 1) % 20 === 0 || index === categories[i.values[0] as unknown as number].value.length - 1) {
                         commandGroups.push([...currentGroup]);

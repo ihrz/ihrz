@@ -52,6 +52,7 @@ export const event: BotEvent = {
                     { name: "🥛・New members total", value: `${usersize} members`, inline: true },
                 )
                 .setThumbnail(guild.iconURL())
+                .setTimestamp(guild.joinedTimestamp)
                 .setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" })
 
             let channel = client.channels.cache.get(client.config.core.guildLogsChannelID);
