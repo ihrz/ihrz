@@ -221,6 +221,65 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                 resolve(memoryDB);
             });
             break;
+        case 'CACHED_MONGO':
+            dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
+                const connectionAvailable = await isReachable(config.database);
+
+                if (!connectionAvailable) {
+                    console.error(`${config.console.emojis.ERROR} >> Failed to connect to the MongoDB database`);
+                    process.kill(1);
+                };
+
+                logger.log(`${config.console.emojis.HOST} >> Initializing cached database setup (${config.database?.method}) !`.green);
+
+                const mongoDriver = new MongoDriver(config.database?.mongoDb!);
+
+                try {
+                    await mongoDriver.connect();
+                    const mongoDb = new QuickDB({ driver: mongoDriver });
+                    const memoryDB = new QuickDB({ driver: new MemoryDriver() });
+
+                    for (const table of tables) {
+                        const memoryTable = memoryDB.table(table);
+                        const allData = await (mongoDb.table(table)).all();
+                        for (const { id, value } of allData) {
+                            await memoryTable.set(id, value);
+                        }
+                    }
+
+                    const syncToMongo = async () => {
+                        for (const table of tables) {
+                            const mongoTable = mongoDb.table(table);
+                            const memoryTable = memoryDB.table(table);
+                            const allData = await memoryTable.all();
+                            for (const { id, value } of allData) {
+                                await mongoTable.set(id, value);
+                            }
+                        }
+
+                        overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> Synchronized memory database to MongoDB`));
+                    };
+
+                    process.on('SIGINT', async () => {
+                        await syncToMongo();
+                        process.exit();
+                    });
+
+                    process.on('exit', async (code) => {
+                        if (code !== 0) {
+                            await syncToMongo();
+                        }
+                    });
+
+                    setInterval(syncToMongo, 60000 * 5);
+                    resolve(memoryDB);
+                } catch (error: any) {
+                    logger.err(`${config.console.emojis.ERROR} >> ${error.toString().split('\n')[0]}`.red);
+                    logger.err(`${config.console.emojis.ERROR} >> Failed to connect to MongoDB (${config.database?.method}) !`.red);
+                    process.kill(1);
+                }
+            });
+            break;
         default:
             dbPromise = new Promise<QuickDB>((resolve, reject) => {
                 logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
