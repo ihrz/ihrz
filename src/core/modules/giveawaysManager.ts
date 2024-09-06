@@ -13,6 +13,7 @@ import {
     ButtonInteraction,
     CacheType,
     ColorResolvable,
+    GuildMember,
 } from 'discord.js';
 
 import { GiveawayCreateOptions, GiveawayFetch } from '../../../types/giveaways';
@@ -143,7 +144,7 @@ class GiveawayManager {
                         ) as string[]).length >= parseInt(giveawayData.requirement.value!);
                         break;
                     case "roles":
-                        reqPass = (interaction.member?.roles as string[]).includes(giveawayData.requirement.value!)
+                        reqPass = (interaction.member as GuildMember)?.roles.cache.has(giveawayData.requirement.value!)
                         break;
                 };
                 if (!reqPass) {
