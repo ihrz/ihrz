@@ -19,9 +19,6 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import './src/core/functions/colors.js';
-core.timestampInitializer()
-
 import { Client, Partials, GatewayIntentBits } from "discord.js";
 import * as core from './src/core/core.js';
 import config from './src/files/config.js';
