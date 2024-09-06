@@ -220,11 +220,11 @@ export default {
                 case 'punishTimeMultiplier':
                     return value ? `\`🟢 ${lang.guildprofil_set_blockpub}\`` : `\`🔴 ${lang.guildprofil_not_set_blockpub}\``;
                 case 'punishment_type':
-                    return `\`${value}\`` ?? `\`🔥 ${lang.setjoinroles_var_none}\``;
+                    return value ? `\`${value}\`` : `\`🔥 ${lang.setjoinroles_var_none}\``;
                 case 'punishTime':
                 case 'maxDuplicatesInterval':
                 case 'maxInterval':
-                    return `\`${client.timeCalculator.to_beautiful_string(value.toString() + 'ms')}\`` ?? `\`⏲️ ${lang.setjoinroles_var_none}\``;
+                    return client.timeCalculator.to_beautiful_string(value.toString() + 'ms') ? `\`${client.timeCalculator.to_beautiful_string(value.toString() + 'ms')}\`` : `\`⏲️ ${lang.setjoinroles_var_none}\``;
                 default:
                     return `\`${value.toString()}\``;
             }
