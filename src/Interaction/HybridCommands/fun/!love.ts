@@ -25,12 +25,7 @@ import { LanguageData } from '../../../../types/languageData';
 import Jimp from 'jimp';
 import logger from '../../../core/logger.js';
 
-import { fileURLToPath } from 'url';
-import path from 'path';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
@@ -51,7 +46,7 @@ export default {
             let [profileImage1, profileImage2, heartEmoji] = await Promise.all([
                 Jimp.read(user1.displayAvatarURL({ extension: 'png', size: 512 })),
                 Jimp.read(user2.displayAvatarURL({ extension: 'png', size: 512 })),
-                Jimp.read(path.join(__dirname, '..', '..', '..', '..', '..', 'src', 'assets', 'heart.png'))
+                Jimp.read(process.cwd() + "/src/assets/heart.png")
             ]);
 
             profileImage1.resize(profileImageSize, profileImageSize);
