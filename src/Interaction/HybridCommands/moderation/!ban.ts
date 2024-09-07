@@ -112,9 +112,16 @@ export default {
             interaction.guild?.bans.create(member?.id!, { reason: `Banned by: ${(interaction.member?.user as User).globalName || interaction.member?.user.username} | Reason: ${reason}` })
                 .then(async () => {
                     client.method.interactionSend(interaction, {
-                        content: data.ban_command_work
-                            .replace(/\${member\.user\.id}/g, member.id)
-                            .replace(/\${interaction\.member\.id}/g, interaction.member?.user.id!)
+                        embeds: [
+                            new EmbedBuilder()
+                                .setTitle(data.setjoinroles_var_perm_ban_members)
+                                .setFields({ name: data.var_member, value: member.toString(), inline: true },
+                                    { name: data.var_author, value: interaction.member?.toString()!, inline: true },
+                                    { name: data.var_reason, value: reason || data.var_no_set, inline: true }
+                                )
+                                .setFooter(await client.method.bot.footerBuilder(interaction))
+                        ],
+                        files: [await client.method.bot.footerAttachmentBuilder(interaction)]
                     }).catch(() => { });
 
                     await client.method.iHorizonLogs.send(interaction, {
