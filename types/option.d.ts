@@ -23,6 +23,11 @@ import { ApplicationCommandOptionType } from 'discord.js';
 import { DescriptionLocalizations, NameLocalizations } from './command';
 import { Choice } from "./choice";
 
+export interface Choice {
+    name: string,
+    value: string | boolean
+}
+
 export interface Option {
     type: ApplicationCommandOptionType,
     options?: Option[],
