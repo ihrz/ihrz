@@ -66,11 +66,6 @@ export default {
         var textSize = ImageBannerOptions?.textSize || "40px";
         var avatarSize = ImageBannerOptions?.avatarSize || "140px";
 
-        message = client.method.generateCustomMessagePreview(message, {
-            user: interaction.user,
-            guild: interaction.guild,
-            guildLocal: guildLocal
-        })
         await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinbanner`, { backgroundURL, profilePictureRound, textColour, message, textSize, avatarSize })
 
         joinMessage = joinMessage?.substring(0, 1010);
@@ -378,11 +373,7 @@ export default {
                         }, i1);
 
 
-                        message = client.method.generateCustomMessagePreview(res?.fields.getTextInputValue("msg")!, {
-                            user: interaction.user,
-                            guild: interaction.guild!,
-                            guildLocal: guildLocal
-                        });
+                        message = res?.fields.getTextInputValue("msg")!;
 
                         let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message, textSize, avatarSize }))!;
                         await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], files: [attachment], components: [buttons, buttons2] });
@@ -478,11 +469,7 @@ export default {
                 backgroundURL = "https://img.freepik.com/vecteurs-libre/fond-courbe-bleue_53876-113112.jpg";
                 profilePictureRound = "status";
                 textColour = "#000000"
-                message = client.method.generateCustomMessagePreview(data.setjoinmessage_image_default_text, {
-                    user: interaction.user,
-                    guild: interaction.guild!,
-                    guildLocal: guildLocal
-                })
+                message = data.setjoinmessage_image_default_text
                 avatarSize = "140px"
                 textSize = "40px"
 
