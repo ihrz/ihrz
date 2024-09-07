@@ -20,6 +20,47 @@
 */
 
 export interface LanguageData {
+  var_member: string;
+  var_user: string;
+  var_author: string;
+  var_reason: string;
+  var_guild: string;
+  var_sanction: string;
+  var_time: string;
+  var_message: string;
+  var_no_set: string;
+  var_none: string;
+  var_roles: string;
+  var_names: string;
+  var_text_channel: string;
+  var_voice_channel: string;
+  var_ownihrz: string;
+  var_creator: string;
+  var_doesnt_have_permissions: string;
+  var_ihorizon: string;
+  var_developer: string;
+  var_chance: string;
+  var_other: string;
+  var_unknown: string;
+  var_secure: string;
+  var_unsecure: string;
+  var_prefix: string;
+  var_slash: string;
+  var_discord: string;
+  var_network: string;
+  var_latency: string;
+  var_bot: string;
+  var_true: string;
+  var_false: string;
+  var_enabled: string;
+  var_disabled: string;
+  var_yes: string;
+  var_no: string;
+  var_colour: string;
+  var_length: string;
+  var_good: string;
+  var_size: string;
+  var_level: string;
   ranksSetMessage_embed_fields_xpmessage: string;
   ranks_ignorechannels_embed_desc: string;
   ranks_ignorechannels_embed_title: string;
