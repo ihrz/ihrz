@@ -27,12 +27,6 @@ import Jimp from 'jimp';
 import logger from '../../core/logger.js';
 import { LanguageData } from '../../../types/languageData';
 
-import { fileURLToPath } from 'url';
-import path from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 export const command: AnotherCommand = {
     name: "Estimate the love",
     type: ApplicationCommandType.User,
@@ -50,7 +44,7 @@ export const command: AnotherCommand = {
             let [profileImage1, profileImage2, heartEmoji] = await Promise.all([
                 Jimp.read(user1.displayAvatarURL({ extension: 'png', size: 512 })),
                 Jimp.read(user2.displayAvatarURL({ extension: 'png', size: 512 })),
-                Jimp.read(path.join(__dirname, '..', '..', '..', '..', 'src', 'assets', 'heart.png'))
+                Jimp.read(process.cwd() + "/src/assets/heart.png")
             ]);
 
             profileImage1.resize(profileImageSize, profileImageSize);

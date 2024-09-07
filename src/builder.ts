@@ -21,18 +21,12 @@
 
 import './core/functions/colors.js';
 
-import { ShardingManager, Client, Partials, GatewayIntentBits } from 'discord.js';
-import { fileURLToPath } from 'url';
-import path from 'path';
+import { Client, Partials, GatewayIntentBits } from 'discord.js';
 
 import { ConfigData } from '../types/configDatad.js';
 
 import * as ClientVersion from "./version.js";
-import logger from './core/logger.js';
 import * as core from './core/core.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 class iHorizonBuilder {
     config: ConfigData;

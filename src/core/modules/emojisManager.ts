@@ -21,16 +21,11 @@
 import { Emojis } from '../../../types/emojis';
 
 import { Client } from 'discord.js';
-import { fileURLToPath } from 'url';
 import fs from 'node:fs';
-import path from 'path';
 import toml from 'toml';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 function emojis(client: Client) {
-    let emojis: Emojis = toml.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', '..', 'src', 'files', 'emojis.toml'), 'utf-8'))
+    let emojis: Emojis = toml.parse(fs.readFileSync(process.cwd() + "/src/files/emojis.toml", 'utf-8'))
 
     client.iHorizon_Emojis = emojis;
 };

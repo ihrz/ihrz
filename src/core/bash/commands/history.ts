@@ -22,12 +22,6 @@
 import logger from '../../logger.js';
 import fs from 'node:fs';
 
-import { fileURLToPath } from 'url';
-import path from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 let filePath = `${process.cwd()}/src/files/.bash_history`
 
 import { BashCommands } from "../../../../types/bashCommands";
