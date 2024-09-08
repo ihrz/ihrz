@@ -29,6 +29,7 @@ import logger from "../../core/logger.js";
 
 import { BotEvent } from '../../../types/event.js';
 import { GiveawayManager } from '../../core/modules/giveawaysManager.js';
+import { DatabaseStructure } from '../../../types/database_structure.js';
 
 export const event: BotEvent = {
     name: "ready",
@@ -126,6 +127,34 @@ export const event: BotEvent = {
             })
         }
 
+        async function statsRefresher() {
+            const currentTime = Date.now();
+            const fourteenDaysInMillis = 30 * 24 * 60 * 60 * 1000;
+
+            (await client.db.all()).forEach(async (index, value) => {
+                let guild = index.value as DatabaseStructure.DbInId;
+                let stats = guild.STATS?.USER;
+
+                if (stats) {
+                    Object.keys(stats).forEach(userId => {
+                        let userStats = stats[userId];
+
+                        if (userStats.messages) {
+                            userStats.messages = userStats.messages.filter((message: DatabaseStructure.StatsMessage) => {
+                                return (currentTime - message.sentTimestamp) <= fourteenDaysInMillis;
+                            });
+                        }
+                        if (userStats.voices) {
+                            userStats.voices = userStats.voices.filter((voice: DatabaseStructure.StatsVoice) => {
+                                return (currentTime - voice.endTimestamp) <= fourteenDaysInMillis;
+                            });
+                        }
+                    });
+                    await client.db.set(index.id, guild);
+                }
+            });
+        }
+
         // @ts-ignore
         client.giveawaysManager = new GiveawayManager(client, {
             storage: `${process.cwd()}/src/files/giveaways/`,
@@ -147,7 +176,7 @@ export const event: BotEvent = {
 
         setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000), setInterval(refreshBotData, 45_000);
 
-        fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule(), refreshBotData();
+        fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule(), refreshBotData(), statsRefresher();
 
         PfpsManager_Init(client);
 
