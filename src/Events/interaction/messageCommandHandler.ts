@@ -21,7 +21,7 @@
 
 import { Command } from '../../../types/command';
 import { BotEvent } from '../../../types/event';
-import { Client, Message } from 'discord.js';
+import { BaseGuildTextChannel, Client, EmbedBuilder, GuildMember, Message, PermissionFlagsBits } from 'discord.js';
 import { LanguageData } from '../../../types/languageData';
 
 export async function isMessageCommand(client: Client, message: Message): Promise<{ s: boolean, a?: string[], c?: Command }> {
@@ -54,11 +54,43 @@ export const event: BotEvent = {
         let result = await isMessageCommand(client, message);
 
         if (result.s) {
-            let lang = await client.func.getLanguageData(message.guildId) as LanguageData;
-            result.c?.run(client, message, lang, result.c, Date.now(), result.a);
-            return true;
-        } else {
-            return false;
+
+            try {
+                let lang = await client.func.getLanguageData(message.guildId) as LanguageData;
+
+                await result.c?.run(client, message, lang, result.c, Date.now(), result.a);
+
+            } catch (err) {
+                let block = `\`\`\`TS\nMessage: The command ran into a problem!\nCommand Name: ${result.c?.name}\nError: ${err}\`\`\`\n`
+                let channel = client.channels.cache.get(client.config.core.reportChannelID);
+
+                if (channel) {
+
+                    return (channel as BaseGuildTextChannel).send({
+                        embeds: [
+                            new EmbedBuilder()
+                                .setTitle(`MSG_CMD_CRASH_NOT_HANDLE`)
+                                .setDescription(block)
+                                .setTimestamp()
+                                .setFields(
+                                    {
+                                        name: "🛡️ Bot Admin",
+                                        value: message.guild?.members.me?.permissions.has(PermissionFlagsBits.Administrator) ? "yes" : "no"
+                                    },
+                                    {
+                                        name: "📝 User Admin",
+                                        value: (message.member as GuildMember)?.permissions.has(PermissionFlagsBits.Administrator) ? "yes" : "no"
+                                    },
+                                    {
+                                        name: "** **",
+                                        value: message.content
+                                    },
+                                )
+                        ]
+                    })
+                }
+
+            }
         };
     },
 };

@@ -29,14 +29,16 @@ import {
     ComponentType,
     Message,
     GuildMember,
+    BaseGuildTextChannel,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../../types/database_structure';
+import { SubCommandArgumentValue } from '../../../core/functions/method';
 
 const itemsPerPage = 5;
-import { SubCommandArgumentValue } from '../../../core/functions/method';
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
@@ -72,21 +74,25 @@ export default {
 
         const generateEmbed = (page: number) => {
             let embed = new EmbedBuilder()
-                .setDescription(data.backup_all_of_your_backup)
+                .setDescription(backups.length > 0 ? data.backup_all_of_your_backup : data.backup_backup_doesnt_exist)
                 .setAuthor({ name: interaction.member?.user.username || (interaction.member as GuildMember)?.displayName, iconURL: "attachment://user_icon.png" })
                 .setColor("#bf0bb9")
                 .setTimestamp();
 
-            let start = page * itemsPerPage;
-            let end = start + itemsPerPage;
-            let currentBackups = backups.slice(start, end);
+            if (backups.length > 0) {
+                let start = page * itemsPerPage;
+                let end = start + itemsPerPage;
+                let currentBackups = backups.slice(start, end);
 
-            currentBackups.forEach(backup => embed.addFields(backup));
+                currentBackups.forEach(backup => embed.addFields(backup));
+            }
 
             embed.setFooter({
-                text: data.prevnames_embed_footer_text
-                    .replace("${currentPage + 1}", String(page + 1))
-                    .replace("${pages.length}", String(totalPages)),
+                text: backups.length > 0
+                    ? data.prevnames_embed_footer_text
+                        .replace("${currentPage + 1}", String(page + 1))
+                        .replace("${pages.length}", String(totalPages))
+                    : data.prevnames_embed_footer_text.replace("${currentPage + 1}", "1").replace("${pages.length}", "1"),
                 iconURL: "attachment://footer_icon.png"
             });
             return embed;
@@ -99,12 +105,12 @@ export default {
                         .setCustomId('previous')
                         .setLabel('<<')
                         .setStyle(ButtonStyle.Secondary)
-                        .setDisabled(page === 0),
+                        .setDisabled(page === 0 || backups.length === 0),
                     new ButtonBuilder()
                         .setCustomId('next')
                         .setLabel('>>')
                         .setStyle(ButtonStyle.Secondary)
-                        .setDisabled(page === totalPages - 1)
+                        .setDisabled(page === totalPages - 1 || backups.length === 0)
                 );
         };
 
@@ -117,24 +123,26 @@ export default {
             ]
         });
 
-        const collector = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 60_000 });
+        if (backups.length > 0) {
+            const collector = (interaction.channel as BaseGuildTextChannel).createMessageComponentCollector({ componentType: ComponentType.Button, time: 60_000 });
 
-        collector.on('collect', async (i) => {
-            if (i.customId === 'previous') {
-                currentPage--;
-            } else if (i.customId === 'next') {
-                currentPage++;
-            }
+            collector.on('collect', async (i) => {
+                if (i.customId === 'previous') {
+                    currentPage--;
+                } else if (i.customId === 'next') {
+                    currentPage++;
+                }
 
-            await i.update({
-                embeds: [generateEmbed(currentPage)],
-                components: [generateButtons(currentPage)]
+                await i.update({
+                    embeds: [generateEmbed(currentPage)],
+                    components: [generateButtons(currentPage)]
+                });
             });
-        });
 
-        collector.on('end', () => {
-            originalResponse.edit({ components: [] });
-        });
+            collector.on('end', () => {
+                originalResponse.edit({ components: [] });
+            });
+        }
 
         return;
     },

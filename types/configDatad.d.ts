@@ -84,7 +84,7 @@ export interface ConfigData {
     };
 
     database?: {
-        method: 'MONGO_DB' | 'JSON' | 'MYSQL' | 'SQLITE' | 'CACHED_SQL' | 'POSTGRES' | 'PNG' | 'JSON2'
+        method: 'MONGO_DB' | 'JSON' | 'MYSQL' | 'SQLITE' | 'CACHED_SQL' | 'CACHED_MONGO' | 'POSTGRES' | 'PNG' | 'JSON2'
 
         mongoDb?: string;
 

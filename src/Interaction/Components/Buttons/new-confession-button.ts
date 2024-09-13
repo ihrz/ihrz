@@ -28,7 +28,7 @@ import maskLink from '../../../core/functions/maskLink.js';
 
 var modalIdRegistered: number[] = [];
 
-export default async function (interaction: ButtonInteraction<CacheType>) {
+export default async function (interaction: ButtonInteraction<"cached">) {
 
     /**
      * Why doing this?
