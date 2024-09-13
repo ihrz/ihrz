@@ -73,7 +73,7 @@ export function iHorizonModalBuilder(modalOptions: ModalOptionsBuilder): APIModa
 
 const cache: number[] = [];
 
-export async function iHorizonModalResolve(modalOptions: ModalOptionsBuilder, interaction: Interaction): Promise<ModalSubmitInteraction<CacheType> | undefined> {
+export async function iHorizonModalResolve(modalOptions: ModalOptionsBuilder, interaction: Interaction): Promise<ModalSubmitInteraction<"cached"> | undefined> {
     const { deferUpdate = true } = modalOptions;
     modalOptions.deferUpdate = deferUpdate;
 
@@ -81,7 +81,7 @@ export async function iHorizonModalResolve(modalOptions: ModalOptionsBuilder, in
 
     await (interaction as MessageComponentInteraction).showModal(modal);
 
-    let response = await (interaction as MessageComponentInteraction).awaitModalSubmit({
+    let response = await (interaction as MessageComponentInteraction<"cached">).awaitModalSubmit({
         filter: (i) => i.customId === modalOptions.customId && i.user.id === interaction.user.id,
         time: 1_240_000
     });

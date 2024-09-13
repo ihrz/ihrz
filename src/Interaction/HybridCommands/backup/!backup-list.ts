@@ -29,6 +29,7 @@ import {
     ComponentType,
     Message,
     GuildMember,
+    BaseGuildTextChannel,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../../types/database_structure';
@@ -37,7 +38,7 @@ import { SubCommandArgumentValue } from '../../../core/functions/method';
 const itemsPerPage = 5;
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
@@ -123,7 +124,7 @@ export default {
         });
 
         if (backups.length > 0) {
-            const collector = interaction.channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 60_000 });
+            const collector = (interaction.channel as BaseGuildTextChannel).createMessageComponentCollector({ componentType: ComponentType.Button, time: 60_000 });
 
             collector.on('collect', async (i) => {
                 if (i.customId === 'previous') {

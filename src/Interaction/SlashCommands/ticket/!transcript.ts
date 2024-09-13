@@ -43,6 +43,6 @@ export default {
             await interaction.editReply({ content: data.transript_not_in_ticket });
             return;
         } 
-        await TicketTranscript(interaction as unknown as ButtonInteraction<CacheType>);
+        await TicketTranscript(interaction as unknown as ButtonInteraction<"cached">);
     }
 };

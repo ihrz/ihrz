@@ -25,12 +25,7 @@ import database from './DatabaseModel.js';
 import yaml from 'js-yaml';
 import fs from 'node:fs';
 
-import { fileURLToPath } from 'url';
-import path from 'path';
 import { getClient } from '../core.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 interface LangsData {
     [lang: string]: LanguageData;
@@ -49,7 +44,7 @@ export default async function getLanguageData(arg: string): Promise<LanguageData
     let dat = LangsData[lang];
 
     if (!dat) {
-        dat = yaml.load(fs.readFileSync(path.join(__dirname, '..', '..', '..', '..', 'src', 'lang', lang + '.yml'), 'utf8')
+        dat = yaml.load(fs.readFileSync(process.cwd() + "/src/lang/" + lang + ".yml", 'utf8')
             .replaceAll('iHorizon ', cached_client.user?.username! + " ")
             .replaceAll(' iHorizon', " " + cached_client.user?.username!)
             .replaceAll('iHorizon.', cached_client.user?.username! + ".")

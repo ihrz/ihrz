@@ -47,9 +47,9 @@ import {
 import { generatePassword } from '../../../core/functions/random.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { SubCommandArgumentValue, member } from '../../../core/functions/method.js';
+import { SubCommandArgumentValue } from '../../../core/functions/method';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -126,7 +126,7 @@ export default {
             time: 1_420_000
         });
 
-        collector.on('collect', async (i) => {
+        collector.on('collect', async (i: StringSelectMenuInteraction<"cached">) => {
             if (i.user.id !== interaction.member?.user.id!) {
                 await i.reply({ content: lang.embed_interaction_not_for_you, ephemeral: true });
                 return;
@@ -140,7 +140,7 @@ export default {
 
         type LanguageDataKeys = keyof LanguageData;
 
-        async function chooseAction(i: StringSelectMenuInteraction<CacheType>) {
+        async function chooseAction(i: StringSelectMenuInteraction<"cached">) {
             switch (i.values[0]) {
                 case '0':
                     await handleCollector(i, 'embed_choose_0', async (message) => {
@@ -282,10 +282,10 @@ export default {
             }
         }
 
-        async function handleCollector(i: StringSelectMenuInteraction<CacheType>, replyContent: LanguageDataKeys, onCollect: (message: Message) => void) {
+        async function handleCollector(i: StringSelectMenuInteraction<"cached">, replyContent: LanguageDataKeys, onCollect: (message: Message) => void) {
             const replyMessage = Array.isArray(lang[replyContent]) ? (lang[replyContent] as string[]).join(' ') : lang[replyContent];
             let reply = await i.reply({ content: replyMessage.toString(), ephemeral: true });
-            let messageCollector = interaction.channel?.createMessageCollector({ filter: (m) => m.author.id === interaction.member?.user.id!, max: 1, time: 120_000 });
+            let messageCollector = (interaction.channel as BaseGuildTextChannel)?.createMessageCollector({ filter: (m) => m.author.id === interaction.member?.user.id!, max: 1, time: 120_000 });
             messageCollector?.on('collect', async (message) => {
                 onCollect(message);
                 await reply.delete();
@@ -294,7 +294,7 @@ export default {
         }
 
 
-        async function sendEmbed(confirmation: ButtonInteraction<CacheType>) {
+        async function sendEmbed(confirmation: ButtonInteraction<"cached">) {
             const channelSelectMenu = new ActionRowBuilder<ChannelSelectMenuBuilder>()
                 .addComponents(
                     new ChannelSelectMenuBuilder()
@@ -309,7 +309,7 @@ export default {
                 components: [channelSelectMenu]
             });
 
-            let seCollector = interaction.channel?.createMessageComponentCollector({
+            let seCollector = (interaction.channel as BaseGuildTextChannel)?.createMessageComponentCollector({
                 filter: (m) => m.user.id === interaction.member?.user.id! && m.customId === 'embed-save-channel',
                 max: 1,
                 time: 120_000,
@@ -352,7 +352,7 @@ export default {
             time: 120_000
         });
 
-        buttonCollector.on('collect', async (confirmation) => {
+        buttonCollector.on('collect', async (confirmation: ButtonInteraction<"cached">) => {
             if (confirmation.user.id !== interaction.member?.user.id!) {
                 await confirmation.reply({ content: lang.embed_interaction_not_for_you, ephemeral: true });
                 return;

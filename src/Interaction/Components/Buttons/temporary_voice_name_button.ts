@@ -23,7 +23,7 @@ import { ActionRowBuilder, ButtonInteraction, CacheType, EmbedBuilder, GuildMemb
 import { LanguageData } from '../../../../types/languageData';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 
-export default async function (interaction: ButtonInteraction<CacheType>) {
+export default async function (interaction: ButtonInteraction<"cached">) {
 
     let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
     let table = interaction.client.db.table('TEMP');

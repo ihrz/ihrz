@@ -22,6 +22,7 @@
 import {
     ActionRowBuilder,
     ButtonBuilder,
+    ButtonInteraction,
     ButtonStyle,
     ChatInputCommandInteraction,
     Client,
@@ -33,6 +34,7 @@ import {
     MessageReplyOptions,
     PermissionsBitField,
     StringSelectMenuBuilder,
+    StringSelectMenuInteraction,
     StringSelectMenuOptionBuilder,
     TextInputStyle,
 } from 'discord.js';
@@ -79,7 +81,7 @@ const AntiSpamPreset: { [key in PresetKeys]: AntiSpam.AntiSpamOptions } = {
 }
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
@@ -277,7 +279,7 @@ export default {
             componentType: ComponentType.Button,
         });
 
-        buttonCollector.on('collect', async i => {
+        buttonCollector.on('collect', async (i: ButtonInteraction<"cached">) => {
             if (i.user.id !== interaction.member?.user.id) {
                 await i.reply({ content: lang.help_not_for_you, ephemeral: true });
                 return;
@@ -344,7 +346,7 @@ export default {
             }
         });
 
-        collector.on('collect', async (i) => {
+        collector.on('collect', async (i: StringSelectMenuInteraction<"cached">) => {
             if (i.user.id !== interaction.member?.user.id) {
                 await i.reply({ content: lang.help_not_for_you, ephemeral: true });
                 return;

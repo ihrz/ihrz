@@ -8,7 +8,7 @@ import {
     BaseGuildTextChannel,
     GuildTextBasedChannel,
     ChatInputCommandInteraction,
-    TextBasedChannel,
+    Interaction,
     Message,
     ButtonInteraction,
     CacheType,
@@ -46,9 +46,9 @@ class GiveawayManager {
 
         db.InitFilePath(this.options.storage);
 
-        client.on('interactionCreate', interaction => {
+        client.on('interactionCreate', (interaction) => {
             if (interaction.isButton() && interaction.customId === "confirm-entry-giveaway") {
-                this.addEntries(interaction);
+                this.addEntries(interaction as ButtonInteraction<"cached">);
             };
         });
 
@@ -120,7 +120,7 @@ class GiveawayManager {
         });
     };
 
-    public async addEntries(interaction: ButtonInteraction<CacheType>) {
+    public async addEntries(interaction: ButtonInteraction<"cached">) {
 
         let giveawayData = db.GetGiveawayData(interaction.message.id);
         let lang = await getLanguageData(interaction.guildId!);
@@ -176,7 +176,7 @@ class GiveawayManager {
         };
     };
 
-    private async removeEntries(interaction: ButtonInteraction<CacheType>) {
+    private async removeEntries(interaction: ButtonInteraction<"cached">) {
         let lang = await getLanguageData(interaction.guildId!);
 
         await interaction.reply({
@@ -198,7 +198,7 @@ class GiveawayManager {
             filter: (i) => interaction.user.id === i.user.id
         });
 
-        collector.on('collect', async (i: ButtonInteraction<CacheType>) => {
+        collector.on('collect', async (i: ButtonInteraction<"cached">) => {
             if (i.customId === 'giveaway-leave') {
 
                 let now_members = db.RemoveEntries(interaction.message.id, interaction.user.id);
@@ -442,7 +442,7 @@ class GiveawayManager {
         });
     };
 
-    public async listEntries(interaction: ChatInputCommandInteraction | Message, giveawayId: string) {
+    public async listEntries(interaction: ChatInputCommandInteraction<"cached"> | Message, giveawayId: string) {
         let fetch = db.GetGiveawayData(giveawayId)!;
         let lang = await getLanguageData(fetch.guildId);
 
@@ -498,7 +498,7 @@ class GiveawayManager {
             } else {
                 var messageEmbed = await interaction.reply({
                     embeds: [createEmbed()], components: [(row as ActionRowBuilder<ButtonBuilder>)]
-                });
+                }) as Message<true>
             }
 
             let collector = messageEmbed.createMessageComponentCollector({

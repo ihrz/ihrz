@@ -100,9 +100,16 @@ export default {
         await member.kick(`Kicked by: ${interaction.member.user.username} | Reason: ${reason}`);
 
         await client.method.interactionSend(interaction, {
-            content: data.kick_command_work
-                .replace(/\${member\.user}/g, member.user.toString())
-                .replace(/\${interaction\.user}/g, interaction.member.user.toString())
+            embeds: [
+                new EmbedBuilder()
+                    .setTitle(data.setjoinroles_var_perm_kick_members)
+                    .setFields({ name: data.var_member, value: member.toString(), inline: true },
+                        { name: data.var_author, value: interaction.member?.toString()!, inline: true },
+                        { name: data.var_reason, value: reason || data.var_no_set, inline: true }
+                    )
+                    .setFooter(await client.method.bot.footerBuilder(interaction))
+            ],
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });
 
         await client.method.iHorizonLogs.send(interaction, {

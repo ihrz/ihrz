@@ -22,7 +22,7 @@
 import { CreateTicketChannel } from '../../../core/modules/ticketsManager.js';
 import { ButtonInteraction, CacheType } from 'discord.js';
 
-export default async function (interaction: ButtonInteraction<CacheType>) {
+export default async function (interaction: ButtonInteraction<"cached">) {
 
     if (!await interaction.client.db.get(
         `${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`

@@ -60,7 +60,7 @@ interface CreatePanelData {
     category?: string | undefined
 }
 
-async function CreateButtonPanel(interaction: ChatInputCommandInteraction<CacheType>, data: CreatePanelData) {
+async function CreateButtonPanel(interaction: ChatInputCommandInteraction<"cached">, data: CreatePanelData) {
 
     let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
 
@@ -124,7 +124,7 @@ export interface CaseList {
     categoryId?: string;
 }
 
-async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheType>, data: CreatePanelData) {
+async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cached">, data: CreatePanelData) {
     let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let case_list: CaseList[] = [];
 
@@ -338,7 +338,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
         }
     });
 
-    async function sendCategorySelection(interaction: ModalSubmitInteraction<CacheType>, x: CaseList): Promise<string | undefined> {
+    async function sendCategorySelection(interaction: ModalSubmitInteraction<"cached">, x: CaseList): Promise<string | undefined> {
         const action_row_category = new ActionRowBuilder<ChannelSelectMenuBuilder>()
             .addComponents(
                 new ChannelSelectMenuBuilder()
@@ -368,7 +368,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
         }
     }
 
-    async function reasonTicket(interaction: ModalSubmitInteraction<CacheType>): Promise<boolean | undefined> {
+    async function reasonTicket(interaction: ModalSubmitInteraction<"cached">): Promise<boolean | undefined> {
         const action_row_category = new StringSelectMenuBuilder()
             .setCustomId('ticket-sethere-reason')
             .addOptions(
@@ -403,7 +403,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
     }
 }
 
-async function CreateTicketChannel(interaction: ButtonInteraction<CacheType> | StringSelectMenuInteraction<CacheType>) {
+async function CreateTicketChannel(interaction: ButtonInteraction<"cached"> | StringSelectMenuInteraction<"cached">) {
 
     if (interaction instanceof ButtonInteraction) {
         let result = await database.get(`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`);
@@ -454,14 +454,14 @@ interface ResultButton {
     }[];
 };
 
-async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringSelectMenuInteraction<CacheType>, result: ResultButton) {
+async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSelectMenuInteraction<"cached">, result: ResultButton) {
     let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let category = await database.get(`${interaction.message.guildId}.GUILD.TICKET.category`);
 
     if (result.categoryId) category = result.categoryId
 
     let reason = '';
-    let reasonInteraction: ModalSubmitInteraction<CacheType>;
+    let reasonInteraction: ModalSubmitInteraction<"cached">;
 
     if (result && result?.reason) {
         let response = await iHorizonModalResolve({
@@ -642,7 +642,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
     }).catch(() => { });
 };
 
-async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) {
+async function CloseTicket(interaction: ChatInputCommandInteraction<"cached">) {
     let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
 
     let fetch = await database.get(
@@ -703,7 +703,7 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) 
     }
 };
 
-async function TicketTranscript(interaction: ButtonInteraction<CacheType>) {
+async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
     let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let interactionChannel = interaction.channel;
 
@@ -745,7 +745,7 @@ async function TicketTranscript(interaction: ButtonInteraction<CacheType>) {
     }
 };
 
-async function TicketRemoveMember(interaction: ChatInputCommandInteraction<CacheType>) {
+async function TicketRemoveMember(interaction: ChatInputCommandInteraction<"cached">) {
     let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let member = interaction.options.getUser("user");
 
@@ -779,7 +779,7 @@ async function TicketRemoveMember(interaction: ChatInputCommandInteraction<Cache
     };
 };
 
-async function TicketAddMember(interaction: ChatInputCommandInteraction<CacheType>) {
+async function TicketAddMember(interaction: ChatInputCommandInteraction<"cached">) {
     let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let member = interaction.options.getUser("user");
 
@@ -818,7 +818,7 @@ async function TicketAddMember(interaction: ChatInputCommandInteraction<CacheTyp
     }
 };
 
-async function TicketReOpen(interaction: ChatInputCommandInteraction<CacheType>) {
+async function TicketReOpen(interaction: ChatInputCommandInteraction<"cached">) {
     let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let fetch = await database.get(`${interaction.guildId}.TICKET_ALL`);
 
@@ -871,7 +871,7 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<CacheType>)
     }
 };
 
-async function TicketDelete(interaction: Interaction<CacheType>) {
+async function TicketDelete(interaction: Interaction<"cached">) {
     let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let fetch = await database.get(`${interaction.guildId}.TICKET_ALL`);
 
@@ -921,7 +921,7 @@ async function TicketDelete(interaction: Interaction<CacheType>) {
     }
 };
 
-async function TicketAddMember_2(interaction: UserSelectMenuInteraction<CacheType>) {
+async function TicketAddMember_2(interaction: UserSelectMenuInteraction<"cached">) {
     let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;;
     let owner_ticket = await database.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}.${interaction.channel?.id}`);
 

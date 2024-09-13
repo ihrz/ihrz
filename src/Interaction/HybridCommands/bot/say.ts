@@ -60,7 +60,7 @@ export const command: Command = {
     ],
     type: ApplicationCommandType.ChatInput,
     thinking: false,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         const permissionsArray = [PermissionsBitField.Flags.Administrator]

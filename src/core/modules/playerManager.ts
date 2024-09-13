@@ -66,7 +66,7 @@ export default async (client: Client) => {
                     .setColor(2829617)
                     .setDescription(data.event_mp_playerStart
                         .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
-                        .replace("${track.title}", track.info.title)
+                        .replace("${track.title}", String(track?.info.title))
                         .replace("${queue.channel.name}", `<#${player.voiceChannelId}>`)
                     )
             ]
