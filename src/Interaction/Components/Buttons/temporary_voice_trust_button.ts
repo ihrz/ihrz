@@ -22,7 +22,7 @@
 import { ActionRowBuilder, BaseGuildVoiceChannel, ButtonInteraction, CacheType, ComponentType, Embed, EmbedBuilder, GuildMember, UserSelectMenuBuilder } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export default async function (interaction: ButtonInteraction<CacheType>) {
+export default async function (interaction: ButtonInteraction<"cached">) {
 
     let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
     let table = interaction.client.db.table('TEMP');

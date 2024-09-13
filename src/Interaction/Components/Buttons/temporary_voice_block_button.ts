@@ -22,13 +22,13 @@
 import { ActionRowBuilder, BaseGuildVoiceChannel, ButtonInteraction, CacheType, ComponentType, Embed, EmbedBuilder, GuildMember, UserSelectMenuBuilder } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 
-export default async function (interaction: ButtonInteraction<CacheType>) {
+export default async function (interaction: ButtonInteraction<"cached">) {
 
     let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
     let table = interaction.client.db.table('TEMP');
 
     let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
-    let member = interaction.member as GuildMember;
+    let member = interaction.member;
 
     let targetedChannel = (interaction.member as GuildMember).voice.channel;
     let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);

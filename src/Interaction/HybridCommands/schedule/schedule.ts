@@ -56,7 +56,7 @@ export const command: Command = {
     category: 'schedule',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -278,7 +278,7 @@ export const command: Command = {
                 });
             };
 
-            async function executeAfterModal(i: ModalSubmitInteraction<CacheType>) {
+            async function executeAfterModal(i: ModalSubmitInteraction<"cached">) {
                 let collection = i.fields.fields;
                 let nameValue = collection.get('name')?.value;
                 let descValue = collection.get('desc')?.value;
