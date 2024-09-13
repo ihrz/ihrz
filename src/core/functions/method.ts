@@ -326,7 +326,7 @@ export async function interactionSend(interaction: ChatInputCommandInteraction |
     }
 }
 
-export async function channelSend(interaction: Message | ChatInputCommandInteraction | AnySelectMenuInteraction | BaseGuildTextChannel, options: string | MessageReplyOptions | MessageEditOptions): Promise<Message> {
+export async function channelSend(interaction: Message | ChatInputCommandInteraction<"cached"> | AnySelectMenuInteraction<"cached"> | BaseGuildTextChannel, options: string | MessageReplyOptions | MessageEditOptions): Promise<Message> {
     const nonce = SnowflakeUtil.generate().toString();
     let replyOptions: MessageReplyOptions;
 
@@ -344,7 +344,7 @@ export async function channelSend(interaction: Message | ChatInputCommandInterac
     if (interaction instanceof BaseGuildTextChannel) {
         return await interaction.send(replyOptions)!;
     } else {
-        return await interaction.channel?.send(replyOptions)!;
+        return await (interaction.channel as BaseGuildTextChannel)?.send(replyOptions)!;
     }
 }
 

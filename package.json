@@ -26,7 +26,7 @@
     "better-sqlite3": "^11.2.1",
     "discord-html-transcripts": "^3.2.0",
     "discord-rebackup": "^3.5.0",
-    "discord.js": "^14.15.3",
+    "discord.js": "14.16.0",
     "genius-lyrics": "^4.4.7",
     "jimp": "^0.22.12",
     "js-yaml": "^4.1.0",
