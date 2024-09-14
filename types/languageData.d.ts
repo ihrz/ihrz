@@ -61,6 +61,11 @@ export interface LanguageData {
   var_good: string;
   var_size: string;
   var_level: string;
+  var_add: string;
+  var_remove: string;
+  var_edit: string;
+  var_confirm: string;
+  var_succes: string;
   ranksSetMessage_embed_fields_xpmessage: string;
   ranks_ignorechannels_embed_desc: string;
   ranks_ignorechannels_embed_title: string;
