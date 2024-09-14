@@ -38,6 +38,7 @@ const synchronizeCommands = async (client: Client): Promise<void> => {
 
             let slashCommands = client.commands?.map((command) => ({
                 name: command.name,
+                name_localizations: command.name,
                 type: command.type,
                 description: command.description,
                 description_localizations: command.description_localizations,
