@@ -43,6 +43,11 @@ var_length: "Longitud"
 var_good: "Bueno"
 var_size: "Tamaño"
 var_level: "Nivel"
+var_add: "Agregar"
+var_remove: "Eliminar"
+var_edit: "Editar"
+var_confirm: "Confirmar"
+var_succes: "Éxito"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
