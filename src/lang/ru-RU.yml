@@ -43,6 +43,11 @@ var_length: "Длина"
 var_good: "Хорошо"
 var_size: "Размер"
 var_level: "Уровень"
+var_add: "Добавить"
+var_remove: "Удалить"
+var_edit: "Редактировать"
+var_confirm: "Подтвердить"
+var_succes: "Успех"
 
 # Команды для тикетов
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
