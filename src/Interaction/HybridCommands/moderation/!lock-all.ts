@@ -53,9 +53,16 @@ export default {
             return;
         };
 
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var role = interaction.options.getRole("role");
+        } else {
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var role = client.method.role(interaction, args!, 0);
+        };
+
         interaction.guild.channels.cache.forEach((c) => {
             if (c.type === ChannelType.GuildText) {
-                c.permissionOverwrites.create(interaction.guildId as string, { SendMessages: false })
+                c.permissionOverwrites.create(role?.id || interaction.guild?.roles.everyone.id!, { SendMessages: false });
             };
         });
 

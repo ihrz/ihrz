@@ -164,6 +164,19 @@ export const command: Command = {
                 "fr": "Supprimer la possibilité de parler de tous les utilisateurs de ce channel"
             },
 
+            options: [
+                {
+                    name: "role",
+
+                    description: "The role",
+                    description_localizations: {
+                        "fr": "le rôle"
+                    },
+
+                    required: false,
+                    type: ApplicationCommandOptionType.Role
+                }
+            ],
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
@@ -173,6 +186,20 @@ export const command: Command = {
             description_localizations: {
                 "fr": "Supprimer la possibilité de parler de tous les utilisateurs sur tous les channel"
             },
+
+            options: [
+                {
+                    name: "role",
+
+                    description: "The role",
+                    description_localizations: {
+                        "fr": "le rôle"
+                    },
+
+                    required: false,
+                    type: ApplicationCommandOptionType.Role
+                }
+            ],
 
             type: ApplicationCommandOptionType.Subcommand
         },
@@ -251,6 +278,20 @@ export const command: Command = {
             description_localizations: {
                 "fr": "Donner la possibilité de parler de tous les utilisateurs dans ce texte"
             },
+
+            options: [
+                {
+                    name: "role",
+
+                    description: "The role",
+                    description_localizations: {
+                        "fr": "le rôle"
+                    },
+
+                    required: false,
+                    type: ApplicationCommandOptionType.Role
+                }
+            ],
 
             type: ApplicationCommandOptionType.Subcommand
         },

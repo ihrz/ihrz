@@ -56,9 +56,17 @@ export default {
             return;
         };
 
-        (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(interaction.guildId as string, { SendMessages: false }).then(async () => {
-            await client.method.interactionSend(interaction, { embeds: [Lockembed] });
-        }).catch(() => { })
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var role = interaction.options.getRole("role");
+        } else {
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var role = client.method.role(interaction, args!, 0);
+        };
+
+        (interaction.channel as BaseGuildTextChannel).permissionOverwrites
+            .create(role?.id || interaction.guild.roles.everyone.id, { SendMessages: false }).then(async () => {
+                await client.method.interactionSend(interaction, { embeds: [Lockembed] });
+            }).catch(() => { })
 
         await client.method.iHorizonLogs.send(interaction, {
             title: data.lock_logs_embed_title,

@@ -50,12 +50,19 @@ export default {
             return;
         };
 
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var role = interaction.options.getRole("role");
+        } else {
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var role = client.method.role(interaction, args!, 0);
+        };
+
         let embed = new EmbedBuilder()
             .setColor("#5b3475")
             .setTimestamp()
             .setDescription(data.unlock_embed_message_description);
 
-        await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(interaction.guildId as string, { SendMessages: true });
+        await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(role?.id || interaction.guild.roles.everyone.id, { SendMessages: false });
         await client.method.iHorizonLogs.send(interaction, {
             title: data.unlock_logs_embed_title,
             description: data.unlock_logs_embed_description
