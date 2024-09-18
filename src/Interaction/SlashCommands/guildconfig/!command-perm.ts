@@ -19,20 +19,27 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ChatInputCommandInteraction, Message } from "discord.js";
-import { DatabaseStructure } from "../../../types/database_structure";
-import { Command } from "../../../types/command";
-import { Option } from "../../../types/option";
+import {
+    ActionRowBuilder,
+    AutocompleteInteraction,
+    ButtonBuilder,
+    ButtonStyle,
+    ChatInputCommandInteraction,
+    Client,
+    EmbedBuilder,
+    PermissionsBitField,
+} from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-export async function checkCommandPermission(interaction: ChatInputCommandInteraction | Message, command: string | Command | Option): Promise<boolean> {
-    var usr = interaction instanceof ChatInputCommandInteraction ? interaction.user : interaction.author;
-    var db = interaction.client.db;
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+            await interaction.editReply({ content: data.guildprofil_not_admin });
+            return;
+        }
 
-    var cmd = typeof command === 'string' ? command : command.name;
-    let guildPerm = await db.get(`${interaction.guildId}.UTILS`) as DatabaseStructure.UtilsData;
-    let userInDatabase = guildPerm?.USER_PERMS?.[usr.id] || 0;
-    let cmdNeedPerm = guildPerm?.PERMS?.[cmd] || 0;
-
-    if (userInDatabase >= cmdNeedPerm) return true;
-    return false;
-}
+        await client.method.interactionSend(interaction, "test")
+    }
+};

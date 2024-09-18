@@ -284,8 +284,9 @@ export namespace DatabaseStructure {
     }
 
     export interface UtilsData {
-        PERMS?: UtilsPermsData
-        USER_PERMS?: UtilsPermsUserData
+        PERMS?: UtilsPermsData;
+        USER_PERMS?: UtilsPermsUserData;
+        unban_members?: string[]
     }
 
     export interface UtilsPermsData {
