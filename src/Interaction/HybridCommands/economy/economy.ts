@@ -328,11 +328,12 @@ export const command: Command = {
     category: 'economy',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: SubCommandArgumentValue, execTimestamp?: number, options?: string[]) => {
-        let fetchedCommand;
+        let fetchedCommand: string;
         let sub: SubCommandArgumentValue | undefined;
 
         if (interaction instanceof ChatInputCommandInteraction) {
             fetchedCommand = interaction.options.getSubcommand();
+            sub = { name: command.name, command: command.options?.find(x => fetchedCommand === x.name) }
         } else {
             if (!options?.[0]) {
                 await client.method.interactionSend(interaction, { embeds: [await client.method.createAwesomeEmbed(lang, command, client, interaction)] });

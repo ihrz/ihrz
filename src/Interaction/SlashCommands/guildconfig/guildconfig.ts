@@ -257,7 +257,7 @@ export const command: Command = {
                                     value: "3"
                                 },
                                 {
-                                    name: "Perm 3",
+                                    name: "Perm 4",
                                     value: "4"
                                 }
                             ],

@@ -25,6 +25,8 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
+import { Command } from '../../../../types/command';
+import { Option } from '../../../../types/option';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, data: LanguageData) => {
@@ -36,12 +38,15 @@ export default {
         }
 
         const requestedCommand = interaction.options.getString("command")!;
+        const perms = interaction.options.getString("permission")
         const commandParts = requestedCommand.split(" ");
-        let fetchedCommand = client.commands.get(commandParts[0]);
+        let fetchedCommand: Command | Option | undefined = client.commands.get(commandParts[0]);
 
-        if (!fetchedCommand && commandParts.length > 1) {
-            fetchedCommand = client.commands.get(commandParts[1]);
+        if (fetchedCommand && commandParts.length > 1) {
+            fetchedCommand = fetchedCommand.options?.find(x => x.name === commandParts[1]);
         }
+
+        await client.db.set(`${interaction.guildId}.UTILS.PERMS.${fetchedCommand?.name}`, parseInt(perms!) || 0);
 
         if (fetchedCommand) {
             const commandType = commandParts.length === 1 ? "Commande" :
