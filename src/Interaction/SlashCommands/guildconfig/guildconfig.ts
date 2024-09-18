@@ -489,15 +489,21 @@ export const command: Command = {
                     });
                 }
             };
+
             client.commands.forEach((command: Command) => {
                 getCommandChoices(command);
             });
         }
 
-        const filtered = choices.filter(choice => choice.startsWith(focusedOption.value)) || [];
+        const filtered = choices.filter(choice =>
+            choice.includes(focusedOption.value) || choice.startsWith(focusedOption.value)
+        ).slice(0, 25);
 
         await interaction.respond(
-            filtered.map(choice => ({ name: choice, value: choice })),
+            filtered.map(choice => ({
+                name: choice,
+                value: choice
+            })),
         );
     },
     thinking: true,

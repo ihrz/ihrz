@@ -20,26 +20,39 @@
 */
 
 import {
-    ActionRowBuilder,
-    AutocompleteInteraction,
-    ButtonBuilder,
-    ButtonStyle,
     ChatInputCommandInteraction,
     Client,
-    EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
+
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, data: LanguageData) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.guildprofil_not_admin });
             return;
         }
 
-        await client.method.interactionSend(interaction, "test")
+        const requestedCommand = interaction.options.getString("command")!;
+        const commandParts = requestedCommand.split(" ");
+        let fetchedCommand = client.commands.get(commandParts[0]);
+
+        if (!fetchedCommand && commandParts.length > 1) {
+            fetchedCommand = client.commands.get(commandParts[1]);
+        }
+
+        if (fetchedCommand) {
+            const commandType = commandParts.length === 1 ? "Commande" :
+                commandParts.length === 2 ? "Sous-commande" :
+                    "Sous-commande groupe";
+
+            await client.method.interactionSend(interaction, `${commandType}: ${fetchedCommand.name}`);
+        } else {
+            await client.method.interactionSend(interaction, "Commande introuvable");
+        }
+
+        // console.log(requestedCommand, fetchedCommand);
     }
 };
