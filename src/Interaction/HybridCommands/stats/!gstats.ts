@@ -41,7 +41,7 @@ type ChannelStats = {
 };
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         if (!client.user || !interaction.guild || !interaction.channel) return;
 
         let leaderboardData: {

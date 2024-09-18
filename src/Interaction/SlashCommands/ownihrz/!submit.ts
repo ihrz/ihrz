@@ -32,7 +32,7 @@ import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 
 const OWNIHRZ = new OwnIHRZ();
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, data: LanguageData) => {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 

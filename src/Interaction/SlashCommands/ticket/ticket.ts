@@ -258,7 +258,7 @@ export const command: Command = {
     thinking: true,
     category: 'ticket',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         let command = interaction.options.getSubcommand();
 
         const commandModule = await import(`./!${command}.js`);

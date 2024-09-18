@@ -45,7 +45,7 @@ import {
 export default {
     run: async (
         client: Client,
-        interaction: ChatInputCommandInteraction | Message,
+        interaction: ChatInputCommandInteraction<"cached"> | Message,
         data: LanguageData,
         command: SubCommandArgumentValue,
         execTimestamp?: number,

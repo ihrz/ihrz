@@ -34,7 +34,7 @@ import { axios } from '../../../core/functions/axios.js';
 import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         if (interaction instanceof ChatInputCommandInteraction) {
             var kiss = interaction.options.getUser("user") as User;
             var user = interaction.user;

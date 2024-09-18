@@ -32,7 +32,7 @@ import logger from '../../../core/logger.js';
 import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         axios.get('https://dog.ceo/api/breeds/image/random')
             .then(async res => {
                 let emb = new EmbedBuilder()

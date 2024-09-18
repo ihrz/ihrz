@@ -31,7 +31,7 @@ import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { Platform } from '../../../core/StreamNotifier.js';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, lang: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData) => {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 

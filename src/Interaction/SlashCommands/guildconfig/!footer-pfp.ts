@@ -29,7 +29,7 @@ import { LanguageData } from '../../../../types/languageData';
 import { axios } from '../../../core/functions/axios.js';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, data: LanguageData) => {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 

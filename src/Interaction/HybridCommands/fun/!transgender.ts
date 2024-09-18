@@ -41,7 +41,7 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 
 export default {
-  run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+  run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
     if (interaction instanceof ChatInputCommandInteraction) {
       var member1 = interaction.options.getUser('user') as User || interaction.user;
     } else {

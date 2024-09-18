@@ -93,7 +93,7 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -114,7 +114,7 @@ export const command: Command = {
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var action = client.method.string(args!, 0)
-            var roles = client.method.role(interaction, args!, 0);
+            var roles = client.method.role(interaction, args!, 0) as Role | null;
             var input = client.method.longString(args!, 2)
         };
 

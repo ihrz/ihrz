@@ -25,7 +25,7 @@ import { Command } from "../../../types/command";
 import { Option } from "../../../types/option";
 import { LanguageData } from "../../../types/languageData";
 
-export async function checkCommandPermission(interaction: ChatInputCommandInteraction | Message, command: string | Command | Option): Promise<{
+export async function checkCommandPermission(interaction: ChatInputCommandInteraction<"cached"> | Message, command: string | Command | Option): Promise<{
     allowed: boolean;
     neededPerm?: number;
 }> {

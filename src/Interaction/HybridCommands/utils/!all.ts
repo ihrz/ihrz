@@ -30,7 +30,7 @@ import { LanguageData } from '../../../../types/languageData';
 import wait from '../../../core/functions/wait.js';
 import { Command } from '../../../../types/command';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: Command, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, data: LanguageData, command: Command, execTimestamp?: number, args?: string[]) => {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 

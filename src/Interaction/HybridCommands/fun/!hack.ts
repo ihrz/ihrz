@@ -32,7 +32,7 @@ import crypto from 'crypto';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         if (interaction instanceof ChatInputCommandInteraction) {
             var victim = interaction.options.getUser("user") as User;
             var user = interaction.user;
