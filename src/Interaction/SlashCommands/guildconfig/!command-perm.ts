@@ -53,15 +53,13 @@ export default {
         await client.db.set(`${interaction.guildId}.UTILS.PERMS.${fetchedCommand?.name}`, parseInt(perms!) || 0);
 
         if (fetchedCommand) {
-            const commandType = commandParts.length === 1 ? "Commande" :
-                commandParts.length === 2 ? "Sous-commande" :
-                    "Sous-commande groupe";
+            const commandType = commandParts.length === 1 ? "Command" :
+                commandParts.length === 2 ? "Subcommand" :
+                    "Subcommand group";
 
             await client.method.interactionSend(interaction, `${commandType}: ${fetchedCommand.name}`);
         } else {
             await client.method.interactionSend(interaction, "Commande introuvable");
         }
-
-        // console.log(requestedCommand, fetchedCommand);
     }
 };
