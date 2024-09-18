@@ -56,8 +56,6 @@ export default {
         let channel = interaction.channel as BaseGuildTextChannel;
 
         try {
-            await channel.delete();
-
             let here = await channel.clone({
                 name: channel.name,
                 parent: channel.parent,
@@ -69,6 +67,8 @@ export default {
             });
 
             await here.setPosition(channel.rawPosition);
+            await channel.delete();
+
             here.send({ content: lang.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.member.user.toString()) });
             return;
         } catch (error) {

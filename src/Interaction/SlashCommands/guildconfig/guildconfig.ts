@@ -220,6 +220,27 @@ export const command: Command = {
 
                     options: [
                         {
+                            name: 'action',
+                            type: ApplicationCommandOptionType.String,
+
+                            description: 'What you want to do?',
+                            description_localizations: {
+                                "fr": "Que veux-tu faire?"
+                            },
+
+                            required: true,
+                            choices: [
+                                {
+                                    name: 'Change commands permission',
+                                    value: "change"
+                                },
+                                {
+                                    name: "List all commands permission set",
+                                    value: "list"
+                                }
+                            ],
+                        },
+                        {
                             name: "command",
 
                             description: "The command you want to update",
@@ -229,7 +250,7 @@ export const command: Command = {
 
                             autocomplete: true,
                             type: ApplicationCommandOptionType.String,
-                            required: true
+                            required: false
                         },
                         {
                             name: "permission",
@@ -263,7 +284,7 @@ export const command: Command = {
                             ],
 
                             type: ApplicationCommandOptionType.String,
-                            required: true
+                            required: false
                         }
                     ],
 

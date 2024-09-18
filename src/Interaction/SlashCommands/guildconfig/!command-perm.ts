@@ -20,8 +20,12 @@
 */
 
 import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
     ChatInputCommandInteraction,
     Client,
+    EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
@@ -30,36 +34,127 @@ import { Option } from '../../../../types/option';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, data: LanguageData, command: SubCommandArgumentValue) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: SubCommandArgumentValue) => {
         let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
-        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, data, permCheck.neededPerm || 0);
+        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.guildprofil_not_admin });
+            await interaction.editReply({ content: lang.guildprofil_not_admin });
             return;
         }
 
-        const requestedCommand = interaction.options.getString("command")!;
-        const perms = interaction.options.getString("permission")
-        const commandParts = requestedCommand.split(" ");
-        let fetchedCommand: Command | Option | undefined = client.commands.get(commandParts[0]);
+        let choice = interaction.options.getString("action")!;
 
-        if (fetchedCommand && commandParts.length > 1) {
-            fetchedCommand = fetchedCommand.options?.find(x => x.name === commandParts[1]);
-        }
+        if (choice === "change") {
+            const requestedCommand = interaction.options.getString("command");
+            const perms = interaction.options.getString("permission")
 
-        await client.db.set(`${interaction.guildId}.UTILS.PERMS.${fetchedCommand?.name}`, parseInt(perms!) || 0);
+            if (!requestedCommand || !perms) {
+                await client.method.interactionSend(interaction, { content: "You have not specified the commands to change or the permission to set." })
+                return;
+            }
 
-        if (fetchedCommand) {
-            const commandType = commandParts.length === 1 ? "Command" :
-                commandParts.length === 2 ? "Subcommand" :
-                    "Subcommand group";
+            const commandParts = requestedCommand.split(" ");
+            let fetchedCommand: Command | Option | undefined = client.commands.get(commandParts[0]);
 
-            await client.method.interactionSend(interaction, `${commandType}: ${fetchedCommand.name}`);
-        } else {
-            await client.method.interactionSend(interaction, "Commande introuvable");
+            if (fetchedCommand && commandParts.length > 1) {
+                fetchedCommand = fetchedCommand.options?.find(x => x.name === commandParts[1]);
+            }
+
+            await client.db.set(`${interaction.guildId}.UTILS.PERMS.${fetchedCommand?.name}`, parseInt(perms!) || 0);
+
+            if (fetchedCommand) {
+                const commandType = commandParts.length === 1 ? "Command" :
+                    commandParts.length === 2 ? "Subcommand" :
+                        "Subcommand group";
+
+                await client.method.interactionSend(interaction, `${commandType}: ${fetchedCommand.name}`);
+            } else {
+                await client.method.interactionSend(interaction, "Commande introuvable");
+            }
+        } else if (choice === "list") {
+            let res = await client.db.get(`${interaction.guildId}.UTILS.PERMS`);
+
+            if (!res || Object.keys(res).length === 0) {
+                await client.method.interactionSend(interaction, { content: "empty" });
+                return;
+            }
+
+            let permissions = Object.entries(res);
+            let currentPage = 0;
+            let itemsPerPage = 15;
+            let pages = [];
+
+            for (let i = 0; i < permissions.length; i += itemsPerPage) {
+                let pagePermissions = permissions.slice(i, i + itemsPerPage);
+                let pageContent = pagePermissions.map(([perm, level]) => `**\`${perm}\`**: Level ${level}`).join('\n');
+
+                pages.push({
+                    title: `iHorizon - PermList | Page ${i / itemsPerPage + 1}`,
+                    description: pageContent,
+                });
+            }
+
+            let createEmbed = () => {
+                return new EmbedBuilder()
+                    .setColor("#000000")
+                    .setTitle(pages[currentPage].title)
+                    .setDescription(pages[currentPage].description)
+                    .setFooter({
+                        text: "iHorizon - PermList ${currentPage + 1}/${pages.length}"
+                            .replace('${currentPage + 1}', (currentPage + 1).toString())
+                            .replace('${pages.length}', pages.length.toString()),
+                        iconURL: "attachment://footer_icon.png"
+                    })
+                    .setTimestamp();
+            };
+
+            let row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+                new ButtonBuilder()
+                    .setCustomId('previousPage')
+                    .setLabel('⬅️')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(currentPage === 0),
+                new ButtonBuilder()
+                    .setCustomId('nextPage')
+                    .setLabel('➡️')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(currentPage === pages.length - 1)
+            );
+
+            let messageEmbed = await client.method.interactionSend(interaction, {
+                embeds: [createEmbed()],
+                components: [row],
+                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            });
+
+            let collector = messageEmbed.createMessageComponentCollector({
+                filter: async (i) => {
+                    await i.deferUpdate();
+                    return i.user.id === interaction.user.id;
+                },
+                time: 60000
+            });
+
+            collector.on('collect', async (interaction_2) => {
+                if (interaction_2.customId === 'previousPage') {
+                    currentPage = (currentPage - 1 + pages.length) % pages.length;
+                } else if (interaction_2.customId === 'nextPage') {
+                    currentPage = (currentPage + 1) % pages.length;
+                }
+
+                row.components[0].setDisabled(currentPage === 0);
+                row.components[1].setDisabled(currentPage === pages.length - 1);
+
+                await messageEmbed.edit({ embeds: [createEmbed()], components: [row] });
+            });
+
+            collector.on('end', async () => {
+                await messageEmbed.edit({ components: [] });
+            });
+
         }
     }
 };
