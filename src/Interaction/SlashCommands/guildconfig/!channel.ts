@@ -37,8 +37,13 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
 import { DatabaseStructure } from '../../../../types/database_structure';
+import { SubCommandArgumentValue } from '../../../core/functions/method';
+
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, data: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, data: LanguageData, command: SubCommandArgumentValue) => {
+        let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
+        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, data, permCheck.neededPerm || 0);
+
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 

@@ -419,6 +419,22 @@ export function generateCustomMessagePreview(
 
 }
 
+export const findOptionRecursively = (options: Option[], subcommandName: string): Option | undefined => {
+    for (const option of options) {
+        if (option.name === subcommandName) {
+            return option;
+        }
+
+        if (option.options && (option.type === ApplicationCommandOptionType.SubcommandGroup || option.type === ApplicationCommandOptionType.Subcommand)) {
+            const foundOption = findOptionRecursively(option.options, subcommandName);
+            if (foundOption) {
+                return foundOption;
+            }
+        }
+    }
+    return undefined;
+};
+
 export const permission = perm;
 export const bot = f;
 export const helper = h;

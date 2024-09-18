@@ -212,27 +212,10 @@ export const command: Command = {
     thinking: false,
     category: 'notifier',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, runningCommand: SubCommandArgumentValue, execTimestamp?: number, options?: string[]) => {
-        let fetchedCommand: string;
-        let sub: SubCommandArgumentValue | undefined;
-
-        if (interaction instanceof ChatInputCommandInteraction) {
-            fetchedCommand = interaction.options.getSubcommand();
-            sub = { name: command.name, command: command.options?.find(x => fetchedCommand === x.name) }
-        } else {
-            if (!options?.[0]) {
-                await client.method.interactionSend(interaction, { embeds: [await client.method.createAwesomeEmbed(lang, command, client, interaction)] });
-                return;
-            }
-            const cmd = command.options?.find(x => options[0] === x.name || x.aliases?.includes(options[0]));
-            sub = { name: command.name, command: cmd };
-            if (!cmd) return;
-
-            fetchedCommand = cmd.name;
-            options.shift();
-        }
-
-        const commandModule = await import(`./!${fetchedCommand}.js`);
-        await commandModule.default.run(client, interaction, lang, sub, execTimestamp, options);
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+        let command2 = interaction.options.getSubcommand();
+        
+        const commandModule = await import(`./!${command2}.js`);
+        await commandModule.default.run(client, interaction, lang, { name: command.name, command: client.method.findOptionRecursively(command.options || [], command2) });
     },
 };

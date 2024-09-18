@@ -35,9 +35,11 @@ import { Command } from '../../../../types/command'; export const command: Comma
     },
 
     thinking: false,
-    category: '404',
+    category: 'ownihrz',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {
+        let permCheck = await client.method.permission.checkCommandPermission(interaction, command!);
+        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
         let option1 = args?.[0];
         var content = "";
@@ -50,7 +52,8 @@ import { Command } from '../../../../types/command'; export const command: Comma
                 content = "https://youtu.be/frE7G7jeG88"
                 break;
             default:
-                return
+                content = "https://youtu.be/frE7G7jeG88"
+                break;
         };
 
         await client.method.interactionSend(interaction, { content });
