@@ -28,10 +28,10 @@ import {
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
-import { SubCommandArgumentValue } from '../../../core/functions/method';
+import { LanguageData } from '../../../../../types/languageData';
+import { Command } from '../../../../../types/command';
+import { Option } from '../../../../../types/option';
+import { SubCommandArgumentValue } from '../../../../core/functions/method.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: SubCommandArgumentValue) => {
@@ -52,7 +52,7 @@ export default {
             const perms = interaction.options.getString("permission")
 
             if (!requestedCommand || !perms) {
-                await client.method.interactionSend(interaction, { content: "You have not specified the commands to change or the permission to set." })
+                await client.method.interactionSend(interaction, { content: lang.perm_add_args_error })
                 return;
             }
 
@@ -66,19 +66,18 @@ export default {
             await client.db.set(`${interaction.guildId}.UTILS.PERMS.${fetchedCommand?.name}`, parseInt(perms!) || 0);
 
             if (fetchedCommand) {
-                const commandType = commandParts.length === 1 ? "Command" :
-                    commandParts.length === 2 ? "Subcommand" :
-                        "Subcommand group";
+                const commandType = commandParts.length === 1 ? lang.var_command :
+                    commandParts.length === 2 ? lang.var_subcommand : lang.var_subcommand_group;
 
                 await client.method.interactionSend(interaction, `${commandType}: ${fetchedCommand.name}`);
             } else {
-                await client.method.interactionSend(interaction, "Commande introuvable");
+                await client.method.interactionSend(interaction, lang.var_unreachable_command);
             }
         } else if (choice === "list") {
             let res = await client.db.get(`${interaction.guildId}.UTILS.PERMS`);
 
             if (!res || Object.keys(res).length === 0) {
-                await client.method.interactionSend(interaction, { content: "empty" });
+                await client.method.interactionSend(interaction, { content: lang.perm_list_no_command_set });
                 return;
             }
 
@@ -89,10 +88,11 @@ export default {
 
             for (let i = 0; i < permissions.length; i += itemsPerPage) {
                 let pagePermissions = permissions.slice(i, i + itemsPerPage);
-                let pageContent = pagePermissions.map(([perm, level]) => `**\`${perm}\`**: Level ${level}`).join('\n');
+                let pageContent = pagePermissions.map(([perm, level]) => `**\`${perm}\`**: ${lang.var_level} ${level}`).join('\n');
 
                 pages.push({
-                    title: `iHorizon - PermList | Page ${i / itemsPerPage + 1}`,
+                    title: lang.prevnames_embed_footer_text.replace("${currentPage + 1}", String(i / itemsPerPage + 1))
+                        .replace("/${pages.length}", ""),
                     description: pageContent,
                 });
             }
@@ -103,9 +103,10 @@ export default {
                     .setTitle(pages[currentPage].title)
                     .setDescription(pages[currentPage].description)
                     .setFooter({
-                        text: "iHorizon - PermList ${currentPage + 1}/${pages.length}"
-                            .replace('${currentPage + 1}', (currentPage + 1).toString())
-                            .replace('${pages.length}', pages.length.toString()),
+                        text:
+                            lang.prevnames_embed_footer_text
+                                .replace('${currentPage + 1}', (currentPage + 1).toString())
+                                .replace('${pages.length}', pages.length.toString()),
                         iconURL: "attachment://footer_icon.png"
                     })
                     .setTimestamp();
@@ -114,12 +115,12 @@ export default {
             let row = new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder()
                     .setCustomId('previousPage')
-                    .setLabel('⬅️')
+                    .setLabel('<<<')
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(currentPage === 0),
                 new ButtonBuilder()
                     .setCustomId('nextPage')
-                    .setLabel('➡️')
+                    .setLabel('>>>')
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(currentPage === pages.length - 1)
             );

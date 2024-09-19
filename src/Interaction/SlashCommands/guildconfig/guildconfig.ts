@@ -210,86 +210,6 @@ export const command: Command = {
 
                     type: ApplicationCommandOptionType.Subcommand,
                 },
-                {
-                    name: 'command-perm',
-
-                    description: 'Set a specific permission to use one command',
-                    description_localizations: {
-                        "fr": "Définir une permission spécifique pour l'utilisation d'une commande"
-                    },
-
-                    options: [
-                        {
-                            name: 'action',
-                            type: ApplicationCommandOptionType.String,
-
-                            description: 'What you want to do?',
-                            description_localizations: {
-                                "fr": "Que veux-tu faire?"
-                            },
-
-                            required: true,
-                            choices: [
-                                {
-                                    name: 'Change commands permission',
-                                    value: "change"
-                                },
-                                {
-                                    name: "List all commands permission set",
-                                    value: "list"
-                                }
-                            ],
-                        },
-                        {
-                            name: "command",
-
-                            description: "The command you want to update",
-                            description_localizations: {
-                                "fr": "La commande que vous souhaiter modifier"
-                            },
-
-                            autocomplete: true,
-                            type: ApplicationCommandOptionType.String,
-                            required: false
-                        },
-                        {
-                            name: "permission",
-
-                            description: "The permission for the selected command",
-                            description_localizations: {
-                                "fr": "La permission pour la commande choisie"
-                            },
-
-                            choices: [
-                                {
-                                    name: "Default",
-                                    value: "0"
-                                },
-                                {
-                                    name: "Perm 1",
-                                    value: "1"
-                                },
-                                {
-                                    name: "Perm 2",
-                                    value: "2"
-                                },
-                                {
-                                    name: "Perm 3",
-                                    value: "3"
-                                },
-                                {
-                                    name: "Perm 4",
-                                    value: "4"
-                                }
-                            ],
-
-                            type: ApplicationCommandOptionType.String,
-                            required: false
-                        }
-                    ],
-
-                    type: ApplicationCommandOptionType.Subcommand,
-                }
             ],
         },
         {
@@ -493,40 +413,6 @@ export const command: Command = {
             ]
         }
     ],
-    async autocomplete(client, interaction) {
-        const focusedOption = interaction.options.getFocused(true);
-        let choices: string[] = [];
-
-        if (focusedOption.name === 'command') {
-            const getCommandChoices = (command: Command, parentName = '') => {
-                const commandName = parentName ? `${parentName} ${command.name}` : command.name;
-                choices.push(commandName);
-
-                if (command.options) {
-                    command.options.forEach((option: any) => {
-                        if (option.type === ApplicationCommandOptionType.SubcommandGroup || option.type === ApplicationCommandOptionType.Subcommand) {
-                            getCommandChoices(option, commandName);
-                        }
-                    });
-                }
-            };
-
-            client.commands.forEach((command: Command) => {
-                getCommandChoices(command);
-            });
-        }
-
-        const filtered = choices.filter(choice =>
-            choice.includes(focusedOption.value) || choice.startsWith(focusedOption.value)
-        ).slice(0, 25);
-
-        await interaction.respond(
-            filtered.map(choice => ({
-                name: choice,
-                value: choice
-            })),
-        );
-    },
     thinking: true,
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
