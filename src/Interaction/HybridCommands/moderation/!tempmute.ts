@@ -65,7 +65,12 @@ export default {
 
         if (!mutetime || !tomute || !mutetime) { return; };
 
-        let mutetimeMS = client.timeCalculator.to_ms(mutetime)!;
+        let mutetimeMS = client.timeCalculator.to_ms(mutetime);
+
+        if (!mutetimeMS) {
+            await client.method.interactionSend(interaction, { content: data.too_new_account_invalid_time_on_enable });
+            return;
+        }
         let mutetimeString = client.timeCalculator.to_beautiful_string(mutetime);
 
         if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageMessages])) {
