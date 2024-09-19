@@ -39,7 +39,7 @@ function niceBytes(a: Number) { let b = 0, c = parseInt((a.toString()), 10) || 0
 export const command: Command = {
     name: 'status',
 
-    aliases: ["server", "stats"],
+    aliases: ["server"],
 
     description: 'Get the bot status! (Only for the bot owner)',
     description_localizations: {
