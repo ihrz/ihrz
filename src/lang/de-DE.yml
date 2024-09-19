@@ -947,6 +947,11 @@ perm_list_no_command_set: "Es gibt keine Befehle mit spezifischen Berechtigungen
 perm_set_deleted: "${user.toString()} hat seine Berechtigung **gelöscht**!"
 perm_set_ok: "${user.toString()} hat seine Berechtigung auf **`${perm}`** geändert"
 
+# /perm roles
+perm_roles_created_role: "Folgende Rollen wurden erstellt: ${createdRoles.join(', ')}"
+perm_roles_already_upate: "Alle Rollen existieren bereits und sind auf dem neuesten Stand."
+perm_roles_error: "Bei der Erstellung oder Aktualisierung der Rollen ist ein Fehler aufgetreten."
+
 
 # Member Count commands
 # /setmembercount
@@ -1769,6 +1774,9 @@ event_boostlog_sub: "<@${newMember.user.id}> **hat gerade seinen Boost vom Serve
 
 # Wirtschaftsmodul
 economy_disable_msg: "<@${interaction.user.id}>, das `Wirtschaftsmodul` auf diesem Server ist **deaktiviert**. Du kannst das Wirtschaftsmodul nicht mehr verwenden!"
+
+# Permission Event
+event_permission_wrong: "${interaction.member?.user.toString()}, Sie dürfen diesen Befehl nicht verwenden! Benötigte Berechtigung: **`${neededPerm === 0 ? 'Discord-Berechtigung' : neededPerm}`**"
 
 # TempVoice-Modul
 # Alle Komponenten, globalVar...
