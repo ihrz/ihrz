@@ -930,6 +930,23 @@ guildconfig_config_save_user_msg: "Это резервная копия наст
 guildconfig_config_restore_err_msg: "Произошла ошибка при загрузке файла."
 guildconfig_config_restore_msg: "Данные были сохранены в моей базе данных."
 
+# /perm add
+perm_add_args_error: "Вы не указали команды для изменения или разрешение для установки."
+
+# /perm list
+perm_list_embed_title: "Разрешения всех пользователей:"
+perm_list_unknown_user: "Неизвестный пользователь (ID: ${userId})"
+perm_list_no_user: "Пользователь не найден"
+var_command: "Команда"
+var_subcommand: "Подкоманда"
+var_subcommand_group: "Группа подкоманд"
+var_unreachable_command: "Команда не найдена"
+perm_list_no_command_set: "В этом сервере нет команд с установленными конкретными разрешениями!"
+
+# /perm set
+perm_set_deleted: "${user.toString()} имеет разрешение **удалено**!"
+perm_set_ok: "${user.toString()} изменил свое разрешение на **`${perm}`**"
+
 
 # Commandes de décompte des membres
 # /setmembercount

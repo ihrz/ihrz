@@ -928,6 +928,24 @@ guildconfig_config_save_user_msg: "هذه نسخة احتياطية من إعد�
 guildconfig_config_restore_err_msg: "حدث خطأ أثناء تنزيل الملف."
 guildconfig_config_restore_msg: "تم تعيين البيانات في قاعدة بياناتي."
 
+# /perm add
+perm_add_args_error: "لم تحدد الأوامر التي تريد تغييرها أو الأذونات التي تريد تعيينها."
+
+# /perm list
+perm_list_embed_title: "أذونات جميع المستخدمين:"
+perm_list_unknown_user: "مستخدم غير معروف (ID: ${userId})"
+perm_list_no_user: "لم يتم العثور على المستخدم"
+var_command: "أمر"
+var_subcommand: "أمر فرعي"
+var_subcommand_group: "مجموعة الأوامر الفرعية"
+var_unreachable_command: "الأمر غير موجود"
+perm_list_no_command_set: "لا توجد أوامر تم تعيين أذونات لها في هذه الخادم!"
+
+# /perm set
+perm_set_deleted: "${user.toString()} تم **حذف** أذنه!"
+perm_set_ok: "${user.toString()} تم تغيير أذنه إلى **`${perm}`**"
+
+
 # Member Count commands
 # /setmembercount
 
