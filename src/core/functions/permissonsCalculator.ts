@@ -35,15 +35,30 @@ export async function checkCommandPermission(interaction: ChatInputCommandIntera
     var cmd = typeof command === 'string' ? command : command.name;
     let guildPerm = await db.get(`${interaction.guildId}.UTILS`) as DatabaseStructure.UtilsData;
     let userInDatabase = guildPerm?.USER_PERMS?.[usr.id] || 0;
-    let cmdNeedPerm = guildPerm?.PERMS?.[cmd] || 0;
+    let cmdNeedPerm: 1 | 2 | 3 | 4 | undefined = guildPerm?.PERMS?.[cmd];
 
-    if (userInDatabase >= cmdNeedPerm) return { allowed: true, neededPerm: 0 };
+    // if configuration is not set: return true and do discord permission check
+    if (!cmdNeedPerm) {
+        return { allowed: true, neededPerm: 0 };
+    }
+
+    let roleForPerm = guildPerm.roles?.[cmdNeedPerm] as string | undefined;
+
+    // if the member have the perm roles
+    if (roleForPerm && interaction.member?.roles.cache.has(roleForPerm)) {
+        return { allowed: true, neededPerm: cmdNeedPerm };
+    }
+
+    // else if the user is in the list
+    if (userInDatabase >= cmdNeedPerm) {
+        return { allowed: true, neededPerm: cmdNeedPerm };
+    }
+
     return { allowed: false, neededPerm: cmdNeedPerm };
 }
 
 export async function sendErrorMessage(interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, neededPerm: number) {
     return await interaction.client.method.interactionSend(interaction, {
-        content: `${interaction.member?.user.toString()}, you are not allowed to use this command! Need perm: ${neededPerm === 0 ? 'Discord Permission' : neededPerm
-            } `
+        content: `${interaction.member?.user.toString()}, you are not allowed to use this command! Need perm: ${neededPerm === 0 ? 'Discord Permission' : neededPerm}`
     })
 }

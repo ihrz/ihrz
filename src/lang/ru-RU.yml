@@ -947,6 +947,11 @@ perm_list_no_command_set: "В этом сервере нет команд с у�
 perm_set_deleted: "${user.toString()} имеет разрешение **удалено**!"
 perm_set_ok: "${user.toString()} изменил свое разрешение на **`${perm}`**"
 
+# /perm roles
+perm_roles_created_role: "Созданы следующие роли: ${createdRoles.join(', ')}"
+perm_roles_already_upate: "Все роли уже существуют и актуальны."
+perm_roles_error: "Произошла ошибка при создании или обновлении ролей."
+
 
 # Commandes de décompte des membres
 # /setmembercount

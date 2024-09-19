@@ -188,6 +188,16 @@ export const command: Command = {
 
             type: ApplicationCommandOptionType.Subcommand,
         },
+        {
+            name: 'roles',
+
+            description: 'Create roles for the permission',
+            description_localizations: {
+                "fr": "Créer les roles pour les permissions"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand,
+        },
     ],
 
     async autocomplete(client, interaction) {
