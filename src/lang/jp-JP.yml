@@ -930,6 +930,23 @@ guildconfig_config_save_user_msg: "`${interaction.guild.name}` の設定のバ�
 guildconfig_config_restore_err_msg: "ファイルのダウンロード中にエラーが発生しました。"
 guildconfig_config_restore_msg: "データがデータベースに保存されました。"
 
+# /perm add
+perm_add_args_error: "変更するコマンドや設定する権限を指定していません。"
+
+# /perm list
+perm_list_embed_title: "すべてのユーザーの権限："
+perm_list_unknown_user: "不明なユーザー (ID: ${userId})"
+perm_list_no_user: "ユーザーが見つかりません"
+var_command: "コマンド"
+var_subcommand: "サブコマンド"
+var_subcommand_group: "サブコマンドグループ"
+var_unreachable_command: "コマンドが見つかりません"
+perm_list_no_command_set: "このサーバーには特定の権限が設定されたコマンドがありません！"
+
+# /perm set
+perm_set_deleted: "${user.toString()} の権限は **削除** されました！"
+perm_set_ok: "${user.toString()} の権限は **`${perm}`** に変更されました"
+
 
 # Member Count commands
 # /setmembercount

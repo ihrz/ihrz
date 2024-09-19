@@ -20,12 +20,15 @@
 */
 
 import { ChatInputCommandInteraction, Message } from "discord.js";
-import { LanguageData } from "../../../types/languageData";
 import { DatabaseStructure } from "../../../types/database_structure";
 import { Command } from "../../../types/command";
 import { Option } from "../../../types/option";
+import { LanguageData } from "../../../types/languageData";
 
-export async function checkCommandPermission(interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: string | Command | Option): Promise<boolean> {
+export async function checkCommandPermission(interaction: ChatInputCommandInteraction<"cached"> | Message, command: string | Command | Option): Promise<{
+    allowed: boolean;
+    neededPerm: number;
+}> {
     var usr = interaction instanceof ChatInputCommandInteraction ? interaction.user : interaction.author;
     var db = interaction.client.db;
 
@@ -34,6 +37,13 @@ export async function checkCommandPermission(interaction: ChatInputCommandIntera
     let userInDatabase = guildPerm?.USER_PERMS?.[usr.id] || 0;
     let cmdNeedPerm = guildPerm?.PERMS?.[cmd] || 0;
 
-    if (userInDatabase >= cmdNeedPerm) return true;
-    return false;
+    if (userInDatabase >= cmdNeedPerm) return { allowed: true, neededPerm: 0 };
+    return { allowed: false, neededPerm: cmdNeedPerm };
+}
+
+export async function sendErrorMessage(interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, neededPerm: number) {
+    return await interaction.client.method.interactionSend(interaction, {
+        content: `${interaction.member?.user.toString()}, you are not allowed to use this command! Need perm: ${neededPerm === 0 ? 'Discord Permission' : neededPerm
+            } `
+    })
 }

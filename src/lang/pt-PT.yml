@@ -930,6 +930,23 @@ guildconfig_config_save_user_msg: "Este é o backup das configurações de `${in
 guildconfig_config_restore_err_msg: "Ocorreu um erro ao baixar o arquivo."
 guildconfig_config_restore_msg: "Os dados foram salvos no meu banco de dados."
 
+# /perm add
+perm_add_args_error: "Você não especificou os comandos a serem alterados ou a permissão a ser definida."
+
+# /perm list
+perm_list_embed_title: "Permissões de todos os usuários:"
+perm_list_unknown_user: "Usuário desconhecido (ID: ${userId})"
+perm_list_no_user: "Usuário não encontrado"
+var_command: "Comando"
+var_subcommand: "Subcomando"
+var_subcommand_group: "Grupo de subcomandos"
+var_unreachable_command: "Comando não encontrado"
+perm_list_no_command_set: "Não há comandos com permissões específicas definidas neste servidor!"
+
+# /perm set
+perm_set_deleted: "${user.toString()} teve sua permissão **excluída**!"
+perm_set_ok: "${user.toString()} teve sua permissão alterada para **`${perm}`**"
+
 
 # Member Count commands
 # /setmembercount

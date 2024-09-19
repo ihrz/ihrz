@@ -42,7 +42,10 @@ import { axios } from '../../../core/functions/axios.js';
 import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 
 export default {
-  run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+  run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
+    if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
+
     let baseImg = (await axios.get('https://api.thecatapi.com/v1/images/search?mime_types=jpg,png')).data;
 
     if (interaction instanceof ChatInputCommandInteraction) {

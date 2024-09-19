@@ -33,7 +33,10 @@ import { LanguageData } from '../../../../types/languageData';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+        let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
+        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, data, permCheck.neededPerm || 0);
+
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
@@ -49,7 +52,7 @@ export default {
             interaction.memberPermissions?.has(permissionsArray)
             : interaction.member.permissions.has(permissionsArray);
 
-        if (!permissions) {
+        if (!permissions && permCheck.neededPerm === 0) {
             await client.method.interactionSend(interaction, { content: data.security_disable_not_admin });
             return;
         };

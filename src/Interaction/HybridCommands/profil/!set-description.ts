@@ -27,7 +27,10 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+        let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
+        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, data, permCheck.neededPerm || 0);
+
         if (interaction instanceof ChatInputCommandInteraction) {
             var desc = interaction.options.getString("description")!;
             var user = interaction.user;

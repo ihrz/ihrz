@@ -36,7 +36,10 @@ import logger from '../../../core/logger.js';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+        let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
+        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, data, permCheck.neededPerm || 0);
+
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -45,9 +48,16 @@ export default {
             interaction.memberPermissions?.has(permissionsArray)
             : interaction.member.permissions.has(permissionsArray);
 
-        if (!permissions) {
+        if (!permissions && permCheck.neededPerm === 0) {
             await client.method.interactionSend(interaction, { content: data.unlock_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
             return;
+        };
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var role = interaction.options.getRole("role");
+        } else {
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var role = client.method.role(interaction, args!, 0);
         };
 
         let embed = new EmbedBuilder()
@@ -55,7 +65,7 @@ export default {
             .setTimestamp()
             .setDescription(data.unlock_embed_message_description);
 
-        await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(interaction.guildId as string, { SendMessages: true });
+        await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(role?.id || interaction.guild.roles.everyone.id, { SendMessages: false });
         await client.method.iHorizonLogs.send(interaction, {
             title: data.unlock_logs_embed_title,
             description: data.unlock_logs_embed_description

@@ -93,7 +93,10 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+        let permCheck = await client.method.permission.checkCommandPermission(interaction, command!);
+        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
+
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -102,7 +105,7 @@ export const command: Command = {
             interaction.memberPermissions?.has(permissionsArray)
             : interaction.member.permissions.has(permissionsArray);
 
-        if (!permissions) {
+        if (!permissions && permCheck.neededPerm === 0) {
             await client.method.interactionSend(interaction, { content: lang.support_not_admin });
             return;
         };
@@ -114,7 +117,7 @@ export const command: Command = {
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var action = client.method.string(args!, 0)
-            var roles = client.method.role(interaction, args!, 0);
+            var roles = client.method.role(interaction, args!, 0) as Role | null;
             var input = client.method.longString(args!, 2)
         };
 

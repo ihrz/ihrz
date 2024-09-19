@@ -32,7 +32,9 @@ import { LanguageData } from '../../../../types/languageData';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+        let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
+        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
         if (interaction.guild) {
             const permissionsArray = [PermissionsBitField.Flags.Administrator]
@@ -40,7 +42,7 @@ export default {
                 interaction.memberPermissions?.has(permissionsArray)
                 : interaction.member?.permissions.has(permissionsArray);
 
-            if (!permissions) {
+            if (!permissions && permCheck.neededPerm === 0) {
                 await client.method.interactionSend(interaction, { content: lang.poll_not_admin });
                 return;
             };

@@ -707,6 +707,17 @@ export interface LanguageData {
   guildconfig_config_save_check_dm: string;
   guildconfig_config_restor_msg: string;
   guildconfig_config_restore_msg: string;
+  perm_list_embed_title: string;
+  perm_list_unknown_user: string;
+  perm_list_no_user: string;
+  perm_add_args_error: string;
+  var_command: string;
+  var_subcommand: string;
+  var_subcommand_group: string;
+  var_unreachable_command: string;
+  perm_list_no_command_set: string;
+  perm_set_deleted: string;
+  perm_set_ok: string;
   setmembercount_not_admin: string;
   setmembercount_helpembed_title: string;
   setmembercount_helpembed_description: string;
