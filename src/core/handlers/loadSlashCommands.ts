@@ -121,17 +121,31 @@ export default async function loadCommands(client: Client, path: string = p): Pr
                 await processOptions(command.options, command.category, command.name, client);
             };
 
-            client.content.push(
-                {
-                    cmd: command.name,
-                    desc: command.description,
-                    category: command.category,
-                    messageCmd: 0,
-                    desc_localized: command.description_localizations
-                }
-            )
+            if (client.commands.has(command.name)) {
+                logger.err(`Command "${command.name}" already exists! Exiting...`.bgRed);
+                process.exit(1);
+            }
+
+            client.content.push({
+                cmd: command.name,
+                desc: command.description,
+                category: command.category,
+                messageCmd: 0,
+                desc_localized: command.description_localizations
+            });
 
             client.commands.set(command.name, command);
+
+            if (command.aliases) {
+                for (let alias of command.aliases) {
+                    if (client.commands.has(alias)) {
+                        logger.err(`Alias "${alias}" for command "${command.name}" already exists! Exiting...`.bgRed);
+                        process.exit(1);
+                    }
+                    client.commands.set(alias, command);
+                }
+            }
+
         } else if (module?.default?.categoryInitializer) {
             client.category.push(module.default.categoryInitializer);
         };

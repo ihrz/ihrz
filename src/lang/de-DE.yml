@@ -930,6 +930,23 @@ guildconfig_config_save_user_msg: "Dies ist das Backup der Konfigurationen von `
 guildconfig_config_restore_err_msg: "Es gab einen Fehler beim Herunterladen der Datei."
 guildconfig_config_restore_msg: "Die Daten wurden in meiner Datenbank gespeichert."
 
+# /perm add
+perm_add_args_error: "Sie haben die zu ändernden Befehle oder die zu setzende Berechtigung nicht angegeben."
+
+# /perm list
+perm_list_embed_title: "Berechtigungen aller Benutzer:"
+perm_list_unknown_user: "Unbekannter Benutzer (ID: ${userId})"
+perm_list_no_user: "Benutzer nicht gefunden"
+var_command: "Befehl"
+var_subcommand: "Unterbefehl"
+var_subcommand_group: "Unterbefehl-Gruppe"
+var_unreachable_command: "Befehl nicht gefunden"
+perm_list_no_command_set: "Es gibt keine Befehle mit spezifischen Berechtigungen in diesem Server!"
+
+# /perm set
+perm_set_deleted: "${user.toString()} hat seine Berechtigung **gelöscht**!"
+perm_set_ok: "${user.toString()} hat seine Berechtigung auf **`${perm}`** geändert"
+
 
 # Member Count commands
 # /setmembercount

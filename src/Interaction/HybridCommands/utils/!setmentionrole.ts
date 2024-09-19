@@ -30,7 +30,8 @@ import {
     Message,
     MessagePayload,
     InteractionEditReplyOptions,
-    MessageReplyOptions
+    MessageReplyOptions,
+    Role
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
@@ -39,7 +40,10 @@ import { LanguageData } from '../../../../types/languageData';
 
 import { SubCommandArgumentValue } from '../../../core/functions/method';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+        let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
+        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
+
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -50,7 +54,7 @@ export default {
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var type = client.method.string(args!, 0);
-            var argsid = client.method.role(interaction, args!, 0);
+            var argsid = client.method.role(interaction, args!, 0) as Role | null;
             var nickname = client.method.longString(args!, 2);
         };
 
@@ -59,7 +63,7 @@ export default {
             interaction.memberPermissions?.has(permissionsArray)
             : interaction.member.permissions.has(permissionsArray);
 
-        if (!permissions) {
+        if (!permissions && permCheck.neededPerm === 0) {
             await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
         }

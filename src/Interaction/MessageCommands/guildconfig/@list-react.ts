@@ -47,6 +47,9 @@ import { DatabaseStructure } from '../../../../types/database_structure.js'; exp
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {
+        let permCheck = await client.method.permission.checkCommandPermission(interaction, command!);
+        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
+
         let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
 
         if (!permission) {

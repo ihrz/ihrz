@@ -39,7 +39,7 @@ function niceBytes(a: Number) { let b = 0, c = parseInt((a.toString()), 10) || 0
 export const command: Command = {
     name: 'status',
 
-    aliases: ["server", "stats"],
+    aliases: ["server"],
 
     description: 'Get the bot status! (Only for the bot owner)',
     description_localizations: {
@@ -49,7 +49,11 @@ export const command: Command = {
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        
+        let permCheck = await client.method.permission.checkCommandPermission(interaction, command);
+        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
+
+        // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         // if (!client.owners.includes(interaction.member.user.id)) {

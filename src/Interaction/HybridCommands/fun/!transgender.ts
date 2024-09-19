@@ -28,12 +28,12 @@
 */
 
 import {
-  AttachmentBuilder,
-  ChatInputCommandInteraction,
-  Client,
-  EmbedBuilder,
-  Message,
-  User,
+    AttachmentBuilder,
+    ChatInputCommandInteraction,
+    Client,
+    EmbedBuilder,
+    Message,
+    User,
 } from 'discord.js'
 
 import { AxiosResponse, axios } from '../../../core/functions/axios.js';
@@ -41,32 +41,35 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 
 export default {
-  run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
-    if (interaction instanceof ChatInputCommandInteraction) {
-      var member1 = interaction.options.getUser('user') as User || interaction.user;
-    } else {
-      var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-      var member1 = await client.method.user(interaction, args!, 0) || interaction.author;
-    };
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+        let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
+        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
-    let link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(member1.displayAvatarURL({ extension: 'png', size: 1024 }))}`;
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var member1 = interaction.options.getUser('user') as User || interaction.user;
+        } else {
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
+            var member1 = await client.method.user(interaction, args!, 0) || interaction.author;
+        };
 
-    let embed = new EmbedBuilder()
-      .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#000000")
-      .setImage('attachment://all-human-have-rights-elektra.png')
-      .setTimestamp()
-      .setFooter(await client.method.bot.footerBuilder(interaction));
+        let link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(member1.displayAvatarURL({ extension: 'png', size: 1024 }))}`;
 
-    let imgs: AttachmentBuilder | undefined;
+        let embed = new EmbedBuilder()
+            .setColor('#000000')
+            .setImage('attachment://all-human-have-rights-elektra.png')
+            .setTimestamp()
+            .setFooter(await client.method.bot.footerBuilder(interaction));
 
-    let response: AxiosResponse = await axios.get(link, { responseType: 'arrayBuffer' })
-    imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'all-humans-have-right-elektra.png' });
-    embed.setImage(`attachment://all-humans-have-right-elektra.png`);
+        let imgs: AttachmentBuilder | undefined;
 
-    await client.method.interactionSend(interaction, {
-      embeds: [embed],
-      files: [imgs, await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
-    });
-    return;
-  },
+        let response: AxiosResponse = await axios.get(link, { responseType: 'arrayBuffer' })
+        imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'all-humans-have-right-elektra.png' });
+        embed.setImage(`attachment://all-humans-have-right-elektra.png`);
+
+        await client.method.interactionSend(interaction, {
+            embeds: [embed],
+            files: [imgs, await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+        });
+        return;
+    },
 };

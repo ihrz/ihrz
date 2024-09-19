@@ -36,7 +36,10 @@ import { LanguageData } from '../../../../types/languageData';
 
 import { SubCommandArgumentValue } from '../../../core/functions/method';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+        let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
+        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
+
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
@@ -45,7 +48,7 @@ export default {
             interaction.memberPermissions?.has(permissionsArray)
             : interaction.member.permissions.has(permissionsArray);
 
-        if (!permissions) {
+        if (!permissions && permCheck.neededPerm === 0) {
             await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
         }
@@ -53,8 +56,6 @@ export default {
         let channel = interaction.channel as BaseGuildTextChannel;
 
         try {
-            await channel.delete();
-
             let here = await channel.clone({
                 name: channel.name,
                 parent: channel.parent,
@@ -66,6 +67,8 @@ export default {
             });
 
             await here.setPosition(channel.rawPosition);
+            await channel.delete();
+
             here.send({ content: lang.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.member.user.toString()) });
             return;
         } catch (error) {

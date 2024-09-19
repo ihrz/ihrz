@@ -25,12 +25,12 @@ import { getClient } from "../core.js";
 import db from "./DatabaseModel.js";
 const client = getClient();
 
-export async function footerBuilder(message: ChatInputCommandInteraction | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild) {
+export async function footerBuilder(message: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild) {
     let name = await displayBotName(message instanceof Guild ? message.id : message.guild?.id!);
     return { text: name, iconURL: "attachment://footer_icon.png" }
 }
 
-export async function footerAttachmentBuilder(interaction: ChatInputCommandInteraction | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild | Client) {
+export async function footerAttachmentBuilder(interaction: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild | Client) {
 
     var res = await displayBotPP(
         interaction instanceof Client

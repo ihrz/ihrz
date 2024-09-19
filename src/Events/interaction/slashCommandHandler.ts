@@ -40,6 +40,12 @@ export const event: BotEvent = {
     name: "interactionCreate",
     run: async (client: Client, interaction: Interaction) => {
 
+        if (interaction.isAutocomplete()) {
+            let cmd = client.commands.get(interaction.commandName);
+            if (cmd?.autocomplete) await cmd?.autocomplete(client, interaction);
+            return;
+        };
+
         if (!interaction.isChatInputCommand()
             || interaction.user.bot) return;
 

@@ -65,7 +65,7 @@ export function channel(interaction: Message, args: string[], argsNumber: number
     [argsNumber] || interaction.guild?.channels.cache.get(args[argsNumber]) || null;
 }
 
-export function role(interaction: Message, args: string[], argsNumber: number): Role | APIRole | null {
+export function role(interaction: Message, args: string[], argsNumber: number): Role | null {
     return interaction.mentions.roles
         .map(x => x)
     [argsNumber] || interaction.guild?.roles.cache.get(args[argsNumber]) || null;
@@ -110,7 +110,7 @@ const getArgumentOptionTypeWithOptions = (o: Option): string => {
     return getArgumentOptionType(o.type);
 };
 
-export async function createAwesomeEmbed(lang: LanguageData, command: Command, client: Client, interaction: ChatInputCommandInteraction | Message): Promise<EmbedBuilder> {
+export async function createAwesomeEmbed(lang: LanguageData, command: Command, client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message): Promise<EmbedBuilder> {
     var commandName = command.name.charAt(0).toUpperCase() + command.name.slice(1);
     var botPrefix = await client.func.prefix.guildPrefix(client, interaction.guildId!);
     var cleanBotPrefix = botPrefix.string;
@@ -297,7 +297,7 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
     });
 }
 
-export async function interactionSend(interaction: ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions): Promise<Message> {
+export async function interactionSend(interaction: ChatInputCommandInteraction<"cached"> | ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions): Promise<Message> {
     const nonce = SnowflakeUtil.generate().toString();
 
     if (interaction instanceof ChatInputCommandInteraction) {
@@ -418,6 +418,22 @@ export function generateCustomMessagePreview(
         .replaceAll('{mediaURL}', input.notifier?.mediaURL || "https://twitch.tv/Ninja/media");
 
 }
+
+export const findOptionRecursively = (options: Option[], subcommandName: string): Option | undefined => {
+    for (const option of options) {
+        if (option.name === subcommandName) {
+            return option;
+        }
+
+        if (option.options && (option.type === ApplicationCommandOptionType.SubcommandGroup || option.type === ApplicationCommandOptionType.Subcommand)) {
+            const foundOption = findOptionRecursively(option.options, subcommandName);
+            if (foundOption) {
+                return foundOption;
+            }
+        }
+    }
+    return undefined;
+};
 
 export const permission = perm;
 export const bot = f;

@@ -28,7 +28,10 @@ import logger from '../../../core/logger.js';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+        let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
+        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
+
         if (interaction instanceof ChatInputCommandInteraction) {
             var user1 = interaction.options.getUser("user1") as User || interaction.user;
             var user2 = interaction.options.getUser("user2") as User || interaction.guild?.members.cache.random()?.user || client.user;
