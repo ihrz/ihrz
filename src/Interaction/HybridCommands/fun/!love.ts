@@ -33,12 +33,12 @@ export default {
         if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var user1 = interaction.options.getUser("user1") as User || interaction.user;
-            var user2 = interaction.options.getUser("user2") as User || interaction.guild?.members.cache.random()?.user || client.user;
+            var user1 = interaction.options.getUser("user1") || interaction.user;
+            var user2 = interaction.options.getUser("user2") || interaction.guild?.members.cache.random()?.user as User;
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var user1 = await client.method.user(interaction, args!, 0) || interaction.author;
-            var user2 = await client.method.user(interaction, args!, 1) as User || interaction.guild?.members.cache.random()?.user || client.user;
+            var user2 = await client.method.user(interaction, args!, 1) || interaction.guild?.members.cache.random()?.user as User;
         }
 
         let profileImageSize = 512;
