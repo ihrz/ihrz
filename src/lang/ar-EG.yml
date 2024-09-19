@@ -1768,6 +1768,9 @@ event_boostlog_sub: "<@${newMember.user.id}> **أزال تعزيزهم** من ا
 # وحدة الاقتصاد
 economy_disable_msg: "<@${interaction.user.id}>, وحدة `الاقتصاد` في هذا الخادم **معطلة**. لا يمكنك استخدام وحدة الاقتصاد بعد الآن!"
 
+# Permission Event
+event_permission_wrong: "${interaction.member?.user.toString()}, مش مسموحلك تستخدم الأمر ده! محتاج صلاحية: **`${neededPerm === 0 ? 'صلاحية ديسكورد' : neededPerm}`**"
+
 # وحدة الصوت المؤقت
 temporary_voice_title_embec: "## التعديلات على قناتك الصوتية المؤقتة"
 temporary_voice_unblocked_member: "الأعضاء غير المحظورين"

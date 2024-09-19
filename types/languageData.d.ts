@@ -1290,6 +1290,7 @@ export interface LanguageData {
   event_boostlog_add: string;
   event_boostlog_sub: string;
   economy_disable_msg: string;
+  event_permission_wrong: string;
   temporary_voice_title_embec: string;
   temporary_voice_unblocked_member: string;
   temporary_voice_blocked_mmeber: string;

@@ -1775,6 +1775,9 @@ event_boostlog_sub: "<@${newMember.user.id}> **ha appena rimosso il suo boost** 
 # Modulo Economia
 economy_disable_msg: "<@${interaction.user.id}>, il `Modulo Economia` in questo server è **disabilitato**. Non puoi più utilizzare il modulo economico!"
 
+# Permission Event
+event_permission_wrong: "${interaction.member?.user.toString()}, non sei autorizzato a usare questo comando! Permesso necessario: **`${neededPerm === 0 ? 'Permesso Discord' : neededPerm}`**"
+
 # Modulo TempVoice
 # Tutti i componenti, variabili globali...
 
